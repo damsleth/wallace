@@ -41,7 +41,7 @@ fixed, dapf gate + watchdog arm added for M4.
 | BusyBox userspace on mainline+3 patches, reproducible | Full-pmgr upstream policy (exact minimal workaround proven; NEXT_STEPS #2) |
 | Internal keyboard at the shell; trackpad registers + firmware loader | Paired trackpad blob/GPIO proxy; maxcpus>1, idle states (WFI state-loss on M4) |
 | Two-way Linux shell + m1n1 proxy over one DebugUSB cable; remote reboot | `console=ttydc0` printk (tty driver registers no console yet) |
-| Linux apple_wdt; fbcon early console | NVMe rootfs (needs pmgr → dart → ans2) |
+| Linux apple_wdt; fbcon early console | NVMe rootfs (PMGR + SARTv3 + ANS2 mapped; first probe gated) |
 | Kernel build env (podman, arm64-native) with patch pipeline | USB gadget console (parked: EP0 dies post-enumeration) |
 | SMP/cpufreq/MCC/PCIe m1n1 groundwork (Stage B) | cpufreq throttles, PCIe link-up test, USB3/TB PHY tunables |
 

@@ -1,0 +1,26 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * First-probe DT for the ADT-derived T6040 ANS2 storage path.
+ *
+ * Deliberately separate from the standard J614s DTB: this enables MMIO-writing
+ * SART, ASC and NVMe drivers and requires maintainer approval under the
+ * hardware safety rules.
+ */
+
+#include "t6040-j614s-dcuart.dts"
+
+/ {
+	model = "Apple MacBook Pro (M4 Pro) J614s [GATED ANS/NVMe probe]";
+};
+
+&ans_mbox {
+	status = "okay";
+};
+
+&ans_sart {
+	status = "okay";
+};
+
+&ans_nvme {
+	status = "okay";
+};

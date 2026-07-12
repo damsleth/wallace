@@ -190,6 +190,19 @@ an async SError that kills m1n1 — unlike dockchannel-mtp, which maps
 Note: the tty driver registers no printk console — `console=ttydc0` does
 nothing yet; the shell + dmesg cover post-userspace, fbcon covers early boot.
 
+### ANS/NVMe map (2026-07-13, session 5)
+
+Read-only live ADT inspection established the T6040 storage layout: ASC control
+`0x209600000`, mailbox `0x209608000` (IRQs 1530–1533 after normalizing Apple's
+pair order), SART v3 `0x20dc50000`, and NVMe/NVMMU `0x20dcc0000` (IRQ 2583).
+Storage uses SART plus the embedded NVMMU, not DART. Disabled nodes are committed
+in Linux `9cf4a92fa16f`; the standard DT therefore performs no new accesses.
+
+`scripts/t6040-build-nvme-candidate.sh` builds a separate, conspicuously named
+first-probe DTB. Do not boot it without maintainer approval: enabling it invokes
+normal but not-yet-exercised T6040 PMGR, SART, ASC, and NVMe writes. Exact map,
+candidate hash, and write classes: `done/2026-07-13-t6040-nvme-map.md`.
+
 ### Watchdog (2026-07-11)
 Linux `apple_wdt` takes over m1n1's WD1; BusyBox pings `/dev/watchdog0` every
 10 s. m1n1 arms WD1 for ~20 s on M4 before handoff (`src/kboot.c`,

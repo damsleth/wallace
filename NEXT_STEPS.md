@@ -40,10 +40,14 @@ Done this session: raw determinism, requested core-infra and PMGR1 isolations,
 live ADT regeneration, `no_ps` parent filtering, and safe always-on generation
 (no policy by default; explicit legacy flag only).
 
-## 3. Persist userspace comfort / start NVMe
-- Fuller initramfs (real busybox userland, mount tools), then begin DART + ANS2
-  enablement for a rootfs on internal NVMe. The proven minimal PMGR policy
-  is sufficient to unblock this work while its upstream shape is refined.
+## 3. Approve and run the first ANS/NVMe probe
+The live ADT storage map is captured and committed as disabled nodes (Linux
+`9cf4a92fa16f`): ANS ASC/mailbox, SART v3, NVMe/NVMMU, IRQs, and the two PMGR
+dependencies. This path uses SART, not DART. Build the deliberately separate
+candidate with `scripts/t6040-build-nvme-candidate.sh`; do **not** boot it until
+the maintainer approves the normal Apple NVMe driver writes summarized in
+`done/2026-07-13-t6040-nvme-map.md`. Then extend the initramfs with mount tools
+and enumerate the namespaces read-only before any filesystem work.
 
 ## 4. Upstream / share
 - Post the drafted writeups: `done/2026-07-10-t6040-smp-writeup.md`,
