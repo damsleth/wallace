@@ -217,6 +217,12 @@ built in, and contains no `MTPDBG` strings. The live initramfs BusyBox provides
 That is enough to inspect sysfs, `/proc/partitions`, and partition tables in an
 enumeration-only first probe, with no initramfs rebuild or mount required.
 
+The T8140 WIP compatible strings reused for this path were initially absent
+from the in-tree schemas. `patches/t8140-ans-bindings.patch` documents the ASC
+v4 mailbox, SART v3, and T8103-compatible ANS2 combinations. All three schemas
+and checkpatch pass; `CHECK_DTBS=y` then reports no storage-node warnings for
+the candidate. Other platform/AIC/watchdog/DockChannel warnings predate ANS.
+
 ### Watchdog (2026-07-11)
 Linux `apple_wdt` takes over m1n1's WD1; BusyBox pings `/dev/watchdog0` every
 10 s. m1n1 arms WD1 for ~20 s on M4 before handoff (`src/kboot.c`,

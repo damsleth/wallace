@@ -1,0 +1,50 @@
+From: Carl Joakim Damsleth <kim@damsleth.com>
+Subject: [PATCH] dt-bindings: apple: Add T8140 ANS storage compatibles
+
+T8140 uses an ASC v4 mailbox and SART v3 for its ANS2 storage controller.
+The controller follows the T8103 ANS2 programming model. Document the
+compatible combinations already used by the T8140 device tree.
+
+Signed-off-by: Carl Joakim Damsleth <kim@damsleth.com>
+---
+ Documentation/devicetree/bindings/iommu/apple,sart.yaml       | 1 +
+ Documentation/devicetree/bindings/mailbox/apple,mailbox.yaml  | 1 +
+ Documentation/devicetree/bindings/nvme/apple,nvme-ans.yaml    | 3 ++-
+ 3 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/mailbox/apple,mailbox.yaml b/Documentation/devicetree/bindings/mailbox/apple,mailbox.yaml
+--- a/Documentation/devicetree/bindings/mailbox/apple,mailbox.yaml
++++ b/Documentation/devicetree/bindings/mailbox/apple,mailbox.yaml
+@@ -35,6 +35,7 @@ properties:
+               - apple,t8112-asc-mailbox
+               - apple,t6000-asc-mailbox
+               - apple,t6020-asc-mailbox
++              - apple,t8140-asc-mailbox
+           - const: apple,asc-mailbox-v4
+ 
+       - description:
+diff --git a/Documentation/devicetree/bindings/iommu/apple,sart.yaml b/Documentation/devicetree/bindings/iommu/apple,sart.yaml
+--- a/Documentation/devicetree/bindings/iommu/apple,sart.yaml
++++ b/Documentation/devicetree/bindings/iommu/apple,sart.yaml
+@@ -37,6 +37,7 @@ properties:
+           - enum:
+               - apple,t6020-sart
+               - apple,t8112-sart
++              - apple,t8140-sart
+           - const: apple,t6000-sart
+       - enum:
+           - apple,t6000-sart
+diff --git a/Documentation/devicetree/bindings/nvme/apple,nvme-ans.yaml b/Documentation/devicetree/bindings/nvme/apple,nvme-ans.yaml
+--- a/Documentation/devicetree/bindings/nvme/apple,nvme-ans.yaml
++++ b/Documentation/devicetree/bindings/nvme/apple,nvme-ans.yaml
+@@ -17,7 +17,9 @@ properties:
+     oneOf:
+       - const: apple,t8015-nvme-ans2
+       - items:
+-          - const: apple,t6020-nvme-ans2
++          - enum:
++              - apple,t6020-nvme-ans2
++              - apple,t8140-nvme-ans2
+           - const: apple,t8103-nvme-ans2
+       - items:
+           - enum:

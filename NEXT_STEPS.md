@@ -56,7 +56,9 @@ separate `Image-nvme` plus DTB and the normal Apple NVMe driver writes
 summarized in `done/2026-07-13-t6040-nvme-map.md`. The existing BusyBox already
 provides `fdisk`, `hexdump`, `mdev`, `find`, `mount`, and `umount` (but not
 `blkid`), so no userspace rebuild is needed for the enumeration-only first
-probe. Do not mount a namespace during that probe.
+probe. `patches/t8140-ans-bindings.patch` covers the three provisional storage
+compatibles and passes their schemas. Do not mount a namespace during the
+probe.
 
 ## 4. Upstream / share
 - Post the drafted writeups: `done/2026-07-10-t6040-smp-writeup.md`,
