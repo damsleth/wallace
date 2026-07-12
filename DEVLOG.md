@@ -47,8 +47,9 @@ kisd uart channel 0 = dock side of AP `/arm-io/dockchannel-uart` (AP data block
 5. DebugUSB replaces m1n1's dwc3 gadget on the DFU port (no `/dev/cu.usbmodem*`
    while active). A plain cable in another target port coexists for fast
    chainload.
-6. `t6040-boot-dcuart.sh` runs linux.py with stdin not a tty → miniterm
-   traceback AFTER the handoff. Harmless; the kernel is already booting.
+6. `t6040-boot-dcuart.sh` passes linux.py `--no-tty`, then owns the raw reader
+   transition itself. Older m1n1 trees lack that option and end handoff with a
+   harmless miniterm/termios traceback after the kernel is already booting.
 
 Host prerequisites: root-owned `/usr/local/bin/macvdmtool` (patched fork at
 `~/Code/macvdmtool`: new cmds `actions`/`vdm`/`dven`/`localserial`) with a

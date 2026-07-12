@@ -64,11 +64,11 @@ if [ "$chainloaded" -ne 1 ]; then
     exit 1
 fi
 
-echo "== upload kernel + hand off (UartTimeout at handoff is expected) =="
+echo "== upload kernel + hand off =="
 BOOTLOG="$OUT/dcuart-boot.log"
 M1N1DEVICE=$M1 timeout 300 "$PY" proxyclient/tools/linux.py \
     "$OUT/$IMAGE" "$OUT/$DTB" "$OUT/$INITRAMFS" --compression none \
-    -b "$CMDLINE" 2>&1 | tee "$BOOTLOG" | tail -8 || true
+    --no-tty -b "$CMDLINE" 2>&1 | tee "$BOOTLOG" | tail -8 || true
 
 if ! grep -q "Ready to boot" "$BOOTLOG"; then
     echo "ERROR: linux.py failed before the kernel handoff"
