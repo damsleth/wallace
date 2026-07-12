@@ -40,8 +40,10 @@ needed.
 
 Next, in leverage order:
 1. Ask flokli for the J773s PMGR policy (draft only here; maintainer sends).
-2. Register a real DockChannel printk console if pre-console attribution is
-   still needed.
+2. If pre-userspace attribution becomes necessary, first add a bounded
+   polled/atomic TX primitive to the DockChannel mailbox. Do not register the
+   current `ttydc` kfifo/workqueue path as a printk console: it is not safe in
+   atomic or panic context and can recurse through its own error printk.
 
 Done this session: raw determinism, requested core-infra and PMGR1 isolations,
 live ADT regeneration, `no_ps` parent filtering, and safe always-on generation

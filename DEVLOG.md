@@ -201,7 +201,13 @@ an async SError that kills m1n1 — unlike dockchannel-mtp, which maps
 +0x0/+0x14000/+0x28000../+0x30000..
 
 Note: the tty driver registers no printk console — `console=ttydc0` does
-nothing yet; the shell + dmesg cover post-userspace, fbcon covers early boot.
+nothing; the shell + dmesg cover post-userspace, fbcon covers early boot. A
+code review confirmed that simply adding `register_console()` would be unsafe:
+TTY TX only enqueues into a kfifo and schedules `system_wq`, so it cannot emit
+synchronously in atomic/panic context, and its send-error path can printk while
+holding the same TX lock a console callback would need. A real console requires
+a separate bounded polled/atomic mailbox transmit primitive (preferably nbcon),
+not reuse of `apple_dctty_write()`.
 
 ### ANS/NVMe map (2026-07-13, session 5)
 
