@@ -4,7 +4,7 @@ End-goal: a bootable Linux distro on this MacBook Pro 16" M4 Pro with GPU accel,
 WiFi, Bluetooth, keyboard/trackpad, audio, webcam, power management — daily-driver
 comfort comparable to macOS.
 
-Written 2026-07-10, last updated **2026-07-12** (post DockChannel-console
+Written 2026-07-10, last updated **2026-07-13** (post PMGR/ANS preparation
 session). Companion docs: `NEXT_STEPS.md` (immediate work), `DEVLOG.md`
 (operational reference + solved blockers), `t6040-dt-checklist.md` (Stage C
 reference). All finished per-topic plans/write-ups archived in `done/`.
@@ -13,9 +13,10 @@ Unposted #asahi-dev drafts awaiting review: `done/2026-07-10-t6040-smp-writeup.m
 
 ## Where we are
 
-**Linux reaches userspace on bare metal (2026-07-11).** Mainline 7.2-rc2 + 3
-small patches boots to a BusyBox shell on the minimal DT (maxcpus=1, idle=nop),
-reproducibly. The internal keyboard works at that shell (dockchannel-HID,
+**Linux reaches userspace on bare metal (2026-07-11).** Mainline 7.2-rc2 plus
+the local bring-up patch series boots to a BusyBox shell on the full 214-domain
+PMGR DT (maxcpus=1, idle=nop), reproducibly. The internal keyboard works there
+(dockchannel-HID,
 2026-07-11); the Linux watchdog takes over m1n1's (shell persists); the
 framebuffer (simpledrm+fbcon) is the early console.
 
@@ -38,10 +39,10 @@ fixed, dapf gate + watchdog arm added for M4.
 
 | Works | Not yet |
 |---|---|
-| BusyBox userspace; full PMGR with T6041 quirk, reproducible | PMGR patch review/upstream submission (NEXT_STEPS #2) |
-| Internal keyboard at the shell; trackpad registers + firmware loader | Paired trackpad blob/GPIO proxy; maxcpus>1, idle states (WFI state-loss on M4) |
-| Two-way Linux shell + m1n1 proxy over one DebugUSB cable; remote reboot | `console=ttydc0` printk (tty driver registers no console yet) |
-| Linux apple_wdt; fbcon early console | NVMe rootfs (PMGR + SARTv3 + ANS2 mapped; first probe gated) |
+| BusyBox userspace; full PMGR with property-free T6041 quirk, reproducible | PMGR draft review/submission (split, checkpatch/schema-clean; NEXT_STEPS #2) |
+| Internal keyboard at the shell; trackpad registers + validated firmware-loader path | Target ESP's paired trackpad blob; PMU-backed reset remains forbidden; maxcpus>1/idle states |
+| Two-way Linux shell + m1n1 proxy over one DebugUSB cable; remote reboot | Printk over ttydc needs a separate polled/atomic TX path; current TTY queue is not console-safe |
+| Linux apple_wdt; fbcon early console | NVMe rootfs (candidate built/schema-checked; first hardware probe gated) |
 | Kernel build env (podman, arm64-native) with patch pipeline | USB gadget console (parked: EP0 dies post-enumeration) |
 | SMP/cpufreq/MCC/PCIe m1n1 groundwork (Stage B) | cpufreq throttles, PCIe link-up test, USB3/TB PHY tunables |
 

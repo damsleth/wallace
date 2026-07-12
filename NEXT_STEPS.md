@@ -1,6 +1,6 @@
 # t6040 Linux bring-up — NEXT STEPS
 
-Handoff state (2026-07-12): mainline Linux boots to a BusyBox shell on the
+Handoff state (2026-07-13): mainline Linux boots to a BusyBox shell on the
 M4 Pro with working internal keyboard, watchdog, and a **fully remote dev
 loop** — two-way m1n1 proxy AND Linux shell (`/dev/ttydc0`) over one DebugUSB
 cable; reboot via `macvdmtool`. No screen-reading or physical access needed.
