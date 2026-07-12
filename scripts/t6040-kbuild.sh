@@ -91,6 +91,19 @@ if grep -qR 'MTPDBG' drivers/soc/apple/mailbox.c drivers/soc/apple/rtkit.c; then
     fi
 fi
 
+echo "== apply T6041 PMGR bindings =="
+if grep -q 'apple,t6041-pmgr' \
+    Documentation/devicetree/bindings/arm/apple/apple,pmgr.yaml; then
+    echo "t6040-pmgr-t6041-bindings.patch already applied"
+elif git apply --check /out/t6040-pmgr-t6041-bindings.patch 2>/dev/null; then
+    git apply /out/t6040-pmgr-t6041-bindings.patch
+    echo "t6040-pmgr-t6041-bindings.patch applied OK"
+else
+    echo "ERROR: t6040-pmgr-t6041-bindings.patch does not apply cleanly:"
+    git apply --check /out/t6040-pmgr-t6041-bindings.patch || true
+    exit 1
+fi
+
 echo "== apply T6041 PMGR raw-boot quirks =="
 if grep -q 'T6041 raw boot firmware locks auto-PM' \
     drivers/pmdomain/apple/pmgr-pwrstate.c; then

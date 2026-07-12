@@ -247,12 +247,17 @@ reached the Linux banner and BusyBox, so the standard build no longer depends
 on an experiment-only variant DTB.
 
 **Upstream-shaped selection (2026-07-13):**
-`patches/t6040-pmgr-t6041-quirks.patch` keys preserve-active behavior and the
-two `dispext*_cpu` auto-enable exclusions from the already-present T6041
-compatible, and documents the compatible in both PMGR bindings. Linux commit
-`37339d595765` removes all six experiment-only booleans from the standard DT;
-`disp_cpu` remains disabled. Kernel build #14 reached BusyBox with zero
+The upstream draft is split in the required order: bindings in
+`patches/t6040-pmgr-t6041-bindings.patch`, then driver behavior in
+`patches/t6040-pmgr-t6041-quirks.patch`. The latter keys preserve-active
+behavior and the two `dispext*_cpu` auto-enable exclusions from the
+already-present T6041 compatible. Linux commit `37339d595765` removes all six
+experiment-only booleans from the standard DT; `disp_cpu` remains disabled.
+Both binding schemas validate. Kernel build #14 reached BusyBox with zero
 `apple,preserve-active`/`apple,skip-auto-enable` properties in its DTB.
+The split series also applies to a pristine case-sensitive clone, passes
+checkpatch with zero warnings, and compiles `pmgr-pwrstate.o` there; this caught
+and removed an accidental dependency on the older experimental patch.
 Artifacts: `Image` SHA-256
 `925303d09ae6190e8b0bc59824af6d621daefcbedc162f9787d495d3ed7c965a`,
 DTB `a99ad7c3f304198280814de1e4a31d83c268751af608afad7003aa982a69f65a`.

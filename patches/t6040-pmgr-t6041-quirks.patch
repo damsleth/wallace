@@ -1,52 +1,45 @@
 From: Carl Joakim Damsleth <kim@damsleth.com>
-Subject: [PATCH] pmdomain: apple: encode T6041 raw-boot PMGR quirks
+Subject: [PATCH 2/2] pmdomain: apple: Handle T6041 raw-boot state
 
-T6041 raw boot leaves core firmware resources active, and two external-display
-CPU domains reject the generic AUTO_ENABLE write. The exact minimum was
-isolated on a T6040 J614s with the full 214-domain hierarchy: preserve domains
-that firmware left active, skip auto-enable only for dispext0_cpu and
-dispext1_cpu, and leave the separately inaccessible disp_cpu disabled in DT.
+T6041 raw boot leaves core firmware resources active. It also has two
+external-display CPU domains which reject the generic AUTO_ENABLE write.
 
-Key that behavior from the existing T6041 compatible instead of temporary
-bring-up properties. Keep property handling for experiment reproduction and
-older trees.
+The exact minimum was isolated on a T6040 J614s with the full 214-domain
+hierarchy: preserve domains that firmware left active and skip auto-enable
+only for dispext0_cpu and dispext1_cpu. Keep the separately inaccessible
+disp_cpu domain disabled in the device tree.
 
-Also document the already-used T6041 PMGR compatibles in the bindings.
+Select that behavior from the T6041 compatible. Keep the bring-up property
+handling so older experimental device trees continue to work.
 
-diff --git a/Documentation/devicetree/bindings/arm/apple/apple,pmgr.yaml b/Documentation/devicetree/bindings/arm/apple/apple,pmgr.yaml
---- a/Documentation/devicetree/bindings/arm/apple/apple,pmgr.yaml
-+++ b/Documentation/devicetree/bindings/arm/apple/apple,pmgr.yaml
-@@ -48,6 +48,7 @@ properties:
-           - enum:
-               - apple,t6020-pmgr
-               - apple,t8122-pmgr
-+              - apple,t6041-pmgr
-           - const: apple,t8103-pmgr
-           - const: syscon
-           - const: simple-mfd
-diff --git a/Documentation/devicetree/bindings/power/apple,pmgr-pwrstate.yaml b/Documentation/devicetree/bindings/power/apple,pmgr-pwrstate.yaml
---- a/Documentation/devicetree/bindings/power/apple,pmgr-pwrstate.yaml
-+++ b/Documentation/devicetree/bindings/power/apple,pmgr-pwrstate.yaml
-@@ -47,6 +47,7 @@ properties:
-           - enum:
-               - apple,t6020-pmgr-pwrstate
-               - apple,t8122-pmgr-pwrstate
-+              - apple,t6041-pmgr-pwrstate
-           - const: apple,t8103-pmgr-pwrstate
- 
-   reg:
+Signed-off-by: Carl Joakim Damsleth <kim@damsleth.com>
+---
+ drivers/pmdomain/apple/pmgr-pwrstate.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
+
 diff --git a/drivers/pmdomain/apple/pmgr-pwrstate.c b/drivers/pmdomain/apple/pmgr-pwrstate.c
 --- a/drivers/pmdomain/apple/pmgr-pwrstate.c
 +++ b/drivers/pmdomain/apple/pmgr-pwrstate.c
-@@ -213,7 +213,6 @@ static int apple_pmgr_ps_probe(struct platform_device *pdev)
- 		return -ENOMEM;
+@@ -41,6 +41,7 @@ struct apple_pmgr_ps {
+ 	struct device *dev;
+ 	struct generic_pm_domain genpd;
+ 	struct reset_controller_dev rcdev;
++	bool skip_auto_enable;
+ 	struct regmap *regmap;
+ 	u32 offset;
+ 	u32 min_state;
+@@ -79,7 +80,9 @@ static int apple_pmgr_ps_set(struct generic_pm_domain *genpd, u32 pstate, bool a
+ 		dev_err(ps->dev, "PS %s: Failed to reach power state 0x%x (now: 0x%x)\n",
+ 			genpd->name, pstate, reg);
  
- 	ps->dev = dev;
--	ps->skip_auto_enable = of_property_read_bool(node, "apple,skip-auto-enable");
- 	ps->regmap = regmap;
- 
- 	ret = of_property_read_string(node, "label", &name);
-@@ -222,6 +221,13 @@ static int apple_pmgr_ps_probe(struct platform_device *pdev)
+-	if (auto_enable) {
++	if (auto_enable && ps->skip_auto_enable) {
++		dev_dbg(ps->dev, "PS %s: skipping unsupported auto-enable\n", genpd->name);
++	} else if (auto_enable) {
+ 		/* Not all devices implement this; this is a no-op where not implemented. */
+ 		reg &= ~APPLE_PMGR_FLAGS;
+ 		reg |= APPLE_PMGR_AUTO_ENABLE;
+@@ -218,6 +221,13 @@ static int apple_pmgr_ps_probe(struct platform_device *pdev)
  		return ret;
  	}
  
@@ -60,16 +53,26 @@ diff --git a/drivers/pmdomain/apple/pmgr-pwrstate.c b/drivers/pmdomain/apple/pmg
  	ret = of_property_read_u32(node, "reg", &ps->offset);
  	if (ret < 0) {
  		dev_err(dev, "missing reg property\n");
-@@ -239,7 +245,11 @@ static int apple_pmgr_ps_probe(struct platform_device *pdev)
+@@ -235,6 +245,13 @@ static int apple_pmgr_ps_probe(struct platform_device *pdev)
  				   FIELD_PREP(APPLE_PMGR_PS_MIN, ps->min_state));
  
  	active = apple_pmgr_ps_is_active(ps);
--	if (active && of_property_read_bool(node->parent, "apple,preserve-active"))
 +	/*
 +	 * T6041 raw boot has no earlier OS stage to quiesce firmware-owned domains.
 +	 */
 +	if (active && (of_property_read_bool(node->parent, "apple,preserve-active") ||
 +		       of_device_is_compatible(node, "apple,t6041-pmgr-pwrstate")))
- 		ps->genpd.flags |= GENPD_FLAG_ALWAYS_ON;
- 
++		ps->genpd.flags |= GENPD_FLAG_ALWAYS_ON;
++
  	if (of_property_read_bool(node, "apple,always-on")) {
+ 		ps->genpd.flags |= GENPD_FLAG_ALWAYS_ON;
+ 		if (!active) {
+@@ -245,7 +262,7 @@ static int apple_pmgr_ps_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	/* Turn on auto-PM if the domain is already on */
+-	if (active)
++	if (active && !ps->skip_auto_enable)
+ 		regmap_update_bits(regmap, ps->offset, APPLE_PMGR_FLAGS | APPLE_PMGR_AUTO_ENABLE,
+ 				   APPLE_PMGR_AUTO_ENABLE);
+ 

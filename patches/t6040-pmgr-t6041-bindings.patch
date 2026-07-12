@@ -1,0 +1,35 @@
+From: Carl Joakim Damsleth <kim@damsleth.com>
+Subject: [PATCH 1/2] dt-bindings: apple: pmgr: Add T6041 compatibles
+
+T6041 PMGR uses the T8103 register layout, but needs its own compatible for
+raw-boot power-state handling. Document the compatibles already used by the
+T6040 device trees.
+
+Signed-off-by: Carl Joakim Damsleth <kim@damsleth.com>
+---
+ .../devicetree/bindings/arm/apple/apple,pmgr.yaml           | 1 +
+ .../devicetree/bindings/power/apple,pmgr-pwrstate.yaml      | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/arm/apple/apple,pmgr.yaml b/Documentation/devicetree/bindings/arm/apple/apple,pmgr.yaml
+--- a/Documentation/devicetree/bindings/arm/apple/apple,pmgr.yaml
++++ b/Documentation/devicetree/bindings/arm/apple/apple,pmgr.yaml
+@@ -48,6 +48,7 @@ properties:
+           - enum:
+               - apple,t6020-pmgr
++              - apple,t6041-pmgr
+               - apple,t8122-pmgr
+           - const: apple,t8103-pmgr
+           - const: syscon
+           - const: simple-mfd
+diff --git a/Documentation/devicetree/bindings/power/apple,pmgr-pwrstate.yaml b/Documentation/devicetree/bindings/power/apple,pmgr-pwrstate.yaml
+--- a/Documentation/devicetree/bindings/power/apple,pmgr-pwrstate.yaml
++++ b/Documentation/devicetree/bindings/power/apple,pmgr-pwrstate.yaml
+@@ -47,6 +47,7 @@ properties:
+           - enum:
+               - apple,t6020-pmgr-pwrstate
++              - apple,t6041-pmgr-pwrstate
+               - apple,t8122-pmgr-pwrstate
+           - const: apple,t8103-pmgr-pwrstate
+ 
+   reg:

@@ -29,11 +29,13 @@ are individually necessary at bank granularity; the `sys`, `fe`, and five old
 ANE exclusions are unnecessary. Legacy raw fails 3/3. Full matrix and hashes:
 `done/2026-07-12-t6040-pmgr-matrix.md`.
 
-The supported shape is now implemented and live-tested in build #14:
+The supported shape is now implemented and live-tested in build #14. The
+two-patch draft starts with `patches/t6040-pmgr-t6041-bindings.patch`, then
 `patches/t6040-pmgr-t6041-quirks.patch` selects preserve-active and the two CPU
 auto-enable exceptions from `apple,t6041-pmgr-pwrstate`; Linux `37339d595765`
-removes the experiment-only properties from the standard DT. Review/clean the
-draft for upstream, but no further policy bisection is needed.
+removes the experiment-only properties from the standard DT. The series passes
+checkpatch and both binding schemas validate. No further policy bisection is
+needed.
 
 Next, in leverage order:
 1. Ask flokli for the J773s PMGR policy (draft only here; maintainer sends).
