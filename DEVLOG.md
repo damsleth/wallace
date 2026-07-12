@@ -50,6 +50,8 @@ kisd uart channel 0 = dock side of AP `/arm-io/dockchannel-uart` (AP data block
 6. `t6040-boot-dcuart.sh` passes linux.py `--no-tty`, then owns the raw reader
    transition itself. Older m1n1 trees lack that option and end handoff with a
    harmless miniterm/termios traceback after the kernel is already booting.
+   Live-verified with build #15: linux.py exits normally, the helper attaches
+   its reader immediately, and BusyBox arrives without traceback noise.
 
 Host prerequisites: root-owned `/usr/local/bin/macvdmtool` (patched fork at
 `~/Code/macvdmtool`: new cmds `actions`/`vdm`/`dven`/`localserial`) with a
