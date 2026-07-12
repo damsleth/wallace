@@ -210,6 +210,13 @@ first-probe DTB. Do not boot it without maintainer approval: enabling it invokes
 normal but not-yet-exercised T6040 PMGR, SART, ASC, and NVMe writes. Exact map,
 candidate hash, and write classes: `done/2026-07-13-t6040-nvme-map.md`.
 
+The candidate was rebuilt after the build #15 diagnostic cleanup. It leaves the
+known-good `Image` and standard DTB byte-identical, has the NVMe/SART drivers
+built in, and contains no `MTPDBG` strings. The live initramfs BusyBox provides
+`fdisk`, `hexdump`, `mdev`, `find`, `mount`, and `umount`; `blkid` is absent.
+That is enough to inspect sysfs, `/proc/partitions`, and partition tables in an
+enumeration-only first probe, with no initramfs rebuild or mount required.
+
 ### Watchdog (2026-07-11)
 Linux `apple_wdt` takes over m1n1's WD1; BusyBox pings `/dev/watchdog0` every
 10 s. m1n1 arms WD1 for ~20 s on M4 before handoff (`src/kboot.c`,

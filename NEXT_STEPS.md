@@ -48,11 +48,13 @@ live ADT regeneration, `no_ps` parent filtering, and safe always-on generation
 The live ADT storage map is captured and committed as disabled nodes (Linux
 `9cf4a92fa16f`): ANS ASC/mailbox, SART v3, NVMe/NVMMU, IRQs, and the two PMGR
 dependencies. This path uses SART, not DART. Build the deliberately separate
-candidate with `scripts/t6040-build-nvme-candidate.sh`; do **not** boot it until
-the maintainer approves the separate `Image-nvme` plus DTB and the normal Apple
-NVMe driver writes summarized in
-`done/2026-07-13-t6040-nvme-map.md`. Then extend the initramfs with mount tools
-and enumerate the namespaces read-only before any filesystem work.
+candidate with `scripts/t6040-build-nvme-candidate.sh`; the current candidate
+is built and verified, but do **not** boot it until the maintainer approves the
+separate `Image-nvme` plus DTB and the normal Apple NVMe driver writes
+summarized in `done/2026-07-13-t6040-nvme-map.md`. The existing BusyBox already
+provides `fdisk`, `hexdump`, `mdev`, `find`, `mount`, and `umount` (but not
+`blkid`), so no userspace rebuild is needed for the enumeration-only first
+probe. Do not mount a namespace during that probe.
 
 ## 4. Upstream / share
 - Post the drafted writeups: `done/2026-07-10-t6040-smp-writeup.md`,
