@@ -46,6 +46,12 @@ PTY=$(grep -o "pty /dev/ttys[0-9]*" "$LOG" | head -1 | cut -d' ' -f2)
 [ -n "$PTY" ] || { echo "kisd pty not found; check $LOG"; exit 1; }
 ln -sf "$PTY" /tmp/m1n1
 
+# kisd cannot put the PTY master into raw mode on macOS. Configure the slave
+# before any console reader is attached: m1n1's binary startup reply begins
+# ff 55 aa 04, and canonical mode consumes byte 04 as VEOF. A cat then appears
+# to drain the text console but leaves the proxy protocol unusable.
+stty -f /tmp/m1n1 raw -echo
+
 if [ "$1" = "reboot" ]; then
     sudo -n /usr/local/bin/macvdmtool reboot debugusb
 else

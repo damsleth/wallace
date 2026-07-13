@@ -34,11 +34,16 @@ kisd uart channel 0 = dock side of AP `/arm-io/dockchannel-uart` (AP data block
 0x50882c000 + 0x40004000 = 0x548830000; same offset on t8140).
 
 **Hard-won operational rules (skip these and the link "dies"):**
-1. **A reader must be attached to the kisd pty at (almost) all times.** With
+1. **Put every fresh kisd pty into raw mode, then attach a reader at (almost)
+   all times:** `stty -f /tmp/m1n1 raw -echo; cat /tmp/m1n1`. With
    nobody reading, ~15 KB of boot output fills the pty buffer, kisd blocks, and
    the KIS stream wedges into an apparently one-way link (writes ACK at the USB
    level, nothing ever returns). Recovery: `pkill kisd`, restart kisd, re-enter
    `sudo -n macvdmtool debugusb`, attach `cat` immediately.
+   On macOS, kisd cannot set raw mode on its PTY master. A canonical reader
+   drains the text log but interprets byte four of m1n1's binary startup reply
+   (`ff 55 aa 04`) as VEOF. The exact signature is a ~15,044-byte log ending
+   in only `ff 55 aa`, followed by proxy timeouts with zero reply bytes.
 2. **Never leave a `cat` running while a proxyclient tool uses the pty** — it
    steals reply bytes. Sequence: kill reader → run tool → reattach reader.
 3. First proxy attempt after a boot often hits `UartCMDError` (desync from

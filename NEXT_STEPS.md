@@ -74,8 +74,10 @@ live-verified. The last diagnostic reached BusyBox, but its log relay replayed
 historical PMGR output and the m1n1 proxy then remained unresponsive after the
 documented kisd/re-entry recovery. Stop live work until DebugUSB is healthy.
 
-After recovery, boot only the prepared trace set and relay new `trace:` lines,
-not the PMGR backlog:
+After recovery, first run `stty -f /tmp/m1n1 raw -echo` on the fresh kisd PTY;
+the repeated proxy failure was a canonical-mode `VEOF` interception, not a new
+target fault. Then boot only the prepared trace set and relay new `trace:`
+lines, not the PMGR backlog:
 
 - `Image-sart-trace`:
   `0c4880522c4793629f6e9a25ea164c911801e67754ae43cd3a6b5b274e20e8e6`;

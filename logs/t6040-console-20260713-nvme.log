@@ -54,6 +54,22 @@ replayed historical PMGR output, so the module result did not drain before the
 transport disconnected. The m1n1 proxy remained unresponsive after the
 documented kisd restart and explicit DebugUSB re-entry. Live work stopped.
 
+Repeated recovery transport signature
+-------------------------------------
+A later remote reboot reached a fresh Running proxy, but both permitted proxy
+attempts again received zero reply bytes. Both recovery logs are exactly 15044
+bytes and end with:
+
+  52 75 6e 6e 69 6e 67 20 70 72 6f 78 79 2e 2e 2e 0a ff 55 aa
+  Running proxy........U.
+
+m1n1's REQ_BOOT value is 0x04aa55ff, so its little-endian fourth byte is 0x04
+(VEOF). A fresh kisd PTY is canonical on macOS because kisd can only set its
+master raw on Linux. The apparent reader drained text but the line discipline
+intercepted the binary startup packet. The recovery helper now sets the slave
+raw before entering DebugUSB. No additional target attempt followed this
+finding.
+
 Prepared but unbooted as a set:
 Image-sart-trace
   0c4880522c4793629f6e9a25ea164c911801e67754ae43cd3a6b5b274e20e8e6
