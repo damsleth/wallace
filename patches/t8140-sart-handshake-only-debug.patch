@@ -1,0 +1,38 @@
+From: Carl Joakim Damsleth <kim@damsleth.com>
+Subject: [PATCH DEBUG] soc: apple: sart: isolate T8140 power handshake
+
+This is a bring-up-only diagnostic to separate the CoastGuard power-control
+handshake from accesses to the SART entry register file.  On a power-managed
+SART, activate and deactivate the block using the normal driver helpers, then
+finish probing without reading any entries.
+
+Do not submit this patch.  The build harness applies it only when
+SART_HANDSHAKE_ONLY=1.
+---
+ drivers/soc/apple/sart.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/soc/apple/sart.c b/drivers/soc/apple/sart.c
+index d06f302e1882..92d2978c927e 100644
+--- a/drivers/soc/apple/sart.c
++++ b/drivers/soc/apple/sart.c
+@@ -296,6 +296,17 @@ static int apple_sart_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
+ 
++	if (sart->ops->power_managed) {
++		/*
++		 * Bring-up diagnostic: exercise only the approved CoastGuard
++		 * activate/deactivate handshake, never the SART entry window.
++		 */
++		sart_power_put(sart);
++		platform_set_drvdata(pdev, sart);
++		dev_warn(dev, "handshake-only diagnostic; entry scan skipped\n");
++		return 0;
++	}
++
+ 	for (i = 0; i < APPLE_SART_MAX_ENTRIES; ++i) {
+ 		u8 flags;
+ 		size_t size;
+-- 
+2.50.1

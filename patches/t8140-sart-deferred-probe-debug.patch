@@ -1,0 +1,44 @@
+From: Carl Joakim Damsleth <kim@damsleth.com>
+Subject: [PATCH DEBUG] soc: apple: sart: defer all T8140 SART accesses
+
+This is a bring-up-only diagnostic.  Allow the power-managed SART platform
+device to bind without touching either its CoastGuard control register or its
+entry register file.  Also keep the shutdown callback from introducing the
+first access while this diagnostic is active.
+
+Do not submit this patch.  The build harness applies it only when
+SART_DEFERRED_PROBE=1.
+---
+ drivers/soc/apple/sart.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/drivers/soc/apple/sart.c b/drivers/soc/apple/sart.c
+index d06f302e1882..4d0e3d15d705 100644
+--- a/drivers/soc/apple/sart.c
++++ b/drivers/soc/apple/sart.c
+@@ -293,6 +293,13 @@ static int apple_sart_probe(struct platform_device *pdev)
+ 			return -ENOMEM;
+ 	}
+ 
++	if (sart->ops->power_managed) {
++		platform_set_drvdata(pdev, sart);
++		dev_warn(dev,
++			 "deferred-probe diagnostic; all SART MMIO skipped\n");
++		return 0;
++	}
++
+ 	ret = sart_power_get(sart);
+ 	if (ret)
+ 		return ret;
+@@ -455,6 +462,9 @@ static void apple_sart_shutdown(struct platform_device *pdev)
+ 	struct apple_sart *sart = dev_get_drvdata(&pdev->dev);
+ 	int i;
+ 
++	if (sart->ops->power_managed)
++		return;
++
+ 	if (sart_power_get(sart))
+ 		return;
+ 
+-- 
+2.50.1

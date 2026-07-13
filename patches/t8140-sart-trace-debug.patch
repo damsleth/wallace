@@ -1,0 +1,77 @@
+From: Carl Joakim Damsleth <kim@damsleth.com>
+Subject: [PATCH DEBUG] soc: apple: sart: trace CoastGuard transitions
+
+Bring-up-only checkpoints for streaming over /dev/kmsg while the first ANS
+client probe runs.  This patch does not add or change any MMIO access.
+
+Do not submit this patch.  The build harness applies it only when
+SART_TRACE=1.
+---
+ drivers/soc/apple/sart.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/drivers/soc/apple/sart.c b/drivers/soc/apple/sart.c
+index c2538099aed9..bc00e7735e18 100644
+--- a/drivers/soc/apple/sart.c
++++ b/drivers/soc/apple/sart.c
+@@ -220,6 +220,8 @@ static int sart_power_get(struct apple_sart *sart)
+ 
+ 	mutex_lock(&sart->power_lock);
+ 	if (!sart->power_users) {
++		dev_warn(sart->dev, "trace: CoastGuard activate begin\n");
++		msleep(100);
+ 		ret = read_poll_timeout_atomic(sart_set_power_state, state,
+ 					       state == APPLE_SART_POWER_ACTIVE,
+ 					       0, APPLE_SART_POWER_TIMEOUT_US,
+@@ -228,6 +230,8 @@ static int sart_power_get(struct apple_sart *sart)
+ 		if (ret)
+ 			dev_err(sart->dev, "failed to activate SART: %#x\n",
+ 				state);
++		else
++			dev_warn(sart->dev, "trace: CoastGuard activate complete\n");
+ 	}
+ 	if (!ret)
+ 		sart->power_users++;
+@@ -251,12 +255,15 @@ static void sart_power_put(struct apple_sart *sart)
+ 	if (--sart->power_users)
+ 		goto out;
+ 
++	dev_warn(sart->dev, "trace: CoastGuard deactivate begin\n");
+ 	ret = read_poll_timeout_atomic(sart_set_power_state, state,
+ 				       state == APPLE_SART_POWER_INACTIVE,
+ 				       0, APPLE_SART_POWER_TIMEOUT_US, false,
+ 				       sart, APPLE_SART_POWER_INACTIVE);
+ 	if (ret)
+ 		dev_err(sart->dev, "failed to deactivate SART: %#x\n", state);
++	else
++		dev_warn(sart->dev, "trace: CoastGuard deactivate complete\n");
+ 
+ out:
+ 	mutex_unlock(&sart->power_lock);
+@@ -269,6 +276,7 @@ static void sart_scan_entries(struct apple_sart *sart)
+ 	mutex_lock(&sart->entries_lock);
+ 	if (sart->entries_scanned)
+ 		goto out;
++	dev_warn(sart->dev, "trace: SART entry scan begin\n");
+ 
+ 	for (i = 0; i < APPLE_SART_MAX_ENTRIES; ++i) {
+ 		u8 flags;
+@@ -286,6 +294,7 @@ static void sart_scan_entries(struct apple_sart *sart)
+ 		set_bit(i, &sart->protected_entries);
+ 	}
+ 	sart->entries_scanned = true;
++	dev_warn(sart->dev, "trace: SART entry scan complete\n");
+ 
+ out:
+ 	mutex_unlock(&sart->entries_lock);
+@@ -384,6 +393,8 @@ int apple_sart_add_allowed_region(struct apple_sart *sart, phys_addr_t paddr,
+ {
+ 	int i, ret;
+ 
++	dev_warn(sart->dev, "trace: add allowed region begin\n");
++	msleep(100);
+ 	ret = sart_power_get(sart);
+ 	if (ret)
+ 		return ret;
+-- 
+2.50.1

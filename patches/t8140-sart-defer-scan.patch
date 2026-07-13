@@ -1,0 +1,137 @@
+From: Carl Joakim Damsleth <kim@damsleth.com>
+Subject: [PATCH] soc: apple: sart: defer CoastGuard access until first use
+
+The T8140 CoastGuard control register is not accessible when the
+standalone SART platform device probes.  It becomes accessible once the
+ANS consumer has its complete power context active.  Defer the
+protected-entry scan until the first allow-list operation, after that
+operation has acquired an active SART reference.
+
+Serialize the one-time scan so concurrent clients cannot allocate an entry
+before the firmware-owned entries are protected.  During shutdown, avoid
+reactivating a power-managed SART when it has no live Linux regions.
+
+Signed-off-by: Carl Joakim Damsleth <kim@damsleth.com>
+---
+ drivers/soc/apple/sart.c | 61 +++++++++++++++++++++++++++-------------
+ 1 file changed, 42 insertions(+), 19 deletions(-)
+
+diff --git a/drivers/soc/apple/sart.c b/drivers/soc/apple/sart.c
+index d06f302e1882..c2538099aed9 100644
+--- a/drivers/soc/apple/sart.c
++++ b/drivers/soc/apple/sart.c
+@@ -91,6 +91,8 @@ struct apple_sart {
+ 	const struct apple_sart_ops *ops;
+ 	struct mutex power_lock;
+ 	unsigned int power_users;
++	struct mutex entries_lock; /* protects one-time protected-entry scan */
++	bool entries_scanned;
+ 
+ 	unsigned long protected_entries;
+ 	unsigned long used_entries;
+@@ -260,10 +262,38 @@ static void sart_power_put(struct apple_sart *sart)
+ 	mutex_unlock(&sart->power_lock);
+ }
+ 
++static void sart_scan_entries(struct apple_sart *sart)
++{
++	int i;
++
++	mutex_lock(&sart->entries_lock);
++	if (sart->entries_scanned)
++		goto out;
++
++	for (i = 0; i < APPLE_SART_MAX_ENTRIES; ++i) {
++		u8 flags;
++		size_t size;
++		phys_addr_t paddr;
++
++		sart->ops->get_entry(sart, i, &flags, &paddr, &size);
++
++		if (!flags)
++			continue;
++
++		dev_dbg(sart->dev,
++			"SART bootloader entry: index %02d; flags: 0x%02x; paddr: %pa; size: 0x%zx\n",
++			i, flags, &paddr, size);
++		set_bit(i, &sart->protected_entries);
++	}
++	sart->entries_scanned = true;
++
++out:
++	mutex_unlock(&sart->entries_lock);
++}
++
+ static int apple_sart_probe(struct platform_device *pdev)
+ {
+ 	struct resource *res;
+-	int i, ret;
+ 	struct apple_sart *sart;
+ 	struct device *dev = &pdev->dev;
+ 
+@@ -274,6 +304,7 @@ static int apple_sart_probe(struct platform_device *pdev)
+ 	sart->dev = dev;
+ 	sart->ops = of_device_get_match_data(dev);
+ 	mutex_init(&sart->power_lock);
++	mutex_init(&sart->entries_lock);
+ 
+ 	sart->regs = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(sart->regs))
+@@ -292,26 +323,8 @@ static int apple_sart_probe(struct platform_device *pdev)
+ 			return -ENOMEM;
+ 	}
+ 
+-	ret = sart_power_get(sart);
+-	if (ret)
+-		return ret;
+-
+-	for (i = 0; i < APPLE_SART_MAX_ENTRIES; ++i) {
+-		u8 flags;
+-		size_t size;
+-		phys_addr_t paddr;
+-
+-		sart->ops->get_entry(sart, i, &flags, &paddr, &size);
+-
+-		if (!flags)
+-			continue;
+-
+-		dev_dbg(sart->dev,
+-			"SART bootloader entry: index %02d; flags: 0x%02x; paddr: %pa; size: 0x%zx\n",
+-			i, flags, &paddr, size);
+-		set_bit(i, &sart->protected_entries);
+-	}
+-	sart_power_put(sart);
++	if (!sart->ops->power_managed)
++		sart_scan_entries(sart);
+ 
+ 	platform_set_drvdata(pdev, sart);
+ 	return 0;
+@@ -374,6 +387,7 @@ int apple_sart_add_allowed_region(struct apple_sart *sart, phys_addr_t paddr,
+ 	ret = sart_power_get(sart);
+ 	if (ret)
+ 		return ret;
++	sart_scan_entries(sart);
+ 
+ 	for (i = 0; i < APPLE_SART_MAX_ENTRIES; ++i) {
+ 		if (test_bit(i, &sart->protected_entries))
+@@ -418,6 +432,7 @@ int apple_sart_remove_allowed_region(struct apple_sart *sart, phys_addr_t paddr,
+ 	ret = sart_power_get(sart);
+ 	if (ret)
+ 		return ret;
++	sart_scan_entries(sart);
+ 
+ 	for (i = 0; i < APPLE_SART_MAX_ENTRIES; ++i) {
+ 		u8 eflags;
+@@ -455,6 +470,10 @@ static void apple_sart_shutdown(struct platform_device *pdev)
+ 	struct apple_sart *sart = dev_get_drvdata(&pdev->dev);
+ 	int i;
+ 
++	/* A power-managed SART with no live regions is already clean. */
++	if (sart->ops->power_managed && !READ_ONCE(sart->used_entries))
++		return;
++
+ 	if (sart_power_get(sart))
+ 		return;
+ 
+-- 
+2.50.1

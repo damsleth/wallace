@@ -40,7 +40,7 @@ if [ "$DEST" != "$OUT/$DT_TARGET" ]; then
     cp "$OUT/$DT_TARGET" "$DEST"
 fi
 
-echo "NVMe $PROBE_MODE candidate (NOT APPROVED FOR BOOT) -> $DEST"
+echo "NVMe $PROBE_MODE candidate (GATED; never replaces default artifacts) -> $DEST"
 if [ "$PROBE_MODE" = staged ]; then
     EXTRA_FILES="$OUT/nvme-core.ko:lib/modules/nvme-core.ko $OUT/nvme-apple.ko:lib/modules/nvme-apple.ko" \
         DEST="$OUT/initramfs-dcuart-nvme-staged.cpio.gz" \

@@ -1,0 +1,159 @@
+From: Carl Joakim Damsleth <kim@damsleth.com>
+Subject: [PATCH DEBUG] nvme: apple: trace first-probe phases
+
+Bring-up-only checkpoints for the T6040 first probe.  Delay 100 ms after each
+message so the single CPU can schedule the /proc/kmsg-to-DockChannel relay
+before the next potentially fatal hardware access.
+
+Do not submit this patch.  It does not add or change any MMIO operation, and
+the build harness applies it only when SART_TRACE=1.
+---
+ drivers/nvme/host/apple.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
+diff --git a/drivers/nvme/host/apple.c b/drivers/nvme/host/apple.c
+index be3b91b43ea5..51b32e4e4874 100644
+--- a/drivers/nvme/host/apple.c
++++ b/drivers/nvme/host/apple.c
+@@ -13,6 +13,7 @@
+ #include <linux/blkdev.h>
+ #include <linux/blk-mq.h>
+ #include <linux/device.h>
++#include <linux/delay.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/dmapool.h>
+ #include <linux/interrupt.h>
+@@ -208,6 +209,12 @@ struct apple_nvme {
+ static_assert(sizeof(struct nvme_command) == 64);
+ static_assert(sizeof(struct apple_nvmmu_tcb) == 128);
+ 
++static void apple_nvme_trace(struct device *dev, const char *phase)
++{
++	dev_warn(dev, "trace: %s\n", phase);
++	msleep(100);
++}
++
+ static inline struct apple_nvme *ctrl_to_apple_nvme(struct nvme_ctrl *ctrl)
+ {
+ 	return container_of(ctrl, struct apple_nvme, ctrl);
+@@ -1029,6 +1036,8 @@ static void apple_nvme_reset_work(struct work_struct *work)
+ 		container_of(work, struct apple_nvme, ctrl.reset_work);
+ 	enum nvme_ctrl_state state = nvme_ctrl_state(&anv->ctrl);
+ 
++	apple_nvme_trace(anv->dev, "reset work entered");
++
+ 	if (state != NVME_CTRL_RESETTING) {
+ 		dev_warn(anv->dev, "ctrl state %d is not RESETTING\n", state);
+ 		ret = -ENODEV;
+@@ -1060,9 +1069,11 @@ static void apple_nvme_reset_work(struct work_struct *work)
+ 	 * Only do the soft-reset if the CPU is not running, which means either we
+ 	 * or the previous stage shut it down cleanly.
+ 	 */
++	apple_nvme_trace(anv->dev, "before ANS CPU control read");
+ 	if (!(readl(anv->mmio_coproc + APPLE_ANS_COPROC_CPU_CONTROL) &
+ 		APPLE_ANS_COPROC_CPU_CONTROL_RUN)) {
+ 
++		apple_nvme_trace(anv->dev, "before ANS reset assert");
+ 		ret = reset_control_assert(anv->reset);
+ 		if (ret)
+ 			goto out;
+@@ -1075,6 +1086,7 @@ static void apple_nvme_reset_work(struct work_struct *work)
+ 		if (ret)
+ 			goto out;
+ 
++		apple_nvme_trace(anv->dev, "before ANS CPU RUN write");
+ 		writel(APPLE_ANS_COPROC_CPU_CONTROL_RUN,
+ 		       anv->mmio_coproc + APPLE_ANS_COPROC_CPU_CONTROL);
+ 
+@@ -1087,7 +1099,9 @@ static void apple_nvme_reset_work(struct work_struct *work)
+ 		dev_err(anv->dev, "ANS did not boot");
+ 		goto out;
+ 	}
++	apple_nvme_trace(anv->dev, "ANS RTKit boot returned");
+ 
++	apple_nvme_trace(anv->dev, "before ANS boot status read");
+ 	ret = readl_poll_timeout(anv->mmio_nvme + APPLE_ANS_BOOT_STATUS,
+ 				 boot_status,
+ 				 boot_status == APPLE_ANS_BOOT_STATUS_OK,
+@@ -1096,6 +1110,7 @@ static void apple_nvme_reset_work(struct work_struct *work)
+ 		dev_err(anv->dev, "ANS did not initialize");
+ 		goto out;
+ 	}
++	apple_nvme_trace(anv->dev, "ANS boot status ready");
+ 
+ 	dev_dbg(anv->dev, "ANS booted successfully.");
+ 
+@@ -1457,6 +1472,7 @@ static struct apple_nvme *apple_nvme_alloc(struct platform_device *pdev)
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	anv->dev = get_device(dev);
++	apple_nvme_trace(dev, "allocation entered");
+ 	anv->adminq.is_adminq = true;
+ 	platform_set_drvdata(pdev, anv);
+ 
+@@ -1471,6 +1487,7 @@ static struct apple_nvme *apple_nvme_alloc(struct platform_device *pdev)
+ 		dev_err_probe(dev, ret, "Failed to attach power domains");
+ 		goto put_dev;
+ 	}
++	apple_nvme_trace(dev, "power domains attached");
+ 	if (dma_set_mask_and_coherent(dev, DMA_BIT_MASK(64))) {
+ 		ret = -ENXIO;
+ 		goto put_dev;
+@@ -1496,6 +1513,7 @@ static struct apple_nvme *apple_nvme_alloc(struct platform_device *pdev)
+ 		ret = PTR_ERR(anv->mmio_nvme);
+ 		goto put_dev;
+ 	}
++	apple_nvme_trace(dev, "MMIO resources mapped");
+ 
+ 	if (anv->hw->has_lsq_nvmmu) {
+ 		anv->adminq.sq_db = anv->mmio_nvme + APPLE_ANS_LINEAR_ASQ_DB;
+@@ -1515,6 +1533,7 @@ static struct apple_nvme *apple_nvme_alloc(struct platform_device *pdev)
+ 				    "Failed to initialize SART");
+ 		goto put_dev;
+ 	}
++	apple_nvme_trace(dev, "SART supplier acquired");
+ 
+ 	anv->reset = devm_reset_control_array_get_exclusive(anv->dev);
+ 	if (IS_ERR(anv->reset)) {
+@@ -1533,6 +1552,7 @@ static struct apple_nvme *apple_nvme_alloc(struct platform_device *pdev)
+ 	ret = apple_nvme_queue_alloc(anv, &anv->ioq);
+ 	if (ret)
+ 		goto put_dev;
++	apple_nvme_trace(dev, "queues allocated");
+ 
+ 	anv->prp_page_pool = dmam_pool_create("prp list page", anv->dev,
+ 					      NVME_CTRL_PAGE_SIZE,
+@@ -1579,6 +1599,7 @@ static struct apple_nvme *apple_nvme_alloc(struct platform_device *pdev)
+ 				    "Failed to initialize RTKit");
+ 		goto put_dev;
+ 	}
++	apple_nvme_trace(dev, "RTKit client initialized");
+ 
+ 	ret = nvme_init_ctrl(&anv->ctrl, anv->dev, &nvme_ctrl_ops,
+ 			     NVME_QUIRK_SKIP_CID_GEN | NVME_QUIRK_IDENTIFY_CNS);
+@@ -1586,6 +1607,7 @@ static struct apple_nvme *apple_nvme_alloc(struct platform_device *pdev)
+ 		dev_err_probe(dev, ret, "Failed to initialize nvme_ctrl");
+ 		goto put_dev;
+ 	}
++	apple_nvme_trace(dev, "NVMe controller object initialized");
+ 
+ 	return anv;
+ put_dev:
+@@ -1599,6 +1621,7 @@ static int apple_nvme_probe(struct platform_device *pdev)
+ 	struct apple_nvme *anv;
+ 	int ret;
+ 
++	apple_nvme_trace(&pdev->dev, "platform probe entered");
+ 	anv = apple_nvme_alloc(pdev);
+ 	if (IS_ERR(anv))
+ 		return PTR_ERR(anv);
+@@ -1615,6 +1638,7 @@ static int apple_nvme_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	nvme_reset_ctrl(&anv->ctrl);
++	apple_nvme_trace(&pdev->dev, "reset work queued");
+ 	async_schedule(apple_nvme_async_probe, anv);
+ 
+ 	return 0;
+-- 
+2.50.1

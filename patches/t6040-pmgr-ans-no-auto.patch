@@ -1,0 +1,30 @@
+From: Carl Joakim Damsleth <kim@damsleth.com>
+Subject: [PATCH] pmdomain: apple: keep T6041 ANS out of auto-PM
+
+The T6041 raw-boot state leaves the ANS PMGR domain fully active with
+AUTO_ENABLE clear.  Enabling auto-PM while registering the domain allows it
+to gate before the Apple NVMe driver performs its first ASC control read; on
+J614s that read then raises an asynchronous SError.
+
+Keep ANS fully active like the two existing T6041 display-CPU exceptions.
+This is intentionally selected by the SoC compatible and does not affect
+earlier Apple SoCs.
+
+Signed-off-by: Carl Joakim Damsleth <kim@damsleth.com>
+---
+ drivers/pmdomain/apple/pmgr-pwrstate.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/pmdomain/apple/pmgr-pwrstate.c b/drivers/pmdomain/apple/pmgr-pwrstate.c
+--- a/drivers/pmdomain/apple/pmgr-pwrstate.c
++++ b/drivers/pmdomain/apple/pmgr-pwrstate.c
+@@ -225,7 +225,8 @@ static int apple_pmgr_ps_probe(struct platform_device *pdev)
+ 	ps->skip_auto_enable =
+ 		of_property_read_bool(node, "apple,skip-auto-enable") ||
+ 		(of_device_is_compatible(node, "apple,t6041-pmgr-pwrstate") &&
+-		 (!strcmp(name, "dispext0_cpu") ||
++		 (!strcmp(name, "ans") ||
++		  !strcmp(name, "dispext0_cpu") ||
+ 		  !strcmp(name, "dispext1_cpu")));
+ 
+ 	ret = of_property_read_u32(node, "reg", &ps->offset);

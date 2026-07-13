@@ -129,6 +129,115 @@ else
     exit 1
 fi
 
+# The historical probe-isolation images predate the deferred-scan fix and are
+# intentionally built from the original power-management patch.
+if { [ "${SART_HANDSHAKE_ONLY:-0}" = "1" ] ||
+     [ "${SART_DEFERRED_PROBE:-0}" = "1" ]; } &&
+   grep -q 'entries_scanned' drivers/soc/apple/sart.c; then
+    echo "== remove T8140 deferred-scan fix for probe diagnostic =="
+    git apply -R /out/t8140-sart-defer-scan.patch
+fi
+
+# Bring-up-only isolation: perform the exact CoastGuard activate/deactivate
+# handshake during probe, but do not touch the SART entry register file.  Keep
+# this reversible because the container build tree is intentionally reused.
+if [ "${SART_HANDSHAKE_ONLY:-0}" = "1" ]; then
+    [ "${NVME:-0}" = "1" ] || {
+        echo "ERROR: SART_HANDSHAKE_ONLY=1 requires NVME=1"
+        exit 1
+    }
+    echo "== apply T8140 SART handshake-only diagnostic =="
+    if grep -q 'handshake-only diagnostic' drivers/soc/apple/sart.c; then
+        echo "t8140-sart-handshake-only-debug.patch already applied"
+    elif git apply --check /out/t8140-sart-handshake-only-debug.patch 2>/dev/null; then
+        git apply /out/t8140-sart-handshake-only-debug.patch
+        echo "t8140-sart-handshake-only-debug.patch applied OK"
+    else
+        echo "ERROR: t8140-sart-handshake-only-debug.patch does not apply cleanly:"
+        git apply --check /out/t8140-sart-handshake-only-debug.patch || true
+        exit 1
+    fi
+elif grep -q 'handshake-only diagnostic' drivers/soc/apple/sart.c; then
+    echo "== remove T8140 SART handshake-only diagnostic =="
+    git apply -R /out/t8140-sart-handshake-only-debug.patch
+fi
+
+if [ "${SART_DEFERRED_PROBE:-0}" = "1" ]; then
+    [ "${NVME:-0}" = "1" ] || {
+        echo "ERROR: SART_DEFERRED_PROBE=1 requires NVME=1"
+        exit 1
+    }
+    [ "${SART_HANDSHAKE_ONLY:-0}" != "1" ] || {
+        echo "ERROR: SART diagnostic modes are mutually exclusive"
+        exit 1
+    }
+    echo "== apply T8140 SART zero-MMIO probe diagnostic =="
+    if grep -q 'deferred-probe diagnostic' drivers/soc/apple/sart.c; then
+        echo "t8140-sart-deferred-probe-debug.patch already applied"
+    elif git apply --check /out/t8140-sart-deferred-probe-debug.patch 2>/dev/null; then
+        git apply /out/t8140-sart-deferred-probe-debug.patch
+        echo "t8140-sart-deferred-probe-debug.patch applied OK"
+    else
+        echo "ERROR: t8140-sart-deferred-probe-debug.patch does not apply cleanly:"
+        git apply --check /out/t8140-sart-deferred-probe-debug.patch || true
+        exit 1
+    fi
+elif grep -q 'deferred-probe diagnostic' drivers/soc/apple/sart.c; then
+    echo "== remove T8140 SART zero-MMIO probe diagnostic =="
+    git apply -R /out/t8140-sart-deferred-probe-debug.patch
+fi
+
+if [ "${SART_HANDSHAKE_ONLY:-0}" != "1" ] &&
+   [ "${SART_DEFERRED_PROBE:-0}" != "1" ]; then
+    echo "== defer T8140 CoastGuard access until its first client operation =="
+    if grep -q 'entries_scanned' drivers/soc/apple/sart.c; then
+        echo "t8140-sart-defer-scan.patch already applied"
+    elif git apply --check /out/t8140-sart-defer-scan.patch 2>/dev/null; then
+        git apply /out/t8140-sart-defer-scan.patch
+        echo "t8140-sart-defer-scan.patch applied OK"
+    else
+        echo "ERROR: t8140-sart-defer-scan.patch does not apply cleanly:"
+        git apply --check /out/t8140-sart-defer-scan.patch || true
+        exit 1
+    fi
+fi
+
+if [ "${SART_TRACE:-0}" = "1" ]; then
+    echo "== apply T8140 SART transition trace diagnostic =="
+    if grep -q 'trace: CoastGuard activate begin' drivers/soc/apple/sart.c; then
+        echo "t8140-sart-trace-debug.patch already applied"
+    elif git apply --check /out/t8140-sart-trace-debug.patch 2>/dev/null; then
+        git apply /out/t8140-sart-trace-debug.patch
+        echo "t8140-sart-trace-debug.patch applied OK"
+    else
+        echo "ERROR: t8140-sart-trace-debug.patch does not apply cleanly:"
+        git apply --check /out/t8140-sart-trace-debug.patch || true
+        exit 1
+    fi
+    echo "== apply Apple NVMe first-probe phase trace diagnostic =="
+    if grep -Fq 'apple_nvme_trace(&pdev->dev, "platform probe entered")' \
+        drivers/nvme/host/apple.c; then
+        echo "t6040-nvme-trace-debug.patch already applied"
+    elif git apply --check /out/t6040-nvme-trace-debug.patch 2>/dev/null; then
+        git apply /out/t6040-nvme-trace-debug.patch
+        echo "t6040-nvme-trace-debug.patch applied OK"
+    else
+        echo "ERROR: t6040-nvme-trace-debug.patch does not apply cleanly:"
+        git apply --check /out/t6040-nvme-trace-debug.patch || true
+        exit 1
+    fi
+else
+    if grep -q 'trace: CoastGuard activate begin' drivers/soc/apple/sart.c; then
+        echo "== remove T8140 SART transition trace diagnostic =="
+        git apply -R /out/t8140-sart-trace-debug.patch
+    fi
+    if grep -Fq 'apple_nvme_trace(&pdev->dev, "platform probe entered")' \
+        drivers/nvme/host/apple.c; then
+        echo "== remove Apple NVMe first-probe phase trace diagnostic =="
+        git apply -R /out/t6040-nvme-trace-debug.patch
+    fi
+fi
+
 echo "== apply T6041 PMGR bindings =="
 if grep -q 'apple,t6041-pmgr' \
     Documentation/devicetree/bindings/arm/apple/apple,pmgr.yaml; then
@@ -153,6 +262,23 @@ else
     echo "ERROR: t6040-pmgr-t6041-quirks.patch does not apply cleanly:"
     git apply --check /out/t6040-pmgr-t6041-quirks.patch || true
     exit 1
+fi
+
+if [ "${NVME:-0}" = "1" ]; then
+    echo "== keep T6041 ANS fully active until first access =="
+    if grep -q '!strcmp(name, "ans")' drivers/pmdomain/apple/pmgr-pwrstate.c; then
+        echo "t6040-pmgr-ans-no-auto.patch already applied"
+    elif git apply --check /out/t6040-pmgr-ans-no-auto.patch 2>/dev/null; then
+        git apply /out/t6040-pmgr-ans-no-auto.patch
+        echo "t6040-pmgr-ans-no-auto.patch applied OK"
+    else
+        echo "ERROR: t6040-pmgr-ans-no-auto.patch does not apply cleanly:"
+        git apply --check /out/t6040-pmgr-ans-no-auto.patch || true
+        exit 1
+    fi
+elif grep -q '!strcmp(name, "ans")' drivers/pmdomain/apple/pmgr-pwrstate.c; then
+    echo "== remove T6041 ANS auto-PM exception =="
+    git apply -R /out/t6040-pmgr-ans-no-auto.patch
 fi
 
 if [ "${PMGR_FUNCTIONAL:-0}" = "1" ]; then
@@ -363,6 +489,18 @@ if [ "${1:-}" = "image" ]; then
                 cp drivers/nvme/host/nvme-apple.ko /out/
                 ;;
         esac
+    fi
+    if [ "${SART_HANDSHAKE_ONLY:-0}" = "1" ]; then
+        image_name=Image-sart-handshake
+        map_name=System.map-sart-handshake
+    fi
+    if [ "${SART_DEFERRED_PROBE:-0}" = "1" ]; then
+        image_name=Image-sart-deferred
+        map_name=System.map-sart-deferred
+    fi
+    if [ "${SART_TRACE:-0}" = "1" ]; then
+        image_name=Image-sart-trace
+        map_name=System.map-sart-trace
     fi
     cp arch/arm64/boot/Image "/out/$image_name" \
         && echo "Image -> /out/$image_name ($(du -h arch/arm64/boot/Image | cut -f1))"

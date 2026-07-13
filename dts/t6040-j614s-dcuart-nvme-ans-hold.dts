@@ -1,0 +1,20 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Diagnostic ANS/NVMe DT: keep the ANS PMGR domain out of automatic gating.
+ *
+ * The J614s boot state leaves ANS at target/actual 0xf without AUTO_ENABLE.
+ * The generic PMGR probe otherwise enables automatic gating before the staged
+ * NVMe driver first accesses the ASC control register.  This variant preserves
+ * that firmware state so the hypothesis can be tested without adding any new
+ * register address or access class.
+ */
+
+#include "t6040-j614s-dcuart-nvme.dts"
+
+/ {
+	model = "Apple MacBook Pro (M4 Pro) J614s [ANS PMGR hold diagnostic]";
+};
+
+&ps_ans {
+	apple,skip-auto-enable;
+};
