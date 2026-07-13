@@ -119,3 +119,11 @@ echo "  reader: pid $READER_PID -> $CONSOLE_LOG"
 echo "  export M1N1DEVICE=/tmp/m1n1"
 echo "  stop reader pid $READER_PID before a manual proxyclient or screen session"
 echo "  screen /tmp/m1n1          # interactive console"
+
+# Short-lived automation shells may reap their whole process group even after
+# nohup. Agent-driven sessions set this so the script itself anchors kisd and
+# the reader until the reader exits or the session is interrupted.
+if [ "${T6040_KEEPALIVE:-0}" = "1" ]; then
+    echo "keeping DebugUSB process group alive"
+    wait "$READER_PID"
+fi

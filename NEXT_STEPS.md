@@ -94,6 +94,20 @@ trace set and relay new `trace:` lines, not the historical PMGR backlog:
 - `initramfs-dcuart-nvme-ans-hold.cpio.gz`:
   `ae80f82033e5f0d683ac09a3fa61e67c3c63e8a7c1be7593a0fd7fe687732873`.
 
+The exact set was finally booted as Linux #24. `nvme-core.ko` returned zero;
+`nvme-apple.ko` watchdog-reset the target. That boot did not have a kmsg relay,
+so the absence of trace messages on ttydc does **not** move the fatal boundary
+earlier than the prior `before ANS CPU control read` result. For the next
+single retry, use the newly built trace-relay initramfs below and add
+`EXTRA_BOOTARGS=t6040.trace_relay=1`; it relays only current-boot `trace:` lines
+before the shell command is run.
+
+- `initramfs-dcuart-nvme-ans-hold-trace.cpio.gz`:
+  `8942b1bd009cd9fe0adeadea3de60d6f068120ae2b8327e0ae1df2c852f40ea5`.
+
+Use the same Image and DTB hashes above. For agent-driven helpers, set
+`T6040_KEEPALIVE=1` so kisd and the tty reader survive the automation shell.
+
 Load `nvme-core.ko`, then `nvme-apple.ko`. If the trace passes the CPU-control
 read, continue phase by phase. Enumerate read-only only after controller boot;
 never mount, repair, format, flush, or write the namespace. Full evidence and

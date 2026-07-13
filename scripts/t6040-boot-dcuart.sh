@@ -88,3 +88,7 @@ sleep "${BOOT_WAIT:-30}"
 tail -40 "$CONLOG"
 echo
 echo "== reader still running. Interact: printf 'cmd\\n' > $M1 ; tail -f $CONLOG =="
+if [ "${T6040_KEEPALIVE:-0}" = "1" ]; then
+    echo "== keeping Linux console process group alive =="
+    wait "$CATPID"
+fi

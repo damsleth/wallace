@@ -52,6 +52,9 @@ kisd uart channel 0 = dock side of AP `/arm-io/dockchannel-uart` (AP data block
    handoff. For manual tools: kill reader → run tool → reattach reader.
    With `reboot`, the recovery helper does not return until it has seen
    `Running proxy` and three unchanged one-second console-size samples.
+   Short-lived automation must set `T6040_KEEPALIVE=1` when invoking either
+   console helper; this keeps its process group alive instead of relying on
+   `nohup`, which the automation runner reaps when the parent command exits.
 3. First proxy attempt after a boot often hits `UartCMDError` (desync from
    leftover console bytes) — **just retry once**.
 4. Reboot → "Running proxy" takes **<20 s**. Poll every 2–3 s; never wait minutes.

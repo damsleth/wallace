@@ -39,6 +39,15 @@ if [ -c /dev/ttydc0 ]; then
         /bin/busybox uname -a
         /bin/busybox dmesg | /bin/busybox tail -20
     ) >&9 2>/dev/null
+    if /bin/busybox grep -qw 't6040.trace_relay=1' /proc/cmdline; then
+        # ttydc is not a printk console. For bounded bring-up probes, relay
+        # only explicit trace checkpoints from this boot; never replay the
+        # broad PMGR/kernel backlog through this path.
+        (
+            /bin/busybox cat /proc/kmsg | /bin/busybox grep 'trace:'
+        ) >&9 2>/dev/null &
+        echo "[dcuart] current-boot trace relay active" >&9
+    fi
     (
         while :; do
             echo "[dcuart] spawning shell on /dev/ttydc0" >&9
