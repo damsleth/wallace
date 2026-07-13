@@ -32,7 +32,9 @@ echo "== DTB: $DTB  kernel: $IMAGE  initramfs: $INITRAMFS  dev: $M1 =="
 
 attach_reader() {
     stty -f "$M1" raw -echo 2>/dev/null || true
-    ( exec cat "$M1" >> "$CONLOG" ) &
+    # Detach from short-lived automation PTYs; otherwise their teardown can
+    # reap the reader even though this function reports it as persistent.
+    nohup cat "$M1" >> "$CONLOG" 2>/dev/null < /dev/null &
     CATPID=$!
     echo "console reader pid $CATPID -> $CONLOG"
 }
