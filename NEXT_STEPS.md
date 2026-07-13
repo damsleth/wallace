@@ -108,10 +108,33 @@ before the shell command is run.
 Use the same Image and DTB hashes above. For agent-driven helpers, set
 `T6040_KEEPALIVE=1` so kisd and the tty reader survive the automation shell.
 
-Load `nvme-core.ko`, then `nvme-apple.ko`. If the trace passes the CPU-control
-read, continue phase by phase. Enumerate read-only only after controller boot;
-never mount, repair, format, flush, or write the namespace. Full evidence and
-the eventual enumeration transcript are in
+That corrected retry is now complete. Its current-boot trace was identical to
+the original through `reset work entered`, then stopped at
+`before ANS CPU control read`. Therefore preserving ANS firmware state and
+skipping AUTO_ENABLE did **not** move the boundary; the ANS auto-gating
+hypothesis is disproven. Do not repeat this NVMe module load unchanged.
+
+Next, boot the same trace-relay set but do not load either NVMe module. Capture
+the software genpd state first (DEBUG_FS is enabled):
+
+```sh
+mount -t debugfs debugfs /sys/kernel/debug
+cat /sys/kernel/debug/pm_genpd/pm_genpd_summary \
+  | grep -E 'ans|apcie|fab3'
+for d in ans apcie_sys_st0 apcie_sys_st1 apcie_phy_sw; do
+    echo "--- $d"
+    cat "/sys/kernel/debug/pm_genpd/$d/current_state"
+done
+```
+
+This is read-only software-state attribution. Use it to decide whether a
+separately reviewed raw PMGR-state trace is warranted; do not perform another
+ANS MMIO read merely to reproduce the same SError.
+
+Do not load `nvme-apple.ko` again until the pre-module power-state evidence
+supports a new bounded hypothesis. Enumerate read-only only after controller
+boot; never mount, repair, format, flush, or write the namespace. Full evidence
+and the eventual enumeration transcript are in
 `done/2026-07-13-t6040-nvme-map.md`.
 
 ## 4. Upstream / share

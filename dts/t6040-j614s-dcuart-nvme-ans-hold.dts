@@ -7,6 +7,10 @@
  * NVMe driver first accesses the ASC control register.  This variant preserves
  * that firmware state so the hypothesis can be tested without adding any new
  * register address or access class.
+ *
+ * Live result (2026-07-13): disproven. With a current-boot trace relay this
+ * variant still reset on the first ANS CPU_CONTROL read, at the same boundary
+ * as the non-hold diagnostic. Retain only to reproduce that comparison.
  */
 
 #include "t6040-j614s-dcuart-nvme.dts"

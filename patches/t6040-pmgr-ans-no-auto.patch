@@ -10,6 +10,10 @@ Keep ANS fully active like the two existing T6041 display-CPU exceptions.
 This is intentionally selected by the SoC compatible and does not affect
 earlier Apple SoCs.
 
+Diagnostic result (2026-07-13): this did not move the first-read boundary.
+The target still reset at the first ANS CPU_CONTROL read with a current-boot
+trace relay. Retain for reproduction only; do not submit this patch.
+
 Signed-off-by: Carl Joakim Damsleth <kim@damsleth.com>
 ---
  drivers/pmdomain/apple/pmgr-pwrstate.c | 3 ++-

@@ -117,3 +117,24 @@ Prepared replacement initramfs with an opt-in current-boot `trace:` relay:
   8942b1bd009cd9fe0adeadea3de60d6f068120ae2b8327e0ae1df2c852f40ea5
 
 Boot it with EXTRA_BOOTARGS=t6040.trace_relay=1 and the unchanged Image/DTB.
+
+Corrected current-boot trace
+----------------------------
+The replacement initramfs booted with its trace relay active. nvme-core again
+returned zero. Loading nvme-apple produced:
+
+  [   99.805759] trace: platform probe entered
+  [   99.909051] trace: allocation entered
+  [  100.013120] trace: power domains attached
+  [  100.117086] trace: MMIO resources mapped
+  [  100.221100] trace: SART supplier acquired
+  [  100.325193] trace: queues allocated
+  [  100.429163] trace: RTKit client initialized
+  [  100.533055] trace: NVMe controller object initialized
+  [  100.637143] trace: reset work queued
+  [  100.638164] trace: reset work entered
+  [  100.741051] trace: before ANS CPU control read
+
+The target reset after the last line. The ANS skip-auto/firmware-state hold did
+not move the original boundary, disproving that hypothesis. No later hardware
+phase or storage command ran.
