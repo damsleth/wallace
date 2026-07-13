@@ -2,7 +2,7 @@
 
 Mainline Linux on a MacBook Pro 16" M4 Pro (t6040 "Brava Chop", Mac16,8 / J614s). It boots. BusyBox userspace, working internal keyboard, and a fully remote dev loop over a single USB-C cable: reboot, chainload, boot, interactive shell, all from the host, no fingers on the power button.
 
-This repo is the umbrella. The code lives in four sibling repos, and the knowledge kept getting smeared across their `.plans` folders, so everything that guides the work now lives here: plans, scripts, kernel patches, post-mortems.
+This repo is the umbrella. The code lives in four sibling repos, and the knowledge kept getting smeared across them, so everything that guides the work now lives here: plans, scripts, kernel patches, post-mortems.
 
 ## Status (2026-07-12)
 
