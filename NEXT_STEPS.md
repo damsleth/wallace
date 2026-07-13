@@ -49,7 +49,7 @@ Done this session: raw determinism, requested core-infra and PMGR1 isolations,
 live ADT regeneration, `no_ps` parent filtering, and safe always-on generation
 (no policy by default; explicit legacy flag only).
 
-## 3. Restore DebugUSB, test the ANS PMGR hold, then resume NVMe
+## 3. Force the storage parents actual-on before any ANS retry
 The maintainer approved the exact CoastGuard writes. The retry established two
 separate boundaries:
 
@@ -161,12 +161,35 @@ Prepared artifacts:
 - `nvme-apple-pmgr-snapshot.ko`:
   `21f00d39ad4f8f86df03c403d8d683addc6e4a65c2a8b204e2f7a57adac611f4`.
 
-Run one current-boot trace-relay attempt, load core then Apple, and stop after
-the raw PMGR lines plus the explicit `stopping before ANS MMIO` checkpoint.
-Do not repeat the normal Apple module load. Enumerate read-only only after a
-later, separately justified controller boot; never mount, repair, format,
-flush, or write the namespace. Full evidence and the eventual enumeration
-transcript are in `done/2026-07-13-t6040-nvme-map.md`.
+The single snapshot attempt is complete. Linux #25 reached BusyBox,
+`nvme-core.ko` returned zero, and the diagnostic Apple module printed its full
+snapshot plus `stopping before ANS MMIO`. The shell then answered two liveness
+markers. The four storage values exactly match the earlier m1n1 snapshot:
+
+```text
+ans            raw 0x0f0000ff  target f  actual f  auto 0
+apcie_phy_sw   raw 0x1400024f  target f  actual 4  auto 1
+apcie_sys_st0  raw 0x1000030f  target f  actual 0  auto 1
+apcie_sys_st1  raw 0x1000030f  target f  actual 0  auto 1
+```
+
+The genpd summary's `on` result was logically correct but incomplete:
+`apple_pmgr_ps_is_active()` treats target-active plus AUTO_ENABLE as on even
+when the actual state is clock-gated (`4`) or power-gated (`0`). Thus ANS itself
+is fully active, while NVMe's other direct domain, `apcie_phy_sw`, is
+clock-gated and both of that domain's `apcie_sys_st*` parents are power-gated
+immediately before the fatal read.
+This is the first evidence-backed new hypothesis since ANS auto-gating was
+disproved.
+
+Next, prepare and review a second diagnostic that uses only the existing PMGR
+domain callbacks and DT chain to force these parents to actual state `f`,
+snapshots before/after, and still exits before ANS MMIO. Do not retry the ANS
+read in the same step. If that transition is safe and all actual fields reach
+`f`, a separately reviewed one-read retry becomes justified. Never mount,
+repair, format, flush, or write the namespace. Full evidence is in
+`done/2026-07-13-t6040-nvme-map.md`; the exact transcript is
+`logs/t6040-console-20260713-nvme-pmgr-snapshot.log`.
 
 ## 4. Upstream / share
 - Post the drafted writeups: `done/2026-07-10-t6040-smp-writeup.md`,

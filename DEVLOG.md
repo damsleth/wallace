@@ -284,6 +284,15 @@ genpd attachments until reboot so cleanup requests no power transition. Build
 and verification details plus exact hashes are in `NEXT_STEPS.md` and the map.
 Never unload this diagnostic module or mount the SSD.
 
+The Linux #25 snapshot completed and the target remained alive. ANS was actual
+`f`, but `apcie_phy_sw` was actual `4` (clock-gated) and both
+`apcie_sys_st0/1` were actual `0` (power-gated); all had target `f`, and the
+three parents had AUTO_ENABLE set. This explains why debugfs could truthfully
+say `on`: the PMGR driver defines target-active plus auto-enable as logically
+active. The next diagnostic must force the parent chain to actual `f` through
+the existing domain callbacks and verify it while still stopping before ANS.
+Exact output: `logs/t6040-console-20260713-nvme-pmgr-snapshot.log`.
+
 The remaining T8103 ANS2 fallback agrees with m1n1 on ASC v4, 64-entry linear
 queues, and functional ANS/NVMMU offsets. m1n1's historical TCB-status
 diagnostic read remains `0x29120` versus Linux's `0x28120`; resolve that from a
