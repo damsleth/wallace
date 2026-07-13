@@ -1,0 +1,222 @@
+From: Carl Joakim Damsleth <kim@damsleth.com>
+Subject: [PATCH DEBUG] apple: force declared NVMe PMGR chain active
+
+Bring-up-only diagnostic for the T6040 first ANS access. Export a bounded
+T6041 PMGR helper that uses the existing power-state callback under the
+provider lock. It skips domains already at actual state 0xf; otherwise it
+clears automatic gating, requests active state through the normal PMGR
+register sequence, and polls the existing ACTUAL field.
+
+The Apple NVMe diagnostic follows only its existing power-domains phandles
+and recurses parents first. It snapshots the chain before and after the
+transition and returns before nvme_add_ctrl(). Reset work is never queued.
+No ANS or CoastGuard access is reached. Neither SART entries, mailboxes,
+NVMe registers, nor storage commands are touched.
+The special exit retains genpd attachments until reboot, so it requests no
+cleanup power transition.
+
+This patch depends on t6040-pmgr-t6041-quirks.patch,
+t6040-pmgr-ans-no-auto.patch, t6040-nvme-trace-debug.patch, and
+t6040-nvme-pmgr-snapshot-debug.patch. Do not submit it.
+
+Signed-off-by: Carl Joakim Damsleth <kim@damsleth.com>
+---
+diff --git a/drivers/nvme/host/apple.c b/drivers/nvme/host/apple.c
+index ae810c1..4f72528 100644
+--- a/drivers/nvme/host/apple.c
++++ b/drivers/nvme/host/apple.c
+@@ -30,6 +30,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/pm_domain.h>
+ #include <linux/regmap.h>
++#include <linux/soc/apple/pmgr.h>
+ #include <linux/soc/apple/rtkit.h>
+ #include <linux/soc/apple/sart.h>
+ #include <linux/reset.h>
+@@ -298,6 +299,67 @@ static void apple_nvme_trace_pmgr_chain(struct device *dev)
+ 	}
+ }
+ 
++static int apple_nvme_force_pmgr_node(struct device *dev,
++				      struct device_node *node,
++				      unsigned int depth)
++{
++	struct of_phandle_args pd;
++	const char *label;
++	int count, i, ret;
++
++	if (depth > 8)
++		return -ELOOP;
++
++	count = of_count_phandle_with_args(node, "power-domains",
++					   "#power-domain-cells");
++	for (i = 0; i < count; i++) {
++		ret = of_parse_phandle_with_args(node, "power-domains",
++						 "#power-domain-cells", i, &pd);
++		if (ret)
++			continue;
++		ret = apple_nvme_force_pmgr_node(dev, pd.np, depth + 1);
++		of_node_put(pd.np);
++		if (ret)
++			return ret;
++	}
++
++	ret = apple_pmgr_force_active(node);
++	if (ret < 0) {
++		dev_warn(dev, "trace: PMGR force-active failed at %pOF (%d)\n",
++			 node, ret);
++		return ret;
++	}
++	if (!ret)
++		return 0;
++
++	if (of_property_read_string(node, "label", &label))
++		label = node->name;
++	dev_warn(dev, "trace: PMGR %s forced to actual active\n", label);
++	msleep(100);
++	return 0;
++}
++
++static int apple_nvme_force_pmgr_chain(struct device *dev)
++{
++	struct of_phandle_args pd;
++	int count, i, ret;
++
++	count = of_count_phandle_with_args(dev->of_node, "power-domains",
++					   "#power-domain-cells");
++	for (i = 0; i < count; i++) {
++		ret = of_parse_phandle_with_args(dev->of_node, "power-domains",
++						 "#power-domain-cells", i, &pd);
++		if (ret)
++			continue;
++		ret = apple_nvme_force_pmgr_node(dev, pd.np, 0);
++		of_node_put(pd.np);
++		if (ret)
++			return ret;
++	}
++
++	return 0;
++}
++
+ static inline struct apple_nvme *ctrl_to_apple_nvme(struct nvme_ctrl *ctrl)
+ {
+ 	return container_of(ctrl, struct apple_nvme, ctrl);
+@@ -1709,6 +1771,26 @@ static int apple_nvme_probe(struct platform_device *pdev)
+ 	if (IS_ERR(anv))
+ 		return PTR_ERR(anv);
+ 
++	if (of_property_read_bool(pdev->dev.of_node,
++				  "apple,pmgr-force-active-stop")) {
++		apple_nvme_trace(&pdev->dev, "raw PMGR snapshot before force-active");
++		apple_nvme_trace_pmgr_chain(&pdev->dev);
++		apple_nvme_trace(&pdev->dev, "PMGR force-active begin");
++		ret = apple_nvme_force_pmgr_chain(&pdev->dev);
++		if (ret) {
++			apple_nvme_trace(&pdev->dev,
++					 "PMGR force-active failed; stopping before ANS MMIO");
++			goto out_snapshot;
++		}
++		apple_nvme_trace(&pdev->dev, "PMGR force-active complete");
++		apple_nvme_trace(&pdev->dev, "raw PMGR snapshot after force-active");
++		apple_nvme_trace_pmgr_chain(&pdev->dev);
++		apple_nvme_trace(&pdev->dev,
++				 "PMGR force-active verified; stopping before ANS MMIO");
++		ret = -EAGAIN;
++		goto out_snapshot;
++	}
++
+ 	if (of_property_read_bool(pdev->dev.of_node,
+ 				  "apple,pmgr-snapshot-stop")) {
+ 		apple_nvme_trace(&pdev->dev, "raw PMGR snapshot begin");
+diff --git a/drivers/pmdomain/apple/pmgr-pwrstate.c b/drivers/pmdomain/apple/pmgr-pwrstate.c
+index eef0723..b6539fd 100644
+--- a/drivers/pmdomain/apple/pmgr-pwrstate.c
++++ b/drivers/pmdomain/apple/pmgr-pwrstate.c
+@@ -10,12 +10,14 @@
+ #include <linux/err.h>
+ #include <linux/of.h>
+ #include <linux/of_address.h>
++#include <linux/of_platform.h>
+ #include <linux/platform_device.h>
+ #include <linux/pm_domain.h>
+ #include <linux/regmap.h>
+ #include <linux/mfd/syscon.h>
+ #include <linux/reset-controller.h>
+ #include <linux/module.h>
++#include <linux/soc/apple/pmgr.h>
+ 
+ #define APPLE_PMGR_RESET        BIT(31)
+ #define APPLE_PMGR_AUTO_ENABLE  BIT(28)
+@@ -92,6 +94,46 @@ static int apple_pmgr_ps_set(struct generic_pm_domain *genpd, u32 pstate, bool a
+ 	return ret;
+ }
+ 
++int apple_pmgr_force_active(struct device_node *node)
++{
++	struct platform_device *pdev;
++	struct apple_pmgr_ps *ps;
++	unsigned long flags;
++	u32 reg;
++	int ret;
++
++	if (!of_device_is_compatible(node, "apple,t6041-pmgr-pwrstate"))
++		return -EINVAL;
++
++	pdev = of_find_device_by_node(node);
++	if (!pdev)
++		return -EPROBE_DEFER;
++
++	ps = platform_get_drvdata(pdev);
++	if (!ps) {
++		ret = -EPROBE_DEFER;
++		goto out_put;
++	}
++
++	spin_lock_irqsave(&ps->genpd.slock, flags);
++	ret = regmap_read(ps->regmap, ps->offset, &reg);
++	if (ret || FIELD_GET(APPLE_PMGR_PS_ACTUAL, reg) == APPLE_PMGR_PS_ACTIVE)
++		goto out_unlock;
++
++	/* Keep this diagnostic transition active rather than re-enabling auto-PM. */
++	ps->skip_auto_enable = true;
++	ret = apple_pmgr_ps_set(&ps->genpd, APPLE_PMGR_PS_ACTIVE, false);
++	if (!ret)
++		ret = 1;
++
++out_unlock:
++	spin_unlock_irqrestore(&ps->genpd.slock, flags);
++out_put:
++	put_device(&pdev->dev);
++	return ret;
++}
++EXPORT_SYMBOL_GPL(apple_pmgr_force_active);
++
+ static bool apple_pmgr_ps_is_active(struct apple_pmgr_ps *ps)
+ {
+ 	u32 reg = 0;
+@@ -316,6 +358,7 @@ static int apple_pmgr_ps_probe(struct platform_device *pdev)
+ 	if (ret < 0)
+ 		goto err_remove;
+ 
++	platform_set_drvdata(pdev, ps);
+ 	return 0;
+ err_remove:
+ 	of_genpd_del_provider(node);
+diff --git a/include/linux/soc/apple/pmgr.h b/include/linux/soc/apple/pmgr.h
+new file mode 100644
+index 0000000..dfc04f8
+--- /dev/null
++++ b/include/linux/soc/apple/pmgr.h
+@@ -0,0 +1,10 @@
++/* SPDX-License-Identifier: GPL-2.0-only OR MIT */
++#ifndef _LINUX_SOC_APPLE_PMGR_H_
++#define _LINUX_SOC_APPLE_PMGR_H_
++
++struct device_node;
++
++/* Diagnostic helper: 1 if transitioned, 0 if already active, or -errno. */
++int apple_pmgr_force_active(struct device_node *node);
++
++#endif /* _LINUX_SOC_APPLE_PMGR_H_ */
+-- 
+2.50.1

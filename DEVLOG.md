@@ -293,6 +293,14 @@ active. The next diagnostic must force the parent chain to actual `f` through
 the existing domain callbacks and verify it while still stopping before ANS.
 Exact output: `logs/t6040-console-20260713-nvme-pmgr-snapshot.log`.
 
+That diagnostic is prepared as
+`patches/t6040-pmgr-force-active-debug.patch` plus the opt-in
+`dts/t6040-j614s-dcuart-nvme-pmgr-force-active.dts`. It recursively follows
+only the declared PMGR parents, skips ACTUAL `f`, and uses the PMGR driver's
+existing locked active-state callback for the three gated providers. It
+snapshots before/after and still returns before `nvme_add_ctrl()`. Exact hashes
+and safety review are in `NEXT_STEPS.md` and the NVMe map.
+
 The remaining T8103 ANS2 fallback agrees with m1n1 on ASC v4, 64-entry linear
 queues, and functional ANS/NVMMU offsets. m1n1's historical TCB-status
 diagnostic read remains `0x29120` versus Linux's `0x28120`; resolve that from a

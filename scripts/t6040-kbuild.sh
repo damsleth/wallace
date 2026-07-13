@@ -202,6 +202,13 @@ if [ "${SART_HANDSHAKE_ONLY:-0}" != "1" ] &&
     fi
 fi
 
+if [ "${PMGR_FORCE_ACTIVE:-0}" != "1" ] &&
+   grep -q 'PMGR force-active verified; stopping before ANS MMIO' \
+       drivers/nvme/host/apple.c; then
+    echo "== remove Apple PMGR force-active diagnostic =="
+    git apply -R /out/t6040-pmgr-force-active-debug.patch
+fi
+
 if [ "${NVME_PMGR_SNAPSHOT:-0}" != "1" ] &&
    grep -q 'raw PMGR snapshot complete; stopping before ANS MMIO' \
        drivers/nvme/host/apple.c; then
@@ -313,6 +320,25 @@ if [ "${NVME:-0}" = "1" ]; then
 elif grep -q '!strcmp(name, "ans")' drivers/pmdomain/apple/pmgr-pwrstate.c; then
     echo "== remove T6041 ANS auto-PM exception =="
     git apply -R /out/t6040-pmgr-ans-no-auto.patch
+fi
+
+if [ "${PMGR_FORCE_ACTIVE:-0}" = "1" ]; then
+    [ "${NVME_PMGR_SNAPSHOT:-0}" = "1" ] || {
+        echo "ERROR: PMGR_FORCE_ACTIVE=1 requires NVME_PMGR_SNAPSHOT=1"
+        exit 1
+    }
+    echo "== apply Apple PMGR force-active diagnostic =="
+    if grep -q 'PMGR force-active verified; stopping before ANS MMIO' \
+        drivers/nvme/host/apple.c; then
+        echo "t6040-pmgr-force-active-debug.patch already applied"
+    elif git apply --check /out/t6040-pmgr-force-active-debug.patch 2>/dev/null; then
+        git apply /out/t6040-pmgr-force-active-debug.patch
+        echo "t6040-pmgr-force-active-debug.patch applied OK"
+    else
+        echo "ERROR: t6040-pmgr-force-active-debug.patch does not apply cleanly:"
+        git apply --check /out/t6040-pmgr-force-active-debug.patch || true
+        exit 1
+    fi
 fi
 
 if [ "${PMGR_FUNCTIONAL:-0}" = "1" ]; then
@@ -519,7 +545,12 @@ if [ "${1:-}" = "image" ]; then
                 make ARCH=arm64 -j"$NPROC" \
                     drivers/nvme/host/nvme-core.ko \
                     drivers/nvme/host/nvme-apple.ko
-                if [ "${NVME_PMGR_SNAPSHOT:-0}" = "1" ]; then
+                if [ "${PMGR_FORCE_ACTIVE:-0}" = "1" ]; then
+                    cp drivers/nvme/host/nvme-core.ko \
+                        /out/nvme-core-pmgr-force-active.ko
+                    cp drivers/nvme/host/nvme-apple.ko \
+                        /out/nvme-apple-pmgr-force-active.ko
+                elif [ "${NVME_PMGR_SNAPSHOT:-0}" = "1" ]; then
                     cp drivers/nvme/host/nvme-core.ko \
                         /out/nvme-core-pmgr-snapshot.ko
                     cp drivers/nvme/host/nvme-apple.ko \
@@ -546,6 +577,10 @@ if [ "${1:-}" = "image" ]; then
     if [ "${NVME_PMGR_SNAPSHOT:-0}" = "1" ]; then
         image_name=Image-nvme-pmgr-snapshot
         map_name=System.map-nvme-pmgr-snapshot
+    fi
+    if [ "${PMGR_FORCE_ACTIVE:-0}" = "1" ]; then
+        image_name=Image-nvme-pmgr-force-active
+        map_name=System.map-nvme-pmgr-force-active
     fi
     cp arch/arm64/boot/Image "/out/$image_name" \
         && echo "Image -> /out/$image_name ($(du -h arch/arm64/boot/Image | cut -f1))"

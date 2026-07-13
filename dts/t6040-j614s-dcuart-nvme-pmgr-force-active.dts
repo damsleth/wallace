@@ -1,0 +1,19 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Diagnostic-only force-active check for the T6040 ANS power chain.
+ *
+ * The Apple NVMe debug module snapshots its declared PMGR chain, transitions
+ * only providers whose ACTUAL field is not active through the existing PMGR
+ * callback, snapshots again, and exits before nvme_add_ctrl(). It never queues
+ * reset work or accesses ANS MMIO. Reboot after collecting the trace.
+ */
+
+#include "t6040-j614s-dcuart-nvme-ans-hold.dts"
+
+/ {
+	model = "Apple MacBook Pro (M4 Pro) J614s [NVMe PMGR force-active diagnostic]";
+};
+
+&ans_nvme {
+	apple,pmgr-force-active-stop;
+};

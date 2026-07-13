@@ -182,13 +182,40 @@ immediately before the fatal read.
 This is the first evidence-backed new hypothesis since ANS auto-gating was
 disproved.
 
-Next, prepare and review a second diagnostic that uses only the existing PMGR
-domain callbacks and DT chain to force these parents to actual state `f`,
-snapshots before/after, and still exits before ANS MMIO. Do not retry the ANS
-read in the same step. If that transition is safe and all actual fields reach
-`f`, a separately reviewed one-read retry becomes justified. Never mount,
-repair, format, flush, or write the namespace. Full evidence is in
-`done/2026-07-13-t6040-nvme-map.md`; the exact transcript is
+The second diagnostic is now built and host-verified. The runtime-PM put/get
+idea cannot work here because the T6041 preservation quirk marks every
+firmware-active domain `GENPD_FLAG_ALWAYS_ON`; genpd therefore neither powers
+the logical domain off nor re-enters its power-on callback.
+
+`patches/t6040-pmgr-force-active-debug.patch` instead exports a diagnostic-only
+helper from the existing PMGR driver. Under the provider's existing IRQ-safe
+lock, it reads ACTUAL, skips providers already at `f`, and otherwise calls the
+normal `apple_pmgr_ps_set(..., ACTIVE, false)` sequence. This clears automatic
+gating, writes the existing PMGR state register, and polls ACTUAL. The Apple
+diagnostic recursively follows only its declared DT parents, parents first,
+then snapshots before/after and returns before `nvme_add_ctrl()`. On the known
+snapshot it will write only `apcie_sys_st0`, `apcie_sys_st1`, and
+`apcie_phy_sw`. It cannot queue reset work or access ANS MMIO. As before, do
+not unload it; reboot after the trace.
+
+Prepared artifacts:
+
+- `Image-nvme-pmgr-force-active`:
+  `3dc2e875b3834750b0211442a411ea96563f0308895cbdee10fddf0fa19bd6e2`;
+- `t6040-j614s-dcuart-nvme-pmgr-force-active.dtb`:
+  `f0165590215b14062e5082d7cc0d4a5f53723f2500a1f26d49f112a9f8465ce9`;
+- `initramfs-dcuart-nvme-pmgr-force-active.cpio.gz`:
+  `d5930ba513364acd17ca044fdf320163015c01a17bb8f00d474b0a342e14ce19`;
+- `nvme-core-pmgr-force-active.ko`:
+  `5e61ba16697daa382c5bb614fdaf3d5948a3818c11a630d5766e3b88ead36af7`;
+- `nvme-apple-pmgr-force-active.ko`:
+  `d18f2a2a25116d8ba4aaa054431217bd6123cd36b6eae1afbf8a78e0dbc5858d`.
+
+Run one current-boot trace-relay attempt. Do not retry the ANS read in this
+step. If all three transitions reach actual `f` and the target remains alive,
+a separately reviewed one-read retry becomes justified. Never mount, repair,
+format, flush, or write the namespace. Full evidence is in
+`done/2026-07-13-t6040-nvme-map.md`; the prior exact transcript is
 `logs/t6040-console-20260713-nvme-pmgr-snapshot.log`.
 
 ## 4. Upstream / share
