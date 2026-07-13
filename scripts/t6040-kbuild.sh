@@ -202,6 +202,13 @@ if [ "${SART_HANDSHAKE_ONLY:-0}" != "1" ] &&
     fi
 fi
 
+if [ "${NVME_PMGR_SNAPSHOT:-0}" != "1" ] &&
+   grep -q 'raw PMGR snapshot complete; stopping before ANS MMIO' \
+       drivers/nvme/host/apple.c; then
+    echo "== remove Apple NVMe raw-PMGR snapshot diagnostic =="
+    git apply -R /out/t6040-nvme-pmgr-snapshot-debug.patch
+fi
+
 if [ "${SART_TRACE:-0}" = "1" ]; then
     echo "== apply T8140 SART transition trace diagnostic =="
     if grep -q 'trace: CoastGuard activate begin' drivers/soc/apple/sart.c; then
@@ -235,6 +242,33 @@ else
         drivers/nvme/host/apple.c; then
         echo "== remove Apple NVMe first-probe phase trace diagnostic =="
         git apply -R /out/t6040-nvme-trace-debug.patch
+    fi
+fi
+
+if [ "${NVME_PMGR_SNAPSHOT:-0}" = "1" ]; then
+    [ "${NVME:-0}" = "1" ] || {
+        echo "ERROR: NVME_PMGR_SNAPSHOT=1 requires NVME=1"
+        exit 1
+    }
+    [ "${NVME_MODE:-builtin}" = "staged" ] || {
+        echo "ERROR: NVME_PMGR_SNAPSHOT=1 requires NVME_MODE=staged"
+        exit 1
+    }
+    [ "${SART_TRACE:-0}" = "1" ] || {
+        echo "ERROR: NVME_PMGR_SNAPSHOT=1 requires SART_TRACE=1"
+        exit 1
+    }
+    echo "== apply Apple NVMe raw-PMGR snapshot diagnostic =="
+    if grep -q 'raw PMGR snapshot complete; stopping before ANS MMIO' \
+        drivers/nvme/host/apple.c; then
+        echo "t6040-nvme-pmgr-snapshot-debug.patch already applied"
+    elif git apply --check /out/t6040-nvme-pmgr-snapshot-debug.patch 2>/dev/null; then
+        git apply /out/t6040-nvme-pmgr-snapshot-debug.patch
+        echo "t6040-nvme-pmgr-snapshot-debug.patch applied OK"
+    else
+        echo "ERROR: t6040-nvme-pmgr-snapshot-debug.patch does not apply cleanly:"
+        git apply --check /out/t6040-nvme-pmgr-snapshot-debug.patch || true
+        exit 1
     fi
 fi
 
@@ -485,8 +519,15 @@ if [ "${1:-}" = "image" ]; then
                 make ARCH=arm64 -j"$NPROC" \
                     drivers/nvme/host/nvme-core.ko \
                     drivers/nvme/host/nvme-apple.ko
-                cp drivers/nvme/host/nvme-core.ko /out/
-                cp drivers/nvme/host/nvme-apple.ko /out/
+                if [ "${NVME_PMGR_SNAPSHOT:-0}" = "1" ]; then
+                    cp drivers/nvme/host/nvme-core.ko \
+                        /out/nvme-core-pmgr-snapshot.ko
+                    cp drivers/nvme/host/nvme-apple.ko \
+                        /out/nvme-apple-pmgr-snapshot.ko
+                else
+                    cp drivers/nvme/host/nvme-core.ko /out/
+                    cp drivers/nvme/host/nvme-apple.ko /out/
+                fi
                 ;;
         esac
     fi
@@ -501,6 +542,10 @@ if [ "${1:-}" = "image" ]; then
     if [ "${SART_TRACE:-0}" = "1" ]; then
         image_name=Image-sart-trace
         map_name=System.map-sart-trace
+    fi
+    if [ "${NVME_PMGR_SNAPSHOT:-0}" = "1" ]; then
+        image_name=Image-nvme-pmgr-snapshot
+        map_name=System.map-nvme-pmgr-snapshot
     fi
     cp arch/arm64/boot/Image "/out/$image_name" \
         && echo "Image -> /out/$image_name ($(du -h arch/arm64/boot/Image | cut -f1))"

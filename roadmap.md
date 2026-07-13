@@ -42,7 +42,7 @@ fixed, dapf gate + watchdog arm added for M4.
 | BusyBox userspace; full PMGR with property-free T6041 quirk, reproducible | PMGR draft review/submission (split, checkpatch/schema-clean; NEXT_STEPS #2) |
 | Internal keyboard at the shell; trackpad registers + validated firmware-loader path | Target ESP's paired trackpad blob; PMU-backed reset remains forbidden; maxcpus>1/idle states |
 | Two-way Linux shell + m1n1 proxy over one DebugUSB cable; remote reboot | Printk over ttydc needs a separate polled/atomic TX path; current TTY queue is not console-safe |
-| Linux apple_wdt; fbcon early console | NVMe rootfs (CoastGuard fixed; first ANS read now blocked by PMGR auto-gating hypothesis) |
+| Linux apple_wdt; fbcon early console | NVMe rootfs (CoastGuard fixed; first ANS read still resets despite powered genpd chain) |
 | Kernel build env (podman, arm64-native) with patch pipeline | USB gadget console (parked: EP0 dies post-enumeration) |
 | SMP/cpufreq/MCC/PCIe m1n1 groundwork (Stage B) | cpufreq throttles, PCIe link-up test, USB3/TB PHY tunables |
 
@@ -179,9 +179,9 @@ maxcpus>1 + cpufreq DT wiring.
 
 - **NVMe** (apple-nvme + SART + ANS RTKit): internal SSD. The approved retry
   fixed the CoastGuard probe-time access and passed both pre-module gates. The
-  next reset is exactly the first ANS control read at `0x209600044`; an
-  ADT/PMGR-derived auto-gating exception is built for the next trace retry
-  (NEXT_STEPS #3).
+  next reset is exactly the first ANS control read at `0x209600044`; ANS hold
+  did not change it, and debugfs says the full storage genpd chain is on. A
+  bounded pre-ANS raw PMGR snapshot is prepared (NEXT_STEPS #3).
 - **USB** (dwc3 + ATC PHY): external keyboard/disk/ethernet from day one; also
   the USB-gadget console m1n1 already proves works.
 - **Internal keyboard + trackpad:** ✅ **keyboard DONE early (2026-07-11)** via

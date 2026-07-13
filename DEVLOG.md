@@ -265,17 +265,24 @@ control read at `0x209600044`. The last line was `before ANS CPU control read`;
 no CoastGuard transition, SART entry access, or namespace command occurred.
 Read-only PMGR inspection after recovery showed firmware's ANS domain at
 `0x0f0000ff` (target/actual `0xf`, AUTO_ENABLE clear). The T6041 PMGR probe
-otherwise enables auto-PM before the module runs. The next diagnostic preserves
-that state through `patches/t6040-pmgr-ans-no-auto.patch` and the independent
-DT property variant `dts/t6040-j614s-dcuart-nvme-ans-hold.dts`.
+otherwise enables auto-PM before the module runs. The independent ANS-hold DT
+booted, and a corrected current-boot trace showed the exact same fatal boundary
+at the first CPU_CONTROL read. The auto-gating hypothesis is therefore
+disproven.
 
-That hypothesis is compiled but not live-verified. The DT variant booted to
-BusyBox, then an over-broad `/proc/kmsg` relay replayed the old PMGR backlog;
-the next module result was not captured and the m1n1 proxy remained
-unresponsive after the documented kisd restart plus DebugUSB re-entry. Per the
-rig rule, live access stopped. Resume with the exact hashes in `NEXT_STEPS.md`
-after the transport is healthy, and filter only new `trace:` lines. Never mount
-the SSD.
+A later boot with both NVMe modules unloaded showed `ans`,
+`apcie_sys_st0`, `apcie_sys_st1`, `apcie_phy_sw`, `fab3_soc`, `apcie_st0`,
+`apcie_st1`, and `apcie_gp` all `on` in debugfs genpd state. The next bounded
+question is whether raw PMGR agrees immediately before the ANS read.
+
+`patches/t6040-nvme-pmgr-snapshot-debug.patch` and
+`dts/t6040-j614s-dcuart-nvme-pmgr-snapshot.dts` implement that single
+diagnostic. They follow only existing DT power-domain phandles, read each
+provider's declared PMGR register via its parent syscon, and return before
+`nvme_add_ctrl()`. No reset work or ANS access occurs. The special exit retains
+genpd attachments until reboot so cleanup requests no power transition. Build
+and verification details plus exact hashes are in `NEXT_STEPS.md` and the map.
+Never unload this diagnostic module or mount the SSD.
 
 The remaining T8103 ANS2 fallback agrees with m1n1 on ASC v4, 64-entry linear
 queues, and functional ANS/NVMMU offsets. m1n1's historical TCB-status

@@ -1,0 +1,157 @@
+From: Carl Joakim Damsleth <kim@damsleth.com>
+Subject: [PATCH DEBUG] nvme: apple: snapshot PMGR chain and stop before ANS
+
+Bring-up-only diagnostic for the T6040 first ANS access. Follow only the
+NVMe node's existing power-domains phandles, read each provider's declared
+PMGR register through its existing parent syscon regmap, and print the raw
+state. The opt-in DT property then makes probe return before
+nvme_add_ctrl(), so reset work is never queued and no ANS, CoastGuard,
+SART-entry, mailbox, or NVMe register is accessed. Its diagnostic-only exit
+intentionally retains the power-domain attachments until reboot rather than
+requesting a power-off during normal probe-failure cleanup.
+
+This patch depends on t6040-nvme-trace-debug.patch for the yielding trace
+helper. Do not submit it.
+
+Signed-off-by: Carl Joakim Damsleth <kim@damsleth.com>
+---
+ drivers/nvme/host/apple.c | 97 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 97 insertions(+)
+
+diff --git a/drivers/nvme/host/apple.c b/drivers/nvme/host/apple.c
+index 51b32e4e4874..000000000000 100644
+--- a/drivers/nvme/host/apple.c
++++ b/drivers/nvme/host/apple.c
+@@ -20,13 +20,15 @@
+ #include <linux/io.h>
+ #include <linux/iopoll.h>
+ #include <linux/jiffies.h>
++#include <linux/mfd/syscon.h>
+ #include <linux/mempool.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/of_platform.h>
+ #include <linux/once.h>
+ #include <linux/platform_device.h>
+ #include <linux/pm_domain.h>
++#include <linux/regmap.h>
+ #include <linux/soc/apple/rtkit.h>
+ #include <linux/soc/apple/sart.h>
+ #include <linux/reset.h>
+@@ -215,6 +217,87 @@ static void apple_nvme_trace(struct device *dev, const char *phase)
+ 	msleep(100);
+ }
+ 
++static void apple_nvme_trace_pmgr_node(struct device *dev,
++				       struct device_node *node,
++				       unsigned int depth)
++{
++	struct of_phandle_args pd;
++	struct device_node *parent;
++	struct regmap *regmap;
++	const char *label;
++	u32 offset, raw;
++	int count, i, ret;
++
++	if (depth > 8) {
++		dev_warn(dev, "trace: PMGR hierarchy exceeded depth limit at %pOF\n",
++			 node);
++		return;
++	}
++
++	if (of_property_read_string(node, "label", &label))
++		label = node->name;
++	ret = of_property_read_u32(node, "reg", &offset);
++	if (ret) {
++		dev_warn(dev, "trace: PMGR %s has no scalar reg (%d)\n",
++			 label, ret);
++		goto parents;
++	}
++
++	parent = of_get_parent(node);
++	if (!parent) {
++		dev_warn(dev, "trace: PMGR %s has no parent syscon\n", label);
++		goto parents;
++	}
++	regmap = syscon_node_to_regmap(parent);
++	of_node_put(parent);
++	if (IS_ERR(regmap)) {
++		dev_warn(dev, "trace: PMGR %s syscon lookup failed (%ld)\n",
++			 label, PTR_ERR(regmap));
++		goto parents;
++	}
++
++	ret = regmap_read(regmap, offset, &raw);
++	if (ret) {
++		dev_warn(dev, "trace: PMGR %s offset %#x read failed (%d)\n",
++			 label, offset, ret);
++		goto parents;
++	}
++
++	dev_warn(dev,
++		 "trace: PMGR %s offset %#x raw %#010x target %#x actual %#x auto %u reset %u\n",
++		 label, offset, raw, raw & 0xf, (raw >> 4) & 0xf,
++		 !!(raw & BIT(28)), !!(raw & BIT(31)));
++	msleep(100);
++
++parents:
++	count = of_count_phandle_with_args(node, "power-domains",
++					   "#power-domain-cells");
++	for (i = 0; i < count; i++) {
++		ret = of_parse_phandle_with_args(node, "power-domains",
++						 "#power-domain-cells", i, &pd);
++		if (ret)
++			continue;
++		apple_nvme_trace_pmgr_node(dev, pd.np, depth + 1);
++		of_node_put(pd.np);
++	}
++}
++
++static void apple_nvme_trace_pmgr_chain(struct device *dev)
++{
++	struct of_phandle_args pd;
++	int count, i;
++
++	count = of_count_phandle_with_args(dev->of_node, "power-domains",
++					   "#power-domain-cells");
++	for (i = 0; i < count; i++) {
++		if (of_parse_phandle_with_args(dev->of_node, "power-domains",
++					       "#power-domain-cells", i, &pd))
++			continue;
++		apple_nvme_trace_pmgr_node(dev, pd.np, 0);
++		of_node_put(pd.np);
++	}
++}
++
+ static inline struct apple_nvme *ctrl_to_apple_nvme(struct nvme_ctrl *ctrl)
+ {
+ 	return container_of(ctrl, struct apple_nvme, ctrl);
+@@ -1626,6 +1709,16 @@ static int apple_nvme_probe(struct platform_device *pdev)
+ 	if (IS_ERR(anv))
+ 		return PTR_ERR(anv);
+ 
++	if (of_property_read_bool(pdev->dev.of_node,
++				  "apple,pmgr-snapshot-stop")) {
++		apple_nvme_trace(&pdev->dev, "raw PMGR snapshot begin");
++		apple_nvme_trace_pmgr_chain(&pdev->dev);
++		apple_nvme_trace(&pdev->dev,
++				 "raw PMGR snapshot complete; stopping before ANS MMIO");
++		ret = -EAGAIN;
++		goto out_snapshot;
++	}
++
+ 	ret = nvme_add_ctrl(&anv->ctrl);
+ 	if (ret)
+ 		goto out_put_ctrl;
+@@ -1647,5 +1740,9 @@ static int apple_nvme_probe(struct platform_device *pdev)
+ 	return 0;
+ 
++out_snapshot:
++	/* Intentionally retain genpd links until reboot: no power-off request. */
++	nvme_put_ctrl(&anv->ctrl);
++	return ret;
+ out_uninit_ctrl:
+ 	nvme_uninit_ctrl(&anv->ctrl);
+ out_put_ctrl:
+-- 
+2.50.1

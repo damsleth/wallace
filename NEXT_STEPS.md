@@ -134,16 +134,39 @@ ANS MMIO read merely to reproduce the same SError.
 Captured: the summary and per-domain files report `on` for `ans`,
 `apcie_sys_st0`, `apcie_sys_st1`, and `apcie_phy_sw`; the filtered summary also
 shows `fab3_soc`, `apcie_st0`, `apcie_st1`, and `apcie_gp` on. Linux therefore
-does not believe the storage power chain is off. The remaining bounded
-question is whether the raw PMGR provider registers agree immediately before
-CPU_CONTROL. Prepare a diagnostic-only module path that reads those existing,
-DT-referenced provider registers and exits before any ANS MMIO access.
+does not believe the storage power chain is off.
 
-Do not load `nvme-apple.ko` again until the pre-module power-state evidence
-supports a new bounded hypothesis. Enumerate read-only only after controller
-boot; never mount, repair, format, flush, or write the namespace. Full evidence
-and the eventual enumeration transcript are in
-`done/2026-07-13-t6040-nvme-map.md`.
+The bounded raw-state diagnostic is now built and host-verified.
+`patches/t6040-nvme-pmgr-snapshot-debug.patch` is selected only by the boolean
+`apple,pmgr-snapshot-stop` in
+`dts/t6040-j614s-dcuart-nvme-pmgr-snapshot.dts`. After normal allocation has
+attached the declared genpd chain, it follows only those existing DT
+`power-domains` phandles, reads each provider's declared scalar `reg` through
+its parent PMGR syscon, and returns before `nvme_add_ctrl()`. Reset work cannot
+queue, so no ANS, CoastGuard, SART-entry, mailbox, NVMe register, or storage
+command is reached. Its diagnostic exit intentionally retains the genpd links
+until reboot instead of requesting a cleanup power transition. Do not unload
+the diagnostic module; reboot after collecting the trace.
+
+Prepared artifacts:
+
+- `Image-nvme-pmgr-snapshot`:
+  `1a056fd855f2d56508e90dc5b9a789d8dc6dcaaf8f7b2284b759756213056541`;
+- `t6040-j614s-dcuart-nvme-pmgr-snapshot.dtb`:
+  `396d6ad1318764658728b4eb0b67a3961965428031e0aa52b2b59515633a977a`;
+- `initramfs-dcuart-nvme-pmgr-snapshot.cpio.gz`:
+  `7d44ee376cca2ca0caf44a713b329319b39e502dd29efa41f0b37f1e856be94c`;
+- `nvme-core-pmgr-snapshot.ko`:
+  `5e61ba16697daa382c5bb614fdaf3d5948a3818c11a630d5766e3b88ead36af7`;
+- `nvme-apple-pmgr-snapshot.ko`:
+  `21f00d39ad4f8f86df03c403d8d683addc6e4a65c2a8b204e2f7a57adac611f4`.
+
+Run one current-boot trace-relay attempt, load core then Apple, and stop after
+the raw PMGR lines plus the explicit `stopping before ANS MMIO` checkpoint.
+Do not repeat the normal Apple module load. Enumerate read-only only after a
+later, separately justified controller boot; never mount, repair, format,
+flush, or write the namespace. Full evidence and the eventual enumeration
+transcript are in `done/2026-07-13-t6040-nvme-map.md`.
 
 ## 4. Upstream / share
 - Post the drafted writeups: `done/2026-07-10-t6040-smp-writeup.md`,

@@ -1,0 +1,19 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Diagnostic-only raw PMGR snapshot for the T6040 ANS power chain.
+ *
+ * The driver follows only this node's existing power-domains phandles, reads
+ * each provider's declared register through its parent PMGR syscon, and exits
+ * before nvme_add_ctrl() can queue reset work. No ANS or storage register is
+ * accessed. Retain only for reproducing the first-read attribution.
+ */
+
+#include "t6040-j614s-dcuart-nvme-ans-hold.dts"
+
+/ {
+	model = "Apple MacBook Pro (M4 Pro) J614s [NVMe PMGR snapshot diagnostic]";
+};
+
+&ans_nvme {
+	apple,pmgr-snapshot-stop;
+};
