@@ -1,6 +1,6 @@
 # T6040 (M4 Pro, Mac16,8 / j614s) — roadmap: first light → full Linux desktop
 
-End-goal: a bootable Linux distro on this MacBook Pro 16" M4 Pro with GPU accel,
+End-goal: a bootable Linux distro on this MacBook Pro 14" M4 Pro with GPU accel,
 WiFi, Bluetooth, keyboard/trackpad, audio, webcam, power management — daily-driver
 comfort comparable to macOS.
 
@@ -241,7 +241,7 @@ keyboard/trackpad, battery status. Daily-drivable without GPU/WiFi (USB ethernet
 - **Speakers/headphones:** macaudio stack (tas2764 amps + cs42l84 jack codec are
   the recurring parts) — needs j614s DT wiring, `speakersafetyd` limits, and an
   **asahi-audio DSP profile measured for this exact chassis** (each model gets
-  tuned EQ; 16" M4 Pro won't exist yet). Speaker safety is a hard gate: no
+  tuned EQ; 14" M4 Pro won't exist yet). Speaker safety is a hard gate: no
   profile → speakers stay muted. Headphones/USB audio work much earlier.
 - **Webcam:** apple-isp driver + m1n1 ISP prealloc (Stage B item) + new sensor/
   firmware handling for the 12MP Center Stage camera. Upstream-tracking.

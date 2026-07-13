@@ -18,7 +18,7 @@ DARTs all initialized. Photo of boot log taken 2026-07-09 evening.
 
 ## Machine facts (verified via ioreg on the target)
 
-- Mac16,8 / J614sAP = MacBook Pro 16" M4 Pro, chip-id **0x6040**, board-id 0x04
+- Mac16,8 / J614sAP = MacBook Pro 14" M4 Pro, chip-id **0x6040**, board-id 0x04
 - 14 cores: 4E + 10P. ADT quirks: arm-io compat is `arm-io,t6041` (shared Brava die),
   CPU compats reuse M3 names (`apple,everest`/`apple,sawtooth`). m1n1 keys on
   chip-id/MIDR, so no code impact.
