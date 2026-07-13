@@ -104,6 +104,31 @@ else
     exit 1
 fi
 
+echo "== apply T8140 CoastGuard SART power binding =="
+if grep -q 'const: power' \
+    Documentation/devicetree/bindings/iommu/apple,sart.yaml; then
+    echo "t8140-sart-power-bindings.patch already applied"
+elif git apply --check /out/t8140-sart-power-bindings.patch 2>/dev/null; then
+    git apply /out/t8140-sart-power-bindings.patch
+    echo "t8140-sart-power-bindings.patch applied OK"
+else
+    echo "ERROR: t8140-sart-power-bindings.patch does not apply cleanly:"
+    git apply --check /out/t8140-sart-power-bindings.patch || true
+    exit 1
+fi
+
+echo "== apply T8140 CoastGuard SART power management =="
+if grep -q 'CoastGuard SART power-control' drivers/soc/apple/sart.c; then
+    echo "t8140-sart-power-managed.patch already applied"
+elif git apply --check /out/t8140-sart-power-managed.patch 2>/dev/null; then
+    git apply /out/t8140-sart-power-managed.patch
+    echo "t8140-sart-power-managed.patch applied OK"
+else
+    echo "ERROR: t8140-sart-power-managed.patch does not apply cleanly:"
+    git apply --check /out/t8140-sart-power-managed.patch || true
+    exit 1
+fi
+
 echo "== apply T6041 PMGR bindings =="
 if grep -q 'apple,t6041-pmgr' \
     Documentation/devicetree/bindings/arm/apple/apple,pmgr.yaml; then
@@ -249,11 +274,26 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
         -e APPLE_DOCKCHANNEL_HID -e APPLE_DOCKCHANNEL_TTY
 fi
 if [ "${NVME:-0}" = "1" ]; then
-    # Gated ANS/NVMe first-probe image. These default to modules, but the
-    # minimal initramfs ships no modules, so make the storage stack built-in.
-    # The standard DT keeps all ANS nodes disabled; this alone probes nothing.
-    ./scripts/config --file .config \
-        -e BLOCK -e BLK_DEV_NVME -e NVME_APPLE -e APPLE_SART
+    # Gated ANS/NVMe first-probe image. The standard DT keeps all ANS nodes
+    # disabled; these config changes alone probe nothing.
+    case "${NVME_MODE:-builtin}" in
+        builtin)
+            # Original first probe: start ANS during kernel initialization.
+            ./scripts/config --file .config \
+                -e BLOCK -e BLK_DEV_NVME -e NVME_APPLE -e APPLE_SART
+            ;;
+        staged)
+            # Diagnostic retry: keep SART available, but defer the Apple ANS
+            # driver until userspace can stream /dev/kmsg over DockChannel.
+            # The generic PCI NVMe host is unrelated to this platform.
+            ./scripts/config --file .config \
+                -e BLOCK -d BLK_DEV_NVME -e APPLE_SART -m NVME_APPLE
+            ;;
+        *)
+            echo "ERROR: unknown NVME_MODE=${NVME_MODE}; use builtin or staged"
+            exit 1
+            ;;
+    esac
 fi
 if [ "${GADGET:-0}" = "1" ]; then
     # USB gadget console: plain dwc3 core in peripheral mode (snps,dwc3 DT
@@ -281,7 +321,7 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
 fi
 if [ "${NVME:-0}" = "1" ]; then
     echo "-- resulting ANS/NVMe config --"
-    grep -E "CONFIG_(BLK_DEV_NVME|NVME_APPLE|APPLE_SART)=" .config || true
+    grep -E "CONFIG_(BLK_DEV_NVME|NVME_CORE|NVME_APPLE|APPLE_SART)=" .config || true
 fi
 grep -qE "CONFIG_ARM64_SME=y" .config && echo "WARN: SME still enabled!" || echo "SME disabled OK"
 
@@ -307,8 +347,22 @@ if [ "${1:-}" = "image" ]; then
     image_name=Image
     map_name=System.map
     if [ "${NVME:-0}" = "1" ]; then
-        image_name=Image-nvme
-        map_name=System.map-nvme
+        case "${NVME_MODE:-builtin}" in
+            builtin)
+                image_name=Image-nvme
+                map_name=System.map-nvme
+                ;;
+            staged)
+                image_name=Image-nvme-staged
+                map_name=System.map-nvme-staged
+                echo "== build staged ANS modules =="
+                make ARCH=arm64 -j"$NPROC" \
+                    drivers/nvme/host/nvme-core.ko \
+                    drivers/nvme/host/nvme-apple.ko
+                cp drivers/nvme/host/nvme-core.ko /out/
+                cp drivers/nvme/host/nvme-apple.ko /out/
+                ;;
+        esac
     fi
     cp arch/arm64/boot/Image "/out/$image_name" \
         && echo "Image -> /out/$image_name ($(du -h arch/arm64/boot/Image | cut -f1))"

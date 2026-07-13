@@ -1,0 +1,65 @@
+From: Carl Joakim Damsleth <kim@damsleth.com>
+Subject: [PATCH] dt-bindings: iommu: apple,sart: describe T8140 power control
+
+T8140 uses a CoastGuard SART whose entry register file must be activated
+through a control register inside the ANS MMIO window before access. Give
+this incompatible power-managed variant its own compatible entry and
+describe the separate, named power register resource.
+
+Signed-off-by: Carl Joakim Damsleth <kim@damsleth.com>
+---
+ Documentation/devicetree/bindings/iommu/apple,sart.yaml | 30 ++++++++++++++++++++++++++++--
+ 1 file changed, 28 insertions(+), 2 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/iommu/apple,sart.yaml b/Documentation/devicetree/bindings/iommu/apple,sart.yaml
+index 16b249256744..acb5ac4f4f36 100644
+--- a/Documentation/devicetree/bindings/iommu/apple,sart.yaml
++++ b/Documentation/devicetree/bindings/iommu/apple,sart.yaml
+@@ -33,19 +33,45 @@ properties:
+           - enum:
+               - apple,t6020-sart
+               - apple,t8112-sart
+-              - apple,t8140-sart
+           - const: apple,t6000-sart
+       - enum:
+           - apple,t6000-sart
+           - apple,t8015-sart
+           - apple,t8103-sart
++          - apple,t8140-sart
+ 
+   reg:
+-    maxItems: 1
++    minItems: 1
++    maxItems: 2
++
++  reg-names:
++    minItems: 1
++    items:
++      - const: sart
++      - const: power
+ 
+   power-domains:
+     maxItems: 1
+ 
++allOf:
++  - if:
++      properties:
++        compatible:
++          contains:
++            const: apple,t8140-sart
++    then:
++      properties:
++        reg:
++          minItems: 2
++        reg-names:
++          minItems: 2
++      required:
++        - reg-names
++    else:
++      properties:
++        reg:
++          maxItems: 1
++
+ required:
+   - compatible
+   - reg

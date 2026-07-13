@@ -1,0 +1,277 @@
+From: Carl Joakim Damsleth <kim@damsleth.com>
+Subject: [PATCH] soc: apple: sart: support T8140 CoastGuard power control
+
+The T8140 SART register file is not safe to access while its separate
+CoastGuard power-control register reports the inactive state. Keep the SART
+active while allowed regions exist and bracket the boot-entry scan with a
+temporary active reference.
+
+The transition protocol matches Apple's T8140 implementation: repeatedly
+write the requested state, delay 100 us, and read it back. Zero requests
+the active state and one requests the inactive state. The power register
+resides inside the ANS resource, so map it without claiming the overlapping
+region.
+
+Signed-off-by: Carl Joakim Damsleth <kim@damsleth.com>
+---
+ drivers/soc/apple/sart.c | 134 ++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 132 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/soc/apple/sart.c b/drivers/soc/apple/sart.c
+index 9eaf3febb382..d06f302e1882 100644
+--- a/drivers/soc/apple/sart.c
++++ b/drivers/soc/apple/sart.c
+@@ -15,9 +15,12 @@
+ #include <linux/atomic.h>
+ #include <linux/bits.h>
+ #include <linux/bitfield.h>
++#include <linux/delay.h>
+ #include <linux/device.h>
+ #include <linux/io.h>
++#include <linux/iopoll.h>
+ #include <linux/module.h>
++#include <linux/mutex.h>
+ #include <linux/of.h>
+ #include <linux/of_platform.h>
+ #include <linux/platform_device.h>
+@@ -61,6 +64,12 @@
+ 
+ #define APPLE_SART3_FLAGS_ALLOW 0xff
+ 
++/* CoastGuard SART power-control register values. */
++#define APPLE_SART_POWER_ACTIVE		0
++#define APPLE_SART_POWER_INACTIVE	1
++#define APPLE_SART_POWER_DELAY_US	100
++#define APPLE_SART_POWER_TIMEOUT_US	100000
++
+ struct apple_sart_ops {
+ 	void (*get_entry)(struct apple_sart *sart, int index, u8 *flags,
+ 			  phys_addr_t *paddr, size_t *size);
+@@ -71,13 +80,17 @@ struct apple_sart_ops {
+ 	unsigned int size_shift;
+ 	unsigned int paddr_shift;
+ 	size_t size_max;
++	bool power_managed;
+ };
+ 
+ struct apple_sart {
+ 	struct device *dev;
+ 	void __iomem *regs;
++	void __iomem *power_reg;
+ 
+ 	const struct apple_sart_ops *ops;
++	struct mutex power_lock;
++	unsigned int power_users;
+ 
+ 	unsigned long protected_entries;
+ 	unsigned long used_entries;
+@@ -177,9 +190,80 @@ static struct apple_sart_ops sart_ops_v3 = {
+ 	.size_max = APPLE_SART3_SIZE_MAX,
+ };
+ 
++static struct apple_sart_ops sart_ops_v3_power_managed = {
++	.get_entry = sart3_get_entry,
++	.set_entry = sart3_set_entry,
++	.flags_allow = APPLE_SART3_FLAGS_ALLOW,
++	.size_shift = APPLE_SART3_SIZE_SHIFT,
++	.paddr_shift = APPLE_SART3_PADDR_SHIFT,
++	.size_max = APPLE_SART3_SIZE_MAX,
++	.power_managed = true,
++};
++
++static u32 sart_set_power_state(struct apple_sart *sart, u32 state)
++{
++	writel(state, sart->power_reg);
++	udelay(APPLE_SART_POWER_DELAY_US);
++
++	return readl(sart->power_reg);
++}
++
++static int sart_power_get(struct apple_sart *sart)
++{
++	u32 state;
++	int ret = 0;
++
++	if (!sart->ops->power_managed)
++		return 0;
++
++	mutex_lock(&sart->power_lock);
++	if (!sart->power_users) {
++		ret = read_poll_timeout_atomic(sart_set_power_state, state,
++					       state == APPLE_SART_POWER_ACTIVE,
++					       0, APPLE_SART_POWER_TIMEOUT_US,
++					       false, sart,
++					       APPLE_SART_POWER_ACTIVE);
++		if (ret)
++			dev_err(sart->dev, "failed to activate SART: %#x\n",
++				state);
++	}
++	if (!ret)
++		sart->power_users++;
++	mutex_unlock(&sart->power_lock);
++
++	return ret;
++}
++
++static void sart_power_put(struct apple_sart *sart)
++{
++	u32 state;
++	int ret;
++
++	if (!sart->ops->power_managed)
++		return;
++
++	mutex_lock(&sart->power_lock);
++	if (WARN_ON(!sart->power_users))
++		goto out;
++
++	if (--sart->power_users)
++		goto out;
++
++	ret = read_poll_timeout_atomic(sart_set_power_state, state,
++				       state == APPLE_SART_POWER_INACTIVE,
++				       0, APPLE_SART_POWER_TIMEOUT_US, false,
++				       sart, APPLE_SART_POWER_INACTIVE);
++	if (ret)
++		dev_err(sart->dev, "failed to deactivate SART: %#x\n", state);
++
++out:
++	mutex_unlock(&sart->power_lock);
++}
++
+ static int apple_sart_probe(struct platform_device *pdev)
+ {
+-	int i;
++	struct resource *res;
++	int i, ret;
+ 	struct apple_sart *sart;
+ 	struct device *dev = &pdev->dev;
+ 
+@@ -189,11 +273,29 @@ static int apple_sart_probe(struct platform_device *pdev)
+ 
+ 	sart->dev = dev;
+ 	sart->ops = of_device_get_match_data(dev);
++	mutex_init(&sart->power_lock);
+ 
+ 	sart->regs = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(sart->regs))
+ 		return PTR_ERR(sart->regs);
+ 
++	if (sart->ops->power_managed) {
++		res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "power");
++		if (!res)
++			return dev_err_probe(dev, -EINVAL,
++					     "missing power register\n");
++
++		/* This register is inside the ANS MMIO window and is shared. */
++		sart->power_reg = devm_ioremap(dev, res->start,
++					       resource_size(res));
++		if (!sart->power_reg)
++			return -ENOMEM;
++	}
++
++	ret = sart_power_get(sart);
++	if (ret)
++		return ret;
++
+ 	for (i = 0; i < APPLE_SART_MAX_ENTRIES; ++i) {
+ 		u8 flags;
+ 		size_t size;
+@@ -209,6 +311,7 @@ static int apple_sart_probe(struct platform_device *pdev)
+ 			i, flags, &paddr, size);
+ 		set_bit(i, &sart->protected_entries);
+ 	}
++	sart_power_put(sart);
+ 
+ 	platform_set_drvdata(pdev, sart);
+ 	return 0;
+@@ -268,6 +371,10 @@ int apple_sart_add_allowed_region(struct apple_sart *sart, phys_addr_t paddr,
+ {
+ 	int i, ret;
+ 
++	ret = sart_power_get(sart);
++	if (ret)
++		return ret;
++
+ 	for (i = 0; i < APPLE_SART_MAX_ENTRIES; ++i) {
+ 		if (test_bit(i, &sart->protected_entries))
+ 			continue;
+@@ -281,6 +388,7 @@ int apple_sart_add_allowed_region(struct apple_sart *sart, phys_addr_t paddr,
+ 				"unable to set entry %d to [%pa, 0x%zx]\n",
+ 				i, &paddr, size);
+ 			clear_bit(i, &sart->used_entries);
++			sart_power_put(sart);
+ 			return ret;
+ 		}
+ 
+@@ -292,6 +400,7 @@ int apple_sart_add_allowed_region(struct apple_sart *sart, phys_addr_t paddr,
+ 	dev_warn(sart->dev,
+ 		 "no free entries left to add [paddr: 0x%pa, size: 0x%zx]\n",
+ 		 &paddr, size);
++	sart_power_put(sart);
+ 
+ 	return -EBUSY;
+ }
+@@ -300,12 +409,16 @@ EXPORT_SYMBOL_GPL(apple_sart_add_allowed_region);
+ int apple_sart_remove_allowed_region(struct apple_sart *sart, phys_addr_t paddr,
+ 				     size_t size)
+ {
+-	int i;
++	int i, ret;
+ 
+ 	dev_dbg(sart->dev,
+ 		"will remove [paddr: %pa, size: 0x%zx] from allowed regions\n",
+ 		&paddr, size);
+ 
++	ret = sart_power_get(sart);
++	if (ret)
++		return ret;
++
+ 	for (i = 0; i < APPLE_SART_MAX_ENTRIES; ++i) {
+ 		u8 eflags;
+ 		size_t esize;
+@@ -323,11 +436,15 @@ int apple_sart_remove_allowed_region(struct apple_sart *sart, phys_addr_t paddr,
+ 
+ 		clear_bit(i, &sart->used_entries);
+ 		dev_dbg(sart->dev, "cleared entry %d\n", i);
++		/* Drop the region's persistent reference and this lookup's. */
++		sart_power_put(sart);
++		sart_power_put(sart);
+ 		return 0;
+ 	}
+ 
+ 	dev_warn(sart->dev, "entry [paddr: 0x%pa, size: 0x%zx] not found\n",
+ 		 &paddr, size);
++	sart_power_put(sart);
+ 
+ 	return -EINVAL;
+ }
+@@ -338,15 +455,28 @@ static void apple_sart_shutdown(struct platform_device *pdev)
+ 	struct apple_sart *sart = dev_get_drvdata(&pdev->dev);
+ 	int i;
+ 
++	if (sart_power_get(sart))
++		return;
++
+ 	for (i = 0; i < APPLE_SART_MAX_ENTRIES; ++i) {
+ 		if (test_bit(i, &sart->protected_entries))
+ 			continue;
+ 
+ 		sart->ops->set_entry(sart, i, 0, 0, 0);
+ 	}
++
++	for (i = 0; i < APPLE_SART_MAX_ENTRIES; ++i) {
++		if (test_and_clear_bit(i, &sart->used_entries))
++			sart_power_put(sart);
++	}
++	sart_power_put(sart);
+ }
+ 
+ static const struct of_device_id apple_sart_of_match[] = {
++	{
++		.compatible = "apple,t8140-sart",
++		.data = &sart_ops_v3_power_managed,
++	},
+ 	{
+ 		.compatible = "apple,t6000-sart",
+ 		.data = &sart_ops_v3,

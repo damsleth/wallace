@@ -1,0 +1,12 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/* Cumulative first-probe isolation: ASC mailbox only, no SART or NVMe. */
+
+#include "t6040-j614s-dcuart.dts"
+
+/ {
+	model = "Apple MacBook Pro (M4 Pro) J614s [GATED ANS mailbox probe]";
+};
+
+&ans_mbox {
+	status = "okay";
+};
