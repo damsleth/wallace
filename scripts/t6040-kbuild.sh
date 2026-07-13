@@ -202,6 +202,13 @@ if [ "${SART_HANDSHAKE_ONLY:-0}" != "1" ] &&
     fi
 fi
 
+if [ "${NVME_ANS_READ:-0}" != "1" ] &&
+   grep -q 'isolated ANS CPU control read returned' \
+       drivers/nvme/host/apple.c; then
+    echo "== remove isolated Apple ANS-read diagnostic =="
+    git apply -R /out/t6040-nvme-ans-read-debug.patch
+fi
+
 if [ "${PMGR_FORCE_ACTIVE:-0}" != "1" ] &&
    grep -q 'PMGR force-active verified; stopping before ANS MMIO' \
        drivers/nvme/host/apple.c; then
@@ -337,6 +344,25 @@ if [ "${PMGR_FORCE_ACTIVE:-0}" = "1" ]; then
     else
         echo "ERROR: t6040-pmgr-force-active-debug.patch does not apply cleanly:"
         git apply --check /out/t6040-pmgr-force-active-debug.patch || true
+        exit 1
+    fi
+fi
+
+if [ "${NVME_ANS_READ:-0}" = "1" ]; then
+    [ "${PMGR_FORCE_ACTIVE:-0}" = "1" ] || {
+        echo "ERROR: NVME_ANS_READ=1 requires PMGR_FORCE_ACTIVE=1"
+        exit 1
+    }
+    echo "== apply isolated Apple ANS-read diagnostic =="
+    if grep -q 'isolated ANS CPU control read returned' \
+        drivers/nvme/host/apple.c; then
+        echo "t6040-nvme-ans-read-debug.patch already applied"
+    elif git apply --check /out/t6040-nvme-ans-read-debug.patch 2>/dev/null; then
+        git apply /out/t6040-nvme-ans-read-debug.patch
+        echo "t6040-nvme-ans-read-debug.patch applied OK"
+    else
+        echo "ERROR: t6040-nvme-ans-read-debug.patch does not apply cleanly:"
+        git apply --check /out/t6040-nvme-ans-read-debug.patch || true
         exit 1
     fi
 fi
@@ -545,7 +571,12 @@ if [ "${1:-}" = "image" ]; then
                 make ARCH=arm64 -j"$NPROC" \
                     drivers/nvme/host/nvme-core.ko \
                     drivers/nvme/host/nvme-apple.ko
-                if [ "${PMGR_FORCE_ACTIVE:-0}" = "1" ]; then
+                if [ "${NVME_ANS_READ:-0}" = "1" ]; then
+                    cp drivers/nvme/host/nvme-core.ko \
+                        /out/nvme-core-ans-read.ko
+                    cp drivers/nvme/host/nvme-apple.ko \
+                        /out/nvme-apple-ans-read.ko
+                elif [ "${PMGR_FORCE_ACTIVE:-0}" = "1" ]; then
                     cp drivers/nvme/host/nvme-core.ko \
                         /out/nvme-core-pmgr-force-active.ko
                     cp drivers/nvme/host/nvme-apple.ko \
@@ -581,6 +612,10 @@ if [ "${1:-}" = "image" ]; then
     if [ "${PMGR_FORCE_ACTIVE:-0}" = "1" ]; then
         image_name=Image-nvme-pmgr-force-active
         map_name=System.map-nvme-pmgr-force-active
+    fi
+    if [ "${NVME_ANS_READ:-0}" = "1" ]; then
+        image_name=Image-nvme-ans-read
+        map_name=System.map-nvme-ans-read
     fi
     cp arch/arm64/boot/Image "/out/$image_name" \
         && echo "Image -> /out/$image_name ($(du -h arch/arm64/boot/Image | cut -f1))"

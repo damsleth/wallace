@@ -226,13 +226,31 @@ answered both liveness markers. The target was then rebooted rather than
 unloading the module and returned to a quiescent m1n1 proxy.
 
 This is the first successful physical-state correction at the fatal boundary.
-Next, prepare a third diagnostic that performs the same verified transition,
-then executes exactly the single previously fatal `readl()` at ANS
-CPU_CONTROL `0x209600044`, logs the returned value, and immediately exits
-through the no-detach path. Do not queue reset work or write CPU_CONTROL in
-that retry. A successful read would justify a later normal controller-boot
-attempt; another reset would disprove the parent-gating hypothesis. Never
-mount, repair, format, flush, or write the namespace. Exact output:
+The third diagnostic is now built. After the same before/after verification,
+`patches/t6040-nvme-ans-read-debug.patch` performs exactly one `readl()` of
+ANS CPU_CONTROL `0x209600044`, logs its returned value, and immediately exits
+through the no-detach path. It does not queue reset work or write CPU_CONTROL.
+The DT contains only `apple,pmgr-force-active-read-stop`; neither earlier stop
+property is present. Strict checkpatch, full kernel/module link, patch reversal,
+DT inspection, marker inspection, and initramfs module comparison all pass.
+
+Prepared artifacts:
+
+- `Image-nvme-ans-read`:
+  `47514760a0ca729e7f46c5c71d8cbd403d205a55ee0bdbff59f7f8cdce47cbcc`;
+- `t6040-j614s-dcuart-nvme-ans-read.dtb`:
+  `01c7511d71d6072e23a72ddac0cbd10795587e830e99f77df988f9d998a2761d`;
+- `initramfs-dcuart-nvme-ans-read.cpio.gz`:
+  `3c1cfe3dddcbd02b8a4c0ee5eaaecf147627ee5fde17b8ae4250749de65b9c44`;
+- `nvme-core-ans-read.ko`:
+  `5e61ba16697daa382c5bb614fdaf3d5948a3818c11a630d5766e3b88ead36af7`;
+- `nvme-apple-ans-read.ko`:
+  `0562b9e66424f2727efd9a4eac9502b7c8c9dd82606e081214d70ffc92b5ac8a`.
+
+Run this once with the current-boot relay. A successful read justifies a later
+force-active controller-boot attempt; another reset disproves the
+parent-gating hypothesis. Never mount, repair, format, flush, or write the
+namespace. Prior exact output:
 `logs/t6040-console-20260713-nvme-pmgr-force-active.log`.
 
 ## 4. Upstream / share

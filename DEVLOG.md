@@ -308,6 +308,13 @@ module unload and left at m1n1. The next bounded diagnostic may repeat that
 transition and perform exactly one read of ANS CPU_CONTROL, then stop. Exact
 transcript: `logs/t6040-console-20260713-nvme-pmgr-force-active.log`.
 
+That isolated-read diagnostic is prepared as
+`patches/t6040-nvme-ans-read-debug.patch` and
+`dts/t6040-j614s-dcuart-nvme-ans-read.dts`. It repeats and verifies the proven
+force-active sequence, performs one CPU_CONTROL read, prints the result, and
+stops before any ANS write or reset work. Reproducible hashes are in
+`NEXT_STEPS.md` and the NVMe map.
+
 The remaining T8103 ANS2 fallback agrees with m1n1 on ASC v4, 64-entry linear
 queues, and functional ANS/NVMMU offsets. m1n1's historical TCB-status
 diagnostic read remains `0x29120` versus Linux's `0x28120`; resolve that from a

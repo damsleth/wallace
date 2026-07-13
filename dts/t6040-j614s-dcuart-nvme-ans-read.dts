@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Diagnostic-only first ANS CPU_CONTROL read after PMGR force-active.
+ *
+ * The Apple NVMe debug module snapshots and forces its declared PMGR chain,
+ * verifies ACTUAL state, reads CPU_CONTROL exactly once, and exits before any
+ * ANS write or nvme_add_ctrl(). Reboot after collecting the trace.
+ */
+
+#include "t6040-j614s-dcuart-nvme-ans-hold.dts"
+
+/ {
+	model = "Apple MacBook Pro (M4 Pro) J614s [isolated ANS read diagnostic]";
+};
+
+&ans_nvme {
+	apple,pmgr-force-active-read-stop;
+};
