@@ -1,0 +1,104 @@
+From: Carl Joakim Damsleth <kim@damsleth.com>
+Subject: [PATCH DEBUG] nvme: apple: trace post-ANS controller setup
+
+The translated T6040 storage map reaches ANS boot status successfully, but
+the first full driver continuation waits later in reset work. Add yielding
+checkpoints around the existing NVMMU, queue, controller-enable, Identify,
+and I/O-queue setup phases. This changes no register values or control flow
+and depends on t6040-nvme-trace-debug.patch. Do not submit it.
+
+Signed-off-by: Carl Joakim Damsleth <kim@damsleth.com>
+---
+diff --git a/drivers/nvme/host/apple.c b/drivers/nvme/host/apple.c
+index d118ac3..bb7fc7f 100644
+--- a/drivers/nvme/host/apple.c
++++ b/drivers/nvme/host/apple.c
+@@ -1271,6 +1271,7 @@ static void apple_nvme_reset_work(struct work_struct *work)
+ 
+ 	dma_set_max_seg_size(anv->dev, 0xffffffff);
+ 
++	apple_nvme_trace(anv->dev, "before linear queue and NVMMU setup");
+ 	if (anv->hw->has_lsq_nvmmu) {
+ 		/*
+ 		 * Enable NVMMU and linear submission queues which is required
+@@ -1300,6 +1301,7 @@ static void apple_nvme_reset_work(struct work_struct *work)
+ 			~APPLE_ANS_PRP_NULL_CHECK,
+ 			anv->mmio_nvme + APPLE_ANS_UNKNOWN_CTRL);
+ 	}
++	apple_nvme_trace(anv->dev, "linear queue and NVMMU setup complete");
+ 
+ 	/* Setup the admin queue */
+ 	aqa = APPLE_NVME_AQ_DEPTH - 1;
+@@ -1308,6 +1310,7 @@ static void apple_nvme_reset_work(struct work_struct *work)
+ 	writeq(anv->adminq.sq_dma_addr, anv->mmio_nvme + NVME_REG_ASQ);
+ 	writeq(anv->adminq.cq_dma_addr, anv->mmio_nvme + NVME_REG_ACQ);
+ 
++	apple_nvme_trace(anv->dev, "admin queue registers programmed");
+ 	if (anv->hw->has_lsq_nvmmu) {
+ 		/* Setup NVMMU for both queues */
+ 		writeq(anv->adminq.tcb_dma_addr,
+@@ -1316,18 +1319,24 @@ static void apple_nvme_reset_work(struct work_struct *work)
+ 			anv->mmio_nvme + APPLE_NVMMU_IOSQ_TCB_BASE);
+ 	}
+ 
++	apple_nvme_trace(anv->dev, "NVMMU queue bases programmed");
+ 	anv->ctrl.sqsize =
+ 		anv->hw->max_queue_depth - 1; /* 0's based queue depth */
++	apple_nvme_trace(anv->dev, "before NVMe capability read");
+ 	anv->ctrl.cap = readq(anv->mmio_nvme + NVME_REG_CAP);
++	apple_nvme_trace(anv->dev, "NVMe capability read complete");
+ 
+ 	dev_dbg(anv->dev, "Enabling controller now");
++	apple_nvme_trace(anv->dev, "before NVMe controller enable");
+ 	ret = nvme_enable_ctrl(&anv->ctrl);
+ 	if (ret)
+ 		goto out;
++	apple_nvme_trace(anv->dev, "NVMe controller enable complete");
+ 
+ 	dev_dbg(anv->dev, "Starting admin queue");
+ 	apple_nvme_init_queue(&anv->adminq);
+ 	nvme_unquiesce_admin_queue(&anv->ctrl);
++	apple_nvme_trace(anv->dev, "admin queue started");
+ 
+ 	if (!nvme_change_ctrl_state(&anv->ctrl, NVME_CTRL_CONNECTING)) {
+ 		dev_warn(anv->ctrl.device,
+@@ -1337,24 +1346,29 @@ static void apple_nvme_reset_work(struct work_struct *work)
+ 		goto out;
+ 	}
+ 
++	apple_nvme_trace(anv->dev, "before NVMe controller Identify");
+ 	ret = nvme_init_ctrl_finish(&anv->ctrl, false);
+ 	if (ret)
+ 		goto out;
++	apple_nvme_trace(anv->dev, "NVMe controller Identify complete");
+ 
+ 	dev_dbg(anv->dev, "Creating IOCQ");
+ 	ret = apple_nvme_create_cq(anv);
+ 	if (ret)
+ 		goto out;
++	apple_nvme_trace(anv->dev, "I/O completion queue created");
+ 	dev_dbg(anv->dev, "Creating IOSQ");
+ 	ret = apple_nvme_create_sq(anv);
+ 	if (ret)
+ 		goto out_remove_cq;
++	apple_nvme_trace(anv->dev, "I/O submission queue created");
+ 
+ 	apple_nvme_init_queue(&anv->ioq);
+ 	nr_io_queues = 1;
+ 	ret = nvme_set_queue_count(&anv->ctrl, &nr_io_queues);
+ 	if (ret)
+ 		goto out_remove_sq;
++	apple_nvme_trace(anv->dev, "NVMe queue count configured");
+ 	if (nr_io_queues != 1) {
+ 		ret = -ENXIO;
+ 		goto out_remove_sq;
+@@ -1383,6 +1397,7 @@ static void apple_nvme_reset_work(struct work_struct *work)
+ 	}
+ 
+ 	nvme_start_ctrl(&anv->ctrl);
++	apple_nvme_trace(anv->dev, "NVMe controller live");
+ 
+ 	dev_dbg(anv->dev, "ANS boot and NVMe init completed.");
+ 	return;
+-- 
+2.50.1

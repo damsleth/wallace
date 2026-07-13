@@ -1,0 +1,41 @@
+T6040 J614s NVMe continuation at ADT-translated addresses
+2026-07-13, Linux build #27
+
+__CONT_CORE_BEGIN__
+__CONT_CORE_RC__0
+__CONT_APPLE_BEGIN__
+<4>[   53.058337] nvme-apple 40dcc0000.nvme: trace: platform probe entered
+<4>[   53.164597] nvme-apple 40dcc0000.nvme: trace: allocation entered
+<4>[   53.268672] nvme-apple 40dcc0000.nvme: trace: power domains attached
+<4>[   53.372637] nvme-apple 40dcc0000.nvme: trace: MMIO resources mapped
+<4>[   53.476638] nvme-apple 40dcc0000.nvme: trace: SART supplier acquired
+<4>[   53.580744] nvme-apple 40dcc0000.nvme: trace: queues allocated
+<4>[   53.684723] nvme-apple 40dcc0000.nvme: trace: RTKit client initialized
+<4>[   53.788601] nvme-apple 40dcc0000.nvme: trace: NVMe controller object initialized
+<4>[   55.468600] nvme-apple 40dcc0000.nvme: trace: PMGR force-active begin
+<4>[   55.572668] nvme-apple 40dcc0000.nvme: trace: PMGR apcie_sys_st0 forced to actual active
+<4>[   55.680638] nvme-apple 40dcc0000.nvme: trace: PMGR apcie_sys_st1 forced to actual active
+<4>[   55.784624] nvme-apple 40dcc0000.nvme: trace: PMGR apcie_phy_sw forced to actual active
+<4>[   55.888598] nvme-apple 40dcc0000.nvme: trace: PMGR force-active complete
+<4>[   56.412603] nvme-apple 40dcc0000.nvme: trace: PMGR apcie_phy_sw offset 0x398 raw 0x0f0002ff target 0xf actual 0xf auto 0 reset 0
+<4>[   56.516602] nvme-apple 40dcc0000.nvme: trace: PMGR apcie_sys_st0 offset 0x380 raw 0x0f0003ff target 0xf actual 0xf auto 0 reset 0
+<4>[   57.040600] nvme-apple 40dcc0000.nvme: trace: PMGR apcie_sys_st1 offset 0x388 raw 0x0f0003ff target 0xf actual 0xf auto 0 reset 0
+<4>[   57.564607] nvme-apple 40dcc0000.nvme: trace: PMGR force-active verified; continuing to controller reset work
+<4>[   57.672707] nvme-apple 40dcc0000.nvme: trace: reset work queued
+<4>[   57.673557] nvme-apple 40dcc0000.nvme: trace: reset work entered
+<4>[   57.776695] nvme-apple 40dcc0000.nvme: trace: before ANS CPU control read
+<4>[   57.884671] apple-sart 40dc50000.iommu: trace: add allowed region begin
+<4>[   57.988598] apple-sart 40dc50000.iommu: trace: CoastGuard activate begin
+<4>[   58.092699] apple-sart 40dc50000.iommu: trace: CoastGuard activate complete
+<4>[   58.093592] apple-sart 40dc50000.iommu: trace: SART entry scan begin
+<4>[   58.094220] apple-sart 40dc50000.iommu: trace: SART entry scan complete
+<4>[   58.094824] apple-sart 40dc50000.iommu: trace: add allowed region begin
+<4>[   58.197873] apple-sart 40dc50000.iommu: trace: add allowed region begin
+<4>[   58.300622] nvme-apple 40dcc0000.nvme: trace: ANS RTKit boot returned
+<4>[   58.404598] nvme-apple 40dcc0000.nvme: trace: before ANS boot status read
+<4>[   58.508598] nvme-apple 40dcc0000.nvme: trace: ANS boot status ready
+
+No later phase, module-return marker, or shell marker appeared during several
+minutes. The kernel and DebugUSB link stayed alive, so this is a post-boot-status
+wait rather than the earlier SError/watchdog-reset boundary. No user-issued
+NVMe, namespace, filesystem, or storage command occurred.
