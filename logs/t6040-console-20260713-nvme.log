@@ -138,3 +138,11 @@ returned zero. Loading nvme-apple produced:
 The target reset after the last line. The ANS skip-auto/firmware-state hold did
 not move the original boundary, disproving that hypothesis. No later hardware
 phase or storage command ran.
+
+Pre-module genpd snapshot
+-------------------------
+A fresh boot left both NVMe modules unloaded and mounted debugfs. The filtered
+summary reported on for ans, apcie_sys_st0, apcie_sys_st1, apcie_phy_sw,
+fab3_soc, apcie_st0, apcie_st1, and apcie_gp. The individual current_state
+files for ans, apcie_sys_st0, apcie_sys_st1, and apcie_phy_sw each returned on.
+No ANS MMIO or NVMe module probe ran during this snapshot.

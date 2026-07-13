@@ -131,6 +131,14 @@ This is read-only software-state attribution. Use it to decide whether a
 separately reviewed raw PMGR-state trace is warranted; do not perform another
 ANS MMIO read merely to reproduce the same SError.
 
+Captured: the summary and per-domain files report `on` for `ans`,
+`apcie_sys_st0`, `apcie_sys_st1`, and `apcie_phy_sw`; the filtered summary also
+shows `fab3_soc`, `apcie_st0`, `apcie_st1`, and `apcie_gp` on. Linux therefore
+does not believe the storage power chain is off. The remaining bounded
+question is whether the raw PMGR provider registers agree immediately before
+CPU_CONTROL. Prepare a diagnostic-only module path that reads those existing,
+DT-referenced provider registers and exits before any ANS MMIO access.
+
 Do not load `nvme-apple.ko` again until the pre-module power-state evidence
 supports a new bounded hypothesis. Enumerate read-only only after controller
 boot; never mount, repair, format, flush, or write the namespace. Full evidence
