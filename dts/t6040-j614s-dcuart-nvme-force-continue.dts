@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Continue normal Apple NVMe probe after verified PMGR force-active.
+ *
+ * The isolated read at the translated ANS address returned CPU_CONTROL=0x10.
+ * This variant repeats the same bounded parent activation, then queues the
+ * normal reset worker. Keep all storage access read-only during bring-up.
+ */
+
+#include "t6040-j614s-dcuart-nvme-ans-hold.dts"
+
+/ {
+	model = "Apple MacBook Pro (M4 Pro) J614s [NVMe force-active continuation]";
+};
+
+&ans_nvme {
+	apple,pmgr-force-active-continue;
+};

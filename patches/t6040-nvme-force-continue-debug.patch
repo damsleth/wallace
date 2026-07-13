@@ -1,0 +1,58 @@
+From: Carl Joakim Damsleth <kim@damsleth.com>
+Subject: [PATCH DEBUG] nvme: apple: continue after verified PMGR activation
+
+After the isolated CPU_CONTROL read succeeds, allow one opt-in DT property
+to reuse the verified PMGR force-active sequence. It then continues into the
+driver's normal nvme_add_ctrl() path. This queues the existing reset worker,
+which will read the proven CPU_CONTROL register and wake the running ANS RTKit
+firmware.
+
+This patch depends on t6040-nvme-ans-read-debug.patch. It is selected only by
+apple,pmgr-force-active-continue. Do not submit it.
+
+Signed-off-by: Carl Joakim Damsleth <kim@damsleth.com>
+---
+diff --git a/drivers/nvme/host/apple.c b/drivers/nvme/host/apple.c
+index e48291b..d118ac3 100644
+--- a/drivers/nvme/host/apple.c
++++ b/drivers/nvme/host/apple.c
+@@ -1775,7 +1775,9 @@ static int apple_nvme_probe(struct platform_device *pdev)
+ 	if (of_property_read_bool(pdev->dev.of_node,
+ 				  "apple,pmgr-force-active-stop") ||
+ 	    of_property_read_bool(pdev->dev.of_node,
+-				  "apple,pmgr-force-active-read-stop")) {
++				  "apple,pmgr-force-active-read-stop") ||
++	    of_property_read_bool(pdev->dev.of_node,
++				  "apple,pmgr-force-active-continue")) {
+ 		apple_nvme_trace(&pdev->dev, "raw PMGR snapshot before force-active");
+ 		apple_nvme_trace_pmgr_chain(&pdev->dev);
+ 		apple_nvme_trace(&pdev->dev, "PMGR force-active begin");
+@@ -1788,7 +1790,11 @@ static int apple_nvme_probe(struct platform_device *pdev)
+ 		apple_nvme_trace(&pdev->dev, "PMGR force-active complete");
+ 		apple_nvme_trace(&pdev->dev, "raw PMGR snapshot after force-active");
+ 		apple_nvme_trace_pmgr_chain(&pdev->dev);
+-		if (of_property_read_bool(pdev->dev.of_node,
++		if (of_property_read_bool(pdev->dev.of_node,
++					  "apple,pmgr-force-active-continue")) {
++			apple_nvme_trace(&pdev->dev,
++					 "PMGR force-active verified; continuing to controller reset work");
++		} else if (of_property_read_bool(pdev->dev.of_node,
+ 					  "apple,pmgr-force-active-read-stop")) {
+ 			apple_nvme_trace(&pdev->dev,
+ 					 "PMGR force-active verified; before isolated ANS CPU control read");
+@@ -1807,8 +1813,11 @@ static int apple_nvme_probe(struct platform_device *pdev)
+ 			apple_nvme_trace(&pdev->dev,
+ 					 "PMGR force-active verified; stopping before ANS MMIO");
+ 		}
+-		ret = -EAGAIN;
+-		goto out_snapshot;
++		if (!of_property_read_bool(pdev->dev.of_node,
++					   "apple,pmgr-force-active-continue")) {
++			ret = -EAGAIN;
++			goto out_snapshot;
++		}
+ 	}
+ 
+ 	if (of_property_read_bool(pdev->dev.of_node,
+-- 
+2.50.1

@@ -1,0 +1,35 @@
+T6040 J614s isolated ANS CPU-control read at ADT-translated addresses
+2026-07-13, Linux build #27
+
+__READ2_CORE_BEGIN__
+__READ2_CORE_RC__0
+__READ2_APPLE_BEGIN__
+<4>[   55.002912] nvme-apple 40dcc0000.nvme: trace: platform probe entered
+<4>[   55.109153] nvme-apple 40dcc0000.nvme: trace: allocation entered
+<4>[   55.213223] nvme-apple 40dcc0000.nvme: trace: power domains attached
+<4>[   55.317189] nvme-apple 40dcc0000.nvme: trace: MMIO resources mapped
+<4>[   55.421204] nvme-apple 40dcc0000.nvme: trace: SART supplier acquired
+<4>[   55.525304] nvme-apple 40dcc0000.nvme: trace: queues allocated
+<4>[   55.629260] nvme-apple 40dcc0000.nvme: trace: RTKit client initialized
+<4>[   55.733158] nvme-apple 40dcc0000.nvme: trace: NVMe controller object initialized
+<4>[   55.837161] nvme-apple 40dcc0000.nvme: trace: raw PMGR snapshot before force-active
+<4>[   56.257157] nvme-apple 40dcc0000.nvme: trace: PMGR apcie_phy_sw offset 0x398 raw 0x1400024f target 0xf actual 0x4 auto 1 reset 0
+<4>[   56.361157] nvme-apple 40dcc0000.nvme: trace: PMGR apcie_sys_st0 offset 0x380 raw 0x1000030f target 0xf actual 0x0 auto 1 reset 0
+<4>[   56.885158] nvme-apple 40dcc0000.nvme: trace: PMGR apcie_sys_st1 offset 0x388 raw 0x1000030f target 0xf actual 0x0 auto 1 reset 0
+<4>[   57.409161] nvme-apple 40dcc0000.nvme: trace: PMGR force-active begin
+<4>[   57.513220] nvme-apple 40dcc0000.nvme: trace: PMGR apcie_sys_st0 forced to actual active
+<4>[   57.617194] nvme-apple 40dcc0000.nvme: trace: PMGR apcie_sys_st1 forced to actual active
+<4>[   57.721188] nvme-apple 40dcc0000.nvme: trace: PMGR apcie_phy_sw forced to actual active
+<4>[   57.829156] nvme-apple 40dcc0000.nvme: trace: PMGR force-active complete
+<4>[   57.933153] nvme-apple 40dcc0000.nvme: trace: raw PMGR snapshot after force-active
+<4>[   58.353158] nvme-apple 40dcc0000.nvme: trace: PMGR apcie_phy_sw offset 0x398 raw 0x0f0002ff target 0xf actual 0xf auto 0 reset 0
+<4>[   58.457157] nvme-apple 40dcc0000.nvme: trace: PMGR apcie_sys_st0 offset 0x380 raw 0x0f0003ff target 0xf actual 0xf auto 0 reset 0
+<4>[   58.981166] nvme-apple 40dcc0000.nvme: trace: PMGR apcie_sys_st1 offset 0x388 raw 0x0f0003ff target 0xf actual 0xf auto 0 reset 0
+<4>[   59.509156] nvme-apple 40dcc0000.nvme: trace: PMGR force-active verified; before isolated ANS CPU control read
+<4>[   59.613155] nvme-apple 40dcc0000.nvme: trace: isolated ANS CPU control read returned 0x00000010
+<4>[   59.717152] nvme-apple 40dcc0000.nvme: trace: isolated ANS CPU control read complete; stopping before ANS write
+__READ2_APPLE_RC__0
+__READ2_TARGET_ALIVE__
+
+No ANS write, CoastGuard transition, SART entry access, mailbox, NVMe command,
+namespace command, or storage command occurred. The target remained responsive.
