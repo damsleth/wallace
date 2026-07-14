@@ -9,7 +9,8 @@ Companion docs: `NEXT_STEPS.md` (immediate work), `DEVLOG.md`
 (operational reference + solved blockers), `t6040-dt-checklist.md` (Stage C
 reference). All finished per-topic plans/write-ups archived in `done/`.
 Unposted #asahi-dev drafts awaiting review: `done/2026-07-10-t6040-smp-writeup.md`,
-`done/2026-07-10-t6040-cpufreq-writeup.md`.
+`done/2026-07-10-t6040-cpufreq-writeup.md`,
+`done/2026-07-14-t6040-sptm-asahi-question.md` (M4 NVMe SPTM boundary question).
 
 ## Where we are
 
