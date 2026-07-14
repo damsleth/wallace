@@ -16,7 +16,7 @@ kernelcache proves the two new T6040 groups target ADT reg[5] (CIO3 PLL at
 sequence. The separate `t6040-j614s-dcuart-pcie` kernel DT builds cleanly and
 describes BCM4388 WiFi/BT on port 0 plus the GL9755 SD reader on port 1.
 
-Four approved m1n1-only attempts ran on 2026-07-14. The first completed all 77
+Five approved m1n1-only attempts ran on 2026-07-14. The first completed all 77
 AXI tunables and stopped after `pcie: No common tunables`. The traced retry on
 main `81da3522` delivered the real failure earlier: AXI tunable `[70]`, manifest
 operation 90 in that build, printed `done`; before `[71]` was announced, m1n1
@@ -62,18 +62,26 @@ individual write this way. Transcript:
 Recovery restored a fresh quiescent proxy. Full result:
 `done/2026-07-14-t6040-pcie-barrier-diagnostic.md`.
 
-All three traced logs are exactly 407 lines and 25,940 bytes and stop after the
-same output line despite code, gate ordering, and barriers changing. The
-zero-PCIe-write trace-volume control is prepared at main `3e772779`
+The zero-PCIe-write trace-volume control ran at main `3e772779`
 (`v1.6.0-72-g3e772779`), binary SHA-256
 `c9296b8d1ca146a32c7a1ba1bf17b7091281588ab90d16a69f0718c5a8fa04ea`.
 It enumerates the same ADT AXI entries and prints the identical 77 pre/`done`
 pairs, but returns before enabling any PCIe clock or reading/writing controller
-MMIO. If it faults at the same output boundary, the trace/log path is the
-artifact; if it completes, use an AXI prefix-and-hold bisection. The exact
-control needs fresh explicit approval for one run; see
-`done/2026-07-14-t6040-pcie-trace-dry-run.md`. Continue using the PCIe-free base
-DT; do not access NVMe or mount/repair/format storage.
+MMIO. It nevertheless produced the same SError after `[70] done`. This proves
+that the traced SError is entirely a console/log artifact, not a PCIe access.
+Transcript: `logs/t6040-console-20260714-pcie-trace-dry-run.log`, SHA-256
+`52431e2a9a7d87642fde917419f3e8e666672434953cad23466c13b61968742d`.
+
+The exact mechanism is now bounded offline. The 16 KiB m1n1 log buffer is
+`0x105ce7a4000..0x105ce7a8000`, ending exactly at the top of normal RAM; every
+SError reports that exclusive end in `L2C_ERR_ADR`. When the log device becomes
+writable, `iodev_console_write()` first flushes its retained 8 KiB console
+backlog. The identical post-allocation stream contributes another 9,274 bytes:
+the ring crosses its end during `[61] done`, then the asynchronous error is
+delivered 1,082 bytes later after `[70] done`. Prepare a zero-PCIe-write control
+that leaves an unused 16 KiB page above the log buffer, then repeat the dry-run
+trace once. That new binary requires explicit approval. Continue using the
+PCIe-free base DT; do not access NVMe or mount/repair/format storage.
 
 ## 1. Provision and test the J614s trackpad firmware
 `event0` is Apple DockChannel Multi-touch and `event1` is the keyboard. The

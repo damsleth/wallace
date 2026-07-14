@@ -121,8 +121,10 @@ doable solo with the proxy + ADT dumps; this is the highest-leverage local work.
    clkgen programming, whereas m1n1 enabled it early. The approved corrected
    105-write run matched Apple's gate order but delivered the same SError after
    `[70]`, disproving the early-gate hypothesis. Barriers plus immediate L2C
-   status reads also repeated `[70]` with a zero post-write sample. The prepared
-   zero-write trace-volume control is the next separately gated step. Detailed in
+   status reads also repeated `[70]` with a zero post-write sample. A zero-PCIe-
+   write trace reproduced it, proving a log-buffer artifact: the 16 KiB ring
+   ends at top-of-RAM and crosses its boundary during `[61] done`. An upper-guard
+   dry-run control is the next separately gated step. Detailed in
    `2026-07-14-t6040-wireless-pcie-map.md`. WiFi/BT prerequisite.
 4. **ATC/USB tunables + DART config** — **AUDITED 2026-07-10 (mostly verify+defer).**
    All kboot-only, FDT-only (safe). **DART = done** (t6040 DARTs are `dart,t8110`,
@@ -227,16 +229,13 @@ keyboard/trackpad, battery status. Daily-drivable without GPU/WiFi (USB ethernet
   The complete PCIe/GPIO/DART child topology is in the separately gated
   `t6040-j614s-dcuart-pcie` DT; see
   `done/2026-07-14-t6040-wireless-pcie-map.md`.
-- **Immediate gate:** approve the prepared zero-PCIe-write trace-volume control
-  using the base Linux DT. Gate ordering and a barrier plus immediate read-only
-  L2C status sample both left the asynchronous boundary after `[70]`; the latter
-  sample was zero. All three traced logs stop at exactly 407 lines and 25,940
-  bytes. Print the same ADT-derived trace without enabling PCIe clocks or
-  touching controller MMIO to separate a trace/log artifact from a delayed
-  PCIe fault. Main `3e772779`, binary SHA-256
-  `c9296b8d1ca146a32c7a1ba1bf17b7091281588ab90d16a69f0718c5a8fa04ea`;
-  exact gate in `done/2026-07-14-t6040-pcie-trace-dry-run.md`. Then use
-  prefix-and-hold bisection only if the dry run completes.
+- **Immediate gate:** prepare and approve an upper-guard log-buffer control with
+  the same zero-PCIe-write trace and base Linux DT. Main `3e772779` proved the
+  SError without PCIe MMIO. The log buffer occupies the final 16 KiB of normal
+  RAM; its initial 8 KiB backlog plus trace wraps during `[61] done`, and every
+  error reports its exclusive upper boundary. Leave one unused 16 KiB page
+  above the buffer and repeat once. Only after that succeeds should a
+  write-bearing PCIe diagnostic resume.
   Until link-up succeeds, firmware work cannot be exercised.
 - **WiFi:** `brcmfmac` PCIe path; m1n1 already copies the MAC, antenna SKU and
   calibration blob from ADT when `wifi0` is aliased. Firmware still has to be

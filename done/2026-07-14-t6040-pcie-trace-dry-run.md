@@ -1,8 +1,8 @@
 # T6040 PCIe zero-write trace control
 
-Prepared 2026-07-14. **Not approved or run.** This control distinguishes a
-console/trace-volume artifact from the delayed PCIe SError seen in the three
-write-bearing traces.
+Prepared and run once with explicit approval on 2026-07-14. This control
+distinguishes a console/trace-volume artifact from the delayed PCIe SError seen
+in the write-bearing traces.
 
 ## Exact build
 
@@ -44,14 +44,43 @@ the previous traces byte-for-byte. A completion marker is printed only after
 entry `[76]`, then the controller returns. The base Linux boot may continue;
 its DT has no PCIe host node and is already boot-proven.
 
-## Interpretation and approval gate
+## Live result
 
-- SError at the same output-volume boundary: the traced `[70]` boundary is a
-  logging/console artifact; debug that path before PCIe MMIO.
-- All 77 pairs and the completion marker print: trace volume is exonerated;
-  prepare an independently approved AXI prefix-and-hold bisection.
+The exact main binary was approved for one run. It produced `[70] done`, then
+the same asynchronous SError before `[71]`. The completion marker did not run.
+No PCIe PMGR, controller MMIO, Linux PCIe, NVMe, or storage access occurred.
 
-This is a new target binary and requires explicit approval for one live run of
-the main binary hash above. Stop after that outcome. Preserve DebugUSB reader
-discipline and use the sanctioned recovery helper if needed. NVMe and all
-namespace/mount/repair/format operations remain out of scope.
+```text
++PC:       0x10004b371bc (rel: 0x2b1bc)
++ESR:      0xbe000000 (SError)
++L2C_ERR_STS: 0x82
++L2C_ERR_ADR: 0x3606905ce7a8000
++L2C_ERR_INF: 0x1000000001
+```
+
+The relative PC symbolizes to the proxy `P_CALL` site and is only the delayed
+delivery point. Sanctioned DebugUSB recovery restored a fresh quiescent proxy.
+Transcript: `logs/t6040-console-20260714-pcie-trace-dry-run.log`, SHA-256
+`52431e2a9a7d87642fde917419f3e8e666672434953cad23466c13b61968742d`
+(407 lines, 25,940 bytes).
+
+## Log-buffer attribution
+
+This result exonerates all PCIe writes. The remaining evidence converges on the
+m1n1 stage-2 log ring:
+
+- startup reports the top of normal RAM as `0x105ce7a8000`;
+- kboot allocates the 16 KiB log buffer at
+  `0x105ce7a4000..0x105ce7a8000`;
+- saved exception registers repeatedly contain the buffer base, while every
+  `L2C_ERR_ADR` contains its exclusive upper boundary;
+- once the log device becomes writable, `iodev_console_write()` flushes its
+  retained 8,192-byte console backlog into the new ring;
+- the output from the buffer announcement through `[70] done` is identically
+  9,274 bytes in all four traced runs;
+- backlog plus new output crosses 16,384 bytes during `[61] done`; the SError is
+  delivered after another 1,082 bytes at `[70] done`.
+
+The next control should reserve an additional unused 16 KiB above the log ring,
+keeping its active page away from the physical top-of-RAM boundary, and repeat
+this same zero-PCIe-write trace. It needs separate explicit approval.

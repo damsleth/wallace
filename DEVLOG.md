@@ -400,11 +400,17 @@ immediate status sample was zero, before the same SError arrived. The status is
 not latched early enough to attribute a write. Recovery restored a quiescent
 proxy. Transcript: `logs/t6040-console-20260714-pcie-barrier.log`, SHA-256
 `cebc058921b62b2f594855bb65db28b312570b6c707f5a29a29480c31c04667b`.
-All three traced logs have the identical 407-line/25,940-byte boundary; use a
-zero-PCIe-write trace-volume control before another MMIO attempt. It is prepared
-at main `3e772779`, binary SHA-256
+The zero-PCIe-write trace-volume control ran at main `3e772779`, binary SHA-256
 `c9296b8d1ca146a32c7a1ba1bf17b7091281588ab90d16a69f0718c5a8fa04ea`,
-and returns before PCIe PMGR or controller access. It requires new approval. See
+and returned before PCIe PMGR or controller access. It still faulted after
+`[70] done`, proving the trace path itself is responsible. The log buffer spans
+`0x105ce7a4000..0x105ce7a8000`, exactly to the top of normal RAM and the address
+reported by every `L2C_ERR_ADR`. Its initial 8 KiB console-backlog import plus
+the new trace crosses the 16 KiB ring during `[61] done`; the asynchronous SError
+arrives 1,082 output bytes later. Recovery restored a quiescent proxy. Exact
+transcript: `logs/t6040-console-20260714-pcie-trace-dry-run.log`, SHA-256
+`52431e2a9a7d87642fde917419f3e8e666672434953cad23466c13b61968742d`.
+Next test an upper guard page with the same zero-PCIe-write trace. See
 `done/2026-07-14-t6040-pcie-trace-dry-run.md`.
 Full details are in `done/2026-07-14-t6040-wireless-pcie-map.md`.
 
