@@ -5,7 +5,7 @@
   "state": "open",
   "track": "xcut",
   "priority": "P1",
-  "desc": "Commit and organize the partly-uncommitted t6040 DT state in ~/Code/linux on yuka's feature/m4-m5-minimal-device-trees (AGENTS.md repos table; DEVLOG BUILD GOTCHA: kbuild uses committed code + copied DT files only, so uncommitted state is a loss risk), then draft an upstream-shaped DT series (t6040.dtsi, t6040-pmgr.dtsi, j614s board files, Mac16,8 compatible) with dtbs_check/checkpatch validation, coordinated with yuka — extend her branch, don't fork (ROADMAP Stage C device trees)",
+  "desc": "Consolidate the remaining partly-uncommitted t6040 DT state in ~/Code/linux onto damsleth/linux branch wallace/t6040-bringup (AsahiLinux asahi-wip base; yuka retained as a topic remote). The initial 15-commit Wallace stack is published and the standard DockChannel DT build is validated, but uncommitted board variants remain a loss risk because kbuild copies DT files from /src. Draft an upstream-shaped DT series (t6040.dtsi, t6040-pmgr.dtsi, j614s board files, Mac16,8 compatible) with dtbs_check/checkpatch validation and coordinate with yuka/Asahi maintainers.",
   "author": "fable",
   "deps": [],
   "hashes": null,

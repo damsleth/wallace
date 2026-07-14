@@ -187,7 +187,8 @@ early console. (Testable incrementally against Stage C.)
   The live-tested T6041-compatible quirk now carries that policy without custom
   DT booleans; review/upstream submission is the remaining Stage C PMGR work**;
   see NEXT_STEPS #2 and DEVLOG's PMGR section.
-- **AIC3:** **works** — yuka's branch has `apple,t8122-aic3` support; boots and
+- **AIC3:** **works** — the AsahiLinux `asahi-wip` base has
+  `apple,t8122-aic3` support; boots and
   delivers interrupts (keyboard mailbox IRQs verified live). Two locked-sysreg
   writes in `aic_init_cpu` must be skipped on M4 raw-boot (flokli patch).
 - **Core platform drivers** (mostly compat-string + minor deltas on existing

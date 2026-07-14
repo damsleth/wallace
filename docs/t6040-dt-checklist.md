@@ -2,9 +2,9 @@
 
 ## STATUS: draft CREATED + dtc-valid (2026-07-10)
 
-Files written in `~/code/linux/arch/arm64/boot/dts/apple/` (on branch
-`feature/m4-m5-minimal-device-trees` — the `t6040-minimal-device-trees` branch was
-never actually created; files are uncommitted there):
+Files written in `~/code/linux/arch/arm64/boot/dts/apple/` (now carried by
+`wallace/t6040-bringup` in `damsleth/linux`, based on AsahiLinux
+`asahi-wip`; some later board variants remain uncommitted in the host tree):
 - `t6040.dtsi` (SoC: 4E+5P+5P cpus, AIC, pmgr×4, wdt, serial0, timer, clkref)
 - `t6040-j614s.dts` (board: compatible/model, framebuffer, memory, serial enable)
 - `t6040-pmgr.dtsi` (214 power-controllers, generated from j614s.adt)
@@ -34,8 +34,8 @@ VM_TMR_FIQ_ENA AIC crash (the risk item 8.3 flagged) — different failure.
 
 --- original checklist (proxy commands per item) below ---
 
-Draft DTs live in `~/code/linux` branch `t6040-minimal-device-trees`
-(`t6040.dtsi`, `t6040-j614s.dts`, on top of yuka's `feature/m4-m5-minimal-device-trees`).
+The DTs now live on `wallace/t6040-bringup`; their initial minimal-M4
+provenance was yuka's `feature/m4-m5-minimal-device-trees` branch.
 Every unverified value is tagged `TODO(adt)` — grep for it. This doc maps each
 one to the proxy command that resolves it. All of it needs one session with the
 proxy up (`shell.py` on the host).

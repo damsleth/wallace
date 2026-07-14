@@ -14,32 +14,20 @@ handling so older experimental device trees continue to work.
 
 Signed-off-by: CJ Damsleth <kim@damsleth.no>
 ---
- drivers/pmdomain/apple/pmgr-pwrstate.c | 21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ drivers/pmdomain/apple/pmgr-pwrstate.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/pmdomain/apple/pmgr-pwrstate.c b/drivers/pmdomain/apple/pmgr-pwrstate.c
 --- a/drivers/pmdomain/apple/pmgr-pwrstate.c
 +++ b/drivers/pmdomain/apple/pmgr-pwrstate.c
-@@ -41,6 +41,7 @@ struct apple_pmgr_ps {
- 	struct device *dev;
- 	struct generic_pm_domain genpd;
- 	struct reset_controller_dev rcdev;
-+	bool skip_auto_enable;
- 	struct regmap *regmap;
- 	u32 offset;
- 	u32 min_state;
-@@ -79,7 +80,9 @@ static int apple_pmgr_ps_set(struct generic_pm_domain *genpd, u32 pstate, bool a
- 		dev_err(ps->dev, "PS %s: Failed to reach power state 0x%x (now: 0x%x)\n",
- 			genpd->name, pstate, reg);
+@@ -248,6 +248,5 @@ static int apple_pmgr_ps_probe(struct platform_device *pdev)
  
--	if (auto_enable) {
-+	if (auto_enable && ps->skip_auto_enable) {
-+		dev_dbg(ps->dev, "PS %s: skipping unsupported auto-enable\n", genpd->name);
-+	} else if (auto_enable) {
- 		/* Not all devices implement this; this is a no-op where not implemented. */
- 		reg &= ~APPLE_PMGR_FLAGS;
- 		reg |= APPLE_PMGR_AUTO_ENABLE;
-@@ -218,6 +221,13 @@ static int apple_pmgr_ps_probe(struct platform_device *pdev)
+ 	ps->dev = dev;
+-	ps->skip_auto_enable = of_property_read_bool(node, "apple,skip-auto-enable");
+ 	ps->regmap = regmap;
+ 
+ 	ret = of_property_read_string(node, "label", &name);
+@@ -257,6 +256,13 @@ static int apple_pmgr_ps_probe(struct platform_device *pdev)
  		return ret;
  	}
  
@@ -53,26 +41,12 @@ diff --git a/drivers/pmdomain/apple/pmgr-pwrstate.c b/drivers/pmdomain/apple/pmg
  	ret = of_property_read_u32(node, "reg", &ps->offset);
  	if (ret < 0) {
  		dev_err(dev, "missing reg property\n");
-@@ -235,6 +245,13 @@ static int apple_pmgr_ps_probe(struct platform_device *pdev)
- 				   FIELD_PREP(APPLE_PMGR_PS_MIN, ps->min_state));
+@@ -284,5 +290,7 @@ static int apple_pmgr_ps_probe(struct platform_device *pdev)
+ 		ps->externally_clocked = true;
  
  	active = apple_pmgr_ps_is_active(ps);
-+	/*
-+	 * T6041 raw boot has no earlier OS stage to quiesce firmware-owned domains.
-+	 */
+-	if (active && of_property_read_bool(node->parent, "apple,preserve-active"))
++	/* T6041 raw boot has no earlier OS stage to quiesce firmware-owned domains. */
 +	if (active && (of_property_read_bool(node->parent, "apple,preserve-active") ||
 +		       of_device_is_compatible(node, "apple,t6041-pmgr-pwrstate")))
-+		ps->genpd.flags |= GENPD_FLAG_ALWAYS_ON;
-+
- 	if (of_property_read_bool(node, "apple,always-on")) {
  		ps->genpd.flags |= GENPD_FLAG_ALWAYS_ON;
- 		if (!active) {
-@@ -245,7 +262,7 @@ static int apple_pmgr_ps_probe(struct platform_device *pdev)
- 	}
- 
- 	/* Turn on auto-PM if the domain is already on */
--	if (active)
-+	if (active && !ps->skip_auto_enable)
- 		regmap_update_bits(regmap, ps->offset, APPLE_PMGR_FLAGS | APPLE_PMGR_AUTO_ENABLE,
- 				   APPLE_PMGR_AUTO_ENABLE);
- 

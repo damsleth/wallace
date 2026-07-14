@@ -26,7 +26,7 @@ prepared.
 | `~/Code/wallace` | this repo: docs, `scripts/`, `patches/`, `dts/`, `done/` |
 | `~/Code/m1n1` | m1n1 fork (bootloader + proxyclient); safety rules live in its `AGENTS.md` |
 | `~/Code/m1n1-clean` | worktree of branch `t6040-bringup`, the curated upstream-shaped commit series |
-| `~/Code/linux` | kernel tree on yuka's `feature/m4-m5-minimal-device-trees`; t6040 DTs live here |
+| `~/Code/linux` | `damsleth/linux` fork, branch `wallace/t6040-bringup`, based on AsahiLinux `asahi-wip`; t6040 DTs live here |
 | `~/Code/linux-build-out` | build artifacts, mounted as `/out` in the build container |
 | `~/Code/macvdmtool` | patched fork: DebugUSB entry + remote reboot |
 | `~/Code/kisd` | AsahiLinux kisd, bridges DebugUSB to a pty on the host |

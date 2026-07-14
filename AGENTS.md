@@ -20,7 +20,7 @@ kernel patches. The code lives in sibling repos under `~/Code/` (below).
 | `~/Code/wallace` | this repo | plans, docs, scripts/, patches/, dts/, done/ |
 | `~/Code/m1n1` | m1n1 fork (branch `main`) | bootloader + proxyclient; per-dir AGENTS.md files carry the **hardware safety rules** and code-level knowledge |
 | `~/Code/m1n1-clean` | worktree, branch `t6040-bringup` | curated code-only commit series (upstream-shaped); keep in sync with m1n1 `src/` changes |
-| `~/Code/linux` | kernel tree, branch `feature/m4-m5-minimal-device-trees` (yuka) | t6040 DT files live here (partly uncommitted); code changes go via `patches/` applied by kbuild — NOT as tree edits (builds use committed state + copied DT files only) |
+| `~/Code/linux` | kernel tree, branch `wallace/t6040-bringup` in `damsleth/linux`, based on AsahiLinux `asahi-wip` | t6040 DT files live here (partly uncommitted); code changes go via `patches/` applied by kbuild — NOT as tree edits (builds use committed state + copied DT files only); remotes are `origin` (damsleth), `asahi`, `yuka`, and `torvalds` |
 | `~/Code/linux-build-out` | build artifacts (`/out` in the kbuild container) | Image/DTBs/initramfs; copy `scripts/t6040-kbuild.sh` + `patches/*.patch` here before building |
 | `~/Code/macvdmtool` | patched fork | DebugUSB entry + remote reboot (`sudo -n /usr/local/bin/macvdmtool`, NOPASSWD) |
 | `~/Code/kisd` | AsahiLinux/kisd | host daemon bridging DebugUSB → pty (`/tmp/m1n1`) |

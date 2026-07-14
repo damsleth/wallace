@@ -5,7 +5,7 @@
   "state": "open",
   "track": "storage",
   "priority": "P1",
-  "desc": "Integrate the dwc3-apple USB driver work (t6040-usb-wip: force-device-mode + force-host, gadget bring-up 8bb4d2d) with the mainline bring-up branch (feature/m4-m5-minimal-device-trees) so one branch builds a bootable USB image. A USB_HOST build on t6040-usb-wip applied the force-host patch OK but failed the mainline-required t6040-pmgr-t6041-quirks.patch; neither branch alone builds. Blocks ticket 032 (usb-root artifacts). Rebase usb-wip onto mainline or cherry-pick the dwc3-apple commits forward; then rebuild USB_HOST=1.",
+  "desc": "The new damsleth/linux wallace/t6040-bringup branch integrates the former t6040-usb-wip stack with the T6040 DT/PMGR line on AsahiLinux asahi-wip. The standard DockChannel harness now applies the refreshed PMGR/SART/binding patches and builds all available DTBs. Remaining acceptance: run the USB_HOST=1 image build with dts/t6040-j614s-dcuart-usb-host.dts and preserve the resulting external-root artifacts for ticket 032.",
   "author": "claude",
   "deps": [
     "032"

@@ -17,10 +17,9 @@
 #   /build : container-local (case-sensitive, fast)
 set -euo pipefail
 
-# USB host/gadget driver work (dwc3-apple force-{device,host}-mode) lives on the
-# t6040-usb-wip branch, not the mainline bring-up branch; override for those.
-#   USB_HOST=1 builds must set BRANCH=t6040-usb-wip.
-BRANCH="${BRANCH:-feature/m4-m5-minimal-device-trees}"
+# Wallace's integration branch is based on AsahiLinux's asahi-wip and carries
+# the T6040 DT, DockChannel, storage-DT, and parked USB gadget commit stack.
+BRANCH="${BRANCH:-wallace/t6040-bringup}"
 APPLE=arch/arm64/boot/dts/apple
 
 echo "== deps =="
@@ -780,9 +779,11 @@ echo "== build DTB first (validates our DT in the real kbuild) =="
 make ARCH=arm64 -j"$NPROC" apple/t6040-j614s.dtb
 cp $APPLE/t6040-j614s.dtb /out/ && echo "DTB -> /out/t6040-j614s.dtb"
 if [ "${DOCKCHANNEL:-0}" = "1" ]; then
-    make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-kbd-infra.dtb
-    cp $APPLE/t6040-j614s-kbd-infra.dtb /out/ \
-        && echo "DTB -> /out/t6040-j614s-kbd-infra.dtb"
+    if [ -f "$APPLE/t6040-j614s-kbd-infra.dts" ]; then
+        make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-kbd-infra.dtb
+        cp $APPLE/t6040-j614s-kbd-infra.dtb /out/ \
+            && echo "DTB -> /out/t6040-j614s-kbd-infra.dtb"
+    fi
     make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-kbd.dtb
     cp $APPLE/t6040-j614s-kbd.dtb /out/ \
         && echo "DTB -> /out/t6040-j614s-kbd.dtb"

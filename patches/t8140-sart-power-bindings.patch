@@ -15,10 +15,11 @@ diff --git a/Documentation/devicetree/bindings/iommu/apple,sart.yaml b/Documenta
 index 16b249256744..acb5ac4f4f36 100644
 --- a/Documentation/devicetree/bindings/iommu/apple,sart.yaml
 +++ b/Documentation/devicetree/bindings/iommu/apple,sart.yaml
-@@ -33,19 +33,45 @@ properties:
+@@ -34,20 +34,46 @@ properties:
            - enum:
                - apple,t6020-sart
                - apple,t8112-sart
+               - apple,t8122-sart
 -              - apple,t8140-sart
            - const: apple,t6000-sart
        - enum:

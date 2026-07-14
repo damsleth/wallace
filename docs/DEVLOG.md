@@ -101,8 +101,9 @@ keeps the fbcon shell as before.
 Native mac builds are impossible (case-insensitive FS corrupts the tree);
 everything builds arm64-natively in the podman container `kbuild`
 (see memory `t6040-kernel-build-env`). Kernel tree: `~/Code/linux`, branch
-`feature/m4-m5-minimal-device-trees` (yuka's remote; mainline 7.2-rc2 + DT
-commits). Working build dir inside the container: `/build/linux-keyboard`.
+`wallace/t6040-bringup` in `damsleth/linux`, based on AsahiLinux `asahi-wip`;
+yuka's fork remains available as the `yuka` remote for M4/M5 topic work.
+Working build dir inside the container: `/build/linux-keyboard`.
 
 ```
 cp ~/Code/wallace/scripts/t6040-kbuild.sh ~/Code/wallace/patches/*.patch ~/Code/linux-build-out/
