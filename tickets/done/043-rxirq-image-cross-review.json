@@ -2,12 +2,13 @@
   "seq": "043",
   "slug": "rxirq-image-cross-review",
   "needs": "offline",
-  "state": "open",
+  "state": "done",
   "track": "console",
   "priority": "P1",
   "desc": "Independent cross-review of ticket 001's built RX BIT(1)/TX-poll diagnostic per AGENT_ONBOARDING §6: verify exact image/DT/initramfs hashes, that the MMIO delta stays inside dockchannel-uart's safe +0xc000/+0x28000 windows (DEVLOG MMIO caution), the RX-cap-1000/hard-disable-1024 logic, and the pre-registered interpretation matrix (done/2026-07-14-t6040-dockchannel-rxirq-txpoll.md); record the reviewer in 001. Unblocks 001's approval gate",
   "author": "fable",
   "deps": [],
   "hashes": null,
-  "created": 1784041722
+  "created": 1784041722,
+  "done_at": 1784042683
 }

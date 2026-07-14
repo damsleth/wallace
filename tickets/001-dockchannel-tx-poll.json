@@ -5,7 +5,7 @@
   "state": "proposed",
   "track": "console",
   "priority": "P1",
-  "desc": "Bounded RX BIT(1) telemetry: TX poll, RX cap 1000, hard cap 1024; independent review pending (NEXT_STEPS §0)",
+  "desc": "Bounded RX BIT(1) telemetry: TX poll, RX cap 1000, hard cap 1024 (NEXT_STEPS §0). Cross-reviewed by fable 2026-07-14: PASS (done/2026-07-14-t6040-rxirq-image-cross-review.md) — hashes, DTB, MMIO windows, cap logic, init all verified",
   "author": "claude",
   "deps": [],
   "hashes": {
