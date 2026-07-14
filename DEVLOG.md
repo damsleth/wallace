@@ -392,11 +392,17 @@ clkgen, the late gate, PHY, ports, Linux, or storage. Recovery restored a fresh
 quiescent proxy. Transcript:
 `logs/t6040-console-20260714-pcie-staged-gate.log`, SHA-256
 `c31275546280b9df2dbf9b014d2e6411cfb708f87f1c803e10b11e2cdb95ec2f`.
-The next live diagnostic is prepared at m1n1 main `88ce1ee3`, binary SHA-256
+The next live diagnostic ran at m1n1 main `88ce1ee3`, binary SHA-256
 `2997b07647007f99df6ad094a2da55d66a9f7accd6758bb134d3fa92b76d0c72`.
-It adds `dsb sy` and read-only L2C status sampling around the same 105-operation
-set and aborts without clearing status on any nonzero sample. It requires new
-explicit approval; see `done/2026-07-14-t6040-pcie-barrier-diagnostic.md`.
+It added `dsb sy` and read-only L2C status sampling around the same 105-operation
+set. AXI `[70]` again printed `done`, proving that its barrier completed and the
+immediate status sample was zero, before the same SError arrived. The status is
+not latched early enough to attribute a write. Recovery restored a quiescent
+proxy. Transcript: `logs/t6040-console-20260714-pcie-barrier.log`, SHA-256
+`cebc058921b62b2f594855bb65db28b312570b6c707f5a29a29480c31c04667b`.
+All three traced logs have the identical 407-line/25,940-byte boundary; use a
+zero-PCIe-write trace-volume control before another MMIO attempt. See
+`done/2026-07-14-t6040-pcie-barrier-diagnostic.md`.
 Full details are in `done/2026-07-14-t6040-wireless-pcie-map.md`.
 
 ### Watchdog (2026-07-11)

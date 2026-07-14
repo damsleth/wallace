@@ -1,8 +1,8 @@
 # T6040 PCIe AXI barrier diagnostic
 
-Prepared 2026-07-14. **Not approved or run.** This is the next bounded live
-diagnostic after the Apple-accurate staged-clock run repeated the asynchronous
-SError after AXI tunable `[70]`.
+Prepared and run once with explicit approval on 2026-07-14. This bounded live
+diagnostic followed the Apple-accurate staged-clock run that repeated the
+asynchronous SError after AXI tunable `[70]`.
 
 ## Exact build
 
@@ -47,11 +47,37 @@ work. Each post-RMW barrier forces that transaction to complete before the
 read-only status sample. If the asynchronous exception arrives at the barrier,
 the last pre-write trace line still identifies the exact attempted RMW.
 
-## Approval and recovery gate
+## Live result
 
-This build changes timing and has not inherited approval from any earlier run.
-Before one live attempt, obtain explicit approval for the main binary hash and
-unchanged 105-operation manifest hash above. Preserve the standard DebugUSB
-reader discipline, stop after one outcome, and use the sanctioned recovery
-helper if the proxy disappears. NVMe and all namespace/mount/repair/format
-operations remain out of scope.
+The exact main binary and unchanged manifest were approved for one run. AXI
+`[70]` at `0x4160013fc` printed `done`. Since that line is emitted only after
+`dsb sy` returns and `L2C_ERR_STS` reads as zero, neither the preceding PMGR
+work nor any completed write through `[70]` had a visible pending status at its
+sample point. Before `[71]` was announced, m1n1 delivered the same asynchronous
+SError:
+
+```text
++PC:       0x100051707a0 (rel: 0x307a0)
++ESR:      0xbe000000 (SError)
++L2C_ERR_STS: 0x82
++L2C_ERR_ADR: 0x3606905ce7a8000
++L2C_ERR_INF: 0x1000000001
+```
+
+The relative PC symbolizes to `uartproxy_run()` and is another asynchronous
+delivery location, not the causal MMIO instruction. No nonzero diagnostic
+sample printed. The uploader stopped without Linux handoff; `[71]`, CIO3,
+clkgen, the late gate, PHY, ports, PERST#, Linux PCIe, NVMe, and storage were
+not reached. Sanctioned DebugUSB recovery restored a fresh quiescent proxy.
+
+Transcript: `logs/t6040-console-20260714-pcie-barrier.log`, SHA-256
+`cebc058921b62b2f594855bb65db28b312570b6c707f5a29a29480c31c04667b`
+(407 lines, 25,940 bytes).
+
+The two earlier traced logs have the same 407-line/25,940-byte size and end
+after the same trace line. The next diagnostic should therefore be a
+zero-PCIe-write trace-volume control, not another write-order variant. It should
+enumerate the ADT AXI tunables and print identical pre/`done` lines without
+enabling PCIe clocks or reading/writing controller registers. If that control
+completes, continue with a separately approved prefix-and-hold bisection. If it
+faults at the same output boundary, debug the m1n1 trace/log path instead.

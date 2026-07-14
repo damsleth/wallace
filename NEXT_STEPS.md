@@ -16,7 +16,7 @@ kernelcache proves the two new T6040 groups target ADT reg[5] (CIO3 PLL at
 sequence. The separate `t6040-j614s-dcuart-pcie` kernel DT builds cleanly and
 describes BCM4388 WiFi/BT on port 0 plus the GL9755 SD reader on port 1.
 
-Three approved m1n1-only attempts ran on 2026-07-14. The first completed all 77
+Four approved m1n1-only attempts ran on 2026-07-14. The first completed all 77
 AXI tunables and stopped after `pcie: No common tunables`. The traced retry on
 main `81da3522` delivered the real failure earlier: AXI tunable `[70]`, manifest
 operation 90 in that build, printed `done`; before `[71]` was announced, m1n1
@@ -48,17 +48,29 @@ early `APCIE_PHY_SW` enable was not the cause. Exact transcript:
 `c31275546280b9df2dbf9b014d2e6411cfb708f87f1c803e10b11e2cdb95ec2f`).
 DebugUSB recovery restored a fresh, quiescent proxy.
 
-The no-new-address follow-up is prepared at m1n1 main `88ce1ee3`
+The no-new-address follow-up ran at m1n1 main `88ce1ee3`
 (`v1.6.0-68-g88ce1ee3`), binary SHA-256
 `2997b07647007f99df6ad094a2da55d66a9f7accd6758bb134d3fa92b76d0c72`.
-It places `dsb sy` and a read-only `L2C_ERR_STS` sample before the first and
+It placed `dsb sy` and a read-only `L2C_ERR_STS` sample before the first and
 after every existing traced RMW, aborting on a nonzero result without clearing
-status. The MMIO set/order remains the exact 105-operation manifest above. This
-should distinguish a pending fabric error from the later asynchronous delivery
-point. Because it changes timing, it requires fresh explicit approval for one
-live run. Full gate:
-`done/2026-07-14-t6040-pcie-barrier-diagnostic.md`. Continue using the
-PCIe-free base DT; do not access NVMe or mount/repair/format storage.
+status. AXI `[70]` again printed `done`, proving its barrier completed and its
+status sample was zero; the same SError then arrived before `[71]`. Thus the
+status becomes visible only with the delayed exception and cannot attribute an
+individual write this way. Transcript:
+`logs/t6040-console-20260714-pcie-barrier.log` (SHA-256
+`cebc058921b62b2f594855bb65db28b312570b6c707f5a29a29480c31c04667b`).
+Recovery restored a fresh quiescent proxy. Full result:
+`done/2026-07-14-t6040-pcie-barrier-diagnostic.md`.
+
+All three traced logs are exactly 407 lines and 25,940 bytes and stop after the
+same output line despite code, gate ordering, and barriers changing. Before
+another MMIO attempt, prepare a zero-PCIe-write trace-volume control: enumerate
+the same ADT AXI entries and print the same pre/`done` lines without enabling
+PCIe clocks or touching controller registers. If it faults at the same output
+boundary, the trace/log path is the artifact; if it completes, use an AXI
+prefix-and-hold bisection. Either live control needs fresh explicit approval.
+Continue using the PCIe-free base DT; do not access NVMe or
+mount/repair/format storage.
 
 ## 1. Provision and test the J614s trackpad firmware
 `event0` is Apple DockChannel Multi-touch and `event1` is the keyboard. The

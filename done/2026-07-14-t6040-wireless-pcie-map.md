@@ -275,17 +275,26 @@ fresh quiescent proxy. Transcript:
 `c31275546280b9df2dbf9b014d2e6411cfb708f87f1c803e10b11e2cdb95ec2f`
 (407 lines, 25,940 bytes).
 
-The narrowest next diagnostic adds no MMIO addresses or values: issue a
+The next diagnostic added no MMIO addresses or values: issue a
 full-system barrier and sample the read-only `L2C_ERR_STS` system register
 before the first and after each existing traced RMW. Main `88ce1ee3`, binary
 SHA-256
 `2997b07647007f99df6ad094a2da55d66a9f7accd6758bb134d3fa92b76d0c72`,
-implements that check and aborts without clearing a nonzero status. It can
-reveal whether an error is already pending before its asynchronous exception
-is delivered. Because it changes target timing, the exact build requires new
-explicit approval before one live run. The PCIe-free base DT remains mandatory;
-storage stays out of scope. Full gate:
-`2026-07-14-t6040-pcie-barrier-diagnostic.md`.
+implemented that check and would abort without clearing a nonzero status. The
+approved run again printed `[70] done`, proving the barrier completed and the
+immediate status sample was zero, then took the same SError before `[71]`.
+Therefore the L2C status does not latch early enough to attribute an individual
+RMW. Transcript: `logs/t6040-console-20260714-pcie-barrier.log`, SHA-256
+`cebc058921b62b2f594855bb65db28b312570b6c707f5a29a29480c31c04667b`.
+The PCIe-free base DT was used; no later write, Linux, or storage access ran.
+Full result: `2026-07-14-t6040-pcie-barrier-diagnostic.md`.
+
+All three traced transcripts are exactly 407 lines and 25,940 bytes and end
+after `[70] done`. This makes trace volume/timing a live alternative to any
+specific AXI write. The next control should print the same ADT-derived AXI
+pre/`done` lines without PMGR or controller MMIO. A same-boundary fault would
+identify the trace/log path as the artifact; a clean completion would justify
+an AXI prefix-and-hold bisection. That control requires separate approval.
 
 ## Full-path gate
 

@@ -120,8 +120,9 @@ doable solo with the proxy + ADT dumps; this is the highest-leverage local work.
    then proved Apple keeps clock gate 7 (`APCIE_PHY_SW`) off through AXI/CIO3/
    clkgen programming, whereas m1n1 enabled it early. The approved corrected
    105-write run matched Apple's gate order but delivered the same SError after
-   `[70]`, disproving the early-gate hypothesis. The prepared barrier/L2C-status
-   diagnostic is the next separately gated step. Detailed in
+   `[70]`, disproving the early-gate hypothesis. Barriers plus immediate L2C
+   status reads also repeated `[70]` with a zero post-write sample. A zero-write
+   trace-volume control is the next separately gated step. Detailed in
    `2026-07-14-t6040-wireless-pcie-map.md`. WiFi/BT prerequisite.
 4. **ATC/USB tunables + DART config** — **AUDITED 2026-07-10 (mostly verify+defer).**
    All kboot-only, FDT-only (safe). **DART = done** (t6040 DARTs are `dart,t8110`,
@@ -226,15 +227,14 @@ keyboard/trackpad, battery status. Daily-drivable without GPU/WiFi (USB ethernet
   The complete PCIe/GPIO/DART child topology is in the separately gated
   `t6040-j614s-dcuart-pcie` DT; see
   `done/2026-07-14-t6040-wireless-pcie-map.md`.
-- **Immediate gate:** approve the prepared no-new-address m1n1 diagnostic using
-  the base Linux DT (no Linux PCIe node), with a full-system barrier and
-  read-only L2C status sample after each existing AXI RMW. The Apple-accurate
-  staged `APCIE_PHY_SW` run repeated the asynchronous fault after `[70]`, so
-  clock-gate ordering is not its cause. Main `88ce1ee3`, binary SHA-256
-  `2997b07647007f99df6ad094a2da55d66a9f7accd6758bb134d3fa92b76d0c72`;
-  exact gate in `done/2026-07-14-t6040-pcie-barrier-diagnostic.md`. Localize the
-  pending error before enabling the full path or Linux host node; until link-up
-  succeeds, firmware work cannot be exercised.
+- **Immediate gate:** prepare and approve a zero-PCIe-write trace-volume control
+  using the base Linux DT. Gate ordering and a barrier plus immediate read-only
+  L2C status sample both left the asynchronous boundary after `[70]`; the latter
+  sample was zero. All three traced logs stop at exactly 407 lines and 25,940
+  bytes. Print the same ADT-derived trace without enabling PCIe clocks or
+  touching controller MMIO to separate a trace/log artifact from a delayed
+  PCIe fault. Then use prefix-and-hold bisection only if the dry run completes.
+  Until link-up succeeds, firmware work cannot be exercised.
 - **WiFi:** `brcmfmac` PCIe path; m1n1 already copies the MAC, antenna SKU and
   calibration blob from ADT when `wifi0` is aliased. Firmware still has to be
   extracted from the paired macOS install for board type `apple,mriya`.
