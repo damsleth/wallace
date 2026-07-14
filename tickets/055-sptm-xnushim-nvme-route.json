@@ -1,0 +1,13 @@
+{
+  "seq": "055",
+  "slug": "sptm-xnushim-nvme-route",
+  "needs": "offline",
+  "state": "open",
+  "track": "storage",
+  "priority": "P1",
+  "desc": "Feasibility writeup + sharpened Asahi escalation for the XNU-shim route to internal NVMe on M4 (supersedes the done ticket-010 framing 'can iBoot load genuine SPTM for a raw m1n1 object'). New question: ride a permissive XNU kernelcache's genuine SPTM bring-up, intercept post-init_xnu_ro_data (asahi_neo IOPlatformExpert::start hook), pivot to Linux inheriting a live SPTM with the NVMe IOMMU dispatch already registered, then drive ops 0..8 in allowed_functions order from Linux-at-EL1. Carry the evidence: capability-by-domain dispatch (paper 5.4.1), NVMe registered XNU-callable (permissions=0x12 in IOMMU_bootstrap, Listing A.1), and the corrected guarded-side op map (done/2026-07-14-t6040-sptm-nvme-guarded-backend-decode.md). State the two open risks plainly: domain provenance across the pivot (settled by ticket 053) and whether the CoastGuard TCB/CID state survives the XNU->Linux handoff. Draft only, CJ posts to #asahi-dev. Context: done/2026-07-14-t6040-sptm-xnushim-asahi-neo-crossref.md. P0 foundation STARTED 2026-07-14 (fable): xnu-shim/ scaffold committed -- PLAN.md (phased, honest about the 3 walls), include/sptm_nvme_iface.h (SPTM+NVMe op enum 0..8 from the decode, arg layouts marked TBD-051/053), src/nvme_bringup.c (ops-0..8 sequence skeleton, stubbed), src/{shim_entry,linux_loader,fdt_builder}.c skeletons, docs/asahi-dev-escalation.md (this ticket's draft, ready for CJ), docs/signing-path.md (Phase-2 blocker scoping). Skeleton syntax-checks clean (make check). Boot remains gated on ticket 053 (domain provenance, rig) + a Permissive-KC signing path (unresolved); P1-P4 stay skeleton until 053 closes",
+  "author": "fable",
+  "deps": ["008", "010", "053"],
+  "hashes": null,
+  "created": 1784060530
+}

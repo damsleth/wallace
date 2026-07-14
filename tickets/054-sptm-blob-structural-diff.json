@@ -1,0 +1,13 @@
+{
+  "seq": "054",
+  "slug": "sptm-blob-structural-diff",
+  "needs": "offline",
+  "state": "open",
+  "track": "storage",
+  "priority": "P3",
+  "desc": "Structural diff of the SPTM firmware across t8132 (M4-base), t8140 (A18 Pro; asahi_neo research/firmware) and t6041 (M4 Max; from ticket 052) to map the NVMe/SART dispatch tables and separate the stable ABI from SoC-specific offsets: SPTM domain IDs (paper A.2), dispatch-table IDs (A.3: NVME=6, SART=5), IOMMU IDs (A.5: NVMe=2, SART=1), the func_state[0..8] NVMe op indexing, versus the register/DART-variant offsets that differ. Confirms t8132-as-proxy was sound and hardens the op-map decode against single-image artifacts. Ghidra/r2 structural diff; static only",
+  "author": "fable",
+  "deps": ["052"],
+  "hashes": null,
+  "created": 1784060529
+}

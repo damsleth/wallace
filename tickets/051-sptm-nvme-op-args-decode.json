@@ -1,0 +1,13 @@
+{
+  "seq": "051",
+  "slug": "sptm-nvme-op-args-decode",
+  "needs": "offline",
+  "state": "open",
+  "track": "storage",
+  "priority": "P2",
+  "desc": "Continue the guarded-side SPTM NVMe decode (done/2026-07-14-t6040-sptm-nvme-guarded-backend-decode.md): disassemble each of the 9 op handlers func_state[0..8] in the SPTM blob to byte-prove the per-op argument-register contracts. Confirm op-4 (sptm_nvme_bar_admin_queue_regs) actually takes ASQ PA/depth + ACQ PA/depth (ticket-007's contract came from the debug patch and is UNVERIFIED after the service-6 retraction), and resolve ops 0..3 (protocol-version / queue-entries / TCB-CID setup) against the caller symbols GetNVMeSPTMProtocolVersion, GetNVMeSPTMQueueEntries, NVMeCoastGuardSetTCB. Use Apple objdump (r2/rabin2 mis-map this Mach-O via chained fixups); vaddr = file_offset + 0xfffffff027004000 on t8132. Static only; supersedes the retracted ticket-007 caller-side service-6 veneer decode",
+  "author": "fable",
+  "deps": ["007"],
+  "hashes": null,
+  "created": 1784060526
+}

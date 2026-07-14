@@ -1,0 +1,13 @@
+{
+  "seq": "053",
+  "slug": "sptm-hv-genter-trace",
+  "needs": "rig",
+  "state": "open",
+  "track": "storage",
+  "priority": "P1",
+  "desc": "Empirical capture of the live SPTM NVMe call sequence: boot the M4 macOS kernelcache as an m1n1 EL2 HV guest, trap GXF/genter transitions, and log every SPTM call (x16 domain|table|endpoint + x0..x7 args + EL1 return addr) through NVMe bring-up. Yields (a) the real per-op argument values for ops 0..8 to cross-check the static decode (ticket 051), and (b) the domain-provenance answer the XNU-shim route hinges on -- whether a post-handoff EL1 context stays tagged XNU_DOMAIN (paper 5.4.1: domain read from TPIDR, not the x16 immediate). PREREQ: m1n1 GXF is OFF on M4 (features_m4 omits mmu_sprr, gxf_init never called -- done/2026-07-14-t6040-sptm-service6-abi.md) so HV genter-trapping must be brought up first; asahi_neo's probe_sptm.py is a STUB still carrying the invalidated x0-dispatch model, rewrite for the x16 descriptor. Relates to m1n1 T6040 series prep (046)",
+  "author": "fable",
+  "deps": ["046", "051"],
+  "hashes": null,
+  "created": 1784060528
+}
