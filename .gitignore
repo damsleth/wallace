@@ -1,2 +1,6 @@
 .DS_Store
 .*.swp
+# rig turn-taking runtime state (lease, queue, audit log). Host-local and
+# shared between agents via the filesystem, not git. Durable records of what
+# actually ran live in commits + done/ write-ups, as before.
+.rig/
