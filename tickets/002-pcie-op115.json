@@ -5,7 +5,7 @@
   "state": "approved",
   "track": "pcie",
   "priority": "P1",
-  "desc": "isolate op-115, first PHY-IP PLL RMW at 0x417040090 (NEXT_STEPS §0.1). benefits from ticket 013 PHY manifest",
+  "desc": "isolate op-115: read-only first PHY-IP PLL access at 0x417040090, ops 1-114 unchanged, return before write (NEXT_STEPS §0.1; done/2026-07-14-t6040-pcie-op115-static-analysis.md). m1n1 main d1494f5a bin 5616b05f. Cross-reviewed by fable 2026-07-14: PASS (done/2026-07-14-t6040-op115-read-cross-review.md); precondition: pinned PCIe-free base DTB e7691ee4 no longer on disk — rebuild+verify or re-pin before boot",
   "author": "claude",
   "deps": [],
   "hashes": null,
