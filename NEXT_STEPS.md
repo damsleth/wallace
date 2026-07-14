@@ -25,12 +25,16 @@ timing strongly suggests the RX event stalled the shared IRQ-driven TX
 completion path or tripped the guard. Exact result:
 `done/2026-07-14-t6040-dockchannel-irq-tx-report.md`.
 
-Prepare a diagnostic that leaves RX interrupt-driven on BIT(1) but polls TX
-completion, so disabling a storming RX IRQ cannot suppress the evidence relay.
-It must retain the 4,096-entry guard, report `/proc/interrupts` and dmesg, and
-use the standard 5 ms full-poll mode everywhere except its separate diagnostic
-DT. Any revised live image needs a new exact review and approval. Do not retry
-either completed BIT(1) image or publish the old scan as a hardware erratum.
+A separate diagnostic that leaves RX interrupt-driven on BIT(1) but polls TX
+completion is now built. It retains the 4,096-entry guard, never unmasks TX
+BIT(2), and polls only the existing `DATA_TX_FREE` register while TX is active.
+This should preserve the evidence relay even if the RX guard disables IRQ 360.
+Exact hashes, MMIO delta, interpretation, and fresh approval gate:
+`done/2026-07-14-t6040-dockchannel-rxirq-txpoll.md`.
+
+Keep the standard 5 ms full-poll mode everywhere except this separate
+diagnostic DT. Do not run the new image without explicit approval, retry either
+completed BIT(1) image, or publish the old scan as a hardware erratum.
 
 ## 0.1 Extend the proven T6040 PCIe path through PHY setup
 

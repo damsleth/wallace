@@ -60,6 +60,18 @@ if [ "${DOCKCHANNEL_IRQ_TEST:-0}" = "1" ]; then
         cp "/out/$dts" "$APPLE/"
     done
 fi
+if [ "${DOCKCHANNEL_IRQ_TX_POLL_TEST:-0}" = "1" ]; then
+    [ "${DOCKCHANNEL_IRQ_TEST:-0}" = "1" ] || {
+        echo "ERROR: DOCKCHANNEL_IRQ_TX_POLL_TEST=1 requires DOCKCHANNEL_IRQ_TEST=1"
+        exit 1
+    }
+    dts=t6040-j614s-dcuart-irq-txpoll.dts
+    if [ ! -f "/out/$dts" ]; then
+        echo "ERROR: DOCKCHANNEL_IRQ_TX_POLL_TEST=1 requires /out/$dts"
+        exit 1
+    fi
+    cp "/out/$dts" "$APPLE/"
+fi
 if [ "${PCIE:-0}" = "1" ]; then
     if [ ! -f /out/t6040-j614s-dcuart-pcie.dts ]; then
         echo "ERROR: PCIE=1 requires /out/t6040-j614s-dcuart-pcie.dts"
@@ -568,6 +580,22 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
             exit 1
         fi
     fi
+    if [ "${DOCKCHANNEL_IRQ_TX_POLL_TEST:-0}" = "1" ]; then
+        echo "== apply DockChannel RX-IRQ/TX-poll diagnostic split =="
+        if grep -q 'apple,tx-poll-mode' drivers/mailbox/apple-dockchannel.c; then
+            echo "t6040-dockchannel-tx-poll-debug.patch already applied"
+        elif git apply --check /out/t6040-dockchannel-tx-poll-debug.patch 2>/dev/null; then
+            git apply /out/t6040-dockchannel-tx-poll-debug.patch
+            echo "t6040-dockchannel-tx-poll-debug.patch applied OK"
+        else
+            echo "ERROR: t6040-dockchannel-tx-poll-debug.patch does not apply cleanly:"
+            git apply --check /out/t6040-dockchannel-tx-poll-debug.patch || true
+            exit 1
+        fi
+    elif grep -q 'apple,tx-poll-mode' drivers/mailbox/apple-dockchannel.c; then
+        echo "== remove DockChannel RX-IRQ/TX-poll diagnostic split =="
+        git apply -R /out/t6040-dockchannel-tx-poll-debug.patch
+    fi
     # Local fix: add the missing hid_ll_driver .stop (NULL-deref oops on t6040,
     # see ~/Code/wallace/t6040-dockchannel-fixes.patch; copy it to /out first).
     if grep -q 'dchid_stop' \
@@ -718,6 +746,11 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
         cp $APPLE/t6040-j614s-dcuart-irq.dtb /out/ \
             && echo "DTB -> /out/t6040-j614s-dcuart-irq.dtb"
     fi
+    if [ "${DOCKCHANNEL_IRQ_TX_POLL_TEST:-0}" = "1" ]; then
+        make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-irq-txpoll.dtb
+        cp $APPLE/t6040-j614s-dcuart-irq-txpoll.dtb /out/ \
+            && echo "DTB -> /out/t6040-j614s-dcuart-irq-txpoll.dtb"
+    fi
 fi
 if [ "${PCIE:-0}" = "1" ]; then
     make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-pcie.dtb
@@ -814,6 +847,10 @@ if [ "${1:-}" = "image" ]; then
     if [ "${DOCKCHANNEL_IRQ_TEST:-0}" = "1" ]; then
         image_name=Image-dcuart-irq
         map_name=System.map-dcuart-irq
+    fi
+    if [ "${DOCKCHANNEL_IRQ_TX_POLL_TEST:-0}" = "1" ]; then
+        image_name=Image-dcuart-irq-txpoll
+        map_name=System.map-dcuart-irq-txpoll
     fi
     cp arch/arm64/boot/Image "/out/$image_name" \
         && echo "Image -> /out/$image_name ($(du -h arch/arm64/boot/Image | cut -f1))"

@@ -1,0 +1,105 @@
+From 5d7ad3fc54178e47a78865f1a69277a3dd8c6130 Mon Sep 17 00:00:00 2001
+From: CJ Damsleth <kim@damsleth.no>
+Date: Tue, 14 Jul 2026 14:43:00 +0200
+Subject: [PATCH] mailbox: apple: poll TX completion in IRQ diagnostics
+
+Keep RX interrupt-driven. Poll diagnostic UART TX completion independently.
+A storm guard can then disable a bad RX interrupt on the shared AIC line
+without also suppressing the evidence relay.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ drivers/mailbox/apple-dockchannel.c | 44 ++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 43 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mailbox/apple-dockchannel.c b/drivers/mailbox/apple-dockchannel.c
+index 8ede693..597ce71 100644
+--- a/drivers/mailbox/apple-dockchannel.c
++++ b/drivers/mailbox/apple-dockchannel.c
+@@ -51,8 +51,10 @@ struct apple_dockchannel {
+ 	int irq;
+ 
+ 	bool poll_mode;
++	bool tx_poll_mode;
+ 	bool poll_running;
+ 	struct delayed_work poll_work;
++	struct delayed_work tx_poll_work;
+ 
+ 	spinlock_t lock; /* protects IRQ mask and TX state */
+ 	u32 irq_mask;
+@@ -135,6 +137,33 @@ static void apple_dockchannel_write_pending(struct apple_dockchannel *dc)
+ 	dc->tx_pos = dc->tx_len - left;
+ }
+ 
++static void apple_dockchannel_tx_poll_work(struct work_struct *work)
++{
++	struct apple_dockchannel *dc = container_of(work,
++						    struct apple_dockchannel,
++						    tx_poll_work.work);
++	unsigned long flags;
++	bool tx_done = false;
++	bool reschedule = false;
++
++	spin_lock_irqsave(&dc->lock, flags);
++	if (dc->tx_active) {
++		if (apple_dockchannel_tx_empty(dc)) {
++			dc->tx_active = false;
++			tx_done = true;
++		} else {
++			reschedule = true;
++		}
++	}
++	spin_unlock_irqrestore(&dc->lock, flags);
++
++	if (tx_done)
++		mbox_chan_txdone(&dc->chan, 0);
++	else if (reschedule)
++		schedule_delayed_work(&dc->tx_poll_work,
++				      msecs_to_jiffies(1));
++}
++
+ static void apple_dockchannel_read(struct apple_dockchannel *dc, void *buf,
+ 				   size_t count)
+ {
+@@ -176,10 +205,13 @@ static int apple_dockchannel_send_data(struct mbox_chan *chan, void *data)
+ 	dc->tx_active = true;
+ 
+ 	apple_dockchannel_write_pending(dc);
+-	if (!dc->poll_mode) {
++	if (!dc->poll_mode && !dc->tx_poll_mode) {
+ 		writel_relaxed(APPLE_DOCKCHANNEL_FIFO_SIZE,
+ 			       dc->config_base + CONFIG_TX_THRESH);
+ 		apple_dockchannel_irq_enable(dc, dc->irq_tx);
++	} else if (dc->tx_poll_mode) {
++		schedule_delayed_work(&dc->tx_poll_work,
++				      msecs_to_jiffies(1));
+ 	}
+ 
+ 	spin_unlock_irqrestore(&dc->lock, flags);
+@@ -224,6 +256,9 @@ static void apple_dockchannel_shutdown(struct mbox_chan *chan)
+ 	struct apple_dockchannel *dc = chan->con_priv;
+ 	unsigned long flags;
+ 
++	if (dc->tx_poll_mode)
++		cancel_delayed_work_sync(&dc->tx_poll_work);
++
+ 	if (dc->poll_mode) {
+ 		WRITE_ONCE(dc->poll_running, false);
+ 		cancel_delayed_work_sync(&dc->poll_work);
+@@ -415,7 +450,14 @@ static int apple_dockchannel_probe(struct platform_device *pdev)
+ 	writel_relaxed(~0, dc->irq_base + IRQ_FLAG);
+ 
+ 	dc->poll_mode = of_property_read_bool(dev->of_node, "apple,poll-mode");
++	dc->tx_poll_mode = of_property_read_bool(dev->of_node,
++						 "apple,tx-poll-mode");
++	if (dc->poll_mode && dc->tx_poll_mode)
++		return dev_err_probe(dev, -EINVAL, "conflicting poll modes\n");
+ 	INIT_DELAYED_WORK(&dc->poll_work, apple_dockchannel_poll_work);
++	INIT_DELAYED_WORK(&dc->tx_poll_work, apple_dockchannel_tx_poll_work);
++	if (dc->tx_poll_mode)
++		dev_info(dev, "polling TX completion; RX remains interrupt-driven\n");
+ 
+ 	if (dc->poll_mode) {
+ 		dev_info(dev, "using polled mode (%d ms)\n",
+-- 
+2.47.1
