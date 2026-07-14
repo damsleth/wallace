@@ -1,0 +1,54 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * T6040 J614s USB2 host candidate (ticket 031).
+ *
+ * Everything from the proven DockChannel-UART console + keyboard boot DT,
+ * plus the three dwc3 ports switched from the parked gadget/peripheral config
+ * to fixed USB2 HOST mode, for an external USB disk (or USB-Ethernet) as the
+ * Linux root device (ticket 009 design; internal NVMe is SPTM-blocked, ticket
+ * 008).
+ *
+ * Host mode without an atcphy driver or an AP-visible Type-C PD controller:
+ * relies on the USB2 PHY state iBoot/m1n1 leaves on the port and on default
+ * VBUS. dr_mode is pinned to "host" (no dynamic role detection to do). USB3 /
+ * Thunderbolt / ATC PHY tunable buckets are intentionally NOT enabled
+ * (atc-phy,t6040 has no driver and its per-bucket reg_offsets are unknown).
+ *
+ * All three ports are enabled so whichever carries the disk and has a usable
+ * PHY enumerates; ticket 032 / a gated rig run identifies the viable physical
+ * port and confirms VBUS. See done/2026-07-14-t6040-usb-host-dt-audit.md.
+ */
+
+#include "t6040-j614s-dcuart.dts"
+
+/ {
+	model = "Apple MacBook Pro (M4 Pro) J614s [USB2 host / external-root candidate]";
+};
+
+/* Port 0 (ATC0) */
+&usb0_dart0 { status = "okay"; };
+&usb0_dart1 { status = "okay"; };
+&usb_drd0 {
+	/delete-property/ apple,force-device-mode;
+	dr_mode = "host";
+	/* keep: apple,t8103-dwc3, t8110 DART iommus, ps_atc0_usb, high-speed */
+	status = "okay";
+};
+
+/* Port 1 (ATC1) */
+&usb1_dart0 { status = "okay"; };
+&usb1_dart1 { status = "okay"; };
+&usb_drd1 {
+	/delete-property/ apple,force-device-mode;
+	dr_mode = "host";
+	status = "okay";
+};
+
+/* Port 2 (ATC2) */
+&usb2_dart0 { status = "okay"; };
+&usb2_dart1 { status = "okay"; };
+&usb_drd2 {
+	/delete-property/ apple,force-device-mode;
+	dr_mode = "host";
+	status = "okay";
+};
