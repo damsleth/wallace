@@ -274,17 +274,19 @@ required protected execution state through a documented loader transition or
 whether storage must wait for upstream M4 SPTM support. No Identify command has
 run; never mount, repair, format, flush, or write the namespace.
 
-The service-6 ABI is now fully decoded from the paired kernelcache (ticket 007,
+The service-6 ABI is now fully decoded from the paired M4 target kernelcache
+(Darwin 25.5.0, RELEASE_ARM64_T6041; ticket 007,
 `done/2026-07-14-t6040-sptm-service6-abi.md`). Selector `x16 = op | (service<<32)`,
-service 6 = NVMe with ops 0..8 (0 = init, 1 = TCB auth, 4 = admin queue setup
-with the ASQ/SQ-depth/ACQ/CQ-depth arg layout already reproduced; the enable/
-query ops map to the named `AppleANS2CGv2Controller` methods). The decode
-confirms the blocker is **not** ABI knowledge: every guarded service in the
-kernel funnels through one GENTER trampoline that spins on `mrs s3_6_c15_c8_0`
-and requires a live GXF gate. Raw m1n1 boots with `GXF_CONFIG_EL1=0` and an
-unconfigured GENTER entry vector, so GENTER wedges (no dispatch, no fault). The
-remaining question — whether raw boot can enter SPTM guarded state at all, or
-storage waits for upstream — is ticket 008's go/no-go.
+read directly off the kernel's per-(service,op) GENTER veneer table; service 6 =
+NVMe with exactly 9 veneers, ops 0..8 (0 = init, 1 = TCB auth, 4 = admin queue
+setup with the ASQ/SQ-depth/ACQ/CQ-depth arg layout already reproduced; the
+enable/query ops map to the named `AppleANS2CGv2Controller` methods). The decode
+confirms the blocker is **not** ABI knowledge: each veneer's shared guard-enter
+helper bumps a per-thread reentrancy counter and spins on `mrs s3_6_c15_c8_0`
+before GENTER, requiring a live GXF gate. Raw m1n1 boots with `GXF_CONFIG_EL1=0`
+and an unconfigured GENTER entry vector, so GENTER wedges (no dispatch, no
+fault). The remaining question — whether raw boot can enter SPTM guarded state
+at all, or storage waits for upstream — is ticket 008's go/no-go.
 
 Exact current transcript: `logs/t6040-console-20260714-nvme-sptm.log`.
 Full cumulative analysis: `done/2026-07-13-t6040-nvme-map.md`;
