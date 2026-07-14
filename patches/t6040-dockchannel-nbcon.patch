@@ -1,0 +1,128 @@
+From 320ac69f0de89abe8107add720cecc46279858e4 Mon Sep 17 00:00:00 2001
+From: CJ Damsleth <kim@damsleth.no>
+Date: Tue, 14 Jul 2026 18:14:02 +0200
+Subject: [PATCH] tty: apple-dockchannel: add nbcon console
+
+The TTY write path uses a kfifo, delayed work, and a mailbox completion
+callback. Reusing it for printk can sleep, deadlock in panic context, or
+recurse when its own error path prints.
+
+Register one dynamic nbcon console per DockChannel TTY. Both callbacks
+bypass the TTY queue and use the bounded polled mailbox helper directly.
+Limit each record to the hardware FIFO and a 10 ms drain timeout. Serialize
+threaded printing with the TTY TX lock, and silently drop failed records so
+the console path cannot print about itself.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+
+diff --git a/drivers/tty/apple_dockchannel_tty.c b/drivers/tty/apple_dockchannel_tty.c
+index 74be64a2c910..283a54e42f00 100644
+--- a/drivers/tty/apple_dockchannel_tty.c
++++ b/drivers/tty/apple_dockchannel_tty.c
+@@ -5,6 +5,7 @@
+  * Copyright The Asahi Linux Contributors
+  */
+ 
++#include <linux/console.h>
+ #include <linux/err.h>
+ #include <linux/jiffies.h>
+ #include <linux/kfifo.h>
+@@ -28,6 +29,7 @@
+ #define APPLE_DCTTY_MAX_PORTS		8
+ #define APPLE_DCTTY_FIFO_SIZE		0x800
+ #define APPLE_DCTTY_TX_FIFO_SIZE	(SZ_64K)
++#define APPLE_DCTTY_CONSOLE_TIMEOUT_US	10000
+ 
+ struct apple_dctty {
+ 	struct device *dev;
+@@ -45,12 +47,60 @@ struct apple_dctty {
+ 	unsigned int tx_len;
+ 	bool tx_active;
+ 	bool disconnected;
++
++	struct console console;
+ };
+ 
+ static struct apple_dctty *apple_dctty_ports[APPLE_DCTTY_MAX_PORTS];
+ static DEFINE_MUTEX(apple_dctty_ports_lock);
+ static struct tty_driver *apple_dctty_driver;
+ 
++static struct tty_driver *
++apple_dctty_console_device(struct console *console, int *index)
++{
++	struct apple_dctty *dctty = console->data;
++
++	*index = dctty->id;
++	return apple_dctty_driver;
++}
++
++static void
++apple_dctty_console_write(struct console *console,
++			  struct nbcon_write_context *wctxt)
++{
++	struct apple_dctty *dctty = console->data;
++
++	if (READ_ONCE(dctty->disconnected) || !wctxt->len ||
++	    wctxt->len > APPLE_DCTTY_FIFO_SIZE)
++		return;
++
++	if (!nbcon_enter_unsafe(wctxt))
++		return;
++
++	apple_dockchannel_send_atomic(dctty->mbox, wctxt->outbuf, wctxt->len,
++				      APPLE_DCTTY_CONSOLE_TIMEOUT_US);
++
++	nbcon_exit_unsafe(wctxt);
++}
++
++static void
++apple_dctty_console_device_lock(struct console *console,
++				unsigned long *flags)
++{
++	struct apple_dctty *dctty = console->data;
++
++	spin_lock_irqsave(&dctty->tx_lock, *flags);
++}
++
++static void
++apple_dctty_console_device_unlock(struct console *console,
++				  unsigned long flags)
++{
++	struct apple_dctty *dctty = console->data;
++
++	spin_unlock_irqrestore(&dctty->tx_lock, flags);
++}
++
+ static unsigned int tx_coalesce_us = 1000;
+ module_param(tx_coalesce_us, uint, 0644);
+ MODULE_PARM_DESC(tx_coalesce_us,
+@@ -362,6 +412,17 @@ static int apple_dctty_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	platform_set_drvdata(pdev, dctty);
++	strscpy(dctty->console.name, APPLE_DCTTY_NAME,
++		sizeof(dctty->console.name));
++	dctty->console.write_atomic = apple_dctty_console_write;
++	dctty->console.write_thread = apple_dctty_console_write;
++	dctty->console.device_lock = apple_dctty_console_device_lock;
++	dctty->console.device_unlock = apple_dctty_console_device_unlock;
++	dctty->console.device = apple_dctty_console_device;
++	dctty->console.flags = CON_PRINTBUFFER | CON_NBCON;
++	dctty->console.index = dctty->id;
++	dctty->console.data = dctty;
++	register_console(&dctty->console);
+ 	dev_info(dev, "registered %s%d\n", APPLE_DCTTY_NAME, dctty->id);
+ 
+ 	return 0;
+@@ -382,6 +443,8 @@ static void apple_dctty_remove(struct platform_device *pdev)
+ 	struct apple_dctty *dctty = platform_get_drvdata(pdev);
+ 	unsigned long flags;
+ 
++	unregister_console(&dctty->console);
++
+ 	spin_lock_irqsave(&dctty->tx_lock, flags);
+ 	dctty->disconnected = true;
+ 	dctty->tx_active = false;
+-- 
+2.47.1
+
