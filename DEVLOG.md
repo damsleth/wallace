@@ -439,13 +439,19 @@ transcript: `logs/t6040-console-20260714-pcie-guarded-clock.log`, SHA-256
 (36 lines, 2,255 bytes). Full result:
 `done/2026-07-14-t6040-pcie-guarded-clock-diagnostic.md`.
 
-The next shared-PHY-only image is prepared but not approved or run. Main code
+The shared-PHY-only image ran once with approval. Main code
 `b5ced9ba` (`v1.6.0-81-gb5ced9ba`), binary SHA-256
 `add3cef43947dab1605bd95ad602b6dcbf8e89de0a3f1b43f278005cd52dd9da`,
-continues through exactly 351 writes and five existing bounded polls, then
-returns before entering the per-port loop. The subset manifest SHA-256 is
+was bounded to 351 writes and five existing polls, with a return before ports.
+Operations 1–114 completed, including reference clock, CLK0/CLK1 acknowledgements,
+reset release, and the T8122 pre-tunable control. Output then stopped on the
+pre-line for operation 115, the first PHY-IP PLL RMW at `0x417040090`; no
+`done` or exception followed, and proxyclient timed out. Linux did not hand off
+and no port or storage access ran. The subset manifest SHA-256 is
 `d4496968ee8fc1202bd4d47247fc6bbaa36f0a3f7cc872a81efabe72327c50fc`.
-Exact addresses, phases, and approval gate:
+The sanctioned DebugUSB reboot restored a quiescent proxy. Transcript SHA-256
+`b567ab1353682787549a1e666b489dd46228a960a23cb5248e14c0a5221668bb`.
+Exact addresses, phases, and result:
 `done/2026-07-14-t6040-pcie-phy-diagnostic.md`.
 Full details are in `done/2026-07-14-t6040-wireless-pcie-map.md`.
 

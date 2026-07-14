@@ -1,6 +1,6 @@
 # T6040 guarded shared-PHY diagnostic
 
-Prepared 2026-07-14. **Not approved or run.** This continues the live-proven
+Prepared and run 2026-07-14. **Approved once; bounded failure.** This continued the live-proven
 Apple-ordered 105-operation clock/tunable prefix through shared PHY setup, then
 returns before the first per-port operation.
 
@@ -70,9 +70,30 @@ git -C ~/Code/linux show feature/m4-m5-minimal-device-trees:j614s.adt \
   > done/2026-07-14-t6040-pcie-phy-diagnostic.tsv
 ```
 
-## Approval gate
+## Live result
 
-This is a write-bearing target binary and requires fresh explicit approval for
-one live run of the exact main binary and manifest above. Stop after reviewing
-that outcome. If it fails, recover only through the sanctioned DebugUSB helper.
-Do not mount, repair, format, or otherwise access storage.
+The maintainer approved one live run of the exact main binary and manifest.
+Operations 1–114 completed: the proven 105-operation prefix, all five
+`apcie-phy-tunables` RMWs, reference-clock poll, CLK0/CLK1 request and
+acknowledgement, reset release, and T8122 pre-tunable control. The pre-write
+trace for operation 115 then printed:
+
+```text
+tunable: apcie-phy-ip-pll-tunables[0] addr=0x417040090 size=4 mask=0x1 value=0x1
+```
+
+No `done` line or exception followed, and proxyclient timed out waiting for the
+kboot reply. Thus the bounded live boundary is the first PHY-IP PLL RMW; it does
+not prove whether the read or write side of that RMW stalled. Operation 115 did
+not complete observably, and operations 116–351 did not run. The hard return
+still made all port operations unreachable. Linux did not hand off; no port,
+PERST#, RID2SID/MSIMAP, config-space, Linux PCIe, NVMe, or storage access ran.
+
+The sanctioned DebugUSB reboot restored a fresh, quiescent proxy. Transcript:
+`../logs/t6040-console-20260714-pcie-shared-phy.log`, SHA-256
+`b567ab1353682787549a1e666b489dd46228a960a23cb5248e14c0a5221668bb`
+(432 lines, 27,927 bytes).
+
+Any follow-up that changes or isolates the operation-115 access requires its
+own exact review and fresh explicit approval. Do not mount, repair, format, or
+otherwise access storage.

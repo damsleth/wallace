@@ -319,15 +319,16 @@ ran. m1n1 transcript SHA-256
 Linux transcript SHA-256
 `b1caef2f4b6612675f329402bc0d9f87813494a98c28a84bb09033471d792063`.
 
-Main `b5ced9ba` now prepares the next bounded stage: the proven prefix plus all
+Main `b5ced9ba` prepared the next bounded stage: the proven prefix plus all
 shared PHY work, with a hard return before entering the per-port loop. Its main
 binary SHA-256 is
 `add3cef43947dab1605bd95ad602b6dcbf8e89de0a3f1b43f278005cd52dd9da`;
 the exact 351-operation subset has SHA-256
 `d4496968ee8fc1202bd4d47247fc6bbaa36f0a3f7cc872a81efabe72327c50fc`.
-It has not been approved or run. See
-`2026-07-14-t6040-pcie-phy-diagnostic.md` for the five bounded polls and exact
-approval gate.
+Its approved run completed operations 1–114, then stopped during operation
+115, the first PHY-IP PLL RMW at `0x417040090` (pre-line printed, no `done` or
+exception). Linux did not hand off and no port or storage access ran. See
+`2026-07-14-t6040-pcie-phy-diagnostic.md` for the exact result and transcript.
 
 ## Full-path gate
 
