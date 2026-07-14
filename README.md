@@ -12,7 +12,10 @@ The current blocker is pmgr: the full 214-domain power-domain DT hangs the kerne
 
 The console deserves a sentence. M4 raw-boot has no serial port, no hypervisor tricks (SPTM killed those), and the SBU pins are a confirmed dead end on ACE3. The one path is DebugUSB/KIS through the DFU port.
 
-Getting Linux onto it had a twist: the dockchannel's interrupt line on this die simply never fires (we scanned all 4096 AIC inputs, nothing moves), so Linux polls the FIFO like m1n1 and Apple's own agent do. Works fine. 5 ms poll, nobody notices.
+Linux currently polls the DebugUSB DockChannel FIFO every 5 ms. The earlier
+"dead interrupt" conclusion is provisional: its 4096-input AIC scan used MTP's
+RX BIT(3), while new evidence identifies UART RX as BIT(1). A separately gated
+BIT(1) retest is prepared; polling remains the proven fallback meanwhile.
 
 ## The repos
 

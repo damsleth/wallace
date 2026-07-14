@@ -47,6 +47,19 @@ fi
 if [ -f /src/$APPLE/t6040-j614s-dcuart.dts ]; then
     cp /src/$APPLE/t6040-j614s-dcuart.dts $APPLE/
 fi
+if [ "${DOCKCHANNEL_IRQ_TEST:-0}" = "1" ]; then
+    [ "${DOCKCHANNEL:-0}" = "1" ] || {
+        echo "ERROR: DOCKCHANNEL_IRQ_TEST=1 requires DOCKCHANNEL=1"
+        exit 1
+    }
+    for dts in t6040-j614s-dcuart.dts t6040-j614s-dcuart-irq.dts; do
+        if [ ! -f "/out/$dts" ]; then
+            echo "ERROR: DOCKCHANNEL_IRQ_TEST=1 requires /out/$dts"
+            exit 1
+        fi
+        cp "/out/$dts" "$APPLE/"
+    done
+fi
 if [ "${PCIE:-0}" = "1" ]; then
     if [ ! -f /out/t6040-j614s-dcuart-pcie.dts ]; then
         echo "ERROR: PCIE=1 requires /out/t6040-j614s-dcuart-pcie.dts"
@@ -529,10 +542,9 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
             b8dcbdcb9cbf1d18be7cf30c1f839a204b0aec33 | git apply
         echo "DockChannel serial TTY applied OK"
     fi
-    # Local fix: apple,poll-mode for the dockchannel mailbox — on t6040 the
-    # dockchannel-uart AIC line (ADT irq 360) never asserts (verified by
-    # scanning all 4096 AIC inputs with FIFO flags latched+unmasked), so the
-    # driver polls the FIFO like m1n1 and the KIS agent do.
+    # Local fallback plus per-instance IRQ masks. MTP uses RX BIT(3), while the
+    # UART FIFO uses RX BIT(1). The base DT retains apple,poll-mode until the
+    # separate IRQ diagnostic has re-tested ADT AIC line 360 with the right bit.
     if grep -q 'apple,poll-mode' drivers/mailbox/apple-dockchannel.c; then
         echo "t6040-dockchannel-poll.patch already applied"
     elif git apply --check /out/t6040-dockchannel-poll.patch 2>/dev/null; then
@@ -542,6 +554,19 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
         echo "ERROR: t6040-dockchannel-poll.patch does not apply cleanly:"
         git apply --check /out/t6040-dockchannel-poll.patch || true
         exit 1
+    fi
+    if [ "${DOCKCHANNEL_IRQ_TEST:-0}" = "1" ]; then
+        echo "== apply bounded DockChannel IRQ diagnostic guard =="
+        if grep -q 'IRQ storm guard tripped' drivers/mailbox/apple-dockchannel.c; then
+            echo "t6040-dockchannel-irq-guard-debug.patch already applied"
+        elif git apply --check /out/t6040-dockchannel-irq-guard-debug.patch 2>/dev/null; then
+            git apply /out/t6040-dockchannel-irq-guard-debug.patch
+            echo "t6040-dockchannel-irq-guard-debug.patch applied OK"
+        else
+            echo "ERROR: t6040-dockchannel-irq-guard-debug.patch does not apply cleanly:"
+            git apply --check /out/t6040-dockchannel-irq-guard-debug.patch || true
+            exit 1
+        fi
     fi
     # Local fix: add the missing hid_ll_driver .stop (NULL-deref oops on t6040,
     # see ~/Code/wallace/t6040-dockchannel-fixes.patch; copy it to /out first).
@@ -688,6 +713,11 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
     make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart.dtb
     cp $APPLE/t6040-j614s-dcuart.dtb /out/ \
         && echo "DTB -> /out/t6040-j614s-dcuart.dtb"
+    if [ "${DOCKCHANNEL_IRQ_TEST:-0}" = "1" ]; then
+        make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-irq.dtb
+        cp $APPLE/t6040-j614s-dcuart-irq.dtb /out/ \
+            && echo "DTB -> /out/t6040-j614s-dcuart-irq.dtb"
+    fi
 fi
 if [ "${PCIE:-0}" = "1" ]; then
     make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-pcie.dtb
@@ -780,6 +810,10 @@ if [ "${1:-}" = "image" ]; then
     if [ "${PCIE:-0}" = "1" ]; then
         image_name=Image-pcie
         map_name=System.map-pcie
+    fi
+    if [ "${DOCKCHANNEL_IRQ_TEST:-0}" = "1" ]; then
+        image_name=Image-dcuart-irq
+        map_name=System.map-dcuart-irq
     fi
     cp arch/arm64/boot/Image "/out/$image_name" \
         && echo "Image -> /out/$image_name ($(du -h arch/arm64/boot/Image | cut -f1))"

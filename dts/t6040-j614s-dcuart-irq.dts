@@ -1,0 +1,19 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Bounded DockChannel-UART IRQ diagnostic.
+ *
+ * The base DT retains the proven 5 ms polling fallback. This variant removes
+ * only that property, so the UART FIFO uses its ADT AIC IRQ 360 with the
+ * instance-specific TX/RX masks BIT(2)/BIT(1). MTP remains on BIT(2)/BIT(3).
+ */
+
+#include "t6040-j614s-dcuart.dts"
+
+/ {
+	model = "Apple MacBook Pro (M4 Pro) J614s [DockChannel UART IRQ diagnostic]";
+};
+
+&dockchannel_uart {
+	/delete-property/ apple,poll-mode;
+	apple,irq-storm-limit = <4096>;
+};

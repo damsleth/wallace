@@ -1,0 +1,57 @@
+From f927b4467284eaeb3815e8a7890ce1aa8a255284 Mon Sep 17 00:00:00 2001
+From: CJ Damsleth <kim@damsleth.no>
+Date: Tue, 14 Jul 2026 14:09:49 +0200
+Subject: [PATCH] mailbox: apple: bound DockChannel IRQ diagnostic
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ drivers/mailbox/apple-dockchannel.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/drivers/mailbox/apple-dockchannel.c b/drivers/mailbox/apple-dockchannel.c
+index 26715f3..8ede693 100644
+--- a/drivers/mailbox/apple-dockchannel.c
++++ b/drivers/mailbox/apple-dockchannel.c
+@@ -61,6 +61,8 @@ struct apple_dockchannel {
+ 	u32 irq_mask;
+ 	u32 irq_tx;
+ 	u32 irq_rx;
++	u32 irq_count;
++	u32 irq_storm_limit;
+ 
+ 	const u8 *tx_buf;
+ 	size_t tx_len;
+@@ -251,6 +253,15 @@ static irqreturn_t apple_dockchannel_irq(int irq, void *data)
+ 	flags = readl_relaxed(dc->irq_base + IRQ_FLAG);
+ 
+ 	spin_lock(&dc->lock);
++	if (dc->irq_storm_limit && ++dc->irq_count > dc->irq_storm_limit) {
++		dc->irq_mask = 0;
++		writel_relaxed(0, dc->irq_base + IRQ_MASK);
++		spin_unlock(&dc->lock);
++		disable_irq_nosync(irq);
++		dev_err(dc->dev, "IRQ storm guard tripped after %u interrupts\n",
++			dc->irq_storm_limit);
++		return IRQ_HANDLED;
++	}
+ 
+ 	pending = flags & dc->irq_mask & (dc->irq_tx | dc->irq_rx);
+ 	if (!pending)
+@@ -381,10 +392,14 @@ static int apple_dockchannel_probe(struct platform_device *pdev)
+ 	dc->irq_rx = IRQ_RX;
+ 	of_property_read_u32(dev->of_node, "apple,irq-tx-mask", &dc->irq_tx);
+ 	of_property_read_u32(dev->of_node, "apple,irq-rx-mask", &dc->irq_rx);
++	of_property_read_u32(dev->of_node, "apple,irq-storm-limit",
++			     &dc->irq_storm_limit);
+ 	if (!dc->irq_tx || !dc->irq_rx || (dc->irq_tx & dc->irq_rx))
+ 		return dev_err_probe(dev, -EINVAL, "invalid IRQ masks %#x/%#x\n",
+ 				     dc->irq_tx, dc->irq_rx);
+ 	dev_info(dev, "IRQ masks: TX=%#x RX=%#x\n", dc->irq_tx, dc->irq_rx);
++	if (dc->irq_storm_limit)
++		dev_info(dev, "IRQ storm guard: %u interrupts\n", dc->irq_storm_limit);
+ 
+ 	dc->irq_base = devm_platform_ioremap_resource_byname(pdev, "irq");
+ 	if (IS_ERR(dc->irq_base))
+-- 
+2.47.1
+

@@ -195,19 +195,21 @@ no-PMU-write rule. Details:
 
 ### DockChannel-UART Linux console (2026-07-12)
 Kernel side: `origin/dockchannel` mailbox + tty drivers + a t6040 board DT
-variant. **The t6040-specific discovery: the ADT-declared AIC irq 360 for the
-dockchannel-uart AP FIFO NEVER fires.** Probed live from m1n1: the FIFO irq
-block (+0xc000) latches flags and takes mask writes fine, but with all 4096
-AIC inputs unmasked, no HW_STATE bit tracks the FIFO mask toggle. Without an
-IRQ the stock driver TX-stalls at exactly one 2 KiB FIFO fill (send_data
-completes only from the IRQ handler) and RX is dead — the "banner then
-silence" signature. Fix: `patches/t6040-dockchannel-poll.patch` adds an
-`apple,poll-mode` DT property (5 ms delayed-work poll; TX-done on FIFO-drain,
-RX via RX_COUNT). m1n1 and the KIS dock-side agent poll this FIFO too.
+variant. The ADT declares AIC IRQ 360 for the DockChannel-UART AP FIFO. The
+2026-07-12 scan found no matching HW_STATE bit across all 4096 AIC inputs, but
+that result is now **provisional**: it enabled the UART block with MTP's RX
+BIT(3). New evidence says MTP and UART differ—MTP RX is BIT(3), UART RX is
+BIT(1)—and BIT(3) can become sticky-active on UART. The observed stock-driver
+"banner then silence" therefore follows from a wrong per-instance IRQ mask,
+not yet from a proven dead hardware route. The working fallback remains
+`apple,poll-mode` (5 ms delayed work; TX-done on FIFO drain, RX via RX_COUNT).
+`patches/t6040-dockchannel-poll.patch` now accepts explicit per-instance masks;
+a separate BIT(1), IRQ-360 retest is gated in
+`done/2026-07-14-t6040-dockchannel-irq-retest.md`.
 
-Open question (not blocking): where does that irq line actually go —
-fused off on the chopped die, routed to AOP, or KIS-agent-only? XNU's
-pe_serial dockchannel path may answer (ADT has `enable-sw-drain=1`).
+Do not publish the old result as a hardware erratum unless the BIT(1) retest is
+also negative. If it is negative, the remaining routing questions are whether
+the line is fused off on the chopped die, routed to AOP, or KIS-agent-only.
 
 MMIO caution: the dockchannel-uart block maps ONLY +0xc000 (irq, 24 B) and
 +0x28000..+0x38004 (config/data). Reading other offsets (e.g. +0x20000) raises

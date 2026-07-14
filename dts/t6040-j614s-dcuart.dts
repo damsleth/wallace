@@ -11,11 +11,11 @@
  * /arm-io/dockchannel-uart: reg[0] = config@+0 / data@+0x4000, reg[1] =
  * irq block (block base + 0xc000, same relative layout as t8140 J700).
  *
- * apple,poll-mode: the ADT-declared AIC line 360 never asserts on this
- * machine — with the FIFO irq flags latched and unmasked, and all 4096
- * AIC inputs unmasked, no AIC HW_STATE bit tracks the FIFO mask toggle
- * (probed live via the m1n1 proxy, 2026-07-12). Both m1n1 and the KIS
- * dock-side agent poll this FIFO; so must Linux.
+ * The 2026-07-12 no-IRQ result used the MTP RX mask BIT(3). New evidence shows
+ * the UART instance uses RX BIT(1), while MTP uses BIT(3), so that conclusion
+ * is provisional. Keep the proven poll fallback in this base DT until the
+ * separate BIT(1) IRQ diagnostic is reviewed; the instance-specific masks are
+ * explicit here so both modes use the correct hardware description.
  */
 /dts-v1/;
 
@@ -63,6 +63,8 @@
 		reg-names = "irq", "config", "data";
 		interrupt-parent = <&aic>;
 		interrupts = <AIC_IRQ 360 IRQ_TYPE_LEVEL_HIGH>;
+		apple,irq-tx-mask = <0x4>;
+		apple,irq-rx-mask = <0x2>;
 		apple,poll-mode;
 		#mbox-cells = <0>;
 	};
@@ -83,6 +85,8 @@
 };
 
 &mtp_dockchannel {
+	apple,irq-tx-mask = <0x4>;
+	apple,irq-rx-mask = <0x8>;
 	status = "okay";
 };
 

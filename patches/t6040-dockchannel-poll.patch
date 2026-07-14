@@ -1,6 +1,18 @@
+From 7cab247a1be571a7016a4ca1804644b5a324884d Mon Sep 17 00:00:00 2001
+From: CJ Damsleth <kim@damsleth.no>
+Date: Tue, 14 Jul 2026 14:01:29 +0200
+Subject: [PATCH] mailbox: apple: make DockChannel IRQ masks configurable
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ drivers/mailbox/apple-dockchannel.c | 129 ++++++++++++++++++++++------
+ 1 file changed, 104 insertions(+), 25 deletions(-)
+
+diff --git a/drivers/mailbox/apple-dockchannel.c b/drivers/mailbox/apple-dockchannel.c
+index 03ffe25..26715f3 100644
 --- a/drivers/mailbox/apple-dockchannel.c
 +++ b/drivers/mailbox/apple-dockchannel.c
-@@ -20,9 +20,19 @@
+@@ -20,9 +20,13 @@
  #include <linux/platform_device.h>
  #include <linux/spinlock.h>
  #include <linux/unaligned.h>
@@ -8,19 +20,13 @@
  
  #define APPLE_DOCKCHANNEL_FIFO_SIZE	0x800
  
-+/*
-+ * Polled-mode period. On t6040 the ADT-declared AIC line for the
-+ * dockchannel-uart FIFO never asserts (all 4096 AIC inputs were scanned with
-+ * the FIFO irq flags latched and unmasked); both m1n1 and the KIS dock-side
-+ * agent poll this FIFO. 5 ms against a 2 KiB FIFO is far more bandwidth than
-+ * a debug console needs.
-+ */
++/* Polled fallback for instances without a working interrupt description. */
 +#define APPLE_DOCKCHANNEL_POLL_MS	5
 +
  #define IRQ_MASK			0x0
  #define IRQ_FLAG			0x4
  
-@@ -49,6 +59,10 @@
+@@ -49,8 +53,14 @@ struct apple_dockchannel {
  	void __iomem *data_base;
  	int irq;
  
@@ -30,8 +36,12 @@
 +
  	spinlock_t lock; /* protects IRQ mask and TX state */
  	u32 irq_mask;
++	u32 irq_tx;
++	u32 irq_rx;
  
-@@ -171,9 +185,11 @@
+ 	const u8 *tx_buf;
+ 	size_t tx_len;
+@@ -171,9 +181,11 @@ static int apple_dockchannel_send_data(struct mbox_chan *chan, void *data)
  	dc->tx_active = true;
  
  	apple_dockchannel_write_pending(dc);
@@ -41,18 +51,18 @@
 +	if (!dc->poll_mode) {
 +		writel_relaxed(APPLE_DOCKCHANNEL_FIFO_SIZE,
 +			       dc->config_base + CONFIG_TX_THRESH);
-+		apple_dockchannel_irq_enable(dc, IRQ_TX);
++		apple_dockchannel_irq_enable(dc, dc->irq_tx);
 +	}
  
  	spin_unlock_irqrestore(&dc->lock, flags);
  
-@@ -191,10 +207,16 @@
+@@ -191,10 +203,16 @@ static int apple_dockchannel_startup(struct mbox_chan *chan)
  	 * granularity because UART-style DockChannel clients require it.
  	 */
  	writel_relaxed(1, dc->config_base + CONFIG_RX_THRESH);
 -	apple_dockchannel_irq_enable(dc, IRQ_RX);
 +	if (!dc->poll_mode)
-+		apple_dockchannel_irq_enable(dc, IRQ_RX);
++		apple_dockchannel_irq_enable(dc, dc->irq_rx);
  	spin_unlock_irqrestore(&dc->lock, flags);
  
 -	enable_irq(dc->irq);
@@ -65,7 +75,7 @@
  
  	return 0;
  }
-@@ -204,7 +226,12 @@
+@@ -204,10 +222,15 @@ static void apple_dockchannel_shutdown(struct mbox_chan *chan)
  	struct apple_dockchannel *dc = chan->con_priv;
  	unsigned long flags;
  
@@ -78,8 +88,54 @@
 +	}
  
  	spin_lock_irqsave(&dc->lock, flags);
- 	apple_dockchannel_irq_disable(dc, IRQ_TX | IRQ_RX);
-@@ -292,6 +319,45 @@
+-	apple_dockchannel_irq_disable(dc, IRQ_TX | IRQ_RX);
++	apple_dockchannel_irq_disable(dc, dc->irq_tx | dc->irq_rx);
+ 	dc->tx_active = false;
+ 	spin_unlock_irqrestore(&dc->lock, flags);
+ }
+@@ -229,17 +252,17 @@ static irqreturn_t apple_dockchannel_irq(int irq, void *data)
+ 
+ 	spin_lock(&dc->lock);
+ 
+-	pending = flags & dc->irq_mask & (IRQ_TX | IRQ_RX);
++	pending = flags & dc->irq_mask & (dc->irq_tx | dc->irq_rx);
+ 	if (!pending)
+ 		goto out_unlock_none;
+ 
+-	if (pending & IRQ_TX) {
++	if (pending & dc->irq_tx) {
+ 		if (apple_dockchannel_tx_empty(dc)) {
+-			apple_dockchannel_irq_disable(dc, IRQ_TX);
++			apple_dockchannel_irq_disable(dc, dc->irq_tx);
+ 			tx_done = dc->tx_active;
+ 			dc->tx_active = false;
+ 		} else {
+-			pending &= ~IRQ_TX;
++			pending &= ~dc->irq_tx;
+ 		}
+ 	}
+ 
+@@ -250,7 +273,7 @@ static irqreturn_t apple_dockchannel_irq(int irq, void *data)
+ 	if (tx_done)
+ 		mbox_chan_txdone(&dc->chan, 0);
+ 
+-	if (pending & IRQ_RX)
++	if (pending & dc->irq_rx)
+ 		return IRQ_WAKE_THREAD;
+ 
+ 	if (pending)
+@@ -261,8 +284,8 @@ static irqreturn_t apple_dockchannel_irq(int irq, void *data)
+ out_unlock_none:
+ 	spin_unlock(&dc->lock);
+ 
+-	if (flags & (IRQ_TX | IRQ_RX))
+-		writel_relaxed(flags & (IRQ_TX | IRQ_RX),
++	if (flags & (dc->irq_tx | dc->irq_rx))
++		writel_relaxed(flags & (dc->irq_tx | dc->irq_rx),
+ 			       dc->irq_base + IRQ_FLAG);
+ 
+ 	return IRQ_NONE;
+@@ -292,6 +315,45 @@ static irqreturn_t apple_dockchannel_irq_thread(int irq, void *data)
  	return IRQ_HANDLED;
  }
  
@@ -125,7 +181,22 @@
  static struct mbox_chan *
  apple_dockchannel_of_xlate(struct mbox_controller *mbox,
  			   const struct of_phandle_args *spec)
-@@ -331,17 +397,26 @@
+@@ -315,6 +377,14 @@ static int apple_dockchannel_probe(struct platform_device *pdev)
+ 	dc->dev = dev;
+ 	spin_lock_init(&dc->lock);
+ 	platform_set_drvdata(pdev, dc);
++	dc->irq_tx = IRQ_TX;
++	dc->irq_rx = IRQ_RX;
++	of_property_read_u32(dev->of_node, "apple,irq-tx-mask", &dc->irq_tx);
++	of_property_read_u32(dev->of_node, "apple,irq-rx-mask", &dc->irq_rx);
++	if (!dc->irq_tx || !dc->irq_rx || (dc->irq_tx & dc->irq_rx))
++		return dev_err_probe(dev, -EINVAL, "invalid IRQ masks %#x/%#x\n",
++				     dc->irq_tx, dc->irq_rx);
++	dev_info(dev, "IRQ masks: TX=%#x RX=%#x\n", dc->irq_tx, dc->irq_rx);
+ 
+ 	dc->irq_base = devm_platform_ioremap_resource_byname(pdev, "irq");
+ 	if (IS_ERR(dc->irq_base))
+@@ -331,17 +401,26 @@ static int apple_dockchannel_probe(struct platform_device *pdev)
  	writel_relaxed(0, dc->irq_base + IRQ_MASK);
  	writel_relaxed(~0, dc->irq_base + IRQ_FLAG);
  
@@ -138,10 +209,11 @@
 -					dev_name(dev), dc);
 -	if (ret)
 -		return dev_err_probe(dev, ret, "failed to request IRQ\n");
+-
+-	disable_irq(dc->irq);
 +	dc->poll_mode = of_property_read_bool(dev->of_node, "apple,poll-mode");
 +	INIT_DELAYED_WORK(&dc->poll_work, apple_dockchannel_poll_work);
- 
--	disable_irq(dc->irq);
++
 +	if (dc->poll_mode) {
 +		dev_info(dev, "using polled mode (%d ms)\n",
 +			 APPLE_DOCKCHANNEL_POLL_MS);
@@ -162,3 +234,6 @@
  
  	dc->chan.con_priv = dc;
  	dc->controller.dev = dev;
+-- 
+2.47.1
+

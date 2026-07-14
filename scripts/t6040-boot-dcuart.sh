@@ -28,7 +28,8 @@ PY=/Users/damsleth/Code/m1n1/venv/bin/python
 DTB="${1:-t6040-j614s-dcuart.dtb}"
 INITRAMFS="${2:-initramfs-dcuart.cpio.gz}"
 IMAGE="${IMAGE:-Image}"
-echo "== DTB: $DTB  kernel: $IMAGE  initramfs: $INITRAMFS  dev: $M1 =="
+M1N1_BIN="${M1N1_BIN:-build/m1n1.bin}"
+echo "== m1n1: $M1N1_BIN  DTB: $DTB  kernel: $IMAGE  initramfs: $INITRAMFS  dev: $M1 =="
 
 attach_reader() {
     stty -f "$M1" raw -echo 2>/dev/null || true
@@ -52,7 +53,7 @@ CHAINLOAD_LOG="$OUT/dcuart-chainload.log"
 chainloaded=0
 for attempt in 1 2; do
     if M1N1DEVICE=$M1 timeout 180 "$PY" proxyclient/tools/chainload.py \
-        -r build/m1n1.bin > "$CHAINLOAD_LOG" 2>&1; then
+        -r "$M1N1_BIN" > "$CHAINLOAD_LOG" 2>&1; then
         chainloaded=1
         grep -iE "Running proxy|TTY|Signature" "$CHAINLOAD_LOG" | head || true
         break

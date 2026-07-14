@@ -21,8 +21,9 @@ PMGR DT (maxcpus=1, idle=nop), reproducibly. The internal keyboard works there
 framebuffer (simpledrm+fbcon) is the early console.
 
 **Fully remote dev loop (2026-07-12).** Two-way m1n1 proxy AND a two-way Linux
-shell (`/dev/ttydc0`, poll-mode dockchannel driver — the ADT's AIC line never
-fires on this die) over a single DebugUSB/KIS cable in the DFU port, plus
+shell (`/dev/ttydc0`, poll-mode dockchannel driver; the earlier dead-AIC-line
+finding used the wrong RX bit and is awaiting a BIT(1) retest) over a single
+DebugUSB/KIS cable in the DFU port, plus
 remote reboot via `macvdmtool`: reboot → chainload → boot → interactive shell
 with zero physical access. SBU analog serial was proven a dead end on ACE3.
 
