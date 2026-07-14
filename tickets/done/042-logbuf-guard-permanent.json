@@ -2,12 +2,13 @@
   "seq": "042",
   "slug": "logbuf-guard-permanent",
   "needs": "offline",
-  "state": "open",
+  "state": "done",
   "track": "boot",
   "priority": "P1",
   "desc": "Promote the live-proven 16 KiB top-of-RAM log-ring upper guard (done/2026-07-14-t6040-logbuf-upper-guard-control.md) from diagnostic to a permanent reviewed m1n1 fix on main + curated t6040-bringup, and draft an upstream note: the ring crossing top-of-RAM raised phantom async SErrors that consumed 4 traced rig runs; any machine with the ring abutting top-of-RAM is exposed",
   "author": "fable",
   "deps": [],
   "hashes": null,
-  "created": 1784041722
+  "created": 1784041722,
+  "done_at": 1784042535
 }
