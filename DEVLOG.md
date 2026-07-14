@@ -410,8 +410,11 @@ the new trace crosses the 16 KiB ring during `[61] done`; the asynchronous SErro
 arrives 1,082 output bytes later. Recovery restored a quiescent proxy. Exact
 transcript: `logs/t6040-console-20260714-pcie-trace-dry-run.log`, SHA-256
 `52431e2a9a7d87642fde917419f3e8e666672434953cad23466c13b61968742d`.
-Next test an upper guard page with the same zero-PCIe-write trace. See
-`done/2026-07-14-t6040-pcie-trace-dry-run.md`.
+The upper-guard control is prepared at main `a61fd099`, binary SHA-256
+`1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b`.
+It leaves an unused 16 KiB page above the active log ring and retains the same
+zero-PCIe-write trace. It requires explicit approval; see
+`done/2026-07-14-t6040-logbuf-upper-guard-control.md`.
 Full details are in `done/2026-07-14-t6040-wireless-pcie-map.md`.
 
 ### Watchdog (2026-07-11)

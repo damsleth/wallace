@@ -299,8 +299,10 @@ trace/log path as the artifact; a clean completion would justify an AXI
 prefix-and-hold bisection. It faulted after `[70] done`, proving the trace/log
 artifact. The 16 KiB log ring reaches physical top-of-RAM; backlog accounting
 places its wrap during `[61] done`, and the error is delivered 1,082 bytes later.
-Prepare a separately approved upper-guard dry-run before more PCIe MMIO. See
-`2026-07-14-t6040-pcie-trace-dry-run.md`.
+Main `a61fd099`, binary SHA-256
+`1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b`,
+prepares the separately approved upper-guard dry-run before more PCIe MMIO. See
+`2026-07-14-t6040-logbuf-upper-guard-control.md`.
 
 ## Full-path gate
 

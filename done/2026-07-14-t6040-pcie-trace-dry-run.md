@@ -81,6 +81,9 @@ m1n1 stage-2 log ring:
 - backlog plus new output crosses 16,384 bytes during `[61] done`; the SError is
   delivered after another 1,082 bytes at `[70] done`.
 
-The next control should reserve an additional unused 16 KiB above the log ring,
-keeping its active page away from the physical top-of-RAM boundary, and repeat
-this same zero-PCIe-write trace. It needs separate explicit approval.
+Main `a61fd099`, binary SHA-256
+`1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b`,
+reserves an additional unused 16 KiB above the log ring, keeping its active page
+away from the physical top-of-RAM boundary, and repeats this same zero-PCIe-write
+trace. It needs separate explicit approval; exact gate:
+`2026-07-14-t6040-logbuf-upper-guard-control.md`.

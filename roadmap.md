@@ -124,7 +124,7 @@ doable solo with the proxy + ADT dumps; this is the highest-leverage local work.
    status reads also repeated `[70]` with a zero post-write sample. A zero-PCIe-
    write trace reproduced it, proving a log-buffer artifact: the 16 KiB ring
    ends at top-of-RAM and crosses its boundary during `[61] done`. An upper-guard
-   dry-run control is the next separately gated step. Detailed in
+   dry-run control is prepared and separately gated. Detailed in
    `2026-07-14-t6040-wireless-pcie-map.md`. WiFi/BT prerequisite.
 4. **ATC/USB tunables + DART config** — **AUDITED 2026-07-10 (mostly verify+defer).**
    All kboot-only, FDT-only (safe). **DART = done** (t6040 DARTs are `dart,t8110`,
@@ -229,13 +229,15 @@ keyboard/trackpad, battery status. Daily-drivable without GPU/WiFi (USB ethernet
   The complete PCIe/GPIO/DART child topology is in the separately gated
   `t6040-j614s-dcuart-pcie` DT; see
   `done/2026-07-14-t6040-wireless-pcie-map.md`.
-- **Immediate gate:** prepare and approve an upper-guard log-buffer control with
+- **Immediate gate:** approve the prepared upper-guard log-buffer control with
   the same zero-PCIe-write trace and base Linux DT. Main `3e772779` proved the
   SError without PCIe MMIO. The log buffer occupies the final 16 KiB of normal
   RAM; its initial 8 KiB backlog plus trace wraps during `[61] done`, and every
   error reports its exclusive upper boundary. Leave one unused 16 KiB page
-  above the buffer and repeat once. Only after that succeeds should a
-  write-bearing PCIe diagnostic resume.
+  above the buffer and repeat once. Main `a61fd099`, binary SHA-256
+  `1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b`;
+  exact gate in `done/2026-07-14-t6040-logbuf-upper-guard-control.md`. Only after
+  that succeeds should a write-bearing PCIe diagnostic resume.
   Until link-up succeeds, firmware work cannot be exercised.
 - **WiFi:** `brcmfmac` PCIe path; m1n1 already copies the MAC, antenna SKU and
   calibration blob from ADT when `wifi0` is aliased. Firmware still has to be

@@ -78,9 +78,12 @@ SError reports that exclusive end in `L2C_ERR_ADR`. When the log device becomes
 writable, `iodev_console_write()` first flushes its retained 8 KiB console
 backlog. The identical post-allocation stream contributes another 9,274 bytes:
 the ring crosses its end during `[61] done`, then the asynchronous error is
-delivered 1,082 bytes later after `[70] done`. Prepare a zero-PCIe-write control
-that leaves an unused 16 KiB page above the log buffer, then repeat the dry-run
-trace once. That new binary requires explicit approval. Continue using the
+delivered 1,082 bytes later after `[70] done`. The zero-PCIe-write upper-guard
+control is prepared at main `a61fd099` (`v1.6.0-75-ga61fd099`), binary SHA-256
+`1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b`.
+It keeps the active 16 KiB ring one unused 16 KiB page below top-of-RAM and
+repeats the identical dry-run trace. It requires explicit approval for one run;
+see `done/2026-07-14-t6040-logbuf-upper-guard-control.md`. Continue using the
 PCIe-free base DT; do not access NVMe or mount/repair/format storage.
 
 ## 1. Provision and test the J614s trackpad firmware
