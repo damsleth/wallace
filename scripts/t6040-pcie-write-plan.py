@@ -47,6 +47,8 @@ def main() -> int:
                         help="raw j614s.adt; stdin when omitted")
     parser.add_argument("--m1n1", type=pathlib.Path, default=DEFAULT_M1N1,
                         help="m1n1 checkout containing proxyclient/m1n1/adt.py")
+    parser.add_argument("--stop-before-ports", action="store_true",
+                        help="emit only the controller and shared-PHY prefix")
     args = parser.parse_args()
 
     sys.path.insert(0, str(args.m1n1 / "proxyclient"))
@@ -265,9 +267,17 @@ def main() -> int:
 
         config += 1 << 15
 
+    if args.stop_before_ports:
+        first_port = next((i for i, item in enumerate(writes) if item.phase.startswith("port")),
+                          len(writes))
+        writes = writes[:first_port]
+        if len(writes) != 351 or writes[-1].source != "RC init":
+            raise SystemExit("unexpected T6040 shared-PHY write boundary")
+
     print(f"# source_sha256\t{hashlib.sha256(data).hexdigest()}")
-    print("# scope\tm1n1 pcie_init_controller(APCIE, /arm-io/apcie0), "
-          "T6040 staged-clock path")
+    scope = "T6040 controller/shared-PHY prefix" if args.stop_before_ports else \
+            "T6040 staged-clock path"
+    print(f"# scope\tm1n1 pcie_init_controller(APCIE, /arm-io/apcie0), {scope}")
     print("# semantics\tWRITE replaces the full value; RMW is (old & ~mask) | value; "
           "SET is old | mask; CLEAR is old & ~mask")
     print("sequence\tphase\tsource\taddress\tsize\toperation\tmask\tvalue")

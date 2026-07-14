@@ -104,11 +104,16 @@ the PCIe-free base DT, and reached BusyBox with no nonzero L2 status or SError.
 Exact transcripts and hashes are in
 `done/2026-07-14-t6040-pcie-guarded-clock-diagnostic.md`.
 
-**Immediate next gate:** prepare an exact PHY-only continuation which begins at
-manifest operation 106 and returns before the first per-port write. Review its
-ordered operation subset and exact binary hashes before requesting a fresh live
-approval. Continue using the PCIe-free base DT; do not reach ports, PERST#,
-RID2SID/MSIMAP, Linux PCIe, NVMe, or any storage access in this stage.
+**Immediate next gate:** the exact shared-PHY continuation is prepared at m1n1
+main `b5ced9ba` (`v1.6.0-81-gb5ced9ba`), binary SHA-256
+`add3cef43947dab1605bd95ad602b6dcbf8e89de0a3f1b43f278005cd52dd9da`.
+It executes the proven prefix plus operations 106–351 and returns before the
+first per-port operation. The 351-operation manifest SHA-256 is
+`d4496968ee8fc1202bd4d47247fc6bbaa36f0a3f7cc872a81efabe72327c50fc`.
+It has not been approved or run; exact gate and poll list:
+`done/2026-07-14-t6040-pcie-phy-diagnostic.md`. Continue using the PCIe-free
+base DT; do not reach ports, PERST#, RID2SID/MSIMAP, Linux PCIe, NVMe, or any
+storage access in this stage.
 
 ## 1. Provision and test the J614s trackpad firmware
 `event0` is Apple DockChannel Multi-touch and `event1` is the keyboard. The

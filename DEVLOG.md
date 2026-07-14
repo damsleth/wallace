@@ -438,6 +438,15 @@ transcript: `logs/t6040-console-20260714-pcie-guarded-clock.log`, SHA-256
 `b1caef2f4b6612675f329402bc0d9f87813494a98c28a84bb09033471d792063`
 (36 lines, 2,255 bytes). Full result:
 `done/2026-07-14-t6040-pcie-guarded-clock-diagnostic.md`.
+
+The next shared-PHY-only image is prepared but not approved or run. Main code
+`b5ced9ba` (`v1.6.0-81-gb5ced9ba`), binary SHA-256
+`add3cef43947dab1605bd95ad602b6dcbf8e89de0a3f1b43f278005cd52dd9da`,
+continues through exactly 351 writes and five existing bounded polls, then
+returns before entering the per-port loop. The subset manifest SHA-256 is
+`d4496968ee8fc1202bd4d47247fc6bbaa36f0a3f7cc872a81efabe72327c50fc`.
+Exact addresses, phases, and approval gate:
+`done/2026-07-14-t6040-pcie-phy-diagnostic.md`.
 Full details are in `done/2026-07-14-t6040-wireless-pcie-map.md`.
 
 ### Watchdog (2026-07-11)

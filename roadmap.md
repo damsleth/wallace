@@ -234,11 +234,14 @@ keyboard/trackpad, battery status. Daily-drivable without GPU/WiFi (USB ethernet
   The complete PCIe/GPIO/DART child topology is in the separately gated
   `t6040-j614s-dcuart-pcie` DT; see
   `done/2026-07-14-t6040-wireless-pcie-map.md`.
-- **Immediate gate:** prepare and review a shared-PHY-only continuation after
-  the successful Apple-ordered 105-operation prefix. It must use the PCIe-free
-  base DT and return before the first per-port write; request fresh explicit
-  approval only after its exact operation subset and binary hashes are recorded.
-  Until link-up succeeds, firmware work cannot be exercised.
+- **Immediate gate:** approve the prepared shared-PHY-only continuation after
+  the successful Apple-ordered 105-operation prefix. Main `b5ced9ba`, binary
+  SHA-256
+  `add3cef43947dab1605bd95ad602b6dcbf8e89de0a3f1b43f278005cd52dd9da`,
+  uses the PCIe-free base DT and returns before the first per-port write. Its
+  exact 351-operation subset and five read-only polls are recorded in
+  `done/2026-07-14-t6040-pcie-phy-diagnostic.md`. Until link-up succeeds,
+  firmware work cannot be exercised.
 - **WiFi:** `brcmfmac` PCIe path; m1n1 already copies the MAC, antenna SKU and
   calibration blob from ADT when `wifi0` is aliased. Firmware still has to be
   extracted from the paired macOS install for board type `apple,mriya`.
