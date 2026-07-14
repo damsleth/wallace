@@ -517,9 +517,11 @@ or `proxyclient/m1n1/hv/`):
 `make -j8` verified on the M1 host post-merge (all four artifacts). **The
 merged main is NOT rig-tested** — hash-pinned experiment images (e.g. ticket
 002's `d1494f5a` bin `5616b05f`) predate the merge; treat `2df4f278` builds as
-a new image lineage for pinning purposes. The `t6040-bringup` worktree
-(`m1n1-clean`) is still based on pre-merge upstream; its rebase onto merged
-main is scoped under ticket 046.
+a new image lineage for pinning purposes. The `t6040-bringup` branch
+(`m1n1-clean` worktree) was rebased the same day onto `upstream/main`
+`fd20d7f7` (the upstream content inside merged main): 22/22 commits clean,
+range-diff content-identical, new tip `0b2e7252`, build verified. The series
+drift audit + shaping remains ticket 046.
 
 ### Watchdog (2026-07-11)
 Linux `apple_wdt` takes over m1n1's WD1; BusyBox pings `/dev/watchdog0` every

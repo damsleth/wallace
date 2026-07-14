@@ -56,7 +56,8 @@ fixed, dapf gate + watchdog arm added for M4.
 dockchannel-uart per-instance IRQ masks + poll-mode patch to the
 dockchannel-branch authors (do not characterize IRQ 360 as dead yet); curated
 code-only branch `t6040-bringup` tracks main's src/ (main merged AsahiLinux
-upstream 2026-07-14 at `2df4f278`; rebase of the curated branch is ticket 046).
+upstream 2026-07-14 at `2df4f278`; curated branch rebased onto it the same
+day, tip `0b2e7252`; series audit/shaping is ticket 046).
 
 One structural constraint colors everything below: **M4 = raw boot only** (SPTM
 owns the mach-o path). Apple-private sysregs are locked. Linux itself doesn't
