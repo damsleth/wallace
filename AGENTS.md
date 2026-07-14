@@ -35,6 +35,19 @@ kernel patches. The code lives in sibling repos under `~/Code/` (below).
   `scripts/t6040-debugusb-console.sh [reboot]` + `scripts/t6040-boot-dcuart.sh`.
   Follow DEVLOG's pty discipline or the link will look dead.
 
+## Patch identity
+
+Use `CJ Damsleth <kim@damsleth.no>` for every new patch author and developer
+certificate sign-off. Patch-bearing commits must be created with `git commit -s`
+so generated mail has both:
+
+```text
+From: CJ Damsleth <kim@damsleth.no>
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+```
+
+Do not use the former `Carl Joakim Damsleth <kim@damsleth.com>` identity.
+
 ## Host-local agent memory (not in any repo)
 
 `~/.claude/projects/-Users-damsleth-Code-m1n1/memory/` — SMP topology,
