@@ -21,32 +21,60 @@
 #   rig-lease.sh release  <agent> --state healthy|wedged # hand back
 #   rig-lease.sh status                                  # who holds it, countdown
 #   rig-lease.sh recovered <agent>                       # clear NEEDS_RECOVERY
-#   rig-lease.sh queue add     <agent> <slug> "<desc>" [sha]
-#   rig-lease.sh queue approve <seq> [--by <name>]       # maintainer marks ready
-#   rig-lease.sh queue next                              # lowest approved (schedule)
-#   rig-lease.sh queue list
-#   rig-lease.sh queue done    <seq>
+# The ticket store (git-tracked JSON in tickets/; needs jq) — the backlog for
+# BOTH offline tasks and rig experiments:
+#   rig-lease.sh queue add <agent> <slug> "<desc>" [--needs rig|offline]
+#              [--track T] [--pri P1] [--dep NNN]... [--image H --dtb H --initramfs H]
+#   rig-lease.sh queue approve <seq|start-end|all> [--by <name>]   # rig tickets only
+#   rig-lease.sh queue next [--rig|--offline]            # rig: next approved; offline: next open
+#   rig-lease.sh queue list [--rig|--offline|--all]
+#   rig-lease.sh queue show <seq>                        # full JSON
+#   rig-lease.sh queue done <seq>
 #
 # Exit codes: 0 ok · 2 usage · 3 BUSY (held by a live other holder) · 4 not holder
 set -euo pipefail
 
+# Ephemeral, host-local, gitignored: the lease (a mutex) + its audit log.
 RIG_ROOT="${RIG_ROOT:-$HOME/Code/wallace/.rig}"
 LEASE_ENV="$RIG_ROOT/lease.env"      # a COMPLETE file; its atomic creation == the mutex
-QUEUE_DIR="$RIG_ROOT/queue"
-DONE_DIR="$RIG_ROOT/done"
 AUDIT_LOG="$RIG_ROOT/log"
 RECOVERY_FLAG="$RIG_ROOT/NEEDS_RECOVERY"
+# Durable, git-tracked: the ticket store (the backlog). One JSON file per ticket,
+# offline and rig alike. This is NOT the lease — tickets are planned work you
+# want versioned; the lease is runtime state you don't.
+REPO_ROOT="${WALLACE_ROOT:-$HOME/Code/wallace}"
+TICKETS_DIR="${RIG_TICKETS:-$REPO_ROOT/tickets}"
+TICKETS_DONE="$TICKETS_DIR/done"
 TTL="${RIG_LEASE_TTL:-3600}"         # seconds (60m); covers a boot cycle plus a
                                      # long analysis hold. Still release before
                                      # lengthy OFFLINE work — the lease is for
                                      # rig-touching, not for thinking. renew to extend.
 
 now() { date +%s; }
-mkdirs() { mkdir -p "$RIG_ROOT" "$QUEUE_DIR" "$DONE_DIR"; }
+mkdirs() { mkdir -p "$RIG_ROOT"; }
+mktickets() { mkdir -p "$TICKETS_DIR" "$TICKETS_DONE"; }
 audit() { mkdirs; printf '%s\t%s\n' "$(date '+%Y-%m-%dT%H:%M:%S')" "$*" >>"$AUDIT_LOG"; }
 # read one KEY from a key=value file (values may contain spaces)
 getk() { [ -f "$1" ] && sed -n "s/^$2=//p" "$1" | head -1 || true; }
 die() { echo "rig-lease: $1" >&2; exit "${2:-2}"; }
+
+# --- ticket store helpers (JSON, one file per ticket; git-tracked) ---
+# The `|| x=""` guards the bash 3.2 set -e quirk where a non-matching glob in
+# $(...) aborts the script.
+tk_need_jq() { command -v jq >/dev/null 2>&1 || die "the ticket queue needs jq on PATH (brew install jq)"; }
+tk_file() {   # zero-padded seq -> ticket path ("" if none); checks active then done/
+  local f; f="$(ls "$TICKETS_DIR/$1"-*.json 2>/dev/null | head -1)" || f=""
+  [ -n "$f" ] || { f="$(ls "$TICKETS_DONE/$1"-*.json 2>/dev/null | head -1)" || f=""; }
+  printf '%s' "$f"
+}
+tk_seqmax() {  # highest seq across active + done (so numbers are never reused)
+  local m=0 f b n
+  for f in "$TICKETS_DIR"/*.json "$TICKETS_DONE"/*.json; do
+    [ -e "$f" ] || continue
+    b="$(basename "$f")"; n=$((10#${b%%-*})); [ "$n" -gt "$m" ] && m=$n
+  done
+  echo "$m"
+}
 
 # Build a complete lease into a private temp file; print its path. The caller
 # makes it visible atomically (ln to claim a free lease, or mv -f to renew our
@@ -154,64 +182,148 @@ cmd_status() {
     echo "rig: FREE"
   fi
   [ -f "$RECOVERY_FLAG" ] && echo "rig: !! NEEDS_RECOVERY — link untrusted until a recovery boot + 'rig-lease.sh recovered <agent>'."
-  local approved=0
-  if ls "$QUEUE_DIR"/*.env >/dev/null 2>&1; then
-    approved=$(grep -l '^STATE=approved' "$QUEUE_DIR"/*.env 2>/dev/null | wc -l | tr -d ' ') || approved=0
+  # ticket summary (needs jq; skip quietly if absent so status still works)
+  if command -v jq >/dev/null 2>&1 && ls "$TICKETS_DIR"/*.json >/dev/null 2>&1; then
+    local rig_ready off_open f needs state
+    rig_ready=0; off_open=0
+    for f in "$TICKETS_DIR"/*.json; do
+      [ -e "$f" ] || continue
+      needs="$(jq -r '.needs' "$f")"; state="$(jq -r '.state' "$f")"
+      [ "$needs" = rig ] && [ "$state" = approved ] && rig_ready=$((rig_ready + 1))
+      [ "$needs" = offline ] && [ "$state" = open ] && off_open=$((off_open + 1))
+    done
+    echo "tickets: $rig_ready approved rig experiment(s), $off_open open offline task(s). 'rig-lease.sh queue list' for detail."
+  else
+    echo "tickets: (none, or jq missing). 'rig-lease.sh queue list' for detail."
   fi
-  echo "queue: ${approved} approved experiment(s) waiting. 'rig-lease.sh queue list' for detail."
 }
 
-next_seq() { local n=1; while ls "$QUEUE_DIR"/$(printf '%03d' "$n")-*.env >/dev/null 2>&1; do n=$((n+1)); done; printf '%03d' "$n"; }
-
+# The ticket store: one git-tracked JSON file per ticket, offline and rig alike.
+#   needs  = offline (grab and do, no approval) | rig (needs lease + approval)
+#   state  = open (offline, actionable) | proposed (rig, awaiting CJ) |
+#            approved (rig, ready to run) | done
 cmd_queue() {
-  mkdirs
+  tk_need_jq; mktickets
   local sub="${1:-list}"; shift || true
   case "$sub" in
     add)
-      local agent="${1:-}" slug="${2:-}" desc="${3:-}" sha="${4:-}"
-      [ -n "$agent" ] && [ -n "$slug" ] && [ -n "$desc" ] || die "queue add <agent> <slug> \"<desc>\" [sha]"
-      local seq f; seq="$(next_seq)"; f="$QUEUE_DIR/$seq-$slug.env"
-      { echo "SEQ=$seq"; echo "SLUG=$slug"; echo "DESC=$desc"; echo "AUTHOR=$agent"; echo "SHA=$sha"; echo "STATE=proposed"; echo "CREATED=$(now)"; } >"$f"
-      audit "QUEUE-ADD seq=$seq slug=$slug author=$agent sha=$sha"
-      echo "queued [$seq] $slug (proposed) — maintainer approves with: rig-lease.sh queue approve $seq"
+      local agent="${1:-}" slug="${2:-}" desc="${3:-}"
+      [ -n "$agent" ] && [ -n "$slug" ] && [ -n "$desc" ] || die "queue add <agent> <slug> \"<desc>\" [--needs rig|offline] [--track T] [--pri P1] [--dep NNN]... [--image H --dtb H --initramfs H]"
+      shift 3
+      local needs=offline track="" pri="" deps="[]" img="" dtb="" init=""
+      while [ $# -gt 0 ]; do case "$1" in
+        --needs) needs="${2:-}"; shift 2;;
+        --track) track="${2:-}"; shift 2;;
+        --pri|--priority) pri="${2:-}"; shift 2;;
+        --dep) deps="$(printf '%s' "$deps" | jq -c --arg d "$(printf '%03d' "$((10#${2:-0}))")" '. + [$d]')"; shift 2;;
+        --image) img="${2:-}"; shift 2;;
+        --dtb) dtb="${2:-}"; shift 2;;
+        --initramfs) init="${2:-}"; shift 2;;
+        *) shift;;
+      esac; done
+      [ "$needs" = rig ] || [ "$needs" = offline ] || die "--needs must be rig|offline"
+      local seq state; seq="$(printf '%03d' "$(( $(tk_seqmax) + 1 ))")"
+      [ "$needs" = rig ] && state=proposed || state=open
+      local f="$TICKETS_DIR/$seq-$slug.json"
+      jq -n --arg seq "$seq" --arg slug "$slug" --arg needs "$needs" --arg state "$state" \
+            --arg track "$track" --arg pri "$pri" --arg desc "$desc" --arg author "$agent" \
+            --argjson deps "$deps" --arg img "$img" --arg dtb "$dtb" --arg init "$init" \
+            --arg created "$(now)" '{
+        seq:$seq, slug:$slug, needs:$needs, state:$state, track:$track, priority:$pri,
+        desc:$desc, author:$author, deps:$deps,
+        hashes: (if ($img=="" and $dtb=="" and $init=="") then null
+                 else {image:$img, dtb:$dtb, initramfs:$init} end),
+        created:($created|tonumber)}' > "$f"
+      audit "TICKET-ADD seq=$seq slug=$slug needs=$needs author=$agent"
+      if [ "$needs" = rig ]; then
+        echo "added [$seq] $slug (rig, proposed) — approve with: rig-lease.sh queue approve $seq --by cj"
+      else
+        echo "added [$seq] $slug (offline, open) — any agent can pick it up."
+      fi
       ;;
     approve)
-      local seq="${1:-}"; shift || true; local by="maintainer"
-      while [ $# -gt 0 ]; do case "$1" in --by) by="${2:-}"; shift 2;; *) shift;; esac; done
-      [ -n "$seq" ] || die "queue approve <seq> [--by <name>]"
-      local f; f="$(ls "$QUEUE_DIR/$seq"-*.env 2>/dev/null | head -1)"; [ -n "$f" ] || die "no queue entry $seq" 2
-      sed -i.bak 's/^STATE=.*/STATE=approved/' "$f" && rm -f "$f.bak"
-      { echo "APPROVED_BY=$by"; echo "APPROVED_AT=$(now)"; } >>"$f"
-      audit "QUEUE-APPROVE seq=$seq by=$by"
-      echo "approved [$seq] by $by."
+      # Batch pre-approval of RIG tickets: <seq>, inclusive ranges <a>-<b>, or
+      # "all". Offline tickets need no approval and are skipped with a note.
+      # Space-joined specs keep bash 3.2 + set -u happy (no array expansion).
+      local by="maintainer" specs=""
+      while [ $# -gt 0 ]; do case "$1" in --by) by="${2:-}"; shift 2;; *) specs="$specs $1"; shift;; esac; done
+      [ -n "$specs" ] || die "queue approve <seq|start-end|all> ... [--by <name>]"
+      local n=0 miss="" skip=""
+      _approve_one() {   # $1 = zero-padded seq
+        local f; f="$(tk_file "$1")"
+        [ -n "$f" ] || { miss="$miss $1"; return; }
+        [ "$(jq -r '.needs' "$f")" = rig ] || { skip="$skip $1"; return; }
+        local t="$f.tmp"
+        jq --arg by "$by" --arg at "$(now)" '.state="approved" | .approved_by=$by | .approved_at=($at|tonumber)' "$f" >"$t" && mv "$t" "$f"
+        audit "TICKET-APPROVE seq=$1 by=$by"; n=$((n + 1))
+      }
+      local s f
+      for s in $specs; do
+        if [ "$s" = all ]; then
+          for f in "$TICKETS_DIR"/*.json; do [ -e "$f" ] || continue
+            [ "$(jq -r '.needs' "$f")" = rig ] && [ "$(jq -r '.state' "$f")" = proposed ] && _approve_one "$(jq -r '.seq' "$f")"
+          done
+        elif printf '%s' "$s" | grep -qE '^[0-9]+-[0-9]+$'; then
+          local lo hi i; lo=$((10#${s%-*})); hi=$((10#${s#*-})); i=$lo
+          while [ "$i" -le "$hi" ]; do _approve_one "$(printf '%03d' "$i")"; i=$((i + 1)); done
+        else
+          _approve_one "$(printf '%03d' "$((10#$s))")"
+        fi
+      done
+      echo "approved $n rig ticket$([ "$n" = 1 ] || echo s) by $by."
+      [ -n "$miss" ] && echo "  (no such ticket:$miss)"
+      [ -n "$skip" ] && echo "  (offline, no approval needed:$skip)"
       ;;
     next)
+      # Default: the next approved RIG ticket (the lease-holder's schedule).
+      # --offline: the next open OFFLINE task an idle agent can grab.
+      local mode=rig want=approved
+      while [ $# -gt 0 ]; do case "$1" in
+        --rig) mode=rig; want=approved; shift;;
+        --offline) mode=offline; want=open; shift;;
+        *) shift;;
+      esac; done
       local f
-      for f in $(ls "$QUEUE_DIR"/*.env 2>/dev/null | sort); do
-        if [ "$(getk "$f" STATE)" = approved ]; then
-          echo "next approved: [$(getk "$f" SEQ)] $(getk "$f" SLUG) sha=$(getk "$f" SHA)"
-          echo "  $(getk "$f" DESC)"
+      for f in $(ls "$TICKETS_DIR"/*.json 2>/dev/null | sort); do
+        if [ "$(jq -r '.needs' "$f")" = "$mode" ] && [ "$(jq -r '.state' "$f")" = "$want" ]; then
+          local dep; dep="$(jq -r '.deps | join(" ")' "$f")"
+          echo "next $mode: [$(jq -r '.seq' "$f")] $(jq -r '.slug' "$f")$(jq -r 'if .priority=="" then "" else " "+.priority end' "$f")"
+          echo "  $(jq -r '.desc' "$f")"
+          [ -n "$dep" ] && echo "  deps: $dep"
           return 0
         fi
       done
-      echo "queue: no approved work waiting."
+      echo "queue: no $mode work waiting."
       ;;
     list)
-      printf '%-4s %-10s %-24s %s\n' SEQ STATE SLUG DESC
-      local f
-      for f in $(ls "$QUEUE_DIR"/*.env 2>/dev/null | sort); do
-        printf '%-4s %-10s %-24s %s\n' "$(getk "$f" SEQ)" "$(getk "$f" STATE)" "$(getk "$f" SLUG)" "$(getk "$f" DESC)"
+      local filt=all
+      while [ $# -gt 0 ]; do case "$1" in --rig) filt=rig;; --offline) filt=offline;; --all) filt=all;; esac; shift; done
+      printf '%-4s %-8s %-9s %-4s %-24s %s\n' SEQ NEEDS STATE PRI SLUG DESC
+      local f needs
+      for f in $(ls "$TICKETS_DIR"/*.json 2>/dev/null | sort); do
+        needs="$(jq -r '.needs' "$f")"
+        { [ "$filt" = all ] || [ "$filt" = "$needs" ]; } || continue
+        printf '%-4s %-8s %-9s %-4s %-24s %s\n' \
+          "$(jq -r '.seq' "$f")" "$needs" "$(jq -r '.state' "$f")" \
+          "$(jq -r '.priority // "" | .[0:3]' "$f")" "$(jq -r '.slug' "$f")" "$(jq -r '.desc' "$f")"
       done
+      ;;
+    show)
+      local seq="${1:-}"; [ -n "$seq" ] || die "queue show <seq>"
+      seq="$(printf '%03d' "$((10#$seq))")"
+      local f; f="$(tk_file "$seq")"; [ -n "$f" ] || die "no ticket $seq" 2
+      jq . "$f"
       ;;
     done)
       local seq="${1:-}"; [ -n "$seq" ] || die "queue done <seq>"
-      local f; f="$(ls "$QUEUE_DIR/$seq"-*.env 2>/dev/null | head -1)"; [ -n "$f" ] || die "no queue entry $seq" 2
-      sed -i.bak 's/^STATE=.*/STATE=done/' "$f" && rm -f "$f.bak"
-      mv "$f" "$DONE_DIR/"
-      audit "QUEUE-DONE seq=$seq"
-      echo "done [$seq] — moved to done/."
+      seq="$(printf '%03d' "$((10#$seq))")"
+      local f; f="$(tk_file "$seq")"; [ -n "$f" ] || die "no ticket $seq" 2
+      local t="$f.tmp"; jq --arg at "$(now)" '.state="done" | .done_at=($at|tonumber)' "$f" >"$t" && mv "$t" "$f"
+      mv "$f" "$TICKETS_DONE/"
+      audit "TICKET-DONE seq=$seq"
+      echo "done [$seq] — moved to tickets/done/."
       ;;
-    *) die "unknown queue subcommand: $sub" ;;
+    *) die "unknown queue subcommand: $sub (add|approve|next|list|show|done)" ;;
   esac
 }
 
