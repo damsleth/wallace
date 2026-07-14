@@ -1,0 +1,79 @@
+#!/bin/busybox sh
+# TX-only DockChannel IRQ attribution init. The standard diagnostic UART DT
+# enables UART TX/RX BIT(2)/BIT(1); this script never relies on RX to request
+# evidence. It captures /proc/interrupts before and after a silent injection
+# window, then reports both snapshots over the already-proven TX path.
+
+/bin/busybox mount -t proc none /proc
+/bin/busybox mount -t sysfs none /sys
+/bin/busybox mount -t devtmpfs none /dev 2>/dev/null
+
+if [ -c /dev/watchdog0 ]; then
+	/bin/busybox watchdog -T 30 -t 10 /dev/watchdog0 &
+fi
+
+n=0
+while [ ! -c /dev/ttydc0 ] && [ "$n" -lt 15 ]; do
+	/bin/busybox sleep 1
+	n=$((n + 1))
+done
+
+if [ ! -c /dev/ttydc0 ]; then
+	echo "[irq-report] /dev/ttydc0 missing" >/dev/console
+	exec /bin/busybox sh
+fi
+
+# Keep the mailbox client open throughout the measurement. The background read
+# consumes at most one newline-terminated probe and records it only in RAM;
+# it emits no TX traffic during the measurement window.
+exec 9<>/dev/ttydc0
+(
+	if IFS= read -r -t 18 probe <&9; then
+		/bin/busybox printf 'received=%s\n' "$probe" >/tmp/dcuart-rx-result
+	else
+		echo 'received=<none>' >/tmp/dcuart-rx-result
+	fi
+) &
+rx_pid=$!
+
+echo "" >&9
+echo "*** t6040 DockChannel IRQ TX-only counter diagnostic ***" >&9
+/bin/busybox uname -a >&9
+echo "[irq-report] UART TX=BIT(2), RX=BIT(1), storm limit=4096" >&9
+echo "[irq-report] baseline in 5 seconds; then a silent 10-second window" >&9
+echo "[irq-report] wait 6 seconds, then send exactly: IRQ_BIT1_PROBE<LF>" >&9
+
+# Let every instruction-line TX completion settle before taking the baseline.
+/bin/busybox sleep 5
+/bin/busybox cat /proc/interrupts >/tmp/interrupts-before
+
+# No writes to ttydc0 occur in this interval. Any interrupt-count delta is not
+# caused by this reporter's TX traffic.
+/bin/busybox sleep 10
+/bin/busybox cat /proc/interrupts >/tmp/interrupts-after
+
+# The reader timeout is 18 seconds from launch, so it should finish within a
+# few seconds after the post-injection snapshot even when RX remains silent.
+wait "$rx_pid"
+
+echo "[irq-report] measurement complete" >&9
+echo "--- matching interrupts before ---" >&9
+if ! /bin/busybox grep -Ei '50880c000|dockchannel' \
+	/tmp/interrupts-before >&9; then
+	echo "[irq-report] no named DockChannel line; full tail follows" >&9
+	/bin/busybox tail -20 /tmp/interrupts-before >&9
+fi
+echo "--- matching interrupts after ---" >&9
+if ! /bin/busybox grep -Ei '50880c000|dockchannel' \
+	/tmp/interrupts-after >&9; then
+	echo "[irq-report] no named DockChannel line; full tail follows" >&9
+	/bin/busybox tail -20 /tmp/interrupts-after >&9
+fi
+echo "--- RX result ---" >&9
+/bin/busybox cat /tmp/dcuart-rx-result >&9
+echo "--- DockChannel dmesg ---" >&9
+/bin/busybox dmesg | /bin/busybox grep -Ei \
+	'dockchannel|ttydc|mailbox|IRQ storm guard' | /bin/busybox tail -50 >&9
+echo "[irq-report] done; no ttydc shell was started" >&9
+
+exec /bin/busybox sh

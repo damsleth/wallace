@@ -17,12 +17,16 @@ DebugUSB recovery restored a fresh proxy. Full hashes and result:
 
 This does not rehabilitate the old "dead IRQ across all 4096 AIC inputs"
 claim: that scan still enabled the FIFO with MTP's wrong RX BIT(3), while the
-corrected run could not use RX to retrieve `/proc/interrupts`. Prepare a
-TX-only, self-reporting diagnostic that emits the IRQ-360 and driver-handler
-counts before and after a bounded host-byte injection. Keep the 4,096-entry
-storm guard and the standard 5 ms poll-mode DT. Any revised live image needs a
-new exact review and approval. Do not publish the old scan as a hardware
-erratum yet.
+corrected run could not use RX to retrieve `/proc/interrupts`. A TX-only,
+self-reporting initramfs is now built. It takes `/proc/interrupts` snapshots
+around a ten-second interval with no reporter TX and accepts at most one host
+probe line during that window. It reuses the exact bounded kernel and DTB; only
+the initramfs is new. Exact hash, sequence, and fresh approval gate:
+`done/2026-07-14-t6040-dockchannel-irq-tx-report.md`.
+
+Keep the 4,096-entry storm guard and the standard 5 ms poll-mode DT. Do not run
+the prepared image without fresh explicit approval, and do not publish the old
+scan as a hardware erratum yet.
 
 ## 0.1 Extend the proven T6040 PCIe path through PHY setup
 

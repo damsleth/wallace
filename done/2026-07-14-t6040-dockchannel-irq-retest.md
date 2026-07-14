@@ -103,8 +103,9 @@ not yet a negative result for AIC input 360. Because RX was the path needed to
 request `/proc/interrupts` and dmesg, the run captured neither the IRQ count nor
 the diagnostic driver's internal count. The next useful test must report those
 counts autonomously over the proven TX path before and after a bounded host-byte
-injection. Keep poll mode as the standard configuration and do not publish the
-old scan as a hardware erratum.
+injection. That offline follow-up is now built and separately gated in
+`done/2026-07-14-t6040-dockchannel-irq-tx-report.md`. Keep poll mode as the
+standard configuration and do not publish the old scan as a hardware erratum.
 
 ## Approval record
 
