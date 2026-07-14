@@ -384,6 +384,16 @@ before manifest operation 106, the first PHY register write. Main binary hash
 the exact newly gated subset is
 `done/2026-07-14-t6040-pcie-clock-diagnostic.tsv`, hash
 `ce86e51aa3d278da1d9ef9eb35fca3208859f4993480de5b6af3268dc03ef4e6`.
+
+The approved staged run disproved that sequencing delta as the cause of this
+fault. It again printed `done` for AXI `[70]` at `0x4160013fc`, then delivered
+the same asynchronous `L2C_ERR_STS=0x82` before `[71]`. It did not reach CIO3,
+clkgen, the late gate, PHY, ports, Linux, or storage. Recovery restored a fresh
+quiescent proxy. Transcript:
+`logs/t6040-console-20260714-pcie-staged-gate.log`, SHA-256
+`c31275546280b9df2dbf9b014d2e6411cfb708f87f1c803e10b11e2cdb95ec2f`.
+The next live diagnostic must be newly approved; prepare barriers and read-only
+L2C status sampling after the existing writes to localize the pending error.
 Full details are in `done/2026-07-14-t6040-wireless-pcie-map.md`.
 
 ### Watchdog (2026-07-11)

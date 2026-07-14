@@ -213,7 +213,7 @@ RID2SID, MSIMAP, Linux PCIe, or storage access occurred. Transcript:
 `logs/t6040-console-20260714-pcie-axi-trace.log`, SHA-256
 `41774ef8866e775de30ca2c98957d167085943163fe24d25c7aaca29eb177860`.
 
-## Corrected clock-gate ordering and next gate
+## Corrected clock-gate ordering
 
 Offline disassembly of `ApplePCIEBaseT8132::_enableRootComplex()` resolved the
 remaining sequencing difference. `AppleT6040PCIe::start()` supplies a count of
@@ -233,7 +233,7 @@ curated binary SHA-256:
 
 The regenerated full 1,571-operation manifest has SHA-256
 `6a91f39f8db215305de5e354446a44eab8d604852107f91abc7d4c3074065864`.
-The next-attempt subset is still exactly operations 1–105, but now ordered as:
+The staged subset is exactly operations 1–105, ordered as:
 
 - 12 recursive PMGR RMWs for clock gates 0–6;
 - 77 AXI RMWs, one RC write, seven CIO3 RMWs, and one clkgen RMW;
@@ -245,16 +245,50 @@ The build logs every T6040 tunable before and after its RMW, logs the late PHY
 gate before and after, then returns before operation 106, the first PHY register
 write. It cannot reach ports, PERST#, RID2SID/MSIMAP, or Linux PCIe.
 
-This corrected diagnostic has **not** run and requires separate explicit
-approval for the exact main binary and manifest hashes above. It must boot the
-PCIe-free base DT; NVMe and all storage operations remain out of scope.
+## Staged clock-gate result
+
+The maintainer separately approved one run of that exact main binary and
+105-operation set. It booted with the PCIe-free base DT and again reached AXI
+tunable `[70]` at `0x4160013fc`, which printed `done`. Before the pre-write line
+for `[71]`, m1n1 delivered:
+
+```text
++Exception: SError
++PC:       0x100042c722c (rel: 0x2b22c)
++ESR:      0xbe000000 (SError)
++L2C_ERR_STS: 0x82
++L2C_ERR_ADR: 0x3606505ce7a8000
++L2C_ERR_INF: 0x1000000001
+```
+
+The relative PC again symbolizes to the proxy `P_CALL` site, so it is an
+asynchronous delivery location rather than a causal MMIO instruction. The
+result is nevertheless decisive about sequencing: CIO3, clkgen, and the late
+`APCIE_PHY_SW` gate had not run, yet the boundary was identical to the earlier
+trace. Enabling gate 7 early was not the cause of this SError. The staged order
+remains the Apple-accurate implementation and should be retained.
+
+The uploader stopped without Linux handoff. No PHY, port, PERST#, Linux PCIe,
+NVMe, or storage access occurred. The sanctioned DebugUSB reboot restored a
+fresh quiescent proxy. Transcript:
+`logs/t6040-console-20260714-pcie-staged-gate.log`, SHA-256
+`c31275546280b9df2dbf9b014d2e6411cfb708f87f1c803e10b11e2cdb95ec2f`
+(407 lines, 25,940 bytes).
+
+The narrowest next diagnostic adds no MMIO addresses or values: issue a
+full-system barrier and sample the read-only `L2C_ERR_STS` system register after
+each existing traced RMW. That can reveal whether an error is already pending
+before its asynchronous exception is delivered. Because it changes target
+timing, its exact build still requires new explicit approval before one live
+run. The PCIe-free base DT remains mandatory; storage stays out of scope.
 
 ## Full-path gate
 
 `pcie_init()` is a kboot-time invasive operation. A complete target boot remains
 **unattempted and gated**. It will apply the full existing ADT-derived
 AXI/PHY/PHY-IP/bridge tunable sets and the reused T6031/T8122 clock/reset/port
-sequence. After the bounded trace is understood, use two further stages:
+sequence. After the asynchronous fault is localized and corrected, use two
+further stages:
 
 1. Boot a corrected full m1n1 path with the current PCIe-free base DT. The Image
    and initramfs are previously boot-proven; the concurrently rebuilt DT differs

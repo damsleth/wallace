@@ -7,7 +7,7 @@ cable; reboot via `macvdmtool`. No screen-reading or physical access needed.
 Operational details, recipes, and history: `DEVLOG.md`. Long-term: `roadmap.md`.
 Read the DebugUSB link rules in DEVLOG before touching the rig.
 
-## 0. Approve the corrected T6040 PCIe clock-gate diagnostic
+## 0. Localize the T6040 PCIe asynchronous SError
 
 The former register-map blocker is solved. Static analysis of the paired macOS
 kernelcache proves the two new T6040 groups target ADT reg[5] (CIO3 PLL at
@@ -16,7 +16,7 @@ kernelcache proves the two new T6040 groups target ADT reg[5] (CIO3 PLL at
 sequence. The separate `t6040-j614s-dcuart-pcie` kernel DT builds cleanly and
 describes BCM4388 WiFi/BT on port 0 plus the GL9755 SD reader on port 1.
 
-Two approved m1n1-only attempts ran on 2026-07-14. The first completed all 77
+Three approved m1n1-only attempts ran on 2026-07-14. The first completed all 77
 AXI tunables and stopped after `pcie: No common tunables`. The traced retry on
 main `81da3522` delivered the real failure earlier: AXI tunable `[70]`, manifest
 operation 90 in that build, printed `done`; before `[71]` was announced, m1n1
@@ -28,22 +28,31 @@ operation ran, and no storage was accessed. Exact trace:
 `logs/t6040-console-20260714-pcie-axi-trace.log` (SHA-256
 `41774ef8866e775de30ca2c98957d167085943163fe24d25c7aaca29eb177860`).
 
-Offline disassembly then exposed the missing ordering rule. J614s has eight
+Offline disassembly then exposed a real ordering difference. J614s has eight
 PCIe `clock-gates`; `ApplePCIEBaseT8132::_enableRootComplex()` enables gates
 0–6, applies AXI then CIO3 and clkgen tunables, and only afterward enables gate
 7 (`APCIE_PHY_SW`). m1n1 previously enabled all eight before AXI. Main
-`6efe2d45` and curated `954fd4cf` now reproduce Apple's staging and retain the
+`6efe2d45` and curated `954fd4cf` reproduce Apple's staging and retain the
 diagnostic return before the first PHY register access.
 
-**The corrected live run is separately gated.** Main binary SHA-256:
-`c2a5b7e27bb8d56479f46d6b485a195d2eb1cd64a3b86fbe3c90db1f00424735`.
-Its exact 105-operation set is
+The separately approved staged run used main binary SHA-256
+`c2a5b7e27bb8d56479f46d6b485a195d2eb1cd64a3b86fbe3c90db1f00424735`
+and the exact 105-operation subset in
 `done/2026-07-14-t6040-pcie-clock-diagnostic.tsv` (SHA-256
-`ce86e51aa3d278da1d9ef9eb35fca3208859f4993480de5b6af3268dc03ef4e6`):
-12 recursive PMGR RMWs, 77 AXI RMWs, one RC write, seven CIO3 RMWs, one clkgen
-RMW, then the seven recursive RMWs that enable `APCIE_PHY_SW`. It returns before
-operation 106 and cannot reach PHY, ports, PERST#, or Linux PCIe. Do not run it
-until explicitly approved. Use the PCIe-free base DT; do not access NVMe or
+`ce86e51aa3d278da1d9ef9eb35fca3208859f4993480de5b6af3268dc03ef4e6`).
+It produced the same result: AXI `[70]` at `0x4160013fc` printed `done`, then an
+asynchronous SError arrived before `[71]`, with `L2C_ERR_STS=0x82`. It never
+reached CIO3, clkgen, the late gate, PHY, ports, Linux, or storage. Therefore
+early `APCIE_PHY_SW` enable was not the cause. Exact transcript:
+`logs/t6040-console-20260714-pcie-staged-gate.log` (SHA-256
+`c31275546280b9df2dbf9b014d2e6411cfb708f87f1c803e10b11e2cdb95ec2f`).
+DebugUSB recovery restored a fresh, quiescent proxy.
+
+Next, prepare a no-new-address diagnostic that places a full-system barrier
+and read-only `L2C_ERR_STS` sample after each existing traced RMW. This should
+distinguish a pending fabric error from the later asynchronous delivery point.
+It changes timing and must receive fresh explicit approval for its exact build
+before one live run. Continue using the PCIe-free base DT; do not access NVMe or
 mount/repair/format storage.
 
 ## 1. Provision and test the J614s trackpad firmware
