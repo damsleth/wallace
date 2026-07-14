@@ -344,8 +344,27 @@ then attempted once from Linux. It reached `before protected admin queue
 setup`, hung at GENTER, and watchdog-reset to a healthy m1n1 proxy. Therefore
 the decoded ABI is not directly callable in the current raw-boot environment.
 No NVMe command or user-storage access occurred. Continue with static,
-read-only analysis of preserving iBoot's already-authorized queues; do not
-repeat GENTER or direct secure-BAR writes unchanged.
+read-only analysis of whether raw boot can acquire the protected execution
+state. Queue preservation alone is insufficient: iBoot's ASQ/ACQ are ordinary,
+unreserved RAM and macOS authorizes TCB data per command. Do not repeat GENTER
+or direct secure-BAR writes unchanged.
+
+### T6040 PCIe static completion and gated image (2026-07-14)
+
+The complete J614s internal topology is now mapped offline: BCM4388 WiFi/BT on
+port 0 and GL9755 SD on port 1, with both DARTs, GPIOs, IRQs, ECAM, and outbound
+windows. Paired-kernelcache disassembly proves that T6040's new CIO3 PLL and
+PCIe clock-generator tunables target ADT reg[5] (`0x415046200`) and reg[6]
+(`0x415044000`). m1n1 main `eb23c423` and curated `da1791a0` apply them.
+
+The dedicated PCIe kernel/DT image builds cleanly, but no PCIe live boot has
+occurred. `scripts/t6040-pcie-write-plan.py` expands the committed J614s ADT and
+the complete m1n1 path into
+`done/2026-07-14-t6040-pcie-write-manifest.tsv`: 1,571 ordered operations at
+1,459 distinct addresses, with exact size/op/mask/value for every row. The
+first explicitly approved attempt must use the proven base DT without a Linux
+PCIe node, isolating m1n1 link training; Linux enumeration is a second stage.
+Details and hashes are in `done/2026-07-14-t6040-wireless-pcie-map.md`.
 
 ### Watchdog (2026-07-11)
 Linux `apple_wdt` takes over m1n1's WD1; BusyBox pings `/dev/watchdog0` every

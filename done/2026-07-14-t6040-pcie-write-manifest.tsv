@@ -1,0 +1,1575 @@
+# source_sha256	87f5c391b0fc722bdaa0fdca468f160bccf1becaa2f81cec052c481b7c98f195
+# scope	m1n1 pcie_init_controller(APCIE, /arm-io/apcie0), T6040 path at eb23c423
+# semantics	WRITE replaces the full value; RMW is (old & ~mask) | value; SET is old | mask; CLEAR is old & ~mask
+sequence	phase	source	address	size	operation	mask	value
+1	pmgr	clock-gate:240:ANS	0x00502280370	4	RMW	0x1000030f	0x0000000f
+2	pmgr	clock-gate:162:APCIE_GP	0x00502280100	4	RMW	0x1000030f	0x0000000f
+3	pmgr	clock-gate:162:APCIE_GP	0x00502280100	4	RMW	0x1000030f	0x0000000f
+4	pmgr	clock-gate:244:APCIE_SYS_GP	0x00502280390	4	RMW	0x1000030f	0x0000000f
+5	pmgr	clock-gate:163:APCIE_ST0	0x00502280108	4	RMW	0x1000030f	0x0000000f
+6	pmgr	clock-gate:240:ANS	0x00502280370	4	RMW	0x1000030f	0x0000000f
+7	pmgr	clock-gate:163:APCIE_ST0	0x00502280108	4	RMW	0x1000030f	0x0000000f
+8	pmgr	clock-gate:242:APCIE_SYS_ST0	0x00502280380	4	RMW	0x1000030f	0x0000000f
+9	pmgr	clock-gate:164:APCIE_ST1	0x00502280110	4	RMW	0x1000030f	0x0000000f
+10	pmgr	clock-gate:240:ANS	0x00502280370	4	RMW	0x1000030f	0x0000000f
+11	pmgr	clock-gate:164:APCIE_ST1	0x00502280110	4	RMW	0x1000030f	0x0000000f
+12	pmgr	clock-gate:243:APCIE_SYS_ST1	0x00502280388	4	RMW	0x1000030f	0x0000000f
+13	pmgr	clock-gate:240:ANS	0x00502280370	4	RMW	0x1000030f	0x0000000f
+14	pmgr	clock-gate:163:APCIE_ST0	0x00502280108	4	RMW	0x1000030f	0x0000000f
+15	pmgr	clock-gate:242:APCIE_SYS_ST0	0x00502280380	4	RMW	0x1000030f	0x0000000f
+16	pmgr	clock-gate:240:ANS	0x00502280370	4	RMW	0x1000030f	0x0000000f
+17	pmgr	clock-gate:164:APCIE_ST1	0x00502280110	4	RMW	0x1000030f	0x0000000f
+18	pmgr	clock-gate:243:APCIE_SYS_ST1	0x00502280388	4	RMW	0x1000030f	0x0000000f
+19	pmgr	clock-gate:245:APCIE_PHY_SW	0x00502280398	4	RMW	0x1000030f	0x0000000f
+20	controller	apcie-axi2af-tunables	0x00416000000	4	RMW	0x800000ff	0x80000022
+21	controller	apcie-axi2af-tunables	0x00416000004	4	RMW	0x80ff00ff	0x80220003
+22	controller	apcie-axi2af-tunables	0x00416000008	4	RMW	0x80ff00ff	0x80220003
+23	controller	apcie-axi2af-tunables	0x0041600000c	4	RMW	0x80ff00ff	0x80220003
+24	controller	apcie-axi2af-tunables	0x00416000010	4	RMW	0x80ff00ff	0x80220003
+25	controller	apcie-axi2af-tunables	0x00416000014	4	RMW	0x80ff00ff	0x80220003
+26	controller	apcie-axi2af-tunables	0x00416000018	4	RMW	0x80ff00ff	0x80220003
+27	controller	apcie-axi2af-tunables	0x0041600001c	4	RMW	0x800000ff	0x8000001c
+28	controller	apcie-axi2af-tunables	0x00416000020	4	RMW	0x800000ff	0x80000088
+29	controller	apcie-axi2af-tunables	0x00416000024	4	RMW	0x80ff00ff	0x8088000c
+30	controller	apcie-axi2af-tunables	0x00416000028	4	RMW	0x80ff00ff	0x8088000c
+31	controller	apcie-axi2af-tunables	0x0041600002c	4	RMW	0x80ff00ff	0x80200008
+32	controller	apcie-axi2af-tunables	0x00416000030	4	RMW	0x80ff00ff	0x8088000c
+33	controller	apcie-axi2af-tunables	0x00416000034	4	RMW	0x80ff00ff	0x8088000c
+34	controller	apcie-axi2af-tunables	0x00416000038	4	RMW	0x800000ff	0x8000001c
+35	controller	apcie-axi2af-tunables	0x0041600003c	4	RMW	0x800000ff	0x8000001c
+36	controller	apcie-axi2af-tunables	0x00416000040	4	RMW	0x800000ff	0x8000001c
+37	controller	apcie-axi2af-tunables	0x00416000100	4	RMW	0x000000ff	0x000000ff
+38	controller	apcie-axi2af-tunables	0x00416000108	4	RMW	0xffff0006	0x00100000
+39	controller	apcie-axi2af-tunables	0x00416000304	4	RMW	0x3f3f0000	0x08080000
+40	controller	apcie-axi2af-tunables	0x00416000308	4	RMW	0x000fffff	0x00001681
+41	controller	apcie-axi2af-tunables	0x0041600030c	4	RMW	0x000fffff	0x00001680
+42	controller	apcie-axi2af-tunables	0x00416000310	4	RMW	0x70000fff	0x000001e0
+43	controller	apcie-axi2af-tunables	0x00416000314	4	RMW	0xf0000fff	0x800001e0
+44	controller	apcie-axi2af-tunables	0x00416000318	4	RMW	0x70000fff	0x000005a0
+45	controller	apcie-axi2af-tunables	0x0041600031c	4	RMW	0xf0000fff	0x800005a0
+46	controller	apcie-axi2af-tunables	0x00416000320	4	RMW	0x70000fff	0x000005a0
+47	controller	apcie-axi2af-tunables	0x00416000324	4	RMW	0xf0000fff	0x800005a0
+48	controller	apcie-axi2af-tunables	0x00416000328	4	RMW	0x70000fff	0x000005a0
+49	controller	apcie-axi2af-tunables	0x0041600032c	4	RMW	0x70000fff	0x000005a0
+50	controller	apcie-axi2af-tunables	0x00416000330	4	RMW	0x70000fff	0x000005a0
+51	controller	apcie-axi2af-tunables	0x00416000334	4	RMW	0x70000fff	0x000005a0
+52	controller	apcie-axi2af-tunables	0x00416000338	4	RMW	0x70000fff	0x000005a0
+53	controller	apcie-axi2af-tunables	0x0041600033c	4	RMW	0x70000fff	0x000005a0
+54	controller	apcie-axi2af-tunables	0x00416000340	4	RMW	0x70000fff	0x000005a0
+55	controller	apcie-axi2af-tunables	0x00416000348	4	RMW	0xffffffff	0x0000ffff
+56	controller	apcie-axi2af-tunables	0x0041600034c	4	RMW	0xffffffff	0x0000ffff
+57	controller	apcie-axi2af-tunables	0x00416000408	4	RMW	0xffff0020	0x001f0020
+58	controller	apcie-axi2af-tunables	0x0041600040c	4	RMW	0x000fffff	0x00001681
+59	controller	apcie-axi2af-tunables	0x00416000410	4	RMW	0x000fffff	0x00001680
+60	controller	apcie-axi2af-tunables	0x00416000414	4	RMW	0x70000fff	0x000001e0
+61	controller	apcie-axi2af-tunables	0x00416000418	4	RMW	0x70000fff	0x000001e0
+62	controller	apcie-axi2af-tunables	0x0041600041c	4	RMW	0x70000fff	0x000005a0
+63	controller	apcie-axi2af-tunables	0x00416000420	4	RMW	0x70000fff	0x000005a0
+64	controller	apcie-axi2af-tunables	0x00416000424	4	RMW	0x70000fff	0x000005a0
+65	controller	apcie-axi2af-tunables	0x00416000428	4	RMW	0x70000fff	0x000005a0
+66	controller	apcie-axi2af-tunables	0x0041600042c	4	RMW	0x70000fff	0x000005a0
+67	controller	apcie-axi2af-tunables	0x00416000430	4	RMW	0x70000fff	0x000005a0
+68	controller	apcie-axi2af-tunables	0x00416000434	4	RMW	0x70000fff	0x000005a0
+69	controller	apcie-axi2af-tunables	0x00416000438	4	RMW	0x70000fff	0x000005a0
+70	controller	apcie-axi2af-tunables	0x0041600043c	4	RMW	0x70000fff	0x000005a0
+71	controller	apcie-axi2af-tunables	0x00416000440	4	RMW	0x70000fff	0x000005a0
+72	controller	apcie-axi2af-tunables	0x00416000444	4	RMW	0x70000fff	0x000005a0
+73	controller	apcie-axi2af-tunables	0x00416000948	4	RMW	0x07ff07ff	0x00200000
+74	controller	apcie-axi2af-tunables	0x00416000a48	4	RMW	0x07ff07ff	0x000a0100
+75	controller	apcie-axi2af-tunables	0x00416000b48	4	RMW	0x07ff07ff	0x00800080
+76	controller	apcie-axi2af-tunables	0x00416000e00	4	RMW	0xffffffff	0x7fffffff
+77	controller	apcie-axi2af-tunables	0x00416004008	4	RMW	0x00000001	0x00000001
+78	controller	apcie-axi2af-tunables	0x0041600400c	4	RMW	0x00000001	0x00000001
+79	controller	apcie-axi2af-tunables	0x00416004014	4	RMW	0x00000001	0x00000000
+80	controller	apcie-axi2af-tunables	0x00416004018	4	RMW	0x00000001	0x00000000
+81	controller	apcie-axi2af-tunables	0x0041600401c	4	RMW	0x00000001	0x00000001
+82	controller	apcie-axi2af-tunables	0x004160010f8	4	RMW	0x00000001	0x00000001
+83	controller	apcie-axi2af-tunables	0x004160011f8	4	RMW	0x00000001	0x00000001
+84	controller	apcie-axi2af-tunables	0x004160012f8	4	RMW	0x00000001	0x00000001
+85	controller	apcie-axi2af-tunables	0x004160013f8	4	RMW	0x00000001	0x00000001
+86	controller	apcie-axi2af-tunables	0x004160014f8	4	RMW	0x00000001	0x00000001
+87	controller	apcie-axi2af-tunables	0x004160010fc	4	RMW	0x00000001	0x00000001
+88	controller	apcie-axi2af-tunables	0x004160011fc	4	RMW	0x00000001	0x00000001
+89	controller	apcie-axi2af-tunables	0x004160012fc	4	RMW	0x00000001	0x00000001
+90	controller	apcie-axi2af-tunables	0x004160013fc	4	RMW	0x00000001	0x00000001
+91	controller	apcie-axi2af-tunables	0x004160014fc	4	RMW	0x00000001	0x00000001
+92	controller	apcie-axi2af-tunables	0x00416020028	4	RMW	0x0000fe2f	0x00000000
+93	controller	apcie-axi2af-tunables	0x0041602002c	4	RMW	0x00000007	0x00000000
+94	controller	apcie-axi2af-tunables	0x00416020030	4	RMW	0x0000007f	0x00000000
+95	controller	apcie-axi2af-tunables	0x00416020034	4	RMW	0x000000ff	0x00000000
+96	controller	apcie-axi2af-tunables	0x00416020058	4	RMW	0x0000010b	0x00000000
+97	controller	pcie.c:rc+0x4	0x00414000004	4	WRITE	0xffffffff	0x00000000
+98	controller	apcie-cio3pllcore-tunables	0x00415046200	4	RMW	0x00000a0b	0x00000a01
+99	controller	apcie-cio3pllcore-tunables	0x00415046224	4	RMW	0x00000c00	0x00000800
+100	controller	apcie-cio3pllcore-tunables	0x00415046228	4	RMW	0x00000f00	0x00000b00
+101	controller	apcie-cio3pllcore-tunables	0x00415046238	4	RMW	0x00000020	0x00000000
+102	controller	apcie-cio3pllcore-tunables	0x0041504624c	4	RMW	0x000000ff	0x00000095
+103	controller	apcie-cio3pllcore-tunables	0x004150462e8	4	RMW	0x000e0000	0x00020000
+104	controller	apcie-cio3pllcore-tunables	0x00415046300	4	RMW	0x00ffffff	0x000b40b4
+105	controller	apcie-pcieclkgen-tunables	0x00415044000	4	RMW	0x000003e0	0x00000220
+106	controller	apcie-phy-tunables	0x00417008000	4	RMW	0x04000000	0x00000000
+107	controller	apcie-phy-tunables	0x00417020000	4	RMW	0x10000000	0x00000000
+108	controller	apcie-phy-tunables	0x00417024000	4	RMW	0x10000000	0x00000000
+109	controller	apcie-phy-tunables	0x00417028000	4	RMW	0x10000000	0x00000000
+110	controller	apcie-phy-tunables	0x0041702c000	4	RMW	0x10000000	0x00000000
+111	phy	CLK0REQ	0x00417008000	4	SET	0x00000001	0x00000001
+112	phy	CLK1REQ	0x00417008000	4	SET	0x00000002	0x00000002
+113	phy	RESET	0x00417008000	4	CLEAR	0x00000080	0x00000000
+114	phy	T8122 pre-tunable control	0x00417008004	4	SET	0x00000001	0x00000001
+115	phy	apcie-phy-ip-pll-tunables	0x00417040090	4	RMW	0x00000001	0x00000001
+116	phy	apcie-phy-ip-pll-tunables	0x004170400a4	4	RMW	0x00000001	0x00000001
+117	phy	apcie-phy-ip-pll-tunables	0x00417041000	4	RMW	0x003f0000	0x00230000
+118	phy	apcie-phy-ip-pll-tunables	0x0041704102c	4	RMW	0x03fffffc	0x00454444
+119	phy	apcie-phy-ip-pll-tunables	0x00417041204	4	RMW	0x0000007c	0x00000044
+120	phy	apcie-phy-ip-pll-tunables	0x0041704501c	4	RMW	0x00000004	0x00000000
+121	phy	apcie-phy-ip-pll-tunables	0x00417045080	4	RMW	0x03c00000	0x01400000
+122	phy	apcie-phy-ip-pll-tunables	0x00417045088	4	RMW	0x000f0000	0x00060000
+123	phy	apcie-phy-ip-pll-tunables	0x0041704508c	4	RMW	0x03c00000	0x01400000
+124	phy	apcie-phy-ip-pll-tunables	0x00417045094	4	RMW	0x000f0000	0x00060000
+125	phy	apcie-phy-ip-pll-tunables	0x004170450a0	4	RMW	0x000f0000	0x00050000
+126	phy	apcie-phy-ip-pll-tunables	0x004170450ac	4	RMW	0x000f0000	0x00050000
+127	phy	apcie-phy-ip-pll-tunables	0x004170450b8	4	RMW	0x000f0000	0x00050000
+128	phy	apcie-phy-ip-pll-tunables	0x00417045200	4	RMW	0x0000000a	0x0000000a
+129	phy	apcie-phy-ip-pll-tunables	0x00417045224	4	RMW	0x00000c00	0x00000800
+130	phy	apcie-phy-ip-pll-tunables	0x00417045230	4	RMW	0x0000001f	0x00000008
+131	phy	apcie-phy-ip-pll-tunables	0x00417045240	4	RMW	0x07d8007f	0x04000049
+132	phy	apcie-phy-ip-pll-tunables	0x004170452b0	4	RMW	0x08700000	0x00300000
+133	phy	apcie-phy-ip-pll-tunables	0x004170452e8	4	RMW	0x00060000	0x00040000
+134	phy	apcie-phy-ip-pll-tunables	0x00417045300	4	RMW	0x00ffffff	0x00078078
+135	phy	apcie-phy-ip-pll-tunables	0x00417045320	4	RMW	0x00000006	0x00000002
+136	phy	apcie-phy-ip-pll-tunables	0x0041704608c	4	RMW	0x03c3c000	0x01818000
+137	phy	apcie-phy-ip-pll-tunables	0x00417046224	4	RMW	0x00000c00	0x00000800
+138	phy	apcie-phy-ip-pll-tunables	0x00417046228	4	RMW	0x00000f00	0x00000b00
+139	phy	apcie-phy-ip-pll-tunables	0x00417046230	4	RMW	0x0000001f	0x0000000f
+140	phy	apcie-phy-ip-pll-tunables	0x0041704624c	4	RMW	0x0000007f	0x0000001d
+141	phy	apcie-phy-ip-pll-tunables	0x004170462b0	4	RMW	0x00700000	0x00300000
+142	phy	apcie-phy-ip-pll-tunables	0x004170462e8	4	RMW	0x00060000	0x00040000
+143	phy	apcie-phy-ip-auspma-tunables	0x0041704a000	4	RMW	0x0000000f	0x0000000a
+144	phy	apcie-phy-ip-auspma-tunables	0x0041704a008	4	RMW	0x0000000f	0x0000000a
+145	phy	apcie-phy-ip-auspma-tunables	0x0041704a00c	4	RMW	0x0000000f	0x0000000a
+146	phy	apcie-phy-ip-auspma-tunables	0x0041704a010	4	RMW	0x0000000f	0x0000000a
+147	phy	apcie-phy-ip-auspma-tunables	0x0041704a014	4	RMW	0x0000000f	0x0000000a
+148	phy	apcie-phy-ip-auspma-tunables	0x0041704a038	4	RMW	0x0000ffff	0x00000271
+149	phy	apcie-phy-ip-auspma-tunables	0x0041704a040	4	RMW	0x00000800	0x00000000
+150	phy	apcie-phy-ip-auspma-tunables	0x0041704a04c	4	RMW	0x00003fff	0x00000bff
+151	phy	apcie-phy-ip-auspma-tunables	0x0041704a050	4	RMW	0x00000001	0x00000001
+152	phy	apcie-phy-ip-auspma-tunables	0x0041704a068	4	RMW	0x00000007	0x00000001
+153	phy	apcie-phy-ip-auspma-tunables	0x0041704a070	4	RMW	0xfff038e0	0x55b00820
+154	phy	apcie-phy-ip-auspma-tunables	0x0041704a084	4	RMW	0xffffffff	0x3e8f4240
+155	phy	apcie-phy-ip-auspma-tunables	0x0041704a088	4	RMW	0x00000fff	0x00000fff
+156	phy	apcie-phy-ip-auspma-tunables	0x0041704a09c	4	RMW	0x0fc00000	0x05400000
+157	phy	apcie-phy-ip-auspma-tunables	0x0041704a0b8	4	RMW	0xff03e000	0xaa03e000
+158	phy	apcie-phy-ip-auspma-tunables	0x0041704a0bc	4	RMW	0x00060fff	0x00040faa
+159	phy	apcie-phy-ip-auspma-tunables	0x0041704a0c0	4	RMW	0x3ff80000	0x14500000
+160	phy	apcie-phy-ip-auspma-tunables	0x0041704a0c4	4	RMW	0x0000ffff	0x00007777
+161	phy	apcie-phy-ip-auspma-tunables	0x0041704a0e0	4	RMW	0x18000000	0x08000000
+162	phy	apcie-phy-ip-auspma-tunables	0x0041704a0e8	4	RMW	0x001ff000	0x00002000
+163	phy	apcie-phy-ip-auspma-tunables	0x0041704a10c	4	RMW	0x3fffffff	0x000f4240
+164	phy	apcie-phy-ip-auspma-tunables	0x0041704a11c	4	RMW	0x00040000	0x00040000
+165	phy	apcie-phy-ip-auspma-tunables	0x0041704a178	4	RMW	0x03f00000	0x00300000
+166	phy	apcie-phy-ip-auspma-tunables	0x0041704a1b4	4	RMW	0x0003ff00	0x00001500
+167	phy	apcie-phy-ip-auspma-tunables	0x0041704a1bc	4	RMW	0x0003ff00	0x00001500
+168	phy	apcie-phy-ip-auspma-tunables	0x0041704a1c4	4	RMW	0x00000001	0x00000001
+169	phy	apcie-phy-ip-auspma-tunables	0x0041704a1cc	4	RMW	0x00000001	0x00000001
+170	phy	apcie-phy-ip-auspma-tunables	0x0041704a1e8	4	RMW	0x0000000f	0x00000000
+171	phy	apcie-phy-ip-auspma-tunables	0x0041704a1b0	4	RMW	0xffffffff	0x00098924
+172	phy	apcie-phy-ip-auspma-tunables	0x0041704a1b8	4	RMW	0xffffffff	0x00098924
+173	phy	apcie-phy-ip-auspma-tunables	0x00417052000	4	RMW	0x0000000f	0x0000000a
+174	phy	apcie-phy-ip-auspma-tunables	0x00417052008	4	RMW	0x0000000f	0x0000000a
+175	phy	apcie-phy-ip-auspma-tunables	0x0041705200c	4	RMW	0x0000000f	0x0000000a
+176	phy	apcie-phy-ip-auspma-tunables	0x00417052010	4	RMW	0x0000000f	0x0000000a
+177	phy	apcie-phy-ip-auspma-tunables	0x00417052014	4	RMW	0x0000000f	0x0000000a
+178	phy	apcie-phy-ip-auspma-tunables	0x00417052038	4	RMW	0x0000ffff	0x00000271
+179	phy	apcie-phy-ip-auspma-tunables	0x00417052040	4	RMW	0x00000800	0x00000000
+180	phy	apcie-phy-ip-auspma-tunables	0x0041705204c	4	RMW	0x00003fff	0x00000bff
+181	phy	apcie-phy-ip-auspma-tunables	0x00417052050	4	RMW	0x00000001	0x00000001
+182	phy	apcie-phy-ip-auspma-tunables	0x00417052068	4	RMW	0x00000007	0x00000001
+183	phy	apcie-phy-ip-auspma-tunables	0x00417052070	4	RMW	0xfff038e0	0x55b00820
+184	phy	apcie-phy-ip-auspma-tunables	0x00417052084	4	RMW	0xffffffff	0x3e8f4240
+185	phy	apcie-phy-ip-auspma-tunables	0x00417052088	4	RMW	0x00000fff	0x00000fff
+186	phy	apcie-phy-ip-auspma-tunables	0x0041705209c	4	RMW	0x0fc00000	0x05400000
+187	phy	apcie-phy-ip-auspma-tunables	0x004170520b8	4	RMW	0xff03e000	0xaa03e000
+188	phy	apcie-phy-ip-auspma-tunables	0x004170520bc	4	RMW	0x00060fff	0x00040faa
+189	phy	apcie-phy-ip-auspma-tunables	0x004170520c0	4	RMW	0x3ff80000	0x14500000
+190	phy	apcie-phy-ip-auspma-tunables	0x004170520c4	4	RMW	0x0000ffff	0x00007777
+191	phy	apcie-phy-ip-auspma-tunables	0x004170520e0	4	RMW	0x18000000	0x08000000
+192	phy	apcie-phy-ip-auspma-tunables	0x004170520e8	4	RMW	0x001ff000	0x00002000
+193	phy	apcie-phy-ip-auspma-tunables	0x0041705210c	4	RMW	0x3fffffff	0x000f4240
+194	phy	apcie-phy-ip-auspma-tunables	0x0041705211c	4	RMW	0x00040000	0x00040000
+195	phy	apcie-phy-ip-auspma-tunables	0x00417052178	4	RMW	0x03f00000	0x00300000
+196	phy	apcie-phy-ip-auspma-tunables	0x004170521b4	4	RMW	0x0003ff00	0x00001500
+197	phy	apcie-phy-ip-auspma-tunables	0x004170521bc	4	RMW	0x0003ff00	0x00001500
+198	phy	apcie-phy-ip-auspma-tunables	0x004170521c4	4	RMW	0x00000001	0x00000001
+199	phy	apcie-phy-ip-auspma-tunables	0x004170521cc	4	RMW	0x00000001	0x00000001
+200	phy	apcie-phy-ip-auspma-tunables	0x004170521e8	4	RMW	0x0000000f	0x00000000
+201	phy	apcie-phy-ip-auspma-tunables	0x004170521b0	4	RMW	0xffffffff	0x00098924
+202	phy	apcie-phy-ip-auspma-tunables	0x004170521b8	4	RMW	0xffffffff	0x00098924
+203	phy	apcie-phy-ip-auspma-tunables	0x0041705a000	4	RMW	0x0000000f	0x0000000a
+204	phy	apcie-phy-ip-auspma-tunables	0x0041705a008	4	RMW	0x0000000f	0x0000000a
+205	phy	apcie-phy-ip-auspma-tunables	0x0041705a00c	4	RMW	0x0000000f	0x0000000a
+206	phy	apcie-phy-ip-auspma-tunables	0x0041705a010	4	RMW	0x0000000f	0x0000000a
+207	phy	apcie-phy-ip-auspma-tunables	0x0041705a014	4	RMW	0x0000000f	0x0000000a
+208	phy	apcie-phy-ip-auspma-tunables	0x0041705a038	4	RMW	0x0000ffff	0x00000271
+209	phy	apcie-phy-ip-auspma-tunables	0x0041705a040	4	RMW	0x00000800	0x00000000
+210	phy	apcie-phy-ip-auspma-tunables	0x0041705a04c	4	RMW	0x00003fff	0x00000bff
+211	phy	apcie-phy-ip-auspma-tunables	0x0041705a050	4	RMW	0x00000001	0x00000001
+212	phy	apcie-phy-ip-auspma-tunables	0x0041705a068	4	RMW	0x00000007	0x00000001
+213	phy	apcie-phy-ip-auspma-tunables	0x0041705a070	4	RMW	0xfff038e0	0x55b00820
+214	phy	apcie-phy-ip-auspma-tunables	0x0041705a084	4	RMW	0xffffffff	0x3e8f4240
+215	phy	apcie-phy-ip-auspma-tunables	0x0041705a088	4	RMW	0x00000fff	0x00000fff
+216	phy	apcie-phy-ip-auspma-tunables	0x0041705a09c	4	RMW	0x0fc00000	0x05400000
+217	phy	apcie-phy-ip-auspma-tunables	0x0041705a0b8	4	RMW	0xff03e000	0xaa03e000
+218	phy	apcie-phy-ip-auspma-tunables	0x0041705a0bc	4	RMW	0x00060fff	0x00040faa
+219	phy	apcie-phy-ip-auspma-tunables	0x0041705a0c0	4	RMW	0x3ff80000	0x14500000
+220	phy	apcie-phy-ip-auspma-tunables	0x0041705a0c4	4	RMW	0x0000ffff	0x00007777
+221	phy	apcie-phy-ip-auspma-tunables	0x0041705a0e0	4	RMW	0x18000000	0x08000000
+222	phy	apcie-phy-ip-auspma-tunables	0x0041705a0e8	4	RMW	0x001ff000	0x00002000
+223	phy	apcie-phy-ip-auspma-tunables	0x0041705a10c	4	RMW	0x3fffffff	0x000f4240
+224	phy	apcie-phy-ip-auspma-tunables	0x0041705a11c	4	RMW	0x00040000	0x00040000
+225	phy	apcie-phy-ip-auspma-tunables	0x0041705a178	4	RMW	0x03f00000	0x00300000
+226	phy	apcie-phy-ip-auspma-tunables	0x0041705a1b4	4	RMW	0x0003ff00	0x00001500
+227	phy	apcie-phy-ip-auspma-tunables	0x0041705a1bc	4	RMW	0x0003ff00	0x00001500
+228	phy	apcie-phy-ip-auspma-tunables	0x0041705a1c4	4	RMW	0x00000001	0x00000001
+229	phy	apcie-phy-ip-auspma-tunables	0x0041705a1cc	4	RMW	0x00000001	0x00000001
+230	phy	apcie-phy-ip-auspma-tunables	0x0041705a1e8	4	RMW	0x0000000f	0x00000000
+231	phy	apcie-phy-ip-auspma-tunables	0x0041705a1b0	4	RMW	0xffffffff	0x00098924
+232	phy	apcie-phy-ip-auspma-tunables	0x0041705a1b8	4	RMW	0xffffffff	0x00098924
+233	phy	apcie-phy-ip-auspma-tunables	0x00417062000	4	RMW	0x0000000f	0x0000000a
+234	phy	apcie-phy-ip-auspma-tunables	0x00417062008	4	RMW	0x0000000f	0x0000000a
+235	phy	apcie-phy-ip-auspma-tunables	0x0041706200c	4	RMW	0x0000000f	0x0000000a
+236	phy	apcie-phy-ip-auspma-tunables	0x00417062010	4	RMW	0x0000000f	0x0000000a
+237	phy	apcie-phy-ip-auspma-tunables	0x00417062014	4	RMW	0x0000000f	0x0000000a
+238	phy	apcie-phy-ip-auspma-tunables	0x00417062038	4	RMW	0x0000ffff	0x00000271
+239	phy	apcie-phy-ip-auspma-tunables	0x00417062040	4	RMW	0x00000800	0x00000000
+240	phy	apcie-phy-ip-auspma-tunables	0x0041706204c	4	RMW	0x00003fff	0x00000bff
+241	phy	apcie-phy-ip-auspma-tunables	0x00417062050	4	RMW	0x00000001	0x00000001
+242	phy	apcie-phy-ip-auspma-tunables	0x00417062068	4	RMW	0x00000007	0x00000001
+243	phy	apcie-phy-ip-auspma-tunables	0x00417062070	4	RMW	0xfff038e0	0x55b00820
+244	phy	apcie-phy-ip-auspma-tunables	0x00417062084	4	RMW	0xffffffff	0x3e8f4240
+245	phy	apcie-phy-ip-auspma-tunables	0x00417062088	4	RMW	0x00000fff	0x00000fff
+246	phy	apcie-phy-ip-auspma-tunables	0x0041706209c	4	RMW	0x0fc00000	0x05400000
+247	phy	apcie-phy-ip-auspma-tunables	0x004170620b8	4	RMW	0xff03e000	0xaa03e000
+248	phy	apcie-phy-ip-auspma-tunables	0x004170620bc	4	RMW	0x00060fff	0x00040faa
+249	phy	apcie-phy-ip-auspma-tunables	0x004170620c0	4	RMW	0x3ff80000	0x14500000
+250	phy	apcie-phy-ip-auspma-tunables	0x004170620c4	4	RMW	0x0000ffff	0x00007777
+251	phy	apcie-phy-ip-auspma-tunables	0x004170620e0	4	RMW	0x18000000	0x08000000
+252	phy	apcie-phy-ip-auspma-tunables	0x004170620e8	4	RMW	0x001ff000	0x00002000
+253	phy	apcie-phy-ip-auspma-tunables	0x0041706210c	4	RMW	0x3fffffff	0x000f4240
+254	phy	apcie-phy-ip-auspma-tunables	0x0041706211c	4	RMW	0x00040000	0x00040000
+255	phy	apcie-phy-ip-auspma-tunables	0x00417062178	4	RMW	0x03f00000	0x00300000
+256	phy	apcie-phy-ip-auspma-tunables	0x004170621b4	4	RMW	0x0003ff00	0x00001500
+257	phy	apcie-phy-ip-auspma-tunables	0x004170621bc	4	RMW	0x0003ff00	0x00001500
+258	phy	apcie-phy-ip-auspma-tunables	0x004170621c4	4	RMW	0x00000001	0x00000001
+259	phy	apcie-phy-ip-auspma-tunables	0x004170621cc	4	RMW	0x00000001	0x00000001
+260	phy	apcie-phy-ip-auspma-tunables	0x004170621e8	4	RMW	0x0000000f	0x00000000
+261	phy	apcie-phy-ip-auspma-tunables	0x004170621b0	4	RMW	0xffffffff	0x00098924
+262	phy	apcie-phy-ip-auspma-tunables	0x004170621b8	4	RMW	0xffffffff	0x00098924
+263	phy	apcie-phy-ip-auspma-tunables	0x0041704b02c	4	RMW	0x00100000	0x00100000
+264	phy	apcie-phy-ip-auspma-tunables	0x0041704b058	4	RMW	0x00000018	0x00000018
+265	phy	apcie-phy-ip-auspma-tunables	0x0041704b070	4	RMW	0x00000030	0x00000020
+266	phy	apcie-phy-ip-auspma-tunables	0x0041704b078	4	RMW	0x3c000000	0x2c000000
+267	phy	apcie-phy-ip-auspma-tunables	0x0041705302c	4	RMW	0x00100000	0x00100000
+268	phy	apcie-phy-ip-auspma-tunables	0x00417053058	4	RMW	0x00000018	0x00000018
+269	phy	apcie-phy-ip-auspma-tunables	0x00417053070	4	RMW	0x00000030	0x00000020
+270	phy	apcie-phy-ip-auspma-tunables	0x00417053078	4	RMW	0x3c000000	0x2c000000
+271	phy	apcie-phy-ip-auspma-tunables	0x0041705b02c	4	RMW	0x00100000	0x00100000
+272	phy	apcie-phy-ip-auspma-tunables	0x0041705b058	4	RMW	0x00000018	0x00000018
+273	phy	apcie-phy-ip-auspma-tunables	0x0041705b070	4	RMW	0x00000030	0x00000020
+274	phy	apcie-phy-ip-auspma-tunables	0x0041705b078	4	RMW	0x3c000000	0x2c000000
+275	phy	apcie-phy-ip-auspma-tunables	0x0041706302c	4	RMW	0x00100000	0x00100000
+276	phy	apcie-phy-ip-auspma-tunables	0x00417063058	4	RMW	0x00000018	0x00000018
+277	phy	apcie-phy-ip-auspma-tunables	0x00417063070	4	RMW	0x00000030	0x00000020
+278	phy	apcie-phy-ip-auspma-tunables	0x00417063078	4	RMW	0x3c000000	0x2c000000
+279	phy	apcie-phy-ip-auspma-tunables	0x00417049000	4	RMW	0x40000000	0x00000000
+280	phy	apcie-phy-ip-auspma-tunables	0x00417049008	4	RMW	0x00000010	0x00000000
+281	phy	apcie-phy-ip-auspma-tunables	0x0041704903c	4	RMW	0x01800000	0x01800000
+282	phy	apcie-phy-ip-auspma-tunables	0x004170490d8	4	RMW	0x00003fff	0x0000068d
+283	phy	apcie-phy-ip-auspma-tunables	0x004170490dc	4	RMW	0x00003fff	0x00000408
+284	phy	apcie-phy-ip-auspma-tunables	0x004170491e0	4	RMW	0x00000008	0x00000008
+285	phy	apcie-phy-ip-auspma-tunables	0x00417049280	4	RMW	0x00f00000	0x00c00000
+286	phy	apcie-phy-ip-auspma-tunables	0x00417049280	4	RMW	0x00ff000f	0x00c80001
+287	phy	apcie-phy-ip-auspma-tunables	0x00417049288	4	RMW	0x00000003	0x00000003
+288	phy	apcie-phy-ip-auspma-tunables	0x0041704928c	4	RMW	0x00000003	0x00000003
+289	phy	apcie-phy-ip-auspma-tunables	0x00417051000	4	RMW	0x40000000	0x00000000
+290	phy	apcie-phy-ip-auspma-tunables	0x00417051008	4	RMW	0x00000010	0x00000000
+291	phy	apcie-phy-ip-auspma-tunables	0x0041705103c	4	RMW	0x01800000	0x01800000
+292	phy	apcie-phy-ip-auspma-tunables	0x004170510d8	4	RMW	0x00003fff	0x0000068d
+293	phy	apcie-phy-ip-auspma-tunables	0x004170510dc	4	RMW	0x00003fff	0x00000408
+294	phy	apcie-phy-ip-auspma-tunables	0x004170511e0	4	RMW	0x00000008	0x00000008
+295	phy	apcie-phy-ip-auspma-tunables	0x00417051280	4	RMW	0x00f00000	0x00c00000
+296	phy	apcie-phy-ip-auspma-tunables	0x00417051280	4	RMW	0x00ff000f	0x00c8000c
+297	phy	apcie-phy-ip-auspma-tunables	0x00417051288	4	RMW	0x00000003	0x00000003
+298	phy	apcie-phy-ip-auspma-tunables	0x0041705128c	4	RMW	0x00000003	0x00000003
+299	phy	apcie-phy-ip-auspma-tunables	0x00417059000	4	RMW	0x40000000	0x00000000
+300	phy	apcie-phy-ip-auspma-tunables	0x00417059008	4	RMW	0x00000010	0x00000000
+301	phy	apcie-phy-ip-auspma-tunables	0x0041705903c	4	RMW	0x01800000	0x01800000
+302	phy	apcie-phy-ip-auspma-tunables	0x004170590d8	4	RMW	0x00003fff	0x0000068d
+303	phy	apcie-phy-ip-auspma-tunables	0x004170590dc	4	RMW	0x00003fff	0x00000408
+304	phy	apcie-phy-ip-auspma-tunables	0x004170591e0	4	RMW	0x00000008	0x00000008
+305	phy	apcie-phy-ip-auspma-tunables	0x00417059280	4	RMW	0x00f00000	0x00c00000
+306	phy	apcie-phy-ip-auspma-tunables	0x00417059288	4	RMW	0x00000003	0x00000003
+307	phy	apcie-phy-ip-auspma-tunables	0x00417061000	4	RMW	0x40000000	0x00000000
+308	phy	apcie-phy-ip-auspma-tunables	0x00417061008	4	RMW	0x00000010	0x00000000
+309	phy	apcie-phy-ip-auspma-tunables	0x0041706103c	4	RMW	0x01800000	0x01800000
+310	phy	apcie-phy-ip-auspma-tunables	0x004170610d8	4	RMW	0x00003fff	0x0000068d
+311	phy	apcie-phy-ip-auspma-tunables	0x004170610dc	4	RMW	0x00003fff	0x00000408
+312	phy	apcie-phy-ip-auspma-tunables	0x004170611e0	4	RMW	0x00000008	0x00000008
+313	phy	apcie-phy-ip-auspma-tunables	0x00417061280	4	RMW	0x00f00000	0x00c00000
+314	phy	apcie-phy-ip-auspma-tunables	0x00417061288	4	RMW	0x00000003	0x00000003
+315	phy	apcie-phy-ip-auspma-tunables	0x0041704d008	4	RMW	0x0000000c	0x0000000c
+316	phy	apcie-phy-ip-auspma-tunables	0x0041704d014	4	RMW	0x00007efc	0x00000408
+317	phy	apcie-phy-ip-auspma-tunables	0x00417055008	4	RMW	0x0000000c	0x0000000c
+318	phy	apcie-phy-ip-auspma-tunables	0x00417055014	4	RMW	0x00007efc	0x00000408
+319	phy	apcie-phy-ip-auspma-tunables	0x0041705d008	4	RMW	0x0000000c	0x0000000c
+320	phy	apcie-phy-ip-auspma-tunables	0x0041705d014	4	RMW	0x00007efc	0x00000408
+321	phy	apcie-phy-ip-auspma-tunables	0x00417065008	4	RMW	0x0000000c	0x0000000c
+322	phy	apcie-phy-ip-auspma-tunables	0x00417065014	4	RMW	0x00007efc	0x00000408
+323	phy	apcie-phy-ip-auspma-tunables	0x0041704c01c	4	RMW	0x000000e0	0x000000a0
+324	phy	apcie-phy-ip-auspma-tunables	0x0041704c080	4	RMW	0x60000000	0x40000000
+325	phy	apcie-phy-ip-auspma-tunables	0x0041704c08c	4	RMW	0x003f0000	0x003e0000
+326	phy	apcie-phy-ip-auspma-tunables	0x0041704c0a0	4	RMW	0x01f80000	0x00380000
+327	phy	apcie-phy-ip-auspma-tunables	0x0041704c0ec	4	RMW	0x00000001	0x00000000
+328	phy	apcie-phy-ip-auspma-tunables	0x0041705401c	4	RMW	0x000000e0	0x000000a0
+329	phy	apcie-phy-ip-auspma-tunables	0x00417054080	4	RMW	0x60000000	0x40000000
+330	phy	apcie-phy-ip-auspma-tunables	0x0041705408c	4	RMW	0x003f0000	0x003e0000
+331	phy	apcie-phy-ip-auspma-tunables	0x004170540a0	4	RMW	0x01f80000	0x00380000
+332	phy	apcie-phy-ip-auspma-tunables	0x004170540ec	4	RMW	0x00000001	0x00000000
+333	phy	apcie-phy-ip-auspma-tunables	0x0041705c01c	4	RMW	0x000000e0	0x000000a0
+334	phy	apcie-phy-ip-auspma-tunables	0x0041705c080	4	RMW	0x60000000	0x40000000
+335	phy	apcie-phy-ip-auspma-tunables	0x0041705c08c	4	RMW	0x003f0000	0x003e0000
+336	phy	apcie-phy-ip-auspma-tunables	0x0041705c0a0	4	RMW	0x01f80000	0x00380000
+337	phy	apcie-phy-ip-auspma-tunables	0x0041705c0ec	4	RMW	0x00000001	0x00000000
+338	phy	apcie-phy-ip-auspma-tunables	0x0041706401c	4	RMW	0x000000e0	0x000000a0
+339	phy	apcie-phy-ip-auspma-tunables	0x00417064080	4	RMW	0x60000000	0x40000000
+340	phy	apcie-phy-ip-auspma-tunables	0x0041706408c	4	RMW	0x003f0000	0x003e0000
+341	phy	apcie-phy-ip-auspma-tunables	0x004170640a0	4	RMW	0x01f80000	0x00380000
+342	phy	apcie-phy-ip-auspma-tunables	0x004170640ec	4	RMW	0x00000001	0x00000000
+343	phy	apcie-phy-ip-auspma-tunables	0x0041704e404	4	RMW	0x40000000	0x40000000
+344	phy	apcie-phy-ip-auspma-tunables	0x00417056404	4	RMW	0x40000000	0x40000000
+345	phy	apcie-phy-ip-auspma-tunables	0x0041705e404	4	RMW	0x40000000	0x40000000
+346	phy	apcie-phy-ip-auspma-tunables	0x00417066404	4	RMW	0x40000000	0x40000000
+347	phy	T8122 post-tunable control	0x00417008004	4	SET	0x00000010	0x00000010
+348	phy	PHYCMN clock mode	0x00417004000	4	RMW	0x00000003	0x00000001
+349	phy	T8122 PHY control	0x00417008000	4	SET	0x00000200	0x00000200
+350	phy	RC init	0x00414000054	4	WRITE	0xffffffff	0x00000140
+351	phy	RC init	0x00414000050	4	WRITE	0xffffffff	0x00000001
+352	port0	T6031 AXI control	0x00416000600	4	CLEAR	0x00010000	0x00000000
+353	port0	T8122 port init	0x00410028088	4	WRITE	0xffffffff	0x00000110
+354	port0	T8122 port init	0x00410028100	4	WRITE	0xffffffff	0xffffffff
+355	port0	T8122 port init	0x00410028148	4	WRITE	0xffffffff	0xffffffff
+356	port0	T8122 port init	0x00410028210	4	WRITE	0xffffffff	0xffffffff
+357	port0	T8122 port init	0x00410028080	4	WRITE	0xffffffff	0x00000000
+358	port0	T8122 port init	0x00410028084	4	WRITE	0xffffffff	0x00000000
+359	port0	T8122 port init	0x00410028104	4	WRITE	0xffffffff	0xfffffff0
+360	port0	T8122 port init	0x00410028124	4	WRITE	0xffffffff	0x00000100
+361	port0	T8122 port init	0x0041002816c	4	WRITE	0xffffffff	0x00000000
+362	port0	T8122 port init	0x0041002813c	4	WRITE	0xffffffff	0x00000010
+363	port0	T8122 port init	0x00410028800	4	WRITE	0xffffffff	0x00100100
+364	port0	T8122 port init	0x00410028808	4	WRITE	0xffffffff	0x001000ff
+365	port0	T8122 port init	0x0041002882c	4	WRITE	0xffffffff	0x00000000
+366	port0	RID2SID clear	0x0041002b000	4	WRITE	0xffffffff	0x00000000
+367	port0	RID2SID clear	0x0041002b004	4	WRITE	0xffffffff	0x00000000
+368	port0	RID2SID clear	0x0041002b008	4	WRITE	0xffffffff	0x00000000
+369	port0	RID2SID clear	0x0041002b00c	4	WRITE	0xffffffff	0x00000000
+370	port0	RID2SID clear	0x0041002b010	4	WRITE	0xffffffff	0x00000000
+371	port0	RID2SID clear	0x0041002b014	4	WRITE	0xffffffff	0x00000000
+372	port0	RID2SID clear	0x0041002b018	4	WRITE	0xffffffff	0x00000000
+373	port0	RID2SID clear	0x0041002b01c	4	WRITE	0xffffffff	0x00000000
+374	port0	RID2SID clear	0x0041002b020	4	WRITE	0xffffffff	0x00000000
+375	port0	RID2SID clear	0x0041002b024	4	WRITE	0xffffffff	0x00000000
+376	port0	RID2SID clear	0x0041002b028	4	WRITE	0xffffffff	0x00000000
+377	port0	RID2SID clear	0x0041002b02c	4	WRITE	0xffffffff	0x00000000
+378	port0	RID2SID clear	0x0041002b030	4	WRITE	0xffffffff	0x00000000
+379	port0	RID2SID clear	0x0041002b034	4	WRITE	0xffffffff	0x00000000
+380	port0	RID2SID clear	0x0041002b038	4	WRITE	0xffffffff	0x00000000
+381	port0	RID2SID clear	0x0041002b03c	4	WRITE	0xffffffff	0x00000000
+382	port0	MSIMAP clear	0x0041002b800	4	WRITE	0xffffffff	0x00000000
+383	port0	MSIMAP clear	0x0041002b804	4	WRITE	0xffffffff	0x00000000
+384	port0	MSIMAP clear	0x0041002b808	4	WRITE	0xffffffff	0x00000000
+385	port0	MSIMAP clear	0x0041002b80c	4	WRITE	0xffffffff	0x00000000
+386	port0	MSIMAP clear	0x0041002b810	4	WRITE	0xffffffff	0x00000000
+387	port0	MSIMAP clear	0x0041002b814	4	WRITE	0xffffffff	0x00000000
+388	port0	MSIMAP clear	0x0041002b818	4	WRITE	0xffffffff	0x00000000
+389	port0	MSIMAP clear	0x0041002b81c	4	WRITE	0xffffffff	0x00000000
+390	port0	MSIMAP clear	0x0041002b820	4	WRITE	0xffffffff	0x00000000
+391	port0	MSIMAP clear	0x0041002b824	4	WRITE	0xffffffff	0x00000000
+392	port0	MSIMAP clear	0x0041002b828	4	WRITE	0xffffffff	0x00000000
+393	port0	MSIMAP clear	0x0041002b82c	4	WRITE	0xffffffff	0x00000000
+394	port0	MSIMAP clear	0x0041002b830	4	WRITE	0xffffffff	0x00000000
+395	port0	MSIMAP clear	0x0041002b834	4	WRITE	0xffffffff	0x00000000
+396	port0	MSIMAP clear	0x0041002b838	4	WRITE	0xffffffff	0x00000000
+397	port0	MSIMAP clear	0x0041002b83c	4	WRITE	0xffffffff	0x00000000
+398	port0	MSIMAP clear	0x0041002b840	4	WRITE	0xffffffff	0x00000000
+399	port0	MSIMAP clear	0x0041002b844	4	WRITE	0xffffffff	0x00000000
+400	port0	MSIMAP clear	0x0041002b848	4	WRITE	0xffffffff	0x00000000
+401	port0	MSIMAP clear	0x0041002b84c	4	WRITE	0xffffffff	0x00000000
+402	port0	MSIMAP clear	0x0041002b850	4	WRITE	0xffffffff	0x00000000
+403	port0	MSIMAP clear	0x0041002b854	4	WRITE	0xffffffff	0x00000000
+404	port0	MSIMAP clear	0x0041002b858	4	WRITE	0xffffffff	0x00000000
+405	port0	MSIMAP clear	0x0041002b85c	4	WRITE	0xffffffff	0x00000000
+406	port0	MSIMAP clear	0x0041002b860	4	WRITE	0xffffffff	0x00000000
+407	port0	MSIMAP clear	0x0041002b864	4	WRITE	0xffffffff	0x00000000
+408	port0	MSIMAP clear	0x0041002b868	4	WRITE	0xffffffff	0x00000000
+409	port0	MSIMAP clear	0x0041002b86c	4	WRITE	0xffffffff	0x00000000
+410	port0	MSIMAP clear	0x0041002b870	4	WRITE	0xffffffff	0x00000000
+411	port0	MSIMAP clear	0x0041002b874	4	WRITE	0xffffffff	0x00000000
+412	port0	MSIMAP clear	0x0041002b878	4	WRITE	0xffffffff	0x00000000
+413	port0	MSIMAP clear	0x0041002b87c	4	WRITE	0xffffffff	0x00000000
+414	port0	MSIMAP clear	0x0041002b880	4	WRITE	0xffffffff	0x00000000
+415	port0	MSIMAP clear	0x0041002b884	4	WRITE	0xffffffff	0x00000000
+416	port0	MSIMAP clear	0x0041002b888	4	WRITE	0xffffffff	0x00000000
+417	port0	MSIMAP clear	0x0041002b88c	4	WRITE	0xffffffff	0x00000000
+418	port0	MSIMAP clear	0x0041002b890	4	WRITE	0xffffffff	0x00000000
+419	port0	MSIMAP clear	0x0041002b894	4	WRITE	0xffffffff	0x00000000
+420	port0	MSIMAP clear	0x0041002b898	4	WRITE	0xffffffff	0x00000000
+421	port0	MSIMAP clear	0x0041002b89c	4	WRITE	0xffffffff	0x00000000
+422	port0	MSIMAP clear	0x0041002b8a0	4	WRITE	0xffffffff	0x00000000
+423	port0	MSIMAP clear	0x0041002b8a4	4	WRITE	0xffffffff	0x00000000
+424	port0	MSIMAP clear	0x0041002b8a8	4	WRITE	0xffffffff	0x00000000
+425	port0	MSIMAP clear	0x0041002b8ac	4	WRITE	0xffffffff	0x00000000
+426	port0	MSIMAP clear	0x0041002b8b0	4	WRITE	0xffffffff	0x00000000
+427	port0	MSIMAP clear	0x0041002b8b4	4	WRITE	0xffffffff	0x00000000
+428	port0	MSIMAP clear	0x0041002b8b8	4	WRITE	0xffffffff	0x00000000
+429	port0	MSIMAP clear	0x0041002b8bc	4	WRITE	0xffffffff	0x00000000
+430	port0	MSIMAP clear	0x0041002b8c0	4	WRITE	0xffffffff	0x00000000
+431	port0	MSIMAP clear	0x0041002b8c4	4	WRITE	0xffffffff	0x00000000
+432	port0	MSIMAP clear	0x0041002b8c8	4	WRITE	0xffffffff	0x00000000
+433	port0	MSIMAP clear	0x0041002b8cc	4	WRITE	0xffffffff	0x00000000
+434	port0	MSIMAP clear	0x0041002b8d0	4	WRITE	0xffffffff	0x00000000
+435	port0	MSIMAP clear	0x0041002b8d4	4	WRITE	0xffffffff	0x00000000
+436	port0	MSIMAP clear	0x0041002b8d8	4	WRITE	0xffffffff	0x00000000
+437	port0	MSIMAP clear	0x0041002b8dc	4	WRITE	0xffffffff	0x00000000
+438	port0	MSIMAP clear	0x0041002b8e0	4	WRITE	0xffffffff	0x00000000
+439	port0	MSIMAP clear	0x0041002b8e4	4	WRITE	0xffffffff	0x00000000
+440	port0	MSIMAP clear	0x0041002b8e8	4	WRITE	0xffffffff	0x00000000
+441	port0	MSIMAP clear	0x0041002b8ec	4	WRITE	0xffffffff	0x00000000
+442	port0	MSIMAP clear	0x0041002b8f0	4	WRITE	0xffffffff	0x00000000
+443	port0	MSIMAP clear	0x0041002b8f4	4	WRITE	0xffffffff	0x00000000
+444	port0	MSIMAP clear	0x0041002b8f8	4	WRITE	0xffffffff	0x00000000
+445	port0	MSIMAP clear	0x0041002b8fc	4	WRITE	0xffffffff	0x00000000
+446	port0	MSIMAP clear	0x0041002b900	4	WRITE	0xffffffff	0x00000000
+447	port0	MSIMAP clear	0x0041002b904	4	WRITE	0xffffffff	0x00000000
+448	port0	MSIMAP clear	0x0041002b908	4	WRITE	0xffffffff	0x00000000
+449	port0	MSIMAP clear	0x0041002b90c	4	WRITE	0xffffffff	0x00000000
+450	port0	MSIMAP clear	0x0041002b910	4	WRITE	0xffffffff	0x00000000
+451	port0	MSIMAP clear	0x0041002b914	4	WRITE	0xffffffff	0x00000000
+452	port0	MSIMAP clear	0x0041002b918	4	WRITE	0xffffffff	0x00000000
+453	port0	MSIMAP clear	0x0041002b91c	4	WRITE	0xffffffff	0x00000000
+454	port0	MSIMAP clear	0x0041002b920	4	WRITE	0xffffffff	0x00000000
+455	port0	MSIMAP clear	0x0041002b924	4	WRITE	0xffffffff	0x00000000
+456	port0	MSIMAP clear	0x0041002b928	4	WRITE	0xffffffff	0x00000000
+457	port0	MSIMAP clear	0x0041002b92c	4	WRITE	0xffffffff	0x00000000
+458	port0	MSIMAP clear	0x0041002b930	4	WRITE	0xffffffff	0x00000000
+459	port0	MSIMAP clear	0x0041002b934	4	WRITE	0xffffffff	0x00000000
+460	port0	MSIMAP clear	0x0041002b938	4	WRITE	0xffffffff	0x00000000
+461	port0	MSIMAP clear	0x0041002b93c	4	WRITE	0xffffffff	0x00000000
+462	port0	MSIMAP clear	0x0041002b940	4	WRITE	0xffffffff	0x00000000
+463	port0	MSIMAP clear	0x0041002b944	4	WRITE	0xffffffff	0x00000000
+464	port0	MSIMAP clear	0x0041002b948	4	WRITE	0xffffffff	0x00000000
+465	port0	MSIMAP clear	0x0041002b94c	4	WRITE	0xffffffff	0x00000000
+466	port0	MSIMAP clear	0x0041002b950	4	WRITE	0xffffffff	0x00000000
+467	port0	MSIMAP clear	0x0041002b954	4	WRITE	0xffffffff	0x00000000
+468	port0	MSIMAP clear	0x0041002b958	4	WRITE	0xffffffff	0x00000000
+469	port0	MSIMAP clear	0x0041002b95c	4	WRITE	0xffffffff	0x00000000
+470	port0	MSIMAP clear	0x0041002b960	4	WRITE	0xffffffff	0x00000000
+471	port0	MSIMAP clear	0x0041002b964	4	WRITE	0xffffffff	0x00000000
+472	port0	MSIMAP clear	0x0041002b968	4	WRITE	0xffffffff	0x00000000
+473	port0	MSIMAP clear	0x0041002b96c	4	WRITE	0xffffffff	0x00000000
+474	port0	MSIMAP clear	0x0041002b970	4	WRITE	0xffffffff	0x00000000
+475	port0	MSIMAP clear	0x0041002b974	4	WRITE	0xffffffff	0x00000000
+476	port0	MSIMAP clear	0x0041002b978	4	WRITE	0xffffffff	0x00000000
+477	port0	MSIMAP clear	0x0041002b97c	4	WRITE	0xffffffff	0x00000000
+478	port0	MSIMAP clear	0x0041002b980	4	WRITE	0xffffffff	0x00000000
+479	port0	MSIMAP clear	0x0041002b984	4	WRITE	0xffffffff	0x00000000
+480	port0	MSIMAP clear	0x0041002b988	4	WRITE	0xffffffff	0x00000000
+481	port0	MSIMAP clear	0x0041002b98c	4	WRITE	0xffffffff	0x00000000
+482	port0	MSIMAP clear	0x0041002b990	4	WRITE	0xffffffff	0x00000000
+483	port0	MSIMAP clear	0x0041002b994	4	WRITE	0xffffffff	0x00000000
+484	port0	MSIMAP clear	0x0041002b998	4	WRITE	0xffffffff	0x00000000
+485	port0	MSIMAP clear	0x0041002b99c	4	WRITE	0xffffffff	0x00000000
+486	port0	MSIMAP clear	0x0041002b9a0	4	WRITE	0xffffffff	0x00000000
+487	port0	MSIMAP clear	0x0041002b9a4	4	WRITE	0xffffffff	0x00000000
+488	port0	MSIMAP clear	0x0041002b9a8	4	WRITE	0xffffffff	0x00000000
+489	port0	MSIMAP clear	0x0041002b9ac	4	WRITE	0xffffffff	0x00000000
+490	port0	MSIMAP clear	0x0041002b9b0	4	WRITE	0xffffffff	0x00000000
+491	port0	MSIMAP clear	0x0041002b9b4	4	WRITE	0xffffffff	0x00000000
+492	port0	MSIMAP clear	0x0041002b9b8	4	WRITE	0xffffffff	0x00000000
+493	port0	MSIMAP clear	0x0041002b9bc	4	WRITE	0xffffffff	0x00000000
+494	port0	MSIMAP clear	0x0041002b9c0	4	WRITE	0xffffffff	0x00000000
+495	port0	MSIMAP clear	0x0041002b9c4	4	WRITE	0xffffffff	0x00000000
+496	port0	MSIMAP clear	0x0041002b9c8	4	WRITE	0xffffffff	0x00000000
+497	port0	MSIMAP clear	0x0041002b9cc	4	WRITE	0xffffffff	0x00000000
+498	port0	MSIMAP clear	0x0041002b9d0	4	WRITE	0xffffffff	0x00000000
+499	port0	MSIMAP clear	0x0041002b9d4	4	WRITE	0xffffffff	0x00000000
+500	port0	MSIMAP clear	0x0041002b9d8	4	WRITE	0xffffffff	0x00000000
+501	port0	MSIMAP clear	0x0041002b9dc	4	WRITE	0xffffffff	0x00000000
+502	port0	MSIMAP clear	0x0041002b9e0	4	WRITE	0xffffffff	0x00000000
+503	port0	MSIMAP clear	0x0041002b9e4	4	WRITE	0xffffffff	0x00000000
+504	port0	MSIMAP clear	0x0041002b9e8	4	WRITE	0xffffffff	0x00000000
+505	port0	MSIMAP clear	0x0041002b9ec	4	WRITE	0xffffffff	0x00000000
+506	port0	MSIMAP clear	0x0041002b9f0	4	WRITE	0xffffffff	0x00000000
+507	port0	MSIMAP clear	0x0041002b9f4	4	WRITE	0xffffffff	0x00000000
+508	port0	MSIMAP clear	0x0041002b9f8	4	WRITE	0xffffffff	0x00000000
+509	port0	MSIMAP clear	0x0041002b9fc	4	WRITE	0xffffffff	0x00000000
+510	port0	MSIMAP clear	0x0041002ba00	4	WRITE	0xffffffff	0x00000000
+511	port0	MSIMAP clear	0x0041002ba04	4	WRITE	0xffffffff	0x00000000
+512	port0	MSIMAP clear	0x0041002ba08	4	WRITE	0xffffffff	0x00000000
+513	port0	MSIMAP clear	0x0041002ba0c	4	WRITE	0xffffffff	0x00000000
+514	port0	MSIMAP clear	0x0041002ba10	4	WRITE	0xffffffff	0x00000000
+515	port0	MSIMAP clear	0x0041002ba14	4	WRITE	0xffffffff	0x00000000
+516	port0	MSIMAP clear	0x0041002ba18	4	WRITE	0xffffffff	0x00000000
+517	port0	MSIMAP clear	0x0041002ba1c	4	WRITE	0xffffffff	0x00000000
+518	port0	MSIMAP clear	0x0041002ba20	4	WRITE	0xffffffff	0x00000000
+519	port0	MSIMAP clear	0x0041002ba24	4	WRITE	0xffffffff	0x00000000
+520	port0	MSIMAP clear	0x0041002ba28	4	WRITE	0xffffffff	0x00000000
+521	port0	MSIMAP clear	0x0041002ba2c	4	WRITE	0xffffffff	0x00000000
+522	port0	MSIMAP clear	0x0041002ba30	4	WRITE	0xffffffff	0x00000000
+523	port0	MSIMAP clear	0x0041002ba34	4	WRITE	0xffffffff	0x00000000
+524	port0	MSIMAP clear	0x0041002ba38	4	WRITE	0xffffffff	0x00000000
+525	port0	MSIMAP clear	0x0041002ba3c	4	WRITE	0xffffffff	0x00000000
+526	port0	MSIMAP clear	0x0041002ba40	4	WRITE	0xffffffff	0x00000000
+527	port0	MSIMAP clear	0x0041002ba44	4	WRITE	0xffffffff	0x00000000
+528	port0	MSIMAP clear	0x0041002ba48	4	WRITE	0xffffffff	0x00000000
+529	port0	MSIMAP clear	0x0041002ba4c	4	WRITE	0xffffffff	0x00000000
+530	port0	MSIMAP clear	0x0041002ba50	4	WRITE	0xffffffff	0x00000000
+531	port0	MSIMAP clear	0x0041002ba54	4	WRITE	0xffffffff	0x00000000
+532	port0	MSIMAP clear	0x0041002ba58	4	WRITE	0xffffffff	0x00000000
+533	port0	MSIMAP clear	0x0041002ba5c	4	WRITE	0xffffffff	0x00000000
+534	port0	MSIMAP clear	0x0041002ba60	4	WRITE	0xffffffff	0x00000000
+535	port0	MSIMAP clear	0x0041002ba64	4	WRITE	0xffffffff	0x00000000
+536	port0	MSIMAP clear	0x0041002ba68	4	WRITE	0xffffffff	0x00000000
+537	port0	MSIMAP clear	0x0041002ba6c	4	WRITE	0xffffffff	0x00000000
+538	port0	MSIMAP clear	0x0041002ba70	4	WRITE	0xffffffff	0x00000000
+539	port0	MSIMAP clear	0x0041002ba74	4	WRITE	0xffffffff	0x00000000
+540	port0	MSIMAP clear	0x0041002ba78	4	WRITE	0xffffffff	0x00000000
+541	port0	MSIMAP clear	0x0041002ba7c	4	WRITE	0xffffffff	0x00000000
+542	port0	MSIMAP clear	0x0041002ba80	4	WRITE	0xffffffff	0x00000000
+543	port0	MSIMAP clear	0x0041002ba84	4	WRITE	0xffffffff	0x00000000
+544	port0	MSIMAP clear	0x0041002ba88	4	WRITE	0xffffffff	0x00000000
+545	port0	MSIMAP clear	0x0041002ba8c	4	WRITE	0xffffffff	0x00000000
+546	port0	MSIMAP clear	0x0041002ba90	4	WRITE	0xffffffff	0x00000000
+547	port0	MSIMAP clear	0x0041002ba94	4	WRITE	0xffffffff	0x00000000
+548	port0	MSIMAP clear	0x0041002ba98	4	WRITE	0xffffffff	0x00000000
+549	port0	MSIMAP clear	0x0041002ba9c	4	WRITE	0xffffffff	0x00000000
+550	port0	MSIMAP clear	0x0041002baa0	4	WRITE	0xffffffff	0x00000000
+551	port0	MSIMAP clear	0x0041002baa4	4	WRITE	0xffffffff	0x00000000
+552	port0	MSIMAP clear	0x0041002baa8	4	WRITE	0xffffffff	0x00000000
+553	port0	MSIMAP clear	0x0041002baac	4	WRITE	0xffffffff	0x00000000
+554	port0	MSIMAP clear	0x0041002bab0	4	WRITE	0xffffffff	0x00000000
+555	port0	MSIMAP clear	0x0041002bab4	4	WRITE	0xffffffff	0x00000000
+556	port0	MSIMAP clear	0x0041002bab8	4	WRITE	0xffffffff	0x00000000
+557	port0	MSIMAP clear	0x0041002babc	4	WRITE	0xffffffff	0x00000000
+558	port0	MSIMAP clear	0x0041002bac0	4	WRITE	0xffffffff	0x00000000
+559	port0	MSIMAP clear	0x0041002bac4	4	WRITE	0xffffffff	0x00000000
+560	port0	MSIMAP clear	0x0041002bac8	4	WRITE	0xffffffff	0x00000000
+561	port0	MSIMAP clear	0x0041002bacc	4	WRITE	0xffffffff	0x00000000
+562	port0	MSIMAP clear	0x0041002bad0	4	WRITE	0xffffffff	0x00000000
+563	port0	MSIMAP clear	0x0041002bad4	4	WRITE	0xffffffff	0x00000000
+564	port0	MSIMAP clear	0x0041002bad8	4	WRITE	0xffffffff	0x00000000
+565	port0	MSIMAP clear	0x0041002badc	4	WRITE	0xffffffff	0x00000000
+566	port0	MSIMAP clear	0x0041002bae0	4	WRITE	0xffffffff	0x00000000
+567	port0	MSIMAP clear	0x0041002bae4	4	WRITE	0xffffffff	0x00000000
+568	port0	MSIMAP clear	0x0041002bae8	4	WRITE	0xffffffff	0x00000000
+569	port0	MSIMAP clear	0x0041002baec	4	WRITE	0xffffffff	0x00000000
+570	port0	MSIMAP clear	0x0041002baf0	4	WRITE	0xffffffff	0x00000000
+571	port0	MSIMAP clear	0x0041002baf4	4	WRITE	0xffffffff	0x00000000
+572	port0	MSIMAP clear	0x0041002baf8	4	WRITE	0xffffffff	0x00000000
+573	port0	MSIMAP clear	0x0041002bafc	4	WRITE	0xffffffff	0x00000000
+574	port0	MSIMAP clear	0x0041002bb00	4	WRITE	0xffffffff	0x00000000
+575	port0	MSIMAP clear	0x0041002bb04	4	WRITE	0xffffffff	0x00000000
+576	port0	MSIMAP clear	0x0041002bb08	4	WRITE	0xffffffff	0x00000000
+577	port0	MSIMAP clear	0x0041002bb0c	4	WRITE	0xffffffff	0x00000000
+578	port0	MSIMAP clear	0x0041002bb10	4	WRITE	0xffffffff	0x00000000
+579	port0	MSIMAP clear	0x0041002bb14	4	WRITE	0xffffffff	0x00000000
+580	port0	MSIMAP clear	0x0041002bb18	4	WRITE	0xffffffff	0x00000000
+581	port0	MSIMAP clear	0x0041002bb1c	4	WRITE	0xffffffff	0x00000000
+582	port0	MSIMAP clear	0x0041002bb20	4	WRITE	0xffffffff	0x00000000
+583	port0	MSIMAP clear	0x0041002bb24	4	WRITE	0xffffffff	0x00000000
+584	port0	MSIMAP clear	0x0041002bb28	4	WRITE	0xffffffff	0x00000000
+585	port0	MSIMAP clear	0x0041002bb2c	4	WRITE	0xffffffff	0x00000000
+586	port0	MSIMAP clear	0x0041002bb30	4	WRITE	0xffffffff	0x00000000
+587	port0	MSIMAP clear	0x0041002bb34	4	WRITE	0xffffffff	0x00000000
+588	port0	MSIMAP clear	0x0041002bb38	4	WRITE	0xffffffff	0x00000000
+589	port0	MSIMAP clear	0x0041002bb3c	4	WRITE	0xffffffff	0x00000000
+590	port0	MSIMAP clear	0x0041002bb40	4	WRITE	0xffffffff	0x00000000
+591	port0	MSIMAP clear	0x0041002bb44	4	WRITE	0xffffffff	0x00000000
+592	port0	MSIMAP clear	0x0041002bb48	4	WRITE	0xffffffff	0x00000000
+593	port0	MSIMAP clear	0x0041002bb4c	4	WRITE	0xffffffff	0x00000000
+594	port0	MSIMAP clear	0x0041002bb50	4	WRITE	0xffffffff	0x00000000
+595	port0	MSIMAP clear	0x0041002bb54	4	WRITE	0xffffffff	0x00000000
+596	port0	MSIMAP clear	0x0041002bb58	4	WRITE	0xffffffff	0x00000000
+597	port0	MSIMAP clear	0x0041002bb5c	4	WRITE	0xffffffff	0x00000000
+598	port0	MSIMAP clear	0x0041002bb60	4	WRITE	0xffffffff	0x00000000
+599	port0	MSIMAP clear	0x0041002bb64	4	WRITE	0xffffffff	0x00000000
+600	port0	MSIMAP clear	0x0041002bb68	4	WRITE	0xffffffff	0x00000000
+601	port0	MSIMAP clear	0x0041002bb6c	4	WRITE	0xffffffff	0x00000000
+602	port0	MSIMAP clear	0x0041002bb70	4	WRITE	0xffffffff	0x00000000
+603	port0	MSIMAP clear	0x0041002bb74	4	WRITE	0xffffffff	0x00000000
+604	port0	MSIMAP clear	0x0041002bb78	4	WRITE	0xffffffff	0x00000000
+605	port0	MSIMAP clear	0x0041002bb7c	4	WRITE	0xffffffff	0x00000000
+606	port0	MSIMAP clear	0x0041002bb80	4	WRITE	0xffffffff	0x00000000
+607	port0	MSIMAP clear	0x0041002bb84	4	WRITE	0xffffffff	0x00000000
+608	port0	MSIMAP clear	0x0041002bb88	4	WRITE	0xffffffff	0x00000000
+609	port0	MSIMAP clear	0x0041002bb8c	4	WRITE	0xffffffff	0x00000000
+610	port0	MSIMAP clear	0x0041002bb90	4	WRITE	0xffffffff	0x00000000
+611	port0	MSIMAP clear	0x0041002bb94	4	WRITE	0xffffffff	0x00000000
+612	port0	MSIMAP clear	0x0041002bb98	4	WRITE	0xffffffff	0x00000000
+613	port0	MSIMAP clear	0x0041002bb9c	4	WRITE	0xffffffff	0x00000000
+614	port0	MSIMAP clear	0x0041002bba0	4	WRITE	0xffffffff	0x00000000
+615	port0	MSIMAP clear	0x0041002bba4	4	WRITE	0xffffffff	0x00000000
+616	port0	MSIMAP clear	0x0041002bba8	4	WRITE	0xffffffff	0x00000000
+617	port0	MSIMAP clear	0x0041002bbac	4	WRITE	0xffffffff	0x00000000
+618	port0	MSIMAP clear	0x0041002bbb0	4	WRITE	0xffffffff	0x00000000
+619	port0	MSIMAP clear	0x0041002bbb4	4	WRITE	0xffffffff	0x00000000
+620	port0	MSIMAP clear	0x0041002bbb8	4	WRITE	0xffffffff	0x00000000
+621	port0	MSIMAP clear	0x0041002bbbc	4	WRITE	0xffffffff	0x00000000
+622	port0	MSIMAP clear	0x0041002bbc0	4	WRITE	0xffffffff	0x00000000
+623	port0	MSIMAP clear	0x0041002bbc4	4	WRITE	0xffffffff	0x00000000
+624	port0	MSIMAP clear	0x0041002bbc8	4	WRITE	0xffffffff	0x00000000
+625	port0	MSIMAP clear	0x0041002bbcc	4	WRITE	0xffffffff	0x00000000
+626	port0	MSIMAP clear	0x0041002bbd0	4	WRITE	0xffffffff	0x00000000
+627	port0	MSIMAP clear	0x0041002bbd4	4	WRITE	0xffffffff	0x00000000
+628	port0	MSIMAP clear	0x0041002bbd8	4	WRITE	0xffffffff	0x00000000
+629	port0	MSIMAP clear	0x0041002bbdc	4	WRITE	0xffffffff	0x00000000
+630	port0	MSIMAP clear	0x0041002bbe0	4	WRITE	0xffffffff	0x00000000
+631	port0	MSIMAP clear	0x0041002bbe4	4	WRITE	0xffffffff	0x00000000
+632	port0	MSIMAP clear	0x0041002bbe8	4	WRITE	0xffffffff	0x00000000
+633	port0	MSIMAP clear	0x0041002bbec	4	WRITE	0xffffffff	0x00000000
+634	port0	MSIMAP clear	0x0041002bbf0	4	WRITE	0xffffffff	0x00000000
+635	port0	MSIMAP clear	0x0041002bbf4	4	WRITE	0xffffffff	0x00000000
+636	port0	MSIMAP clear	0x0041002bbf8	4	WRITE	0xffffffff	0x00000000
+637	port0	MSIMAP clear	0x0041002bbfc	4	WRITE	0xffffffff	0x00000000
+638	port0	MSIMAP clear	0x0041002bc00	4	WRITE	0xffffffff	0x00000000
+639	port0	MSIMAP clear	0x0041002bc04	4	WRITE	0xffffffff	0x00000000
+640	port0	MSIMAP clear	0x0041002bc08	4	WRITE	0xffffffff	0x00000000
+641	port0	MSIMAP clear	0x0041002bc0c	4	WRITE	0xffffffff	0x00000000
+642	port0	MSIMAP clear	0x0041002bc10	4	WRITE	0xffffffff	0x00000000
+643	port0	MSIMAP clear	0x0041002bc14	4	WRITE	0xffffffff	0x00000000
+644	port0	MSIMAP clear	0x0041002bc18	4	WRITE	0xffffffff	0x00000000
+645	port0	MSIMAP clear	0x0041002bc1c	4	WRITE	0xffffffff	0x00000000
+646	port0	MSIMAP clear	0x0041002bc20	4	WRITE	0xffffffff	0x00000000
+647	port0	MSIMAP clear	0x0041002bc24	4	WRITE	0xffffffff	0x00000000
+648	port0	MSIMAP clear	0x0041002bc28	4	WRITE	0xffffffff	0x00000000
+649	port0	MSIMAP clear	0x0041002bc2c	4	WRITE	0xffffffff	0x00000000
+650	port0	MSIMAP clear	0x0041002bc30	4	WRITE	0xffffffff	0x00000000
+651	port0	MSIMAP clear	0x0041002bc34	4	WRITE	0xffffffff	0x00000000
+652	port0	MSIMAP clear	0x0041002bc38	4	WRITE	0xffffffff	0x00000000
+653	port0	MSIMAP clear	0x0041002bc3c	4	WRITE	0xffffffff	0x00000000
+654	port0	MSIMAP clear	0x0041002bc40	4	WRITE	0xffffffff	0x00000000
+655	port0	MSIMAP clear	0x0041002bc44	4	WRITE	0xffffffff	0x00000000
+656	port0	MSIMAP clear	0x0041002bc48	4	WRITE	0xffffffff	0x00000000
+657	port0	MSIMAP clear	0x0041002bc4c	4	WRITE	0xffffffff	0x00000000
+658	port0	MSIMAP clear	0x0041002bc50	4	WRITE	0xffffffff	0x00000000
+659	port0	MSIMAP clear	0x0041002bc54	4	WRITE	0xffffffff	0x00000000
+660	port0	MSIMAP clear	0x0041002bc58	4	WRITE	0xffffffff	0x00000000
+661	port0	MSIMAP clear	0x0041002bc5c	4	WRITE	0xffffffff	0x00000000
+662	port0	MSIMAP clear	0x0041002bc60	4	WRITE	0xffffffff	0x00000000
+663	port0	MSIMAP clear	0x0041002bc64	4	WRITE	0xffffffff	0x00000000
+664	port0	MSIMAP clear	0x0041002bc68	4	WRITE	0xffffffff	0x00000000
+665	port0	MSIMAP clear	0x0041002bc6c	4	WRITE	0xffffffff	0x00000000
+666	port0	MSIMAP clear	0x0041002bc70	4	WRITE	0xffffffff	0x00000000
+667	port0	MSIMAP clear	0x0041002bc74	4	WRITE	0xffffffff	0x00000000
+668	port0	MSIMAP clear	0x0041002bc78	4	WRITE	0xffffffff	0x00000000
+669	port0	MSIMAP clear	0x0041002bc7c	4	WRITE	0xffffffff	0x00000000
+670	port0	MSIMAP clear	0x0041002bc80	4	WRITE	0xffffffff	0x00000000
+671	port0	MSIMAP clear	0x0041002bc84	4	WRITE	0xffffffff	0x00000000
+672	port0	MSIMAP clear	0x0041002bc88	4	WRITE	0xffffffff	0x00000000
+673	port0	MSIMAP clear	0x0041002bc8c	4	WRITE	0xffffffff	0x00000000
+674	port0	MSIMAP clear	0x0041002bc90	4	WRITE	0xffffffff	0x00000000
+675	port0	MSIMAP clear	0x0041002bc94	4	WRITE	0xffffffff	0x00000000
+676	port0	MSIMAP clear	0x0041002bc98	4	WRITE	0xffffffff	0x00000000
+677	port0	MSIMAP clear	0x0041002bc9c	4	WRITE	0xffffffff	0x00000000
+678	port0	MSIMAP clear	0x0041002bca0	4	WRITE	0xffffffff	0x00000000
+679	port0	MSIMAP clear	0x0041002bca4	4	WRITE	0xffffffff	0x00000000
+680	port0	MSIMAP clear	0x0041002bca8	4	WRITE	0xffffffff	0x00000000
+681	port0	MSIMAP clear	0x0041002bcac	4	WRITE	0xffffffff	0x00000000
+682	port0	MSIMAP clear	0x0041002bcb0	4	WRITE	0xffffffff	0x00000000
+683	port0	MSIMAP clear	0x0041002bcb4	4	WRITE	0xffffffff	0x00000000
+684	port0	MSIMAP clear	0x0041002bcb8	4	WRITE	0xffffffff	0x00000000
+685	port0	MSIMAP clear	0x0041002bcbc	4	WRITE	0xffffffff	0x00000000
+686	port0	MSIMAP clear	0x0041002bcc0	4	WRITE	0xffffffff	0x00000000
+687	port0	MSIMAP clear	0x0041002bcc4	4	WRITE	0xffffffff	0x00000000
+688	port0	MSIMAP clear	0x0041002bcc8	4	WRITE	0xffffffff	0x00000000
+689	port0	MSIMAP clear	0x0041002bccc	4	WRITE	0xffffffff	0x00000000
+690	port0	MSIMAP clear	0x0041002bcd0	4	WRITE	0xffffffff	0x00000000
+691	port0	MSIMAP clear	0x0041002bcd4	4	WRITE	0xffffffff	0x00000000
+692	port0	MSIMAP clear	0x0041002bcd8	4	WRITE	0xffffffff	0x00000000
+693	port0	MSIMAP clear	0x0041002bcdc	4	WRITE	0xffffffff	0x00000000
+694	port0	MSIMAP clear	0x0041002bce0	4	WRITE	0xffffffff	0x00000000
+695	port0	MSIMAP clear	0x0041002bce4	4	WRITE	0xffffffff	0x00000000
+696	port0	MSIMAP clear	0x0041002bce8	4	WRITE	0xffffffff	0x00000000
+697	port0	MSIMAP clear	0x0041002bcec	4	WRITE	0xffffffff	0x00000000
+698	port0	MSIMAP clear	0x0041002bcf0	4	WRITE	0xffffffff	0x00000000
+699	port0	MSIMAP clear	0x0041002bcf4	4	WRITE	0xffffffff	0x00000000
+700	port0	MSIMAP clear	0x0041002bcf8	4	WRITE	0xffffffff	0x00000000
+701	port0	MSIMAP clear	0x0041002bcfc	4	WRITE	0xffffffff	0x00000000
+702	port0	MSIMAP clear	0x0041002bd00	4	WRITE	0xffffffff	0x00000000
+703	port0	MSIMAP clear	0x0041002bd04	4	WRITE	0xffffffff	0x00000000
+704	port0	MSIMAP clear	0x0041002bd08	4	WRITE	0xffffffff	0x00000000
+705	port0	MSIMAP clear	0x0041002bd0c	4	WRITE	0xffffffff	0x00000000
+706	port0	MSIMAP clear	0x0041002bd10	4	WRITE	0xffffffff	0x00000000
+707	port0	MSIMAP clear	0x0041002bd14	4	WRITE	0xffffffff	0x00000000
+708	port0	MSIMAP clear	0x0041002bd18	4	WRITE	0xffffffff	0x00000000
+709	port0	MSIMAP clear	0x0041002bd1c	4	WRITE	0xffffffff	0x00000000
+710	port0	MSIMAP clear	0x0041002bd20	4	WRITE	0xffffffff	0x00000000
+711	port0	MSIMAP clear	0x0041002bd24	4	WRITE	0xffffffff	0x00000000
+712	port0	MSIMAP clear	0x0041002bd28	4	WRITE	0xffffffff	0x00000000
+713	port0	MSIMAP clear	0x0041002bd2c	4	WRITE	0xffffffff	0x00000000
+714	port0	MSIMAP clear	0x0041002bd30	4	WRITE	0xffffffff	0x00000000
+715	port0	MSIMAP clear	0x0041002bd34	4	WRITE	0xffffffff	0x00000000
+716	port0	MSIMAP clear	0x0041002bd38	4	WRITE	0xffffffff	0x00000000
+717	port0	MSIMAP clear	0x0041002bd3c	4	WRITE	0xffffffff	0x00000000
+718	port0	MSIMAP clear	0x0041002bd40	4	WRITE	0xffffffff	0x00000000
+719	port0	MSIMAP clear	0x0041002bd44	4	WRITE	0xffffffff	0x00000000
+720	port0	MSIMAP clear	0x0041002bd48	4	WRITE	0xffffffff	0x00000000
+721	port0	MSIMAP clear	0x0041002bd4c	4	WRITE	0xffffffff	0x00000000
+722	port0	MSIMAP clear	0x0041002bd50	4	WRITE	0xffffffff	0x00000000
+723	port0	MSIMAP clear	0x0041002bd54	4	WRITE	0xffffffff	0x00000000
+724	port0	MSIMAP clear	0x0041002bd58	4	WRITE	0xffffffff	0x00000000
+725	port0	MSIMAP clear	0x0041002bd5c	4	WRITE	0xffffffff	0x00000000
+726	port0	MSIMAP clear	0x0041002bd60	4	WRITE	0xffffffff	0x00000000
+727	port0	MSIMAP clear	0x0041002bd64	4	WRITE	0xffffffff	0x00000000
+728	port0	MSIMAP clear	0x0041002bd68	4	WRITE	0xffffffff	0x00000000
+729	port0	MSIMAP clear	0x0041002bd6c	4	WRITE	0xffffffff	0x00000000
+730	port0	MSIMAP clear	0x0041002bd70	4	WRITE	0xffffffff	0x00000000
+731	port0	MSIMAP clear	0x0041002bd74	4	WRITE	0xffffffff	0x00000000
+732	port0	MSIMAP clear	0x0041002bd78	4	WRITE	0xffffffff	0x00000000
+733	port0	MSIMAP clear	0x0041002bd7c	4	WRITE	0xffffffff	0x00000000
+734	port0	MSIMAP clear	0x0041002bd80	4	WRITE	0xffffffff	0x00000000
+735	port0	MSIMAP clear	0x0041002bd84	4	WRITE	0xffffffff	0x00000000
+736	port0	MSIMAP clear	0x0041002bd88	4	WRITE	0xffffffff	0x00000000
+737	port0	MSIMAP clear	0x0041002bd8c	4	WRITE	0xffffffff	0x00000000
+738	port0	MSIMAP clear	0x0041002bd90	4	WRITE	0xffffffff	0x00000000
+739	port0	MSIMAP clear	0x0041002bd94	4	WRITE	0xffffffff	0x00000000
+740	port0	MSIMAP clear	0x0041002bd98	4	WRITE	0xffffffff	0x00000000
+741	port0	MSIMAP clear	0x0041002bd9c	4	WRITE	0xffffffff	0x00000000
+742	port0	MSIMAP clear	0x0041002bda0	4	WRITE	0xffffffff	0x00000000
+743	port0	MSIMAP clear	0x0041002bda4	4	WRITE	0xffffffff	0x00000000
+744	port0	MSIMAP clear	0x0041002bda8	4	WRITE	0xffffffff	0x00000000
+745	port0	MSIMAP clear	0x0041002bdac	4	WRITE	0xffffffff	0x00000000
+746	port0	MSIMAP clear	0x0041002bdb0	4	WRITE	0xffffffff	0x00000000
+747	port0	MSIMAP clear	0x0041002bdb4	4	WRITE	0xffffffff	0x00000000
+748	port0	MSIMAP clear	0x0041002bdb8	4	WRITE	0xffffffff	0x00000000
+749	port0	MSIMAP clear	0x0041002bdbc	4	WRITE	0xffffffff	0x00000000
+750	port0	MSIMAP clear	0x0041002bdc0	4	WRITE	0xffffffff	0x00000000
+751	port0	MSIMAP clear	0x0041002bdc4	4	WRITE	0xffffffff	0x00000000
+752	port0	MSIMAP clear	0x0041002bdc8	4	WRITE	0xffffffff	0x00000000
+753	port0	MSIMAP clear	0x0041002bdcc	4	WRITE	0xffffffff	0x00000000
+754	port0	MSIMAP clear	0x0041002bdd0	4	WRITE	0xffffffff	0x00000000
+755	port0	MSIMAP clear	0x0041002bdd4	4	WRITE	0xffffffff	0x00000000
+756	port0	MSIMAP clear	0x0041002bdd8	4	WRITE	0xffffffff	0x00000000
+757	port0	MSIMAP clear	0x0041002bddc	4	WRITE	0xffffffff	0x00000000
+758	port0	MSIMAP clear	0x0041002bde0	4	WRITE	0xffffffff	0x00000000
+759	port0	MSIMAP clear	0x0041002bde4	4	WRITE	0xffffffff	0x00000000
+760	port0	MSIMAP clear	0x0041002bde8	4	WRITE	0xffffffff	0x00000000
+761	port0	MSIMAP clear	0x0041002bdec	4	WRITE	0xffffffff	0x00000000
+762	port0	MSIMAP clear	0x0041002bdf0	4	WRITE	0xffffffff	0x00000000
+763	port0	MSIMAP clear	0x0041002bdf4	4	WRITE	0xffffffff	0x00000000
+764	port0	MSIMAP clear	0x0041002bdf8	4	WRITE	0xffffffff	0x00000000
+765	port0	MSIMAP clear	0x0041002bdfc	4	WRITE	0xffffffff	0x00000000
+766	port0	MSIMAP clear	0x0041002be00	4	WRITE	0xffffffff	0x00000000
+767	port0	MSIMAP clear	0x0041002be04	4	WRITE	0xffffffff	0x00000000
+768	port0	MSIMAP clear	0x0041002be08	4	WRITE	0xffffffff	0x00000000
+769	port0	MSIMAP clear	0x0041002be0c	4	WRITE	0xffffffff	0x00000000
+770	port0	MSIMAP clear	0x0041002be10	4	WRITE	0xffffffff	0x00000000
+771	port0	MSIMAP clear	0x0041002be14	4	WRITE	0xffffffff	0x00000000
+772	port0	MSIMAP clear	0x0041002be18	4	WRITE	0xffffffff	0x00000000
+773	port0	MSIMAP clear	0x0041002be1c	4	WRITE	0xffffffff	0x00000000
+774	port0	MSIMAP clear	0x0041002be20	4	WRITE	0xffffffff	0x00000000
+775	port0	MSIMAP clear	0x0041002be24	4	WRITE	0xffffffff	0x00000000
+776	port0	MSIMAP clear	0x0041002be28	4	WRITE	0xffffffff	0x00000000
+777	port0	MSIMAP clear	0x0041002be2c	4	WRITE	0xffffffff	0x00000000
+778	port0	MSIMAP clear	0x0041002be30	4	WRITE	0xffffffff	0x00000000
+779	port0	MSIMAP clear	0x0041002be34	4	WRITE	0xffffffff	0x00000000
+780	port0	MSIMAP clear	0x0041002be38	4	WRITE	0xffffffff	0x00000000
+781	port0	MSIMAP clear	0x0041002be3c	4	WRITE	0xffffffff	0x00000000
+782	port0	MSIMAP clear	0x0041002be40	4	WRITE	0xffffffff	0x00000000
+783	port0	MSIMAP clear	0x0041002be44	4	WRITE	0xffffffff	0x00000000
+784	port0	MSIMAP clear	0x0041002be48	4	WRITE	0xffffffff	0x00000000
+785	port0	MSIMAP clear	0x0041002be4c	4	WRITE	0xffffffff	0x00000000
+786	port0	MSIMAP clear	0x0041002be50	4	WRITE	0xffffffff	0x00000000
+787	port0	MSIMAP clear	0x0041002be54	4	WRITE	0xffffffff	0x00000000
+788	port0	MSIMAP clear	0x0041002be58	4	WRITE	0xffffffff	0x00000000
+789	port0	MSIMAP clear	0x0041002be5c	4	WRITE	0xffffffff	0x00000000
+790	port0	MSIMAP clear	0x0041002be60	4	WRITE	0xffffffff	0x00000000
+791	port0	MSIMAP clear	0x0041002be64	4	WRITE	0xffffffff	0x00000000
+792	port0	MSIMAP clear	0x0041002be68	4	WRITE	0xffffffff	0x00000000
+793	port0	MSIMAP clear	0x0041002be6c	4	WRITE	0xffffffff	0x00000000
+794	port0	MSIMAP clear	0x0041002be70	4	WRITE	0xffffffff	0x00000000
+795	port0	MSIMAP clear	0x0041002be74	4	WRITE	0xffffffff	0x00000000
+796	port0	MSIMAP clear	0x0041002be78	4	WRITE	0xffffffff	0x00000000
+797	port0	MSIMAP clear	0x0041002be7c	4	WRITE	0xffffffff	0x00000000
+798	port0	MSIMAP clear	0x0041002be80	4	WRITE	0xffffffff	0x00000000
+799	port0	MSIMAP clear	0x0041002be84	4	WRITE	0xffffffff	0x00000000
+800	port0	MSIMAP clear	0x0041002be88	4	WRITE	0xffffffff	0x00000000
+801	port0	MSIMAP clear	0x0041002be8c	4	WRITE	0xffffffff	0x00000000
+802	port0	MSIMAP clear	0x0041002be90	4	WRITE	0xffffffff	0x00000000
+803	port0	MSIMAP clear	0x0041002be94	4	WRITE	0xffffffff	0x00000000
+804	port0	MSIMAP clear	0x0041002be98	4	WRITE	0xffffffff	0x00000000
+805	port0	MSIMAP clear	0x0041002be9c	4	WRITE	0xffffffff	0x00000000
+806	port0	MSIMAP clear	0x0041002bea0	4	WRITE	0xffffffff	0x00000000
+807	port0	MSIMAP clear	0x0041002bea4	4	WRITE	0xffffffff	0x00000000
+808	port0	MSIMAP clear	0x0041002bea8	4	WRITE	0xffffffff	0x00000000
+809	port0	MSIMAP clear	0x0041002beac	4	WRITE	0xffffffff	0x00000000
+810	port0	MSIMAP clear	0x0041002beb0	4	WRITE	0xffffffff	0x00000000
+811	port0	MSIMAP clear	0x0041002beb4	4	WRITE	0xffffffff	0x00000000
+812	port0	MSIMAP clear	0x0041002beb8	4	WRITE	0xffffffff	0x00000000
+813	port0	MSIMAP clear	0x0041002bebc	4	WRITE	0xffffffff	0x00000000
+814	port0	MSIMAP clear	0x0041002bec0	4	WRITE	0xffffffff	0x00000000
+815	port0	MSIMAP clear	0x0041002bec4	4	WRITE	0xffffffff	0x00000000
+816	port0	MSIMAP clear	0x0041002bec8	4	WRITE	0xffffffff	0x00000000
+817	port0	MSIMAP clear	0x0041002becc	4	WRITE	0xffffffff	0x00000000
+818	port0	MSIMAP clear	0x0041002bed0	4	WRITE	0xffffffff	0x00000000
+819	port0	MSIMAP clear	0x0041002bed4	4	WRITE	0xffffffff	0x00000000
+820	port0	MSIMAP clear	0x0041002bed8	4	WRITE	0xffffffff	0x00000000
+821	port0	MSIMAP clear	0x0041002bedc	4	WRITE	0xffffffff	0x00000000
+822	port0	MSIMAP clear	0x0041002bee0	4	WRITE	0xffffffff	0x00000000
+823	port0	MSIMAP clear	0x0041002bee4	4	WRITE	0xffffffff	0x00000000
+824	port0	MSIMAP clear	0x0041002bee8	4	WRITE	0xffffffff	0x00000000
+825	port0	MSIMAP clear	0x0041002beec	4	WRITE	0xffffffff	0x00000000
+826	port0	MSIMAP clear	0x0041002bef0	4	WRITE	0xffffffff	0x00000000
+827	port0	MSIMAP clear	0x0041002bef4	4	WRITE	0xffffffff	0x00000000
+828	port0	MSIMAP clear	0x0041002bef8	4	WRITE	0xffffffff	0x00000000
+829	port0	MSIMAP clear	0x0041002befc	4	WRITE	0xffffffff	0x00000000
+830	port0	MSIMAP clear	0x0041002bf00	4	WRITE	0xffffffff	0x00000000
+831	port0	MSIMAP clear	0x0041002bf04	4	WRITE	0xffffffff	0x00000000
+832	port0	MSIMAP clear	0x0041002bf08	4	WRITE	0xffffffff	0x00000000
+833	port0	MSIMAP clear	0x0041002bf0c	4	WRITE	0xffffffff	0x00000000
+834	port0	MSIMAP clear	0x0041002bf10	4	WRITE	0xffffffff	0x00000000
+835	port0	MSIMAP clear	0x0041002bf14	4	WRITE	0xffffffff	0x00000000
+836	port0	MSIMAP clear	0x0041002bf18	4	WRITE	0xffffffff	0x00000000
+837	port0	MSIMAP clear	0x0041002bf1c	4	WRITE	0xffffffff	0x00000000
+838	port0	MSIMAP clear	0x0041002bf20	4	WRITE	0xffffffff	0x00000000
+839	port0	MSIMAP clear	0x0041002bf24	4	WRITE	0xffffffff	0x00000000
+840	port0	MSIMAP clear	0x0041002bf28	4	WRITE	0xffffffff	0x00000000
+841	port0	MSIMAP clear	0x0041002bf2c	4	WRITE	0xffffffff	0x00000000
+842	port0	MSIMAP clear	0x0041002bf30	4	WRITE	0xffffffff	0x00000000
+843	port0	MSIMAP clear	0x0041002bf34	4	WRITE	0xffffffff	0x00000000
+844	port0	MSIMAP clear	0x0041002bf38	4	WRITE	0xffffffff	0x00000000
+845	port0	MSIMAP clear	0x0041002bf3c	4	WRITE	0xffffffff	0x00000000
+846	port0	MSIMAP clear	0x0041002bf40	4	WRITE	0xffffffff	0x00000000
+847	port0	MSIMAP clear	0x0041002bf44	4	WRITE	0xffffffff	0x00000000
+848	port0	MSIMAP clear	0x0041002bf48	4	WRITE	0xffffffff	0x00000000
+849	port0	MSIMAP clear	0x0041002bf4c	4	WRITE	0xffffffff	0x00000000
+850	port0	MSIMAP clear	0x0041002bf50	4	WRITE	0xffffffff	0x00000000
+851	port0	MSIMAP clear	0x0041002bf54	4	WRITE	0xffffffff	0x00000000
+852	port0	MSIMAP clear	0x0041002bf58	4	WRITE	0xffffffff	0x00000000
+853	port0	MSIMAP clear	0x0041002bf5c	4	WRITE	0xffffffff	0x00000000
+854	port0	MSIMAP clear	0x0041002bf60	4	WRITE	0xffffffff	0x00000000
+855	port0	MSIMAP clear	0x0041002bf64	4	WRITE	0xffffffff	0x00000000
+856	port0	MSIMAP clear	0x0041002bf68	4	WRITE	0xffffffff	0x00000000
+857	port0	MSIMAP clear	0x0041002bf6c	4	WRITE	0xffffffff	0x00000000
+858	port0	MSIMAP clear	0x0041002bf70	4	WRITE	0xffffffff	0x00000000
+859	port0	MSIMAP clear	0x0041002bf74	4	WRITE	0xffffffff	0x00000000
+860	port0	MSIMAP clear	0x0041002bf78	4	WRITE	0xffffffff	0x00000000
+861	port0	MSIMAP clear	0x0041002bf7c	4	WRITE	0xffffffff	0x00000000
+862	port0	MSIMAP clear	0x0041002bf80	4	WRITE	0xffffffff	0x00000000
+863	port0	MSIMAP clear	0x0041002bf84	4	WRITE	0xffffffff	0x00000000
+864	port0	MSIMAP clear	0x0041002bf88	4	WRITE	0xffffffff	0x00000000
+865	port0	MSIMAP clear	0x0041002bf8c	4	WRITE	0xffffffff	0x00000000
+866	port0	MSIMAP clear	0x0041002bf90	4	WRITE	0xffffffff	0x00000000
+867	port0	MSIMAP clear	0x0041002bf94	4	WRITE	0xffffffff	0x00000000
+868	port0	MSIMAP clear	0x0041002bf98	4	WRITE	0xffffffff	0x00000000
+869	port0	MSIMAP clear	0x0041002bf9c	4	WRITE	0xffffffff	0x00000000
+870	port0	MSIMAP clear	0x0041002bfa0	4	WRITE	0xffffffff	0x00000000
+871	port0	MSIMAP clear	0x0041002bfa4	4	WRITE	0xffffffff	0x00000000
+872	port0	MSIMAP clear	0x0041002bfa8	4	WRITE	0xffffffff	0x00000000
+873	port0	MSIMAP clear	0x0041002bfac	4	WRITE	0xffffffff	0x00000000
+874	port0	MSIMAP clear	0x0041002bfb0	4	WRITE	0xffffffff	0x00000000
+875	port0	MSIMAP clear	0x0041002bfb4	4	WRITE	0xffffffff	0x00000000
+876	port0	MSIMAP clear	0x0041002bfb8	4	WRITE	0xffffffff	0x00000000
+877	port0	MSIMAP clear	0x0041002bfbc	4	WRITE	0xffffffff	0x00000000
+878	port0	MSIMAP clear	0x0041002bfc0	4	WRITE	0xffffffff	0x00000000
+879	port0	MSIMAP clear	0x0041002bfc4	4	WRITE	0xffffffff	0x00000000
+880	port0	MSIMAP clear	0x0041002bfc8	4	WRITE	0xffffffff	0x00000000
+881	port0	MSIMAP clear	0x0041002bfcc	4	WRITE	0xffffffff	0x00000000
+882	port0	MSIMAP clear	0x0041002bfd0	4	WRITE	0xffffffff	0x00000000
+883	port0	MSIMAP clear	0x0041002bfd4	4	WRITE	0xffffffff	0x00000000
+884	port0	MSIMAP clear	0x0041002bfd8	4	WRITE	0xffffffff	0x00000000
+885	port0	MSIMAP clear	0x0041002bfdc	4	WRITE	0xffffffff	0x00000000
+886	port0	MSIMAP clear	0x0041002bfe0	4	WRITE	0xffffffff	0x00000000
+887	port0	MSIMAP clear	0x0041002bfe4	4	WRITE	0xffffffff	0x00000000
+888	port0	MSIMAP clear	0x0041002bfe8	4	WRITE	0xffffffff	0x00000000
+889	port0	MSIMAP clear	0x0041002bfec	4	WRITE	0xffffffff	0x00000000
+890	port0	MSIMAP clear	0x0041002bff0	4	WRITE	0xffffffff	0x00000000
+891	port0	MSIMAP clear	0x0041002bff4	4	WRITE	0xffffffff	0x00000000
+892	port0	MSIMAP clear	0x0041002bff8	4	WRITE	0xffffffff	0x00000000
+893	port0	MSIMAP clear	0x0041002bffc	4	WRITE	0xffffffff	0x00000000
+894	port0	T8122 port init	0x00410028130	4	WRITE	0xffffffff	0x03000000
+895	port0	T8122 port init	0x00410028140	4	WRITE	0xffffffff	0x00000010
+896	port0	T8122 port init	0x00410028144	4	WRITE	0xffffffff	0x00253770
+897	port0	T8122 port init	0x0041002821c	4	WRITE	0xffffffff	0x00000000
+898	port0	T8122 port init	0x00410028834	4	WRITE	0xffffffff	0x00000000
+899	port0	T8122 port init	0x0041002883c	4	WRITE	0xffffffff	0x00000000
+900	port0	pci-bridge0:apcie-config-tunables	0x00410028140	4	RMW	0x00000001	0x00000001
+901	port0	APPCLK enable	0x00410028800	4	SET	0x00000001	0x00000001
+902	port0	port PHY clear clock requests	0x00417020000	4	CLEAR	0x00000003	0x00000000
+903	port0	port PHY CLK0REQ	0x00417020000	4	SET	0x00000001	0x00000001
+904	port0	port PHY CLK1REQ	0x00417020000	4	SET	0x00000002	0x00000002
+905	port0	T8122 port PHY control	0x00417020000	4	CLEAR	0x00000010	0x00000000
+906	port0	port PHY control	0x00417020000	4	SET	0x00000200	0x00000200
+907	port0	port PHY control	0x00417020000	4	SET	0x00000400	0x00000400
+908	port0	PERST# deassert	0x0041002882c	4	SET	0x00000001	0x00000001
+909	port0	DBI read-only write enable	0x01cb00008bc	4	SET	0x00000001	0x00000001
+910	port0	pci-bridge0:pcie-rc-tunables	0x01cb0000078	4	RMW	0x00007000	0x00000000
+911	port0	pci-bridge0:pcie-rc-tunables	0x01cb00008c4	4	RMW	0x03000000	0x03000000
+912	port0	pci-bridge0:pcie-rc-tunables	0x01cb0000b80	4	RMW	0x007f0000	0x001f0000
+913	port0	pci-bridge0:pcie-rc-gen3-shadow-tunables	0x01cb0000154	4	RMW	0x00000f0f	0x00000404
+914	port0	pci-bridge0:pcie-rc-gen3-shadow-tunables	0x01cb0000890	4	RMW	0x03000000	0x00000000
+915	port0	pci-bridge0:pcie-rc-gen3-shadow-tunables	0x01cb00008a8	4	RMW	0x00ffff0f	0x00000001
+916	port0	pci-bridge0:pcie-rc-gen4-shadow-tunables	0x01cb0000188	4	RMW	0x000000ff	0x00000044
+917	port0	pci-bridge0:pcie-rc-gen4-shadow-tunables	0x01cb0000890	4	RMW	0x03000000	0x01000000
+918	port0	pci-bridge0:pcie-rc-gen4-shadow-tunables	0x01cb00008a8	4	RMW	0x00ffff0f	0x00000001
+919	port0	PCIe LNKCAP speed	0x01cb000007c	4	RMW	0x0000000f	0x00000002
+920	port0	PCIe LNKCAP2 speeds	0x01cb000009c	4	RMW	0x0000007e	0x00000006
+921	port0	PCIe LNKCTL2 target speed	0x01cb00000a0	2	RMW	0x000f	0x0002
+922	port0	DesignWare speed change	0x01cb000080c	4	SET	0x00020000	0x00020000
+923	port0	DesignWare 1-lane mode	0x01cb0000710	4	RMW	0x003f0000	0x00010000
+924	port0	DesignWare link width 1	0x01cb000080c	4	RMW	0x00001f00	0x00000100
+925	port0	PCIe LNKCAP width 1	0x01cb000007c	4	RMW	0x000003f0	0x00000010
+926	port0	DBI read-only write disable	0x01cb00008bc	4	CLEAR	0x00000001	0x00000000
+927	port0	T6031 post-link control	0x0041002c020	4	WRITE	0xffffffff	0x00000003
+928	port0	Intr2AXI enable	0x00410024080	4	WRITE	0xffffffff	0x00000001
+929	port0	RC post-link control	0x0041400003c	4	CLEAR	0x00000001	0x00000000
+930	port0	MSIMAP vector	0x0041002b800	4	WRITE	0xffffffff	0x80000000
+931	port0	MSIMAP vector	0x0041002b804	4	WRITE	0xffffffff	0x80000001
+932	port0	MSIMAP vector	0x0041002b808	4	WRITE	0xffffffff	0x80000002
+933	port0	MSIMAP vector	0x0041002b80c	4	WRITE	0xffffffff	0x80000003
+934	port0	MSIMAP vector	0x0041002b810	4	WRITE	0xffffffff	0x80000004
+935	port0	MSIMAP vector	0x0041002b814	4	WRITE	0xffffffff	0x80000005
+936	port0	MSIMAP vector	0x0041002b818	4	WRITE	0xffffffff	0x80000006
+937	port0	MSIMAP vector	0x0041002b81c	4	WRITE	0xffffffff	0x80000007
+938	port0	MSIMAP vector	0x0041002b820	4	WRITE	0xffffffff	0x80000008
+939	port0	MSIMAP vector	0x0041002b824	4	WRITE	0xffffffff	0x80000009
+940	port0	MSIMAP vector	0x0041002b828	4	WRITE	0xffffffff	0x8000000a
+941	port0	MSIMAP vector	0x0041002b82c	4	WRITE	0xffffffff	0x8000000b
+942	port0	MSIMAP vector	0x0041002b830	4	WRITE	0xffffffff	0x8000000c
+943	port0	MSIMAP vector	0x0041002b834	4	WRITE	0xffffffff	0x8000000d
+944	port0	MSIMAP vector	0x0041002b838	4	WRITE	0xffffffff	0x8000000e
+945	port0	MSIMAP vector	0x0041002b83c	4	WRITE	0xffffffff	0x8000000f
+946	port0	MSIMAP vector	0x0041002b840	4	WRITE	0xffffffff	0x80000010
+947	port0	MSIMAP vector	0x0041002b844	4	WRITE	0xffffffff	0x80000011
+948	port0	MSIMAP vector	0x0041002b848	4	WRITE	0xffffffff	0x80000012
+949	port0	MSIMAP vector	0x0041002b84c	4	WRITE	0xffffffff	0x80000013
+950	port0	MSIMAP vector	0x0041002b850	4	WRITE	0xffffffff	0x80000014
+951	port0	MSIMAP vector	0x0041002b854	4	WRITE	0xffffffff	0x80000015
+952	port0	MSIMAP vector	0x0041002b858	4	WRITE	0xffffffff	0x80000016
+953	port0	MSIMAP vector	0x0041002b85c	4	WRITE	0xffffffff	0x80000017
+954	port0	MSIMAP vector	0x0041002b860	4	WRITE	0xffffffff	0x80000018
+955	port0	MSIMAP vector	0x0041002b864	4	WRITE	0xffffffff	0x80000019
+956	port0	MSIMAP vector	0x0041002b868	4	WRITE	0xffffffff	0x8000001a
+957	port0	MSIMAP vector	0x0041002b86c	4	WRITE	0xffffffff	0x8000001b
+958	port0	MSIMAP vector	0x0041002b870	4	WRITE	0xffffffff	0x8000001c
+959	port0	MSIMAP vector	0x0041002b874	4	WRITE	0xffffffff	0x8000001d
+960	port0	MSIMAP vector	0x0041002b878	4	WRITE	0xffffffff	0x8000001e
+961	port0	MSIMAP vector	0x0041002b87c	4	WRITE	0xffffffff	0x8000001f
+962	port1	T6031 AXI control	0x00416000600	4	CLEAR	0x00010000	0x00000000
+963	port1	T8122 port init	0x00411028088	4	WRITE	0xffffffff	0x00000110
+964	port1	T8122 port init	0x00411028100	4	WRITE	0xffffffff	0xffffffff
+965	port1	T8122 port init	0x00411028148	4	WRITE	0xffffffff	0xffffffff
+966	port1	T8122 port init	0x00411028210	4	WRITE	0xffffffff	0xffffffff
+967	port1	T8122 port init	0x00411028080	4	WRITE	0xffffffff	0x00000000
+968	port1	T8122 port init	0x00411028084	4	WRITE	0xffffffff	0x00000000
+969	port1	T8122 port init	0x00411028104	4	WRITE	0xffffffff	0xfffffff0
+970	port1	T8122 port init	0x00411028124	4	WRITE	0xffffffff	0x00000100
+971	port1	T8122 port init	0x0041102816c	4	WRITE	0xffffffff	0x00000000
+972	port1	T8122 port init	0x0041102813c	4	WRITE	0xffffffff	0x00000010
+973	port1	T8122 port init	0x00411028800	4	WRITE	0xffffffff	0x00100100
+974	port1	T8122 port init	0x00411028808	4	WRITE	0xffffffff	0x001000ff
+975	port1	T8122 port init	0x0041102882c	4	WRITE	0xffffffff	0x00000000
+976	port1	RID2SID clear	0x0041102b000	4	WRITE	0xffffffff	0x00000000
+977	port1	RID2SID clear	0x0041102b004	4	WRITE	0xffffffff	0x00000000
+978	port1	RID2SID clear	0x0041102b008	4	WRITE	0xffffffff	0x00000000
+979	port1	RID2SID clear	0x0041102b00c	4	WRITE	0xffffffff	0x00000000
+980	port1	RID2SID clear	0x0041102b010	4	WRITE	0xffffffff	0x00000000
+981	port1	RID2SID clear	0x0041102b014	4	WRITE	0xffffffff	0x00000000
+982	port1	RID2SID clear	0x0041102b018	4	WRITE	0xffffffff	0x00000000
+983	port1	RID2SID clear	0x0041102b01c	4	WRITE	0xffffffff	0x00000000
+984	port1	RID2SID clear	0x0041102b020	4	WRITE	0xffffffff	0x00000000
+985	port1	RID2SID clear	0x0041102b024	4	WRITE	0xffffffff	0x00000000
+986	port1	RID2SID clear	0x0041102b028	4	WRITE	0xffffffff	0x00000000
+987	port1	RID2SID clear	0x0041102b02c	4	WRITE	0xffffffff	0x00000000
+988	port1	RID2SID clear	0x0041102b030	4	WRITE	0xffffffff	0x00000000
+989	port1	RID2SID clear	0x0041102b034	4	WRITE	0xffffffff	0x00000000
+990	port1	RID2SID clear	0x0041102b038	4	WRITE	0xffffffff	0x00000000
+991	port1	RID2SID clear	0x0041102b03c	4	WRITE	0xffffffff	0x00000000
+992	port1	MSIMAP clear	0x0041102b800	4	WRITE	0xffffffff	0x00000000
+993	port1	MSIMAP clear	0x0041102b804	4	WRITE	0xffffffff	0x00000000
+994	port1	MSIMAP clear	0x0041102b808	4	WRITE	0xffffffff	0x00000000
+995	port1	MSIMAP clear	0x0041102b80c	4	WRITE	0xffffffff	0x00000000
+996	port1	MSIMAP clear	0x0041102b810	4	WRITE	0xffffffff	0x00000000
+997	port1	MSIMAP clear	0x0041102b814	4	WRITE	0xffffffff	0x00000000
+998	port1	MSIMAP clear	0x0041102b818	4	WRITE	0xffffffff	0x00000000
+999	port1	MSIMAP clear	0x0041102b81c	4	WRITE	0xffffffff	0x00000000
+1000	port1	MSIMAP clear	0x0041102b820	4	WRITE	0xffffffff	0x00000000
+1001	port1	MSIMAP clear	0x0041102b824	4	WRITE	0xffffffff	0x00000000
+1002	port1	MSIMAP clear	0x0041102b828	4	WRITE	0xffffffff	0x00000000
+1003	port1	MSIMAP clear	0x0041102b82c	4	WRITE	0xffffffff	0x00000000
+1004	port1	MSIMAP clear	0x0041102b830	4	WRITE	0xffffffff	0x00000000
+1005	port1	MSIMAP clear	0x0041102b834	4	WRITE	0xffffffff	0x00000000
+1006	port1	MSIMAP clear	0x0041102b838	4	WRITE	0xffffffff	0x00000000
+1007	port1	MSIMAP clear	0x0041102b83c	4	WRITE	0xffffffff	0x00000000
+1008	port1	MSIMAP clear	0x0041102b840	4	WRITE	0xffffffff	0x00000000
+1009	port1	MSIMAP clear	0x0041102b844	4	WRITE	0xffffffff	0x00000000
+1010	port1	MSIMAP clear	0x0041102b848	4	WRITE	0xffffffff	0x00000000
+1011	port1	MSIMAP clear	0x0041102b84c	4	WRITE	0xffffffff	0x00000000
+1012	port1	MSIMAP clear	0x0041102b850	4	WRITE	0xffffffff	0x00000000
+1013	port1	MSIMAP clear	0x0041102b854	4	WRITE	0xffffffff	0x00000000
+1014	port1	MSIMAP clear	0x0041102b858	4	WRITE	0xffffffff	0x00000000
+1015	port1	MSIMAP clear	0x0041102b85c	4	WRITE	0xffffffff	0x00000000
+1016	port1	MSIMAP clear	0x0041102b860	4	WRITE	0xffffffff	0x00000000
+1017	port1	MSIMAP clear	0x0041102b864	4	WRITE	0xffffffff	0x00000000
+1018	port1	MSIMAP clear	0x0041102b868	4	WRITE	0xffffffff	0x00000000
+1019	port1	MSIMAP clear	0x0041102b86c	4	WRITE	0xffffffff	0x00000000
+1020	port1	MSIMAP clear	0x0041102b870	4	WRITE	0xffffffff	0x00000000
+1021	port1	MSIMAP clear	0x0041102b874	4	WRITE	0xffffffff	0x00000000
+1022	port1	MSIMAP clear	0x0041102b878	4	WRITE	0xffffffff	0x00000000
+1023	port1	MSIMAP clear	0x0041102b87c	4	WRITE	0xffffffff	0x00000000
+1024	port1	MSIMAP clear	0x0041102b880	4	WRITE	0xffffffff	0x00000000
+1025	port1	MSIMAP clear	0x0041102b884	4	WRITE	0xffffffff	0x00000000
+1026	port1	MSIMAP clear	0x0041102b888	4	WRITE	0xffffffff	0x00000000
+1027	port1	MSIMAP clear	0x0041102b88c	4	WRITE	0xffffffff	0x00000000
+1028	port1	MSIMAP clear	0x0041102b890	4	WRITE	0xffffffff	0x00000000
+1029	port1	MSIMAP clear	0x0041102b894	4	WRITE	0xffffffff	0x00000000
+1030	port1	MSIMAP clear	0x0041102b898	4	WRITE	0xffffffff	0x00000000
+1031	port1	MSIMAP clear	0x0041102b89c	4	WRITE	0xffffffff	0x00000000
+1032	port1	MSIMAP clear	0x0041102b8a0	4	WRITE	0xffffffff	0x00000000
+1033	port1	MSIMAP clear	0x0041102b8a4	4	WRITE	0xffffffff	0x00000000
+1034	port1	MSIMAP clear	0x0041102b8a8	4	WRITE	0xffffffff	0x00000000
+1035	port1	MSIMAP clear	0x0041102b8ac	4	WRITE	0xffffffff	0x00000000
+1036	port1	MSIMAP clear	0x0041102b8b0	4	WRITE	0xffffffff	0x00000000
+1037	port1	MSIMAP clear	0x0041102b8b4	4	WRITE	0xffffffff	0x00000000
+1038	port1	MSIMAP clear	0x0041102b8b8	4	WRITE	0xffffffff	0x00000000
+1039	port1	MSIMAP clear	0x0041102b8bc	4	WRITE	0xffffffff	0x00000000
+1040	port1	MSIMAP clear	0x0041102b8c0	4	WRITE	0xffffffff	0x00000000
+1041	port1	MSIMAP clear	0x0041102b8c4	4	WRITE	0xffffffff	0x00000000
+1042	port1	MSIMAP clear	0x0041102b8c8	4	WRITE	0xffffffff	0x00000000
+1043	port1	MSIMAP clear	0x0041102b8cc	4	WRITE	0xffffffff	0x00000000
+1044	port1	MSIMAP clear	0x0041102b8d0	4	WRITE	0xffffffff	0x00000000
+1045	port1	MSIMAP clear	0x0041102b8d4	4	WRITE	0xffffffff	0x00000000
+1046	port1	MSIMAP clear	0x0041102b8d8	4	WRITE	0xffffffff	0x00000000
+1047	port1	MSIMAP clear	0x0041102b8dc	4	WRITE	0xffffffff	0x00000000
+1048	port1	MSIMAP clear	0x0041102b8e0	4	WRITE	0xffffffff	0x00000000
+1049	port1	MSIMAP clear	0x0041102b8e4	4	WRITE	0xffffffff	0x00000000
+1050	port1	MSIMAP clear	0x0041102b8e8	4	WRITE	0xffffffff	0x00000000
+1051	port1	MSIMAP clear	0x0041102b8ec	4	WRITE	0xffffffff	0x00000000
+1052	port1	MSIMAP clear	0x0041102b8f0	4	WRITE	0xffffffff	0x00000000
+1053	port1	MSIMAP clear	0x0041102b8f4	4	WRITE	0xffffffff	0x00000000
+1054	port1	MSIMAP clear	0x0041102b8f8	4	WRITE	0xffffffff	0x00000000
+1055	port1	MSIMAP clear	0x0041102b8fc	4	WRITE	0xffffffff	0x00000000
+1056	port1	MSIMAP clear	0x0041102b900	4	WRITE	0xffffffff	0x00000000
+1057	port1	MSIMAP clear	0x0041102b904	4	WRITE	0xffffffff	0x00000000
+1058	port1	MSIMAP clear	0x0041102b908	4	WRITE	0xffffffff	0x00000000
+1059	port1	MSIMAP clear	0x0041102b90c	4	WRITE	0xffffffff	0x00000000
+1060	port1	MSIMAP clear	0x0041102b910	4	WRITE	0xffffffff	0x00000000
+1061	port1	MSIMAP clear	0x0041102b914	4	WRITE	0xffffffff	0x00000000
+1062	port1	MSIMAP clear	0x0041102b918	4	WRITE	0xffffffff	0x00000000
+1063	port1	MSIMAP clear	0x0041102b91c	4	WRITE	0xffffffff	0x00000000
+1064	port1	MSIMAP clear	0x0041102b920	4	WRITE	0xffffffff	0x00000000
+1065	port1	MSIMAP clear	0x0041102b924	4	WRITE	0xffffffff	0x00000000
+1066	port1	MSIMAP clear	0x0041102b928	4	WRITE	0xffffffff	0x00000000
+1067	port1	MSIMAP clear	0x0041102b92c	4	WRITE	0xffffffff	0x00000000
+1068	port1	MSIMAP clear	0x0041102b930	4	WRITE	0xffffffff	0x00000000
+1069	port1	MSIMAP clear	0x0041102b934	4	WRITE	0xffffffff	0x00000000
+1070	port1	MSIMAP clear	0x0041102b938	4	WRITE	0xffffffff	0x00000000
+1071	port1	MSIMAP clear	0x0041102b93c	4	WRITE	0xffffffff	0x00000000
+1072	port1	MSIMAP clear	0x0041102b940	4	WRITE	0xffffffff	0x00000000
+1073	port1	MSIMAP clear	0x0041102b944	4	WRITE	0xffffffff	0x00000000
+1074	port1	MSIMAP clear	0x0041102b948	4	WRITE	0xffffffff	0x00000000
+1075	port1	MSIMAP clear	0x0041102b94c	4	WRITE	0xffffffff	0x00000000
+1076	port1	MSIMAP clear	0x0041102b950	4	WRITE	0xffffffff	0x00000000
+1077	port1	MSIMAP clear	0x0041102b954	4	WRITE	0xffffffff	0x00000000
+1078	port1	MSIMAP clear	0x0041102b958	4	WRITE	0xffffffff	0x00000000
+1079	port1	MSIMAP clear	0x0041102b95c	4	WRITE	0xffffffff	0x00000000
+1080	port1	MSIMAP clear	0x0041102b960	4	WRITE	0xffffffff	0x00000000
+1081	port1	MSIMAP clear	0x0041102b964	4	WRITE	0xffffffff	0x00000000
+1082	port1	MSIMAP clear	0x0041102b968	4	WRITE	0xffffffff	0x00000000
+1083	port1	MSIMAP clear	0x0041102b96c	4	WRITE	0xffffffff	0x00000000
+1084	port1	MSIMAP clear	0x0041102b970	4	WRITE	0xffffffff	0x00000000
+1085	port1	MSIMAP clear	0x0041102b974	4	WRITE	0xffffffff	0x00000000
+1086	port1	MSIMAP clear	0x0041102b978	4	WRITE	0xffffffff	0x00000000
+1087	port1	MSIMAP clear	0x0041102b97c	4	WRITE	0xffffffff	0x00000000
+1088	port1	MSIMAP clear	0x0041102b980	4	WRITE	0xffffffff	0x00000000
+1089	port1	MSIMAP clear	0x0041102b984	4	WRITE	0xffffffff	0x00000000
+1090	port1	MSIMAP clear	0x0041102b988	4	WRITE	0xffffffff	0x00000000
+1091	port1	MSIMAP clear	0x0041102b98c	4	WRITE	0xffffffff	0x00000000
+1092	port1	MSIMAP clear	0x0041102b990	4	WRITE	0xffffffff	0x00000000
+1093	port1	MSIMAP clear	0x0041102b994	4	WRITE	0xffffffff	0x00000000
+1094	port1	MSIMAP clear	0x0041102b998	4	WRITE	0xffffffff	0x00000000
+1095	port1	MSIMAP clear	0x0041102b99c	4	WRITE	0xffffffff	0x00000000
+1096	port1	MSIMAP clear	0x0041102b9a0	4	WRITE	0xffffffff	0x00000000
+1097	port1	MSIMAP clear	0x0041102b9a4	4	WRITE	0xffffffff	0x00000000
+1098	port1	MSIMAP clear	0x0041102b9a8	4	WRITE	0xffffffff	0x00000000
+1099	port1	MSIMAP clear	0x0041102b9ac	4	WRITE	0xffffffff	0x00000000
+1100	port1	MSIMAP clear	0x0041102b9b0	4	WRITE	0xffffffff	0x00000000
+1101	port1	MSIMAP clear	0x0041102b9b4	4	WRITE	0xffffffff	0x00000000
+1102	port1	MSIMAP clear	0x0041102b9b8	4	WRITE	0xffffffff	0x00000000
+1103	port1	MSIMAP clear	0x0041102b9bc	4	WRITE	0xffffffff	0x00000000
+1104	port1	MSIMAP clear	0x0041102b9c0	4	WRITE	0xffffffff	0x00000000
+1105	port1	MSIMAP clear	0x0041102b9c4	4	WRITE	0xffffffff	0x00000000
+1106	port1	MSIMAP clear	0x0041102b9c8	4	WRITE	0xffffffff	0x00000000
+1107	port1	MSIMAP clear	0x0041102b9cc	4	WRITE	0xffffffff	0x00000000
+1108	port1	MSIMAP clear	0x0041102b9d0	4	WRITE	0xffffffff	0x00000000
+1109	port1	MSIMAP clear	0x0041102b9d4	4	WRITE	0xffffffff	0x00000000
+1110	port1	MSIMAP clear	0x0041102b9d8	4	WRITE	0xffffffff	0x00000000
+1111	port1	MSIMAP clear	0x0041102b9dc	4	WRITE	0xffffffff	0x00000000
+1112	port1	MSIMAP clear	0x0041102b9e0	4	WRITE	0xffffffff	0x00000000
+1113	port1	MSIMAP clear	0x0041102b9e4	4	WRITE	0xffffffff	0x00000000
+1114	port1	MSIMAP clear	0x0041102b9e8	4	WRITE	0xffffffff	0x00000000
+1115	port1	MSIMAP clear	0x0041102b9ec	4	WRITE	0xffffffff	0x00000000
+1116	port1	MSIMAP clear	0x0041102b9f0	4	WRITE	0xffffffff	0x00000000
+1117	port1	MSIMAP clear	0x0041102b9f4	4	WRITE	0xffffffff	0x00000000
+1118	port1	MSIMAP clear	0x0041102b9f8	4	WRITE	0xffffffff	0x00000000
+1119	port1	MSIMAP clear	0x0041102b9fc	4	WRITE	0xffffffff	0x00000000
+1120	port1	MSIMAP clear	0x0041102ba00	4	WRITE	0xffffffff	0x00000000
+1121	port1	MSIMAP clear	0x0041102ba04	4	WRITE	0xffffffff	0x00000000
+1122	port1	MSIMAP clear	0x0041102ba08	4	WRITE	0xffffffff	0x00000000
+1123	port1	MSIMAP clear	0x0041102ba0c	4	WRITE	0xffffffff	0x00000000
+1124	port1	MSIMAP clear	0x0041102ba10	4	WRITE	0xffffffff	0x00000000
+1125	port1	MSIMAP clear	0x0041102ba14	4	WRITE	0xffffffff	0x00000000
+1126	port1	MSIMAP clear	0x0041102ba18	4	WRITE	0xffffffff	0x00000000
+1127	port1	MSIMAP clear	0x0041102ba1c	4	WRITE	0xffffffff	0x00000000
+1128	port1	MSIMAP clear	0x0041102ba20	4	WRITE	0xffffffff	0x00000000
+1129	port1	MSIMAP clear	0x0041102ba24	4	WRITE	0xffffffff	0x00000000
+1130	port1	MSIMAP clear	0x0041102ba28	4	WRITE	0xffffffff	0x00000000
+1131	port1	MSIMAP clear	0x0041102ba2c	4	WRITE	0xffffffff	0x00000000
+1132	port1	MSIMAP clear	0x0041102ba30	4	WRITE	0xffffffff	0x00000000
+1133	port1	MSIMAP clear	0x0041102ba34	4	WRITE	0xffffffff	0x00000000
+1134	port1	MSIMAP clear	0x0041102ba38	4	WRITE	0xffffffff	0x00000000
+1135	port1	MSIMAP clear	0x0041102ba3c	4	WRITE	0xffffffff	0x00000000
+1136	port1	MSIMAP clear	0x0041102ba40	4	WRITE	0xffffffff	0x00000000
+1137	port1	MSIMAP clear	0x0041102ba44	4	WRITE	0xffffffff	0x00000000
+1138	port1	MSIMAP clear	0x0041102ba48	4	WRITE	0xffffffff	0x00000000
+1139	port1	MSIMAP clear	0x0041102ba4c	4	WRITE	0xffffffff	0x00000000
+1140	port1	MSIMAP clear	0x0041102ba50	4	WRITE	0xffffffff	0x00000000
+1141	port1	MSIMAP clear	0x0041102ba54	4	WRITE	0xffffffff	0x00000000
+1142	port1	MSIMAP clear	0x0041102ba58	4	WRITE	0xffffffff	0x00000000
+1143	port1	MSIMAP clear	0x0041102ba5c	4	WRITE	0xffffffff	0x00000000
+1144	port1	MSIMAP clear	0x0041102ba60	4	WRITE	0xffffffff	0x00000000
+1145	port1	MSIMAP clear	0x0041102ba64	4	WRITE	0xffffffff	0x00000000
+1146	port1	MSIMAP clear	0x0041102ba68	4	WRITE	0xffffffff	0x00000000
+1147	port1	MSIMAP clear	0x0041102ba6c	4	WRITE	0xffffffff	0x00000000
+1148	port1	MSIMAP clear	0x0041102ba70	4	WRITE	0xffffffff	0x00000000
+1149	port1	MSIMAP clear	0x0041102ba74	4	WRITE	0xffffffff	0x00000000
+1150	port1	MSIMAP clear	0x0041102ba78	4	WRITE	0xffffffff	0x00000000
+1151	port1	MSIMAP clear	0x0041102ba7c	4	WRITE	0xffffffff	0x00000000
+1152	port1	MSIMAP clear	0x0041102ba80	4	WRITE	0xffffffff	0x00000000
+1153	port1	MSIMAP clear	0x0041102ba84	4	WRITE	0xffffffff	0x00000000
+1154	port1	MSIMAP clear	0x0041102ba88	4	WRITE	0xffffffff	0x00000000
+1155	port1	MSIMAP clear	0x0041102ba8c	4	WRITE	0xffffffff	0x00000000
+1156	port1	MSIMAP clear	0x0041102ba90	4	WRITE	0xffffffff	0x00000000
+1157	port1	MSIMAP clear	0x0041102ba94	4	WRITE	0xffffffff	0x00000000
+1158	port1	MSIMAP clear	0x0041102ba98	4	WRITE	0xffffffff	0x00000000
+1159	port1	MSIMAP clear	0x0041102ba9c	4	WRITE	0xffffffff	0x00000000
+1160	port1	MSIMAP clear	0x0041102baa0	4	WRITE	0xffffffff	0x00000000
+1161	port1	MSIMAP clear	0x0041102baa4	4	WRITE	0xffffffff	0x00000000
+1162	port1	MSIMAP clear	0x0041102baa8	4	WRITE	0xffffffff	0x00000000
+1163	port1	MSIMAP clear	0x0041102baac	4	WRITE	0xffffffff	0x00000000
+1164	port1	MSIMAP clear	0x0041102bab0	4	WRITE	0xffffffff	0x00000000
+1165	port1	MSIMAP clear	0x0041102bab4	4	WRITE	0xffffffff	0x00000000
+1166	port1	MSIMAP clear	0x0041102bab8	4	WRITE	0xffffffff	0x00000000
+1167	port1	MSIMAP clear	0x0041102babc	4	WRITE	0xffffffff	0x00000000
+1168	port1	MSIMAP clear	0x0041102bac0	4	WRITE	0xffffffff	0x00000000
+1169	port1	MSIMAP clear	0x0041102bac4	4	WRITE	0xffffffff	0x00000000
+1170	port1	MSIMAP clear	0x0041102bac8	4	WRITE	0xffffffff	0x00000000
+1171	port1	MSIMAP clear	0x0041102bacc	4	WRITE	0xffffffff	0x00000000
+1172	port1	MSIMAP clear	0x0041102bad0	4	WRITE	0xffffffff	0x00000000
+1173	port1	MSIMAP clear	0x0041102bad4	4	WRITE	0xffffffff	0x00000000
+1174	port1	MSIMAP clear	0x0041102bad8	4	WRITE	0xffffffff	0x00000000
+1175	port1	MSIMAP clear	0x0041102badc	4	WRITE	0xffffffff	0x00000000
+1176	port1	MSIMAP clear	0x0041102bae0	4	WRITE	0xffffffff	0x00000000
+1177	port1	MSIMAP clear	0x0041102bae4	4	WRITE	0xffffffff	0x00000000
+1178	port1	MSIMAP clear	0x0041102bae8	4	WRITE	0xffffffff	0x00000000
+1179	port1	MSIMAP clear	0x0041102baec	4	WRITE	0xffffffff	0x00000000
+1180	port1	MSIMAP clear	0x0041102baf0	4	WRITE	0xffffffff	0x00000000
+1181	port1	MSIMAP clear	0x0041102baf4	4	WRITE	0xffffffff	0x00000000
+1182	port1	MSIMAP clear	0x0041102baf8	4	WRITE	0xffffffff	0x00000000
+1183	port1	MSIMAP clear	0x0041102bafc	4	WRITE	0xffffffff	0x00000000
+1184	port1	MSIMAP clear	0x0041102bb00	4	WRITE	0xffffffff	0x00000000
+1185	port1	MSIMAP clear	0x0041102bb04	4	WRITE	0xffffffff	0x00000000
+1186	port1	MSIMAP clear	0x0041102bb08	4	WRITE	0xffffffff	0x00000000
+1187	port1	MSIMAP clear	0x0041102bb0c	4	WRITE	0xffffffff	0x00000000
+1188	port1	MSIMAP clear	0x0041102bb10	4	WRITE	0xffffffff	0x00000000
+1189	port1	MSIMAP clear	0x0041102bb14	4	WRITE	0xffffffff	0x00000000
+1190	port1	MSIMAP clear	0x0041102bb18	4	WRITE	0xffffffff	0x00000000
+1191	port1	MSIMAP clear	0x0041102bb1c	4	WRITE	0xffffffff	0x00000000
+1192	port1	MSIMAP clear	0x0041102bb20	4	WRITE	0xffffffff	0x00000000
+1193	port1	MSIMAP clear	0x0041102bb24	4	WRITE	0xffffffff	0x00000000
+1194	port1	MSIMAP clear	0x0041102bb28	4	WRITE	0xffffffff	0x00000000
+1195	port1	MSIMAP clear	0x0041102bb2c	4	WRITE	0xffffffff	0x00000000
+1196	port1	MSIMAP clear	0x0041102bb30	4	WRITE	0xffffffff	0x00000000
+1197	port1	MSIMAP clear	0x0041102bb34	4	WRITE	0xffffffff	0x00000000
+1198	port1	MSIMAP clear	0x0041102bb38	4	WRITE	0xffffffff	0x00000000
+1199	port1	MSIMAP clear	0x0041102bb3c	4	WRITE	0xffffffff	0x00000000
+1200	port1	MSIMAP clear	0x0041102bb40	4	WRITE	0xffffffff	0x00000000
+1201	port1	MSIMAP clear	0x0041102bb44	4	WRITE	0xffffffff	0x00000000
+1202	port1	MSIMAP clear	0x0041102bb48	4	WRITE	0xffffffff	0x00000000
+1203	port1	MSIMAP clear	0x0041102bb4c	4	WRITE	0xffffffff	0x00000000
+1204	port1	MSIMAP clear	0x0041102bb50	4	WRITE	0xffffffff	0x00000000
+1205	port1	MSIMAP clear	0x0041102bb54	4	WRITE	0xffffffff	0x00000000
+1206	port1	MSIMAP clear	0x0041102bb58	4	WRITE	0xffffffff	0x00000000
+1207	port1	MSIMAP clear	0x0041102bb5c	4	WRITE	0xffffffff	0x00000000
+1208	port1	MSIMAP clear	0x0041102bb60	4	WRITE	0xffffffff	0x00000000
+1209	port1	MSIMAP clear	0x0041102bb64	4	WRITE	0xffffffff	0x00000000
+1210	port1	MSIMAP clear	0x0041102bb68	4	WRITE	0xffffffff	0x00000000
+1211	port1	MSIMAP clear	0x0041102bb6c	4	WRITE	0xffffffff	0x00000000
+1212	port1	MSIMAP clear	0x0041102bb70	4	WRITE	0xffffffff	0x00000000
+1213	port1	MSIMAP clear	0x0041102bb74	4	WRITE	0xffffffff	0x00000000
+1214	port1	MSIMAP clear	0x0041102bb78	4	WRITE	0xffffffff	0x00000000
+1215	port1	MSIMAP clear	0x0041102bb7c	4	WRITE	0xffffffff	0x00000000
+1216	port1	MSIMAP clear	0x0041102bb80	4	WRITE	0xffffffff	0x00000000
+1217	port1	MSIMAP clear	0x0041102bb84	4	WRITE	0xffffffff	0x00000000
+1218	port1	MSIMAP clear	0x0041102bb88	4	WRITE	0xffffffff	0x00000000
+1219	port1	MSIMAP clear	0x0041102bb8c	4	WRITE	0xffffffff	0x00000000
+1220	port1	MSIMAP clear	0x0041102bb90	4	WRITE	0xffffffff	0x00000000
+1221	port1	MSIMAP clear	0x0041102bb94	4	WRITE	0xffffffff	0x00000000
+1222	port1	MSIMAP clear	0x0041102bb98	4	WRITE	0xffffffff	0x00000000
+1223	port1	MSIMAP clear	0x0041102bb9c	4	WRITE	0xffffffff	0x00000000
+1224	port1	MSIMAP clear	0x0041102bba0	4	WRITE	0xffffffff	0x00000000
+1225	port1	MSIMAP clear	0x0041102bba4	4	WRITE	0xffffffff	0x00000000
+1226	port1	MSIMAP clear	0x0041102bba8	4	WRITE	0xffffffff	0x00000000
+1227	port1	MSIMAP clear	0x0041102bbac	4	WRITE	0xffffffff	0x00000000
+1228	port1	MSIMAP clear	0x0041102bbb0	4	WRITE	0xffffffff	0x00000000
+1229	port1	MSIMAP clear	0x0041102bbb4	4	WRITE	0xffffffff	0x00000000
+1230	port1	MSIMAP clear	0x0041102bbb8	4	WRITE	0xffffffff	0x00000000
+1231	port1	MSIMAP clear	0x0041102bbbc	4	WRITE	0xffffffff	0x00000000
+1232	port1	MSIMAP clear	0x0041102bbc0	4	WRITE	0xffffffff	0x00000000
+1233	port1	MSIMAP clear	0x0041102bbc4	4	WRITE	0xffffffff	0x00000000
+1234	port1	MSIMAP clear	0x0041102bbc8	4	WRITE	0xffffffff	0x00000000
+1235	port1	MSIMAP clear	0x0041102bbcc	4	WRITE	0xffffffff	0x00000000
+1236	port1	MSIMAP clear	0x0041102bbd0	4	WRITE	0xffffffff	0x00000000
+1237	port1	MSIMAP clear	0x0041102bbd4	4	WRITE	0xffffffff	0x00000000
+1238	port1	MSIMAP clear	0x0041102bbd8	4	WRITE	0xffffffff	0x00000000
+1239	port1	MSIMAP clear	0x0041102bbdc	4	WRITE	0xffffffff	0x00000000
+1240	port1	MSIMAP clear	0x0041102bbe0	4	WRITE	0xffffffff	0x00000000
+1241	port1	MSIMAP clear	0x0041102bbe4	4	WRITE	0xffffffff	0x00000000
+1242	port1	MSIMAP clear	0x0041102bbe8	4	WRITE	0xffffffff	0x00000000
+1243	port1	MSIMAP clear	0x0041102bbec	4	WRITE	0xffffffff	0x00000000
+1244	port1	MSIMAP clear	0x0041102bbf0	4	WRITE	0xffffffff	0x00000000
+1245	port1	MSIMAP clear	0x0041102bbf4	4	WRITE	0xffffffff	0x00000000
+1246	port1	MSIMAP clear	0x0041102bbf8	4	WRITE	0xffffffff	0x00000000
+1247	port1	MSIMAP clear	0x0041102bbfc	4	WRITE	0xffffffff	0x00000000
+1248	port1	MSIMAP clear	0x0041102bc00	4	WRITE	0xffffffff	0x00000000
+1249	port1	MSIMAP clear	0x0041102bc04	4	WRITE	0xffffffff	0x00000000
+1250	port1	MSIMAP clear	0x0041102bc08	4	WRITE	0xffffffff	0x00000000
+1251	port1	MSIMAP clear	0x0041102bc0c	4	WRITE	0xffffffff	0x00000000
+1252	port1	MSIMAP clear	0x0041102bc10	4	WRITE	0xffffffff	0x00000000
+1253	port1	MSIMAP clear	0x0041102bc14	4	WRITE	0xffffffff	0x00000000
+1254	port1	MSIMAP clear	0x0041102bc18	4	WRITE	0xffffffff	0x00000000
+1255	port1	MSIMAP clear	0x0041102bc1c	4	WRITE	0xffffffff	0x00000000
+1256	port1	MSIMAP clear	0x0041102bc20	4	WRITE	0xffffffff	0x00000000
+1257	port1	MSIMAP clear	0x0041102bc24	4	WRITE	0xffffffff	0x00000000
+1258	port1	MSIMAP clear	0x0041102bc28	4	WRITE	0xffffffff	0x00000000
+1259	port1	MSIMAP clear	0x0041102bc2c	4	WRITE	0xffffffff	0x00000000
+1260	port1	MSIMAP clear	0x0041102bc30	4	WRITE	0xffffffff	0x00000000
+1261	port1	MSIMAP clear	0x0041102bc34	4	WRITE	0xffffffff	0x00000000
+1262	port1	MSIMAP clear	0x0041102bc38	4	WRITE	0xffffffff	0x00000000
+1263	port1	MSIMAP clear	0x0041102bc3c	4	WRITE	0xffffffff	0x00000000
+1264	port1	MSIMAP clear	0x0041102bc40	4	WRITE	0xffffffff	0x00000000
+1265	port1	MSIMAP clear	0x0041102bc44	4	WRITE	0xffffffff	0x00000000
+1266	port1	MSIMAP clear	0x0041102bc48	4	WRITE	0xffffffff	0x00000000
+1267	port1	MSIMAP clear	0x0041102bc4c	4	WRITE	0xffffffff	0x00000000
+1268	port1	MSIMAP clear	0x0041102bc50	4	WRITE	0xffffffff	0x00000000
+1269	port1	MSIMAP clear	0x0041102bc54	4	WRITE	0xffffffff	0x00000000
+1270	port1	MSIMAP clear	0x0041102bc58	4	WRITE	0xffffffff	0x00000000
+1271	port1	MSIMAP clear	0x0041102bc5c	4	WRITE	0xffffffff	0x00000000
+1272	port1	MSIMAP clear	0x0041102bc60	4	WRITE	0xffffffff	0x00000000
+1273	port1	MSIMAP clear	0x0041102bc64	4	WRITE	0xffffffff	0x00000000
+1274	port1	MSIMAP clear	0x0041102bc68	4	WRITE	0xffffffff	0x00000000
+1275	port1	MSIMAP clear	0x0041102bc6c	4	WRITE	0xffffffff	0x00000000
+1276	port1	MSIMAP clear	0x0041102bc70	4	WRITE	0xffffffff	0x00000000
+1277	port1	MSIMAP clear	0x0041102bc74	4	WRITE	0xffffffff	0x00000000
+1278	port1	MSIMAP clear	0x0041102bc78	4	WRITE	0xffffffff	0x00000000
+1279	port1	MSIMAP clear	0x0041102bc7c	4	WRITE	0xffffffff	0x00000000
+1280	port1	MSIMAP clear	0x0041102bc80	4	WRITE	0xffffffff	0x00000000
+1281	port1	MSIMAP clear	0x0041102bc84	4	WRITE	0xffffffff	0x00000000
+1282	port1	MSIMAP clear	0x0041102bc88	4	WRITE	0xffffffff	0x00000000
+1283	port1	MSIMAP clear	0x0041102bc8c	4	WRITE	0xffffffff	0x00000000
+1284	port1	MSIMAP clear	0x0041102bc90	4	WRITE	0xffffffff	0x00000000
+1285	port1	MSIMAP clear	0x0041102bc94	4	WRITE	0xffffffff	0x00000000
+1286	port1	MSIMAP clear	0x0041102bc98	4	WRITE	0xffffffff	0x00000000
+1287	port1	MSIMAP clear	0x0041102bc9c	4	WRITE	0xffffffff	0x00000000
+1288	port1	MSIMAP clear	0x0041102bca0	4	WRITE	0xffffffff	0x00000000
+1289	port1	MSIMAP clear	0x0041102bca4	4	WRITE	0xffffffff	0x00000000
+1290	port1	MSIMAP clear	0x0041102bca8	4	WRITE	0xffffffff	0x00000000
+1291	port1	MSIMAP clear	0x0041102bcac	4	WRITE	0xffffffff	0x00000000
+1292	port1	MSIMAP clear	0x0041102bcb0	4	WRITE	0xffffffff	0x00000000
+1293	port1	MSIMAP clear	0x0041102bcb4	4	WRITE	0xffffffff	0x00000000
+1294	port1	MSIMAP clear	0x0041102bcb8	4	WRITE	0xffffffff	0x00000000
+1295	port1	MSIMAP clear	0x0041102bcbc	4	WRITE	0xffffffff	0x00000000
+1296	port1	MSIMAP clear	0x0041102bcc0	4	WRITE	0xffffffff	0x00000000
+1297	port1	MSIMAP clear	0x0041102bcc4	4	WRITE	0xffffffff	0x00000000
+1298	port1	MSIMAP clear	0x0041102bcc8	4	WRITE	0xffffffff	0x00000000
+1299	port1	MSIMAP clear	0x0041102bccc	4	WRITE	0xffffffff	0x00000000
+1300	port1	MSIMAP clear	0x0041102bcd0	4	WRITE	0xffffffff	0x00000000
+1301	port1	MSIMAP clear	0x0041102bcd4	4	WRITE	0xffffffff	0x00000000
+1302	port1	MSIMAP clear	0x0041102bcd8	4	WRITE	0xffffffff	0x00000000
+1303	port1	MSIMAP clear	0x0041102bcdc	4	WRITE	0xffffffff	0x00000000
+1304	port1	MSIMAP clear	0x0041102bce0	4	WRITE	0xffffffff	0x00000000
+1305	port1	MSIMAP clear	0x0041102bce4	4	WRITE	0xffffffff	0x00000000
+1306	port1	MSIMAP clear	0x0041102bce8	4	WRITE	0xffffffff	0x00000000
+1307	port1	MSIMAP clear	0x0041102bcec	4	WRITE	0xffffffff	0x00000000
+1308	port1	MSIMAP clear	0x0041102bcf0	4	WRITE	0xffffffff	0x00000000
+1309	port1	MSIMAP clear	0x0041102bcf4	4	WRITE	0xffffffff	0x00000000
+1310	port1	MSIMAP clear	0x0041102bcf8	4	WRITE	0xffffffff	0x00000000
+1311	port1	MSIMAP clear	0x0041102bcfc	4	WRITE	0xffffffff	0x00000000
+1312	port1	MSIMAP clear	0x0041102bd00	4	WRITE	0xffffffff	0x00000000
+1313	port1	MSIMAP clear	0x0041102bd04	4	WRITE	0xffffffff	0x00000000
+1314	port1	MSIMAP clear	0x0041102bd08	4	WRITE	0xffffffff	0x00000000
+1315	port1	MSIMAP clear	0x0041102bd0c	4	WRITE	0xffffffff	0x00000000
+1316	port1	MSIMAP clear	0x0041102bd10	4	WRITE	0xffffffff	0x00000000
+1317	port1	MSIMAP clear	0x0041102bd14	4	WRITE	0xffffffff	0x00000000
+1318	port1	MSIMAP clear	0x0041102bd18	4	WRITE	0xffffffff	0x00000000
+1319	port1	MSIMAP clear	0x0041102bd1c	4	WRITE	0xffffffff	0x00000000
+1320	port1	MSIMAP clear	0x0041102bd20	4	WRITE	0xffffffff	0x00000000
+1321	port1	MSIMAP clear	0x0041102bd24	4	WRITE	0xffffffff	0x00000000
+1322	port1	MSIMAP clear	0x0041102bd28	4	WRITE	0xffffffff	0x00000000
+1323	port1	MSIMAP clear	0x0041102bd2c	4	WRITE	0xffffffff	0x00000000
+1324	port1	MSIMAP clear	0x0041102bd30	4	WRITE	0xffffffff	0x00000000
+1325	port1	MSIMAP clear	0x0041102bd34	4	WRITE	0xffffffff	0x00000000
+1326	port1	MSIMAP clear	0x0041102bd38	4	WRITE	0xffffffff	0x00000000
+1327	port1	MSIMAP clear	0x0041102bd3c	4	WRITE	0xffffffff	0x00000000
+1328	port1	MSIMAP clear	0x0041102bd40	4	WRITE	0xffffffff	0x00000000
+1329	port1	MSIMAP clear	0x0041102bd44	4	WRITE	0xffffffff	0x00000000
+1330	port1	MSIMAP clear	0x0041102bd48	4	WRITE	0xffffffff	0x00000000
+1331	port1	MSIMAP clear	0x0041102bd4c	4	WRITE	0xffffffff	0x00000000
+1332	port1	MSIMAP clear	0x0041102bd50	4	WRITE	0xffffffff	0x00000000
+1333	port1	MSIMAP clear	0x0041102bd54	4	WRITE	0xffffffff	0x00000000
+1334	port1	MSIMAP clear	0x0041102bd58	4	WRITE	0xffffffff	0x00000000
+1335	port1	MSIMAP clear	0x0041102bd5c	4	WRITE	0xffffffff	0x00000000
+1336	port1	MSIMAP clear	0x0041102bd60	4	WRITE	0xffffffff	0x00000000
+1337	port1	MSIMAP clear	0x0041102bd64	4	WRITE	0xffffffff	0x00000000
+1338	port1	MSIMAP clear	0x0041102bd68	4	WRITE	0xffffffff	0x00000000
+1339	port1	MSIMAP clear	0x0041102bd6c	4	WRITE	0xffffffff	0x00000000
+1340	port1	MSIMAP clear	0x0041102bd70	4	WRITE	0xffffffff	0x00000000
+1341	port1	MSIMAP clear	0x0041102bd74	4	WRITE	0xffffffff	0x00000000
+1342	port1	MSIMAP clear	0x0041102bd78	4	WRITE	0xffffffff	0x00000000
+1343	port1	MSIMAP clear	0x0041102bd7c	4	WRITE	0xffffffff	0x00000000
+1344	port1	MSIMAP clear	0x0041102bd80	4	WRITE	0xffffffff	0x00000000
+1345	port1	MSIMAP clear	0x0041102bd84	4	WRITE	0xffffffff	0x00000000
+1346	port1	MSIMAP clear	0x0041102bd88	4	WRITE	0xffffffff	0x00000000
+1347	port1	MSIMAP clear	0x0041102bd8c	4	WRITE	0xffffffff	0x00000000
+1348	port1	MSIMAP clear	0x0041102bd90	4	WRITE	0xffffffff	0x00000000
+1349	port1	MSIMAP clear	0x0041102bd94	4	WRITE	0xffffffff	0x00000000
+1350	port1	MSIMAP clear	0x0041102bd98	4	WRITE	0xffffffff	0x00000000
+1351	port1	MSIMAP clear	0x0041102bd9c	4	WRITE	0xffffffff	0x00000000
+1352	port1	MSIMAP clear	0x0041102bda0	4	WRITE	0xffffffff	0x00000000
+1353	port1	MSIMAP clear	0x0041102bda4	4	WRITE	0xffffffff	0x00000000
+1354	port1	MSIMAP clear	0x0041102bda8	4	WRITE	0xffffffff	0x00000000
+1355	port1	MSIMAP clear	0x0041102bdac	4	WRITE	0xffffffff	0x00000000
+1356	port1	MSIMAP clear	0x0041102bdb0	4	WRITE	0xffffffff	0x00000000
+1357	port1	MSIMAP clear	0x0041102bdb4	4	WRITE	0xffffffff	0x00000000
+1358	port1	MSIMAP clear	0x0041102bdb8	4	WRITE	0xffffffff	0x00000000
+1359	port1	MSIMAP clear	0x0041102bdbc	4	WRITE	0xffffffff	0x00000000
+1360	port1	MSIMAP clear	0x0041102bdc0	4	WRITE	0xffffffff	0x00000000
+1361	port1	MSIMAP clear	0x0041102bdc4	4	WRITE	0xffffffff	0x00000000
+1362	port1	MSIMAP clear	0x0041102bdc8	4	WRITE	0xffffffff	0x00000000
+1363	port1	MSIMAP clear	0x0041102bdcc	4	WRITE	0xffffffff	0x00000000
+1364	port1	MSIMAP clear	0x0041102bdd0	4	WRITE	0xffffffff	0x00000000
+1365	port1	MSIMAP clear	0x0041102bdd4	4	WRITE	0xffffffff	0x00000000
+1366	port1	MSIMAP clear	0x0041102bdd8	4	WRITE	0xffffffff	0x00000000
+1367	port1	MSIMAP clear	0x0041102bddc	4	WRITE	0xffffffff	0x00000000
+1368	port1	MSIMAP clear	0x0041102bde0	4	WRITE	0xffffffff	0x00000000
+1369	port1	MSIMAP clear	0x0041102bde4	4	WRITE	0xffffffff	0x00000000
+1370	port1	MSIMAP clear	0x0041102bde8	4	WRITE	0xffffffff	0x00000000
+1371	port1	MSIMAP clear	0x0041102bdec	4	WRITE	0xffffffff	0x00000000
+1372	port1	MSIMAP clear	0x0041102bdf0	4	WRITE	0xffffffff	0x00000000
+1373	port1	MSIMAP clear	0x0041102bdf4	4	WRITE	0xffffffff	0x00000000
+1374	port1	MSIMAP clear	0x0041102bdf8	4	WRITE	0xffffffff	0x00000000
+1375	port1	MSIMAP clear	0x0041102bdfc	4	WRITE	0xffffffff	0x00000000
+1376	port1	MSIMAP clear	0x0041102be00	4	WRITE	0xffffffff	0x00000000
+1377	port1	MSIMAP clear	0x0041102be04	4	WRITE	0xffffffff	0x00000000
+1378	port1	MSIMAP clear	0x0041102be08	4	WRITE	0xffffffff	0x00000000
+1379	port1	MSIMAP clear	0x0041102be0c	4	WRITE	0xffffffff	0x00000000
+1380	port1	MSIMAP clear	0x0041102be10	4	WRITE	0xffffffff	0x00000000
+1381	port1	MSIMAP clear	0x0041102be14	4	WRITE	0xffffffff	0x00000000
+1382	port1	MSIMAP clear	0x0041102be18	4	WRITE	0xffffffff	0x00000000
+1383	port1	MSIMAP clear	0x0041102be1c	4	WRITE	0xffffffff	0x00000000
+1384	port1	MSIMAP clear	0x0041102be20	4	WRITE	0xffffffff	0x00000000
+1385	port1	MSIMAP clear	0x0041102be24	4	WRITE	0xffffffff	0x00000000
+1386	port1	MSIMAP clear	0x0041102be28	4	WRITE	0xffffffff	0x00000000
+1387	port1	MSIMAP clear	0x0041102be2c	4	WRITE	0xffffffff	0x00000000
+1388	port1	MSIMAP clear	0x0041102be30	4	WRITE	0xffffffff	0x00000000
+1389	port1	MSIMAP clear	0x0041102be34	4	WRITE	0xffffffff	0x00000000
+1390	port1	MSIMAP clear	0x0041102be38	4	WRITE	0xffffffff	0x00000000
+1391	port1	MSIMAP clear	0x0041102be3c	4	WRITE	0xffffffff	0x00000000
+1392	port1	MSIMAP clear	0x0041102be40	4	WRITE	0xffffffff	0x00000000
+1393	port1	MSIMAP clear	0x0041102be44	4	WRITE	0xffffffff	0x00000000
+1394	port1	MSIMAP clear	0x0041102be48	4	WRITE	0xffffffff	0x00000000
+1395	port1	MSIMAP clear	0x0041102be4c	4	WRITE	0xffffffff	0x00000000
+1396	port1	MSIMAP clear	0x0041102be50	4	WRITE	0xffffffff	0x00000000
+1397	port1	MSIMAP clear	0x0041102be54	4	WRITE	0xffffffff	0x00000000
+1398	port1	MSIMAP clear	0x0041102be58	4	WRITE	0xffffffff	0x00000000
+1399	port1	MSIMAP clear	0x0041102be5c	4	WRITE	0xffffffff	0x00000000
+1400	port1	MSIMAP clear	0x0041102be60	4	WRITE	0xffffffff	0x00000000
+1401	port1	MSIMAP clear	0x0041102be64	4	WRITE	0xffffffff	0x00000000
+1402	port1	MSIMAP clear	0x0041102be68	4	WRITE	0xffffffff	0x00000000
+1403	port1	MSIMAP clear	0x0041102be6c	4	WRITE	0xffffffff	0x00000000
+1404	port1	MSIMAP clear	0x0041102be70	4	WRITE	0xffffffff	0x00000000
+1405	port1	MSIMAP clear	0x0041102be74	4	WRITE	0xffffffff	0x00000000
+1406	port1	MSIMAP clear	0x0041102be78	4	WRITE	0xffffffff	0x00000000
+1407	port1	MSIMAP clear	0x0041102be7c	4	WRITE	0xffffffff	0x00000000
+1408	port1	MSIMAP clear	0x0041102be80	4	WRITE	0xffffffff	0x00000000
+1409	port1	MSIMAP clear	0x0041102be84	4	WRITE	0xffffffff	0x00000000
+1410	port1	MSIMAP clear	0x0041102be88	4	WRITE	0xffffffff	0x00000000
+1411	port1	MSIMAP clear	0x0041102be8c	4	WRITE	0xffffffff	0x00000000
+1412	port1	MSIMAP clear	0x0041102be90	4	WRITE	0xffffffff	0x00000000
+1413	port1	MSIMAP clear	0x0041102be94	4	WRITE	0xffffffff	0x00000000
+1414	port1	MSIMAP clear	0x0041102be98	4	WRITE	0xffffffff	0x00000000
+1415	port1	MSIMAP clear	0x0041102be9c	4	WRITE	0xffffffff	0x00000000
+1416	port1	MSIMAP clear	0x0041102bea0	4	WRITE	0xffffffff	0x00000000
+1417	port1	MSIMAP clear	0x0041102bea4	4	WRITE	0xffffffff	0x00000000
+1418	port1	MSIMAP clear	0x0041102bea8	4	WRITE	0xffffffff	0x00000000
+1419	port1	MSIMAP clear	0x0041102beac	4	WRITE	0xffffffff	0x00000000
+1420	port1	MSIMAP clear	0x0041102beb0	4	WRITE	0xffffffff	0x00000000
+1421	port1	MSIMAP clear	0x0041102beb4	4	WRITE	0xffffffff	0x00000000
+1422	port1	MSIMAP clear	0x0041102beb8	4	WRITE	0xffffffff	0x00000000
+1423	port1	MSIMAP clear	0x0041102bebc	4	WRITE	0xffffffff	0x00000000
+1424	port1	MSIMAP clear	0x0041102bec0	4	WRITE	0xffffffff	0x00000000
+1425	port1	MSIMAP clear	0x0041102bec4	4	WRITE	0xffffffff	0x00000000
+1426	port1	MSIMAP clear	0x0041102bec8	4	WRITE	0xffffffff	0x00000000
+1427	port1	MSIMAP clear	0x0041102becc	4	WRITE	0xffffffff	0x00000000
+1428	port1	MSIMAP clear	0x0041102bed0	4	WRITE	0xffffffff	0x00000000
+1429	port1	MSIMAP clear	0x0041102bed4	4	WRITE	0xffffffff	0x00000000
+1430	port1	MSIMAP clear	0x0041102bed8	4	WRITE	0xffffffff	0x00000000
+1431	port1	MSIMAP clear	0x0041102bedc	4	WRITE	0xffffffff	0x00000000
+1432	port1	MSIMAP clear	0x0041102bee0	4	WRITE	0xffffffff	0x00000000
+1433	port1	MSIMAP clear	0x0041102bee4	4	WRITE	0xffffffff	0x00000000
+1434	port1	MSIMAP clear	0x0041102bee8	4	WRITE	0xffffffff	0x00000000
+1435	port1	MSIMAP clear	0x0041102beec	4	WRITE	0xffffffff	0x00000000
+1436	port1	MSIMAP clear	0x0041102bef0	4	WRITE	0xffffffff	0x00000000
+1437	port1	MSIMAP clear	0x0041102bef4	4	WRITE	0xffffffff	0x00000000
+1438	port1	MSIMAP clear	0x0041102bef8	4	WRITE	0xffffffff	0x00000000
+1439	port1	MSIMAP clear	0x0041102befc	4	WRITE	0xffffffff	0x00000000
+1440	port1	MSIMAP clear	0x0041102bf00	4	WRITE	0xffffffff	0x00000000
+1441	port1	MSIMAP clear	0x0041102bf04	4	WRITE	0xffffffff	0x00000000
+1442	port1	MSIMAP clear	0x0041102bf08	4	WRITE	0xffffffff	0x00000000
+1443	port1	MSIMAP clear	0x0041102bf0c	4	WRITE	0xffffffff	0x00000000
+1444	port1	MSIMAP clear	0x0041102bf10	4	WRITE	0xffffffff	0x00000000
+1445	port1	MSIMAP clear	0x0041102bf14	4	WRITE	0xffffffff	0x00000000
+1446	port1	MSIMAP clear	0x0041102bf18	4	WRITE	0xffffffff	0x00000000
+1447	port1	MSIMAP clear	0x0041102bf1c	4	WRITE	0xffffffff	0x00000000
+1448	port1	MSIMAP clear	0x0041102bf20	4	WRITE	0xffffffff	0x00000000
+1449	port1	MSIMAP clear	0x0041102bf24	4	WRITE	0xffffffff	0x00000000
+1450	port1	MSIMAP clear	0x0041102bf28	4	WRITE	0xffffffff	0x00000000
+1451	port1	MSIMAP clear	0x0041102bf2c	4	WRITE	0xffffffff	0x00000000
+1452	port1	MSIMAP clear	0x0041102bf30	4	WRITE	0xffffffff	0x00000000
+1453	port1	MSIMAP clear	0x0041102bf34	4	WRITE	0xffffffff	0x00000000
+1454	port1	MSIMAP clear	0x0041102bf38	4	WRITE	0xffffffff	0x00000000
+1455	port1	MSIMAP clear	0x0041102bf3c	4	WRITE	0xffffffff	0x00000000
+1456	port1	MSIMAP clear	0x0041102bf40	4	WRITE	0xffffffff	0x00000000
+1457	port1	MSIMAP clear	0x0041102bf44	4	WRITE	0xffffffff	0x00000000
+1458	port1	MSIMAP clear	0x0041102bf48	4	WRITE	0xffffffff	0x00000000
+1459	port1	MSIMAP clear	0x0041102bf4c	4	WRITE	0xffffffff	0x00000000
+1460	port1	MSIMAP clear	0x0041102bf50	4	WRITE	0xffffffff	0x00000000
+1461	port1	MSIMAP clear	0x0041102bf54	4	WRITE	0xffffffff	0x00000000
+1462	port1	MSIMAP clear	0x0041102bf58	4	WRITE	0xffffffff	0x00000000
+1463	port1	MSIMAP clear	0x0041102bf5c	4	WRITE	0xffffffff	0x00000000
+1464	port1	MSIMAP clear	0x0041102bf60	4	WRITE	0xffffffff	0x00000000
+1465	port1	MSIMAP clear	0x0041102bf64	4	WRITE	0xffffffff	0x00000000
+1466	port1	MSIMAP clear	0x0041102bf68	4	WRITE	0xffffffff	0x00000000
+1467	port1	MSIMAP clear	0x0041102bf6c	4	WRITE	0xffffffff	0x00000000
+1468	port1	MSIMAP clear	0x0041102bf70	4	WRITE	0xffffffff	0x00000000
+1469	port1	MSIMAP clear	0x0041102bf74	4	WRITE	0xffffffff	0x00000000
+1470	port1	MSIMAP clear	0x0041102bf78	4	WRITE	0xffffffff	0x00000000
+1471	port1	MSIMAP clear	0x0041102bf7c	4	WRITE	0xffffffff	0x00000000
+1472	port1	MSIMAP clear	0x0041102bf80	4	WRITE	0xffffffff	0x00000000
+1473	port1	MSIMAP clear	0x0041102bf84	4	WRITE	0xffffffff	0x00000000
+1474	port1	MSIMAP clear	0x0041102bf88	4	WRITE	0xffffffff	0x00000000
+1475	port1	MSIMAP clear	0x0041102bf8c	4	WRITE	0xffffffff	0x00000000
+1476	port1	MSIMAP clear	0x0041102bf90	4	WRITE	0xffffffff	0x00000000
+1477	port1	MSIMAP clear	0x0041102bf94	4	WRITE	0xffffffff	0x00000000
+1478	port1	MSIMAP clear	0x0041102bf98	4	WRITE	0xffffffff	0x00000000
+1479	port1	MSIMAP clear	0x0041102bf9c	4	WRITE	0xffffffff	0x00000000
+1480	port1	MSIMAP clear	0x0041102bfa0	4	WRITE	0xffffffff	0x00000000
+1481	port1	MSIMAP clear	0x0041102bfa4	4	WRITE	0xffffffff	0x00000000
+1482	port1	MSIMAP clear	0x0041102bfa8	4	WRITE	0xffffffff	0x00000000
+1483	port1	MSIMAP clear	0x0041102bfac	4	WRITE	0xffffffff	0x00000000
+1484	port1	MSIMAP clear	0x0041102bfb0	4	WRITE	0xffffffff	0x00000000
+1485	port1	MSIMAP clear	0x0041102bfb4	4	WRITE	0xffffffff	0x00000000
+1486	port1	MSIMAP clear	0x0041102bfb8	4	WRITE	0xffffffff	0x00000000
+1487	port1	MSIMAP clear	0x0041102bfbc	4	WRITE	0xffffffff	0x00000000
+1488	port1	MSIMAP clear	0x0041102bfc0	4	WRITE	0xffffffff	0x00000000
+1489	port1	MSIMAP clear	0x0041102bfc4	4	WRITE	0xffffffff	0x00000000
+1490	port1	MSIMAP clear	0x0041102bfc8	4	WRITE	0xffffffff	0x00000000
+1491	port1	MSIMAP clear	0x0041102bfcc	4	WRITE	0xffffffff	0x00000000
+1492	port1	MSIMAP clear	0x0041102bfd0	4	WRITE	0xffffffff	0x00000000
+1493	port1	MSIMAP clear	0x0041102bfd4	4	WRITE	0xffffffff	0x00000000
+1494	port1	MSIMAP clear	0x0041102bfd8	4	WRITE	0xffffffff	0x00000000
+1495	port1	MSIMAP clear	0x0041102bfdc	4	WRITE	0xffffffff	0x00000000
+1496	port1	MSIMAP clear	0x0041102bfe0	4	WRITE	0xffffffff	0x00000000
+1497	port1	MSIMAP clear	0x0041102bfe4	4	WRITE	0xffffffff	0x00000000
+1498	port1	MSIMAP clear	0x0041102bfe8	4	WRITE	0xffffffff	0x00000000
+1499	port1	MSIMAP clear	0x0041102bfec	4	WRITE	0xffffffff	0x00000000
+1500	port1	MSIMAP clear	0x0041102bff0	4	WRITE	0xffffffff	0x00000000
+1501	port1	MSIMAP clear	0x0041102bff4	4	WRITE	0xffffffff	0x00000000
+1502	port1	MSIMAP clear	0x0041102bff8	4	WRITE	0xffffffff	0x00000000
+1503	port1	MSIMAP clear	0x0041102bffc	4	WRITE	0xffffffff	0x00000000
+1504	port1	T8122 port init	0x00411028130	4	WRITE	0xffffffff	0x03000000
+1505	port1	T8122 port init	0x00411028140	4	WRITE	0xffffffff	0x00000010
+1506	port1	T8122 port init	0x00411028144	4	WRITE	0xffffffff	0x00253770
+1507	port1	T8122 port init	0x0041102821c	4	WRITE	0xffffffff	0x00000000
+1508	port1	T8122 port init	0x00411028834	4	WRITE	0xffffffff	0x00000000
+1509	port1	T8122 port init	0x0041102883c	4	WRITE	0xffffffff	0x00000000
+1510	port1	pci-bridge1:apcie-config-tunables	0x00411028140	4	RMW	0x00000001	0x00000001
+1511	port1	APPCLK enable	0x00411028800	4	SET	0x00000001	0x00000001
+1512	port1	port PHY clear clock requests	0x00417024000	4	CLEAR	0x00000003	0x00000000
+1513	port1	port PHY CLK0REQ	0x00417024000	4	SET	0x00000001	0x00000001
+1514	port1	port PHY CLK1REQ	0x00417024000	4	SET	0x00000002	0x00000002
+1515	port1	T8122 port PHY control	0x00417024000	4	CLEAR	0x00000010	0x00000000
+1516	port1	port PHY control	0x00417024000	4	SET	0x00000200	0x00000200
+1517	port1	port PHY control	0x00417024000	4	SET	0x00000400	0x00000400
+1518	port1	PERST# deassert	0x0041102882c	4	SET	0x00000001	0x00000001
+1519	port1	DBI read-only write enable	0x01cb00088bc	4	SET	0x00000001	0x00000001
+1520	port1	pci-bridge1:pcie-rc-tunables	0x01cb0008078	4	RMW	0x00007000	0x00000000
+1521	port1	pci-bridge1:pcie-rc-tunables	0x01cb00088c4	4	RMW	0x03000000	0x03000000
+1522	port1	pci-bridge1:pcie-rc-tunables	0x01cb0008b80	4	RMW	0x007f0000	0x001f0000
+1523	port1	pci-bridge1:pcie-rc-gen3-shadow-tunables	0x01cb0008154	4	RMW	0x00000f0f	0x00000404
+1524	port1	pci-bridge1:pcie-rc-gen3-shadow-tunables	0x01cb0008890	4	RMW	0x03000000	0x00000000
+1525	port1	pci-bridge1:pcie-rc-gen3-shadow-tunables	0x01cb00088a8	4	RMW	0x00ffff0f	0x00000001
+1526	port1	pci-bridge1:pcie-rc-gen4-shadow-tunables	0x01cb0008188	4	RMW	0x000000ff	0x00000044
+1527	port1	pci-bridge1:pcie-rc-gen4-shadow-tunables	0x01cb0008890	4	RMW	0x03000000	0x01000000
+1528	port1	pci-bridge1:pcie-rc-gen4-shadow-tunables	0x01cb00088a8	4	RMW	0x00ffff0f	0x00000001
+1529	port1	PCIe LNKCAP speed	0x01cb000807c	4	RMW	0x0000000f	0x00000002
+1530	port1	PCIe LNKCAP2 speeds	0x01cb000809c	4	RMW	0x0000007e	0x00000006
+1531	port1	PCIe LNKCTL2 target speed	0x01cb00080a0	2	RMW	0x000f	0x0002
+1532	port1	DesignWare speed change	0x01cb000880c	4	SET	0x00020000	0x00020000
+1533	port1	DesignWare 1-lane mode	0x01cb0008710	4	RMW	0x003f0000	0x00010000
+1534	port1	DesignWare link width 1	0x01cb000880c	4	RMW	0x00001f00	0x00000100
+1535	port1	PCIe LNKCAP width 1	0x01cb000807c	4	RMW	0x000003f0	0x00000010
+1536	port1	DBI read-only write disable	0x01cb00088bc	4	CLEAR	0x00000001	0x00000000
+1537	port1	T6031 post-link control	0x0041102c020	4	WRITE	0xffffffff	0x00000003
+1538	port1	Intr2AXI enable	0x00411024080	4	WRITE	0xffffffff	0x00000001
+1539	port1	RC post-link control	0x0041400003c	4	CLEAR	0x00000001	0x00000000
+1540	port1	MSIMAP vector	0x0041102b800	4	WRITE	0xffffffff	0x80000000
+1541	port1	MSIMAP vector	0x0041102b804	4	WRITE	0xffffffff	0x80000001
+1542	port1	MSIMAP vector	0x0041102b808	4	WRITE	0xffffffff	0x80000002
+1543	port1	MSIMAP vector	0x0041102b80c	4	WRITE	0xffffffff	0x80000003
+1544	port1	MSIMAP vector	0x0041102b810	4	WRITE	0xffffffff	0x80000004
+1545	port1	MSIMAP vector	0x0041102b814	4	WRITE	0xffffffff	0x80000005
+1546	port1	MSIMAP vector	0x0041102b818	4	WRITE	0xffffffff	0x80000006
+1547	port1	MSIMAP vector	0x0041102b81c	4	WRITE	0xffffffff	0x80000007
+1548	port1	MSIMAP vector	0x0041102b820	4	WRITE	0xffffffff	0x80000008
+1549	port1	MSIMAP vector	0x0041102b824	4	WRITE	0xffffffff	0x80000009
+1550	port1	MSIMAP vector	0x0041102b828	4	WRITE	0xffffffff	0x8000000a
+1551	port1	MSIMAP vector	0x0041102b82c	4	WRITE	0xffffffff	0x8000000b
+1552	port1	MSIMAP vector	0x0041102b830	4	WRITE	0xffffffff	0x8000000c
+1553	port1	MSIMAP vector	0x0041102b834	4	WRITE	0xffffffff	0x8000000d
+1554	port1	MSIMAP vector	0x0041102b838	4	WRITE	0xffffffff	0x8000000e
+1555	port1	MSIMAP vector	0x0041102b83c	4	WRITE	0xffffffff	0x8000000f
+1556	port1	MSIMAP vector	0x0041102b840	4	WRITE	0xffffffff	0x80000010
+1557	port1	MSIMAP vector	0x0041102b844	4	WRITE	0xffffffff	0x80000011
+1558	port1	MSIMAP vector	0x0041102b848	4	WRITE	0xffffffff	0x80000012
+1559	port1	MSIMAP vector	0x0041102b84c	4	WRITE	0xffffffff	0x80000013
+1560	port1	MSIMAP vector	0x0041102b850	4	WRITE	0xffffffff	0x80000014
+1561	port1	MSIMAP vector	0x0041102b854	4	WRITE	0xffffffff	0x80000015
+1562	port1	MSIMAP vector	0x0041102b858	4	WRITE	0xffffffff	0x80000016
+1563	port1	MSIMAP vector	0x0041102b85c	4	WRITE	0xffffffff	0x80000017
+1564	port1	MSIMAP vector	0x0041102b860	4	WRITE	0xffffffff	0x80000018
+1565	port1	MSIMAP vector	0x0041102b864	4	WRITE	0xffffffff	0x80000019
+1566	port1	MSIMAP vector	0x0041102b868	4	WRITE	0xffffffff	0x8000001a
+1567	port1	MSIMAP vector	0x0041102b86c	4	WRITE	0xffffffff	0x8000001b
+1568	port1	MSIMAP vector	0x0041102b870	4	WRITE	0xffffffff	0x8000001c
+1569	port1	MSIMAP vector	0x0041102b874	4	WRITE	0xffffffff	0x8000001d
+1570	port1	MSIMAP vector	0x0041102b878	4	WRITE	0xffffffff	0x8000001e
+1571	port1	MSIMAP vector	0x0041102b87c	4	WRITE	0xffffffff	0x8000001f

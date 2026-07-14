@@ -4,7 +4,7 @@ End-goal: a bootable Linux distro on this MacBook Pro 14" M4 Pro with GPU accel,
 WiFi, Bluetooth, keyboard/trackpad, audio, webcam, power management — daily-driver
 comfort comparable to macOS.
 
-Written 2026-07-10, last updated **2026-07-14** (protected NVMe queue boundary).
+Written 2026-07-10, last updated **2026-07-14** (PCIe map and Stage E image).
 Companion docs: `NEXT_STEPS.md` (immediate work), `DEVLOG.md`
 (operational reference + solved blockers), `t6040-dt-checklist.md` (Stage C
 reference). All finished per-topic plans/write-ups archived in `done/`.
@@ -31,7 +31,8 @@ map, execute-and-return, broken_wfi handled (WFE park), ~10 s chainload loop.
 
 **Stage B effectively complete 2026-07-10** — cpufreq minimal (APSC/pstate;
 throttle offsets deferred, need RE), MCC t6041 Ph1+2 (TZ offset + cache-enable
-still open), PCIe Ph1 (two tunables left unapplied), ATC/USB DART audited
+still open), PCIe register map plus clock/PLL targets resolved (first live boot
+still gated), ATC/USB DART audited
 (DART done, PHY tunables deferred → USB2 fallback), kboot FDT display carveout
 fixed, dapf gate + watchdog arm added for M4.
 
@@ -44,7 +45,7 @@ fixed, dapf gate + watchdog arm added for M4.
 | Two-way Linux shell + m1n1 proxy over one DebugUSB cable; remote reboot | Printk over ttydc needs a separate polled/atomic TX path; current TTY queue is not console-safe |
 | Linux apple_wdt; fbcon early console | NVMe rootfs (power/SART/ANS work; queue and per-command TCB setup require unavailable raw-boot SPTM entry) |
 | Kernel build env (podman, arm64-native) with patch pipeline | USB gadget console (parked: EP0 dies post-enumeration) |
-| SMP/cpufreq/MCC/PCIe m1n1 groundwork (Stage B) | cpufreq throttles, PCIe link-up test, USB3/TB PHY tunables |
+| SMP/cpufreq/MCC groundwork; PCIe host+wireless DT and drivers build | cpufreq throttles, gated PCIe link-up test, wireless firmware, USB3/TB PHY tunables |
 
 **Upstreaming pending**: SMP/broken_wfi/MPIDR + cpufreq drafts (in `done/`);
 dockchannel-uart dead-IRQ finding + poll-mode patch to the dockchannel-branch
@@ -104,15 +105,18 @@ doable solo with the proxy + ADT dumps; this is the highest-leverage local work.
    constants. Boots clean, no MMIO at init. **Open (Stage C):** TZ/carveout offset
    (t603x regs read 0 despite real carveouts) + the gated `mcc_enable_cache()`
    write. Detailed in `2026-07-10-t6040-mcc-plan.md`. Needed for memory BW / DCP.
-3. **PCIe** (`src/pcie.c` + tunables) — **Phase 1 DONE (2026-07-10).** Added
+3. **PCIe** (`src/pcie.c` + tunables) — **HOST-SIDE COMPLETE; LIVE GATED
+   (2026-07-14).** Added
    `regs_t6040` + `apcie,t6040` dispatch branch. ADT-verified against live
    `/arm-io/apcie0`: 35 regs, #ports=4, shared block = reg[0..6] then 4×7 port
    regs ⇒ `shared_reg_count=7` (the one delta vs t6031; 8 would fail the
-   even-divide check). Reuses the t6031/T8122 init path. **NOT boot-testable**
-   (`pcie_init` is kboot-only + invasive → do NOT run live; validate at Stage C,
-   gated). **Open RE:** two new tunables (`apcie-cio3pllcore`, `apcie-pcieclkgen`,
-   likely reg[5]/reg[6]) left documented-but-unapplied (guessing a target = SError).
-   Detailed in `2026-07-10-t6040-pcie-plan.md`. WiFi/BT prerequisite.
+   even-divide check). Static analysis of `AppleT6040PCIe::start()` proves the
+   two new clock groups target reg[5] (CIO3 PLL) and reg[6] (PCIe clkgen); m1n1
+   now applies both and reuses the T6031/T8122 init path. The matching
+   PCIe/DART/BCM4388/GL9755 Linux DT and driver image build cleanly. **No live
+   attempt yet:** `pcie_init` is kboot-only and invasive, so the first link-up
+   boot remains gated on explicit approval. Detailed in
+   `2026-07-14-t6040-wireless-pcie-map.md`. WiFi/BT prerequisite.
 4. **ATC/USB tunables + DART config** — **AUDITED 2026-07-10 (mostly verify+defer).**
    All kboot-only, FDT-only (safe). **DART = done** (t6040 DARTs are `dart,t8110`,
    fully supported). **ACIO USB4 rc+pcie_adapter = works as-is** (prop names match).
@@ -182,9 +186,11 @@ maxcpus>1 + cpufreq DT wiring.
   boot status all succeed. T8140 then rejects direct legacy and standard NVMe
   queue-register programming. macOS uses guarded SPTM service 6 for queue and
   per-command TCB authorization. Its ABI is decoded, but raw boot has
-  SPRR/GXF disabled and the exact GENTER call hangs. Next investigate reuse of
-  iBoot's already-authorized queue state; do not repeat direct register or
-  GENTER attempts unchanged (NEXT_STEPS #3).
+  SPRR/GXF disabled and the exact GENTER call hangs. iBoot's queue buffers are
+  ordinary, unreserved RAM and the macOS path performs per-command TCB
+  authorization, so preserving only the firmware ASQ/ACQ is not a complete
+  Linux design. Do not repeat direct register or GENTER attempts unchanged
+  (NEXT_STEPS #3).
 - **USB** (dwc3 + ATC PHY): external keyboard/disk/ethernet from day one; also
   the USB-gadget console m1n1 already proves works.
 - **Internal keyboard + trackpad:** ✅ **keyboard DONE early (2026-07-11)** via
@@ -208,12 +214,21 @@ keyboard/trackpad, battery status. Daily-drivable without GPU/WiFi (USB ethernet
 
 *Moderate; mostly enablement, not R&E — the drivers exist. Depends on Stage B PCIe.*
 
-- Identify the chip from ADT (`/arm-io/apcie/...`/wlan node). M3 machines ship
-  BCM4388; M4 is the same family or its successor. 
-- **WiFi:** `brcmfmac` PCIe path — add chip/firmware IDs if new, plus board
-  calibration blobs. Firmware comes from the macOS install; the Asahi
-  `asahi-fwextract`/vendor-firmware flow needs j614s mappings.
-- **Bluetooth:** `hci_bcm4377` — same story, add the new variant ID.
+- **Mapped and host-built 2026-07-14:** port 0 is BCM4388 WiFi (`14e4:4434`)
+  plus Bluetooth (`14e4:5f72`), board module `mriya`; port 1 is the GL9755 SD
+  reader. Linux already carries both Broadcom IDs and explicit BCM4388 support.
+  The complete PCIe/GPIO/DART child topology is in the separately gated
+  `t6040-j614s-dcuart-pcie` DT; see
+  `done/2026-07-14-t6040-wireless-pcie-map.md`.
+- **Immediate gate:** approve and run the first m1n1-only PCIe link-up boot
+  with the proven base Linux DT (no Linux PCIe node). The complete 1,571-write
+  plan is checked in. Review that result before enabling the Linux host node;
+  until link-up succeeds, firmware work cannot be exercised.
+- **WiFi:** `brcmfmac` PCIe path; m1n1 already copies the MAC, antenna SKU and
+  calibration blob from ADT when `wifi0` is aliased. Firmware still has to be
+  extracted from the paired macOS install for board type `apple,mriya`.
+- **Bluetooth:** `hci_bcm4377`; m1n1 copies the address and calibration blobs.
+  The paired BCM4388 firmware still has to be packaged in the initramfs/rootfs.
 - If the chip generation is genuinely new (not just a new ID), this becomes
   upstream-collab work — but Broadcom generations have been incremental so far.
 

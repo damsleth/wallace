@@ -47,6 +47,13 @@ fi
 if [ -f /src/$APPLE/t6040-j614s-dcuart.dts ]; then
     cp /src/$APPLE/t6040-j614s-dcuart.dts $APPLE/
 fi
+if [ "${PCIE:-0}" = "1" ]; then
+    if [ ! -f /out/t6040-j614s-dcuart-pcie.dts ]; then
+        echo "ERROR: PCIE=1 requires /out/t6040-j614s-dcuart-pcie.dts"
+        exit 1
+    fi
+    cp /out/t6040-j614s-dcuart-pcie.dts $APPLE/
+fi
 cp /src/$APPLE/t6040-pmgr.dtsi   $APPLE/
 cp /src/$APPLE/Makefile          $APPLE/
 
@@ -70,9 +77,9 @@ else
     exit 1
 fi
 echo "== skip T6040 locked vGIC maintenance register write =="
-if sed -n '/static int aic_init_cpu/,/PMC FIQ/p' \
+if ! sed -n '/static int aic_init_cpu/,/PMC FIQ/p' \
        drivers/irqchip/irq-apple-aic.c | \
-       grep -q '^\s*/\* sysreg_clear_set_s(SYS_ICH_HCR_EL2'; then
+       grep -q '^[[:space:]]*sysreg_clear_set_s(SYS_ICH_HCR_EL2'; then
     echo "t6040-aic-hcr-debug.patch already applied"
 elif git apply --check /out/t6040-aic-hcr-debug.patch 2>/dev/null; then
     git apply /out/t6040-aic-hcr-debug.patch
@@ -634,6 +641,18 @@ if [ "${GADGET:-0}" = "1" ]; then
         -e USB_CONFIGFS -e USB_CONFIGFS_ACM -e U_SERIAL_CONSOLE \
         -e USB_CONFIGFS_NCM -e USB_CONFIGFS_ECM
 fi
+if [ "${PCIE:-0}" = "1" ]; then
+    # Gated T6040 PCIe/WLAN/BT/SD bring-up image.  The separate DT is required
+    # because the matching m1n1 PCIe initialization performs invasive clock,
+    # PHY, reset, and power-gate writes before handoff.
+    ./scripts/config --file .config \
+        -e PCI -e PCI_MSI -e PCIE_APPLE \
+        -e PINCTRL_APPLE_GPIO -e APPLE_DART \
+        -e CFG80211 -e WLAN_VENDOR_BROADCOM \
+        -e BRCMUTIL -e BRCMFMAC -e BRCMFMAC_PCIE \
+        -e BT -e BT_HCIBCM4377 \
+        -e MMC -e MMC_SDHCI -m MMC_SDHCI_PCI
+fi
 make ARCH=arm64 olddefconfig >/dev/null
 if [ "${GADGET:-0}" = "1" ]; then
     echo "-- resulting gadget-relevant config --"
@@ -648,6 +667,10 @@ fi
 if [ "${NVME:-0}" = "1" ]; then
     echo "-- resulting ANS/NVMe config --"
     grep -E "CONFIG_(BLK_DEV_NVME|NVME_CORE|NVME_APPLE|APPLE_SART)=" .config || true
+fi
+if [ "${PCIE:-0}" = "1" ]; then
+    echo "-- resulting PCIe/WLAN/BT/SD config --"
+    grep -E "CONFIG_(PCIE_APPLE|PINCTRL_APPLE_GPIO|APPLE_DART|BRCMFMAC|BRCMFMAC_PCIE|BT_HCIBCM4377|MMC_SDHCI_PCI)=" .config || true
 fi
 grep -qE "CONFIG_ARM64_SME=y" .config && echo "WARN: SME still enabled!" || echo "SME disabled OK"
 
@@ -665,6 +688,11 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
     make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart.dtb
     cp $APPLE/t6040-j614s-dcuart.dtb /out/ \
         && echo "DTB -> /out/t6040-j614s-dcuart.dtb"
+fi
+if [ "${PCIE:-0}" = "1" ]; then
+    make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-pcie.dtb
+    cp $APPLE/t6040-j614s-dcuart-pcie.dtb /out/ \
+        && echo "DTB -> /out/t6040-j614s-dcuart-pcie.dtb"
 fi
 
 if [ "${1:-}" = "image" ]; then
@@ -748,6 +776,10 @@ if [ "${1:-}" = "image" ]; then
     if [ "${NVME_INIT_TRACE:-0}" = "1" ]; then
         image_name=Image-nvme-init-trace
         map_name=System.map-nvme-init-trace
+    fi
+    if [ "${PCIE:-0}" = "1" ]; then
+        image_name=Image-pcie
+        map_name=System.map-pcie
     fi
     cp arch/arm64/boot/Image "/out/$image_name" \
         && echo "Image -> /out/$image_name ($(du -h arch/arm64/boot/Image | cut -f1))"

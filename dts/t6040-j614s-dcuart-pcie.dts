@@ -1,0 +1,212 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Apple MacBook Pro 14-inch M4 Pro (Mac16,8 / J614s) PCIe bring-up.
+ *
+ * This deliberately remains a separate boot variant: m1n1's T6040 PCIe
+ * initialization performs the invasive PHY/clock/reset sequence before the
+ * Linux handoff and must not be exercised without the reviewed live-attempt
+ * approval.  All addresses, interrupts, pins, and populated ports below come
+ * from the saved J614s ADT.
+ */
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/pinctrl/apple.h>
+
+#include "t6040-j614s-dcuart.dts"
+
+/ {
+	aliases {
+		wifi0 = &wifi0;
+		bluetooth0 = &bluetooth0;
+		mmc0 = &sdhci0;
+	};
+};
+
+&soc {
+	/*
+	 * ADT /arm-io/gpio0: gpio,t8101, 200 pins, seven AIC groups.
+	 * The current Linux driver uses the established t8103 fallback.
+	 */
+	pinctrl_ap: pinctrl@51c000000 {
+		compatible = "apple,t6040-pinctrl", "apple,t8122-pinctrl",
+			     "apple,t8103-pinctrl";
+		reg = <0x5 0x1c000000 0x0 0x4000>;
+
+		gpio-controller;
+		#gpio-cells = <2>;
+		gpio-ranges = <&pinctrl_ap 0 0 200>;
+		apple,npins = <200>;
+
+		interrupt-controller;
+		#interrupt-cells = <2>;
+		interrupt-parent = <&aic>;
+		interrupts = <AIC_IRQ 478 IRQ_TYPE_LEVEL_HIGH>,
+			     <AIC_IRQ 479 IRQ_TYPE_LEVEL_HIGH>,
+			     <AIC_IRQ 480 IRQ_TYPE_LEVEL_HIGH>,
+			     <AIC_IRQ 481 IRQ_TYPE_LEVEL_HIGH>,
+			     <AIC_IRQ 482 IRQ_TYPE_LEVEL_HIGH>,
+			     <AIC_IRQ 483 IRQ_TYPE_LEVEL_HIGH>,
+			     <AIC_IRQ 484 IRQ_TYPE_LEVEL_HIGH>;
+
+		/* ADT function-clkreq: GPIO0/1, function 2. */
+		pcie_pins: pcie-pins {
+			pinmux = <APPLE_PINMUX(0, 2)>,
+				 <APPLE_PINMUX(1, 2)>;
+		};
+	};
+
+	/*
+	 * T6040 uses the T602x Linux-visible port layout: PERST at 0x82c,
+	 * RID2SID at 0x3000, and MSIMAP at 0x3800.  Keep the T6020 fallback
+	 * until a dedicated upstream compatible is accepted.
+	 *
+	 * m1n1 owns the shared PHY/clock initialization and leaves the complete
+	 * ADT power-gate set active.  The initial Linux description intentionally
+	 * has no incomplete single power-domain approximation: the binding only
+	 * accepts one, while T6040 requires both the APCIE_SYS_GP and
+	 * APCIE_PHY_SW hierarchies.
+	 */
+	pcie0: pcie@1cb0000000 {
+		compatible = "apple,t6040-pcie", "apple,t6020-pcie";
+		device_type = "pci";
+
+		reg = <0x1c 0xb0000000 0x0 0x10000000>, /* config */
+		      <0x4 0x14000000 0x0 0x4000>,     /* rc */
+		      <0x4 0x10028000 0x0 0x8000>,     /* port0 */
+		      <0x4 0x11028000 0x0 0x8000>,     /* port1 */
+		      <0x4 0x12028000 0x0 0x8000>,     /* port2 */
+		      <0x4 0x13028000 0x0 0x8000>,     /* port3 */
+		      <0x4 0x17020000 0x0 0x4000>,     /* phy0 */
+		      <0x4 0x17024000 0x0 0x4000>,     /* phy1 */
+		      <0x4 0x17028000 0x0 0x4000>,     /* phy2 */
+		      <0x4 0x1702c000 0x0 0x4000>;     /* phy3 */
+		reg-names = "config", "rc",
+			    "port0", "port1", "port2", "port3",
+			    "phy0", "phy1", "phy2", "phy3";
+
+		interrupt-parent = <&aic>;
+		interrupts = <AIC_IRQ 1723 IRQ_TYPE_LEVEL_HIGH>,
+			     <AIC_IRQ 1732 IRQ_TYPE_LEVEL_HIGH>,
+			     <AIC_IRQ 1741 IRQ_TYPE_LEVEL_HIGH>,
+			     <AIC_IRQ 1750 IRQ_TYPE_LEVEL_HIGH>;
+
+		msi-controller;
+		msi-parent = <&pcie0>;
+		msi-ranges = <&aic AIC_IRQ 2071 IRQ_TYPE_EDGE_RISING 32>;
+
+		/* One T8110 DART per populated root port. */
+		iommu-map = <0x100 &pcie0_dart_0 1 1>,
+			    <0x200 &pcie0_dart_1 1 1>;
+		iommu-map-mask = <0xff00>;
+
+		bus-range = <0 8>;
+		#address-cells = <3>;
+		#size-cells = <2>;
+		ranges = <0x43000000 0xb 0xc0000000
+			  0xb 0xc0000000 0x0 0x20000000>,
+			 <0x02000000 0x0 0x80000000
+			  0xb 0x80000000 0x0 0x40000000>;
+
+		pinctrl-0 = <&pcie_pins>;
+		pinctrl-names = "default";
+
+		port00: pci@0,0 {
+			device_type = "pci";
+			reg = <0x0 0x0 0x0 0x0 0x0>;
+			reset-gpios = <&pinctrl_ap 4 GPIO_ACTIVE_LOW>;
+			max-link-speed = <2>;
+			bus-range = <1 1>;
+
+			#address-cells = <3>;
+			#size-cells = <2>;
+			ranges;
+
+			interrupt-controller;
+			#interrupt-cells = <1>;
+			interrupt-map-mask = <0 0 0 7>;
+			interrupt-map = <0 0 0 1 &port00 0 0 0 0>,
+					<0 0 0 2 &port00 0 0 0 1>,
+					<0 0 0 3 &port00 0 0 0 2>,
+					<0 0 0 4 &port00 0 0 0 3>;
+
+			wifi0: wifi@0,0 {
+				compatible = "pci14e4,4434";
+				reg = <0x10000 0x0 0x0 0x0 0x0>;
+				local-mac-address = [00 00 00 00 00 00];
+				apple,antenna-sku = "XX";
+				/* ADT /arm-io/wlan module-instance. */
+				brcm,board-type = "apple,mriya";
+			};
+
+			bluetooth0: bluetooth@0,1 {
+				compatible = "pci14e4,5f72";
+				reg = <0x10100 0x0 0x0 0x0 0x0>;
+				local-bd-address = [00 00 00 00 00 00];
+				brcm,board-type = "apple,mriya";
+			};
+		};
+
+		port01: pci@1,0 {
+			device_type = "pci";
+			reg = <0x800 0x0 0x0 0x0 0x0>;
+			reset-gpios = <&pinctrl_ap 5 GPIO_ACTIVE_LOW>;
+			max-link-speed = <1>;
+			bus-range = <2 2>;
+
+			#address-cells = <3>;
+			#size-cells = <2>;
+			ranges;
+
+			interrupt-controller;
+			#interrupt-cells = <1>;
+			interrupt-map-mask = <0 0 0 7>;
+			interrupt-map = <0 0 0 1 &port01 0 0 0 0>,
+					<0 0 0 2 &port01 0 0 0 1>,
+					<0 0 0 3 &port01 0 0 0 2>,
+					<0 0 0 4 &port01 0 0 0 3>;
+
+			sdhci0: mmc@0,0 {
+				compatible = "pci17a0,9755";
+				reg = <0x20000 0x0 0x0 0x0 0x0>;
+				cd-inverted;
+				wp-inverted;
+			};
+		};
+
+		port02: pci@2,0 {
+			device_type = "pci";
+			reg = <0x1000 0x0 0x0 0x0 0x0>;
+			reset-gpios = <&pinctrl_ap 6 GPIO_ACTIVE_LOW>;
+			#address-cells = <3>;
+			#size-cells = <2>;
+			ranges;
+			status = "disabled";
+		};
+
+		port03: pci@3,0 {
+			device_type = "pci";
+			reg = <0x1800 0x0 0x0 0x0 0x0>;
+			reset-gpios = <&pinctrl_ap 7 GPIO_ACTIVE_LOW>;
+			#address-cells = <3>;
+			#size-cells = <2>;
+			ranges;
+			status = "disabled";
+		};
+	};
+
+	pcie0_dart_0: iommu@410000000 {
+		compatible = "apple,t8110-dart";
+		reg = <0x4 0x10000000 0x0 0x20000>;
+		interrupt-parent = <&aic>;
+		interrupts = <AIC_IRQ 1724 IRQ_TYPE_LEVEL_HIGH>;
+		#iommu-cells = <1>;
+	};
+
+	pcie0_dart_1: iommu@411000000 {
+		compatible = "apple,t8110-dart";
+		reg = <0x4 0x11000000 0x0 0x20000>;
+		interrupt-parent = <&aic>;
+		interrupts = <AIC_IRQ 1733 IRQ_TYPE_LEVEL_HIGH>;
+		#iommu-cells = <1>;
+	};
+};

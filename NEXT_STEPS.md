@@ -7,6 +7,30 @@ cable; reboot via `macvdmtool`. No screen-reading or physical access needed.
 Operational details, recipes, and history: `DEVLOG.md`. Long-term: `roadmap.md`.
 Read the DebugUSB link rules in DEVLOG before touching the rig.
 
+## 0. Run the first gated T6040 PCIe link-up attempt
+
+The former register-map blocker is solved. Static analysis of the paired macOS
+kernelcache proves the two new T6040 groups target ADT reg[5] (CIO3 PLL at
+`0x415046200`) and reg[6] (PCIe clkgen at `0x415044000`). m1n1 main
+`eb23c423` / curated `da1791a0` apply them and then run the reused T6031/T8122
+sequence. The separate `t6040-j614s-dcuart-pcie` kernel DT builds cleanly and
+describes BCM4388 WiFi/BT on port 0 plus the GL9755 SD reader on port 1.
+
+**Live work is still gated:** `pcie_init()` performs invasive ADT-derived
+PMGR/clock/PHY/reset/port writes at kboot. Do not boot the new path until the
+maintainer explicitly approves the complete attempt. The reproducible
+one-row-per-write review is
+`done/2026-07-14-t6040-pcie-write-manifest.tsv` (1,571 operations); its
+generator is `scripts/t6040-pcie-write-plan.py`. The map, eight newly resolved
+RMWs, code commits, artifact hashes, and staged test shape are in
+`done/2026-07-14-t6040-wireless-pcie-map.md`.
+
+Attempt 1 should chainload m1n1 `eb23c423` but boot the base DockChannel DT
+**without a Linux PCIe node**. This isolates and captures the
+complete m1n1 link-training result without adding Linux host-controller writes.
+Only after reviewing that log should attempt 2 use the prepared PCIe DT for
+Linux PCI/DART enumeration. Do not access NVMe or mount/repair/format storage.
+
 ## 1. Provision and test the J614s trackpad firmware
 `event0` is Apple DockChannel Multi-touch and `event1` is the keyboard. The
 transport's missing firmware loader and stuck-start error path are fixed and
@@ -73,12 +97,14 @@ The exact service-6 operation 0 + operation 4 sequence was implemented in
 Do not repeat that call unchanged, and do not resume direct main- or secure-BAR
 writes.
 
-Next, stay read-only and answer whether iBoot's already-authorized queue/TCB
-state can be preserved across handoff. Correlate the secure ASQ/ACQ addresses
-(`0x101005db000` / `0x101005dc000`) with reserved boot memory and the iBoot
-NVMe shutdown path. Only after a static design review should a separate target
-attempt reuse firmware state. No Identify command has run yet; never mount,
-repair, format, flush, or write the namespace.
+The preservation question now has a structural answer: iBoot's secure ASQ/ACQ
+buffers (`0x101005db000` / `0x101005dc000`) live in ordinary RAM that m1n1 does
+not reserve, and the macOS path performs service-6 TCB authorization for each
+command. Preserving only those queues cannot provide a complete Linux NVMe
+path. Keep further work static: determine whether raw boot can acquire the
+required protected execution state through a documented loader transition or
+whether storage must wait for upstream M4 SPTM support. No Identify command has
+run; never mount, repair, format, flush, or write the namespace.
 
 Exact current transcript: `logs/t6040-console-20260714-nvme-sptm.log`.
 Full cumulative analysis: `done/2026-07-13-t6040-nvme-map.md`.
