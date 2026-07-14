@@ -1,11 +1,28 @@
-# Onboarding: sharing the rig with `claude`
+# Agent onboarding: joining the shared rig
 
-You (`sol`) and `claude` both work this repo toward mainline Linux on the M4 Pro.
-Almost everything parallelizes fine — the one thing that does **not** is the
-physical rig. This note is how to take turns on it. Full protocol:
-[COORDINATION.md](COORDINATION.md).
+You're a new agent joining work on this repo (mainline Linux on the M4 Pro).
+Others are already here — currently `claude` and `sol`; check the roles table in
+[COORDINATION.md](COORDINATION.md) and recent `git log` for who's active. Almost
+everything parallelizes fine. The one thing that does **not** is the physical
+rig, and this note is how to take turns on it. Full protocol: COORDINATION.md.
 
-## The one rule
+## 0. Pick your handle and set your identity
+
+Choose a short, unique lower-case handle for yourself (your model name is fine,
+e.g. `gemini`, `grok`, `qwen`) — distinct from any handle already in use. Use it
+everywhere below as `<you>`. Export it in the shell you drive the rig from, and,
+because the other agents are already onboarded, run in strict mode:
+
+```sh
+export RIG_AGENT=<you>      # who the guard thinks you are
+export RIG_ENFORCE=1        # make "you forgot to acquire" fatal, not just a warning
+```
+
+Commits here always go out under the maintainer's identity — `git commit -s`
+with `Signed-off-by: CJ Damsleth <kim@damsleth.no>`, and **no** `Co-Authored-By`
+trailer. Never commit under your own name.
+
+## 1. The one rule
 
 There is exactly one rig: the M4, one DebugUSB cable, one m1n1 proxy, one
 `/tmp/m1n1` pty. **Two agents touching it at once corrupts the KIS link**
@@ -15,92 +32,89 @@ a reboot). So before you run *any* rig-touching script — `t6040-boot-dcuart.sh
 you release it when done.
 
 The lease tool is `scripts/rig-lease.sh`. State lives in `.rig/` (gitignored,
-shared between us on this host's filesystem).
+shared between all agents on this host's filesystem).
 
-## Wrap every rig session in a lease
+## 2. Wrap every rig session in a lease
 
 ```sh
 cd ~/Code/wallace
 
-# 1. Is it free? (see caveat below)
+# a. Is it free?  (see the caveat in §5)
 scripts/rig-lease.sh status
 
-# 2. Take it — name yourself "sol", give the task + the m1n1 SHA you're testing.
-scripts/rig-lease.sh acquire sol "nvme ans-read isolation" 88ce1ee3
+# b. Take it — your handle, the task, and the m1n1 SHA you're testing.
+scripts/rig-lease.sh acquire <you> "short task description" <m1n1-sha>
 
-# 3. Drive the rig as usual (recovery boot, chainload, run the experiment)…
+# c. Drive the rig as usual (recovery boot, chainload, run the experiment)…
 bash scripts/t6040-debugusb-console.sh reboot
 bash scripts/t6040-boot-dcuart.sh
 #    …for a long step, extend your lease so it can't be reclaimed under you:
-scripts/rig-lease.sh renew sol
+scripts/rig-lease.sh renew <you>
 
-# 4. Record the result the usual way (commit + a done/ write-up).
+# d. Record the result the usual way (commit + a done/ write-up).
 
-# 5. Hand the rig back. Say whether the link is healthy or wedged:
-scripts/rig-lease.sh release sol --state healthy
+# e. Hand the rig back. Say whether the link is healthy or wedged:
+scripts/rig-lease.sh release <you> --state healthy
 #    If the link is wedged or you're unsure:
-scripts/rig-lease.sh release sol --state wedged
+scripts/rig-lease.sh release <you> --state wedged
 ```
 
-`acquire` succeeds if the rig is free (or already yours). If `claude` holds it,
-`acquire` prints who/what and exits **3 (BUSY)** — don't touch the rig; do
+`acquire` succeeds if the rig is free (or already yours). If another agent holds
+it, `acquire` prints who/what and exits **3 (BUSY)** — don't touch the rig; do
 offline work and try later.
 
-## Two hard invariants
+## 3. Two hard invariants
 
 1. **Never drive unless you hold the lease.** If `status` shows it HELD by
-   `claude`, stay off the cable.
+   another agent, stay off the cable.
 2. **Leave it as you'd want to find it.** Release `--state healthy` only after
    the proxy is back to a quiescent `Running proxy`. Otherwise release `--state
    wedged` — that sets a `NEEDS_RECOVERY` flag, and the next acquirer (maybe you)
    must run a recovery boot before trusting the link, then clear it:
-   `scripts/rig-lease.sh recovered sol`. Silently handing off a wedged cable is
+   `scripts/rig-lease.sh recovered <you>`. Silently handing off a wedged cable is
    the one unforgivable move.
 
-## The schedule = the approved queue
+## 4. The schedule = the approved queue
 
-We only ever put the rig to *approved, hashed* experiments. Propose yours,
-CJ (the maintainer) approves, then whoever's free runs the next approved one:
+The rig only ever runs *approved, hashed* experiments. Propose yours; CJ (the
+maintainer) approves; then whoever's free runs the next approved one:
 
 ```sh
-scripts/rig-lease.sh queue add sol nvme-ans-read "single readl of ANS CPU_CONTROL 0x209600044" 88ce1ee3
+scripts/rig-lease.sh queue add <you> <slug> "what it does + key address" <sha>
 scripts/rig-lease.sh queue next     # lowest approved entry — that's the turn order
-scripts/rig-lease.sh queue done 003 # after you've run + recorded it
+scripts/rig-lease.sh queue done <seq> # after you've run + recorded it
 ```
 
 Do **not** hold the lease while waiting for CJ to approve the next step — that
-starves `claude` for as long as CJ is away. Approval happens offline, ahead of
-rig time; you acquire only when there's already-approved work to run.
+starves the other agents for as long as CJ is away. Approval happens offline,
+ahead of rig time; you acquire only when there's already-approved work to run.
 
-Auto-acquire is on and either of us may drive: when the lease is free and
+Auto-acquire is on and any agent may drive: when the lease is free and
 `queue next` returns approved work, take it. When idle, don't spin — do your
 offline track and re-check `status` on a boot-cycle cadence (minutes).
 
-## How the guard treats you (it's wired into the live scripts now)
+## 5. How the guard treats you
 
-`scripts/rig-guard.sh` is sourced by the three rig scripts. What it does to you:
+`scripts/rig-guard.sh` is sourced by the three rig scripts. What it does:
 
-- If **`claude` holds a live lease**, the rig scripts **refuse to run** (exit 5)
-  — this stops you from corrupting the link. Wait, or check
+- If **another agent holds a live lease**, the rig scripts **refuse to run**
+  (exit 5) — this stops you from corrupting the link. Wait, or check
   `scripts/rig-lease.sh status`. (`RIG_BYPASS=1` overrides, for manual recovery
-  only.)
-- If the **rig is idle**, the scripts run even if you forgot to acquire — you'll
-  just get a WARN. So the guard won't break a solo run; it only blocks a real
-  collision.
-- Please still `acquire` before driving: it's what makes `status` correct for
-  `claude` and protects *your* run from being interrupted. Once we're both
-  reliably acquiring, CJ may set `RIG_ENFORCE=1` to make "you forgot to acquire"
-  fatal too.
+  only.) This block is unconditional; it does not depend on `RIG_ENFORCE`.
+- If the **rig is idle**, the scripts run even if you forgot to acquire — with
+  `RIG_ENFORCE=1` (which you set in §0) that omission is fatal instead; without
+  it you'd only get a warning. Either way the guard never breaks a solo run on
+  an idle rig — it only blocks a real collision.
 
-One transition caveat: **`status` only reflects an agent that actually took a
-lease.** If one of us drives without acquiring, `status` still says FREE — so
-until we're both acquiring every time, keep coordinating out-of-band too.
+Transition caveat: **`status` only reflects an agent that actually took a
+lease.** If someone drives without acquiring, `status` still says FREE — so
+until every agent acquires every time, keep coordinating out-of-band too.
 
-## Before a live image goes to CJ for approval
+## 6. Before a live image goes to CJ for approval
 
 A wrong MMIO offset raises an async SError that kills m1n1. So before proposing
-a live image, `claude` reviews it against the non-negotiables in
-`~/Code/m1n1/AGENTS.md` (no SPMI/PMU/NVRAM writes, no blind MMIO, ADT-derived
-addresses only, hashes pinned, intentional stop before the first dangerous
-write) — and you do the same for `claude`'s. Note the reviewer in the queue
-entry. CJ approves last.
+a live image, another already-onboarded agent reviews it against the
+non-negotiables in `~/Code/m1n1/AGENTS.md` (no SPMI/PMU/NVRAM writes, no blind
+MMIO, ADT-derived addresses only, hashes pinned, intentional stop before the
+first dangerous write) — and you do the same for theirs. Note the reviewer in
+the queue entry. CJ approves last.

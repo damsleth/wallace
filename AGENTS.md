@@ -7,11 +7,11 @@ kernel patches. The code lives in sibling repos under `~/Code/` (below).
 
 **Start here, in this order:**
 1. This file (the map).
-2. `NEXT_STEPS.md` — what to do next, nothing else.
-3. `DEVLOG.md` — how to operate the rig (boot/build recipes, the DebugUSB
+2. `docs/NEXT_STEPS.md` — what to do next, nothing else.
+3. `docs/DEVLOG.md` — how to operate the rig (boot/build recipes, the DebugUSB
    pty-discipline rules — read those BEFORE touching the hardware), solved
    blockers, dead ends.
-4. `roadmap.md` — the long game (stages A–H) and the current snapshot.
+4. `docs/ROADMAP.md` — the long game (stages A–H) and the current snapshot.
 
 ## The repos
 
@@ -34,6 +34,10 @@ kernel patches. The code lives in sibling repos under `~/Code/` (below).
 - The remote dev loop is sanctioned: reboot/chainload/boot via
   `scripts/t6040-debugusb-console.sh [reboot]` + `scripts/t6040-boot-dcuart.sh`.
   Follow DEVLOG's pty discipline or the link will look dead.
+- Multiple agents share this one rig. **Never drive it without holding the
+  lease** (`scripts/rig-lease.sh`); the three rig scripts enforce it. If you are
+  a new agent, read `docs/AGENT_ONBOARDING.md` first — full protocol in
+  `docs/COORDINATION.md`.
 
 ## Patch identity
 
