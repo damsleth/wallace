@@ -44,6 +44,25 @@ PY
         "$TMP/lib/firmware/apple/tpmtfw-j614s.bin"
 fi
 
+# Optional paired BCM4388 WiFi/BT firmware staged by ticket 014
+# (done/2026-07-14-t6040-bcm4388-fw-extract.md). Points at a vendorfw/ tree
+# holding brcm/ files in Linux firmware naming; installs only the apple,mriya
+# board set. Example: VENDORFW_DIR=/private/tmp/t6040-vendorfw/vendorfw \
+#   ./scripts/t6040-make-initramfs.sh
+if [ -n "${VENDORFW_DIR:-}" ]; then
+    if ! compgen -G "$VENDORFW_DIR/brcm/*apple,mriya*" >/dev/null; then
+        echo "VENDORFW_DIR=$VENDORFW_DIR has no brcm/*apple,mriya* files" >&2
+        exit 1
+    fi
+    install -d "$TMP/lib/firmware/brcm"
+    n=0
+    for f in "$VENDORFW_DIR"/brcm/*apple,mriya*; do
+        install -m 0644 "$f" "$TMP/lib/firmware/brcm/$(basename "$f")"
+        n=$((n + 1))
+    done
+    echo "installed $n apple,mriya wireless firmware files"
+fi
+
 # Optional space-separated EXTRA_FILES="src:dest src:dest" copied into the image.
 for pair in ${EXTRA_FILES:-}; do
     src=${pair%%:*}; dest=${pair#*:}

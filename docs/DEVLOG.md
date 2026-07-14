@@ -193,6 +193,22 @@ as `0x10001` then `0x10000`; do not implement or exercise it under the absolute
 no-PMU-write rule. Details:
 `done/2026-07-12-t6040-trackpad-firmware.md`.
 
+### BCM4388 wireless firmware corpus (2026-07-14, ticket 014)
+
+The `apple,mriya` WiFi/BT firmware (chip 4388 **C2** per the 25F84 Bluetooth
+tree) is staged at `/private/tmp/t6040-vendorfw/` with a SHA-256 inventory,
+derived from the canonical Mac16,8 macOS 26.5.2 (25F84) IPSW: ranged fetch of
+only the BaseSystem member, AEA-decrypt, then the unmodified asahi-installer
+collectors. Key 26.x finding (feeds ticket 026): the installer flow breaks on
+26.x images — BaseSystem is `.dmg.aea`, WiFi payloads moved from
+`usr/share/firmware/wifi` (now dangling symlink stubs) into the AppleBCMWLAN
+dext's `Firmware/` tree, new `AMKOR` BT vendor and new filename forms
+(`F-` dim, `*_gen*.clmb`, `.pcfb`) are unhandled. `t6040-make-initramfs.sh`
+gained a tested `VENDORFW_DIR` hook installing the 14-file mriya set. Usability
+is gated on PCIe port-0 (op-115) + a `brcmfmac`/`hci_bcm4377` kernel build.
+Full provenance, hashes, layout notes, and the regeneration recipe:
+`done/2026-07-14-t6040-bcm4388-fw-extract.md`.
+
 ### DockChannel-UART Linux console (2026-07-12)
 Kernel side: `origin/dockchannel` mailbox + tty drivers + a t6040 board DT
 variant. The ADT declares AIC IRQ 360 for the DockChannel-UART AP FIFO. The
