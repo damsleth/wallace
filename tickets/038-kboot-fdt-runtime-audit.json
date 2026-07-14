@@ -1,0 +1,13 @@
+{
+  "seq": "038",
+  "slug": "kboot-fdt-runtime-audit",
+  "needs": "offline",
+  "state": "open",
+  "track": "boot",
+  "priority": "P2",
+  "desc": "Statically audit current T6040 kboot_prepare_dt output and reserved-memory handoff for generic ISP/SEP/SMC/PMP paths plus dcpext0/1 firmware/data regions; produce an evidence matrix and host-side FDT checks, with no speculative compat fixup or GPU carveout (done/2026-07-10-t6040-kboot-fdt-plan.md Open/Deferred; ROADMAP Stage B.5)",
+  "author": "sol",
+  "deps": [],
+  "hashes": null,
+  "created": 1784040423
+}

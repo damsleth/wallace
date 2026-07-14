@@ -1,0 +1,15 @@
+{
+  "seq": "036",
+  "slug": "smc-macsmc-dt-audit",
+  "needs": "offline",
+  "state": "open",
+  "track": "smc",
+  "priority": "P1",
+  "desc": "Using ticket 028's 26.x map, audit J614s SMC/mailbox endpoints, compatibles and macsmc DT/binding coverage for power button, lid and battery/charger status; draft only evidence-backed compat/DT deltas, with no SPMI/PMU/charger writes (ROADMAP Stage C core drivers + Stage D SMC)",
+  "author": "sol",
+  "deps": [
+    "028"
+  ],
+  "hashes": null,
+  "created": 1784040423
+}

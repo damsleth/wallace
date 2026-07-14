@@ -1,0 +1,13 @@
+{
+  "seq": "030",
+  "slug": "paired-fw-corpus",
+  "needs": "offline",
+  "state": "open",
+  "track": "xcut",
+  "priority": "P1",
+  "desc": "Retrieve this J614s machine's paired Asahi ESP firmware corpus (vendorfw and/or asahi/all_firmware.tar.gz), record macOS/iBoot provenance plus a SHA-256 inventory, and stage one read-only canonical input for tickets 014/016/028 (NEXT_STEPS §1; ROADMAP Stage C RTKit + Stage E)",
+  "author": "sol",
+  "deps": [],
+  "hashes": null,
+  "created": 1784040422
+}

@@ -1,0 +1,15 @@
+{
+  "seq": "033",
+  "slug": "dcuart-nbcon-draft",
+  "needs": "offline",
+  "state": "open",
+  "track": "console",
+  "priority": "P1",
+  "desc": "After ticket 011's bounded TX primitive, draft nbcon/printk integration with no kfifo/workqueue dependency or recursive printk path; build it and write an atomic/panic-context validation matrix before any rig proposal (NEXT_STEPS §2.2; DEVLOG DockChannel-UART console)",
+  "author": "sol",
+  "deps": [
+    "011"
+  ],
+  "hashes": null,
+  "created": 1784040423
+}

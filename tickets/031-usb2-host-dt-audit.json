@@ -1,0 +1,13 @@
+{
+  "seq": "031",
+  "slug": "usb2-host-dt-audit",
+  "needs": "offline",
+  "state": "open",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "Audit the saved J614s ADT and current DT for a USB2 host-only path (usb-drd0..2 t8132 fallback, dart,t8110, power domains); produce a buildable external-disk/ethernet candidate plus exact access manifest, excluding the parked gadget console and unknown ATC PHY buckets (ROADMAP Stage D USB; done/2026-07-10-t6040-atc-usb-dart-plan.md)",
+  "author": "sol",
+  "deps": [],
+  "hashes": null,
+  "created": 1784040422
+}

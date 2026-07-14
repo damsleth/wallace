@@ -1,0 +1,15 @@
+{
+  "seq": "037",
+  "slug": "rtkit-26x-patch-drafts",
+  "needs": "offline",
+  "state": "open",
+  "track": "rtkit",
+  "priority": "P1",
+  "desc": "Turn ticket 028's firmware/version matrix into minimal per-driver 26.x compatibility drafts and host-side tests only where the ABI delta is proven version-gate-only; emit [UPSTREAM] test notes, not local forks, for DCP/ISP-owned work (ROADMAP Stage C RTKit versioning; BACKLOG priority 5)",
+  "author": "sol",
+  "deps": [
+    "028"
+  ],
+  "hashes": null,
+  "created": 1784040423
+}

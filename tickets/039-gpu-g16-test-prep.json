@@ -1,0 +1,13 @@
+{
+  "seq": "039",
+  "slug": "gpu-g16-test-prep",
+  "needs": "offline",
+  "state": "open",
+  "track": "gpu",
+  "priority": "P2",
+  "desc": "[UPSTREAM] Track drm/asahi + Mesa G15/G16 and macOS 26.x ABI support; prepare a T6040 ADT/firmware dump inventory, reproducible smoke checklist and report template for requested J614s mule testing—do not fork a GPU driver here (ROADMAP Stage F)",
+  "author": "sol",
+  "deps": [],
+  "hashes": null,
+  "created": 1784040423
+}

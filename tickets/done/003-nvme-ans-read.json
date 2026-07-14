@@ -2,12 +2,13 @@
   "seq": "003",
   "slug": "nvme-ans-read",
   "needs": "rig",
-  "state": "proposed",
+  "state": "done",
   "track": "storage",
   "priority": "P2",
   "desc": "single readl of ANS CPU_CONTROL 0x209600044, exit via no-detach path (NEXT_STEPS §3)",
   "author": "claude",
   "deps": [],
   "hashes": null,
-  "created": 1784039023
+  "created": 1784039023,
+  "done_at": 1784040422
 }

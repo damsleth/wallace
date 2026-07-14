@@ -1,0 +1,13 @@
+{
+  "seq": "034",
+  "slug": "smp-dt-preflight",
+  "needs": "offline",
+  "state": "open",
+  "track": "smp",
+  "priority": "P2",
+  "desc": "Prepare ticket 005 offline: audit all 14 CPU nodes, MPIDRs, release addresses and WFE/idle constraints; build and hash a maxcpus=2 image/DT/initramfs with self-reporting CPU assertions and a cross-review packet (ROADMAP Stage C exit; done/2026-07-10-t6040-smp-writeup.md)",
+  "author": "sol",
+  "deps": [],
+  "hashes": null,
+  "created": 1784040423
+}

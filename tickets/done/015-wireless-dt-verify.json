@@ -2,12 +2,13 @@
   "seq": "015",
   "slug": "wireless-dt-verify",
   "needs": "offline",
-  "state": "open",
+  "state": "done",
   "track": "wireless",
   "priority": "P2",
   "desc": "Verify brcmfmac + hci_bcm4377 child topology in t6040-j614s-dcuart-pcie; confirm MAC/antenna-SKU/calibration plumbing from ADT",
   "author": "claude",
   "deps": [],
   "hashes": null,
-  "created": 1784039023
+  "created": 1784039023,
+  "done_at": 1784040422
 }
