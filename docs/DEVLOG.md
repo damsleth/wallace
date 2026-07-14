@@ -523,6 +523,19 @@ a new image lineage for pinning purposes. The `t6040-bringup` branch
 range-diff content-identical, new tip `0b2e7252`, build verified. The series
 drift audit + shaping remains ticket 046.
 
+Follow-up (same day): reviewed chadmed/m1n1 `dcp/14.8.3` (remote `chadmed`
+in `~/Code/m1n1`). Everything on it except chadmed's seven DCP commits is
+already in our main via the fork base — including Sven Peter's `954f80c6`
+(`mmu_secondary_setup`: `dsb sy` + stack-cache invalidate before MMU-on;
+fixes sporadic secondary bring-up crashes, upstream #463/#480) and
+`c22ca847`, which names the broken_wfi mechanism: `CYC_OVRD_DISABLE_WFI_RET`
+left set makes WFI drop the register file and re-enter at RVBAR. The fix
+writes `SYS_IMP_APL_CYC_OVRD` under `apple_sysregs_unlocked` — a no-op on
+this raw-boot machine (False, confirmed live), so the WFE park stays
+required here; the ticket-019 drafts should cite both commits. chadmed's DCP
+commits are 14.x-era firmware ABI infra (V14_7 ABI, FW 14.8.3, trace_dcp) —
+watch pointer recorded on ticket 022.
+
 ### Watchdog (2026-07-11)
 Linux `apple_wdt` takes over m1n1's WD1; BusyBox pings `/dev/watchdog0` every
 10 s. m1n1 arms WD1 for ~20 s on M4 before handoff (`src/kboot.c`,

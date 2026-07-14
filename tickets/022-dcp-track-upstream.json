@@ -5,7 +5,7 @@
   "state": "open",
   "track": "display",
   "priority": "P2",
-  "desc": "[UPSTREAM] Track the asahi DCP driver M4/26.x support; prep j614s DCP DT wiring. simpledrm is the honest interim",
+  "desc": "[UPSTREAM] Track the asahi DCP driver M4/26.x support; prep j614s DCP DT wiring. simpledrm is the honest interim. Watch pointer 2026-07-14 (fable): chadmed/m1n1 branch dcp/14.8.3 (remote 'chadmed' configured in ~/Code/m1n1) — 7 fresh commits (2026-07-13/14): WIP V14_7 ABI in m1n1.fw.dcp.ipc, FW ver 14.8.3 constructutils, kboot DCP fw compat 14.7, DCP-IPC-client hv trace_dcp, per-caller request logging, HACK gpu-init-on-14.3. All 14.x-era firmware ABI, not our 26.x, but the versioned-ABI/logging infra is what 26.x support would extend — recheck the branch as it iterates",
   "author": "claude",
   "deps": [],
   "hashes": null,
