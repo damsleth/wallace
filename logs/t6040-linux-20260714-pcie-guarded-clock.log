@@ -1,0 +1,37 @@
+Preparing to run next stage at 0x1000fa00000...
+USB0: shutdown
+USB1: shutdown
+USB2: shutdown
+MMU: shutting down...
+MMU: shutdown successful, clearing caches
+Vectoring to next stage...
+
+*** t6040 Linux DockChannel UART console alive ***
+Linux (none) 7.2.0-rc2-gef5e754365e8-dirty #15 SMP PREEMPT Sun Jul 12 22:43:35 UTC 2026 aarch64 GNU/Linux
+[    0.178640] input: Apple DockChannel Keyboard as /devices/platform/soc/514600000.hid/0019:05AC:0359.0003/input/input1
+[    0.185196] apple 0019:05AC:0359.0003: input: <UNKNOWN> HID v5.10 Keyboard [Apple DockChannel Keyboard] on 514600000.hid.2
+[    0.186323] dockchannel-hid 514600000.hid: RTKit: syslog message: actuator_cr.c:84: Actuator interface configuration completed
+[    0.186343] dockchannel-hid 514600000.hid: RTKit: syslog message: actuator.c:71: Actuator ready
+[    0.186393] hid (null): invalid report_size 16384
+[    0.186420] apple 0019:05AC:0359.0004: fixing up DockChannel report size
+[    0.186435] apple 0019:05AC:0359.0004: device has no listeners, quitting
+[    0.186436] apple 0019:05AC:0359.0004: hw start failed
+[    0.187428] dockchannel-hid 514600000.hid: RTKit: syslog message: accel_cr.c:73: Accel interface configuration completed
+[    0.187448] dockchannel-hid 514600000.hid: RTKit: syslog message: accel.c:71: Accel ready
+[    0.187466] hid (null): invalid report_size 16384
+[    0.187487] apple 0019:05AC:0359.0005: fixing up DockChannel report size
+[    0.187496] apple 0019:05AC:0359.0005: device has no listeners, quitting
+[    0.187496] apple 0019:05AC:0359.0005: hw start failed
+[    0.187625] dockchannel-hid 514600000.hid: RTKit: syslog message: mtp_cr.c:268: MTP interface is ready
+[    0.187646] dockchannel-hid 514600000.hid: RTKit: syslog message: mtp_cr.c:275: MTP management interface configuration completed
+[    0.187662] hid (null): invalid report_size 16384
+[    0.187677] apple 0019:05AC:0359.0006: fixing up DockChannel report size
+[    0.187686] apple 0019:05AC:0359.0006: device has no listeners, quitting
+[    0.187686] apple 0019:05AC:0359.0006: hw start failed
+[dcuart] spawning shell on /dev/ttydc0
+
+
+BusyBox v1.35.0 (Debian 1:1.35.0-4+deb12u1+b1) built-in shell (ash)
+Enter 'help' for a list of built-in commands.
+
+/ # [6n

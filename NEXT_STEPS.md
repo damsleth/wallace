@@ -7,7 +7,7 @@ cable; reboot via `macvdmtool`. No screen-reading or physical access needed.
 Operational details, recipes, and history: `DEVLOG.md`. Long-term: `roadmap.md`.
 Read the DebugUSB link rules in DEVLOG before touching the rig.
 
-## 0. Localize the T6040 PCIe asynchronous SError
+## 0. Extend the proven T6040 PCIe path through PHY setup
 
 The former register-map blocker is solved. Static analysis of the paired macOS
 kernelcache proves the two new T6040 groups target ADT reg[5] (CIO3 PLL at
@@ -16,7 +16,7 @@ kernelcache proves the two new T6040 groups target ADT reg[5] (CIO3 PLL at
 sequence. The separate `t6040-j614s-dcuart-pcie` kernel DT builds cleanly and
 describes BCM4388 WiFi/BT on port 0 plus the GL9755 SD reader on port 1.
 
-Six approved diagnostics ran on 2026-07-14. The first completed all 77
+The initial approved diagnostics ran on 2026-07-14. The first completed all 77
 AXI tunables and stopped after `pcie: No common tunables`. The traced retry on
 main `81da3522` delivered the real failure earlier: AXI tunable `[70]`, manifest
 operation 90 in that build, printed `done`; before `[71]` was announced, m1n1
@@ -90,16 +90,25 @@ traced `[70]` failure. Exact m1n1 transcript:
 `2e8624d795bc6bddab24b932a530bf7f992f35732402ed041bfc308857260d63`).
 Full result: `done/2026-07-14-t6040-logbuf-upper-guard-control.md`.
 
-The Apple-ordered 105-operation path is restored at main `f46d6e35`
+The Apple-ordered 105-operation path was restored at main `f46d6e35`
 (`v1.6.0-78-gf46d6e35`), binary SHA-256
 `8fd7319047187f9ca05a6924462a4f24360fcc1d9e4279b089dc83a5acb05744`.
 It retains the proven upper guard, per-RMW barriers/status samples, exact
 manifest SHA-256
 `ce86e51aa3d278da1d9ef9eb35fca3208859f4993480de5b6af3268dc03ef4e6`,
 Apple clock-gate order, and hard return before operation 106, the first PHY
-write. Its one live run requires fresh explicit approval; exact gate:
-`done/2026-07-14-t6040-pcie-guarded-clock-diagnostic.md`. Continue using the
-PCIe-free base DT; do not access NVMe or mount/repair/format storage.
+write. The approved run completed all 105 operations: all 77 AXI entries, the
+RC write, all seven CIO3 PLL entries, the PCIe clkgen entry, and the late
+`APCIE_PHY_SW` gate. It then took the intentional stop before PHY, handed off
+the PCIe-free base DT, and reached BusyBox with no nonzero L2 status or SError.
+Exact transcripts and hashes are in
+`done/2026-07-14-t6040-pcie-guarded-clock-diagnostic.md`.
+
+**Immediate next gate:** prepare an exact PHY-only continuation which begins at
+manifest operation 106 and returns before the first per-port write. Review its
+ordered operation subset and exact binary hashes before requesting a fresh live
+approval. Continue using the PCIe-free base DT; do not reach ports, PERST#,
+RID2SID/MSIMAP, Linux PCIe, NVMe, or any storage access in this stage.
 
 ## 1. Provision and test the J614s trackpad firmware
 `event0` is Apple DockChannel Multi-touch and `event1` is the keyboard. The

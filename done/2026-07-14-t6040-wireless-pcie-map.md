@@ -310,23 +310,32 @@ Main `f46d6e35`, binary SHA-256
 `8fd7319047187f9ca05a6924462a4f24360fcc1d9e4279b089dc83a5acb05744`,
 restores the Apple-ordered 105-operation write path with the proven guard,
 per-RMW barriers/status samples, and the return before operation 106. Exact
-approval gate: `2026-07-14-t6040-pcie-guarded-clock-diagnostic.md`.
+approval gate: `2026-07-14-t6040-pcie-guarded-clock-diagnostic.md`. The approved
+run completed all 105 operations, printed the intentional stop-before-PHY
+marker, and booted the PCIe-free base kernel to BusyBox with no L2 error or
+SError. No PHY, port, PERST#, RID2SID/MSIMAP, Linux PCIe, NVMe, or storage access
+ran. m1n1 transcript SHA-256
+`8dac965aadfb8f5bd92cf2c0e17ceefaea3f74de11790d8089121d527f54b175`;
+Linux transcript SHA-256
+`b1caef2f4b6612675f329402bc0d9f87813494a98c28a84bb09033471d792063`.
 
 ## Full-path gate
 
 `pcie_init()` is a kboot-time invasive operation. A complete target boot remains
 **unattempted and gated**. It will apply the full existing ADT-derived
 AXI/PHY/PHY-IP/bridge tunable sets and the reused T6031/T8122 clock/reset/port
-sequence. After the asynchronous fault is localized and corrected, use two
-further stages:
+sequence. With the log-buffer fault localized and corrected, use these further
+stages:
 
-1. Boot a corrected full m1n1 path with the current PCIe-free base DT. The Image
+1. First run an exact shared-PHY-only subset with a hard return before the first
+   per-port write, using the current PCIe-free base DT.
+2. Boot a corrected full m1n1 path with the current PCIe-free base DT. The Image
    and initramfs are previously boot-proven; the concurrently rebuilt DT differs
    from the older build-15 hash but contains no PCIe host node. Current hashes:
    Image `14da8640398fc64b89d9241a75be0ffc8d4260b681068a3c27251cc79c3abaf4`,
    DTB `e7691ee49ed88114154061aeaf29309e3d817ae3ae89d7196bf7ef02a9b3dc9a`,
    initramfs `512c69da94884f3ea83f9a6a4ea0731dcad6b5aaa87eb875ca5a6d7b24c317ca`.
-2. Only after reviewing that result, boot the prepared PCIe DT for Linux
+3. Only after reviewing that result, boot the prepared PCIe DT for Linux
    host/DART and config-space enumeration. Endpoint modules remain absent.
 
 Neither stage may access the NVMe namespace or mount/repair/format any storage.

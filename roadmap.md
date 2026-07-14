@@ -31,9 +31,10 @@ map, execute-and-return, broken_wfi handled (WFE park), ~10 s chainload loop.
 
 **Stage B effectively complete 2026-07-10** — cpufreq minimal (APSC/pstate;
 throttle offsets deferred, need RE), MCC t6041 Ph1+2 (TZ offset + cache-enable
-still open), PCIe register map plus clock/PLL targets resolved (traced live
-SError is in AXI setup; reproducing Apple's staged PHY-clock-gate order did not
-move the `[70]` asynchronous-fault boundary), ATC/USB DART audited
+still open), PCIe register map plus clock/PLL targets resolved (the traced
+`[70]` SError was a top-of-RAM log-buffer artifact; with the guard, Apple's
+complete 105-operation clock/tunable prefix runs and boots Linux cleanly),
+ATC/USB DART audited
 (DART done, PHY tunables deferred → USB2 fallback), kboot FDT display carveout
 fixed, dapf gate + watchdog arm added for M4.
 
@@ -125,7 +126,10 @@ doable solo with the proxy + ADT dumps; this is the highest-leverage local work.
    write trace reproduced it, proving a log-buffer artifact: the 16 KiB ring
    ends at top-of-RAM and crosses its boundary during `[61] done`. An upper-guard
    dry-run control completed all 77 entries and booted Linux, proving the guard.
-   The actual stop-before-PHY write path is prepared and separately gated. Detailed in
+   The approved guarded stop-before-PHY run then completed all 105 operations,
+   including CIO3, clkgen, and the late PHY clock gate, and booted Linux without
+   an L2 error or SError. The next bounded stage is PHY setup only, with a return
+   before the first per-port write. Detailed in
    `2026-07-14-t6040-wireless-pcie-map.md`. WiFi/BT prerequisite.
 4. **ATC/USB tunables + DART config** — **AUDITED 2026-07-10 (mostly verify+defer).**
    All kboot-only, FDT-only (safe). **DART = done** (t6040 DARTs are `dart,t8110`,
@@ -230,14 +234,10 @@ keyboard/trackpad, battery status. Daily-drivable without GPU/WiFi (USB ethernet
   The complete PCIe/GPIO/DART child topology is in the separately gated
   `t6040-j614s-dcuart-pcie` DT; see
   `done/2026-07-14-t6040-wireless-pcie-map.md`.
-- **Immediate gate:** approve the prepared Apple-ordered 105-operation
-  stop-before-PHY path with the proven log-buffer upper guard. The guard control
-  at main `a61fd099` completed all 77 zero-write trace entries and booted Linux,
-  proving that `[70]` was solely a logging artifact. Retain per-RMW barriers and
-  status samples, use the PCIe-free base DT, and review the result before any
-  PHY or port work. Main `f46d6e35`, binary SHA-256
-  `8fd7319047187f9ca05a6924462a4f24360fcc1d9e4279b089dc83a5acb05744`;
-  exact gate in `done/2026-07-14-t6040-pcie-guarded-clock-diagnostic.md`.
+- **Immediate gate:** prepare and review a shared-PHY-only continuation after
+  the successful Apple-ordered 105-operation prefix. It must use the PCIe-free
+  base DT and return before the first per-port write; request fresh explicit
+  approval only after its exact operation subset and binary hashes are recorded.
   Until link-up succeeds, firmware work cannot be exercised.
 - **WiFi:** `brcmfmac` PCIe path; m1n1 already copies the MAC, antenna SKU and
   calibration blob from ADT when `wifi0` is aliased. Firmware still has to be

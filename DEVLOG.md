@@ -421,12 +421,22 @@ Linux transcript SHA-256
 `6c6c0073bacbec235a9e54c6535a646f34ad372792c02ee30a5cb1fc5983d8e9`.
 See `done/2026-07-14-t6040-logbuf-upper-guard-control.md`.
 
-The write-bearing stop-before-PHY path is restored at main `f46d6e35`, binary
+The write-bearing stop-before-PHY path was restored at main `f46d6e35`, binary
 SHA-256
 `8fd7319047187f9ca05a6924462a4f24360fcc1d9e4279b089dc83a5acb05744`.
 It retains the proven upper guard and the exact 105-operation manifest, SHA-256
 `ce86e51aa3d278da1d9ef9eb35fca3208859f4993480de5b6af3268dc03ef4e6`.
-It requires fresh explicit approval; see
+The maintainer approved one run. It completed AXI `[0..76]`, the RC write,
+all seven CIO3 PLL RMWs, the PCIe clkgen RMW, and the late `APCIE_PHY_SW` gate,
+then printed the intentional stop-before-PHY marker. No L2 error or SError was
+observed. The PCIe-free base kernel reached BusyBox; PHY, ports, PERST#,
+RID2SID/MSIMAP, Linux PCIe, NVMe, and storage were not accessed. Exact m1n1
+transcript: `logs/t6040-console-20260714-pcie-guarded-clock.log`, SHA-256
+`8dac965aadfb8f5bd92cf2c0e17ceefaea3f74de11790d8089121d527f54b175`
+(402 lines, 26,188 bytes). Linux transcript:
+`logs/t6040-linux-20260714-pcie-guarded-clock.log`, SHA-256
+`b1caef2f4b6612675f329402bc0d9f87813494a98c28a84bb09033471d792063`
+(36 lines, 2,255 bytes). Full result:
 `done/2026-07-14-t6040-pcie-guarded-clock-diagnostic.md`.
 Full details are in `done/2026-07-14-t6040-wireless-pcie-map.md`.
 

@@ -1,0 +1,402 @@
+m1n1 base: 0x10004b1c000
+Fetching ADT (0x00094000 bytes)...
+Setting boot args: "maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel rdinit=/init"
+Loading DTB to 0x1000f8f8200...
+Kernel_base: 0x1000fa00000
+Loading 988282 initramfs bytes to 0x1002fa00000...
+.........................................................................................................................
+TTY> cpufreq: Initializing clusters
+TTY> Starting secondary CPUs...
+TTY> smp: broken wfi on this SoC, parking secondaries in wfe
+TTY> Starting CPU 0 (0:0:0)... *
+TTY>   Stack base: 0x100077f8000
+TTY> *  MPIDR: 0x80000000
+TTY> *  CPU part: 0x54 rev: 0x11
+TTY> *  CPU: M4 Pro Brava Chop (E core)
+TTY> *  Running in EL2
+TTY> 
+TTY> *  Index: 0 (table: 0x10004bf9290)
+TTY> 
+TTY>   Started.
+TTY> Starting CPU 1 (0:0:1)... *
+TTY>   Stack base: 0x1000780c000
+TTY> *  MPIDR: 0x80000001
+TTY> *  CPU part: 0x54 rev: 0x11
+TTY> *  CPU: M4 Pro Brava Chop (E core)
+TTY> *  Running in EL2
+TTY> 
+TTY> *  Index: 1 (table: 0x10004bf92d0)
+TTY> 
+TTY>   Started.
+TTY> Starting CPU 2 (0:0:2)... *
+TTY>   Stack base: 0x10007820000
+TTY> *  MPIDR: 0x80000002
+TTY> *  CPU part: 0x54 rev: 0x11
+TTY> *  CPU: M4 Pro Brava Chop (E core)
+TTY> *  Running in EL2
+TTY> 
+TTY> *  Index: 2 (table: 0x10004bf9310)
+TTY> 
+TTY>   Started.
+TTY> Starting CPU 3 (0:0:3)... *
+TTY>   Stack base: 0x10007834000
+TTY> *  MPIDR: 0x80000003
+TTY> *  CPU part: 0x54 rev: 0x11
+TTY> *  CPU: M4 Pro Brava Chop (E core)
+TTY> *  Running in EL2
+TTY> 
+TTY> *  Index: 3 (table: 0x10004bf9350)
+TTY> 
+TTY>   Started.
+TTY> Starting CPU 5 (0:1:1)... *
+TTY>   Stack base: 0x10007848000
+TTY> *  MPIDR: 0x80010101
+TTY> *  CPU part: 0x55 rev: 0x11
+TTY> *  CPU: M4 Pro Brava Chop (P core)
+TTY> *  Running in EL2
+TTY> 
+TTY> *  Index: 5 (table: 0x10004bf93d0)
+TTY> 
+TTY>   Started.
+TTY> Starting CPU 6 (0:1:2)... *
+TTY>   Stack base: 0x1000785c000
+TTY> *  MPIDR: 0x80010102
+TTY> *  CPU part: 0x55 rev: 0x11
+TTY> *  CPU: M4 Pro Brava Chop (P core)
+TTY> *  Running in EL2
+TTY> 
+TTY> *  Index: 6 (table: 0x10004bf9410)
+TTY> 
+TTY>   Started.
+TTY> Starting CPU 7 (0:1:3)... *
+TTY>   Stack base: 0x10007870000
+TTY> *  MPIDR: 0x80010103
+TTY> *  CPU part: 0x55 rev: 0x11
+TTY> *  CPU: M4 Pro Brava Chop (P core)
+TTY> *  Running in EL2
+TTY> 
+TTY> *  Index: 7 (table: 0x10004bf9450)
+TTY> 
+TTY>   Started.
+TTY> Starting CPU 8 (0:1:4)... *
+TTY>   Stack base: 0x10007884000
+TTY> *  MPIDR: 0x80010104
+TTY> *  CPU part: 0x55 rev: 0x11
+TTY> *  CPU: M4 Pro Brava Chop (P core)
+TTY> *  Running in EL2
+TTY> 
+TTY> *  Index: 8 (table: 0x10004bf9490)
+TTY> 
+TTY>   Started.
+TTY> Starting CPU 10 (0:2:0)... *
+TTY>   Stack base: 0x10007898000
+TTY> *  MPIDR: 0x80010200
+TTY> *  CPU part: 0x55 rev: 0x11
+TTY> *  CPU: M4 Pro Brava Chop (P core)
+TTY> *  Running in EL2
+TTY> 
+TTY> *  Index: 10 (table: 0x10004bf9510)
+TTY> 
+TTY>   Started.
+TTY> Starting CPU 11 (0:2:1)... *
+TTY>   Stack base: 0x100078ac000
+TTY> *  MPIDR: 0x80010201
+TTY> *  CPU part: 0x55 rev: 0x11
+TTY> *  CPU: M4 Pro Brava Chop (P core)
+TTY> *  Running in EL2
+TTY> 
+TTY> *  Index: 11 (table: 0x10004bf9550)
+TTY> 
+TTY>   Started.
+TTY> Starting CPU 12 (0:2:2)... *
+TTY>   Stack base: 0x100078c0000
+TTY> *  MPIDR: 0x80010202
+TTY> *  CPU part: 0x55 rev: 0x11
+TTY> *  CPU: M4 Pro Brava Chop (P core)
+TTY> *  Running in EL2
+TTY> 
+TTY> *  Index: 12 (table: 0x10004bf9590)
+TTY> 
+TTY>   Started.
+TTY> Starting CPU 13 (0:2:3)... *
+TTY>   Stack base: 0x100078d4000
+TTY> *  MPIDR: 0x80010203
+TTY> *  CPU part: 0x55 rev: 0x11
+TTY> *  CPU: M4 Pro Brava Chop (P core)
+TTY> *  Running in EL2
+TTY> 
+TTY> *  Index: 13 (table: 0x10004bf95d0)
+TTY> 
+TTY>   Started.
+TTY> Starting CPU 14 (0:2:4)... *
+TTY>   Stack base: 0x100078e8000
+TTY> *  MPIDR: 0x80010204
+TTY> *  CPU part: 0x55 rev: 0x11
+TTY> *  CPU: M4 Pro Brava Chop (P core)
+TTY> *  Running in EL2
+TTY> 
+TTY> *  Index: 14 (table: 0x10004bf9610)
+TTY> 
+TTY>   Started.
+TTY> isp: Unsupported SoC
+TTY> FDT: bootargs = 'maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel rdinit=/init'
+TTY> FDT: initrd at 0x1002fa00000 size 0xf147a
+TTY> display: Hiding notch, 3024x1964 -> 3024x1890 (+74, 16:10)
+TTY> FDT: framebuffer@105d306a880 base 0x105d306a880 size 0x15cd680
+TTY> SEP: couldn't get enough random bytes for KASLR seed
+TTY> ADT: 256 bytes of random seed available
+TTY> FDT: KASLR seed initialized
+TTY> FDT: Passing 256 bytes of random seed
+TTY> FDT: reporting device serial number: J22GYCN4YG
+TTY> FDT: Reserving stack for CPU 0 0x100077e8000
+TTY> FDT: CPU 0 MPIDR=0x0 release-addr=0x10004bf92a0
+TTY> FDT: Reserving stack for CPU 1 0x100077fc000
+TTY> FDT: CPU 1 MPIDR=0x1 release-addr=0x10004bf92e0
+TTY> FDT: Reserving stack for CPU 2 0x10007810000
+TTY> FDT: CPU 2 MPIDR=0x2 release-addr=0x10004bf9320
+TTY> FDT: Reserving stack for CPU 3 0x10007824000
+TTY> FDT: CPU 3 MPIDR=0x3 release-addr=0x10004bf9360
+TTY> FDT: Reserving stack for CPU 5 0x10007838000
+TTY> FDT: CPU 5 MPIDR=0x10101 release-addr=0x10004bf93e0
+TTY> FDT: Reserving stack for CPU 6 0x1000784c000
+TTY> FDT: CPU 6 MPIDR=0x10102 release-addr=0x10004bf9420
+TTY> FDT: Reserving stack for CPU 7 0x10007860000
+TTY> FDT: CPU 7 MPIDR=0x10103 release-addr=0x10004bf9460
+TTY> FDT: Reserving stack for CPU 8 0x10007874000
+TTY> FDT: CPU 8 MPIDR=0x10104 release-addr=0x10004bf94a0
+TTY> FDT: CPU 9 is not alive, disabling...
+TTY> FDT: Reserving stack for CPU 10 0x10007888000
+TTY> FDT: CPU 10 MPIDR=0x10200 release-addr=0x10004bf9520
+TTY> FDT: Reserving stack for CPU 11 0x1000789c000
+TTY> FDT: CPU 11 MPIDR=0x10201 release-addr=0x10004bf9560
+TTY> FDT: Reserving stack for CPU 12 0x100078b0000
+TTY> FDT: CPU 12 MPIDR=0x10202 release-addr=0x10004bf95a0
+TTY> FDT: Reserving stack for CPU 13 0x100078c4000
+TTY> FDT: CPU 13 MPIDR=0x10203 release-addr=0x10004bf95e0
+TTY> FDT: Reserving stack for CPU 14 0x100078d8000
+TTY> FDT: CPU 14 MPIDR=0x10204 release-addr=0x10004bf9620
+TTY> FDT: Failed to find AIC affinities node, ignoring...
+TTY> FDT: Unable to find alias atcphy0
+TTY> FDT: Unable to find alias atcphy1
+TTY> FDT: Unable to find alias atcphy2
+TTY> FDT: Unable to find alias atcphy3
+TTY> FDT: Unable to find alias usb4_0_rc
+TTY> FDT: Unable to find alias usb4_0_pcie_adapter
+TTY> FDT: Unable to find alias usb4_0_nhi
+TTY> FDT: Unable to find alias usb4_0_nhi
+TTY> FDT: Unable to find alias usb4_1_rc
+TTY> FDT: Unable to find alias usb4_1_pcie_adapter
+TTY> FDT: Unable to find alias usb4_1_nhi
+TTY> FDT: Unable to find alias usb4_1_nhi
+TTY> FDT: Unable to find alias usb4_2_rc
+TTY> FDT: Unable to find alias usb4_2_pcie_adapter
+TTY> FDT: Unable to find alias usb4_2_nhi
+TTY> FDT: Unable to find alias usb4_2_nhi
+TTY> FDT: Unable to find alias usb4_0_pcie
+TTY> FDT: Unable to find alias usb4_1_pcie
+TTY> FDT: Unable to find alias usb4_2_pcie
+TTY> FDT: GPU: Initializing GPU info
+TTY> ADT: GPU: unsupported chip!
+TTY> FDT: sep alias not found in devtree
+TTY> FDT: pmp not found in devtree
+TTY> ADT: nvram partition not found
+TTY> FDT: 'isp' not found
+TTY> FDT: 'isp' not found
+TTY> FDT: DRAM at 0x10000000000 size 0x600000000
+TTY> FDT: Usable memory is 0x100032a8000..0x105ce79c000 (0x5cb4f4000)
+TTY> FDT: Adding reserved-memory node flash@105ce7a0000 (105ce7a0000..105ce7a4000) to RAM map
+TTY> FDT prepared at 0x100078ec000
+Loading 51718656 bytes to 0x1000fa00000..0x10012b52a00...
+..........................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+51718656
+Decompress OK...
+Ready to boot
+DAIF: c0
+TTY> MCC: System level cache enabled
+TTY> mca-switch node not found!
+TTY> pcie: Error getting node /arm-io/apcie
+TTY> pcie: Initializing t6040 PCIe controller
+TTY> pcie: ADT uses 7 reg entries per port
+TTY> tunable: apcie-axi2af-tunables[0] addr=0x416000000 size=4 mask=0x800000ff value=0x80000022
+TTY> tunable: apcie-axi2af-tunables[0] done
+TTY> tunable: apcie-axi2af-tunables[1] addr=0x416000004 size=4 mask=0x80ff00ff value=0x80220003
+TTY> tunable: apcie-axi2af-tunables[1] done
+TTY> tunable: apcie-axi2af-tunables[2] addr=0x416000008 size=4 mask=0x80ff00ff value=0x80220003
+TTY> tunable: apcie-axi2af-tunables[2] done
+TTY> tunable: apcie-axi2af-tunables[3] addr=0x41600000c size=4 mask=0x80ff00ff value=0x80220003
+TTY> tunable: apcie-axi2af-tunables[3] done
+TTY> tunable: apcie-axi2af-tunables[4] addr=0x416000010 size=4 mask=0x80ff00ff value=0x80220003
+TTY> tunable: apcie-axi2af-tunables[4] done
+TTY> tunable: apcie-axi2af-tunables[5] addr=0x416000014 size=4 mask=0x80ff00ff value=0x80220003
+TTY> tunable: apcie-axi2af-tunables[5] done
+TTY> tunable: apcie-axi2af-tunables[6] addr=0x416000018 size=4 mask=0x80ff00ff value=0x80220003
+TTY> tunable: apcie-axi2af-tunables[6] done
+TTY> tunable: apcie-axi2af-tunables[7] addr=0x41600001c size=4 mask=0x800000ff value=0x8000001c
+TTY> tunable: apcie-axi2af-tunables[7] done
+TTY> tunable: apcie-axi2af-tunables[8] addr=0x416000020 size=4 mask=0x800000ff value=0x80000088
+TTY> tunable: apcie-axi2af-tunables[8] done
+TTY> tunable: apcie-axi2af-tunables[9] addr=0x416000024 size=4 mask=0x80ff00ff value=0x8088000c
+TTY> tunable: apcie-axi2af-tunables[9] done
+TTY> tunable: apcie-axi2af-tunables[10] addr=0x416000028 size=4 mask=0x80ff00ff value=0x8088000c
+TTY> tunable: apcie-axi2af-tunables[10] done
+TTY> tunable: apcie-axi2af-tunables[11] addr=0x41600002c size=4 mask=0x80ff00ff value=0x80200008
+TTY> tunable: apcie-axi2af-tunables[11] done
+TTY> tunable: apcie-axi2af-tunables[12] addr=0x416000030 size=4 mask=0x80ff00ff value=0x8088000c
+TTY> tunable: apcie-axi2af-tunables[12] done
+TTY> tunable: apcie-axi2af-tunables[13] addr=0x416000034 size=4 mask=0x80ff00ff value=0x8088000c
+TTY> tunable: apcie-axi2af-tunables[13] done
+TTY> tunable: apcie-axi2af-tunables[14] addr=0x416000038 size=4 mask=0x800000ff value=0x8000001c
+TTY> tunable: apcie-axi2af-tunables[14] done
+TTY> tunable: apcie-axi2af-tunables[15] addr=0x41600003c size=4 mask=0x800000ff value=0x8000001c
+TTY> tunable: apcie-axi2af-tunables[15] done
+TTY> tunable: apcie-axi2af-tunables[16] addr=0x416000040 size=4 mask=0x800000ff value=0x8000001c
+TTY> tunable: apcie-axi2af-tunables[16] done
+TTY> tunable: apcie-axi2af-tunables[17] addr=0x416000100 size=4 mask=0xff value=0xff
+TTY> tunable: apcie-axi2af-tunables[17] done
+TTY> tunable: apcie-axi2af-tunables[18] addr=0x416000108 size=4 mask=0xffff0006 value=0x100000
+TTY> tunable: apcie-axi2af-tunables[18] done
+TTY> tunable: apcie-axi2af-tunables[19] addr=0x416000304 size=4 mask=0x3f3f0000 value=0x8080000
+TTY> tunable: apcie-axi2af-tunables[19] done
+TTY> tunable: apcie-axi2af-tunables[20] addr=0x416000308 size=4 mask=0xfffff value=0x1681
+TTY> tunable: apcie-axi2af-tunables[20] done
+TTY> tunable: apcie-axi2af-tunables[21] addr=0x41600030c size=4 mask=0xfffff value=0x1680
+TTY> tunable: apcie-axi2af-tunables[21] done
+TTY> tunable: apcie-axi2af-tunables[22] addr=0x416000310 size=4 mask=0x70000fff value=0x1e0
+TTY> tunable: apcie-axi2af-tunables[22] done
+TTY> tunable: apcie-axi2af-tunables[23] addr=0x416000314 size=4 mask=0xf0000fff value=0x800001e0
+TTY> tunable: apcie-axi2af-tunables[23] done
+TTY> tunable: apcie-axi2af-tunables[24] addr=0x416000318 size=4 mask=0x70000fff value=0x5a0
+TTY> tunable: apcie-axi2af-tunables[24] done
+TTY> tunable: apcie-axi2af-tunables[25] addr=0x41600031c size=4 mask=0xf0000fff value=0x800005a0
+TTY> tunable: apcie-axi2af-tunables[25] done
+TTY> tunable: apcie-axi2af-tunables[26] addr=0x416000320 size=4 mask=0x70000fff value=0x5a0
+TTY> tunable: apcie-axi2af-tunables[26] done
+TTY> tunable: apcie-axi2af-tunables[27] addr=0x416000324 size=4 mask=0xf0000fff value=0x800005a0
+TTY> tunable: apcie-axi2af-tunables[27] done
+TTY> tunable: apcie-axi2af-tunables[28] addr=0x416000328 size=4 mask=0x70000fff value=0x5a0
+TTY> tunable: apcie-axi2af-tunables[28] done
+TTY> tunable: apcie-axi2af-tunables[29] addr=0x41600032c size=4 mask=0x70000fff value=0x5a0
+TTY> tunable: apcie-axi2af-tunables[29] done
+TTY> tunable: apcie-axi2af-tunables[30] addr=0x416000330 size=4 mask=0x70000fff value=0x5a0
+TTY> tunable: apcie-axi2af-tunables[30] done
+TTY> tunable: apcie-axi2af-tunables[31] addr=0x416000334 size=4 mask=0x70000fff value=0x5a0
+TTY> tunable: apcie-axi2af-tunables[31] done
+TTY> tunable: apcie-axi2af-tunables[32] addr=0x416000338 size=4 mask=0x70000fff value=0x5a0
+TTY> tunable: apcie-axi2af-tunables[32] done
+TTY> tunable: apcie-axi2af-tunables[33] addr=0x41600033c size=4 mask=0x70000fff value=0x5a0
+TTY> tunable: apcie-axi2af-tunables[33] done
+TTY> tunable: apcie-axi2af-tunables[34] addr=0x416000340 size=4 mask=0x70000fff value=0x5a0
+TTY> tunable: apcie-axi2af-tunables[34] done
+TTY> tunable: apcie-axi2af-tunables[35] addr=0x416000348 size=4 mask=0xffffffff value=0xffff
+TTY> tunable: apcie-axi2af-tunables[35] done
+TTY> tunable: apcie-axi2af-tunables[36] addr=0x41600034c size=4 mask=0xffffffff value=0xffff
+TTY> tunable: apcie-axi2af-tunables[36] done
+TTY> tunable: apcie-axi2af-tunables[37] addr=0x416000408 size=4 mask=0xffff0020 value=0x1f0020
+TTY> tunable: apcie-axi2af-tunables[37] done
+TTY> tunable: apcie-axi2af-tunables[38] addr=0x41600040c size=4 mask=0xfffff value=0x1681
+TTY> tunable: apcie-axi2af-tunables[38] done
+TTY> tunable: apcie-axi2af-tunables[39] addr=0x416000410 size=4 mask=0xfffff value=0x1680
+TTY> tunable: apcie-axi2af-tunables[39] done
+TTY> tunable: apcie-axi2af-tunables[40] addr=0x416000414 size=4 mask=0x70000fff value=0x1e0
+TTY> tunable: apcie-axi2af-tunables[40] done
+TTY> tunable: apcie-axi2af-tunables[41] addr=0x416000418 size=4 mask=0x70000fff value=0x1e0
+TTY> tunable: apcie-axi2af-tunables[41] done
+TTY> tunable: apcie-axi2af-tunables[42] addr=0x41600041c size=4 mask=0x70000fff value=0x5a0
+TTY> tunable: apcie-axi2af-tunables[42] done
+TTY> tunable: apcie-axi2af-tunables[43] addr=0x416000420 size=4 mask=0x70000fff value=0x5a0
+TTY> tunable: apcie-axi2af-tunables[43] done
+TTY> tunable: apcie-axi2af-tunables[44] addr=0x416000424 size=4 mask=0x70000fff value=0x5a0
+TTY> tunable: apcie-axi2af-tunables[44] done
+TTY> tunable: apcie-axi2af-tunables[45] addr=0x416000428 size=4 mask=0x70000fff value=0x5a0
+TTY> tunable: apcie-axi2af-tunables[45] done
+TTY> tunable: apcie-axi2af-tunables[46] addr=0x41600042c size=4 mask=0x70000fff value=0x5a0
+TTY> tunable: apcie-axi2af-tunables[46] done
+TTY> tunable: apcie-axi2af-tunables[47] addr=0x416000430 size=4 mask=0x70000fff value=0x5a0
+TTY> tunable: apcie-axi2af-tunables[47] done
+TTY> tunable: apcie-axi2af-tunables[48] addr=0x416000434 size=4 mask=0x70000fff value=0x5a0
+TTY> tunable: apcie-axi2af-tunables[48] done
+TTY> tunable: apcie-axi2af-tunables[49] addr=0x416000438 size=4 mask=0x70000fff value=0x5a0
+TTY> tunable: apcie-axi2af-tunables[49] done
+TTY> tunable: apcie-axi2af-tunables[50] addr=0x41600043c size=4 mask=0x70000fff value=0x5a0
+TTY> tunable: apcie-axi2af-tunables[50] done
+TTY> tunable: apcie-axi2af-tunables[51] addr=0x416000440 size=4 mask=0x70000fff value=0x5a0
+TTY> tunable: apcie-axi2af-tunables[51] done
+TTY> tunable: apcie-axi2af-tunables[52] addr=0x416000444 size=4 mask=0x70000fff value=0x5a0
+TTY> tunable: apcie-axi2af-tunables[52] done
+TTY> tunable: apcie-axi2af-tunables[53] addr=0x416000948 size=4 mask=0x7ff07ff value=0x200000
+TTY> tunable: apcie-axi2af-tunables[53] done
+TTY> tunable: apcie-axi2af-tunables[54] addr=0x416000a48 size=4 mask=0x7ff07ff value=0xa0100
+TTY> tunable: apcie-axi2af-tunables[54] done
+TTY> tunable: apcie-axi2af-tunables[55] addr=0x416000b48 size=4 mask=0x7ff07ff value=0x800080
+TTY> tunable: apcie-axi2af-tunables[55] done
+TTY> tunable: apcie-axi2af-tunables[56] addr=0x416000e00 size=4 mask=0xffffffff value=0x7fffffff
+TTY> tunable: apcie-axi2af-tunables[56] done
+TTY> tunable: apcie-axi2af-tunables[57] addr=0x416004008 size=4 mask=0x1 value=0x1
+TTY> tunable: apcie-axi2af-tunables[57] done
+TTY> tunable: apcie-axi2af-tunables[58] addr=0x41600400c size=4 mask=0x1 value=0x1
+TTY> tunable: apcie-axi2af-tunables[58] done
+TTY> tunable: apcie-axi2af-tunables[59] addr=0x416004014 size=4 mask=0x1 value=0x0
+TTY> tunable: apcie-axi2af-tunables[59] done
+TTY> tunable: apcie-axi2af-tunables[60] addr=0x416004018 size=4 mask=0x1 value=0x0
+TTY> tunable: apcie-axi2af-tunables[60] done
+TTY> tunable: apcie-axi2af-tunables[61] addr=0x41600401c size=4 mask=0x1 value=0x1
+TTY> tunable: apcie-axi2af-tunables[61] done
+TTY> tunable: apcie-axi2af-tunables[62] addr=0x4160010f8 size=4 mask=0x1 value=0x1
+TTY> tunable: apcie-axi2af-tunables[62] done
+TTY> tunable: apcie-axi2af-tunables[63] addr=0x4160011f8 size=4 mask=0x1 value=0x1
+TTY> tunable: apcie-axi2af-tunables[63] done
+TTY> tunable: apcie-axi2af-tunables[64] addr=0x4160012f8 size=4 mask=0x1 value=0x1
+TTY> tunable: apcie-axi2af-tunables[64] done
+TTY> tunable: apcie-axi2af-tunables[65] addr=0x4160013f8 size=4 mask=0x1 value=0x1
+TTY> tunable: apcie-axi2af-tunables[65] done
+TTY> tunable: apcie-axi2af-tunables[66] addr=0x4160014f8 size=4 mask=0x1 value=0x1
+TTY> tunable: apcie-axi2af-tunables[66] done
+TTY> tunable: apcie-axi2af-tunables[67] addr=0x4160010fc size=4 mask=0x1 value=0x1
+TTY> tunable: apcie-axi2af-tunables[67] done
+TTY> tunable: apcie-axi2af-tunables[68] addr=0x4160011fc size=4 mask=0x1 value=0x1
+TTY> tunable: apcie-axi2af-tunables[68] done
+TTY> tunable: apcie-axi2af-tunables[69] addr=0x4160012fc size=4 mask=0x1 value=0x1
+TTY> tunable: apcie-axi2af-tunables[69] done
+TTY> tunable: apcie-axi2af-tunables[70] addr=0x4160013fc size=4 mask=0x1 value=0x1
+TTY> tunable: apcie-axi2af-tunables[70] done
+TTY> tunable: apcie-axi2af-tunables[71] addr=0x4160014fc size=4 mask=0x1 value=0x1
+TTY> tunable: apcie-axi2af-tunables[71] done
+TTY> tunable: apcie-axi2af-tunables[72] addr=0x416020028 size=4 mask=0xfe2f value=0x0
+TTY> tunable: apcie-axi2af-tunables[72] done
+TTY> tunable: apcie-axi2af-tunables[73] addr=0x41602002c size=4 mask=0x7 value=0x0
+TTY> tunable: apcie-axi2af-tunables[73] done
+TTY> tunable: apcie-axi2af-tunables[74] addr=0x416020030 size=4 mask=0x7f value=0x0
+TTY> tunable: apcie-axi2af-tunables[74] done
+TTY> tunable: apcie-axi2af-tunables[75] addr=0x416020034 size=4 mask=0xff value=0x0
+TTY> tunable: apcie-axi2af-tunables[75] done
+TTY> tunable: apcie-axi2af-tunables[76] addr=0x416020058 size=4 mask=0x10b value=0x0
+TTY> tunable: apcie-axi2af-tunables[76] done
+TTY> pcie: No common tunables
+TTY> tunable: apcie-cio3pllcore-tunables[0] addr=0x415046200 size=4 mask=0xa0b value=0xa01
+TTY> tunable: apcie-cio3pllcore-tunables[0] done
+TTY> tunable: apcie-cio3pllcore-tunables[1] addr=0x415046224 size=4 mask=0xc00 value=0x800
+TTY> tunable: apcie-cio3pllcore-tunables[1] done
+TTY> tunable: apcie-cio3pllcore-tunables[2] addr=0x415046228 size=4 mask=0xf00 value=0xb00
+TTY> tunable: apcie-cio3pllcore-tunables[2] done
+TTY> tunable: apcie-cio3pllcore-tunables[3] addr=0x415046238 size=4 mask=0x20 value=0x0
+TTY> tunable: apcie-cio3pllcore-tunables[3] done
+TTY> tunable: apcie-cio3pllcore-tunables[4] addr=0x41504624c size=4 mask=0xff value=0x95
+TTY> tunable: apcie-cio3pllcore-tunables[4] done
+TTY> tunable: apcie-cio3pllcore-tunables[5] addr=0x4150462e8 size=4 mask=0xe0000 value=0x20000
+TTY> tunable: apcie-cio3pllcore-tunables[5] done
+TTY> tunable: apcie-cio3pllcore-tunables[6] addr=0x415046300 size=4 mask=0xffffff value=0xb40b4
+TTY> tunable: apcie-cio3pllcore-tunables[6] done
+TTY> tunable: apcie-pcieclkgen-tunables[0] addr=0x415044000 size=4 mask=0x3e0 value=0x220
+TTY> tunable: apcie-pcieclkgen-tunables[0] done
+TTY> pcie: Enabling T6040 PHY clock gate after PLL/clkgen tunables
+TTY> pcie: T6040 PHY clock gate enabled
+TTY> pcie: T6040 clock-tunable diagnostic complete; stopping before PHY
+TTY> pcie: Error getting node /arm-io/apcie-ge0
+TTY> pcie: Error getting node /arm-io/apcie-ge1
+TTY> dapf: Skipping /arm-io/dart-aop (async L2C SError on this M4 SoC)
+TTY> dapf: Initialized /arm-io/dart-mtp
+TTY> dapf: Skipping /arm-io/dart-pmp (async L2C SError on this M4 SoC)
+TTY> dapf: Skipping /arm-io/dart-isp0 (async L2C SError on this M4 SoC)
+TTY> Setting SMP mode to WFE...
+TTY> WDT: armed for ~20s (warm reset on hang)
+TTY> Preparing to boot kernel at 0x1000fa00000 with fdt at 0x100078ec000

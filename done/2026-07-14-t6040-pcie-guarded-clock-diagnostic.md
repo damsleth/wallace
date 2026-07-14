@@ -1,8 +1,8 @@
 # T6040 guarded PCIe clock diagnostic
 
-Prepared 2026-07-14. **Not approved or run.** This is the first write-bearing
-PCIe retry after the upper log-buffer guard proved that every earlier traced
-`[70]` SError was a logging artifact.
+Prepared and run 2026-07-14. **Approved once; successful.** This was the first
+write-bearing PCIe retry after the upper log-buffer guard proved that every
+earlier traced `[70]` SError was a logging artifact.
 
 ## Exact build
 
@@ -41,9 +41,36 @@ operation 106, the first PHY write, or reach PHY polling, ports, PERST#,
 RID2SID/MSIMAP, or Linux PCIe. The base DT has no PCIe host node. NVMe and
 storage remain outside the path.
 
-## Approval gate
+## Live result
 
-This is a write-bearing target binary and requires fresh explicit approval for
-one live run of the main binary and manifest hashes above. Stop after that
-outcome and recover through the sanctioned DebugUSB helper if necessary. Do not
-mount, repair, format, or otherwise access storage.
+The maintainer approved one live run of the exact main binary and manifest
+above. All 105 operations completed in order: AXI `[0..76]`, the RC write,
+CIO3 `[0..6]`, clkgen `[0]`, and the late PHY clock gate. m1n1 printed:
+
+```text
+pcie: T6040 PHY clock gate enabled
+pcie: T6040 clock-tunable diagnostic complete; stopping before PHY
+```
+
+There was no nonzero L2 status and no SError. The intentional return prevented
+operation 106 and all later PHY/port work. The PCIe-free base kernel then
+reached BusyBox. No PHY, port, PERST#, RID2SID/MSIMAP, Linux PCIe, NVMe, or
+storage access occurred.
+
+- m1n1 transcript: `../logs/t6040-console-20260714-pcie-guarded-clock.log`,
+  SHA-256
+  `8dac965aadfb8f5bd92cf2c0e17ceefaea3f74de11790d8089121d527f54b175`
+  (402 lines, 26,188 bytes)
+- Linux transcript: `../logs/t6040-linux-20260714-pcie-guarded-clock.log`,
+  SHA-256
+  `b1caef2f4b6612675f329402bc0d9f87813494a98c28a84bb09033471d792063`
+  (36 lines, 2,255 bytes)
+- boot artifacts: Image
+  `14da8640398fc64b89d9241a75be0ffc8d4260b681068a3c27251cc79c3abaf4`,
+  base DTB
+  `e7691ee49ed88114154061aeaf29309e3d817ae3ae89d7196bf7ef02a9b3dc9a`,
+  initramfs
+  `512c69da94884f3ea83f9a6a4ea0731dcad6b5aaa87eb875ca5a6d7b24c317ca`
+
+The next bounded diagnostic may continue through shared PHY setup, but needs a
+new exact stop before the first per-port write and fresh explicit approval.
