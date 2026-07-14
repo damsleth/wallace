@@ -1,0 +1,13 @@
+{
+  "seq": "049",
+  "slug": "rx-path-delta-analysis",
+  "needs": "offline",
+  "state": "open",
+  "track": "console",
+  "priority": "P1",
+  "desc": "Static build-delta analysis of why RX bytes reached the FIFO in the TX-only reporter build but never entered it in the ticket-001 telemetry build (done/2026-07-14-t6040-dockchannel-rxirq-txpoll-result.md, matrix row 3): diff the probe/startup IRQ-block write sequences, RX_THRESH timing, and the dock-side KIS agent flow-control interaction with AP-side IRQ_MASK state; propose the next bounded diagnostic offline. No live retry of either completed image",
+  "author": "fable",
+  "deps": [],
+  "hashes": null,
+  "created": 1784044124
+}

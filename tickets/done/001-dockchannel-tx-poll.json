@@ -2,7 +2,7 @@
   "seq": "001",
   "slug": "dockchannel-tx-poll",
   "needs": "rig",
-  "state": "approved",
+  "state": "done",
   "track": "console",
   "priority": "P1",
   "desc": "Bounded RX BIT(1) telemetry: TX poll, RX cap 1000, hard cap 1024 (NEXT_STEPS §0). Cross-reviewed by fable 2026-07-14: PASS (done/2026-07-14-t6040-rxirq-image-cross-review.md) — hashes, DTB, MMIO windows, cap logic, init all verified",
@@ -15,5 +15,6 @@
   },
   "created": 1784039023,
   "approved_by": "cj",
-  "approved_at": 1784043267
+  "approved_at": 1784043267,
+  "done_at": 1784044123
 }

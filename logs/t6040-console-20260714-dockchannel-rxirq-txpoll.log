@@ -1,0 +1,81 @@
+Preparing to run next stage at 0x10010c00000...
+USB0: shutdown
+USB1: shutdown
+USB2: shutdown
+MMU: shutting down...
+MMU: shutdown successful, clearing caches
+Vectoring to next stage...
+
+*** t6040 DockChannel bounded RX-IRQ telemetry ***
+Linux (none) 7.2.0-rc2-ga24d55896396-dirty #1 SMP PREEMPT Tue Jul 14 13:09:07 UTC 2026 aarch64 GNU/Linux
+[irq-txpoll] RX=BIT(1); RX cap=1000; hard cap=1024
+[irq-txpoll] TX BIT(2) is never unmasked in this diagnostic
+[irq-txpoll] virq and AIC hwirq are reported separately
+[irq-txpoll] sample=baseline virq=42 hwirq=65896 rx_count=0x0 irq_flag=0x0 irq_mask=0x2 total=0 rx=0 tx=0 none=0 capped=0 cap_total=0 cap_flag=0x0 cap_fifo=0x0 cap_mask=0x0 post_cap=0 hard=0 hard_total=0 hard_flag=0x0 hard_fifo=0x0
+[irq-txpoll] INJECT-NOW: send exactly IRQ_BIT1_PROBE<LF>
+[irq-txpoll] sample=1 virq=42 hwirq=65896 rx_count=0x0 irq_flag=0x0 irq_mask=0x2 total=0 rx=0 tx=0 none=0 capped=0 cap_total=0 cap_flag=0x0 cap_fifo=0x0 cap_mask=0x0 post_cap=0 hard=0 hard_total=0 hard_flag=0x0 hard_fifo=0x0
+[irq-txpoll] sample=2 virq=42 hwirq=65896 rx_count=0x0 irq_flag=0x0 irq_mask=0x2 total=0 rx=0 tx=0 none=0 capped=0 cap_total=0 cap_flag=0x0 cap_fifo=0x0 cap_mask=0x0 post_cap=0 hard=0 hard_total=0 hard_flag=0x0 hard_fifo=0x0
+[irq-txpoll] sample=3 virq=42 hwirq=65896 rx_count=0x0 irq_flag=0x0 irq_mask=0x2 total=0 rx=0 tx=0 none=0 capped=0 cap_total=0 cap_flag=0x0 cap_fifo=0x0 cap_mask=0x0 post_cap=0 hard=0 hard_total=0 hard_flag=0x0 hard_fifo=0x0
+[irq-txpoll] sample=4 virq=42 hwirq=65896 rx_count=0x0 irq_flag=0x0 irq_mask=0x2 total=0 rx=0 tx=0 none=0 capped=0 cap_total=0 cap_flag=0x0 cap_fifo=0x0 cap_mask=0x0 post_cap=0 hard=0 hard_total=0 hard_flag=0x0 hard_fifo=0x0
+[irq-txpoll] sample=5 virq=42 hwirq=65896 rx_count=0x0 irq_flag=0x0 irq_mask=0x2 total=0 rx=0 tx=0 none=0 capped=0 cap_total=0 cap_flag=0x0 cap_fifo=0x0 cap_mask=0x0 post_cap=0 hard=0 hard_total=0 hard_flag=0x0 hard_fifo=0x0
+[irq-txpoll] sample=6 virq=42 hwirq=65896 rx_count=0x0 irq_flag=0x0 irq_mask=0x2 total=0 rx=0 tx=0 none=0 capped=0 cap_total=0 cap_flag=0x0 cap_fifo=0x0 cap_mask=0x0 post_cap=0 hard=0 hard_total=0 hard_flag=0x0 hard_fifo=0x0
+[irq-txpoll] sample=7 virq=42 hwirq=65896 rx_count=0x0 irq_flag=0x0 irq_mask=0x2 total=0 rx=0 tx=0 none=0 capped=0 cap_total=0 cap_flag=0x0 cap_fifo=0x0 cap_mask=0x0 post_cap=0 hard=0 hard_total=0 hard_flag=0x0 hard_fifo=0x0
+[irq-txpoll] sample=8 virq=42 hwirq=65896 rx_count=0x0 irq_flag=0x0 irq_mask=0x2 total=0 rx=0 tx=0 none=0 capped=0 cap_total=0 cap_flag=0x0 cap_fifo=0x0 cap_mask=0x0 post_cap=0 hard=0 hard_total=0 hard_flag=0x0 hard_fifo=0x0
+[irq-txpoll] sample=9 virq=42 hwirq=65896 rx_count=0x0 irq_flag=0x0 irq_mask=0x2 total=0 rx=0 tx=0 none=0 capped=0 cap_total=0 cap_flag=0x0 cap_fifo=0x0 cap_mask=0x0 post_cap=0 hard=0 hard_total=0 hard_flag=0x0 hard_fifo=0x0
+[irq-txpoll] sample=10 virq=42 hwirq=65896 rx_count=0x0 irq_flag=0x0 irq_mask=0x2 total=0 rx=0 tx=0 none=0 capped=0 cap_total=0 cap_flag=0x0 cap_fifo=0x0 cap_mask=0x0 post_cap=0 hard=0 hard_total=0 hard_flag=0x0 hard_fifo=0x0
+[irq-txpoll] measurement complete
+--- matching interrupts before ---
+  42:          0  AIC2     65896 Level     50880c000.mailbox
+--- matching interrupts after ---
+  42:          0  AIC2     65896 Level     50880c000.mailbox
+--- RX result ---
+received=<none>
+--- DockChannel dmesg ---
+[    0.000000] Machine model: Apple MacBook Pro (M4 Pro) J614s [DockChannel RX IRQ + TX poll diagnostic]
+[    0.120271] apple-dockchannel 514b14000.mailbox: IRQ masks: TX=0x4 RX=0x8
+[    0.120456] apple-dockchannel 50880c000.mailbox: IRQ masks: TX=0x4 RX=0x2
+[    0.120574] apple-dockchannel 50880c000.mailbox: IRQ storm guard: 1024 interrupts
+[    0.120709] apple-dockchannel 50880c000.mailbox: polling TX completion; RX remains interrupt-driven
+[    0.120845] apple-dockchannel 50880c000.mailbox: IRQ mapping: Linux virq=42 AIC hwirq=65896; RX cap=1000 hard cap=1024
+[    0.139539] apple-dockchannel-tty soc:serial: registered ttydc0
+[    0.140160] dockchannel-hid 514600000.hid: RTKit: Initializing (protocol version 12)
+[    0.141464] dockchannel-hid 514600000.hid: RTKit: syslog message: main.c:245: MTP Says Hello
+[    0.141496] dockchannel-hid 514600000.hid: RTKit: syslog message: main.c:245: Version: AppleMTPFirmwareMac-5340.61.4~438
+[    0.141541] dockchannel-hid 514600000.hid: RTKit: syslog message: main.c:245: Personality: MTP_SYS
+[    0.141576] dockchannel-hid 514600000.hid: RTKit: syslog message: main.c:245: SDK: 25F63
+[    0.141612] dockchannel-hid 514600000.hid: RTKit: syslog message: main.c:245: Built on: 2026-04-18__18:25:06
+[    0.142066] dockchannel-hid 514600000.hid: RTKit: Unknown oslog message: 3ff006e78f83f4c
+[    0.143403] dockchannel-hid 514600000.hid: RTKit: Unknown oslog message: 4000020b13063c0
+[    0.144455] dockchannel-hid 514600000.hid: RTKit: Unknown oslog message: 4000040ae822582
+[    0.145376] dockchannel-hid 514600000.hid: RTKit: Unknown oslog message: 400006070b1da96
+[    0.146177] dockchannel-hid 514600000.hid: RTKit: Unknown oslog message: 50672694670744d
+[    0.147059] dockchannel-hid 514600000.hid: RTKit: Unknown oslog message: 56500657261776d
+[    0.147763] dockchannel-hid 514600000.hid: RTKit: syslog message: kb_transport.c:271: IPD HIDSPI attached
+[    0.148435] dockchannel-hid 514600000.hid: RTKit: syslog message: touch_pwr_mgr.c:198: [TPM] Mac Power Manager State Machine Initialized (0)
+[    0.149113] dockchannel-hid 514600000.hid: RTKit: syslog message: act_mgr.c:551: Called act_mgr_init()
+[    0.149735] dockchannel-hid 514600000.hid: RTKit: syslog message: comm.c:199: Initializing comm interface <0- "comm">
+[    0.150319] dockchannel-hid 514600000.hid: RTKit: syslog message: comm.c:199: Initializing comm interface <1- "multi-touch">
+[    0.150874] dockchannel-hid 514600000.hid: RTKit: syslog message: comm.c:199: Initializing comm interface <2- "keyboard">
+[    0.151398] dockchannel-hid 514600000.hid: RTKit: syslog message: comm.c:199: Initializing comm interface <3- "stm">
+[    0.151896] dockchannel-hid 514600000.hid: RTKit: syslog message: comm.c:199: Initializing comm interface <4- "actuator">
+[    0.162230] dockchannel-hid 514600000.hid: RTKit: syslog message: stm_cr.c:93: ST management interface configuration completed
+[    0.163117] dockchannel-hid 514600000.hid: RTKit: syslog message: stm.c:89: ST management ready
+[    0.170963] dockchannel-hid 514600000.hid: RTKit: syslog message: touch_iface.c:370: Grape interface configuration completed
+[    0.173156] apple 0019:05AC:0359.0002: fixing up DockChannel report size
+[    0.174346] input: Apple DockChannel Multi-touch as /devices/platform/soc/514600000.hid/0019:05AC:0359.0002/input/input0
+[    0.182269] apple 0019:05AC:0359.0002: input: <UNKNOWN> HID v5.10 Mouse [Apple DockChannel Multi-touch] on 514600000.hid.1
+[    0.184203] apple 0019:05AC:0359.0003: fixing up DockChannel report size
+[    0.185014] input: Apple DockChannel Keyboard as /devices/platform/soc/514600000.hid/0019:05AC:0359.0003/input/input1
+[    0.185762] dockchannel-hid 514600000.hid: RTKit: syslog message: keyboard_cr.c:73: Keyboard interface configuration completed
+[    0.186471] dockchannel-hid 514600000.hid: RTKit: syslog message: keyboard.c:77: Keyboard ready
+[    0.187230] apple 0019:05AC:0359.0003: input: <UNKNOWN> HID v5.10 Keyboard [Apple DockChannel Keyboard] on 514600000.hid.2
+[    0.188074] dockchannel-hid 514600000.hid: RTKit: syslog message: actuator_cr.c:84: Actuator interface configuration completed
+[    0.188781] dockchannel-hid 514600000.hid: RTKit: syslog message: actuator.c:71: Actuator ready
+[    0.190213] apple 0019:05AC:0359.0004: fixing up DockChannel report size
+[    0.193102] dockchannel-hid 514600000.hid: RTKit: syslog message: accel_cr.c:73: Accel interface configuration completed
+[    0.193793] dockchannel-hid 514600000.hid: RTKit: syslog message: accel.c:71: Accel ready
+[    0.194483] apple 0019:05AC:0359.0005: fixing up DockChannel report size
+[    0.197059] apple 0019:05AC:0359.0006: fixing up DockChannel report size
+[    0.197668] dockchannel-hid 514600000.hid: RTKit: syslog message: mtp_cr.c:268: MTP interface is ready
+[    0.198281] dockchannel-hid 514600000.hid: RTKit: syslog message: mtp_cr.c:275: MTP management interface configuration completed
+[irq-txpoll] done; no ttydc shell was started
