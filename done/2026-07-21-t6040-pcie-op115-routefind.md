@@ -58,14 +58,71 @@ are: (a) an extra register write distinct from the reg[2] sequence; (b) a
 different value/offset for the `+4` control on t6040; or (c) an additional pmgr
 clock-gate index beyond `IDX 7`.
 
-## Apple side — the precondition
+## Apple side — partial, and why it's not yet a grounded precondition
 
-<!-- FILLED FROM THE DISASSEMBLY TRACE OF ApplePCIEBaseT8132::configure /
-     _enableRootComplex / _initializePhy (AppleT6040PCIe kext, T6041 mac16j
-     kernelcache). Every address grounded in the binary; verified independently
-     before any manifest change. -->
+Source binary: `AppleT6040PCIe` extracted from the T6041 `mac16j` kernelcache
+(Darwin 24.6.0, `RELEASE_ARM64_T6041`; see the source note). Full C++ symbols
+present. Grounded so far:
 
-_(pending disasm agent + independent address verification)_
+- `_readPhyIPReg`/`_writePhyIPReg` (0xfffffe000a1c2190 / …2214) load the PHY-IP
+  (reg[3]) mapped base from **object field `[this + 0x228]`** and do a
+  width-selected `ml_io_read32`/`write32` at base+offset. So field +0x228 is the
+  reg[3] aperture; if anything ungates it, it happens before this field is first
+  used.
+- `_initializePhy` (…2b88) goes **straight into** the "PHY IP PLL"/"PHY IP
+  AUSPMA" tunable-apply virtual calls (the repeated `mov w1,0x8000; blraa`); it
+  has **no** pre-tunable reg[3] ungate of its own. So any ungate is earlier —
+  in `_enableRootComplex` (…257c) or `configure` (…130c).
+- `_enableRootComplex` is 1340 bytes and is **almost entirely PAC-authenticated
+  virtual dispatch** (`blraa x8,x17` with `movk …,lsl 48`): its register touches
+  go through vtable helpers with computed offsets, so the specific apertures
+  cannot be read off a flat disassembly without resolving each vtable slot to its
+  method body. This is the tedious part a background disasm agent was assigned;
+  that agent stalled at launch (no output in 6.5 h) and was retired.
+
+**Cross-check against the only other M4-family attempt (from the IRC review,
+`done/2026-07-21-asahi-dev-irc-review.md`):** yuka's
+`github.com/yuyuyureka/m1n1/tree/feature/untested-t8142-pcie` drives t8142 (same
+M4 cohort as t6040/t6041) with the plain `regs_t8132` template and adds **no**
+extra PHY-IP ungate, no extra clock-gate index, and no reg[3] write before the
+tunables — and it is explicitly *untested*. So **there is no known-good M4-family
+PCIe reference in m1n1**; the reg[3] precondition is unsolved everywhere, not just
+here. The Apple kernelcache is the only source of truth, and it's behind virtual
+dispatch.
+
+## Hypotheses (narrowed, not yet grounded — do NOT turn into a live write yet)
+
+On t8122/t6031 the identical template works, so reg[3] there is live after the
+reg[2] clock/reset sequence plus the PMGR clock-gates. On t6040 it is not. The
+live candidates, in order:
+
+1. **An additional PMGR power domain / clock-gate ungates the PHY-IP block.** The
+   J614s ADT exposes `APCIE_PHY_SW`, `APCIE_ST0/ST1`, `APCIE_SYS_ST0/ST1`,
+   `APCIE_SYS_GP`, `APCIE_GP`. m1n1 enables the apcie node's `clock-gates`
+   (incl. the T6040 late gate IDX 7 = `APCIE_PHY_SW`) but may be missing the one
+   that gates reg[3] specifically. This is the most likely and the most
+   testable.
+2. **`set32(phy_base+4, 0x01)` has different semantics/offset on t6040** than the
+   t8122 template assumes, so the reg[3] aperture never leaves reset.
+3. A ready-bit poll on reg[2]/reg[3] that Apple does and m1n1 doesn't.
+
+## Next step (two grounded options, pick per cost)
+
+- **A — resolve the Apple bring-up (offline, higher cost):** a focused r2 session
+  that resolves the vtable slots called in `_enableRootComplex`/`configure` to
+  method bodies, enumerating every MMIO aperture + offset touched before the
+  first `_readPhyIPReg`, and maps each object-field base to a `dtRegMap*` index
+  via `configure`. Output an ordered trace; only then propose a manifest.
+- **B — read-only PMGR-domain probe (rig, gated):** after the proven
+  stop-before-PHY prefix, enable each candidate PMGR domain
+  (`APCIE_SYS_ST0/ST1`, etc.) read-only-style and do a single 32-bit read of
+  `0x417040090` after each, stopping on the first that returns instead of
+  hanging. Read-only, ADT-derived indices only, one intentional stop — but it
+  needs a manifest, cross-review, and approval, and it competes with Sol for the
+  rig, so prefer A first.
+
+Do not invent a reg[3] ungate offset or promote any hypothesis to a live write
+without grounding it in option A or a reviewed option-B result.
 
 ## Source
 
