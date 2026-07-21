@@ -58,7 +58,60 @@ are: (a) an extra register write distinct from the reg[2] sequence; (b) a
 different value/offset for the `+4` control on t6040; or (c) an additional pmgr
 clock-gate index beyond `IDX 7`.
 
-## Apple side — partial, and why it's not yet a grounded precondition
+## Apple side — grounded trace (Option A, r2 decompiler, symbol-resolved)
+
+`ApplePCIEBaseT8132::_enableRootComplex(bool)` runs **before** `_initializePhy`
+and is the routine m1n1's t8122/t6031 template only partially inlines. Using r2's
+pseudo-decompiler the PAC-virtual (`blraa`) calls resolve to named accessors, so
+the apertures are readable. Object-field → accessor map (from the accessor
+bodies): PHY-IP (reg[3]) base = `[this+0x228]`; pcieclkgen base = `[this+0x270]`;
+plus the named `_read/_writeCommonReg`, `_read/_writePhyReg` thunks.
+
+Ordered, before `_initializePhy`, `_enableRootComplex` does (grounded):
+1. Common-reg (`"APCIe_common"`) setup and an AXI2AF (`"APCIe_AXI2AF"`) block via
+   the read/write-callback tunable helper.
+2. **`clkgen[0] |= 0x20`** — `w0 = _readPcieclkgenReg(0); _writePcieclkgenReg(0,
+   w0 | 0x20)` (set bit 5 at pcieclkgen offset 0). Accessor base `[this+0x270]`,
+   i.e. m1n1's `pcieclkgen_idx = 6` (`0x415044000`).
+3. A parent/client call and PHY (`"PCIe PHY"`, reg[2]) register setup, including
+   writes with `|1`, `|0x8000000`, `|0x8000`, and offset `0x54 = 0x140`.
+4. **A readiness poll on the PHY aperture at offset `0x4000`, looping while the
+   value reads `0x1f`** (`_readPhyReg(0x4000)` in a `while(w0==0x1f)` loop),
+   immediately before calling `_initializePhy`.
+
+`_enableRootComplex` never calls `_read/_writePhyIPReg`, and `_initializePhy`
+goes straight into the PLL/AUSPMA tunable applies — so the reg[3] aperture must
+be ungated by one of the reg[2]/clkgen operations above, and steps 2 and 4 are
+the two that m1n1's path most plausibly omits.
+
+### Confirmed m1n1 gaps (from `src/pcie.c`)
+- **clkgen bit 5:** m1n1 applies only the ADT `apcie-pcieclkgen-tunables`
+  (`pcie.c:489`); there is no explicit `clkgen[0] |= 0x20` code step. Whether the
+  ADT tunable already covers bit 5 at offset 0 is the open check (dump the J614s
+  `apcie-pcieclkgen-tunables` property).
+- **phy+0x4000 poll:** m1n1 sets `phy_common_base = phy_base + 0x4000`
+  (`pcie.c:416`) and polls it for the **100 MHz bit31** (`pcie.c:519`), *not*
+  Apple's "while `== 0x1f`" low-bits readiness condition — so m1n1 proceeds to
+  the PHY-IP tunables without Apple's specific readiness wait on that register.
+
+### Candidate precondition + how to close it
+Leading candidate: the **`clkgen[0] |= 0x20`** clock-enable and/or the **phy+0x4000
+`!= 0x1f` readiness poll** are the missing ungate for the reg[3] PHY-IP aperture.
+Both are grounded in the Apple binary (aperture + offset + value/condition), not
+invented. To close:
+1. Dump the J614s `apcie-pcieclkgen-tunables` and `apcie-phy-tunables` ADT
+   properties; confirm neither already performs step 2 / establishes the step-4
+   state. (ADT is captured: `linux-build-out/j614s-usb-port-map-20260721.adt`.)
+2. Build a candidate m1n1 that, on the t6040 path, adds the `clkgen[0] |= 0x20`
+   RMW and the `phy+0x4000` `!= 0x1f` poll **before** the PHY-IP tunables, still
+   returning before the first PHY-IP *write*; pin hashes, cross-review, and
+   propose a single gated read-only op-115 retest (does `0x417040090` now read
+   back instead of hanging?).
+
+The remainder of `_enableRootComplex` (the exhaustive per-write reg[2] diff) is
+lower priority; steps 2 and 4 are the sharp candidates.
+
+## Apple side — earlier partial notes (superseded by the trace above)
 
 Source binary: `AppleT6040PCIe` extracted from the T6041 `mac16j` kernelcache
 (Darwin 24.6.0, `RELEASE_ARM64_T6041`; see the source note). Full C++ symbols
