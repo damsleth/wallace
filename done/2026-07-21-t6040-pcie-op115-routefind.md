@@ -84,32 +84,48 @@ goes straight into the PLL/AUSPMA tunable applies — so the reg[3] aperture mus
 be ungated by one of the reg[2]/clkgen operations above, and steps 2 and 4 are
 the two that m1n1's path most plausibly omits.
 
-### Confirmed m1n1 gaps (from `src/pcie.c`)
-- **clkgen bit 5:** m1n1 applies only the ADT `apcie-pcieclkgen-tunables`
-  (`pcie.c:489`); there is no explicit `clkgen[0] |= 0x20` code step. Whether the
-  ADT tunable already covers bit 5 at offset 0 is the open check (dump the J614s
-  `apcie-pcieclkgen-tunables` property).
-- **phy+0x4000 poll:** m1n1 sets `phy_common_base = phy_base + 0x4000`
-  (`pcie.c:416`) and polls it for the **100 MHz bit31** (`pcie.c:519`), *not*
-  Apple's "while `== 0x1f`" low-bits readiness condition — so m1n1 proceeds to
-  the PHY-IP tunables without Apple's specific readiness wait on that register.
+### Step 1 result (2026-07-21): both first-pass candidates RULED OUT
+Decoded the J614s ADT tunables (`linux-build-out/j614s-usb-port-map-20260721.adt`,
+via `ipsw dtree --json`; entries are m1n1 `tunable_local` = `{u32 off,u32 size,
+u64 mask,u64 val}`):
 
-### Candidate precondition + how to close it
-Leading candidate: the **`clkgen[0] |= 0x20`** clock-enable and/or the **phy+0x4000
-`!= 0x1f` readiness poll** are the missing ungate for the reg[3] PHY-IP aperture.
-Both are grounded in the Apple binary (aperture + offset + value/condition), not
-invented. To close:
-1. Dump the J614s `apcie-pcieclkgen-tunables` and `apcie-phy-tunables` ADT
-   properties; confirm neither already performs step 2 / establishes the step-4
-   state. (ADT is captured: `linux-build-out/j614s-usb-port-map-20260721.adt`.)
-2. Build a candidate m1n1 that, on the t6040 path, adds the `clkgen[0] |= 0x20`
-   RMW and the `phy+0x4000` `!= 0x1f` poll **before** the PHY-IP tunables, still
-   returning before the first PHY-IP *write*; pin hashes, cross-review, and
-   propose a single gated read-only op-115 retest (does `0x417040090` now read
-   back instead of hanging?).
+- **clkgen bit 5 — already done by m1n1.** `apcie-pcieclkgen-tunables` is a single
+  entry `mask32(clkgen+0, mask=0x3e0, val=0x220)`, and `0x220` sets **bit 5**
+  (and bit 9). m1n1 applies this at `pcie.c:489`, so `clkgen[0]` bit 5 is set
+  before PHY init. Candidate #1 is not the gap.
+- **phy+0x4000 poll — same wait m1n1 already does; earlier read was a mistake.**
+  The instruction is `tbz w0, #31` (test **bit 31**) — the `0x1f` the r2
+  decompiler printed is the *bit index* (31), not a compare value. So Apple's
+  poll waits for the **100 MHz bit-31**, exactly m1n1's `pcie.c:519`
+  (`APCIE_PHYCMN_CLK_100MHZ`). Candidate #2 is not the gap either.
+  `apcie-phy-tunables` (5 entries at 0x8000/0x20000/0x24000/0x28000/0x2c000,
+  clearing bits 26/28) contains nothing at 0x4000 and is applied by m1n1
+  (`pcie.c:511`).
 
-The remainder of `_enableRootComplex` (the exhaustive per-write reg[2] diff) is
-lower priority; steps 2 and 4 are the sharp candidates.
+Net: step 1 kept us from building a rig experiment around two operations m1n1
+already performs.
+
+### The real lead: `_configPciePLLs()` (a clkgen PLL-config routine m1n1 omits)
+`_enableRootComplex` calls `ApplePCIEBaseT8132::_configPciePLLs()`
+(0xfffffe000a1c24a8) **before** `_initializePhy`. It operates **only on the
+pcieclkgen aperture** (reg[6], `0x415044000`): **6 `_readPcieclkgenReg` + 4
+`_writePcieclkgenReg`** — i.e. a multi-RMW PLL configuration. m1n1 applies only
+the **single-entry** `apcie-pcieclkgen-tunables` (the bit-5/9 write above) and has
+**no `_configPciePLLs` equivalent**. So Apple establishes PCIe-PLL/clkgen state
+that m1n1 never programs — the most likely reason the reg[3] PHY-IP aperture is
+dead when m1n1 first reads it. (The `apcie-cio3pllcore-tunables` m1n1 applies to
+reg[5] is the *CIO3* PLL, a different block from the clkgen PLL config here.)
+
+### How to close it
+1. **Decode `_configPciePLLs` exactly** (offline, next): disassemble its 4 clkgen
+   writes — the register offsets, masks, and values (and any read-poll between
+   them) — grounded in the binary. Cross-check each against the single ADT clkgen
+   tunable to confirm they are genuinely additional.
+2. Build a candidate m1n1 that replays that exact clkgen PLL-config sequence on
+   the t6040 path before the PHY-IP tunables, still returning before the first
+   PHY-IP *write*; pin hashes, cross-review, propose one gated read-only op-115
+   retest (does `0x417040090` read back instead of hanging?). Offsets/values must
+   come from step 1's decode, never invented.
 
 ## Apple side — earlier partial notes (superseded by the trace above)
 
