@@ -404,10 +404,12 @@ GPU/WiFi (USB ethernet).
   080 confirmed U-Boot is not required for B0.
 - **B2, persistent distro:** use external USB root after the HPM/ATC physical
   link enumerates a device; internal NVMe stays a later SPTM integration goal.
-- **asahi-installer:** must learn raw-boot-object enrollment for M4 (it enrolls
-  mach-o m1n1 today — that path is *gone* on this machine) + Mac16,8 device
-  metadata + firmware extraction for 26.x. This is a real, non-optional work item
-  and mostly upstream-installer territory.
+- **asahi-installer:** its current second stage already invokes
+  `kmutil --raw --entry-point 2048 --lowest-virtual-address 0`. It must add
+  Mac16,8/T6040 admission, preserve a complete kernel+DTB+initramfs payload
+  atomically across install/repair/upgrade, and support 26.x AEA plus moved
+  firmware layouts. Requirements:
+  `done/2026-07-23-t6040-asahi-installer-requirements.md`.
 - **U-Boot:** T6040 support (usually near-free once m1n1's FDT + dwc3 are right)
   → standard EFI boot flow → GRUB/systemd-boot.
 - **Fedora Asahi Remix:** kernel with all of the above, j614s asahi-audio

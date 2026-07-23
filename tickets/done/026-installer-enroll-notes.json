@@ -1,0 +1,16 @@
+{
+  "seq": "026",
+  "slug": "installer-enroll-notes",
+  "needs": "offline",
+  "state": "done",
+  "track": "distro",
+  "priority": "P2",
+  "desc": "DONE: audited upstream asahi-installer c53d66dc7193 and installer-data 072a48f02bc8. Corrected the stale premise: step2 already uses kmutil --raw --entry-point 2048 --lowest-virtual-address 0. Real gaps are j614sap/0x6040 expert-only admission, atomic install/repair/upgrade semantics for a complete kernel+DTB+initramfs object (legacy STACKBOT variable extraction fails/discards payload), and macOS 26 AEA BaseSystem plus moved/extended WiFi/BT layouts. J614s multitouch collection already works generically. Documented fixture hashes, validation gates, and five-part upstream patch split. No external post, APFS, Boot Policy, enrollment, or rig access. Result: done/2026-07-23-t6040-asahi-installer-requirements.md.",
+  "author": "claude",
+  "deps": [],
+  "hashes": {
+    "result": "62c2366487f3c232242903f0acd1b92aafd7eabfc3c759f4be77ec69aa552db0"
+  },
+  "created": 1784039024,
+  "done_at": 1784840633
+}

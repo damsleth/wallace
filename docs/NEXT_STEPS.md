@@ -136,6 +136,13 @@ explicit approval. U-Boot/EFI remains B1 after this direct-m1n1 B0 proof.
 Exact format and safety result:
 `done/2026-07-23-t6040-raw-boot-object-layout.md`.
 
+Ticket 026's installer audit corrected a stale premise: current
+asahi-installer already enrolls `boot.bin` with the required raw entry `2048`
+and lowest address zero. Its real M4 gaps are J614s/T6040 admission, treating a
+self-contained Linux payload as an atomic object during install/repair/upgrade,
+and macOS 26 AEA plus moved/extended firmware layouts. Requirements and safe
+patch split: `done/2026-07-23-t6040-asahi-installer-requirements.md`.
+
 Persistent Linux state remains B2: tickets 023/032/060 resume the external USB
 root path only with a powered/self-powered fixture or reviewed T6040 HPM/ATC
 support. Internal NVMe remains blocked by SPTM/CoastGuard. Do not fold storage,

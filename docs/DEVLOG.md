@@ -223,6 +223,14 @@ is gated on PCIe port-0 (op-115) + a `brcmfmac`/`hci_bcm4377` kernel build.
 Full provenance, hashes, layout notes, and the regeneration recipe:
 `done/2026-07-14-t6040-bcm4388-fw-extract.md`.
 
+Ticket 026 audited current asahi-installer at `c53d66dc7193`. Its second-stage
+raw `kmutil` invocation already matches M4; the missing pieces are
+`j614sap`/`0x6040` admission, atomic handling of a complete raw m1n1 Linux
+payload (the legacy `STACKBOT` variable upgrader cannot preserve one), and
+macOS 26 AEA plus changed Wi-Fi/Bluetooth layouts. The J614s multitouch
+collector already works generically. Exact requirements and upstream patch
+split: `done/2026-07-23-t6040-asahi-installer-requirements.md`.
+
 ### DockChannel-UART Linux console (2026-07-12)
 Kernel side: `origin/dockchannel` mailbox + tty drivers + a t6040 board DT
 variant. **Correction 2026-07-21:** the ADT declares AIC IRQ 360, but a bounded

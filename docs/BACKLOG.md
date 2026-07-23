@@ -43,7 +43,10 @@ In rough order of leverage:
    verifier are documented. **081** packages a single self-contained object
    and prepares a tethered one-object proof; **082** prepares reversible raw
    enrollment and cold boot. Direct m1n1 is the selected B0 route; U-Boot
-   ticket **025** is B1.
+   ticket **025** is B1. Installer requirements ticket **026** is complete:
+   raw enrollment already exists upstream; atomic self-contained-object
+   handling, J614s/T6040 admission, and macOS 26 firmware extraction are the
+   remaining upstream gaps.
 2. **USB-root pipeline** (storage, P1 — the persistent Stage D exit).
    Build/port-map gates
    are clear. Ticket 063 proved the right-port DART+xHCI root hubs but no child
