@@ -1,0 +1,48 @@
+From f12292c2dc4b161199f010a26539261dfe67e811 Mon Sep 17 00:00:00 2001
+From: CJ Damsleth <kim@damsleth.no>
+Date: Thu, 23 Jul 2026 23:38:59 +0200
+Subject: [RFC PATCH v1 0/4] arm64: dts: apple: add T6040 J614s support
+
+This RFC collects the current minimal device-tree description for the
+14-inch M4 Pro MacBook Pro (Mac16,8 / J614s).  It deliberately excludes the
+experimental USB and ANS/storage nodes used by the local bring-up branch.
+
+The base DT describes the measured 14-core topology (including the disabled
+positional CPU slot), the generated PMGR power domains, and the MTP transport.
+Separate variants enable the built-in keyboard/trackpad and the DebugUSB
+DockChannel serial path.  The latter uses measured AIC input 816 and explicit
+per-instance RX masks: BIT(1) for the UART and BIT(3) for MTP.
+
+The series compiles all three DTBs.  CHECK_DTBS=y requires the existing
+T6041 PMGR binding prerequisite.  Remaining RFC-level schema dependencies are
+T6040 AIC and watchdog, T8140 ASC mailbox, and the not-yet-upstream
+DockChannel/HID/serial bindings.  The DebugUSB variant is therefore last and
+is not intended as a normal production board DT.
+
+The T6040 description was also compared with yuka's current
+feature/m4-m5-minimal-device-trees branch.  That branch covers J773s and a
+different T6040 CPU layout; it does not contain the J614s board, PMGR corpus,
+or measured DockChannel IRQ/mask data included here.
+
+CJ Damsleth (4):
+  dt-bindings: arm: apple: add J614s MacBook Pro
+  arm64: dts: apple: add T6040 and J614s MacBook Pro
+  arm64: dts: apple: add J614s keyboard and trackpad variant
+  arm64: dts: apple: add J614s DebugUSB serial variant
+
+ .../devicetree/bindings/arm/apple.yaml        |    7 +
+ arch/arm64/boot/dts/apple/Makefile            |    3 +
+ .../boot/dts/apple/t6040-j614s-dcuart.dts     |   98 +
+ arch/arm64/boot/dts/apple/t6040-j614s-kbd.dts |   62 +
+ arch/arm64/boot/dts/apple/t6040-j614s.dts     |   53 +
+ arch/arm64/boot/dts/apple/t6040-pmgr.dtsi     | 1971 +++++++++++++++++
+ arch/arm64/boot/dts/apple/t6040.dtsi          |  405 ++++
+ 7 files changed, 2599 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/apple/t6040-j614s-dcuart.dts
+ create mode 100644 arch/arm64/boot/dts/apple/t6040-j614s-kbd.dts
+ create mode 100644 arch/arm64/boot/dts/apple/t6040-j614s.dts
+ create mode 100644 arch/arm64/boot/dts/apple/t6040-pmgr.dtsi
+ create mode 100644 arch/arm64/boot/dts/apple/t6040.dtsi
+
+-- 
+2.47.1

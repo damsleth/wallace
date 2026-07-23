@@ -196,6 +196,15 @@ it has not been posted or run. Audit and mail:
 `done/2026-07-23-t6040-m1n1-upstream-series.md` and
 `patches/m1n1-t6040-upstream-v1/`.
 
+Ticket 047's Linux DT consolidation is also complete. The final J614s identity
+and measured DCUART IRQ 816 edits are committed in `wallace/t6040-bringup`.
+The four-patch RFC draft excludes experimental USB/ANS nodes, applies with an
+identical tree, builds all three board DTBs, and passes strict checkpatch.
+`dtbs_check` now isolates the remaining AIC/watchdog/ASC/DockChannel binding
+prerequisites. Audit and mail:
+`done/2026-07-23-t6040-linux-dt-series.md` and
+`patches/linux-t6040-j614s-dt-v1/`.
+
 Keep the first USB smoke at `maxcpus=1 idle=nop`. The DT's extra `cpu@10105` is
 correctly disabled and 14 cores are available, but Linux secondary-core bring-up
 is still a separate staged experiment (tickets 005/034); do not combine it with

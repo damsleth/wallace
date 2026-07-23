@@ -1,0 +1,5 @@
+d5fe650284392bd2a5b445c191232af5d57508f1963604cda40d82e391d67da4  patches/linux-t6040-j614s-dt-v1/0000-cover-letter.patch
+744e83806e05bd8965cc651b32af526b0020d9992a14a05c36503ca1c9c04394  patches/linux-t6040-j614s-dt-v1/0001-dt-bindings-arm-apple-add-J614s-MacBook-Pro.patch
+fc34f9a43ef1ccef5f00f0dc92f82c97ae5e8f1f013aee13ff253828f3546ddf  patches/linux-t6040-j614s-dt-v1/0002-arm64-dts-apple-add-T6040-and-J614s-MacBook-Pro.patch
+cf86edf9f6824aa03b40883aabc38dd7d57feb8df486c70d892262648c1462e1  patches/linux-t6040-j614s-dt-v1/0003-arm64-dts-apple-add-J614s-keyboard-and-trackpad-vari.patch
+64d9444d2e9f0ade161903a2e4c2f28a82c1d8d2c87e8299355f5516a99f57cf  patches/linux-t6040-j614s-dt-v1/0004-arm64-dts-apple-add-J614s-DebugUSB-serial-variant.patch

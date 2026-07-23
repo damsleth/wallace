@@ -135,9 +135,11 @@ tty `b8dcbdcb`, HID transport) with `DOCKCHANNEL=1`, applies
 - **zsh gotcha:** unquoted `$var` does not word-split.
 
 DT sources: `t6040.dtsi` / `t6040-j614s*.dts` / `t6040-pmgr.dtsi` in
-`~/Code/linux` (partly uncommitted); the dcuart board variant is preserved at
-`~/Code/wallace/dts/t6040-j614s-dcuart.dts` (self-contained: defines the
-dockchannel-uart nodes under &soc itself).
+`~/Code/linux`.  The remaining board state was committed on 2026-07-23,
+including measured DCUART IRQ 816 and the corrected 14-inch identity.  The
+upstream-shaped draft is `patches/linux-t6040-j614s-dt-v1/`; validation and
+known schema prerequisites are recorded in
+`done/2026-07-23-t6040-linux-dt-series.md`.
 
 Known-good artifacts (in `~/Code/linux-build-out/`), kernel build #15:
 - `Image` `14da8640398fc64b89d9241a75be0ffc8d4260b681068a3c27251cc79c3abaf4`

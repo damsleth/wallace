@@ -231,11 +231,13 @@ early console. (Testable incrementally against Stage C.)
 
 - **Device trees:** **FULL 214-DOMAIN PMGR TO USERSPACE (2026-07-12, temporary
   policy).** `t6040.dtsi`
-  + `t6040-j614s*.dts` + generated `t6040-pmgr.dtsi` in `~/code/linux`
+  + `t6040-j614s*.dts` + generated `t6040-pmgr.dtsi` in `~/Code/linux`
   (templated from t8132/t6050, ADT-verified). The 2026-07-10 async-L2C-SError
   handoff blocker was the m1n1 dapf init (all t6040 dapf entries trap; gated in
   `src/dapf.c`). Board variants: `-kbd` (keyboard, known-good) and `-dcuart`
-  (keyboard + DockChannel shell, preserved at `~/Code/wallace/dts/`). **Remaining:
+  (keyboard + DockChannel shell). The board state, measured DCUART IRQ 816,
+  and 14-inch identity are committed; an upstream-shaped four-patch draft is
+  in `patches/linux-t6040-j614s-dt-v1/`. **Remaining:
   full-pmgr legacy policy hangs pre-console, but the exact deterministic minimum
   (preserve active, disable `disp_cpu`, skip auto-enable only for
   `dispext0_cpu` and `dispext1_cpu`) boots 3/3. Both CPU skips are necessary;

@@ -1,0 +1,138 @@
+From f12292c2dc4b161199f010a26539261dfe67e811 Mon Sep 17 00:00:00 2001
+From: CJ Damsleth <kim@damsleth.no>
+Date: Thu, 23 Jul 2026 23:38:52 +0200
+Subject: [RFC PATCH v1 4/4] arm64: dts: apple: add J614s DebugUSB serial
+ variant
+
+Add the bring-up-only DockChannel serial endpoint used through Apple's
+DebugUSB transport.  A bounded interrupt attribution experiment measured
+AIC input 816; the ADT-provided value 360 does not deliver interrupts here.
+
+Keep the proven polling fallback and describe the per-instance IRQ masks:
+UART RX uses BIT(1), while the MTP instance uses BIT(3).
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ arch/arm64/boot/dts/apple/Makefile            |  1 +
+ .../boot/dts/apple/t6040-j614s-dcuart.dts     | 98 +++++++++++++++++++
+ 2 files changed, 99 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/apple/t6040-j614s-dcuart.dts
+
+diff --git a/arch/arm64/boot/dts/apple/Makefile b/arch/arm64/boot/dts/apple/Makefile
+index 02ab4d6de35d..ef3b8b80230e 100644
+--- a/arch/arm64/boot/dts/apple/Makefile
++++ b/arch/arm64/boot/dts/apple/Makefile
+@@ -88,6 +88,7 @@ dtb-$(CONFIG_ARCH_APPLE) += t6002-j375d.dtb
+ dtb-$(CONFIG_ARCH_APPLE) += t6022-j180d.dtb
+ dtb-$(CONFIG_ARCH_APPLE) += t6040-j614s.dtb
+ dtb-$(CONFIG_ARCH_APPLE) += t6040-j614s-kbd.dtb
++dtb-$(CONFIG_ARCH_APPLE) += t6040-j614s-dcuart.dtb
+ dtb-$(CONFIG_ARCH_APPLE) += t6020-j414s.dtb
+ dtb-$(CONFIG_ARCH_APPLE) += t6021-j414c.dtb
+ dtb-$(CONFIG_ARCH_APPLE) += t6020-j416s.dtb
+diff --git a/arch/arm64/boot/dts/apple/t6040-j614s-dcuart.dts b/arch/arm64/boot/dts/apple/t6040-j614s-dcuart.dts
+new file mode 100644
+index 000000000000..f67473103230
+--- /dev/null
++++ b/arch/arm64/boot/dts/apple/t6040-j614s-dcuart.dts
+@@ -0,0 +1,98 @@
++// SPDX-License-Identifier: GPL-2.0+ OR MIT
++/*
++ * Apple MacBook Pro J614s DockChannel-UART bring-up variant.
++ *
++ * The known-good keyboard configuration (t6040-j614s-kbd.dts) plus the
++ * dockchannel-uart FIFO exposed as /dev/ttydc0. With a DebugUSB (KIS)
++ * session active on the DFU port, the host reads this stream in kisd.
++ *
++ * Self-contained: the SoC dtsi carries no dockchannel-uart nodes, so the
++ * whole experiment lives here. Addresses from the live J614s ADT
++ * /arm-io/dockchannel-uart: reg[0] = config@+0 / data@+0x4000, reg[1] =
++ * irq block (block base + 0xc000, same relative layout as t8140 J700).
++ *
++ * The ADT-provided IRQ 360 is wrong. A bounded m1n1 experiment on M4 Pro
++ * measured the UART at AIC input 816 on 2026-07-17. The UART instance uses RX
++ * BIT(1), while MTP uses BIT(3). Keep the proven poll fallback in this base DT;
++ * the instance-specific masks remain explicit in both modes.
++ */
++/dts-v1/;
++
++#include "t6040.dtsi"
++
++/ {
++	compatible = "apple,j614s", "apple,t6040", "apple,arm-platform";
++	model = "Apple MacBook Pro (M4 Pro) J614s [DockChannel UART bring-up]";
++
++	aliases {
++		keyboard = &mtp_keyboard;
++	};
++
++	chosen {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++
++		framebuffer0: framebuffer@0 {
++			compatible = "apple,simple-framebuffer", "simple-framebuffer";
++			reg = <0 0 0 0>; /* To be filled by loader */
++			status = "disabled";
++		};
++	};
++
++	reserved-memory {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++	};
++
++	memory@10000000000 {
++		device_type = "memory";
++		reg = <0x100 0 0x0 0>; /* To be filled by loader */
++	};
++};
++
++&soc {
++	dockchannel_uart: mailbox@50880c000 {
++		compatible = "apple,t8122-dockchannel",
++			     "apple,t8112-dockchannel";
++		reg = <0x5 0x0880c000 0x0 0x4000>,
++		      <0x5 0x08828000 0x0 0x4000>,
++		      <0x5 0x0882c000 0x0 0x4000>;
++		reg-names = "irq", "config", "data";
++		interrupt-parent = <&aic>;
++		interrupts = <AIC_IRQ 816 IRQ_TYPE_LEVEL_HIGH>;
++		apple,irq-tx-mask = <0x4>;
++		apple,irq-rx-mask = <0x2>;
++		apple,poll-mode;
++		#mbox-cells = <0>;
++	};
++
++	dockchannel_uart_serial: serial {
++		compatible = "apple,dockchannel-serial";
++		mboxes = <&dockchannel_uart>;
++		mbox-names = "dockchannel";
++	};
++};
++
++&mtp_mbox {
++	status = "okay";
++};
++
++&mtp_dart {
++	status = "okay";
++};
++
++&mtp_dockchannel {
++	apple,irq-tx-mask = <0x4>;
++	apple,irq-rx-mask = <0x8>;
++	status = "okay";
++};
++
++&mtp_hid {
++	status = "okay";
++
++	multi-touch {
++		firmware-name = "apple/tpmtfw-j614s.bin";
++	};
++};
+-- 
+2.47.1

@@ -1,0 +1,33 @@
+From e7c1d5582a801254997c1e80b82437ea9db39de9 Mon Sep 17 00:00:00 2001
+From: CJ Damsleth <kim@damsleth.no>
+Date: Thu, 23 Jul 2026 23:38:33 +0200
+Subject: [RFC PATCH v1 1/4] dt-bindings: arm: apple: add J614s MacBook Pro
+
+Document the 14-inch M4 Pro MacBook Pro sold as Mac16,8.  Its Apple target
+identifier is J614s and its SoC is T6040.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ Documentation/devicetree/bindings/arm/apple.yaml | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/arm/apple.yaml b/Documentation/devicetree/bindings/arm/apple.yaml
+index c967cfcecdbe..791855ff9382 100644
+--- a/Documentation/devicetree/bindings/arm/apple.yaml
++++ b/Documentation/devicetree/bindings/arm/apple.yaml
+@@ -335,6 +335,13 @@ properties:
+           - const: apple,t8132
+           - const: apple,arm-platform
+ 
++      - description: Apple M4 Pro SoC based platforms
++        items:
++          - enum:
++              - apple,j614s # MacBook Pro (14-inch, M4 Pro, 2024)
++          - const: apple,t6040
++          - const: apple,arm-platform
++
+       - description: Apple M1 Pro SoC based platforms
+         items:
+           - enum:
+-- 
+2.47.1

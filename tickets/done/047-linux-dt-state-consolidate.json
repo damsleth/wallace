@@ -1,0 +1,20 @@
+{
+  "seq": "047",
+  "slug": "linux-dt-state-consolidate",
+  "needs": "offline",
+  "state": "done",
+  "track": "xcut",
+  "priority": "P1",
+  "desc": "DONE offline: committed the remaining J614s identity/DCUART state on wallace/t6040-bringup, including measured IRQ 816 and per-instance IRQ masks; refreshed and compared yuka's J773s-oriented T6040 work; shaped a four-patch RFC on codex/t6040-j614s-dt-series which excludes experimental USB/ANS nodes; generated signed-off mail, verified git-am tree identity, compiled three DTBs, passed strict checkpatch, and isolated remaining dtbs_check output to prerequisite AIC/watchdog/ASC/DockChannel schemas. Draft only; nothing posted or run. Result: done/2026-07-23-t6040-linux-dt-series.md; mail: patches/linux-t6040-j614s-dt-v1/.",
+  "author": "fable",
+  "deps": [],
+  "hashes": {
+    "linux_binding_commit": "92c3d1a62a6f0bec78bcdf9928d29b035e33d92f",
+    "linux_dts_commit": "246843ff67a85b032a9da558770979b86b430945",
+    "series_tip": "f12292c2dc4b161199f010a26539261dfe67e811",
+    "series_tree": "ddcbf648474b24ce5749d954cbcfa97353c09ed4",
+    "sha256_manifest": "16664e1b080b03d1c8353ff8089a0ec5f21d88305c5d540f89892382595cbc99"
+  },
+  "created": 1784041751,
+  "done_at": 1784842929
+}
