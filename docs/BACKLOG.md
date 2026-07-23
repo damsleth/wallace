@@ -97,7 +97,9 @@ In rough order of leverage:
    host tools. PMGR series is draft-ready (CJ asks flokli re J773s policy and
    posts).
 7. **Stage-D comforts, offline-preparable**: **061** SMC DT wiring (battery,
-   power button, lid — read-only keys). **037** RTKit 26.x per-driver drafts.
+   power button, lid — read-only keys). **037** is complete: its audited patch
+   set is intentionally empty because none of the 26.x deltas is
+   version-gate-only.
 8. **SPTM internal-NVMe long shot** (storage, background): 051/052/054/055 —
    static decode + the XNU-shim escalation draft for #asahi-dev. No rig time.
 9. **Track-and-test** ([UPSTREAM] tickets): 022 DCP, 023 ATC PHY, 026

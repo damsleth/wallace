@@ -179,6 +179,13 @@ display-domain ownership transition remain unresolved. Keep simpledrm/fbcon
 for B0; exact evidence:
 `done/2026-07-23-t6040-dcp-upstream-dt-prep.md`.
 
+Ticket 037's per-driver RTKit compatibility audit is complete with an
+intentional empty patch set. The shared RTKit core already accepts J614s's live
+protocol; DCP 26.x, ISP H16, and GPU G16 are real ABI/hardware ports rather than
+whitelist additions, while SMC and SIO have no OS-firmware whitelist to extend.
+The DCP/ISP upstream test notes and forbidden speculative aliases are recorded
+in `done/2026-07-23-t6040-rtkit-26x-draft-audit.md`.
+
 Keep the first USB smoke at `maxcpus=1 idle=nop`. The DT's extra `cpu@10105` is
 correctly disabled and 14 cores are available, but Linux secondary-core bring-up
 is still a separate staged experiment (tickets 005/034); do not combine it with

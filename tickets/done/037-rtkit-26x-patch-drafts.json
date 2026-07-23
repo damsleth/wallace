@@ -1,0 +1,20 @@
+{
+  "seq": "037",
+  "slug": "rtkit-26x-patch-drafts",
+  "needs": "offline",
+  "state": "done",
+  "track": "rtkit",
+  "priority": "P1",
+  "desc": "DONE offline with an intentional empty patch set. Exact-source audit found no proven version-gate-only 26.x delta: shared RTKit protocol 12 already boots ANS; DCP's enum selects ABI-specific 13.5/14.7 method tables while J614s has unresolved 26.x method and T6040 hardware deltas; ISP accepts UNKNOWN but lacks a T6040/H16 descriptor; SMC and SIO have no OS-firmware whitelist; GPU G16 is a real generation port. Emitted bounded [UPSTREAM] DCP/ISP evidence and test notes and explicit bans on speculative aliases. No local fork, rig work, MMIO, or external post. Result: done/2026-07-23-t6040-rtkit-26x-draft-audit.md.",
+  "author": "sol",
+  "deps": [
+    "028"
+  ],
+  "hashes": {
+    "result": "9493c69a2ea264d1b6075d7fe71538f2114dc5d1b93cf5729922a48039cc774c",
+    "dcp_isp_source": "f4df8984b39affb6d661ac67d097c131132b8f26",
+    "wallace_linux_source": "96ac043df12fd3b8648505c51933b1552d033c4c"
+  },
+  "created": 1784040423,
+  "done_at": 1784842104
+}
