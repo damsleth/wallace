@@ -2,7 +2,7 @@
   "seq": "044",
   "slug": "pcie-port0-manifest",
   "needs": "offline",
-  "state": "open",
+  "state": "done",
   "track": "pcie",
   "priority": "P2",
   "desc": "Pre-review the next PCIe stage after shared PHY: extract from done/2026-07-14-t6040-pcie-write-manifest.tsv the port-0 (BCM4388) subset from op 352 on — port registers, PERST# GPIO 5 sequencing, RID2SID/MSIMAP, config space, link-up polls — verify every address ADT-derived, define stop points, so the gated run after op-115 resolution is pre-reviewed (done/2026-07-14-t6040-wireless-pcie-map.md)",
@@ -11,5 +11,6 @@
     "002"
   ],
   "hashes": null,
-  "created": 1784041736
+  "created": 1784041736,
+  "done_at": 1784842839
 }
