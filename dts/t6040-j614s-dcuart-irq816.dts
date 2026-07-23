@@ -1,0 +1,98 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Apple MacBook Pro J614s DockChannel-UART — interrupt-driven variant (IRQ 816).
+ *
+ * Identical to t6040-j614s-dcuart.dts EXCEPT the dockchannel-uart mailbox drops
+ * `apple,poll-mode`, so RX/TX run interrupt-driven on the measured AIC input
+ * 816 (the ADT's 360 is an Apple copy-paste error; yuka measured 816 on M4 Pro
+ * and enverbalalic reproduced it on real t6041 — done/2026-07-21-asahi-dev-irc-review.md).
+ *
+ * Purpose (ticket 062): the earlier interrupt-driven RX diagnostics
+ * (rxirq-txpoll, NEXT_STEPS #0) registered on ADT input 360 and the handler
+ * never entered (total=0). With the corrected input 816 and the already-correct
+ * RX mask BIT(1)=0x2 / TX mask BIT(2)=0x4, this variant tests whether
+ * interrupt-driven RX now actually fires. The poll-mode base DT
+ * (t6040-j614s-dcuart.dts) remains the safe fallback and the default console.
+ *
+ * reg-names: irq @0x50880c000, config @0x508828000, data @0x50882c000.
+ */
+/dts-v1/;
+
+#include "t6040.dtsi"
+
+/ {
+	compatible = "apple,j614s", "apple,t6040", "apple,arm-platform";
+	model = "Apple MacBook Pro (M4 Pro) J614s [DockChannel UART IRQ-816]";
+
+	aliases {
+		keyboard = &mtp_keyboard;
+	};
+
+	chosen {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		framebuffer0: framebuffer@0 {
+			compatible = "apple,simple-framebuffer", "simple-framebuffer";
+			reg = <0 0 0 0>; /* To be filled by loader */
+			status = "disabled";
+		};
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+	};
+
+	memory@10000000000 {
+		device_type = "memory";
+		reg = <0x100 0 0x0 0>; /* To be filled by loader */
+	};
+};
+
+&soc {
+	dockchannel_uart: mailbox@50880c000 {
+		compatible = "apple,t8122-dockchannel",
+			     "apple,t8112-dockchannel";
+		reg = <0x5 0x0880c000 0x0 0x4000>,
+		      <0x5 0x08828000 0x0 0x4000>,
+		      <0x5 0x0882c000 0x0 0x4000>;
+		reg-names = "irq", "config", "data";
+		interrupt-parent = <&aic>;
+		interrupts = <AIC_IRQ 816 IRQ_TYPE_LEVEL_HIGH>;
+		apple,irq-tx-mask = <0x4>;
+		apple,irq-rx-mask = <0x2>;
+		/* No apple,poll-mode: interrupt-driven RX/TX on AIC input 816. */
+		#mbox-cells = <0>;
+	};
+
+	dockchannel_uart_serial: serial {
+		compatible = "apple,dockchannel-serial";
+		mboxes = <&dockchannel_uart>;
+		mbox-names = "dockchannel";
+	};
+};
+
+&mtp_mbox {
+	status = "okay";
+};
+
+&mtp_dart {
+	status = "okay";
+};
+
+&mtp_dockchannel {
+	apple,irq-tx-mask = <0x4>;
+	apple,irq-rx-mask = <0x8>;
+	status = "okay";
+};
+
+&mtp_hid {
+	status = "okay";
+
+	multi-touch {
+		firmware-name = "apple/tpmtfw-j614s.bin";
+	};
+};
