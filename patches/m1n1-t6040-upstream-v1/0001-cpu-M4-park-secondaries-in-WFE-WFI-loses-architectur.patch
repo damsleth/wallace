@@ -1,0 +1,108 @@
+From e6d8d5e8053690e9fe251eb1bebc690aee3bf97e Mon Sep 17 00:00:00 2001
+From: CJ Damsleth <kim@damsleth.no>
+Date: Sun, 12 Jul 2026 14:31:57 +0200
+Subject: [RFC PATCH 1/9] cpu: M4: park secondaries in WFE, WFI loses
+ architectural state
+
+On the M4 family, wfi/wfit on secondary cores loses architectural state:
+a secondary that enters deep_wfi() may never come back. Add a broken_wfi
+CPU feature flag, set it for the M4 feature set, park secondaries in a
+wfe loop from first start, and refuse P_SMP_SET_WFE_MODE requests that
+would disable wfe mode on affected parts. Expose the flag through the
+proxyclient CPUFeatures struct (replaces a padding byte).
+
+Verified on t6040 (M4 Pro, J614s): secondaries park reliably and the
+machine survives repeated proxy sessions and kernel boots.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ proxyclient/m1n1/proxy.py |  2 +-
+ src/chickens.c            |  7 +++++++
+ src/smp.c                 | 20 ++++++++++++++++++++
+ src/utils.h               |  1 +
+ 4 files changed, 29 insertions(+), 1 deletion(-)
+
+diff --git a/proxyclient/m1n1/proxy.py b/proxyclient/m1n1/proxy.py
+index ad9faf9a..dc64db0e 100644
+--- a/proxyclient/m1n1/proxy.py
++++ b/proxyclient/m1n1/proxy.py
+@@ -507,7 +507,7 @@ CPUFeatures = Struct(
+     "amx" / bool_,
+     "actlr_el2" / bool_,
+     "counter_redirect" / bool_,
+-    "padding" / Bytes(1),
++    "broken_wfi" / bool_,
+ )
+ 
+ # Uses UartInterface.proxyreq() to send requests to M1N1 and process
+diff --git a/src/chickens.c b/src/chickens.c
+index 128d3ed5..4a3e837f 100644
+--- a/src/chickens.c
++++ b/src/chickens.c
+@@ -113,6 +113,13 @@ const struct midr_part_features features_m4 = {
+     .sleep_mode = SLEEP_NONE, // XXX probably new mode required
+     .fast_ipi = true,
+     .actlr_el2 = true,
++    /*
++     * On M4, wfi/wfit cause loss of architectural state on secondary
++     * cores (see the Linux t8132 DT series cover letter and the
++     * idle=nop kernel patches, 2026-07-05). Park secondaries in a
++     * wfe loop instead of deep_wfi().
++     */
++    .broken_wfi = true,
+ };
+ 
+ /*
+diff --git a/src/smp.c b/src/smp.c
+index 9082ac9d..ded5ad5e 100644
+--- a/src/smp.c
++++ b/src/smp.c
+@@ -231,6 +231,16 @@ void smp_start_secondaries(void)
+ {
+     printf("Starting secondary CPUs...\n");
+ 
++    /*
++     * On parts where wfi loses architectural state on secondary cores
++     * (M4 family), park secondaries in wfe from the very first start.
++     * No barriers needed here: no secondary is running yet.
++     */
++    if (cpu_features->broken_wfi && !wfe_mode) {
++        printf("smp: broken wfi on this SoC, parking secondaries in wfe\n");
++        wfe_mode = true;
++    }
++
+     int pmgr_path[8];
+ 
+     if (adt_path_offset_trace(adt, "/arm-io/pmgr", pmgr_path) < 0) {
+@@ -489,6 +499,16 @@ u64 smp_wait(int cpu)
+ 
+ void smp_set_wfe_mode(bool new_mode)
+ {
++    /*
++     * Never fall back to deep_wfi() parking on parts with broken wfi:
++     * a secondary entering wfi may lose architectural state and never
++     * come back. Reachable via P_SMP_SET_WFE_MODE from the proxy.
++     */
++    if (cpu_features->broken_wfi && !new_mode) {
++        printf("smp: refusing to disable wfe mode, wfi is broken on this SoC\n");
++        return;
++    }
++
+     wfe_mode = new_mode;
+     sysop("dsb sy");
+ 
+diff --git a/src/utils.h b/src/utils.h
+index a7bf86aa..3a5eacfb 100644
+--- a/src/utils.h
++++ b/src/utils.h
+@@ -510,6 +510,7 @@ struct midr_part_features {
+     bool amx;
+     bool actlr_el2;
+     bool counter_redirect;
++    bool broken_wfi;
+ };
+ 
+ extern bool is_mac;
+-- 
+2.47.1
+

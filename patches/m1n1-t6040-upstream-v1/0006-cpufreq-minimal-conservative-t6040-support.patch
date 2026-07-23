@@ -1,0 +1,90 @@
+From cbe92176c6a87a2b34d53d3c1e072984835d08b0 Mon Sep 17 00:00:00 2001
+From: CJ Damsleth <kim@damsleth.no>
+Date: Sun, 12 Jul 2026 14:32:38 +0200
+Subject: [RFC PATCH 6/9] cpufreq: minimal conservative t6040 support
+
+Only CLUSTER_PSTATE (+0x20020) is validated safe on all t6040 clusters:
+the t6030 ppt/llc/amx throttle register offsets (0x40xxx/0x48xxx) raise
+SErrors on t6040 P-clusters. Enable just the cpu-apsc and
+fixed-freq-pll-relock features pending a reverse-engineered t6040
+throttle map.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ src/cpufreq.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/src/cpufreq.c b/src/cpufreq.c
+index be99d4d2..01d8de15 100644
+--- a/src/cpufreq.c
++++ b/src/cpufreq.c
+@@ -69,6 +69,7 @@ static u32 pstate_reg_to_pstate(u64 val)
+         case T6030:
+         case T6031:
+         case T6034:
++        case T6040:
+         case T8122:
+             return FIELD_GET(CLUSTER_PSTATE_DESIRED1, val);
+         default:
+@@ -110,6 +111,7 @@ static int set_pstate(const struct cluster_t *cluster, uint32_t pstate)
+             case T6030:
+             case T6031:
+             case T6034:
++            case T6040:
+             case T8122:
+                 val &= ~CLUSTER_PSTATE_DESIRED1;
+                 val |= CLUSTER_PSTATE_SET | FIELD_PREP(CLUSTER_PSTATE_DESIRED1, pstate);
+@@ -204,6 +206,14 @@ int cpufreq_init_cluster(const struct cluster_t *cluster, const struct feat_t *f
+             /* APSC Snooze */
+             set64(cluster->base + 0x200f8, BIT(40));
+             break;
++        case T6040:
++            /*
++             * T6040: the misc/throttle register layout differs from t6030 --
++             * the 0x40xxx throttle regs SError on P-clusters and 0x440f8 is
++             * unverified there. Touch nothing here until the map is reverse-
++             * engineered; CLUSTER_PSTATE handling above is sufficient.
++             */
++            break;
+         case T6030:
+         case T6031:
+         case T6034:
+@@ -411,6 +421,7 @@ const struct cluster_t *cpufreq_get_clusters(void)
+             return t6030_clusters;
+         case T6031:
+         case T6034:
++        case T6040:
+             return t6031_clusters;
+         default:
+             printf("cpufreq: Chip 0x%x is unsupported\n", chip_id);
+@@ -493,6 +504,18 @@ static const struct feat_t t6030_features[] = {
+     {},
+ };
+ 
++/*
++ * T6040: only CLUSTER_PSTATE (+0x20020) is validated safe on all clusters. The
++ * t6030 ppt/llc/amx-thrtl offsets (0x40xxx/0x48xxx) SError on T6040 P-clusters,
++ * so they are omitted pending a reverse-engineered T6040 throttle map.
++ */
++static const struct feat_t t6040_features[] = {
++    {"cpu-apsc", CLUSTER_PSTATE, CLUSTER_PSTATE_M2_APSC_DIS, 0, CLUSTER_PSTATE_APSC_BUSY, false},
++    {"cpu-fixed-freq-pll-relock", CLUSTER_PSTATE, 0, CLUSTER_PSTATE_FIXED_FREQ_PLL_RECLOCK, 0,
++     false},
++    {},
++};
++
+ const struct feat_t *cpufreq_get_features(void)
+ {
+     switch (chip_id) {
+@@ -527,6 +550,8 @@ const struct feat_t *cpufreq_get_features(void)
+         case T6031:
+         case T6034:
+             return t6030_features;
++        case T6040:
++            return t6040_features;
+         default:
+             printf("cpufreq: Chip 0x%x is unsupported\n", chip_id);
+             return NULL;
+-- 
+2.47.1
+

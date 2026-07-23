@@ -186,6 +186,16 @@ whitelist additions, while SMC and SIO have no OS-firmware whitelist to extend.
 The DCP/ISP upstream test notes and forbidden speculative aliases are recorded
 in `done/2026-07-23-t6040-rtkit-26x-draft-audit.md`.
 
+Ticket 046's m1n1 series shaping is complete. Current upstream
+`7c7716b6` already added initial T6041 identity and T6040's moved PCIe reset
+bit, so the final RFC avoids those duplicates and reduces the 22-commit
+bring-up history to nine review patches. The final PCIe patch adds only the
+live-proven J614s clock/gate prefix and stops before unresolved operation 115.
+The series applies with identical tree hashes and builds reproducibly twice;
+it has not been posted or run. Audit and mail:
+`done/2026-07-23-t6040-m1n1-upstream-series.md` and
+`patches/m1n1-t6040-upstream-v1/`.
+
 Keep the first USB smoke at `maxcpus=1 idle=nop`. The DT's extra `cpu@10105` is
 correctly disabled and 14 cores are available, but Linux secondary-core bring-up
 is still a separate staged experiment (tickets 005/034); do not combine it with

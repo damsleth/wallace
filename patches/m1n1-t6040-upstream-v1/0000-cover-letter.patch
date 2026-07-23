@@ -1,0 +1,88 @@
+From 37fafb86814c8dba0e3552a7cac437e4c685b1f0 Mon Sep 17 00:00:00 2001
+From: CJ Damsleth <kim@damsleth.no>
+Date: Thu, 23 Jul 2026 23:32:03 +0200
+Subject: [RFC PATCH 0/9] m1n1: remaining T6040/J614s bring-up
+
+This is a review-only draft of the remaining m1n1 changes used to boot a
+MacBook Pro 14-inch M4 Pro (J614s, T6040 "Brava Chop") through kboot.
+
+It is based on current upstream main at 7c7716b6, after:
+
+  d3699d53 t6041: initial support
+  0f221fc7 pcie: Add t8132/t6040 support
+
+Those commits already provide the T6041 identity and the T6040 PCIe PHY
+reset-bit change, so this series does not duplicate them.
+
+Patches 1-8 contain the independently useful, hardware-verified pieces:
+
+  - keep M4 secondaries out of state-losing WFI;
+  - arm a bounded handoff watchdog;
+  - gate DAPF instances which async-SError while retaining dart-mtp;
+  - reuse the verified display carveout set;
+  - describe the T6041 MCC layout and conservative T6040 cpufreq subset;
+  - separate PMGR policy from ADT topology;
+  - leave an upper guard page above the stage-2 log ring.
+
+Patch 9 is deliberately RFC-only. Upstream now recognizes apcie,t6040,
+but J614s also needs two T6040-only clock tunable windows and Apple's
+PMGR gate ordering. The patch applies the complete live-proven clock
+prefix and then stops. It does not enter the unresolved first PHY-IP
+access (bring-up operation 115), initialize a port, or claim working
+PCIe.
+
+The branch was built twice from a clean tree on an arm64 Darwin host
+with LLVM 22.1.8 and Rust nightly. Both builds produced:
+
+  m1n1.bin
+  SHA-256 f615a4ef538147cf434b32b851ebd39a00e0a3bbbc66df25feca2f97b2806f4b
+
+  m1n1.elf
+  SHA-256 f7d9150afb95314fdeb2610f08b5f0071990836b289704994b5f4ceefc5e3468
+
+No image from this rebased series has been run on hardware. The
+underlying changes cite their earlier bounded J614s validation, but the
+series still needs normal review and a separately approved exact-image
+test before use.
+
+Excluded from this series are bring-up experiment helpers, DebugUSB PTY
+transport, noninteractive linux.py policy, all tunable tracing, and the
+unapproved operation-115 candidate. Those are host-tool work or
+diagnostics rather than T6040 platform support.
+
+Review questions:
+
+  1. Should the handoff watchdog stay paired with the T6040 kboot change
+     or be a separate opt-in policy?
+  2. Is the per-SoC DAPF skip table acceptable until the missing hardware
+     ownership signal is understood?
+  3. Should patch 9 land as a safe incomplete prefix, or remain out of
+     tree until the PHY-IP boundary and one port are complete?
+
+CJ Damsleth (9):
+  cpu: M4: park secondaries in WFE, WFI loses architectural state
+  wdt: add wdt_arm_secs()
+  dapf: gate DAPF init per SoC on the M4 generation
+  kboot: t6040 display carveout reuse and M4 watchdog arm
+  mcc: add t6041 (M4 Pro die) support
+  cpufreq: minimal conservative t6040 support
+  proxyclient: separate PMGR policy from ADT topology
+  kboot: guard stage 2 log buffer at top of RAM
+  pcie: prepare proven T6040 clock prefix
+
+ proxyclient/m1n1/proxy.py        |   2 +-
+ proxyclient/tools/pmgr_adt2dt.py |  25 +++++--
+ src/chickens.c                   |   7 ++
+ src/cpufreq.c                    |  25 +++++++
+ src/dapf.c                       |  36 +++++++++-
+ src/kboot.c                      |  41 +++++++++--
+ src/mcc.c                        | 119 +++++++++++++++++++++++++++++++
+ src/pcie.c                       |  65 ++++++++++++++++-
+ src/smp.c                        |  20 ++++++
+ src/utils.h                      |   1 +
+ src/wdt.c                        |  36 ++++++++++
+ src/wdt.h                        |   8 +++
+ 12 files changed, 371 insertions(+), 14 deletions(-)
+
+-- 
+2.47.1

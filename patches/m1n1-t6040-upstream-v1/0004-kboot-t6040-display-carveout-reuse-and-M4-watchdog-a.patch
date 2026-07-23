@@ -1,0 +1,88 @@
+From d1a822a83c1a1223613541b33d5aa479c8c322e7 Mon Sep 17 00:00:00 2001
+From: CJ Damsleth <kim@damsleth.no>
+Date: Sun, 12 Jul 2026 14:32:17 +0200
+Subject: [RFC PATCH 4/9] kboot: t6040 display carveout reuse and M4 watchdog
+ arm
+
+t6040 (M4 Pro) reuses the t602x display carveout scheme - verified on
+the live J614s ADT: /chosen/carveout-memory-map region ids 49/50/57/94/
+95/157 match disp_reserved_regions_t602x exactly.
+
+Also arm the watchdog for 20s before handoff on M4-family bring-up: the
+M4 has no early kernel serial console and no hv relay (SPTM), so a hung
+kernel would otherwise sit on the logo until a manual power-cycle. Once
+the guest kernel reliably runs a watchdog driver this can be removed.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ src/kboot.c | 29 +++++++++++++++++++++++++++--
+ 1 file changed, 27 insertions(+), 2 deletions(-)
+
+diff --git a/src/kboot.c b/src/kboot.c
+index a5bd4f1e..54900392 100644
+--- a/src/kboot.c
++++ b/src/kboot.c
+@@ -26,6 +26,7 @@
+ #include "types.h"
+ #include "usb.h"
+ #include "utils.h"
++#include "wdt.h"
+ #include "xnuboot.h"
+ 
+ #include "libfdt/libfdt.h"
+@@ -1981,7 +1982,17 @@ static int dt_set_display(void)
+             }
+         }
+     } else if (!fdt_node_check_compatible(dt, 0, "apple,t6020") ||
+-               !fdt_node_check_compatible(dt, 0, "apple,t6021")) {
++               !fdt_node_check_compatible(dt, 0, "apple,t6021") ||
++               !fdt_node_check_compatible(dt, 0, "apple,t6040")) {
++        /*
++         * t6040 (M4 Pro) reuses the t602x display carveout scheme. Verified on the
++         * live machine (2026-07-10): /chosen/carveout-memory-map has region-id
++         * 49/50/57/94/95/157 with display-plausible sizes clustered around the
++         * framebuffer (region-id-14), matching disp_reserved_regions_t602x exactly.
++         * dcpext data regions (73/74, 88/89 = dcpext0/1) are also present; the
++         * t602x path reserves dcpext *firmware* below but does not statically carve
++         * those data regions — validate at Stage C whether M4 DCP fw needs them.
++         */
+         ret = dt_carveout_reserved_regions("dcp", "disp0", "disp0_piodma",
+                                            disp_reserved_regions_t602x,
+                                            ARRAY_SIZE(disp_reserved_regions_t602x));
+@@ -2003,7 +2014,8 @@ static int dt_set_display(void)
+     if (!fdt_node_check_compatible(dt, 0, "apple,t8112") ||
+         !fdt_node_check_compatible(dt, 0, "apple,t6020") ||
+         !fdt_node_check_compatible(dt, 0, "apple,t6021") ||
+-        !fdt_node_check_compatible(dt, 0, "apple,t6022"))
++        !fdt_node_check_compatible(dt, 0, "apple,t6022") ||
++        !fdt_node_check_compatible(dt, 0, "apple,t6040"))
+         dt_reserve_dcpext_firmware();
+ 
+     const display_config_t *disp_cfg = display_get_config();
+@@ -2867,10 +2879,23 @@ int kboot_boot(void *kernel)
+ 
+     usb_init();
+     pcie_init();
++    // dapf_init_all() gates off the DAPF filters that raise the async L2C SError
++    // on M4 SoCs (all of them on t6040, aop/isp on t8132). See src/dapf.c:dapf_skip_entry.
+     dapf_init_all();
+ 
+     printf("Setting SMP mode to WFE...\n");
+     smp_set_wfe_mode(true);
++
++    // BRING-UP DIAGNOSTIC (M4-family): the M4 has no early kernel serial console
++    // and no working hv relay (SPTM), so a hung kernel just sits on the logo with
++    // no way to recover except a manual power-cycle (which loses DRAM). Arm the
++    // watchdog so a hang auto-warm-resets back to the m1n1 proxy (DRAM retained,
++    // enabling a post-mortem RAM dump). Once the kernel boots far enough to run
++    // the apple_wdt driver (needs the /soc/wdt DT node), remove this or the
++    // watchdog will reset an otherwise-healthy system after the timeout.
++    if (chip_id == T6040 || chip_id == T8132)
++        wdt_arm_secs(20);
++
+     printf("Preparing to boot kernel at %p with fdt at %p\n", kernel, dt);
+ 
+     next_stage.entry = kernel;
+-- 
+2.47.1
+

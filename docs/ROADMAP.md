@@ -81,12 +81,14 @@ fixed, dapf gate + watchdog arm added for M4.
 | SMP/cpufreq/MCC groundwork; PCIe host+wireless DT and drivers build | board-audited Linux secondary-core test, cpufreq throttles, gated PCIe link-up test, wireless firmware, USB3/TB PHY tunables |
 
 **Upstreaming pending**: the SMP/broken_wfi/MPIDR + cpufreq channel drafts are
-finalized in `done/` (ticket 019); actual m1n1 patch-mail rebase/series shaping
-is ticket 046. Also pending: dockchannel-uart per-instance IRQ masks + poll-mode patch to the
+finalized in `done/` (ticket 019). Ticket 046 has now shaped the actual
+nine-patch m1n1 RFC on upstream `7c7716b6`, including a safe incomplete PCIe
+clock prefix; CJ still decides whether/where to post it. Also pending:
+dockchannel-uart per-instance IRQ masks + poll-mode patch to the
 dockchannel-branch authors (retire ADT IRQ 360; measured UART input is 816);
-curated code-only branch `t6040-bringup` tracks main's src/ (main merged AsahiLinux
-upstream 2026-07-14 at `16b1f61f`; curated branch rebased onto it the same
-day, tip `f0738eee`; series audit/shaping is ticket 046).
+the curated code-only `t6040-bringup` branch remains the hardware-history
+record at `f0738eee`, while the review branch is
+`codex/t6040-upstream-series` at `37fafb86`.
 
 One structural constraint colors everything below: **M4 = raw boot only** (SPTM
 owns the mach-o path). Apple-private sysregs are locked. Linux itself doesn't
@@ -140,7 +142,8 @@ A→D are sequential. E/F/G parallelize after D. H wraps it all.
       `2026-07-10-t6040-smp-writeup.md`. Upstream m1n1 already carries T6040
       CPUSTART `0x88000` in proxyclient/hv via yuka `0ec216de`; the draft
       correctly frames WFE parking as the locked-sysreg fallback after Sven's
-      `c22ca847` retention-bit diagnosis. Actual patch mail is ticket 046.
+      `c22ca847` retention-bit diagnosis. Ticket 046's review-only mail draft
+      is now in `patches/m1n1-t6040-upstream-v1/`.
 
 **Exit:** ✅ proxy stable across reboots, 14/14 cores. (chainload dev loop + upstream
 carry forward as small residuals; neither blocks Stage B.)

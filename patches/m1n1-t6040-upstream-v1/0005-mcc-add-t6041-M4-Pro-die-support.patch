@@ -1,0 +1,167 @@
+From 6c50b3f45befe77cc10be30f0fcef42135d653ad Mon Sep 17 00:00:00 2001
+From: CJ Damsleth <kim@damsleth.no>
+Date: Sun, 12 Jul 2026 14:32:37 +0200
+Subject: [RFC PATCH 5/9] mcc: add t6041 (M4 Pro die) support
+
+The t6041 /arm-io/mcc ADT layout differs from t6031: the AMCC windows do
+not start at reg index 3 - the node gives their location and count via
+amcc-reg-idx / amcc-count (64-bit) - and there is no plane-count-per-amcc
+property (single cache plane per AMCC; the four AMCCs provide the SLC
+parallelism - the t6031 plane stride lands in unbacked MMIO and raises an
+async SError). The SLC status register also differs: with the cache
+enabled it reads 0x00010101, without the t6031 DATA/TAG way-count fields.
+
+All offsets hardware-verified on the live J614s (M4 Pro).
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ src/mcc.c | 119 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 119 insertions(+)
+
+diff --git a/src/mcc.c b/src/mcc.c
+index 37538839..099c76ab 100644
+--- a/src/mcc.c
++++ b/src/mcc.c
+@@ -90,6 +90,20 @@ struct tz_regs t603x_tz_regs = {
+     (FIELD_PREP(T8103_CACHE_STATUS_DATA_COUNT, T8103_CACHE_WAYS) |                                 \
+      FIELD_PREP(T8103_CACHE_STATUS_TAG_COUNT, T8103_CACHE_WAYS))
+ 
++/*
++ * t6041 (M4 Pro) — hardware-verified 2026-07-10 (Phase 2, see the MCC plan).
++ * Unlike t6031, the SLC status register does NOT use the 12-way DATA/TAG count
++ * fields: with cache enabled (PLANE_CACHE_ENABLE reads 1), PLANE_CACHE_STATUS
++ * reads 0x00010101 on all four AMCCs. So match that pattern directly, else
++ * mcc_enable_cache()'s poll would time out. Plane model also differs: the T6031
++ * plane stride (0x40000) lands in unbacked MMIO on t6041 (a read there raised an
++ * async SError and wedged the proxy), i.e. there is a single cache plane per AMCC
++ * — the 4 AMCCs provide the SLC parallelism. So T6041_PLANE_COUNT = 1.
++ */
++#define T6041_CACHE_STATUS_MASK 0x00010101
++#define T6041_CACHE_STATUS_VAL  0x00010101
++#define T6041_PLANE_COUNT       1
++
+ #define T8112_CACHE_DISABLE 0x424
+ 
+ #define CACHE_ENABLE_TIMEOUT 10000
+@@ -384,6 +398,109 @@ int mcc_init_t6031(int node, int *path)
+     return 0;
+ }
+ 
++int mcc_init_t6041(int node, int *path)
++{
++    /*
++     * T6041 (M4 Pro) is the t6031 (M3 Max) analogue, but its /arm-io/mcc ADT reg
++     * map is laid out differently: the AMCC windows do not start at reg index 3.
++     * Instead the node names their location and count explicitly via
++     * "amcc-reg-idx" / "amcc-count", and there is NO "plane-count-per-amcc"
++     * property. So we drive the reg offset and instance count from the ADT rather
++     * than the t6031 hardcodes.
++     *
++     * Register offsets within each AMCC window: Phase 2 (2026-07-10) verified the
++     * SLC cache regs (PLANE_CACHE_ENABLE 0x1c00, STATUS 0x1c04 — see T6041_CACHE_*)
++     * and found 1 plane per AMCC. The T6031 GLOBAL (0x100000) and DCS (0x400000)
++     * offsets are NOT validated and are likely wrong: the t6041 AMCC register block
++     * is compact (< 0x40000 — a read at 0x40000 raised an async SError), so those
++     * high offsets fall in unbacked MMIO. They're unused at boot; anyone adding
++     * DCS/DRAM handling must re-RE them first. TZ regs read back all-zero (offset
++     * TBD, see the MCC plan) but that path is inert until Stage C.
++     */
++    u32 reg_len;
++    u32 reg_offset = 0;
++    u64 amcc_count = 0; /* stored as a 64-bit property on t6041, unlike reg-idx */
++
++    if (!adt_getprop(adt, node, "reg", &reg_len)) {
++        printf("MCC: Failed to get reg property!\n");
++        return -1;
++    }
++
++    if (ADT_GETPROP(adt, node, "amcc-reg-idx", &reg_offset) < 0) {
++        printf("MCC: Failed to get amcc-reg-idx!\n");
++        return -1;
++    }
++
++    if (ADT_GETPROP(adt, node, "amcc-count", &amcc_count) < 0) {
++        printf("MCC: Failed to get amcc-count!\n");
++        return -1;
++    }
++
++    mcc_count = amcc_count;
++
++    printf("MCC: Initializing T6041 MCCs (%d instances, reg base idx %d)...\n", mcc_count,
++           reg_offset);
++
++    /* Cross-check the ADT-declared count against the reg array size. */
++    u32 reg_derived = reg_len / 16 - reg_offset;
++    if (reg_derived != amcc_count)
++        printf("MCC: warning: amcc-count %lu != reg-derived %d (reg_len %d, idx %d)\n", amcc_count,
++               reg_derived, reg_len, reg_offset);
++
++    if (mcc_count > MAX_MCC_INSTANCES) {
++        printf("MCC: Too many instances, increase MAX_MCC_INSTANCES!\n");
++        mcc_count = MAX_MCC_INSTANCES;
++    }
++
++    u32 dcs_count = 0;
++
++    if (ADT_GETPROP(adt, node, "dcs-count-per-amcc", &dcs_count) < 0) {
++        printf("MCC: Failed to get dcs count!\n");
++        return -1;
++    }
++
++    /*
++     * t6041 has no plane-count-per-amcc property. Phase 2 hardware probing showed
++     * a single cache plane per AMCC (the T6031 plane stride 0x40000 is unbacked
++     * MMIO here), so use T6041_PLANE_COUNT. plane_count only feeds
++     * mcc_enable_cache() (kboot, Stage C, gated) and is inert at boot.
++     */
++    u32 plane_count = T6041_PLANE_COUNT;
++
++    for (int i = 0; i < mcc_count; i++) {
++        u64 base;
++        if (adt_get_reg(adt, path, "reg", i + reg_offset, &base, NULL)) {
++            printf("MCC: Failed to get reg index %d!\n", i + reg_offset);
++            return -1;
++        }
++
++        mcc_regs[i].plane_base = base + T6031_PLANE_OFFSET;
++        mcc_regs[i].plane_stride = T6031_PLANE_STRIDE;
++        mcc_regs[i].plane_count = plane_count;
++
++        mcc_regs[i].global_base = base + T6031_GLOBAL_OFFSET;
++
++        mcc_regs[i].dcs_base = base + T6031_DCS_OFFSET;
++        mcc_regs[i].dcs_stride = T6031_DCS_STRIDE;
++        mcc_regs[i].dcs_count = dcs_count;
++
++        mcc_regs[i].cache_enable_val = 1;
++        mcc_regs[i].cache_ways = T6031_CACHE_WAYS; /* unused by the poll; way count TBD */
++        mcc_regs[i].cache_status_mask = T6041_CACHE_STATUS_MASK;
++        mcc_regs[i].cache_status_val = T6041_CACHE_STATUS_VAL;
++        mcc_regs[i].cache_disable = 0;
++
++        mcc_regs[i].tz = &t603x_tz_regs;
++    }
++
++    printf("MCC: Initialized T6041 MCCs (%d instances, %d planes, %d channels)\n", mcc_count,
++           mcc_regs[0].plane_count, mcc_regs[0].dcs_count);
++
++    mcc_initialized = true;
++
++    return 0;
++}
++
+ int mcc_init(void)
+ {
+     int path[8];
+@@ -404,6 +521,8 @@ int mcc_init(void)
+         return mcc_init_t6000(node, path, true);
+     } else if (adt_is_compatible(adt, node, "mcc,t6031")) {
+         return mcc_init_t6031(node, path);
++    } else if (adt_is_compatible(adt, node, "mcc,t6041")) {
++        return mcc_init_t6041(node, path);
+     } else {
+         printf("MCC: Unsupported version:%s\n", adt_get_property(adt, node, "compatible")->value);
+         return -1;
+-- 
+2.47.1
+

@@ -1,0 +1,10 @@
+2b8ff106e8ad2224393aeff41eaa1b03693cade4eaa1092299fb6c69d302d0b6  0000-cover-letter.patch
+a9052647657747b538350c04c5e8c99d09dc8fb3479d52541b8eb493f59acb78  0001-cpu-M4-park-secondaries-in-WFE-WFI-loses-architectur.patch
+d450f60bef80245aa26749680de9e7074e613771ffd9188de2d6e0bf2d95e949  0002-wdt-add-wdt_arm_secs.patch
+4f359710ba0dbcf6771de9dc398662bbbab359bc923c6d973861c5a6dc821528  0003-dapf-gate-DAPF-init-per-SoC-on-the-M4-generation.patch
+ffda589cd17bcdd1330fb0aec82f3ce8ee59e366fed7b3a791467e6f7e44a83d  0004-kboot-t6040-display-carveout-reuse-and-M4-watchdog-a.patch
+10b728d011aa68a8eb314987041931a5466a7e4b228329e6896b7fb06b752aef  0005-mcc-add-t6041-M4-Pro-die-support.patch
+308c93f2589ecbb24db08137ecbc61630089a54f8c935b30c19bb6a07fc42903  0006-cpufreq-minimal-conservative-t6040-support.patch
+a8ec9176d7207ab897de0a07e6f762cf441c31e77d4fb387e96e7caf14414a5e  0007-proxyclient-separate-PMGR-policy-from-ADT-topology.patch
+71c33699240bebab31f627cda1500fc110c677aa672a72b2a29889ad7750fe3d  0008-kboot-guard-stage-2-log-buffer-at-top-of-RAM.patch
+c35bed6112482b87f0d3794fdedf1bc7d0544ec6d7acf7954d9b5925d5688a64  0009-pcie-prepare-proven-T6040-clock-prefix.patch

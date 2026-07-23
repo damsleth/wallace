@@ -694,8 +694,17 @@ merged main is NOT rig-tested** — hash-pinned experiment images (e.g. ticket
 a new image lineage for pinning purposes. The `t6040-bringup` branch
 (`m1n1-clean` worktree) was rebased the same day onto `upstream/main`
 `fd20d7f7` (the upstream content inside merged main): 22/22 commits clean,
-range-diff content-identical, new tip `f0738eee`, build verified. The series
-drift audit + shaping remains ticket 046.
+range-diff content-identical, new tip `f0738eee`, build verified.
+
+**Series refresh 2026-07-23 (ticket 046):** upstream advanced again to
+`7c7716b6`, including initial T6041 identity (`d3699d53`), T6040 PCIe/reset-bit
+support (`0f221fc7`), and four-level paging. The curated history was audited and
+reduced to a nine-patch RFC on `codex/t6040-upstream-series` at `37fafb86`.
+Host helpers and all diagnostic PCIe history are excluded; the last patch adds
+only J614s's proven clock prefix and stops before unresolved operation 115.
+`git am` tree identity and two clean builds pass. Draft, hashes, and audit:
+`patches/m1n1-t6040-upstream-v1/` and
+`done/2026-07-23-t6040-m1n1-upstream-series.md`. Nothing was posted or run.
 
 Follow-up (same day): reviewed chadmed/m1n1 `dcp/14.8.3` (remote `chadmed`
 in `~/Code/m1n1`). Everything on it except chadmed's seven DCP commits is
@@ -712,8 +721,8 @@ WFE fallback and cites both commits; the companion cpufreq draft documents the
 validated PSTATE-only path and the asynchronous-SError throttle boundary.
 Linux `checkpatch.pl` was run and its tab-only findings were adjudicated
 against m1n1's four-space style; the changed ranges pass m1n1-style
-clang-format and `git diff --check`. Patch-mail rebase/series shaping remains
-ticket 046. chadmed's DCP
+clang-format and `git diff --check`. Ticket 046 subsequently completed the
+current-upstream review branch and mail draft. chadmed's DCP
 commits are 14.x-era firmware ABI infra (V14_7 ABI, FW 14.8.3, trace_dcp) —
 watch pointer recorded on ticket 022. Follow-up through 2026-07-21: DCP now
 boots on that 14.8.3 work, HPD/brightness and much of the service stack operate,

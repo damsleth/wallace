@@ -1,0 +1,114 @@
+From 37fafb86814c8dba0e3552a7cac437e4c685b1f0 Mon Sep 17 00:00:00 2001
+From: CJ Damsleth <kim@damsleth.no>
+Date: Thu, 23 Jul 2026 23:29:31 +0200
+Subject: [RFC PATCH 9/9] pcie: prepare proven T6040 clock prefix
+
+Add the ADT-derived four-port register map and apply the two T6040-only clock tunable blocks at their statically decoded windows. Match Apple ordering by enabling PMGR gates 0 through 6 before the controller tunables and APCIE_PHY_SW gate 7 afterwards.
+
+Stop after the complete live-proven clock prefix. Shared-PHY operation 115 is unresolved, so this patch deliberately does not claim working T6040 PCIe or enter port setup.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ src/pcie.c | 65 ++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 63 insertions(+), 2 deletions(-)
+
+diff --git a/src/pcie.c b/src/pcie.c
+index 9630de4a..2c281356 100644
+--- a/src/pcie.c
++++ b/src/pcie.c
+@@ -228,6 +228,30 @@ static const struct reg_info regs_t6031 = {
+     .axi_idx = 4,
+ };
+ 
++/*
++ * t6040 (M4 Pro) is laid out like t6031 except for the shared register count:
++ * 35 ADT entries comprise reg[0..6] plus four ports with seven entries each.
++ * The paired AppleT6040PCIe driver identifies reg[5] as the CIO3 PLL window and
++ * reg[6] as the PCIe clock-generator window.
++ */
++#define APCIE_T6040_CIO3PLLCORE_IDX    5
++#define APCIE_T6040_PCIECLKGEN_IDX     6
++#define APCIE_T6040_PHY_CLOCK_GATE_IDX 7
++
++static const struct reg_info regs_t6040 = {
++    .type = APCIE_T8132,
++    .compat = APCIE_T8122,
++    .shared_reg_count = 7,
++    .config_idx = 0,
++    .rc_idx = 1,
++    .phy_common_idx = 2,
++    .phy_idx = 2,
++    .phy_ctrl_reset = APCIE_PHY_CTRL_RESET_T8132,
++    .phy_ip_idx = 3,
++    .axi_idx = 4,
++    .fuse_idx = 5,
++};
++
+ static bool pcie_initialized = false;
+ 
+ enum PCIE_CONTROLLERS {
+@@ -310,7 +334,7 @@ static int pcie_init_controller(int controller, const char *path)
+         printf("pcie: Initializing t8132 PCIe controller\n");
+     } else if (adt_is_compatible(adt, adt_offset, "apcie,t6040")) {
+         fuse_bits = NULL;
+-        state->pcie_regs = &regs_t8132;
++        state->pcie_regs = &regs_t6040;
+         printf("pcie: Initializing t6040 PCIe controller\n");
+     } else if (adt_is_compatible(adt, adt_offset, "apcie-ge,t6020")) {
+         u32 lane_cfg;
+@@ -421,7 +445,18 @@ static int pcie_init_controller(int controller, const char *path)
+     int port_reg_cnt = port_regs / state->port_count;
+     printf("pcie: ADT uses %d reg entries per port\n", port_reg_cnt);
+ 
+-    if (pmgr_adt_power_enable(path)) {
++    if (state->pcie_regs == &regs_t6040) {
++        /*
++         * Apple enables gates 0..6 before programming the controller and
++         * clock sources, then enables gate 7 (APCIE_PHY_SW) afterwards.
++         */
++        for (u32 i = 0; i < APCIE_T6040_PHY_CLOCK_GATE_IDX; i++) {
++            if (pmgr_adt_power_enable_index(path, i)) {
++                printf("pcie: Error enabling power gate %d for %s\n", i, path);
++                return -1;
++            }
++        }
++    } else if (pmgr_adt_power_enable(path)) {
+         printf("pcie: Error enabling power for %s\n", path);
+         return -1;
+     }
+@@ -444,6 +479,32 @@ static int pcie_init_controller(int controller, const char *path)
+         return -1;
+     }
+ 
++    if (state->pcie_regs == &regs_t6040) {
++        if (tunables_apply_local(path, "apcie-cio3pllcore-tunables",
++                                 APCIE_T6040_CIO3PLLCORE_IDX)) {
++            printf("pcie: Error applying %s for %s\n", "apcie-cio3pllcore-tunables", path);
++            return -1;
++        }
++        if (tunables_apply_local(path, "apcie-pcieclkgen-tunables",
++                                 APCIE_T6040_PCIECLKGEN_IDX)) {
++            printf("pcie: Error applying %s for %s\n", "apcie-pcieclkgen-tunables", path);
++            return -1;
++        }
++
++        if (pmgr_adt_power_enable_index(path, APCIE_T6040_PHY_CLOCK_GATE_IDX)) {
++            printf("pcie: Error enabling PHY clock gate for %s\n", path);
++            return -1;
++        }
++
++        /*
++         * This clock/tunable prefix is the complete live-proven T6040
++         * boundary. PHY-IP operation 115 is still unresolved; do not enter
++         * shared-PHY or port setup until that access is explained.
++         */
++        printf("pcie: t6040 PHY bring-up deferred after clock initialization\n");
++        return 0;
++    }
++
+     /*
+      * Initialize PHY.
+      */
+-- 
+2.47.1
+

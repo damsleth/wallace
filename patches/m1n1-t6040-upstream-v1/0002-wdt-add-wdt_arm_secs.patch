@@ -1,0 +1,88 @@
+From 50b09d633d05a689f54a4200f8a6bd33a68ab62b Mon Sep 17 00:00:00 2001
+From: CJ Damsleth <kim@damsleth.no>
+Date: Sun, 12 Jul 2026 14:32:17 +0200
+Subject: [RFC PATCH 2/9] wdt: add wdt_arm_secs()
+
+Add a helper that arms the boot watchdog for a given number of seconds
+(24 MHz always-on reference clock), looking up the WDT base from the ADT
+if wdt_disable() has not run. Used by kboot on M4-family bring-up where
+a hung kernel would otherwise require a manual power-cycle.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ src/wdt.c | 36 ++++++++++++++++++++++++++++++++++++
+ src/wdt.h |  8 ++++++++
+ 2 files changed, 44 insertions(+)
+
+diff --git a/src/wdt.c b/src/wdt.c
+index b69d76d1..6253ed66 100644
+--- a/src/wdt.c
++++ b/src/wdt.c
+@@ -9,8 +9,44 @@
+ #define WDT_ALARM 0x14
+ #define WDT_CTL   0x1c
+ 
++// Apple's watchdog counter is clocked by the ~24 MHz always-on reference. Only
++// used to convert seconds -> alarm ticks for wdt_arm_secs().
++#define WDT_CLK_HZ 24000000
++
+ static u64 wdt_base = 0;
+ 
++// Populate wdt_base from the ADT if it isn't already known. Returns true on
++// success. wdt_disable() (run at startup) normally sets it, but wdt_arm_secs()
++// may be called on a path where that lookup was skipped or failed.
++static bool wdt_find_base(void)
++{
++    if (wdt_base)
++        return true;
++
++    int path[8];
++    int node = adt_path_offset_trace(adt, "/arm-io/wdt", path);
++    if (node < 0)
++        return false;
++
++    if (adt_get_reg(adt, path, "reg", 0, &wdt_base, NULL))
++        return false;
++
++    return wdt_base != 0;
++}
++
++void wdt_arm_secs(u32 secs)
++{
++    if (!wdt_find_base()) {
++        printf("WDT: could not arm, base unknown\n");
++        return;
++    }
++
++    write32(wdt_base + WDT_ALARM, (u32)((u64)secs * WDT_CLK_HZ));
++    write32(wdt_base + WDT_COUNT, 0);
++    write32(wdt_base + WDT_CTL, 4);
++    printf("WDT: armed for ~%us (warm reset on hang)\n", secs);
++}
++
+ void wdt_disable(void)
+ {
+     int path[8];
+diff --git a/src/wdt.h b/src/wdt.h
+index 6a48601c..bc37c0a6 100644
+--- a/src/wdt.h
++++ b/src/wdt.h
+@@ -3,7 +3,15 @@
+ #ifndef __WDT_H__
+ #define __WDT_H__
+ 
++#include "types.h"
++
+ void wdt_disable(void);
+ void wdt_reboot(void);
++// Arm the primary watchdog to fire (warm reset) after `secs` seconds unless
++// something pets/disables it first. Used to auto-recover from a hung kernel
++// during bring-up: a hang -> watchdog warm reset (DRAM retained) -> back to the
++// m1n1 proxy. Assumes the ~24 MHz WDT reference clock; tune WDT_CLK_HZ if the
++// real timeout differs.
++void wdt_arm_secs(u32 secs);
+ 
+ #endif
+-- 
+2.47.1
+

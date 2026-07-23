@@ -1,0 +1,22 @@
+{
+  "seq": "046",
+  "slug": "m1n1-t6040-series-prep",
+  "needs": "offline",
+  "state": "done",
+  "track": "xcut",
+  "priority": "P1",
+  "desc": "DONE offline: audited curated f0738eee against reviewed main, refreshed upstream to 7c7716b6 (which now carries initial T6041 identity, T6040 PCIe recognition/reset bit, and four-level paging), and shaped the 22-commit bring-up history into a nine-patch RFC on codex/t6040-upstream-series tip 37fafb86. Dropped duplicate CPUSTART/identity/reset support, host helpers, PTY/linux.py policy, tracing, and the unapproved op-115 candidate. The final PCIe patch adds only the proven J614s clock/gate prefix and stops before op 115. Generated signed-off mail + cover letter, git-am tree identity passed, and two clean builds reproduced exact bin/elf hashes. Draft only; nothing posted or run. Result: done/2026-07-23-t6040-m1n1-upstream-series.md; mail: patches/m1n1-t6040-upstream-v1/.",
+  "author": "fable",
+  "deps": [],
+  "hashes": {
+    "upstream_base": "7c7716b6a196c7e601f9f22bb8af335c1b8173ce",
+    "series_tip": "37fafb86814c8dba0e3552a7cac437e4c685b1f0",
+    "series_tree": "3f26933ad352aed097db82a9e128e9c5ddf4bfd0",
+    "sha256_manifest": "b9050c38d2a57ddfc9f708aac448ae7413da1c55308899c768d6f3e15050adf9",
+    "result": "01bd487d104a17795005e95f0635a17b70e33af87de93e56dd7edc5ec697f2c6",
+    "m1n1_bin": "f615a4ef538147cf434b32b851ebd39a00e0a3bbbc66df25feca2f97b2806f4b",
+    "m1n1_elf": "f7d9150afb95314fdeb2610f08b5f0071990836b289704994b5f4ceefc5e3468"
+  },
+  "created": 1784041737,
+  "done_at": 1784842404
+}
