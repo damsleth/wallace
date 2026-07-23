@@ -5,7 +5,7 @@
   "state": "done",
   "track": "console",
   "priority": "P2",
-  "desc": "Draft upstream patch: dockchannel-uart per-instance IRQ masks + poll-mode (do NOT characterize IRQ 360 as dead)",
+  "desc": "Draft upstream patch: dockchannel-uart per-instance IRQ masks + poll-mode. 2026-07-21 correction: ADT IRQ 360 is wrong; measured UART input is 816, so the patch remains useful but any board-DT/upstream note must use 816",
   "author": "claude",
   "deps": [],
   "hashes": null,

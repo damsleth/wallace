@@ -5,7 +5,7 @@
   "state": "approved",
   "track": "smp",
   "priority": "P2",
-  "desc": "maxcpus=2 bring-up: 2nd core online, /proc/cpuinfo, watch WFE/idle park (Stage C exit). hashes TBD; cross-review before boot",
+  "desc": "maxcpus=2 J614s bring-up: 2nd core online, /proc/cpuinfo, watch WFE/idle park (Stage C exit). Yuka's WIP more-t6041 branch proves family-level all-core boot but is not board-topology-correct; ticket 034 must produce hashes and cross-review before boot",
   "author": "claude",
   "deps": [],
   "hashes": null,

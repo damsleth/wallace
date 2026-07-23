@@ -5,7 +5,7 @@
   "state": "open",
   "track": "display",
   "priority": "P2",
-  "desc": "[UPSTREAM] Track the asahi DCP driver M4/26.x support; prep j614s DCP DT wiring. simpledrm is the honest interim. Watch pointer 2026-07-14 (fable): chadmed/m1n1 branch dcp/14.8.3 (remote 'chadmed' configured in ~/Code/m1n1) — 7 fresh commits (2026-07-13/14): WIP V14_7 ABI in m1n1.fw.dcp.ipc, FW ver 14.8.3 constructutils, kboot DCP fw compat 14.7, DCP-IPC-client hv trace_dcp, per-caller request logging, HACK gpu-init-on-14.3. All 14.x-era firmware ABI, not our 26.x, but the versioned-ABI/logging infra is what 26.x support would extend — recheck the branch as it iterates",
+  "desc": "[UPSTREAM] Track the asahi DCP driver M4/26.x support; prep j614s DCP DT wiring. simpledrm is the honest interim. Update 2026-07-21: chadmed's rough Linux dcp/14.8.3 branch now boots DCP and has HPD/brightness plus much of the service stack working; surface clearing and GPU-dependent delivery remain incomplete. m1n1 PR 630 reviewed at 7e391ffde033bf2fa0e22cc5bda575f83d2d584b. This is 14.x ABI/versioning groundwork, not J614s's macOS 26.x support; recheck as it iterates (done/2026-07-21-asahi-dev-log-review.md)",
   "author": "claude",
   "deps": [],
   "hashes": null,

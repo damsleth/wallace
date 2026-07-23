@@ -1,0 +1,16 @@
+{
+  "seq": "064",
+  "slug": "usb-right-no-connect-analysis",
+  "needs": "offline",
+  "state": "done",
+  "track": "storage",
+  "priority": "P1",
+  "desc": "DONE: ticket 063's DART/DWC3/xHCI path is good through responsive root hubs. The saved ADT maps right/usb-drd2 through SPMI hpm2, atc-phy2 with T6040 USB2 host/device tunables, and acio2, but Linux describes none of that connector/PHY path; force-host starts xHCI with absent generic PHY handles. If the failed drive was bus-powered, allow at most one fresh approved retry of the exact image with a powered hub and known-good USB2 device. If already powered or that retry fails, stop live retries pending reviewed T6040 HPM/ATC support. No rig, MMIO, SPMI/PMU, or storage access occurred. Result: done/2026-07-21-t6040-usb-right-no-connect-analysis.md.",
+  "author": "codex",
+  "deps": [
+    "063"
+  ],
+  "hashes": null,
+  "created": 1784659475,
+  "done_at": 1784659852
+}

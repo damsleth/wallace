@@ -1,0 +1,16 @@
+{
+  "seq": "066",
+  "slug": "alpine-ramroot-artifact",
+  "needs": "offline",
+  "state": "done",
+  "track": "storage",
+  "priority": "P1",
+  "desc": "DONE: built a reproducible Alpine 3.24.0 aarch64 RAM-root from official minirootfs SHA 4b8cd66a6688b2a87276c39843ed89c3a06d9534fc6a5823c586aff2696c1f2a. Output initramfs SHA fc473c67672cd1596fac133759ed1b3ba18c716f42a400e3cfab9d4ad59cbb9b reproduced twice; 516 entries, 4,041,821 bytes compressed. Native arm64-container chroot verified release/arch, init syntax, and mount/watchdog/setsid applets. Init mounts only proc/sysfs/devtmpfs/tmpfs, provides a respawning ttydc0 Alpine shell, and performs no block discovery/mount/write. No rig work occurred. Result: done/2026-07-23-t6040-alpine-ramroot-artifact.md; live preflight: done/2026-07-23-t6040-alpine-ramroot-preflight.md.",
+  "author": "codex",
+  "deps": [
+    "064"
+  ],
+  "hashes": null,
+  "created": 1784812461,
+  "done_at": 1784812751
+}

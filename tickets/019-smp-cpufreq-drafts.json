@@ -5,7 +5,7 @@
   "state": "open",
   "track": "smp",
   "priority": "P1",
-  "desc": "Finalize the SMP/broken_wfi/MPIDR + cpufreq upstream drafts in done/; checkpatch; ready for CJ to post. Update 2026-07-14 (fable): reframe the broken_wfi notes around Sven Peter's c22ca847 (in our main via fork base; not yet AsahiLinux main) — CYC_OVRD_DISABLE_WFI_RET left set makes WFI drop the register file and re-enter at RVBAR, i.e. the mechanism behind our observation; his fix clears it via SYS_IMP_APL_CYC_OVRD under apple_sysregs_unlocked, a no-op on raw-boot T6040 (=False confirmed live), so WFE park remains required on locked-sysreg machines and the draft should say exactly that. Also cite yuka 2e6ac0b0 (CYC_OVRD not writable at EL1). Sven's 954f80c6 (mmu_secondary_setup dsb sy + stack-cache invalidate, upstream #463/#480) is also already in our main — relevant context for secondary bring-up claims",
+  "desc": "Finalize the SMP/broken_wfi/MPIDR + cpufreq upstream drafts in done/; checkpatch; ready for CJ to post. Reframe broken_wfi around Sven Peter's c22ca847: CYC_OVRD_DISABLE_WFI_RET left set makes WFI lose the register file and re-enter at RVBAR; its SYS_IMP_APL_CYC_OVRD fix is gated by apple_sysregs_unlocked and remains a no-op on raw-boot T6040. Cite yuka 2e6ac0b0 and Sven's 954f80c6 secondary MMU fix. Update 2026-07-21: upstream still classifies T6040/T6041 AIC sysregs as locked on macOS 26.6 RC/27 beta 4; WFE park, idle=nop, and the AIC trap-avoidance patch remain required. EFI-PSCI powerdown progress is future context, not a replacement for the J614s raw-kboot audit (done/2026-07-21-asahi-dev-log-review.md)",
   "author": "claude",
   "deps": [],
   "hashes": null,

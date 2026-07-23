@@ -1,0 +1,14 @@
+{
+  "seq": "059",
+  "slug": "dockchannel-timing-image",
+  "needs": "offline",
+  "state": "done",
+  "track": "console",
+  "priority": "P2",
+  "desc": "SUPERSEDED 2026-07-21: the proposed image reused ADT AIC input 360, but bounded M4 Pro measurement established the real DockChannel-UART interrupt at input 816. Do not build or boot this timing discriminator unchanged. Historical FIFO observations remain valid; next console work is an offline audit/adaptation of the direct apple,dockchannel-uart IRQ-816 driver and a J614s-correct DT (done/2026-07-21-asahi-dev-log-review.md).",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1784634510,
+  "done_at": 1784654903
+}

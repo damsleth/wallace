@@ -5,7 +5,7 @@
   "state": "open",
   "track": "usb",
   "priority": "P2",
-  "desc": "[UPSTREAM] Watch upstream/atcphy-new-tunables; USB2 fallback is fine; map per-bucket reg_offset ONLY if upstream publishes it (never invent)",
+  "desc": "[UPSTREAM] Watch upstream/atcphy-new-tunables; map per-bucket reg_offset ONLY if upstream publishes it (never invent). Update 2026-07-20: M3 work needed a delay after SPMI wake and fixed >16-byte SPMI regmap reads, then enumerated an iPhone (05ac:12a8). T6040 ticket 063 subsequently proved right-port DART+xHCI root hubs but no child. The authoritative ADT maps that port through SPMI hpm2, atc-phy2 with T6040 USB2 host/device tunables, and acio2; Linux describes none of that physical-link path. This validates the direction but supplies no reviewed T6040 implementation and does not authorize SPMI writes here (done/2026-07-21-asahi-dev-log-review.md; done/2026-07-21-t6040-usb-right-no-connect-analysis.md)",
   "author": "claude",
   "deps": [],
   "hashes": null,

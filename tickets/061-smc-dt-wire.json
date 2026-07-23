@@ -5,7 +5,7 @@
   "state": "open",
   "track": "pm",
   "priority": "P2",
-  "desc": "Wire the J614s macsmc DT node from the SMC audit (done/2026-07-14-t6040-smc-macsmc-audit.md): extract /arm-io/smc mailbox reg + 4 ASC IRQs, smc+sram reg windows, and SMC-nvram cell offsets for reboot/rtc subnodes from the saved j614s.adt (git -C ~/Code/linux show feature/m4-m5-minimal-device-trees:j614s.adt) — the audit flagged this rig-read-only but the saved ADT should cover it offline. Fill the DT node, schema-check + build; no 26.x compat patch needed (confirmed). Read-only status keys only (battery gauge, power button, lid); charger control and PMU/SPMI stay forbidden. Stop before proposing the rig smoke. Stage D daily-driver comfort: battery status + power button.",
+  "desc": "Wire the J614s macsmc DT node from the SMC audit (done/2026-07-14-t6040-smc-macsmc-audit.md): extract /arm-io/smc mailbox reg + 4 ASC IRQs, smc+sram reg windows, and SMC-nvram cell offsets for reboot/rtc subnodes from the saved j614s.adt (git -C ~/Code/linux show feature/m4-m5-minimal-device-trees:j614s.adt) — the audit flagged this rig-read-only but the saved ADT should cover it offline. Cross-check the July 2026 v2 MacSMC hwmon/RTC DT-subdevice series, without assuming it proves T6040 support. Fill the DT node, schema-check + build; no 26.x compat patch needed (confirmed). Read-only status keys only (battery gauge, power button, lid); charger control and PMU/SPMI stay forbidden. Stop before proposing the rig smoke. Stage D daily-driver comfort: battery status + power button.",
   "author": "claude",
   "deps": [],
   "hashes": null,

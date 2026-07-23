@@ -1,0 +1,20 @@
+{
+  "seq": "063",
+  "slug": "usb-right-host-smoke",
+  "needs": "rig",
+  "state": "done",
+  "track": "storage",
+  "priority": "P1",
+  "desc": "No-root USB2 host enumeration smoke on J614s right-side port only (usb-drd2). Use pinned zero-PCIe-write m1n1 1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b, Image-usb-host 6f0daf57baf942d6e1f43d8efa2ebd4160e976c02ccfaad232dd42e918eb7482, right-only DTB 9bee944b8bb0d6d7ab541962ea2edc9a57c4069fedcd6c32db21e3b824a43759, initramfs 8b9b80c4eaad07aa0efa578a827f9d0766be81e9a4aed2650e748b1fc65993c8, System.map 019d7504716788f6bda8b22a6bdbef94b89a940128be4083ae3d2f1d491d9d47, config 8e11399b172035f7d88c0915ccfbf1bb277eb16097462336c4158b54d8d6bc80. maxcpus=1 idle=nop, no root=, no block mount. Keep left-back usb-drd0/KIS and left-front disabled. Pass: external sd* persists >=10s and DockChannel stays responsive. Stop on SError/reset/DART fault/lost console/NVMe probe. Independent reviewer usb_smoke_cross_review PASS after IRQ-816 rebuild; done/2026-07-21-t6040-usb-host-smoke-{preflight,crossreview}.md.",
+  "author": "codex",
+  "deps": [],
+  "hashes": {
+    "image": "6f0daf57baf942d6e1f43d8efa2ebd4160e976c02ccfaad232dd42e918eb7482",
+    "dtb": "9bee944b8bb0d6d7ab541962ea2edc9a57c4069fedcd6c32db21e3b824a43759",
+    "initramfs": "8b9b80c4eaad07aa0efa578a827f9d0766be81e9a4aed2650e748b1fc65993c8"
+  },
+  "created": 1784659220,
+  "approved_by": "cj",
+  "approved_at": 1784659245,
+  "done_at": 1784659479
+}
