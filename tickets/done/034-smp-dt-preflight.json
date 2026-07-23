@@ -2,12 +2,13 @@
   "seq": "034",
   "slug": "smp-dt-preflight",
   "needs": "offline",
-  "state": "open",
+  "state": "done",
   "track": "smp",
   "priority": "P2",
   "desc": "Prepare ticket 005 offline: audit all 14 CPU nodes, MPIDRs, release addresses and WFE/idle constraints; compare Yuka's WIP more-t6041 all-core M4 Pro boot without importing its apparent 16-CPU/T6041 memory-domain topology; build and hash a maxcpus=2 J614s image/DT/initramfs with self-reporting CPU assertions and a cross-review packet (ROADMAP Stage C exit; done/2026-07-10-t6040-smp-writeup.md; done/2026-07-21-asahi-dev-log-review.md)",
   "author": "sol",
   "deps": [],
   "hashes": null,
-  "created": 1784040423
+  "created": 1784040423,
+  "done_at": 1784837365
 }

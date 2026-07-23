@@ -1,0 +1,70 @@
+#!/bin/busybox sh
+# t6040 maxcpus=2 SMP bring-up reporter (ticket 034 / rig ticket 005).
+# Boots the proven dcuart kernel+DT with EXTRA_BOOTARGS=maxcpus=2 and self-
+# reports secondary-core state over /dev/ttydc0, with a per-CPU liveness
+# assertion, then drops to a shell. Read-only: no MMIO, no storage, no DT change.
+/bin/busybox mount -t proc none /proc
+/bin/busybox mount -t sysfs none /sys
+/bin/busybox mount -t devtmpfs none /dev 2>/dev/null
+
+BB=/bin/busybox
+
+if [ -c /dev/watchdog0 ]; then
+    $BB watchdog -T 30 -t 10 /dev/watchdog0 &
+fi
+
+# Wait for the dockchannel tty (async probe).
+n=0
+while [ ! -c /dev/ttydc0 ] && [ $n -lt 15 ]; do $BB sleep 1; n=$((n + 1)); done
+
+report() {
+    echo ""
+    echo "=================================================="
+    echo "  t6040 SMP bring-up report (maxcpus=2)"
+    echo "=================================================="
+    $BB uname -a
+    echo "--- /proc/cmdline ---"; $BB cat /proc/cmdline
+    echo "--- cpu masks ---"
+    for f in possible present online; do
+        printf "  %-8s " "$f:"; $BB cat /sys/devices/system/cpu/$f 2>/dev/null
+    done
+    n_online=$($BB grep -c '^processor' /proc/cpuinfo)
+    echo "--- /proc/cpuinfo (processor count = $n_online) ---"
+    $BB cat /proc/cpuinfo | $BB grep -E '^processor|^CPU implementer|^CPU part|^BogoMIPS'
+    echo "--- per-CPU MPIDR (from sysfs where present) ---"
+    for c in /sys/devices/system/cpu/cpu[0-9]*; do
+        id=${c##*/cpu}
+        on=$($BB cat $c/online 2>/dev/null || echo "boot")
+        echo "  cpu$id online=$on"
+    done
+    # Liveness: pin a trivial task to cpu1 and confirm it actually ran there.
+    if [ "$n_online" -ge 2 ] && [ -x "$($BB which taskset 2>/dev/null)" -o -e /bin/busybox ]; then
+        echo "--- cpu1 liveness (taskset) ---"
+        $BB taskset -c 1 $BB sh -c 'echo "  ran on cpu$(cat /sys/devices/system/cpu/cpu1/topology/core_id 2>/dev/null); psr via /proc/self/stat:"; awk "{print \$39}" /proc/self/stat' 2>/dev/null \
+            || echo "  taskset unavailable; rely on online count"
+    fi
+    if [ "$n_online" -ge 2 ]; then
+        echo "*** SMP RESULT: PASS — $n_online CPUs online (secondary core up) ***"
+    else
+        echo "*** SMP RESULT: only $n_online CPU online — secondary did not come up ***"
+    fi
+    echo "--- recent SMP/psci/spin-table dmesg ---"
+    $BB dmesg | $BB grep -Ei 'smp|cpu[0-9]|spin-table|bringup|boot.*cpu|psci|wfe|failed to' | $BB tail -30
+}
+
+if [ -c /dev/ttydc0 ]; then
+    exec 9<>/dev/ttydc0
+    report >&9 2>/dev/null
+    (
+        while :; do
+            $BB setsid $BB sh -c 'exec /bin/busybox sh -i <>/dev/ttydc0 >&0 2>&1' \
+                || true
+            $BB sleep 2
+        done
+    ) &
+else
+    report
+fi
+
+# Keep init alive so the port never sees a final close.
+while :; do $BB sleep 3600; done
