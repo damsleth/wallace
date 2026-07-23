@@ -1,0 +1,22 @@
+{
+  "seq": "074",
+  "slug": "alpine-hid-state-trace",
+  "needs": "rig",
+  "state": "done",
+  "track": "hid",
+  "priority": "P1",
+  "desc": "One-shot storage-disabled Alpine RAM-root capture of the observation-only DockChannel/DCHID state trace from ticket 072. Exact m1n1 1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b, Image-hid-state-trace e7138c03c5dcea63048adcc5b800781a73a544699e6b575cb7343bc3f4cf4576, DTB 2782b92237c35c8950212207391c3ae28c44b6b9c635b2e864c5748a77bb3cce, Alpine RAM-root fc473c67672cd1596fac133759ed1b3ba18c716f42a400e3cfab9d4ad59cbb9b, embedded config exactly matches tickets 067/071 (8e11399b...). External USB disconnected, KIS left-back, maxcpus=1 idle=nop, no root=. Run only release/arch, bounded HIDTRACE and read-only dc_trace/hid_trace capture, input inventory, and partitions; then stop. No modules/mount/network/probe. Stop on SError/reset/DART fault/storage or USB probe/lost console/missing trace. Preflight done/2026-07-23-t6040-alpine-hid-state-trace-preflight.md. Independent exact-artifact review by usb_smoke_cross_review: PASS. Requires CJ approval.",
+  "author": "codex",
+  "deps": [
+    "072"
+  ],
+  "hashes": {
+    "image": "e7138c03c5dcea63048adcc5b800781a73a544699e6b575cb7343bc3f4cf4576",
+    "dtb": "2782b92237c35c8950212207391c3ae28c44b6b9c635b2e864c5748a77bb3cce",
+    "initramfs": "fc473c67672cd1596fac133759ed1b3ba18c716f42a400e3cfab9d4ad59cbb9b"
+  },
+  "created": 1784836205,
+  "approved_by": "maintainer",
+  "approved_at": 1784836986,
+  "done_at": 1784837537
+}

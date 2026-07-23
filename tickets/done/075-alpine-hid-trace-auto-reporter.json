@@ -1,0 +1,19 @@
+{
+  "seq": "075",
+  "slug": "alpine-hid-trace-auto-reporter",
+  "needs": "offline",
+  "state": "done",
+  "track": "hid",
+  "priority": "P1",
+  "desc": "Build a bootarg-gated Alpine RAM-root auto-reporter for ticket 074's exact observation-only HID trace image. When t6040.hid_trace_auto=1 is present, after the existing pseudo-filesystem setup and a bounded delay, automatically emit only Alpine release/architecture, bounded HIDTRACE lines, every readable dc_trace/hid_trace file, /proc/bus/input/devices, /dev/input inventory, and /proc/partitions over ttydc0 TX. It must require no inbound shell command and add no modules, storage mounts, network, probing, new MMIO, or kernel control-flow changes. Rebuild and hash only the initramfs, host-test syntax/output where possible, document evidence, and stop before any rig proposal pending independent review.",
+  "author": "codex",
+  "deps": [
+    "074"
+  ],
+  "hashes": {
+    "initramfs": "d5b790c63276816a3d69071797da459918717924885174d2a8b84225c6b24093",
+    "contents": "3394ec4b2d4478b43c9f0766f9c8d0d5c865b2ceff22ebb8bb6ca75015c10e08"
+  },
+  "created": 1784837537,
+  "done_at": 1784837928
+}

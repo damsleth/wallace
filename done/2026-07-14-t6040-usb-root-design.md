@@ -72,8 +72,9 @@ the current DT (`arch/arm64/boot/dts/apple/t6040.dtsi`):
 - **USB3 + Thunderbolt are deferred**: no `atc-phy,t6040` driver, and the per-
   bucket PHY `reg_offset`s are unknown (must be RE'd or come from an upstream
   t6040 DTS). So external storage runs at **USB2 high-speed (480 Mbps)**.
-- **No AP-visible HPM/PD controller on M4**: the dwc3-apple cable/role/orientation
-  flow has nothing to talk to. The current DT therefore pins all three ports to
+- **No supported Linux HPM/Type-C path on M4**: the ADT has SPMI HPM nodes, but
+  the current DT/driver set does not expose their cable/role/orientation flow to
+  dwc3-apple. The current DT therefore pins all three ports to
   `dr_mode = "peripheral"` + `apple,force-device-mode`, "reusing the PHY
   configuration m1n1 leaves behind on the tether port."
 
@@ -141,9 +142,9 @@ Reproducible, hash-pinned, built on ticket 031's audited USB2-host candidate:
 
 1. Which physical Type-C port maps to which `usb-drd` index, and which has a
    usable USB2 PHY state at Linux handoff (the one m1n1 left initialized)?
-2. Does `dr_mode = "host"` bring the port up **without** an atcphy/PD driver, and
-   is downstream **VBUS** actually supplied (M4 has no AP-visible PD controller —
-   is port power on by default, or SMC/PMU-gated and thus forbidden to touch)?
+2. Does `dr_mode = "host"` bring the port up **without** an atcphy/HPM driver,
+   and is downstream **VBUS** actually supplied (the HPM is behind SPMI and not
+   described to Linux; is port power on by default or forbidden to touch)?
 3. Can host and the DebugUSB tether coexist (different ports), or does using the
    only PHY-initialized port for storage cost the tether?
 4. Confirm the per-port IRQ (the DT flags the first-ADT-entry IRQ as an untested

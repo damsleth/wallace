@@ -1,5 +1,10 @@
 # T6040 DockChannel-UART bounded RX-IRQ telemetry
 
+> **Superseded routing note (2026-07-21):** this historical image used ADT
+> input 360. Bounded M4 Pro measurement later found the real UART interrupt at
+> AIC input 816. The observations below remain valid, but they did not test the
+> UART's AIC route. See `done/2026-07-21-asahi-dev-log-review.md`.
+
 Prepared offline 2026-07-14 after the first TX-only scheduled reporter lost
 its output only after RX data was injected. **Not approved or run.** This
 replacement leaves RX interrupt-driven on BIT(1), makes TX completion

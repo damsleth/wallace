@@ -5,7 +5,7 @@
   "state": "open",
   "track": "distro",
   "priority": "P2",
-  "desc": "U-Boot T6040 bring-up prep (near-free once kboot FDT+dwc3 are right) -> EFI -> GRUB/systemd-boot. dep: kboot FDT stable",
+  "desc": "B1 standard-boot follow-up after the direct-m1n1 B0 cold boot: prepare U-Boot T6040 support, preserve the proven kboot FDT, and host-validate a FIT/EFI path toward GRUB/systemd-boot. Ticket 080 decides whether U-Boot is unexpectedly required to package B0; otherwise do not let EFI block the first boot-picker-to-Alpine milestone. No rig or enrollment action until an exact artifact/preflight is separately reviewed.",
   "author": "claude",
   "deps": [],
   "hashes": null,

@@ -1,5 +1,10 @@
 # T6040 DockChannel-UART RX ingress build-delta analysis
 
+> **Superseded routing note (2026-07-21):** this comparison remains useful for
+> its FIFO/flow-control observations, but both live images used ADT input 360.
+> The real UART interrupt is AIC input 816. Do not proceed to the proposed
+> timing follow-up unchanged. See `done/2026-07-21-asahi-dev-log-review.md`.
+
 Ticket 049 compared the two completed IRQ-mode runs without touching the rig:
 
 - the TX-only reporter, whose kernel accepted the single host probe before

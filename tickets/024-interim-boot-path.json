@@ -5,7 +5,7 @@
   "state": "open",
   "track": "distro",
   "priority": "P1",
-  "desc": "Document+prototype the interim boot path: m1n1 chainloads U-Boot/kernel from the APFS m1n1 volume (raw enrollment) — the 'my machine boots Linux' milestone",
+  "desc": "Umbrella for the B0 interim boot path: an enrolled raw m1n1 object boots a self-contained kernel+J614s DTB+Alpine RAM root from the dedicated APFS boot volume, with no host payload upload. The concrete experiment ladder is docs/BOOTABLE_BUILD_EXPERIMENTS.md: ticket 080 audits the raw-object payload contract, 081 builds and prepares a tethered single-object proof, and 082 prepares reversible enrollment/cold boot. Direct m1n1 payloads are preferred for B0; U-Boot is ticket 025/B1 unless the payload audit proves it mandatory.",
   "author": "claude",
   "deps": [],
   "hashes": null,

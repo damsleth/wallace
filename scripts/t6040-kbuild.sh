@@ -5,6 +5,12 @@
 #   cp ~/Code/wallace/scripts/t6040-kbuild.sh ~/Code/wallace/patches/*.patch ~/Code/linux-build-out/
 #   podman exec -e DOCKCHANNEL=1 -e BUILD_DIR=/build/linux-keyboard kbuild \
 #       bash /out/t6040-kbuild.sh image
+#   podman exec -e DOCKCHANNEL=1 -e HID_RX_REARM=1 \
+#       -e BUILD_DIR=/build/linux-hid-rx-rearm kbuild \
+#       bash /out/t6040-kbuild.sh image
+#   podman exec -e DOCKCHANNEL=1 -e HID_STATE_TRACE=1 \
+#       -e BUILD_DIR=/build/linux-hid-state-trace kbuild \
+#       bash /out/t6040-kbuild.sh image
 # (The old /kbuild.sh bind mount predates the .plans refactor and is stale;
 # exec via /out instead.)
 # The mac host FS is case-insensitive, which corrupts kernel files (xt_CONNMARK.h
@@ -98,6 +104,30 @@ if [ "${DOCKCHANNEL_IRQ_TX_POLL_TEST:-0}" = "1" ]; then
         exit 1
     fi
     cp "/out/$dts" "$APPLE/"
+fi
+if [ "${HID_RX_REARM:-0}" = "1" ]; then
+    [ "${DOCKCHANNEL:-0}" = "1" ] || {
+        echo "ERROR: HID_RX_REARM=1 requires DOCKCHANNEL=1"
+        exit 1
+    }
+    [ "${USB_HOST:-0}" = "0" ] || {
+        echo "ERROR: HID_RX_REARM=1 is a storage-disabled diagnostic image"
+        exit 1
+    }
+fi
+if [ "${HID_STATE_TRACE:-0}" = "1" ]; then
+    [ "${DOCKCHANNEL:-0}" = "1" ] || {
+        echo "ERROR: HID_STATE_TRACE=1 requires DOCKCHANNEL=1"
+        exit 1
+    }
+    [ "${USB_HOST:-0}" = "0" ] || {
+        echo "ERROR: HID_STATE_TRACE=1 is a storage-disabled diagnostic image"
+        exit 1
+    }
+    [ "${HID_RX_REARM:-0}" = "0" ] || {
+        echo "ERROR: HID_STATE_TRACE=1 uses the unmodified receive control flow"
+        exit 1
+    }
 fi
 if [ "${PCIE:-0}" = "1" ]; then
     if [ ! -f /out/t6040-j614s-dcuart-pcie.dts ]; then
@@ -596,8 +626,8 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
         echo "DockChannel serial TTY applied OK"
     fi
     # Local fallback plus per-instance IRQ masks. MTP uses RX BIT(3), while the
-    # UART FIFO uses RX BIT(1). The base DT retains apple,poll-mode until the
-    # separate IRQ diagnostic has re-tested ADT AIC line 360 with the right bit.
+    # UART FIFO uses RX BIT(1). The base DT retains apple,poll-mode; bounded M4
+    # Pro measurement corrected the ADT's false IRQ 360 to AIC input 816.
     if grep -q 'apple,poll-mode' drivers/mailbox/apple-dockchannel.c; then
         echo "t6040-dockchannel-poll.patch already applied"
     elif git apply --check /out/t6040-dockchannel-poll.patch 2>/dev/null; then
@@ -607,6 +637,18 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
         echo "ERROR: t6040-dockchannel-poll.patch does not apply cleanly:"
         git apply --check /out/t6040-dockchannel-poll.patch || true
         exit 1
+    fi
+    if [ "${HID_RX_REARM:-0}" = "1" ]; then
+        if git apply --check /out/t6040-dockchannel-rx-rearm.patch 2>/dev/null; then
+            git apply /out/t6040-dockchannel-rx-rearm.patch
+            echo "t6040-dockchannel-rx-rearm.patch applied OK"
+        elif git apply -R --check /out/t6040-dockchannel-rx-rearm.patch 2>/dev/null; then
+            echo "t6040-dockchannel-rx-rearm.patch already applied"
+        else
+            echo "ERROR: t6040-dockchannel-rx-rearm.patch does not apply cleanly:"
+            git apply --check /out/t6040-dockchannel-rx-rearm.patch || true
+            exit 1
+        fi
     fi
     if [ "${DOCKCHANNEL_IRQ_TEST:-0}" = "1" ]; then
         echo "== apply bounded DockChannel IRQ diagnostic guard =="
@@ -678,6 +720,20 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
         git apply --check /out/t6040-dockchannel-trackpad-fw.patch || true
         exit 1
     fi
+    if [ "${HID_STATE_TRACE:-0}" = "1" ]; then
+        if grep -q 'trace_irq_calls' drivers/mailbox/apple-dockchannel.c; then
+            echo "t6040-dockchannel-hid-state-trace.patch already applied"
+        elif git apply --check \
+                /out/t6040-dockchannel-hid-state-trace.patch 2>/dev/null; then
+            git apply /out/t6040-dockchannel-hid-state-trace.patch
+            echo "t6040-dockchannel-hid-state-trace.patch applied OK"
+        else
+            echo "ERROR: t6040-dockchannel-hid-state-trace.patch does not apply cleanly:"
+            git apply --check \
+                /out/t6040-dockchannel-hid-state-trace.patch || true
+            exit 1
+        fi
+    fi
 fi
 
 echo "== verify netfilter case-collision is healed in the clone =="
@@ -713,6 +769,13 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
         -e APPLE_MAILBOX -e APPLE_RTKIT -e APPLE_DART \
         -e HID -e HID_APPLE -e APPLE_DOCKCHANNEL \
         -e APPLE_DOCKCHANNEL_HID -e APPLE_DOCKCHANNEL_TTY
+fi
+if [ "${HID_RX_REARM:-0}" = "1" ] ||
+   [ "${HID_STATE_TRACE:-0}" = "1" ]; then
+    # Match the ticket-067 kernel config exactly so the live A/B changes only
+    # the DockChannel receive path. UAS remains inert because this variant's
+    # DT keeps every USB controller and DART disabled.
+    ./scripts/config --file .config -e USB_UAS
 fi
 if [ "${NVME:-0}" = "1" ]; then
     # Gated ANS/NVMe first-probe image. The standard DT keeps all ANS nodes
@@ -811,8 +874,18 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
     cp $APPLE/t6040-j614s-kbd.dtb /out/ \
         && echo "DTB -> /out/t6040-j614s-kbd.dtb"
     make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart.dtb
-    cp $APPLE/t6040-j614s-dcuart.dtb /out/ \
-        && echo "DTB -> /out/t6040-j614s-dcuart.dtb"
+    if [ "${HID_STATE_TRACE:-0}" = "1" ]; then
+        cp $APPLE/t6040-j614s-dcuart.dtb \
+            /out/t6040-j614s-dcuart-hid-state-trace.dtb \
+            && echo "DTB -> /out/t6040-j614s-dcuart-hid-state-trace.dtb"
+    elif [ "${HID_RX_REARM:-0}" = "1" ]; then
+        cp $APPLE/t6040-j614s-dcuart.dtb \
+            /out/t6040-j614s-dcuart-hid-rx-rearm.dtb \
+            && echo "DTB -> /out/t6040-j614s-dcuart-hid-rx-rearm.dtb"
+    else
+        cp $APPLE/t6040-j614s-dcuart.dtb /out/ \
+            && echo "DTB -> /out/t6040-j614s-dcuart.dtb"
+    fi
     if [ "${DOCKCHANNEL_IRQ_TEST:-0}" = "1" ]; then
         make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-irq.dtb
         cp $APPLE/t6040-j614s-dcuart-irq.dtb /out/ \
@@ -934,6 +1007,14 @@ if [ "${1:-}" = "image" ]; then
         image_name=Image-dcuart-irq-txpoll
         map_name=System.map-dcuart-irq-txpoll
     fi
+    if [ "${HID_RX_REARM:-0}" = "1" ]; then
+        image_name=Image-hid-rx-rearm
+        map_name=System.map-hid-rx-rearm
+    fi
+    if [ "${HID_STATE_TRACE:-0}" = "1" ]; then
+        image_name=Image-hid-state-trace
+        map_name=System.map-hid-state-trace
+    fi
     cp arch/arm64/boot/Image "/out/$image_name" \
         && echo "Image -> /out/$image_name ($(du -h arch/arm64/boot/Image | cut -f1))"
     # System.map lets t6040-ramdump.py locate __log_buf for a post-mortem console
@@ -942,6 +1023,14 @@ if [ "${1:-}" = "image" ]; then
     if [ "${USB_HOST:-0}" = "1" ]; then
         cp .config /out/config-usb-host \
             && echo "config -> /out/config-usb-host"
+    fi
+    if [ "${HID_RX_REARM:-0}" = "1" ]; then
+        cp .config /out/config-hid-rx-rearm \
+            && echo "config -> /out/config-hid-rx-rearm"
+    fi
+    if [ "${HID_STATE_TRACE:-0}" = "1" ]; then
+        cp .config /out/config-hid-state-trace \
+            && echo "config -> /out/config-hid-state-trace"
     fi
 fi
 echo "== done =="

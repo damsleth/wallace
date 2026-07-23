@@ -1,0 +1,15 @@
+{
+  "seq": "079",
+  "slug": "ram-distro-release-bundle",
+  "needs": "offline",
+  "state": "open",
+  "track": "distro",
+  "priority": "P1",
+  "desc": "Turn the HID-restored diagnostic Alpine image into a reproducible B0 release-like RAM distro: pinned packages, normal init/service ordering, framebuffer login plus ttydc0 output, watchdog and bounded health report, no secrets/network/storage discovery/block nodes, storage-disabled DT, complete size/package/file manifest, arm64 host validation, and two-build reproducibility. Package work may start after 078, but do not close this ticket until the separately reviewed live HID candidate has passed. Stop before new rig work. Experiment 4 in docs/BOOTABLE_BUILD_EXPERIMENTS.md.",
+  "author": "codex",
+  "deps": [
+    "078"
+  ],
+  "hashes": null,
+  "created": 1784838169
+}

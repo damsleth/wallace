@@ -1,0 +1,22 @@
+{
+  "seq": "070",
+  "slug": "alpine-keyboard-control",
+  "needs": "rig",
+  "state": "done",
+  "track": "hid",
+  "priority": "P1",
+  "desc": "One-shot local framebuffer control for ticket 067 HID regression, independently reviewed PASS by usb_smoke_cross_review. Keep right USB stick disconnected and operator at M4. Use m1n1 1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b, maintainer-confirmed working 7.2-rc2 Image-keyboard cc2b3de15efbf4fbf5c4d7ac7d6b8155e5c4c52e0deabd9e012ffa379b37fb58, minimal kbd DTB 2c23495973edb37f07cc7abab2377578a1f57837ca9f93fc5ae15b8a70961577, Alpine RAM-root fc473c67672cd1596fac133759ed1b3ba18c716f42a400e3cfab9d4ad59cbb9b. Boot exact maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel rdinit=/init, no root=. No ttydc0: wait 15s, then operator types echo ALPINE_KBD_OK; verify 3.24.0/aarch64, empty partitions, responsive 10s. No modules/mount/probe. Stop on SError/reset/DART fault/storage/USB probe/missing input/lost display; recover stable Running proxy. Preflight done/2026-07-23-t6040-alpine-keyboard-control-preflight.md.",
+  "author": "codex",
+  "deps": [
+    "067"
+  ],
+  "hashes": {
+    "image": "cc2b3de15efbf4fbf5c4d7ac7d6b8155e5c4c52e0deabd9e012ffa379b37fb58",
+    "dtb": "2c23495973edb37f07cc7abab2377578a1f57837ca9f93fc5ae15b8a70961577",
+    "initramfs": "fc473c67672cd1596fac133759ed1b3ba18c716f42a400e3cfab9d4ad59cbb9b"
+  },
+  "created": 1784814816,
+  "approved_by": "cj",
+  "approved_at": 1784820623,
+  "done_at": 1784820974
+}

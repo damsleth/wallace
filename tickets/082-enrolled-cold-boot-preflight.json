@@ -1,0 +1,15 @@
+{
+  "seq": "082",
+  "slug": "enrolled-cold-boot-preflight",
+  "needs": "offline",
+  "state": "open",
+  "track": "distro",
+  "priority": "P1",
+  "desc": "After ticket 081's artifact has passed its separately reviewed tethered single-object rig proof, prepare but do not execute the reversible B0 enrollment/cold-boot procedure: target-volume identity guard, current object backup/hash, exact kmutil --raw entry-point command, boot-picker run, observational-only KIS capture, rollback/recovery, and pass/stop conditions. Do not close 082 before that live proof. Enrollment and cold boot require explicit maintainer approval and may be split. Experiment 7 in docs/BOOTABLE_BUILD_EXPERIMENTS.md.",
+  "author": "codex",
+  "deps": [
+    "081"
+  ],
+  "hashes": null,
+  "created": 1784838169
+}

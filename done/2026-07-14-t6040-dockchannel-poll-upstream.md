@@ -1,5 +1,9 @@
 # DockChannel per-instance IRQ masks and poll fallback: upstream draft packet
 
+> **Routing update (2026-07-21):** the patch's poll fallback and per-instance
+> masks remain useful, but the J614s board DT must use measured AIC input 816,
+> not the ADT's 360. See `done/2026-07-21-asahi-dev-log-review.md`.
+
 Ticket 012 is complete offline. The source draft remains
 `patches/t6040-dockchannel-poll.patch`, SHA-256
 `627d0805f103f56ad20cc24785d4e747740e774c1660604611298adf6bcd0e63`.

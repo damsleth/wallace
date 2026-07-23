@@ -104,7 +104,7 @@ loop after host-side port reset). One clean enumeration per boot.
 ## Phase 1b (current): dwc3-apple glue without atcphy/tipd
 
 dwc3-apple is in mainline and handles SUSPHY/wrapper/suspend, but waits for
-a typec cable event that M4 has no AP-visible PD controller to deliver, and
+a Type-C cable event that the current Linux DT has no supported SPMI-HPM path to deliver, and
 requires a reset control (normally atcphy). Local patch:
 - devm_reset_control_get_exclusive → _optional_ variant.
 - New DT bool `apple,force-device-mode`: at probe end, immediately run

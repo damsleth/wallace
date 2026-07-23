@@ -34,12 +34,135 @@ external drive, then run the no-`root=` smoke. Exact capture result:
 `done/2026-07-21-t6040-usb-port-map-adt-result.md`; failed-attempt history:
 `done/2026-07-21-t6040-usb-port-map-adt-attempt.md`.
 
+**Drive selection 2026-07-21:** the external drive is on the right-side port,
+so the live candidate is exclusively `usb-drd2` /
+`t6040-j614s-dcuart-usb-host-right.dtb`, SHA-256
+`9bee944b8bb0d6d7ab541962ea2edc9a57c4069fedcd6c32db21e3b824a43759`.
+Ticket 063 is proposed with the independently reviewed six-file manifest; do
+not substitute the left-front or retired all-port DTB.
+
+**Smoke result 2026-07-21:** ticket 063 ran once. The right-side DARTs and xHCI
+controller initialized cleanly at `0x392f00000`/`0x392f80000` and
+`0x392280000`, but both the initial and ten-second reports showed only the two
+root hubs. No child USB device or `sd*` appeared; the shell remained responsive
+and there was no SError, DART fault, reset, or NVMe probe. Do not populate the
+rootfs yet. Ticket 064 has now bounded the failure: the saved ADT contains a
+right-side SPMI HPM (`hpm2`), T6040 ATC PHY (`atc-phy2`), and shared `acio2`
+parent, but the Linux DT exposes none of that physical-link path. The
+force-host patch creates xHCI while its generic PHY handles are absent; it
+cannot establish CC/orientation, eUSB2-repeater state, or host PHY mode. Exact
+analysis: `done/2026-07-21-t6040-usb-right-no-connect-analysis.md`.
+
+**Storage-free pivot, 2026-07-23:** the powered hub's supply is unavailable, so
+ticket 065 is cancelled unrun. Ticket 066 built and host-validated a
+reproducible Alpine 3.24.0 aarch64 RAM-root: 3.9 MB compressed, loaded entirely
+through m1n1, with a DockChannel Alpine shell and no storage dependency. Ticket
+067 then booted it successfully: Alpine 3.24.0/aarch64 reached a responsive
+shell, the RAM-only write test passed, `/proc/partitions` was empty, and no
+storage controller probed. The internal keyboard did not register, however:
+MTP firmware reached `Keyboard ready`, but the 7.1.3 USB-host kernel stopped
+with a zero-ID HID device and no `/dev/input`. This is a kernel/DockChannel
+receive-path regression, not an Alpine userspace issue. Offline ticket 069
+found no config, DT, or HID-source omission and tested the mailbox driver's
+unmasked W1C-acknowledge/threaded-drain window as a possible lost-RX race.
+Ticket 071 booted the exact mask/drain/re-arm candidate once. Alpine and ttydc0
+worked and `/proc/partitions` stayed empty, but input registration remained
+absent: empty `/proc/bus/input/devices`, no `/dev/input`. The race correction
+is therefore not a sufficient HID fix.
+The independently reviewed local control, ticket 070, was run and repeated once
+at the maintainer's request. Both attempts handed off, showed kernel text, then
+returned to the Asahi/m1n1 logo without presenting the Alpine framebuffer
+shell. With no ttydc0 in that old kernel there is no post-handoff host log, and
+the keyboard could not be tested. Do not retry the old-kernel/Alpine
+recombination, and do not retry ticket 071. Offline ticket 072 has now built
+and statically verified the observation-only current-kernel trace across
+DockChannel hard IRQ/pending bits, FIFO drains, DCHID event/report parsing,
+STM-ready state, and identity/interface creation. The exact storage-disabled
+candidate is `Image-hid-state-trace` (`e7138c03...`) with the unchanged
+ticket-071 DTB (`2782b922...`) and ticket-067 config (`8e11399b...`). It adds
+read-only counters and sparse semantic logs but no receive kick, retry, new
+MMIO access, or control-flow change. Independent exact-artifact review passed.
+Ticket 074 then ran once: ttydc0 TX delivered the Alpine banner and prompt, but
+RX accepted neither LF, CR, nor the terminal-position response, so none of the
+trace commands could run. The host KIS daemon, raw PTY, and persistent reader
+were healthy. The pre-registered stop was taken and recovery restored
+`Running proxy...`. Do not repeat 074 unchanged. Offline ticket 075 built a
+bootarg-gated initramfs reporter that automatically emits the same bounded
+trace/input/partition inventory over working ttydc0 TX without requiring an
+inbound shell command. Its exact reproducible archive is
+`d5b790c63276816a3d69071797da459918717924885174d2a8b84225c6b24093`;
+host gating/output tests and embedded-script identity pass. Independent exact
+artifact review passed with the rig untouched. Ticket 076 is the resulting
+one-shot TX-only capture proposal and remains proposed pending explicit
+maintainer approval; do not run it from an unanchored short-lived process.
+Analysis, preflight, and result:
+`done/2026-07-23-t6040-alpine-hid-regression-analysis.md` and
+`done/2026-07-23-t6040-alpine-hid-rx-rearm-preflight.md`, and
+`done/2026-07-23-t6040-alpine-hid-rx-rearm-result.md`. Trace artifact and
+procedure:
+`done/2026-07-23-t6040-alpine-hid-state-trace-preflight.md` and
+`done/2026-07-23-t6040-alpine-hid-state-trace-result.md`. Automatic reporter:
+`done/2026-07-23-t6040-alpine-hid-trace-auto-reporter.md`; replacement
+preflight: `done/2026-07-23-t6040-alpine-hid-trace-auto-preflight.md`. Old
+control preflight and result:
+`done/2026-07-23-t6040-alpine-keyboard-control-preflight.md` and
+`done/2026-07-23-t6040-alpine-keyboard-control-result.md`.
+Artifact, preflight, and result:
+`done/2026-07-23-t6040-alpine-ramroot-artifact.md`,
+`done/2026-07-23-t6040-alpine-ramroot-preflight.md`, and
+`done/2026-07-23-t6040-alpine-ramroot-boot-result.md`. The powered USB test may
+be revived later when a valid fixture exists; HPM/ATC remains the
+persistent-root blocker. Exact initial USB run result:
+`done/2026-07-21-t6040-usb-host-right-smoke-result.md`.
+
+## Bootable-build ladder: B0 first, persistent root later
+
+The next honest machine-level milestone no longer waits on USB or internal
+NVMe: boot picker → enrolled raw m1n1 object → self-contained Alpine RAM distro
+on simpledrm/fbcon with internal keyboard, watchdog, and no host payload upload.
+The detailed experiment contract and safety gates are in
+`docs/BOOTABLE_BUILD_EXPERIMENTS.md`.
+
+After approved trace capture 076, ticket 077 decodes the exact HID boundary,
+078 builds one minimal evidence-backed repair candidate, and 079 turns the
+working result into a release-like RAM distro. In parallel, 080 audits the
+raw-object payload layout and builds a host verifier. Ticket 081 packages one
+self-contained object and prepares a tethered one-object proof without
+`linux.py`; 082 prepares, but does not execute, reversible enrollment and cold
+boot. Every live step still gets a separate reviewed exact-hash rig ticket and
+explicit approval. U-Boot/EFI is B1 after this direct-m1n1 B0 proof unless the
+layout audit proves it is required.
+
+Persistent Linux state remains B2: tickets 023/032/060 resume the external USB
+root path only with a powered/self-powered fixture or reviewed T6040 HPM/ATC
+support. Internal NVMe remains blocked by SPTM/CoastGuard. Do not fold storage,
+SMP, cpufreq, PCIe, or enrollment into the first self-contained boot.
+
 Keep the first USB smoke at `maxcpus=1 idle=nop`. The DT's extra `cpu@10105` is
 correctly disabled and 14 cores are available, but Linux secondary-core bring-up
 is still a separate staged experiment (tickets 005/034); do not combine it with
 the first USB-host test.
 
-## 0. Attribute DockChannel-UART RX BIT(1) without relying on RX
+**Upstream correction, 2026-07-21:** a bounded m1n1 experiment on M4 Pro
+measured DockChannel-UART on AIC input **816**; the ADT's 360 is wrong. The
+standard USB-smoke DT uses `apple,poll-mode`, so this does not change its console
+behavior, but all newly built DTBs must carry 816. Yuka's WIP `more-t6041`
+branch also reached a shell on M4 Pro with all cores and PMGR, providing strong
+family-level SMP evidence. It is not a J614s-ready artifact (its inherited CPU
+topology and memory-channel domains do not match this 14-core board), so ticket
+034 remains the gate and the USB smoke stays single-core. Full 11–21 July log
+review: `done/2026-07-21-asahi-dev-log-review.md`.
+
+## 0. Retire IRQ-360 diagnostics; evaluate the direct IRQ-816 driver offline
+
+The 2026-07-14 diagnostics below are retained as experiment history. They used
+the ADT-provided input 360, now known not to be the UART interrupt. Their direct
+FIFO observations remain valid, but they cannot establish whether the real AIC
+input 816 works or fails. Do not run ticket 059 or any other 360-based image.
+Instead, audit the direct `apple,dockchannel-uart` driver from `more-t6041`
+(data register first, `earlycon=dockchannel,mmio32,0x50882c000`, `ttyDC0`) and
+adapt it to the measured J614s DT before proposing a new live console test
+(offline ticket 062).
 
 The storm-bounded UART TX/RX BIT(2)/BIT(1) diagnostic ran once on 2026-07-14.
 Linux reached BusyBox and TX worked, but neither an LF-terminated nor a
@@ -98,7 +221,7 @@ occurred):
 
 | Cap/flag | Post-mask result | FIFO movement | Pre-registered conclusion |
 |---|---|---|---|
-| no cap; `total=0`; current `rx_count>0`, raw `irq_flag&2` | no `/proc/interrupts` delta on the telemetry-mapped virq | bytes present | local RX condition exists but AIC hwirq 360 is silent: clean dead-line/erratum evidence |
+| no cap; `total=0`; current `rx_count>0`, raw `irq_flag&2` | no `/proc/interrupts` delta on the telemetry-mapped virq | bytes present | historical only: would have tested ADT input 360, now known not to be the UART route |
 | no cap; small RX count | stabilizes below 1,000 | FIFO drains and probe is delivered | corrected RX IRQ works; old dead-IRQ claim is withdrawn |
 | **no cap; no RX count/flag** ✅ | **no delta** ✅ | **FIFO remains zero after injection** ✅ | **bytes did not reach this build; investigate mask-write or pre-handoff perturbation, not AIC delivery** |
 | cap at RX 1,000 with `cap_flag&2`; `hard=0` | `post_cap` stabilizes near zero and `cap_mask=0` | either | RX-data-triggered storm is real, but local masking stops it; repair completion/ACK handling |
@@ -109,19 +232,26 @@ Exact hashes, MMIO delta, audit, and both the artifact record and the run
 result are in `done/2026-07-14-t6040-dockchannel-rxirq-txpoll.md` and
 `done/2026-07-14-t6040-dockchannel-rxirq-txpoll-result.md`.
 
-Keep the standard 5 ms full-poll mode everywhere except the separate
-diagnostic DTs. Do not retry any completed BIT(1) image, and do not publish
-the old scan as a hardware erratum — AIC delivery has still never been
-exercised (no byte has reached the FIFO in an IRQ-mode build under test
-conditions).
+Keep the standard 5 ms full-poll mode for current boot artifacts. Do not retry
+any completed BIT(1)/IRQ-360 image, and do not publish the old scan as a
+hardware erratum: it targeted the wrong AIC input and, in the last run, no byte
+reached the FIFO.
 
 Ticket 049 is done (`done/2026-07-14-t6040-dockchannel-rx-path-delta.md`): the
 static delta audit rules out direct software flow-control coupling and shows RX
-setup itself did not change between the builds. Next step is ticket 059
-(`dockchannel-timing-image`): the timing-only silent-window discriminator —
-same kernel and DT, new initramfs only, no new MMIO. TX priming (step 2 of the
-ladder) is a separate gated experiment only if 059's run still shows zero
-ingress; do not combine the two.
+setup itself did not change between the builds. Its proposed ticket-059 timing
+follow-up is superseded by the measured IRQ-816 correction; ticket 059 is closed
+and must not be revived unchanged.
+
+The IRQ-816 correction comes from the #asahi-dev logs, not our rig: yuka's
+measurement experiment and enverbalalic's reproduction on real T6041 hardware
+both show the ADT's dockchannel-uart input 360 is an Apple copy-paste error and
+the real AIC input is **816** on t6040/t6041 (full trawl:
+`done/2026-07-21-asahi-dev-irc-review.md`). Our `total=0` RX result is consistent
+with having listened on input 360. **Next step is ticket 062**
+(`dockchannel-irq816-path`): rebuild the DT on IRQ 816 with the data reg
+(`0x50882c000`) first for earlycon, make the RX/TX bits a DT property, then
+propose a fresh interrupt-driven `ttyDC0` rig retest.
 
 ## 0.1 Extend the proven T6040 PCIe path through PHY setup
 

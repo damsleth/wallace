@@ -67,7 +67,8 @@ diagnostic (now a grave in BACKLOG).
   DTs; `integralpilot` has a dockchannel driver (`IntegralPilot/linux2`).
 - We are ahead of them on: DockChannel console + full 214-domain PMGR quirk +
   PCIe host-side clock/PHY prefix + USB-host build. They are ahead on: the
-  measured real IRQ number and a multi-machine DT view. Strong case to engage.
+  measured real IRQ number and a multi-machine DT view. Strong case for CJ to
+  engage using an agent-prepared draft.
 - Their machine is the Mac Mini (j773s); ours is the MacBook Pro 14" (J614s) —
   both T6040, so DT deltas are board-level (display/HID/audio), SoC parts shared.
 

@@ -2,7 +2,7 @@
   "seq": "067",
   "slug": "alpine-ramroot-boot",
   "needs": "rig",
-  "state": "approved",
+  "state": "done",
   "track": "storage",
   "priority": "P1",
   "desc": "Single storage-free Alpine 3.24.0 aarch64 RAM-root boot. Disconnect the right-side USB stick; keep KIS left-back. Use m1n1 1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b, live-proven Image-usb-host 6f0daf57baf942d6e1f43d8efa2ebd4160e976c02ccfaad232dd42e918eb7482, standard USB/ANS/SART/NVMe-disabled DTB b3858f60aa96ab81f7314659284174cb10ddcec061140c1c67d397f52d617814, reproducible Alpine initramfs fc473c67672cd1596fac133759ed1b3ba18c716f42a400e3cfab9d4ad59cbb9b, config 8e11399b172035f7d88c0915ccfbf1bb277eb16097462336c4158b54d8d6bc80. Boot maxcpus=1 idle=nop, no root=. Init mounts only proc/sysfs/devtmpfs/tmpfs, keeps watchdog alive, and opens a ttydc0 Alpine shell; no block discovery, modules, network, USB, or storage access. Pass: Alpine 3.24.0/aarch64 banner, tty responsive >=10s, RAM-only /tmp write/read succeeds, no sd/nvme. Stop on SError/reset/DART fault/lost console/USB/ANS/NVMe probe. Recover Running proxy. Preflight: done/2026-07-23-t6040-alpine-ramroot-preflight.md.",
@@ -17,5 +17,6 @@
   },
   "created": 1784812751,
   "approved_by": "cj",
-  "approved_at": 1784813321
+  "approved_at": 1784813321,
+  "done_at": 1784814266
 }

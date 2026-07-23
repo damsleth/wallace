@@ -1,8 +1,8 @@
 From: CJ Damsleth <kim@damsleth.no>
-Subject: [PATCH] usb: dwc3-apple: add apple,force-host-mode for PD-less host ports
+Subject: [PATCH] usb: dwc3-apple: add apple,force-host-mode for fixed host ports
 
-The M4 generation (t6040/t8132) has no AP-visible USB-PD controller, so the
-role-switch/typec cable event that dwc3-apple waits on to select host or device
+The current T6040 bring-up DT has no supported SPMI-HPM/Type-C connector path,
+so the role-switch cable event that dwc3-apple waits on to select host or device
 mode never arrives; the core stays in DWC3_APPLE_PROBE_PENDING forever. The
 existing apple,force-device-mode brings the core up in device mode at probe for
 a permanently-tethered gadget port. Add the symmetric apple,force-host-mode so a
@@ -22,11 +22,11 @@ index 5da4796b51c9..fd0299870bbc 100644
  	}
  
 +	/*
-+	 * t6040 external-root bring-up: the M4 generation has no AP-visible
-+	 * USB-PD controller, so no typec cable event will ever arrive to select
-+	 * host mode either. For a fixed downstream port (external USB2 disk or
++	 * t6040 external-root bring-up: the current DT has no supported
++	 * SPMI-HPM/Type-C connector path, so no cable event will arrive to
++	 * select host mode. For a fixed downstream port (external USB2 disk or
 +	 * hub carrying the Linux root), bring the core up in host mode
-+	 * immediately so the device enumerates with no cable event.
++	 * immediately so the controller starts with no cable event.
 +	 */
 +	if (device_property_read_bool(dev, "apple,force-host-mode")) {
 +		mutex_lock(&appledwc->lock);

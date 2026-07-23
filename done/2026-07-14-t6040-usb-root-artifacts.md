@@ -45,7 +45,8 @@ Built binaries + hashes recorded at the end of this file.
 
 `dwc3-apple` is role-switch driven — on probe it stays in
 `DWC3_APPLE_PROBE_PENDING` and only enters host/device mode on a Type-C cable
-event. M4 has no AP-visible PD controller to deliver one, so `dr_mode="host"`
+event. The current T6040 Linux DT has no supported SPMI-HPM/Type-C path to
+deliver one, so `dr_mode="host"`
 alone never brings the port up. The in-tree `apple,force-device-mode` handles
 this for gadgets; `patches/t6040-dwc3-apple-force-host.patch` adds the symmetric
 `apple,force-host-mode` (forces `dwc3_apple_init(HOST)` at probe) — an exact
@@ -153,8 +154,8 @@ transient missing dependency/object files was discarded.
 |---|---|
 | `Image-usb-host` | `6f0daf57baf942d6e1f43d8efa2ebd4160e976c02ccfaad232dd42e918eb7482` |
 | `t6040-j614s-dcuart-usb-host.dtb` | `47b01f9e8922410365e26e21bfb2e92814ac8158585d5a6c16dd97e956731fb4` |
-| `t6040-j614s-dcuart-usb-host-left-front.dtb` | `49851557db17448a72fbc99d4274a6688bf1cd2a82a04a4f1ac1756f545212d5` |
-| `t6040-j614s-dcuart-usb-host-right.dtb` | `429440823f833273a44ab7528cf05c1e782d16f2cc21b532a2308c77e1d6f2d7` |
+| `t6040-j614s-dcuart-usb-host-left-front.dtb` | `6e6f6bfa4eee896211516ac04e242f96fc650410900b8641fc5bcee443a2d430` |
+| `t6040-j614s-dcuart-usb-host-right.dtb` | `9bee944b8bb0d6d7ab541962ea2edc9a57c4069fedcd6c32db21e3b824a43759` |
 | `initramfs-usb-root.cpio.gz` | `8b9b80c4eaad07aa0efa578a827f9d0766be81e9a4aed2650e748b1fc65993c8` |
 | `System.map-usb-host` | `019d7504716788f6bda8b22a6bdbef94b89a940128be4083ae3d2f1d491d9d47` |
 | `config-usb-host` | `8e11399b172035f7d88c0915ccfbf1bb277eb16097462336c4158b54d8d6bc80` |
@@ -166,7 +167,10 @@ The original decompiled DTB contains three fixed high-speed host ports and is
 now retired from live eligibility. The two 2026-07-21 one-port DTBs separately
 enable only left-front (`usb-drd1`) or right (`usb-drd2`), leaving the
 left-back DebugUSB controller, all unused USB/DART nodes, the ANS mailbox,
-SART, and internal NVMe disabled. Static verification only; the first live test
-remains review- and approval-gated.
+SART, and internal NVMe disabled. They were rebuilt and independently
+re-reviewed after correcting the inherited DockChannel interrupt from ADT 360
+to measured 816; poll mode means that line is not requested in this test.
+Static verification only; the first live test remains review- and
+approval-gated.
 
 No rig, MMIO, or storage access was performed.

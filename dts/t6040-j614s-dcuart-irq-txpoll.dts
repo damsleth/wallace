@@ -2,7 +2,7 @@
 /*
  * DockChannel-UART RX IRQ diagnostic with independent TX completion.
  *
- * RX remains interrupt-driven on ADT AIC input 360 with BIT(1). TX uses the
+ * RX remains interrupt-driven on measured AIC input 816 with BIT(1). TX uses the
  * known FIFO path but polls only for completion, so the diagnostic can report
  * evidence even if the RX storm guard disables the shared AIC line.
  */

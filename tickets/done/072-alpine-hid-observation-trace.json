@@ -1,0 +1,16 @@
+{
+  "seq": "072",
+  "slug": "alpine-hid-observation-trace",
+  "needs": "offline",
+  "state": "done",
+  "track": "hid",
+  "priority": "P1",
+  "desc": "Offline follow-up to ticket 071: locate the current 7.1.3 DockChannel HID stop with bounded observation-only instrumentation. Log/counter existing mailbox hard-IRQ pending/mask state, RX drain batches/bytes and post-drain FIFO count, plus DCHID report/event types, STM-ready/id_ready transition, identity replies and interface creation. Do not change control flow, add polling/kicks/retries, touch new MMIO, or enable USB/storage/SPMI/PMU. Retain ticket-067 embedded config, storage-disabled DT, Alpine RAM-root and ttydc0; build/hash/static-preflight the trace image, then stop before a reviewed rig proposal. Evidence: done/2026-07-23-t6040-alpine-hid-rx-rearm-result.md.",
+  "author": "codex",
+  "deps": [
+    "071"
+  ],
+  "hashes": null,
+  "created": 1784827090,
+  "done_at": 1784836205
+}

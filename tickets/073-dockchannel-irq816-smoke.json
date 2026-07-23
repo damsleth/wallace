@@ -2,7 +2,7 @@
   "seq": "073",
   "slug": "dockchannel-irq816-smoke",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "",
   "priority": "P1",
   "desc": "Interrupt-driven DockChannel RX retest on the measured AIC input 816 (closes the rxirq-txpoll total=0 open question from NEXT_STEPS #0, which listened on the wrong ADT input 360). Boot the no-poll-mode IRQ-816 DTB with the dcuart kernel that already carries poll.patch (mask-configurable IRQ path, honors apple,irq-rx-mask=0x2 BIT1) + rx-rearm.patch (closes the W1C ack-vs-drain race). Preflight+hashes+provenance: done/2026-07-23-t6040-dockchannel-irq816.md. m1n1 upper-guard 1394c345 (PCIe-write-free, NOT the op-115 candidate); Image-dcuart-irq816 a6c2f093 (mailbox verified = poll+rx-rearm only); DTB 21a34468 (816, rx-mask 0x2, no poll-mode); initramfs-dcuart 512c69da. Pass = ttydc0 shell echoes/runs typed host input via IRQ (no storm). Console-only, no MMIO/PMU/SPMI/storage. Needs rig recovery first, independent cross-review, CJ approval. One boot.",
@@ -11,5 +11,7 @@
     "062"
   ],
   "hashes": null,
-  "created": 1784835989
+  "created": 1784835989,
+  "approved_by": "maintainer",
+  "approved_at": 1784836986
 }

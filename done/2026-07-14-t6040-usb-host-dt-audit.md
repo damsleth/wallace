@@ -50,9 +50,10 @@ The current DT pins every port to the parked gadget config
 necessary but **not sufficient**: `dwc3-apple` is role-switch driven. On probe it
 stays in `DWC3_APPLE_PROBE_PENDING` and only enters `DWC3_APPLE_HOST` /
 `DWC3_APPLE_DEVICE` when a Type-C role-switch/cable event calls
-`dwc3_apple_init()`. M4 has no AP-visible PD controller to deliver that event, so
-`dr_mode = "host"` alone leaves the core down forever — the same wall the gadget
-hit. The in-tree fix for gadgets is the `apple,force-device-mode` property, which
+`dwc3_apple_init()`. The current Linux DT has no supported HPM/Type-C path to
+deliver that event, so `dr_mode = "host"` alone leaves the core down forever —
+the same wall the gadget hit. The in-tree fix for gadgets is the
+`apple,force-device-mode` property, which
 forces `DWC3_APPLE_DEVICE` at probe; there is **no** symmetric host property
 upstream.
 
@@ -93,14 +94,15 @@ enumerates and stays alive** must precede building a full external rootfs
 
 ## The two hard constraints (why this can't be fully closed statically)
 
-1. **No AP-visible Type-C PD/HPM controller on M4.** The offline ADT shows no
-   HPM/CD321x on any AP i2c bus — only audio codecs, `uatcrt0-2` retimers (i2c6),
-   `pcon0` (i2c8). So nothing tells the SoC cable orientation/role, and nothing
-   the AP may legitimately touch controls **VBUS**. `dr_mode = "host"` removes the
-   need for role *detection*, but whether downstream VBUS is supplied to a device
-   is unknown from the DT. PMU/SMC writes are forbidden, so if port power is
-   PMU-gated we cannot enable it — a **self-powered enclosure or powered hub** is
-   the mitigation.
+1. **No supported Linux Type-C HPM path.** The authoritative 2026-07-21 ADT
+   capture corrects this audit's earlier I2C-only inference: the right-side
+   HPM is `/arm-io/nub-spmi-a1/hpm2`, compatible `usbc,sn201202x,spmi`, and it
+   shares `acio2` with `usb-drd2`. The current Linux DT/driver set does not
+   describe that SPMI HPM, connector, or Type-C mux/switch, so nothing tells
+   Linux cable orientation/role or legitimately controls **VBUS**. Direct SPMI,
+   PMU, or SMC writes remain forbidden. A self-powered enclosure or powered
+   hub can test whether VBUS is the practical blocker, but cannot replace HPM
+   CC/orientation and eUSB2-repeater setup.
 2. **No `atc-phy,t6040` driver.** The USB2 PHY is only whatever iBoot/m1n1 left
    configured. The gadget investigation proved a port can enumerate once on that
    leftover state but could not survive suspend/resume without the PHY driver
@@ -111,16 +113,16 @@ enumerates and stays alive** must precede building a full external rootfs
 
 ## Port selection
 
-Physical Type-C port ↔ `usb-drd` index is not derivable from the captured ADT
-facts (no port-topology node captured) and needs either the raw ADT `usb-hosts`
-mapping or an empirical check. The DebugUSB tether uses **KIS on the DFU port**
-(a debug transport, not dwc3); a plain cable in another port coexists. So:
+This was unresolved in the older partial audit. The authoritative 2026-07-21
+capture now maps `usb-drd0 = left-back`, `usb-drd1 = left-front`, and
+`usb-drd2 = right`. The left-back port carries the DebugUSB/KIS tether and must
+remain disabled; the current external-drive candidate is right/`usb-drd2` only.
+The old all-three-port candidate is retired.
 
-- Enabling host on all three ports (as the candidate does) is the low-risk way to
-  find the viable one without guessing.
-- The port whose USB2 PHY iBoot/m1n1 initialized is the best host bet; identifying
-  it (and whether it is the DFU port, which would trade against the tether) is a
-  live-test question for ticket 032 / a gated rig run.
+- DebugUSB is a debug transport distinct from Linux DWC3, so the tether can
+  coexist with a plain cable on the right port.
+- The right port's inherited PHY state is still not a supported host contract;
+  ticket 063 proved only its DART+xHCI root hubs.
 
 ## Open questions handed to ticket 032 / gated rig run
 
@@ -143,3 +145,13 @@ tunable buckets (`atc-phy,t6040` unsupported). Next: ticket 032 builds the
 external-root artifact set (kernel config, initramfs with USB host + usb-storage/
 uas + root-discovery/switch_root, bootargs, hashes, read-only first-boot
 procedure) on this candidate, and stops before proposing a rig run.
+
+## Post-smoke correction (2026-07-21)
+
+Ticket 063 validated the prediction that force-host was necessary but not
+sufficient: DART and xHCI reached healthy root hubs, with no child device. The
+raw ADT also resolves `usb-drd2.atc-phy-parent` to `/arm-io/atc-phy2` and
+contains T6040-specific USB2 host/device tunables. The Linux DT has no PHY
+provider, so `dwc3-apple`'s host-mode `phy_set_mode()` calls act on absent
+generic PHY handles. Full analysis:
+`done/2026-07-21-t6040-usb-right-no-connect-analysis.md`.

@@ -1,0 +1,74 @@
+From 2d09e32b16190fbd3dbd5c38a3d2629bb3e9ae8e Mon Sep 17 00:00:00 2001
+From: CJ Damsleth <kim@damsleth.no>
+Date: Thu, 23 Jul 2026 16:15:00 +0200
+Subject: [PATCH] mailbox: apple: rearm DockChannel RX after draining
+
+The DockChannel interrupt flag is write-one-to-clear.  A new packet can
+arrive after the hard IRQ acknowledges RX but before the threaded handler
+finishes draining the FIFO.  If the RX source remains locally enabled, that
+edge can be consumed by the already-running IRQ thread and leave data in
+the FIFO without another interrupt.
+
+Mask the local RX source before acknowledging it.  After the thread drains
+the FIFO, clear the consumed flag and re-enable RX.  Check the FIFO once
+more after rearming and repeat the drain while the parent IRQ is still held
+oneshot if data raced with the transition.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ drivers/mailbox/apple-dockchannel.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/drivers/mailbox/apple-dockchannel.c b/drivers/mailbox/apple-dockchannel.c
+index 26715f3..cdf13cc 100644
+--- a/drivers/mailbox/apple-dockchannel.c
++++ b/drivers/mailbox/apple-dockchannel.c
+@@ -268,6 +268,13 @@ static irqreturn_t apple_dockchannel_irq(int irq, void *data)
+ 		}
+ 	}
+ 
++	/*
++	 * Keep RX locally masked until the thread has consumed the FIFO.  The
++	 * parent IRQ is IRQF_ONESHOT, so rearming in the thread also closes the
++	 * acknowledge-versus-drain race.
++	 */
++	if (pending & dc->irq_rx)
++		apple_dockchannel_irq_disable(dc, dc->irq_rx);
+ 	writel_relaxed(pending, dc->irq_base + IRQ_FLAG);
+ 
+ 	spin_unlock(&dc->lock);
+@@ -288,7 +295,9 @@ out_unlock_none:
+ static irqreturn_t apple_dockchannel_irq_thread(int irq, void *data)
+ {
+ 	struct apple_dockchannel *dc = data;
++	unsigned long flags;
+ 
++drain:
+ 	for (;;) {
+ 		struct apple_dockchannel_msg msg;
+ 		size_t avail;
+@@ -310,6 +319,22 @@ static irqreturn_t apple_dockchannel_irq_thread(int irq, void *data)
+ 		mbox_chan_received_data(&dc->chan, &msg);
+ 	}
+ 
++	spin_lock_irqsave(&dc->lock, flags);
++	apple_dockchannel_irq_enable(dc, dc->irq_rx);
++	spin_unlock_irqrestore(&dc->lock, flags);
++
++	/*
++	 * Data may have arrived while RX was masked or while it was being
++	 * rearmed.  Drain it under this oneshot invocation rather than relying
++	 * on a possibly coalesced edge.
++	 */
++	if (readl_relaxed(dc->data_base + DATA_RX_COUNT)) {
++		spin_lock_irqsave(&dc->lock, flags);
++		apple_dockchannel_irq_disable(dc, dc->irq_rx);
++		spin_unlock_irqrestore(&dc->lock, flags);
++		goto drain;
++	}
++
+ 	return IRQ_HANDLED;
+ }
+ 
+-- 
+2.47.1

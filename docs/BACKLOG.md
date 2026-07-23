@@ -26,41 +26,71 @@ safety gate still stands — before an agent boots a new-MMIO image, the other
 agent cross-reviews the exact hashes against `~/Code/m1n1/AGENTS.md`
 (§ Cross-agent review in COORDINATION.md).
 
-## Priority & dependency order (updated 2026-07-21)
+## Priority & dependency order (updated 2026-07-23)
 
-Critical path is Stage D (a usable machine). Internal NVMe is NO-GO near-term
-(008: SPTM-gated, no raw-boot guarded entry), so the storage critical path is
-**USB-attached root**. In rough order of leverage:
+There are now two explicit milestones. **B0 bootable build** is an enrolled,
+self-contained Alpine RAM distro and does not wait for Linux storage. **B2
+usable persistent distro** still requires external USB root because internal
+NVMe is NO-GO near-term (008: SPTM-gated, no raw-boot guarded entry). The
+sequenced gates are in `docs/BOOTABLE_BUILD_EXPERIMENTS.md`.
+In rough order of leverage:
 
-1. **USB-root pipeline** (storage, P1 — the Stage D exit). Artifacts are built
-   and hash-pinned (032/050 done; gate 1 cleared). Sequence:
-   **057** (approved: ADT port-map capture, read-only) → single-port host DT →
-   **SMOKE rig boot** (preflight + cross-review done; re-propose with final
-   hashes after 057) → **060** rootfs recipe (script now, populate only after
-   smoke passes) → ROOT-mode `switch_root` rig boot → **024** interim
-   untethered boot (raw enrollment). Known risk carried from the gadget era:
-   post-enumeration deafness; smoke's ≥10 s liveness check is the test.
-2. **PCIe → WiFi/BT** (pcie, P1). Op-115 stalls on its read side; **058** is
+1. **B0 bootable-build pipeline** (distro/HID, P1). Run proposed TX-only trace
+   capture **076** only after explicit approval; decode it offline in **077**,
+   build one minimal HID-restored candidate in **078**, then produce the
+   release-like RAM distro in **079**. In parallel, **080** audits and verifies
+   the raw m1n1 payload layout. **081** packages a single self-contained object
+   and prepares a tethered one-object proof; **082** prepares reversible raw
+   enrollment and cold boot. Direct m1n1 is the shortest B0 route; U-Boot
+   ticket **025** is B1 unless 080 proves it mandatory.
+2. **USB-root pipeline** (storage, P1 — the persistent Stage D exit).
+   Build/port-map gates
+   are clear. Ticket 063 proved the right-port DART+xHCI root hubs but no child
+   device enumerated. **064** bounded the gap to the Linux-absent SPMI HPM +
+   T6040 ATC/ACIO physical-link path. Powered test **065** is cancelled unrun
+   because the hub supply is unavailable. **067** booted Alpine RAM-root and
+   cleared the storage-free userspace checks, but exposed a 7.1.3 USB-host
+   kernel regression: MTP says the keyboard is ready while Linux registers no
+   input device. Offline **069** tested the current-mailbox RX
+   acknowledge/drain race with a storage-disabled mask/drain/re-arm candidate
+   and the failed image's config byte-for-byte.
+   Reviewed rig control **070** was inconclusive: the old keyboard kernel never
+   reached the Alpine framebuffer shell in two exact attempts and has no
+   ttydc0 failure log. Do not retry it. The one-shot corrected-kernel **071**
+   still produced no input devices, disproving that change as a sufficient fix.
+   Offline **072** built and statically verified the observation-only
+   IRQ/FIFO/DCHID state trace without a receive-path control change.
+   Independently reviewed one-shot capture **074** reached Alpine over ttydc0
+   TX, but ttydc0 RX was non-responsive, so the trace could not be requested.
+   Do not retry it unchanged. Offline ticket **075** built and host-tested a
+   bootarg-gated automatic TX reporter; independent exact-archive review
+   passed. Proposed one-shot TX-only capture **076** awaits explicit maintainer
+   approval. No speculative receive kick.
+   Keep **060** recipe-only; do not populate a persistent USB rootfs
+   until enumeration persists for ≥10 s. Then ROOT-mode `switch_root` → **024**
+   interim untethered boot.
+3. **PCIe → WiFi/BT** (pcie, P1). Op-115 stalls on its read side; **058** is
    the offline route-finding for the missing PHY-IP aperture precondition; only
    a new evidence-backed manifest goes live. **044** (port-0/BCM4388 manifest)
    is the pre-reviewed stage after link-up; then firmware (staged, ticket 030
    corpus).
-3. **Two-way remote console** (console, P2 but high leverage for every later
-   rig experiment). RX ingress is the blocker (049 done): **059** builds the
-   timing-only discriminator (no new MMIO); TX-priming is the separate gated
-   step 2 only if 059's run still shows zero ingress.
-4. **Make the approved rig queue runnable** (smp/cpufreq/hid). 004/005/006 are
+4. **Two-way remote console** (console, P2 but high leverage for every later
+   rig experiment). Poll-mode tty is proven. The ADT's IRQ 360 is now known
+   wrong; measured UART input is 816, so 059's timing image is closed
+   superseded. Audit/adapt the WIP direct `apple,dockchannel-uart` IRQ-816
+   earlycon/`ttyDC0` path under **062** before proposing another rig test.
+5. **Make the approved rig queue runnable** (smp/cpufreq/hid). 004/005/006 are
    approved with hashes TBD — **034** (SMP DT preflight), **035** (cpufreq DT
    preflight), **016** (provision tpmtfw from the paired ESP/IPSW) produce the
    pinned images so whoever holds the rig can drain them back-to-back.
-5. **Upstreaming proven work** (xcut, P1): **019** SMP/cpufreq drafts, **046**
+6. **Upstreaming proven work** (xcut, P1): **019** SMP/cpufreq drafts, **046**
    m1n1 T6040 series, **047** DT consolidation, **048** host tools; PMGR series
    is draft-ready (CJ asks flokli re J773s policy and posts).
-6. **Stage-D comforts, offline-preparable**: **061** SMC DT wiring (battery,
+7. **Stage-D comforts, offline-preparable**: **061** SMC DT wiring (battery,
    power button, lid — read-only keys). **037** RTKit 26.x per-driver drafts.
-7. **SPTM internal-NVMe long shot** (storage, background): 051/052/054/055 —
+8. **SPTM internal-NVMe long shot** (storage, background): 051/052/054/055 —
    static decode + the XNU-shim escalation draft for #asahi-dev. No rig time.
-8. **Track-and-test** ([UPSTREAM] tickets): 022 DCP, 023 ATC PHY, 026
+9. **Track-and-test** ([UPSTREAM] tickets): 022 DCP, 023 ATC PHY, 026
    installer, 039 GPU — watch, report, don't build here.
 
 ## Lanes (avoid duplicate work; not exclusive ownership)
@@ -69,8 +99,8 @@ Per COORDINATION.md roles, extended for the USB-root era:
 
 | Lane | Primary | Current contents |
 |---|---|---|
-| Storage: USB-root rig pipeline + SPTM | **sol** | 057 → smoke → ROOT boot; 051/052/054/055 |
-| PCIe/WiFi-BT, DockChannel console | **claude** | 058, 044; 059 |
+| Storage: RAM-root + USB-root pipeline + SPTM | **sol** | Alpine RAM-root boots; trace current-kernel HID boundary; powered USB later → ROOT boot or upstream HPM/ATC; 051/052/054/055 |
+| PCIe/WiFi-BT, DockChannel console | **claude** | 058, 044; 062 IRQ-816 direct-driver audit |
 | Rig-queue preflights, SMC/PM, upstream drafts | **claude** (first grab) | 034, 035, 016, 061; 019/046/047/048 |
 | Rootfs recipe, xcut, tracking | either (queue order) | 060, 029/030, 022/023/026/039 |
 
@@ -89,4 +119,5 @@ enablement halves of C–E. See ROADMAP.md for the full stage map.
 - USB gadget console (EP0 dies post-enumeration).
 - Inventing ATC PHY per-bucket reg offsets.
 - Any blind MMIO probing, or any SPMI/PMU/charger/NVRAM write.
-- Calling IRQ 360 "dead" — the old 4096-input AIC scan used the wrong RX bit.
+- Any further DockChannel IRQ-360 diagnostic — input 360 came from a lying ADT;
+  bounded M4 Pro measurement found the real UART interrupt at AIC input 816.

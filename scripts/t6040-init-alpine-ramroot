@@ -1,0 +1,76 @@
+#!/bin/sh
+# Alpine RAM-root init for T6040/J614s.
+#
+# This root is the initramfs itself. It does not discover, mount, or write any
+# block device. The only persistent transport is the already proven
+# DockChannel tty used for the interactive root shell.
+
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export HOME=/root
+export TERM=linux
+
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
+mount -t tmpfs -o mode=0755,nosuid,nodev tmpfs /run
+mount -t tmpfs -o mode=1777,nosuid,nodev tmpfs /tmp
+
+hostname wallace-ramroot
+
+echo
+echo "==================================================="
+echo "  Alpine Linux RAM root on T6040 / J614s"
+echo "  Storage-free: no block device is mounted or used"
+echo "==================================================="
+uname -a
+echo "Alpine $(cat /etc/alpine-release) ($(apk --print-arch 2>/dev/null))"
+
+if [ -c /dev/watchdog0 ]; then
+    watchdog -T 30 -t 10 /dev/watchdog0 &
+    echo "[ramroot] watchdog0 active (30s timeout, ping every 10s)"
+else
+    echo "[ramroot] WARNING: /dev/watchdog0 missing"
+fi
+
+# The DockChannel tty probes asynchronously. Hold it open for the life of init
+# to avoid the known first-close/reopen fragility, and respawn an Alpine login
+# shell if the operator exits it.
+n=0
+while [ ! -c /dev/ttydc0 ] && [ "$n" -lt 15 ]; do
+    sleep 1
+    n=$((n + 1))
+done
+
+if [ -c /dev/ttydc0 ]; then
+    exec 9<>/dev/ttydc0
+    {
+        echo
+        echo "*** Alpine RAM-root ready on /dev/ttydc0 ***"
+        echo "No USB or internal storage is mounted."
+        uname -a
+        echo "Alpine $(cat /etc/alpine-release) ($(apk --print-arch 2>/dev/null))"
+    } >&9 2>/dev/null
+
+    # Ticket 075: when explicitly selected on the kernel command line, emit the
+    # bounded observation report before starting the shell. This preserves the
+    # ordinary interactive image while avoiding any dependency on ttydc0 RX.
+    /usr/local/sbin/t6040-hid-trace-auto-report >&9 2>/dev/null
+
+    (
+        while :; do
+            echo "[ramroot] spawning Alpine root shell" >&9
+            setsid /bin/sh -c \
+                'export HOME=/root TERM=xterm-256color; cd /root; exec /bin/sh -l -i <>/dev/ttydc0 >&0 2>&1' \
+                || echo "[ramroot] shell exited rc=$?" >&9
+            sleep 2
+        done
+    ) &
+else
+    echo "[ramroot] WARNING: /dev/ttydc0 missing after ${n}s"
+fi
+
+echo "==================================================="
+echo "  fbcon fallback shell; DockChannel shell if ready"
+echo "==================================================="
+cd /root
+exec /bin/sh -l -i

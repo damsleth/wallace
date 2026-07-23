@@ -1,0 +1,16 @@
+{
+  "seq": "081",
+  "slug": "self-contained-raw-object",
+  "needs": "offline",
+  "state": "open",
+  "track": "distro",
+  "priority": "P1",
+  "desc": "Build one verified raw object containing exact B0 m1n1+Image+J614s DTB+Alpine RAM distro, reparse offsets/entry/size/hashes with ticket 080's verifier, and prepare an independently reviewed one-shot tethered test that chainloads only this object (no linux.py or second payload). Stop before creating/running the rig ticket. Experiment 6 in docs/BOOTABLE_BUILD_EXPERIMENTS.md.",
+  "author": "codex",
+  "deps": [
+    "079",
+    "080"
+  ],
+  "hashes": null,
+  "created": 1784838169
+}

@@ -5,12 +5,19 @@ Reviewer: `usb_smoke_cross_review` (independent agent)
 Verdict: **PASS for both port-specific artifact sets, conditional on selecting
 and pinning exactly one physical-drive port before CJ approval.**
 
+Re-review after the IRQ-816 correction: **PASS**. Replacing only the DTB's 816
+interrupt cell with the old 360 recreates each prior reviewed hash exactly,
+proving there is no other binary DT change. Inspection of the pinned Image also
+confirmed that `apple,poll-mode` bypasses IRQ acquisition entirely. The stale
+`linux-build-out/t6040-j614s-dcuart.dts` staging copy found during review was
+refreshed to 816; repo, Linux-tree, and staging sources now agree.
+
 ## Verified artifacts
 
 | Physical drive port | DTB | SHA-256 |
 |---|---|---|
-| left-front | `t6040-j614s-dcuart-usb-host-left-front.dtb` | `49851557db17448a72fbc99d4274a6688bf1cd2a82a04a4f1ac1756f545212d5` |
-| right | `t6040-j614s-dcuart-usb-host-right.dtb` | `429440823f833273a44ab7528cf05c1e782d16f2cc21b532a2308c77e1d6f2d7` |
+| left-front | `t6040-j614s-dcuart-usb-host-left-front.dtb` | `6e6f6bfa4eee896211516ac04e242f96fc650410900b8641fc5bcee443a2d430` |
+| right | `t6040-j614s-dcuart-usb-host-right.dtb` | `9bee944b8bb0d6d7ab541962ea2edc9a57c4069fedcd6c32db21e3b824a43759` |
 
 Both port-specific six-file manifests pass. The kernel, m1n1, initramfs,
 System.map, and config hashes match the preflight. The old generic all-port
@@ -26,6 +33,9 @@ manifest and DTB are not eligible for a live boot.
   `apple,force-host-mode` property.
 - `usb-drd0`/left-back and all unused USB/DART groups remain disabled.
 - No ATC PHY is enabled. ANS, SART, and internal NVMe remain disabled.
+- The rebuilt DockChannel node uses measured AIC input 816 and retains
+  `apple,poll-mode`; the interrupt is therefore corrected but not exercised by
+  this smoke test.
 
 The independent ADT parse also confirms
 `usb-drd0/1/2 = left-back/left-front/right` and the raw-capture hash

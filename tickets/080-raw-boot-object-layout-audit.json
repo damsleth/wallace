@@ -1,0 +1,13 @@
+{
+  "seq": "080",
+  "slug": "raw-boot-object-layout-audit",
+  "needs": "offline",
+  "state": "open",
+  "track": "distro",
+  "priority": "P1",
+  "desc": "Resolve the byte-level raw m1n1 boot-object contract for self-contained Linux payloads: container/magic, alignment, load addresses, compression, autoboot selection, raw entry point 2048, safe size/expansion budget, and a host verifier for overlap/truncation/hash errors. Select direct-m1n1 or U-Boot/FIT without reading or changing APFS/Boot Policy. Experiment 5 and ticket-024 child in docs/BOOTABLE_BUILD_EXPERIMENTS.md.",
+  "author": "codex",
+  "deps": [],
+  "hashes": null,
+  "created": 1784838169
+}

@@ -1,5 +1,10 @@
 # T6040 DockChannel-UART TX-only IRQ counter diagnostic
 
+> **Superseded routing note (2026-07-21):** this historical image used ADT
+> input 360. Bounded M4 Pro measurement later found the real UART interrupt at
+> AIC input 816. The observations below remain valid, but they did not test the
+> UART's AIC route. See `done/2026-07-21-asahi-dev-log-review.md`.
+
 Prepared and run once on 2026-07-14 after the corrected RX BIT(1) interactive
 run remained silent. The unique instruction banner printed and the host sent
 the exact approved probe line in the silent window, but no post-window report

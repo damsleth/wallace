@@ -1,7 +1,8 @@
 #!/bin/busybox sh
-# RX-IRQ/TX-poll DockChannel attribution init. RX stays on AIC hwirq 360 and
-# BIT(1), while TX completion is polled so a capped RX storm cannot suppress
-# one-second FIFO and local-IRQ telemetry.
+# HISTORICAL/SUPERSEDED RX-IRQ/TX-poll DockChannel attribution init. Its image
+# used the ADT's false AIC input 360; measured UART input is 816. Do not build
+# or boot this unchanged. The completed run's BIT(1)/FIFO observations remain
+# provenance only.
 
 /bin/busybox mount -t proc none /proc
 /bin/busybox mount -t sysfs none /sys
@@ -58,7 +59,7 @@ fi
 echo "[irq-txpoll] sample=baseline $(/bin/busybox cat "$telemetry")" >&9
 echo "[irq-txpoll] INJECT-NOW: send exactly IRQ_BIT1_PROBE<LF>" >&9
 
-# TX completion is polled, so these reports cannot add AIC input 360 events.
+# TX completion was polled, so these reports could not add input-360 events.
 i=1
 while [ "$i" -le 10 ]; do
 	/bin/busybox sleep 1

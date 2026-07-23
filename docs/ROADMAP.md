@@ -4,10 +4,12 @@ End-goal: a bootable Linux distro on this MacBook Pro 14" M4 Pro with GPU accel,
 WiFi, Bluetooth, keyboard/trackpad, audio, webcam, power management — daily-driver
 comfort comparable to macOS.
 
-Written 2026-07-10, last updated **2026-07-14** (PCIe map and Stage E image).
+Written 2026-07-10, last updated **2026-07-23** (Alpine RAM-root and bounded
+HID state-trace candidate).
 Companion docs: `NEXT_STEPS.md` (immediate work), `DEVLOG.md`
 (operational reference + solved blockers), `t6040-dt-checklist.md` (Stage C
-reference). All finished per-topic plans/write-ups archived in `done/`.
+reference), and `BOOTABLE_BUILD_EXPERIMENTS.md` (B0 cold-boot ladder).
+All finished per-topic plans/write-ups are archived in `done/`.
 Unposted #asahi-dev drafts awaiting review: `done/2026-07-10-t6040-smp-writeup.md`,
 `done/2026-07-10-t6040-cpufreq-writeup.md`,
 `done/2026-07-14-t6040-sptm-asahi-question.md` (M4 NVMe SPTM boundary question).
@@ -22,12 +24,34 @@ PMGR DT (maxcpus=1, idle=nop), reproducibly. The internal keyboard works there
 framebuffer (simpledrm+fbcon) is the early console.
 
 **Fully remote dev loop (2026-07-12).** Two-way m1n1 proxy AND a two-way Linux
-shell (`/dev/ttydc0`, poll-mode dockchannel driver; the earlier dead-AIC-line
-finding used the wrong RX bit; a corrected BIT(1) IRQ-mode run still had no RX
-and needs a TX-only counter diagnostic) over a single
+shell (`/dev/ttydc0`, poll-mode dockchannel driver; the ADT's UART IRQ 360 is
+wrong and bounded M4 Pro measurement found the real input at 816) over a single
 DebugUSB/KIS cable in the DFU port, plus
 remote reboot via `macvdmtool`: reboot → chainload → boot → interactive shell
 with zero physical access. SBU analog serial was proven a dead end on ACE3.
+
+**Alpine RAM-root boots (2026-07-23).** Alpine 3.24.0/aarch64 now reaches a
+responsive, storage-free shell loaded entirely through m1n1; RAM writes pass
+and no block device or storage controller probes. The tested 7.1.3 USB-host
+kernel regresses internal HID registration even though MTP reports `Keyboard
+ready`. A storage-disabled test of the suspected unmasked
+acknowledge/threaded-drain race booted successfully but still registered no
+input device, so that change is not a sufficient fix. The next gate is bounded
+observation-only tracing across the DockChannel IRQ/FIFO and DCHID
+event/identity boundary. Ticket 072 built and statically verified that trace.
+Ticket 074 booted it once, but ttydc0 RX was non-responsive despite working TX,
+so no trace command ran. Offline ticket 075 built a host-tested replacement
+that automatically reports over TX without depending on shell input;
+independent exact-artifact review passed, and proposed one-shot capture 076
+awaits explicit maintainer approval.
+
+**Bootable-build path defined (2026-07-23).** The immediate B0 milestone is an
+enrolled raw m1n1 object carrying a self-contained Alpine RAM distro, reaching
+simpledrm/fbcon and internal keyboard without a host payload upload. It does
+not wait for USB or internal NVMe. Tickets 077–079 restore HID and produce the
+release-like distro; 080 audits the raw payload contract; 081 builds a
+single-object tethered proof; 082 prepares reversible enrollment/cold boot.
+Full sequence: `docs/BOOTABLE_BUILD_EXPERIMENTS.md`.
 
 **Stage A complete 2026-07-10** — proxy solid, 14/14 cores (4E+5P+5P), MPIDR
 map, execute-and-return, broken_wfi handled (WFE park), ~10 s chainload loop.
@@ -50,12 +74,12 @@ fixed, dapf gate + watchdog arm added for M4.
 | Two-way Linux shell + m1n1 proxy over one DebugUSB cable; remote reboot | Printk over ttydc needs a separate polled/atomic TX path; current TTY queue is not console-safe |
 | Linux apple_wdt; fbcon early console | NVMe rootfs (power/SART/ANS work; queue and per-command TCB setup require unavailable raw-boot SPTM entry) |
 | Kernel build env (podman, arm64-native) with patch pipeline | USB gadget console (parked: EP0 dies post-enumeration) |
-| SMP/cpufreq/MCC groundwork; PCIe host+wireless DT and drivers build | cpufreq throttles, gated PCIe link-up test, wireless firmware, USB3/TB PHY tunables |
+| SMP/cpufreq/MCC groundwork; PCIe host+wireless DT and drivers build | board-audited Linux secondary-core test, cpufreq throttles, gated PCIe link-up test, wireless firmware, USB3/TB PHY tunables |
 
 **Upstreaming pending**: SMP/broken_wfi/MPIDR + cpufreq drafts (in `done/`);
 dockchannel-uart per-instance IRQ masks + poll-mode patch to the
-dockchannel-branch authors (do not characterize IRQ 360 as dead yet); curated
-code-only branch `t6040-bringup` tracks main's src/ (main merged AsahiLinux
+dockchannel-branch authors (retire ADT IRQ 360; measured UART input is 816);
+curated code-only branch `t6040-bringup` tracks main's src/ (main merged AsahiLinux
 upstream 2026-07-14 at `16b1f61f`; curated branch rebased onto it the same
 day, tip `f0738eee`; series audit/shaping is ticket 046).
 
@@ -71,6 +95,17 @@ SPRR/GXF/AMX use on `apple_sysregs_unlocked` and knows the T6040 CPUSTART —
 yuka appears to be making hv tolerate locked-sysreg machines. A degraded hv on
 the T6040 is untested here, but if it becomes viable it would reopen (some)
 tracing on this rig.*
+
+*Locked-AIC status (from #asahi-dev 2026-07-21, yuka;
+`done/2026-07-21-asahi-dev-irc-review.md`): iBoot builds that leave the relevant
+AIC reg **unlocked** exist for t8132/t8140/t6050 but **not** for
+t6040/t6041/t8142 — so our machine keeps the `aic_init_cpu` locked-sysreg skip
+(flokli patch). An Apple radar already unlocked one machine; a follow-up radar
+to cover t6040/t6041/t8142 in a future iBoot is under discussion upstream, which
+would be the clean long-term fix. SPTM/GXF itself remains the wall (no signed
+guarded entry for a raw-boot object) — the SEP-loads-keys-into-the-NVMe-
+controller remark (chaos_princess, 2026-07-20) is a lead for the internal-NVMe
+route, tracked under the SPTM tickets.*
 
 ## Stage map
 
@@ -201,9 +236,12 @@ early console. (Testable incrementally against Stage C.)
 
 **Exit:** linux-asahi + our DT boots to initramfs shell over USB gadget/serial,
 all 14 cores online, cpufreq working.
-**Status 2026-07-12:** initramfs shell reached (maxcpus=1) with a real serial
-console over DebugUSB/dockchannel; remaining for exit: full pmgr, then
-maxcpus>1 + cpufreq DT wiring.
+**Status 2026-07-21:** initramfs shell and full PMGR are proven locally at
+maxcpus=1. A WIP `more-t6041` branch independently reached an M4 Pro shell with
+all cores and PMGR, but its inherited CPU/domain topology is not J614s-correct;
+ticket 034 still gates a 14-core-board-specific secondary test. T6040/T6041 AIC
+sysregs remain firmware-locked, so the trap-avoidance patch and `idle=nop`
+remain required.
 
 ## Stage D — storage, USB, HID, display console (usable machine)
 
@@ -219,8 +257,21 @@ maxcpus>1 + cpufreq DT wiring.
   authorization, so preserving only the firmware ASQ/ACQ is not a complete
   Linux design. Do not repeat direct register or GENTER attempts unchanged
   (NEXT_STEPS #3).
-- **USB** (dwc3 + ATC PHY): external keyboard/disk/ethernet from day one; also
-  the USB-gadget console m1n1 already proves works.
+- **USB** (dwc3 + ATC PHY): the J614s physical map is captured and independently
+  reviewed (`usb-drd0` left-back/KIS, `usb-drd1` left-front, `usb-drd2` right).
+  The right-only no-root smoke initialized its DARTs and xHCI root hubs cleanly,
+  but no attached device enumerated. The saved ADT maps that port through a
+  right-side SPMI HPM, `atc-phy,t6040`, and `acio2`, while Linux describes none
+  of that connector/PHY path; force-host therefore starts xHCI with no generic
+  PHY provider. The failed device was a directly attached bus-powered USB-C
+  stick, but ticket 065's powered fixture is unavailable. Ticket 067 therefore
+  supplies the interim distro milestone: Alpine booted entirely from a
+  m1n1-uploaded RAM-root with all storage paths disabled. Persistent external
+  root remains gated on a powered-device discriminator, then reviewed T6040
+  HPM/ATC work if it fails.
+  M3 ATC PHY work
+  enumerated a real device on 2026-07-20, but its SPMI wake and PHY data are not
+  T6040 parameters; USB3/TB stays track-and-test.
 - **Internal keyboard + trackpad:** ✅ **keyboard DONE early (2026-07-11)** via
   dockchannel-HID (three bugs fixed — see DEVLOG); trackpad registers as
   input0. Its missing HIDF loader and retry recovery are fixed; provision the
@@ -232,11 +283,17 @@ maxcpus>1 + cpufreq DT wiring.
      NVMe/USB/HID = installable, usable-in-anger machine.
   2. **DCP driver** for real display control (brightness, DPMS, mode switch,
      external DP alt-mode). Firmware-version-locked; M4 + macOS 26.x firmware
-     support must exist in the asahi DCP driver — likely upstream-tracking work.
+     support must exist in the asahi DCP driver. The July 2026 `dcp/14.8.3`
+     work now boots and has HPD/brightness progress, but is ABI groundwork rather
+     than 26.x/T6040 support.
 - **SMC:** power button, lid, battery/charger via macsmc — mostly compat work.
+  Track the July 2026 v2 hwmon/RTC DT-subdevice series; it has not established
+  T6040 compatibility and does not relax the no-unreviewed-PMU/SPMI-write rule.
 
-**Exit:** boot from internal NVMe to a desktop on simpledrm, working built-in
-keyboard/trackpad, battery status. Daily-drivable without GPU/WiFi (USB ethernet).
+**Exit:** boot an external USB root to a desktop on simpledrm, with working
+built-in keyboard/trackpad and battery status. Internal NVMe is a later secure-
+firmware integration goal, not the Stage-D gate. Daily-drivable without
+GPU/WiFi (USB ethernet).
 
 ## Stage E — WiFi + Bluetooth
 
@@ -299,14 +356,27 @@ keyboard/trackpad, battery status. Daily-drivable without GPU/WiFi (USB ethernet
   firmware handling for the 12MP Center Stage camera. Upstream-tracking.
 - **Power management:** s2idle suspend via SMC (works on M1/M2, needs T6040
   validation); `features_m4` sleep_mode currently SLEEP_NONE in m1n1 — deep-WFI/
-  cpuidle needs careful enablement under locked sysregs. Battery life tuning
-  (devfreq, runtime PM on DARTs/coprocessors) trails everything else.
+  cpuidle needs careful enablement under locked sysregs. EFI-PSCI CPU power-down
+  is making upstream progress, but does not yet replace the J614s raw-kboot
+  release/WFE audit. Battery life tuning (devfreq, runtime PM on
+  DARTs/coprocessors) trails everything else.
 - **Explicitly never (or SEP-blocked):** Touch ID. **Late/limited:** Thunderbolt
   tunneling (USB3/DP alt-mode work; full TB is still open upstream), video
   decode engines (AVD is M1/M2-era work, M4 unexplored).
 
 ## Stage H — distro integration ("bootable Linux distro")
 
+- **B0, personal cold boot:** use the dedicated APFS/m1n1 volume and raw
+  enrollment to boot one self-contained m1n1 + kernel + J614s DTB + Alpine RAM
+  distro. DebugUSB may observe but supplies no payload. This is intentionally
+  storage-free and is the first “this machine boots Linux” milestone. Tickets
+  076–082 and `docs/BOOTABLE_BUILD_EXPERIMENTS.md` define the evidence-gated
+  sequence.
+- **B1, standard boot flow:** after B0, make U-Boot/EFI work and move toward
+  GRUB/systemd-boot or a unified kernel image. Ticket 025 owns this unless the
+  raw-object audit shows U-Boot is required earlier.
+- **B2, persistent distro:** use external USB root after the HPM/ATC physical
+  link enumerates a device; internal NVMe stays a later SPTM integration goal.
 - **asahi-installer:** must learn raw-boot-object enrollment for M4 (it enrolls
   mach-o m1n1 today — that path is *gone* on this machine) + Mac16,8 device
   metadata + firmware extraction for 26.x. This is a real, non-optional work item
@@ -316,10 +386,9 @@ keyboard/trackpad, battery status. Daily-drivable without GPU/WiFi (USB ethernet
 - **Fedora Asahi Remix:** kernel with all of the above, j614s asahi-audio
   profile, mesa builds, calamares/initial-setup — mostly automatic once the
   pieces exist upstream.
-- Interim personal path (before official installer support): keep the APFS
-  m1n1 volume + kmutil raw enrollment, m1n1 chainloads U-Boot/kernel from the
-  existing setup. That's a "my machine boots Linux" milestone long before
-  "a distro supports this machine".
+- The B0 path deliberately uses direct m1n1 payloads first. It must not be
+  blocked on official installer integration, U-Boot, persistent storage, SMP,
+  cpufreq, or post-boot comfort drivers.
 
 ## Dependencies & effort summary
 

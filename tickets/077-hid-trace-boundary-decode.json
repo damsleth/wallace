@@ -1,0 +1,15 @@
+{
+  "seq": "077",
+  "slug": "hid-trace-boundary-decode",
+  "needs": "offline",
+  "state": "open",
+  "track": "hid",
+  "priority": "P1",
+  "desc": "After ticket 076, decode its exact automatic report against the ticket-074 interpretation matrix and the working 2026-07-11 kernel. Produce a count-by-count boundary table and either one minimal evidence-backed fix with a falsification condition or one narrowly justified additional observation point. No receive kick/retry, new MMIO, IRQ experiment, or live work. Experiment 2 in docs/BOOTABLE_BUILD_EXPERIMENTS.md.",
+  "author": "codex",
+  "deps": [
+    "076"
+  ],
+  "hashes": null,
+  "created": 1784838169
+}

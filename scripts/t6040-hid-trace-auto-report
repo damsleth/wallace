@@ -1,0 +1,69 @@
+#!/bin/sh
+# Bootarg-gated, TX-only observation report for T6040 DockChannel/HID bring-up.
+# This reads only the trace surfaces and inventories approved by ticket 074.
+
+cmdline_file=${CMDLINE_FILE:-/proc/cmdline}
+sys_root=${SYS_ROOT:-/sys}
+proc_root=${PROC_ROOT:-/proc}
+dev_root=${DEV_ROOT:-/dev}
+release_file=${RELEASE_FILE:-/etc/alpine-release}
+dmesg_file=${DMESG_FILE:-}
+delay_seconds=${TRACE_AUTO_DELAY_SECONDS:-2}
+
+cmdline=$(cat "$cmdline_file" 2>/dev/null) || exit 0
+case " $cmdline " in
+    *" t6040.hid_trace_auto=1 "*) ;;
+    *) exit 0 ;;
+esac
+
+sleep "$delay_seconds"
+
+echo
+echo "===== T6040 HID TRACE AUTO REPORT BEGIN ====="
+echo "[release]"
+uname -a
+if [ -r "$release_file" ]; then
+    echo "Alpine $(cat "$release_file") ($(apk --print-arch 2>/dev/null || echo unknown))"
+else
+    echo "Alpine release unavailable"
+fi
+
+echo "[HIDTRACE dmesg, last 200 matching lines]"
+if [ -n "$dmesg_file" ]; then
+    grep 'HIDTRACE' "$dmesg_file" 2>/dev/null | tail -n 200
+else
+    dmesg 2>/dev/null | grep 'HIDTRACE' | tail -n 200
+fi
+
+echo "[dc_trace and hid_trace]"
+find "$sys_root" -type f \( -name dc_trace -o -name hid_trace \) 2>/dev/null |
+    LC_ALL=C sort |
+    while IFS= read -r trace_file; do
+        if [ -r "$trace_file" ]; then
+            echo "--- $trace_file"
+            cat "$trace_file" 2>/dev/null ||
+                echo "[read failed: $trace_file]"
+        fi
+    done
+
+echo "[/proc/bus/input/devices]"
+if [ -r "$proc_root/bus/input/devices" ]; then
+    cat "$proc_root/bus/input/devices"
+else
+    echo "[unavailable]"
+fi
+
+echo "[/dev/input]"
+if [ -d "$dev_root/input" ]; then
+    ls -la "$dev_root/input"
+else
+    echo "[unavailable]"
+fi
+
+echo "[/proc/partitions]"
+if [ -r "$proc_root/partitions" ]; then
+    cat "$proc_root/partitions"
+else
+    echo "[unavailable]"
+fi
+echo "===== T6040 HID TRACE AUTO REPORT END ====="

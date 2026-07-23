@@ -1,0 +1,16 @@
+{
+  "seq": "069",
+  "slug": "alpine-hid-kernel-regression",
+  "needs": "offline",
+  "state": "done",
+  "track": "hid",
+  "priority": "P1",
+  "desc": "Offline isolate why the 7.1.3 Image-usb-host stops DockChannel HID after MTP firmware reports Keyboard ready while the known-good 7.2-rc2 Image-keyboard registers Apple 05ac:0359 input devices. Compare embedded configs, mailbox/HID source and applied patch stacks, DT deltas, and saved logs; produce the smallest storage-disabled kernel/build correction retaining ttydc0, with hashes and static preflight. No rig or MMIO.",
+  "author": "codex",
+  "deps": [
+    "067"
+  ],
+  "hashes": null,
+  "created": 1784814266,
+  "done_at": 1784822046
+}

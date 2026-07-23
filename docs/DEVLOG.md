@@ -15,6 +15,7 @@ long-term plan in `ROADMAP.md`; per-session write-ups in `done/`.
 | Framebuffer console (simpledrm + fbcon) | the early-boot console; dcuart covers post-probe |
 | Linux `apple_wdt` takes over m1n1's watchdog | shell survives past the 20 s bite |
 | Remote reboot via `macvdmtool` | full autonomous reboot→chainload→boot→shell cycle |
+| Alpine 3.24.0 aarch64 RAM-root | storage-free boot passes; the tested 7.1.3 USB-host kernel regresses HID registration |
 
 Active: full PMGR topology boots reproducibly with the exact minimal raw-boot
 policy; only its upstream shape remains (see PMGR section).
@@ -60,7 +61,12 @@ kisd uart channel 0 = dock side of AP `/arm-io/dockchannel-uart` (AP data block
 4. Reboot → "Running proxy" takes **<20 s**. Poll every 2–3 s; never wait minutes.
 5. DebugUSB replaces m1n1's dwc3 gadget on the DFU port (no `/dev/cu.usbmodem*`
    while active). A plain cable in another target port coexists for fast
-   chainload.
+   chainload. On J614s the proven DFU/KIS port is left-back (top-left when
+   viewed in the working rig orientation): ADT maps it to `usb-drd0`; keep that
+   controller disabled in Linux USB-host tests. Upstream reports also warn that
+   direct C-to-C gadget links can lose role negotiation; a known Apple charging
+   cable or a hub/A-to-C path is a useful fallback after checking the physical
+   port and power-cycling.
 6. `t6040-boot-dcuart.sh` passes linux.py `--no-tty`, then owns the raw reader
    transition itself. Older m1n1 trees lack that option and end handoff with a
    harmless miniterm/termios traceback after the kernel is already booting.
@@ -151,6 +157,9 @@ code-only series lives on branch `t6040-bringup` (worktree `~/Code/m1n1-clean`).
 2. **AIC locked-sysreg trap** — `aic_init_cpu` writes
    `SYS_IMP_APL_VM_TMR_FIQ_ENA_EL2` + `SYS_ICH_HCR_EL2` in hyp mode → traps →
    hang before console. flokli patch comments out both (in `flokli-code.patch`).
+   Upstream testing on 2026-07-21 still classified T6040/T6041 as locked even
+   on macOS 26.6 RC / 27 beta 4; do not remove this patch. Cluster-power-off
+   sysregs remain unresolved as well.
 3. **WFI state-loss** — M4 loses CPU state on WFI/WFE; flokli patch adds arm64
    `idle=[wfi|nop]`; boot with `idle=nop` (plain mainline ignores `idle=`).
 4. **No fbcon in defconfig** — DRM_SIMPLEDRM + DRM_FBDEV_EMULATION +
@@ -212,51 +221,35 @@ Full provenance, hashes, layout notes, and the regeneration recipe:
 
 ### DockChannel-UART Linux console (2026-07-12)
 Kernel side: `origin/dockchannel` mailbox + tty drivers + a t6040 board DT
-variant. The ADT declares AIC IRQ 360 for the DockChannel-UART AP FIFO. The
-2026-07-12 scan found no matching HW_STATE bit across all 4096 AIC inputs, but
-that result is now **provisional**: it enabled the UART block with MTP's RX
-BIT(3). New evidence says MTP and UART differ—MTP RX is BIT(3), UART RX is
-BIT(1)—and BIT(3) can become sticky-active on UART. A bounded 2026-07-14 run
-with UART TX/RX BIT(2)/BIT(1) still produced the BusyBox banner but accepted
-neither of two host commands. Therefore the wrong per-instance mask was real
-but was not the only cause of "banner then silence." The run could not retrieve
-`/proc/interrupts`, so it did not determine whether AIC input 360 fired. The
-working fallback remains
+variant. **Correction 2026-07-21:** the ADT declares AIC IRQ 360, but a bounded
+m1n1 experiment on an M4 Pro measured the real DockChannel-UART interrupt at
+**AIC input 816**. UART RX is BIT(1); MTP RX is BIT(3). The base J614s DT now
+carries 816, while the working fallback remains
 `apple,poll-mode` (5 ms delayed work; TX-done on FIFO drain, RX via RX_COUNT).
 `patches/t6040-dockchannel-poll.patch` now accepts explicit per-instance masks;
-a full record of the one-run BIT(1), IRQ-360 retest is in
-`done/2026-07-14-t6040-dockchannel-irq-retest.md`. A TX-only scheduled reporter
-then accepted one exact host probe but stopped after its instruction banner;
-its userspace read timeout was validated separately. This strongly suggests RX
-stalled the shared IRQ-driven TX completion path or tripped the storm guard,
-but is not direct proof because the guard message could no longer be relayed.
-Full result: `done/2026-07-14-t6040-dockchannel-irq-tx-report.md`.
+a full record of the old IRQ-360 runs is in
+`done/2026-07-14-t6040-dockchannel-irq-retest.md`,
+`done/2026-07-14-t6040-dockchannel-irq-tx-report.md`, and
+`done/2026-07-14-t6040-dockchannel-rxirq-txpoll-result.md`.
 
-Do not publish the old result as a hardware erratum yet. The unrun replacement
-now makes TX completion independent of the AIC line, samples the FIFO count and
-local IRQ flag/mask once per second, masks RX at event 1,000, and hard-disables
-the Linux virq at absolute handler entry 1,024. It snapshots both the local flag
-and FIFO count at each cap. The DT's AIC input 360, the old AIC HW_STATE scan's
-input 360, and telemetry's translated hwirq 360 are the same hardware number;
-`/proc/interrupts` instead displays the allocated Linux virq. Exact artifacts,
-the pre-registered interpretation matrix, and the new approval gate are in
-`done/2026-07-14-t6040-dockchannel-rxirq-txpoll.md` and `NEXT_STEPS.md`.
+Those runs are historical only. Their direct observations remain valid—the
+last probe never entered the AP FIFO—but none exercised the real AIC route, so
+they say nothing about input 816. Do not retry ticket 059 or publish the old
+scan as a hardware erratum.
 
 ACK-order audit: safe m1n1 `eed11760` never touches the UART IRQ mask/flag
 block, so it cannot leave BIT(3) set before handoff. The older working
 DockChannel/HID driver uses RX BIT(1), W1C-acks and masks the child before its
 thread reads and consumes the packet, then re-arms RX. The current mailbox
 driver W1C-acks but leaves RX locally unmasked while waking its drain thread.
-The bounded run tests whether that reassertion stops on mask. Remaining routing
-questions only matter if bytes and corrected local pending exist with no
-mapped AIC count.
+Any new interrupt-path test must use input 816 and be separately reviewed.
 
 MMIO caution: the dockchannel-uart block maps ONLY +0xc000 (irq, 24 B) and
 +0x28000..+0x38004 (config/data). Reading other offsets (e.g. +0x20000) raises
 an async SError that kills m1n1 — unlike dockchannel-mtp, which maps
 +0x0/+0x14000/+0x28000../+0x30000..
 
-Note: the tty driver registers no printk console — `console=ttydc0` does
+The current mailbox tty driver registers no printk console — `console=ttydc0` does
 nothing; the shell + dmesg cover post-userspace, fbcon covers early boot. A
 code review confirmed that simply adding `register_console()` would be unsafe:
 TTY TX only enqueues into a kfifo and schedules `system_wq`, so it cannot emit
@@ -264,6 +257,142 @@ synchronously in atomic/panic context, and its send-error path can printk while
 holding the same TX lock a console callback would need. A real console requires
 a separate bounded polled/atomic mailbox transmit primitive (preferably nbcon),
 not reuse of `apple_dctty_write()`.
+
+Upstream WIP now supplies that separate shape: Yuka's `more-t6041` branch uses
+`compatible = "apple,dockchannel-uart"`, orders registers data/config/irq so
+earlycon can map the FIFO, uses IRQ 816, and reached a shell on M4 Pro with
+`earlycon=dockchannel,mmio32,0x50882c000`. Its console is `ttyDC0`. Treat the
+driver as an offline input, not a board DT to copy: the branch's inherited CPU
+and memory-channel topology does not match 14-core J614s. Full evidence and
+commit identities: `done/2026-07-21-asahi-dev-log-review.md`.
+
+### Right-port USB2 host smoke (2026-07-21)
+
+The reviewed one-port/no-root image booted once under ticket 063. Linux
+initialized the right-port DART pair (`0x392f00000`, `0x392f80000`) and xHCI
+at `0x392280000`/IRQ 42, created its USB2/USB3 root hubs, and registered UAS and
+usb-storage. The initial and ten-second reports both showed root hubs only:
+no external child and no `sd*`. DockChannel stayed interactive and no SError,
+DART fault, reset, or internal-NVMe probe occurred. Recovery returned a stable
+proxy.
+
+This proves the DWC3/xHCI and DART description reaches working Linux root hubs,
+but not the physical Type-C link. The saved ADT maps the right port through
+`hpm2` (SPMI), `atc-phy2` (`atc-phy,t6040`), and `acio2`; the Linux DT exposes
+none of those nodes or their connector graph. Its DWC3 generic PHY handles are
+therefore absent, so force-host starts xHCI without establishing cable
+orientation, eUSB2-repeater state, or USB2 host mode. m1n1 leaves some inherited
+PHY state, but does not consume the T6040 named host/device tunables, so that
+state is not a reproducible Linux contract.
+
+Do not mount or populate a rootfs. The failed device is confirmed to have been
+a directly attached, bus-powered USB-C memory stick. Ticket 065 proposes one
+freshly approved retry of the exact image with a host-validated powered hub and
+simple known-good USB2 drive as the last safe no-code discriminator. Connect
+and power the complete topology before the M4 power cycle; do not hotplug during
+the run. If that retry also shows root hubs only, stop and track reviewed T6040
+HPM/SPMI + ATC PHY support. Full result, analysis, and powered preflight:
+`done/2026-07-21-t6040-usb-host-right-smoke-result.md` and
+`done/2026-07-21-t6040-usb-right-no-connect-analysis.md`, then
+`done/2026-07-21-t6040-usb-right-powered-smoke-preflight.md`.
+
+### Alpine RAM-root fallback (2026-07-23)
+
+The powered-hub smoke (ticket 065) was cancelled without approval or a run
+because the hub's supply could not be found. The immediate distro path now
+avoids storage entirely: `scripts/t6040-build-alpine-ramroot.sh` turns the
+official Alpine 3.24.0 aarch64 minirootfs into a reproducible 3.9 MB
+root-as-initramfs. Its `/init` mounts only pseudo/RAM filesystems, keeps the
+watchdog alive, and exposes a respawning Alpine root shell over `/dev/ttydc0`.
+
+Two builds reproduced SHA-256
+`fc473c67672cd1596fac133759ed1b3ba18c716f42a400e3cfab9d4ad59cbb9b`.
+An arm64-container chroot verified Alpine 3.24.0, `apk --print-arch = aarch64`,
+the init syntax, and required applets. Ticket 067 proposes a single live boot
+with the proven m1n1/kernel and standard USB/ANS/SART/NVMe-disabled DT. This is
+a real distro-shell milestone, but it is volatile: all changes disappear on
+reboot and it does not solve persistent root storage. Full artifact and live
+preflight:
+`done/2026-07-23-t6040-alpine-ramroot-artifact.md` and
+`done/2026-07-23-t6040-alpine-ramroot-preflight.md`.
+
+Ticket 067 booted that archive successfully, but the current 7.1.3 kernel lost
+DockChannel HID after MTP reported `Keyboard ready`: no `05ac:0359` identity or
+input device registered, while the IRQ thread and HID workers were idle.
+Ticket 070's old 7.2-rc2 control never reached the Alpine framebuffer shell and
+was inconclusive.
+
+Offline ticket 069 found that the two kernel lines have matching HID configs
+and content-identical DockChannel HID transport code. The current mailbox
+driver nevertheless W1C-acknowledged RX with its local source still enabled,
+then drained later in a oneshot thread; unlike the older receive discipline,
+it did not mask around the drain or explicitly re-arm. The minimal correction
+in `patches/t6040-dockchannel-rx-rearm.patch` masks before acknowledgement,
+drains, clears/re-enables RX, and rechecks the FIFO for a raced packet. A fresh
+storage-disabled kernel retains ttydc0 and embeds ticket 067's config
+byte-for-byte:
+
+```text
+Image-hid-rx-rearm
+  a6c2f09354bf1d61559b450f9430eb06d42f94d027d539c2deade708d708c4ff
+t6040-j614s-dcuart-hid-rx-rearm.dtb
+  2782b92237c35c8950212207391c3ae28c44b6b9c635b2e864c5748a77bb3cce
+```
+
+All external USB and ANS/SART/NVMe nodes remained disabled. Full audit:
+`done/2026-07-23-t6040-alpine-hid-regression-analysis.md`.
+`usb_smoke_cross_review` independently verified ticket 071's exact hashes,
+embedded config, DT, patch, and procedure before its one approved run.
+
+Ticket 071 reached Alpine and ttydc0, with no block devices, but
+`/proc/bus/input/devices` was empty and `/dev/input` did not exist. Thus the
+RX re-arm patch is not the sufficient HID fix and stays experimental. Do not
+retry it. Result:
+`done/2026-07-23-t6040-alpine-hid-rx-rearm-result.md`.
+
+Ticket 072 is complete offline. `HID_STATE_TRACE=1` adds atomic counters and
+read-only `dc_trace`/`hid_trace` sysfs summaries plus sparse `HIDTRACE`
+lifecycle messages; it does not add an MMIO access, receive kick, retry,
+polling path, or IRQ-control operation. The clean build exported:
+
+```text
+Image-hid-state-trace
+  e7138c03c5dcea63048adcc5b800781a73a544699e6b575cb7343bc3f4cf4576
+t6040-j614s-dcuart-hid-state-trace.dtb
+  2782b92237c35c8950212207391c3ae28c44b6b9c635b2e864c5748a77bb3cce
+config-hid-state-trace
+  8e11399b172035f7d88c0915ccfbf1bb277eb16097462336c4158b54d8d6bc80
+```
+
+The config and embedded config byte-match tickets 067/071; the DTB byte-matches
+071 and still disables every USB/DART/ANS/SART/NVMe node. Independent review
+passed the exact packet.
+
+Ticket 074 booted it once. ttydc0 TX delivered the full Alpine banner and
+prompt, but RX produced no echo or result for LF, CR, or the cursor-position
+response. `kisd`, the raw PTY, and a persistent foreground reader were all
+healthy. The run stopped without executing any trace or extra diagnostic
+command and recovered a stable proxy. Therefore the trace did not locate the
+HID boundary. Do not retry 074 unchanged. Offline ticket 075 built a
+bootarg-gated automatic TX reporter into a new reproducible initramfs; its
+host gate/output tests and independent exact-artifact review pass. Proposed
+one-shot TX-only capture ticket 076 awaits explicit maintainer approval.
+Automatic reporter build audit:
+`done/2026-07-23-t6040-alpine-hid-trace-auto-reporter.md`. Trace build audit,
+procedure, and result:
+`done/2026-07-23-t6040-alpine-hid-state-trace-preflight.md` and
+`done/2026-07-23-t6040-alpine-hid-state-trace-result.md`.
+Replacement preflight:
+`done/2026-07-23-t6040-alpine-hid-trace-auto-preflight.md`.
+
+The resulting bootable-build plan separates cold boot from persistent storage.
+The B0 target is boot picker → raw-enrolled m1n1 object → self-contained Alpine
+RAM distro, with the tether observational only. Tickets 077–079 restore HID
+and produce the release-like distro; 080 audits the embedded-payload contract;
+081 prepares a tethered single-object autoboot; 082 prepares reversible
+enrollment/cold boot. The exact experiment and safety ladder is
+`docs/BOOTABLE_BUILD_EXPERIMENTS.md`. U-Boot/EFI and external USB root are B1
+and B2 respectively, not prerequisites for B0.
 
 ### ANS/NVMe map (2026-07-13, session 5)
 
@@ -551,7 +680,11 @@ writes `SYS_IMP_APL_CYC_OVRD` under `apple_sysregs_unlocked` — a no-op on
 this raw-boot machine (False, confirmed live), so the WFE park stays
 required here; the ticket-019 drafts should cite both commits. chadmed's DCP
 commits are 14.x-era firmware ABI infra (V14_7 ABI, FW 14.8.3, trace_dcp) —
-watch pointer recorded on ticket 022.
+watch pointer recorded on ticket 022. Follow-up through 2026-07-21: DCP now
+boots on that 14.8.3 work, HPD/brightness and much of the service stack operate,
+while surface clearing and GPU-dependent delivery remain incomplete. This is
+protocol/versioning groundwork only; it does not add the macOS 26.x ABI needed
+by J614s. See `done/2026-07-21-asahi-dev-log-review.md`.
 
 **Identity rewrite (2026-07-14, force-pushed).** All CJ-authored commits on
 the fork were rewritten with git-filter-repo: four author spellings collapsed

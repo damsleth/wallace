@@ -3,7 +3,7 @@
  * Bounded DockChannel-UART IRQ diagnostic.
  *
  * The base DT retains the proven 5 ms polling fallback. This variant removes
- * only that property, so the UART FIFO uses its ADT AIC IRQ 360 with the
+ * only that property, so the UART FIFO uses its measured AIC IRQ 816 with the
  * instance-specific TX/RX masks BIT(2)/BIT(1). MTP remains on BIT(2)/BIT(3).
  */
 

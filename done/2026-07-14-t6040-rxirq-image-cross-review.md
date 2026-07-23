@@ -1,5 +1,9 @@
 # Cross-review: ticket 001 RX BIT(1)/TX-poll diagnostic (PASS)
 
+> **Superseded routing note (2026-07-21):** this PASS certifies the historical
+> IRQ-360 artifact as reviewed, not as using the correct UART route. Later M4
+> Pro measurement found AIC input 816. Do not reuse this image.
+
 Reviewer: `fable` (ticket 043), 2026-07-14. Author: `claude`. Reviewed against
 `~/Code/m1n1/AGENTS.md` non-negotiables and the DEVLOG DockChannel MMIO
 caution, per AGENT_ONBOARDING §6 / COORDINATION §Cross-agent review. Every

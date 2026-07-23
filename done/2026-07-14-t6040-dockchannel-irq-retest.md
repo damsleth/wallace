@@ -1,5 +1,10 @@
 # T6040 DockChannel-UART RX BIT(1) IRQ retest
 
+> **Superseded routing note (2026-07-21):** this historical image used ADT
+> input 360. Bounded M4 Pro measurement later found the real UART interrupt at
+> AIC input 816. The observations below remain valid, but they did not test the
+> UART's AIC route. See `done/2026-07-21-asahi-dev-log-review.md`.
+
 Prepared and run once on 2026-07-14 with explicit approval for UART TX BIT(2)
 and RX BIT(1). The corrected mask did not restore host-to-target input: Linux
 reached BusyBox and TX remained healthy, but neither of two short host commands

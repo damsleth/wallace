@@ -1,0 +1,22 @@
+{
+  "seq": "071",
+  "slug": "alpine-hid-rx-rearm",
+  "needs": "rig",
+  "state": "done",
+  "track": "hid",
+  "priority": "P1",
+  "desc": "One-shot storage-disabled Alpine RAM-root validation of the current-kernel DockChannel RX re-arm correction. Exact m1n1 1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b, Image-hid-rx-rearm a6c2f09354bf1d61559b450f9430eb06d42f94d027d539c2deade708d708c4ff, DTB 2782b92237c35c8950212207391c3ae28c44b6b9c635b2e864c5748a77bb3cce, Alpine RAM-root fc473c67672cd1596fac133759ed1b3ba18c716f42a400e3cfab9d4ad59cbb9b, embedded config exactly matches ticket 067 (8e11399b...). Right USB stick disconnected, KIS left-back, maxcpus=1 idle=nop, no root=. Pass requires ttydc0 Alpine shell, 05ac:0359 input registration, /dev/input devices, operator local ALPINE_KBD_OK, empty partitions, responsive 10s. No modules/mount/network/probe. Stop on SError/reset/DART fault/storage or USB probe/lost console/no input; recover stable Running proxy. Preflight done/2026-07-23-t6040-alpine-hid-rx-rearm-preflight.md. Requires independent exact-hash cross-review and CJ approval.",
+  "author": "codex",
+  "deps": [
+    "069"
+  ],
+  "hashes": {
+    "image": "a6c2f09354bf1d61559b450f9430eb06d42f94d027d539c2deade708d708c4ff",
+    "dtb": "2782b92237c35c8950212207391c3ae28c44b6b9c635b2e864c5748a77bb3cce",
+    "initramfs": "fc473c67672cd1596fac133759ed1b3ba18c716f42a400e3cfab9d4ad59cbb9b"
+  },
+  "created": 1784821753,
+  "approved_by": "maintainer",
+  "approved_at": 1784826713,
+  "done_at": 1784826984
+}

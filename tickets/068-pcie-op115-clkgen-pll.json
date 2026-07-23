@@ -2,7 +2,7 @@
   "seq": "068",
   "slug": "pcie-op115-clkgen-pll",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "",
   "priority": "P1",
   "desc": "Read-only op-115 retest with the PCIe-PLL bring-up m1n1 omitted (ticket 058 decode). m1n1 e4671e08 adds the exact _configPciePLLs clkgen(reg[6]) sequence before PHY-IP: set32(clkgen+0x4,0x80000000); mask32(clkgen+0x0,0x7,0x1); poll clkgen+0x0 bit31 clear (PLL lock). ADT-derived base, offsets/values from the paired AppleT6040PCIe driver, no invented addresses. Existing op-115 read-only stop unchanged -> only new reg[3] access is the single read of 0x417040090 this measures. Preflight+hashes: done/2026-07-23-t6040-pcie-op115-clkgen-pll-preflight.md; decode: done/2026-07-21-t6040-pcie-op115-routefind.md. m1n1.bin 3e0c90af; PCIe-free DTB b3858f60; initramfs 512c69da. Needs: rig recovery first (NEEDS_RECOVERY), independent cross-review vs m1n1/AGENTS.md, CJ approval. Pass = 0x417040090 reads back instead of hanging. One boot; stop on SError/watchdog/nonzero L2C.",
@@ -11,5 +11,7 @@
     "058"
   ],
   "hashes": null,
-  "created": 1784813656
+  "created": 1784813656,
+  "approved_by": "maintainer",
+  "approved_at": 1784819112
 }

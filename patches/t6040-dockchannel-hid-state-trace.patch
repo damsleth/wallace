@@ -1,0 +1,441 @@
+--- a/drivers/mailbox/apple-dockchannel.c
++++ b/drivers/mailbox/apple-dockchannel.c
+@@ -10,6 +10,7 @@
+  * FIFO accesses themselves.
+  */
+ 
++#include <linux/atomic.h>
+ #include <linux/device.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+@@ -68,6 +69,54 @@
+ 	bool tx_active;
+ 
+ 	u8 rx_buf[APPLE_DOCKCHANNEL_FIFO_SIZE];
++
++	/* Observation-only state for the bounded T6040 HID trace image. */
++	atomic64_t trace_irq_calls;
++	atomic64_t trace_irq_wakes;
++	atomic64_t trace_rx_runs;
++	atomic64_t trace_rx_batches;
++	atomic64_t trace_rx_bytes;
++	u32 trace_last_flags;
++	u32 trace_last_pending;
++	u32 trace_last_mask;
++	u32 trace_last_rx_count;
++};
++
++static ssize_t dc_trace_show(struct device *dev,
++			     struct device_attribute *attr, char *buf)
++{
++	struct apple_dockchannel *dc = dev_get_drvdata(dev);
++	ssize_t len;
++
++	len = sysfs_emit(buf, "mode=%s irq=%d tx_mask=%#x rx_mask=%#x\n",
++			 dc->poll_mode ? "poll" : "irq", dc->irq,
++			 dc->irq_tx, dc->irq_rx);
++	len += sysfs_emit_at(buf, len,
++			     "irq_calls=%lld irq_wakes=%lld rx_runs=%lld\n",
++			     (long long)atomic64_read(&dc->trace_irq_calls),
++			     (long long)atomic64_read(&dc->trace_irq_wakes),
++			     (long long)atomic64_read(&dc->trace_rx_runs));
++	len += sysfs_emit_at(buf, len, "rx_batches=%lld rx_bytes=%lld\n",
++			     (long long)atomic64_read(&dc->trace_rx_batches),
++			     (long long)atomic64_read(&dc->trace_rx_bytes));
++	len += sysfs_emit_at(buf, len,
++			     "last_flags=%#x last_pending=%#x last_mask=%#x last_rx_count=%u\n",
++			     READ_ONCE(dc->trace_last_flags),
++			     READ_ONCE(dc->trace_last_pending),
++			     READ_ONCE(dc->trace_last_mask),
++			     READ_ONCE(dc->trace_last_rx_count));
++
++	return len;
++}
++static DEVICE_ATTR_RO(dc_trace);
++
++static struct attribute *apple_dockchannel_trace_attrs[] = {
++	&dev_attr_dc_trace.attr,
++	NULL,
++};
++
++static const struct attribute_group apple_dockchannel_trace_group = {
++	.attrs = apple_dockchannel_trace_attrs,
+ };
+ 
+ static void apple_dockchannel_irq_update(struct apple_dockchannel *dc,
+@@ -249,10 +298,14 @@
+ 	bool tx_done = false;
+ 
+ 	flags = readl_relaxed(dc->irq_base + IRQ_FLAG);
++	atomic64_inc(&dc->trace_irq_calls);
++	WRITE_ONCE(dc->trace_last_flags, flags);
+ 
+ 	spin_lock(&dc->lock);
+ 
+ 	pending = flags & dc->irq_mask & (dc->irq_tx | dc->irq_rx);
++	WRITE_ONCE(dc->trace_last_pending, pending);
++	WRITE_ONCE(dc->trace_last_mask, dc->irq_mask);
+ 	if (!pending)
+ 		goto out_unlock_none;
+ 
+@@ -273,8 +326,10 @@
+ 	if (tx_done)
+ 		mbox_chan_txdone(&dc->chan, 0);
+ 
+-	if (pending & dc->irq_rx)
++	if (pending & dc->irq_rx) {
++		atomic64_inc(&dc->trace_irq_wakes);
+ 		return IRQ_WAKE_THREAD;
++	}
+ 
+ 	if (pending)
+ 		return IRQ_HANDLED;
+@@ -295,15 +350,19 @@
+ {
+ 	struct apple_dockchannel *dc = data;
+ 
++	atomic64_inc(&dc->trace_rx_runs);
+ 	for (;;) {
+ 		struct apple_dockchannel_msg msg;
+ 		size_t avail;
+ 
+ 		avail = readl_relaxed(dc->data_base + DATA_RX_COUNT);
++		WRITE_ONCE(dc->trace_last_rx_count, avail);
+ 		if (!avail)
+ 			break;
+ 
+ 		avail = min_t(size_t, avail, APPLE_DOCKCHANNEL_FIFO_SIZE);
++		atomic64_inc(&dc->trace_rx_batches);
++		atomic64_add(avail, &dc->trace_rx_bytes);
+ 
+ 		apple_dockchannel_read(dc, dc->rx_buf, avail);
+ 
+@@ -332,15 +391,19 @@
+ 	if (tx_done)
+ 		mbox_chan_txdone(&dc->chan, 0);
+ 
++	atomic64_inc(&dc->trace_rx_runs);
+ 	for (;;) {
+ 		struct apple_dockchannel_msg msg;
+ 		size_t avail;
+ 
+ 		avail = readl_relaxed(dc->data_base + DATA_RX_COUNT);
++		WRITE_ONCE(dc->trace_last_rx_count, avail);
+ 		if (!avail)
+ 			break;
+ 
+ 		avail = min_t(size_t, avail, APPLE_DOCKCHANNEL_FIFO_SIZE);
++		atomic64_inc(&dc->trace_rx_batches);
++		atomic64_add(avail, &dc->trace_rx_bytes);
+ 
+ 		apple_dockchannel_read(dc, dc->rx_buf, avail);
+ 
+@@ -434,6 +497,10 @@
+ 	if (ret)
+ 		return dev_err_probe(dev, ret, "failed to register mailbox\n");
+ 
++	ret = devm_device_add_group(dev, &apple_dockchannel_trace_group);
++	if (ret)
++		dev_warn(dev, "failed to add observation trace: %d\n", ret);
++
+ 	return 0;
+ }
+ 
+--- a/drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c
++++ b/drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c
+@@ -5,7 +5,9 @@
+  * Copyright The Asahi Linux Contributors
+  */
+ 
++#include <linux/atomic.h>
+ #include <linux/bitfield.h>
++#include <linux/bitops.h>
+ #include <linux/completion.h>
+ #include <linux/ctype.h>
+ #include <linux/delay.h>
+@@ -181,6 +183,86 @@
+ 	struct dchid_iface *ifaces[MAX_INTERFACES];
+ 
+ 	struct workqueue_struct *new_iface_wq;
++
++	/* Observation-only state for the bounded T6040 HID trace image. */
++	atomic64_t trace_rx_callbacks;
++	atomic64_t trace_rx_bytes;
++	atomic64_t trace_packets;
++	atomic64_t trace_cmd_packets;
++	atomic64_t trace_report_packets;
++	atomic64_t trace_acks;
++	atomic64_t trace_ack_matches;
++	atomic64_t trace_events;
++	unsigned long trace_init_seen;
++	unsigned long trace_ready_seen;
++	unsigned long trace_create_queued;
++	unsigned long trace_create_ok;
++	unsigned long trace_deferred;
++	u8 trace_last_channel;
++	u8 trace_last_iface;
++	u8 trace_last_seq;
++	u8 trace_last_event;
++	u8 trace_last_ack_report;
++	u32 trace_last_ack_retcode;
++	int trace_stm_id_ret;
++	int trace_stm_serial_ret;
++};
++
++static ssize_t hid_trace_show(struct device *dev,
++			      struct device_attribute *attr, char *buf)
++{
++	struct dchid_dev *dchid = dev_get_drvdata(dev);
++	ssize_t len;
++
++	len = sysfs_emit(buf, "rx_callbacks=%lld rx_bytes=%lld packets=%lld\n",
++			 (long long)atomic64_read(&dchid->trace_rx_callbacks),
++			 (long long)atomic64_read(&dchid->trace_rx_bytes),
++			 (long long)atomic64_read(&dchid->trace_packets));
++	len += sysfs_emit_at(buf, len,
++			     "cmd_packets=%lld report_packets=%lld acks=%lld ack_matches=%lld events=%lld\n",
++			     (long long)atomic64_read(&dchid->trace_cmd_packets),
++			     (long long)atomic64_read(&dchid->trace_report_packets),
++			     (long long)atomic64_read(&dchid->trace_acks),
++			     (long long)atomic64_read(&dchid->trace_ack_matches),
++			     (long long)atomic64_read(&dchid->trace_events));
++	len += sysfs_emit_at(buf, len,
++			     "last_channel=%#x last_iface=%u last_seq=%u last_event=%#x\n",
++			     READ_ONCE(dchid->trace_last_channel),
++			     READ_ONCE(dchid->trace_last_iface),
++			     READ_ONCE(dchid->trace_last_seq),
++			     READ_ONCE(dchid->trace_last_event));
++	len += sysfs_emit_at(buf, len,
++			     "last_ack_report=%#x last_ack_retcode=%#x rx_buffered=%zu\n",
++			     READ_ONCE(dchid->trace_last_ack_report),
++			     READ_ONCE(dchid->trace_last_ack_retcode),
++			     READ_ONCE(dchid->rx_len));
++	len += sysfs_emit_at(buf, len,
++			     "init_seen=%#lx ready_seen=%#lx create_queued=%#lx create_ok=%#lx deferred=%#lx\n",
++			     READ_ONCE(dchid->trace_init_seen),
++			     READ_ONCE(dchid->trace_ready_seen),
++			     READ_ONCE(dchid->trace_create_queued),
++			     READ_ONCE(dchid->trace_create_ok),
++			     READ_ONCE(dchid->trace_deferred));
++	len += sysfs_emit_at(buf, len,
++			     "stm_id_ret=%d stm_serial_ret=%d id_ready=%u id=%#x:%#x:%#x\n",
++			     READ_ONCE(dchid->trace_stm_id_ret),
++			     READ_ONCE(dchid->trace_stm_serial_ret),
++			     READ_ONCE(dchid->id_ready),
++			     le16_to_cpu(dchid->device_id.vendor_id),
++			     le16_to_cpu(dchid->device_id.product_id),
++			     le16_to_cpu(dchid->device_id.version_number));
++
++	return len;
++}
++static DEVICE_ATTR_RO(hid_trace);
++
++static struct attribute *dchid_trace_attrs[] = {
++	&dev_attr_hid_trace.attr,
++	NULL,
++};
++
++static const struct attribute_group dchid_trace_group = {
++	.attrs = dchid_trace_attrs,
+ };
+ 
+ static void dchid_destroy_wq(void *data)
+@@ -673,6 +755,7 @@
+ 	struct dchid_dev *dchid = iface->dchid;
+ 	struct hid_device *hid;
+ 	char cap_name[16];
++	int trace_ret = -EALREADY;
+ 	int ret;
+ 
+ 	if (iface->hid) {
+@@ -681,6 +764,7 @@
+ 	}
+ 
+ 	ret = dchid_enable_interface(iface);
++	trace_ret = ret;
+ 	if (ret < 0) {
+ 		dev_warn(dchid->dev, "failed to enable %s: %d\n", iface->name, ret);
+ 		goto done;
+@@ -689,8 +773,10 @@
+ 	iface->deferred = false;
+ 
+ 	hid = hid_allocate_device();
+-	if (IS_ERR(hid))
++	if (IS_ERR(hid)) {
++		trace_ret = PTR_ERR(hid);
+ 		goto done;
++	}
+ 
+ 	strscpy(cap_name, iface->name, sizeof(cap_name));
+ 	if (cap_name[0])
+@@ -712,14 +798,22 @@
+ 	iface->hid = hid;
+ 
+ 	ret = hid_add_device(hid);
++	trace_ret = ret;
+ 	if (ret < 0) {
+ 		iface->hid = NULL;
+ 		hid_destroy_device(hid);
+ 		dev_warn(iface->dchid->dev, "failed to register HID device %s\n",
+ 			 iface->name);
++	} else {
++		set_bit(iface->index, &dchid->trace_create_ok);
+ 	}
+ 
+ done:
++	dev_info(dchid->dev,
++		 "HIDTRACE create iface=%d name=%s ret=%d vendor=%#x product=%#x\n",
++		 iface->index, iface->name, trace_ret,
++		 le16_to_cpu(dchid->device_id.vendor_id),
++		 le16_to_cpu(dchid->device_id.product_id));
+ 	iface->creating = false;
+ }
+ 
+@@ -729,6 +823,7 @@
+ 		return -EBUSY;
+ 
+ 	iface->creating = true;
++	set_bit(iface->index, &iface->dchid->trace_create_queued);
+ 	INIT_WORK(&iface->create_work, dchid_create_interface_work);
+ 	return queue_work(iface->dchid->new_iface_wq, &iface->create_work);
+ }
+@@ -765,21 +860,33 @@
+ 		return;
+ 
+ 	dev_dbg(dchid->dev, "interface %s is now ready\n", iface->name);
++	set_bit(index, &dchid->trace_ready_seen);
++	dev_info(dchid->dev, "HIDTRACE ready iface=%u name=%s\n",
++		 index, iface->name);
+ 	iface->starting = false;
+ 	complete_all(&iface->ready);
+ 
+ 	if (!strcmp(iface->name, "stm")) {
+ 		ret = dchid_get_report_cmd(iface, STM_REPORT_ID, &dchid->device_id,
+ 					   sizeof(dchid->device_id));
++		WRITE_ONCE(dchid->trace_stm_id_ret, ret);
+ 		if (ret < (int)sizeof(dchid->device_id))
+ 			memset(&dchid->device_id, 0, sizeof(dchid->device_id));
+ 
+ 		ret = dchid_get_report_cmd(iface, STM_REPORT_SERIAL, dchid->serial,
+ 					   sizeof(dchid->serial) - 1);
++		WRITE_ONCE(dchid->trace_stm_serial_ret, ret);
+ 		if (ret < 0)
+ 			dchid->serial[0] = 0;
+ 
+ 		dchid->id_ready = true;
++		dev_info(dchid->dev,
++			 "HIDTRACE stm id_ret=%d serial_ret=%d id=%#x:%#x:%#x\n",
++			 READ_ONCE(dchid->trace_stm_id_ret),
++			 READ_ONCE(dchid->trace_stm_serial_ret),
++			 le16_to_cpu(dchid->device_id.vendor_id),
++			 le16_to_cpu(dchid->device_id.product_id),
++			 le16_to_cpu(dchid->device_id.version_number));
+ 		for (i = 0; i < MAX_INTERFACES; i++) {
+ 			if (!dchid->ifaces[i] || !dchid->ifaces[i]->deferred)
+ 				continue;
+@@ -802,6 +909,12 @@
+ 	if (!iface)
+ 		return;
+ 
++	set_bit(hdr->iface, &dchid->trace_init_seen);
++	dev_info(dchid->dev,
++		 "HIDTRACE init iface=%u name=%.*s more=%u length=%zu\n",
++		 hdr->iface, (int)sizeof(hdr->name), hdr->name,
++		 hdr->more_packets, length);
++
+ 	p += sizeof(*hdr);
+ 	length -= sizeof(*hdr);
+ 
+@@ -837,10 +950,12 @@
+ 	if (hdr->more_packets)
+ 		return;
+ 
+-	if (iface->dchid->id_ready || !strcmp(iface->name, "stm"))
++	if (iface->dchid->id_ready || !strcmp(iface->name, "stm")) {
+ 		dchid_create_interface(iface);
+-	else
++	} else {
+ 		iface->deferred = true;
++		set_bit(iface->index, &dchid->trace_deferred);
++	}
+ }
+ 
+ static void dchid_handle_event(struct dchid_dev *dchid, void *data, size_t length)
+@@ -850,6 +965,10 @@
+ 	if (!length)
+ 		return;
+ 
++	atomic64_inc(&dchid->trace_events);
++	WRITE_ONCE(dchid->trace_last_event, *p);
++	dev_info(dchid->dev, "HIDTRACE event=%#x length=%zu\n", *p, length);
++
+ 	switch (*p) {
+ 	case EVENT_INIT:
+ 		dchid_handle_init(dchid, data, length);
+@@ -919,6 +1038,11 @@
+ 	    sub_len < 1)
+ 		return;
+ 
++	atomic64_inc(&iface->dchid->trace_acks);
++	WRITE_ONCE(iface->dchid->trace_last_ack_report, payload[0]);
++	WRITE_ONCE(iface->dchid->trace_last_ack_retcode,
++		   le32_to_cpu(shdr->retcode));
++
+ 	spin_lock_irqsave(&iface->out_lock, flags);
+ 
+ 	if (shdr->flags == iface->out_flags && iface->tx_seq == hdr->seq &&
+@@ -930,6 +1054,7 @@
+ 		iface->resp_size = sub_len;
+ 		iface->out_report = -1;
+ 		iface->retcode = le32_to_cpu(shdr->retcode);
++		atomic64_inc(&iface->dchid->trace_ack_matches);
+ 		complete_cmd = true;
+ 	}
+ 
+@@ -953,10 +1078,16 @@
+ 	if (payload_len < sizeof(struct dchid_subhdr))
+ 		return;
+ 
++	atomic64_inc(&dchid->trace_packets);
++	WRITE_ONCE(dchid->trace_last_channel, hdr->channel);
++	WRITE_ONCE(dchid->trace_last_iface, hdr->iface);
++	WRITE_ONCE(dchid->trace_last_seq, hdr->seq);
++
+ 	if (hdr->iface >= MAX_INTERFACES || !dchid->ifaces[hdr->iface])
+ 		return;
+ 
+ 	if (hdr->channel == DCHID_CHANNEL_CMD) {
++		atomic64_inc(&dchid->trace_cmd_packets);
+ 		dchid_handle_ack(dchid->ifaces[hdr->iface], hdr, payload);
+ 		return;
+ 	}
+@@ -964,6 +1095,8 @@
+ 	if (hdr->channel != DCHID_CHANNEL_REPORT)
+ 		return;
+ 
++	atomic64_inc(&dchid->trace_report_packets);
++
+ 	work = kzalloc(sizeof(*work) + payload_len, GFP_ATOMIC);
+ 	if (!work)
+ 		return;
+@@ -1018,6 +1151,9 @@
+ 	if (!msg || !msg->data || !msg->len)
+ 		return;
+ 
++	atomic64_inc(&dchid->trace_rx_callbacks);
++	atomic64_add(msg->len, &dchid->trace_rx_bytes);
++
+ 	if (msg->len > DCHID_RX_BUF_SIZE - dchid->rx_len) {
+ 		dev_err_ratelimited(dchid->dev, "RX buffer overflow\n");
+ 		dchid->rx_len = 0;
+@@ -1157,6 +1293,10 @@
+ 	if (!dchid->comm)
+ 		return dev_err_probe(dev, -EIO, "failed to init comm interface\n");
+ 
++	ret = devm_device_add_group(dev, &dchid_trace_group);
++	if (ret)
++		dev_warn(dev, "failed to add observation trace: %d\n", ret);
++
+ 	return 0;
+ }
+ 

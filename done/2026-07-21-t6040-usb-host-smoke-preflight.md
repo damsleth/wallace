@@ -10,8 +10,8 @@ initramfs diagnostic shell after reporting USB and block enumeration.
 |---|---|
 | `linux-build-out/m1n1-t6040-logbuf-upper-guard-dryrun.bin` | `1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b` |
 | `linux-build-out/Image-usb-host` | `6f0daf57baf942d6e1f43d8efa2ebd4160e976c02ccfaad232dd42e918eb7482` |
-| `linux-build-out/t6040-j614s-dcuart-usb-host-left-front.dtb` | `49851557db17448a72fbc99d4274a6688bf1cd2a82a04a4f1ac1756f545212d5` |
-| `linux-build-out/t6040-j614s-dcuart-usb-host-right.dtb` | `429440823f833273a44ab7528cf05c1e782d16f2cc21b532a2308c77e1d6f2d7` |
+| `linux-build-out/t6040-j614s-dcuart-usb-host-left-front.dtb` | `6e6f6bfa4eee896211516ac04e242f96fc650410900b8641fc5bcee443a2d430` |
+| `linux-build-out/t6040-j614s-dcuart-usb-host-right.dtb` | `9bee944b8bb0d6d7ab541962ea2edc9a57c4069fedcd6c32db21e3b824a43759` |
 | `linux-build-out/initramfs-usb-root.cpio.gz` | `8b9b80c4eaad07aa0efa578a827f9d0766be81e9a4aed2650e748b1fc65993c8` |
 | `linux-build-out/config-usb-host` | `8e11399b172035f7d88c0915ccfbf1bb277eb16097462336c4158b54d8d6bc80` |
 
@@ -37,6 +37,9 @@ diff hashes to
   NVMe is modular in the config and cannot probe without an enabled DT node.
 - No SPMI, PMU, charger, or NVRAM access is introduced. The only new live path
   is the audited USB/DART/power-domain path represented by the DT.
+- Both DTBs carry measured DockChannel-UART AIC input 816 instead of the ADT's
+  false 360. The node retains `apple,poll-mode`, so the smoke test still does
+  not request or exercise the interrupt.
 - The initramfs has no `root=` in this run. Its smoke branch only reads sysfs,
   `/proc/partitions`, and `dmesg`, then starts a shell. It never invokes
   `mount` for any block device.
@@ -58,7 +61,7 @@ After a second-agent review and CJ approval of the resulting rig ticket:
 ```sh
 scripts/rig-lease.sh acquire codex "USB2 host smoke, no root mount" 1394c345
 RIG_AGENT=codex bash scripts/t6040-debugusb-console.sh reboot
-USB_HOST_DTB=t6040-j614s-dcuart-usb-host-CHOSEN.dtb
+USB_HOST_DTB=t6040-j614s-dcuart-usb-host-right.dtb
 RIG_AGENT=codex \
 M1N1_BIN=/Users/damsleth/Code/linux-build-out/m1n1-t6040-logbuf-upper-guard-dryrun.bin \
 M1N1DEVICE=/tmp/m1n1 IMAGE=Image-usb-host BOOT_WAIT=45 \
@@ -90,3 +93,7 @@ pinning exactly one before CJ approval.** The focused independent review
 verified the decompiled DTBs, both six-file manifests, raw ADT mapping,
 initramfs behavior, and disabled NVMe/SART/unused-USB paths. Full result:
 `done/2026-07-21-t6040-usb-host-smoke-crossreview.md`.
+
+**Selected 2026-07-21:** the external drive is attached to the right-side port,
+so only the right/`usb-drd2` DTB above is eligible. Rig ticket 063 pins that
+exact set and is awaiting CJ approval.
