@@ -693,7 +693,10 @@ namespace. Prior exact output:
 ## Parked (revisit after pmgr)
 - USB gadget console → gadget-Ethernet + SSH (EP0 dies post-enumeration;
   `done/2026-07-11-t6040-usb-gadget-plan.md`).
-- cpufreq throttle offsets (t6030 offsets SError on t6040 P-clusters; needs RE
-  or #asahi-dev answer).
+- cpufreq throttle parity (non-blocking): paired T6041 PMGR analysis recovered
+  no safe direct offsets and found target-specific no-op enum slots plus
+  RegMap-mediated generic paths. Keep the proven PSTATE/APSC-only table; do not
+  probe neighboring offsets. See
+  `done/2026-07-23-t6040-cpufreq-throttle-analysis.md`.
 - ATC PHY tunables (USB3/TB) — blocked on t6040 PHY reg-bucket offsets;
   USB2-only fallback is fine for now.

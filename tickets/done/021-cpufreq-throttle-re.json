@@ -1,0 +1,20 @@
+{
+  "seq": "021",
+  "slug": "cpufreq-throttle-re",
+  "needs": "offline",
+  "state": "done",
+  "track": "cpufreq",
+  "priority": "P2",
+  "desc": "RE the T6040 P-cluster throttle offsets (t6030 offsets SError); static analysis or an #asahi-dev question",
+  "author": "claude",
+  "deps": [],
+  "hashes": {
+    "analysis": "2a38661bbfe1e70fd3e4c45f36597b213c8e5590f2164279a51cc70dd74c685d",
+    "captured_adt": "7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84",
+    "apple_pmgr": "83b9b20e43a01510905dd05375b5df411390a239b1d1eea30ad243533db7cec4",
+    "apple_t6041_pmgr": "75890af83a64f8d9701c8026d38afa8069a2c9bcb0ec40813e445a950e90eb72",
+    "apple_t6041_clpc": "5edf524cb6d260b2a158db5106b6b84af806d7ed78fac7c9e9800f29c5677f81"
+  },
+  "created": 1784039024,
+  "done_at": 1784839747
+}

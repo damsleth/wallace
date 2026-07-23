@@ -148,9 +148,14 @@ carry forward as small residuals; neither blocks Stage B.)
 M3 template (commits 83364d0→5393f41) replayed on T6040. Weeks. All of it is
 doable solo with the proxy + ADT dumps; this is the highest-leverage local work.*
 
-1. ✅ **cpufreq** (`src/cpufreq.c`) — **DONE (minimal) 2026-07-10.** T6040 reuses
-   `t6031_clusters`; pstate/APSC working. Throttle features deferred (t6030 offsets
-   SError on T6040 P-clusters → need RE). See `2026-07-10-t6040-cpufreq-plan.md`.
+1. ✅ **cpufreq** (`src/cpufreq.c`) — **DONE (minimal) 2026-07-10; throttle
+   residual bounded 2026-07-23.** T6040 reuses `t6031_clusters`; pstate/APSC
+   works. T6030 throttle offsets SError on T6040 P-clusters. Paired
+   `AppleT6041PMGR` analysis recovered no safe replacement and shows a
+   target-specific generic-throttler override plus RegMap-mediated paths.
+   Keep throttles omitted; they are not required for Linux DVFS. See
+   `2026-07-10-t6040-cpufreq-plan.md` and
+   `2026-07-23-t6040-cpufreq-throttle-analysis.md`.
 2. ✅ **MCC** (`src/mcc.c`) — **Phases 1+2 DONE (2026-07-10); residual
    bounded 2026-07-23.** `mcc_init_t6041()`
    added: t6031 reuse mis-parsed the ADT (AMCCs at `reg[12..15]` per `amcc-reg-idx`/

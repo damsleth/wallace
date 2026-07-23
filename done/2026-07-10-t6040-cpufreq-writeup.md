@@ -37,11 +37,18 @@ My conservative patch therefore:
 - performs no T6040 misc/throttle write, including the unverified `+0x440f8`
   write used by T6030.
 
-Does anyone have the T6040/M4 ppt/llc/amx throttle map, or a pointer to the
-macOS code which programs it? I can send this pstate/APSC-only patch now and
-leave the throttle features for a follow-up. I will not probe additional
-offsets on the machine because these failures are asynchronous SErrors rather
-than guardable aborts.
+I also checked the paired 25F84 `ApplePMGR`, `AppleT6041PMGR`, and
+`AppleT6041CLPC`. The target PMGR overrides the generic throttler entry points
+and no-ops enum slots 1, 11, and 12 (`0x1802` mask); the generic paths use
+resolved RegMap metadata. None of the old direct offsets appears as a 32-bit
+literal. The slots are not proven to correspond one-to-one to m1n1's feature
+names, but this makes an adjacent-offset guess even less defensible.
+
+Does anyone have the T6040/M4 ppt/llc/amx throttle contract, or context for
+those T6041 PMGR overrides? I can send this pstate/APSC-only patch now and leave
+throttle parity for a follow-up. I will not probe additional offsets on the
+machine because these failures are asynchronous SErrors rather than guardable
+aborts.
 
 ## Maintainer notes and evidence
 
@@ -54,6 +61,8 @@ than guardable aborts.
   `done/2026-07-10-t6040-cpufreq-plan.md`.
 - Linux DT/OPP audit, including the decoded J614s DVFM tables:
   `done/2026-07-23-t6040-cpufreq-dt-preflight.md`.
+- Paired PMGR/CLPC static analysis:
+  `done/2026-07-23-t6040-cpufreq-throttle-analysis.md`.
 - The later Linux DT work does not change the m1n1 safety conclusion: hardware
   owns voltage selection, while unknown throttle offsets remain untouched.
 

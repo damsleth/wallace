@@ -714,6 +714,23 @@ Future series work should use a bounds-checked ADT region-id-2/4 unmap fallback
 or finish static iBoot reconstruction. No blind AMCC probing. Evidence:
 `done/2026-07-23-t6040-mcc-carveout-analysis.md`.
 
+### Cpufreq throttle residual bounded statically (2026-07-23)
+
+Offline ticket 021 audited the paired 25F84 `ApplePMGR`,
+`AppleT6041PMGR`, `AppleT6041CLPC`, and captured J614s ADT. The ADT exposes
+`ppt-thrtl`, `llc-thrtl`, and `amx-thrtl` only as booleans. It supplies no
+per-cluster offsets. The target PMGR overrides both generic throttler entry
+points and returns early for enum slots 1, 11, and 12 (`0x1802` mask); remaining
+generic paths use resolved RegMap metadata. The old `0x40250`, `0x40270`,
+`0x48400`, `0x48408`, and `0x440f8` constants are absent as 32-bit literals
+from all three executables.
+
+This does not map the enum slots one-to-one to m1n1 feature names and is not a
+replacement register contract. It does close the bring-up decision: retain
+the validated `+0x20020` PSTATE/APSC-only T6040 path and do not probe adjacent
+P-cluster offsets. Throttle parity is non-blocking. Evidence:
+`done/2026-07-23-t6040-cpufreq-throttle-analysis.md`.
+
 **Identity rewrite (2026-07-14, force-pushed).** All CJ-authored commits on
 the fork were rewritten with git-filter-repo: four author spellings collapsed
 to `CJ Damsleth <kim@damsleth.no>`, `Co-Authored-By: Claude` trailers
