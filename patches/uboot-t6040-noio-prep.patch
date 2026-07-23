@@ -1,0 +1,216 @@
+From: CJ Damsleth <kim@damsleth.no>
+Subject: [PATCH] apple: add a no-MMIO T6040 first-light target
+
+The Apple target currently selects every supported bus and requires a static
+SoC I/O map. T6040 has neither an upstream U-Boot map nor reviewed support for
+those drivers, so the generic target panics before it can display anything and
+would otherwise expose unrelated MMIO-backed drivers.
+
+Add an APPLE_NOIO bring-up mode which keeps only the architecture core,
+m1n1-provided RAM, simple framebuffer and EFI loader. The T6040 map contains
+no invented I/O windows: build_mem_map() fills its RAM and framebuffer entries
+from the runtime-fixed device tree.
+
+Make the board's NVMe-specific environment helpers optional and add a
+no-autoboot defconfig. This target is only a first-light preparation; storage,
+USB, PCIe, input and watchdog support remain disabled.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ arch/arm/Kconfig                         | 40 ++++++++++++-------------
+ arch/arm/mach-apple/Kconfig              |  8 +++++
+ arch/arm/mach-apple/board.c              | 33 +++++++++++++++++++++
+ configs/apple_t6040_noio_defconfig       | 28 +++++++++++++++++
+ 4 files changed, 89 insertions(+), 20 deletions(-)
+ create mode 100644 configs/apple_t6040_noio_defconfig
+
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 625d2e99..535c2ead 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1040,34 +1040,34 @@ config ARCH_APPLE
+ 	bool "Apple SoCs"
+ 	select ARM64
+ 	select CLK
+-	select CMD_PCI
+-	select CMD_USB
++	select CMD_PCI if !APPLE_NOIO
++	select CMD_USB if !APPLE_NOIO
+ 	select DM
+-	select DM_GPIO
+-	select DM_KEYBOARD
+-	select DM_MAILBOX
+-	select DM_RESET
++	select DM_GPIO if !APPLE_NOIO
++	select DM_KEYBOARD if !APPLE_NOIO
++	select DM_MAILBOX if !APPLE_NOIO
++	select DM_RESET if !APPLE_NOIO
+ 	select DM_SERIAL
+-	select DM_SPI
+-	select DM_USB
++	select DM_SPI if !APPLE_NOIO
++	select DM_USB if !APPLE_NOIO
+ 	select VIDEO
+-	select IOMMU
++	select IOMMU if !APPLE_NOIO
+ 	select LINUX_KERNEL_IMAGE_HEADER
+-	select MTD
++	select MTD if !APPLE_NOIO
+ 	select OF_BOARD_SETUP
+ 	select OF_CONTROL
+-	select PCI
+-	select PHY
+-	select PINCTRL
++	select PCI if !APPLE_NOIO
++	select PHY if !APPLE_NOIO
++	select PINCTRL if !APPLE_NOIO
+ 	select POSITION_INDEPENDENT
+-	select POWER_DOMAIN
+-	select REGMAP
+-	select SPI
+-	select SYSCON
++	select POWER_DOMAIN if !APPLE_NOIO
++	select REGMAP if !APPLE_NOIO
++	select SPI if !APPLE_NOIO
++	select SYSCON if !APPLE_NOIO
+ 	select SYSRESET
+-	select SYSRESET_WATCHDOG
+-	select SYSRESET_WATCHDOG_AUTO
+-	select USB
++	select SYSRESET_WATCHDOG if !APPLE_NOIO
++	select SYSRESET_WATCHDOG_AUTO if !APPLE_NOIO
++	select USB if !APPLE_NOIO
+ 	imply CMD_DM
+ 	imply CMD_GPT
+ 	imply BOOTSTD_FULL
+diff --git a/arch/arm/mach-apple/Kconfig b/arch/arm/mach-apple/Kconfig
+index 294690ec..999cfe3c 100644
+--- a/arch/arm/mach-apple/Kconfig
++++ b/arch/arm/mach-apple/Kconfig
+@@ -1,5 +1,13 @@
+ if ARCH_APPLE
+ 
++config APPLE_NOIO
++	bool "Build the Apple target without MMIO-backed devices"
++	select BLK
++	help
++	  Build only the architecture core, prior-stage device tree, RAM, and
++	  simple framebuffer path. This is intended for first-light bring-up on
++	  a new Apple SoC before its MMIO windows and device drivers are safe.
++
+ config TEXT_BASE
+ 	default 0x00000000
+ 
+diff --git a/arch/arm/mach-apple/board.c b/arch/arm/mach-apple/board.c
+index 2298f172..636abe66 100644
+--- a/arch/arm/mach-apple/board.c
++++ b/arch/arm/mach-apple/board.c
+@@ -675,6 +675,27 @@ static struct mm_region t6022_mem_map[] = {
+ 	}
+ };
+ 
++/*
++ * T6040 bring-up map. Keep the first U-Boot proof deliberately free of MMIO:
++ * m1n1 supplies the runtime RAM and framebuffer ranges below. Device mappings
++ * belong in a follow-up only after their SoC windows and drivers are reviewed.
++ */
++static struct mm_region t6040_noio_mem_map[] = {
++	{
++		/* RAM, filled from the m1n1-fixed DT */
++		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
++			 PTE_BLOCK_INNER_SHARE
++	}, {
++		/* Framebuffer, filled from /chosen/framebuffer */
++		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL_NC) |
++			 PTE_BLOCK_INNER_SHARE |
++			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
++	}, {
++		/* List terminator */
++		0,
++	}
++};
++
+ struct mm_region *mem_map;
+ 
+ int board_init(void)
+@@ -722,6 +743,8 @@ void build_mem_map(void)
+ 		mem_map = t6020_mem_map;
+ 	else if (of_machine_is_compatible("apple,t6022"))
+ 		mem_map = t6022_mem_map;
++	else if (of_machine_is_compatible("apple,t6040"))
++		mem_map = t6040_noio_mem_map;
+ 	else
+ 		panic("Unsupported SoC\n");
+ 
+@@ -775,6 +798,7 @@ u64 get_page_table_size(void)
+ 
+ static char *asahi_esp_devpart(void)
+ {
++#if CONFIG_IS_ENABLED(NVME)
+ 	struct disk_partition info;
+ 	struct blk_desc *nvme_blk;
+ 	const char *uuid = NULL;
+@@ -829,11 +853,18 @@ static char *asahi_esp_devpart(void)
+ 	}
+ 
+ 	return devpart;
++#else
++	return "";
++#endif
+ }
+ 
+ const char *env_fat_get_intf(void)
+ {
++#if CONFIG_IS_ENABLED(NVME)
+ 	return blk_get_uclass_name(UCLASS_NVME);
++#else
++	return "";
++#endif
+ }
+ 
+ char *env_fat_get_dev_part(void)
+@@ -850,8 +881,10 @@ int board_late_init(void)
+ 	u32 status = 0;
+ 	phys_addr_t addr;
+ 
++#if CONFIG_IS_ENABLED(NVME)
+ 	env_set("storage_interface", blk_get_uclass_name(UCLASS_NVME));
+ 	env_set("fw_dev_part", asahi_esp_devpart());
++#endif
+ 
+ 	/* somewhat based on the Linux Kernel boot requirements:
+ 	 * align by 2M and maximal FDT size 2M
+diff --git a/configs/apple_t6040_noio_defconfig b/configs/apple_t6040_noio_defconfig
+new file mode 100644
+index 00000000..a6a8f7df
+--- /dev/null
++++ b/configs/apple_t6040_noio_defconfig
+@@ -0,0 +1,28 @@
++CONFIG_ARM=y
++CONFIG_MISC=y
++CONFIG_ARCH_APPLE=y
++CONFIG_APPLE_NOIO=y
++CONFIG_DEFAULT_DEVICE_TREE="t8103-j274"
++CONFIG_SYS_BOOTM_LEN=0x800000
++CONFIG_SYS_LOAD_ADDR=0x0
++CONFIG_BOOTDELAY=-1
++CONFIG_BOOTCOMMAND=""
++CONFIG_EFI_LOADER=y
++CONFIG_CMD_BOOTEFI=y
++CONFIG_CMD_BOOTEFI_HELLO=y
++CONFIG_USE_PREBOOT=y
++CONFIG_SYS_CBSIZE=256
++CONFIG_SYS_PBSIZE=276
++# CONFIG_DISPLAY_CPUINFO is not set
++CONFIG_DISPLAY_BOARDINFO_LATE=y
++CONFIG_BOARD_LATE_INIT=y
++CONFIG_CMD_SELECT_FONT=y
++CONFIG_NO_NET=y
++CONFIG_SYS_64BIT_LBA=y
++# CONFIG_MMC is not set
++# CONFIG_S5P_SERIAL is not set
++CONFIG_VIDEO_FONT_16X32=y
++CONFIG_SYS_WHITE_ON_BLACK=y
++CONFIG_NO_FB_CLEAR=y
++CONFIG_VIDEO_SIMPLE=y
++# CONFIG_SMBIOS is not set

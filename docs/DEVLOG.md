@@ -412,6 +412,16 @@ enrollment/cold boot. The exact experiment and safety ladder is
 `done/2026-07-23-t6040-raw-boot-object-layout.md`. U-Boot/EFI and external USB
 root are B1 and B2 respectively, not prerequisites for B0.
 
+Ticket 025 prepared B1 without weakening that ordering. Upstream U-Boot
+`8aa706b2` builds, but its normal Apple target has no T6040 memory map, panics
+on the compatible, then would scan PCIe/NVMe/USB and autostart watchdog-backed
+reset support. The draft `APPLE_NOIO` target instead maps only runtime
+DT-derived RAM/framebuffer, stops at the prompt, and embeds EFI hello. Two
+clean builds match. Raw U-Boot must be padded from its stored file length to
+the ARM64 Image header's runtime size because m1n1 copies that full span for a
+last raw payload. Full hashes and draft:
+`done/2026-07-23-t6040-uboot-noio-prep.md`.
+
 ### ANS/NVMe map (2026-07-13, session 5)
 
 Read-only live ADT inspection established the T6040 storage layout. The ADT

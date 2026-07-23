@@ -400,8 +400,10 @@ GPU/WiFi (USB ethernet).
   076–082 and `docs/BOOTABLE_BUILD_EXPERIMENTS.md` define the evidence-gated
   sequence.
 - **B1, standard boot flow:** after B0, make U-Boot/EFI work and move toward
-  GRUB/systemd-boot or a unified kernel image. Ticket 025 owns this; ticket
-  080 confirmed U-Boot is not required for B0.
+  GRUB/systemd-boot or a unified kernel image. Ticket 025's offline prep now
+  provides a reproducible no-MMIO T6040 U-Boot/EFI-hello target; any live proof
+  remains a separate post-B0 review/approval. Ticket 080 confirmed U-Boot is
+  not required for B0.
 - **B2, persistent distro:** use external USB root after the HPM/ATC physical
   link enumerates a device; internal NVMe stays a later SPTM integration goal.
 - **asahi-installer:** its current second stage already invokes
@@ -410,8 +412,10 @@ GPU/WiFi (USB ethernet).
   atomically across install/repair/upgrade, and support 26.x AEA plus moved
   firmware layouts. Requirements:
   `done/2026-07-23-t6040-asahi-installer-requirements.md`.
-- **U-Boot:** T6040 support (usually near-free once m1n1's FDT + dwc3 are right)
-  → standard EFI boot flow → GRUB/systemd-boot.
+- **U-Boot:** no-MMIO T6040 framebuffer/EFI-hello draft is prepared and
+  reproducible. Next is a post-B0 first-light proof, then reviewed storage
+  drivers → standard EFI boot flow → GRUB/systemd-boot. Exact boundary:
+  `done/2026-07-23-t6040-uboot-noio-prep.md`.
 - **Fedora Asahi Remix:** kernel with all of the above, j614s asahi-audio
   profile, mesa builds, calamares/initial-setup — mostly automatic once the
   pieces exist upstream.

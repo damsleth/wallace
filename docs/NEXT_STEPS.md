@@ -143,6 +143,14 @@ self-contained Linux payload as an atomic object during install/repair/upgrade,
 and macOS 26 AEA plus moved/extended firmware layouts. Requirements and safe
 patch split: `done/2026-07-23-t6040-asahi-installer-requirements.md`.
 
+Ticket 025's B1 host preparation is also complete but remains post-B0. The
+draft T6040 U-Boot target maps only DT-derived RAM/framebuffer, disables
+autoboot and every MMIO-backed bus/device driver, builds reproducibly, and
+embeds `bootefi hello`. A raw final U-Boot payload must be zero-padded to its
+ARM64 Image `image_size`; exact audit and draft:
+`done/2026-07-23-t6040-uboot-noio-prep.md` and
+`patches/uboot-t6040-noio-prep.patch`. No live run is proposed.
+
 Persistent Linux state remains B2: tickets 023/032/060 resume the external USB
 root path only with a powered/self-powered fixture or reviewed T6040 HPM/ATC
 support. Internal NVMe remains blocked by SPTM/CoastGuard. Do not fold storage,

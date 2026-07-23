@@ -1,0 +1,20 @@
+{
+  "seq": "025",
+  "slug": "uboot-t6040-prep",
+  "needs": "offline",
+  "state": "done",
+  "track": "distro",
+  "priority": "P2",
+  "desc": "DONE offline: audited Asahi U-Boot 8aa706b2, confirmed the normal Apple target panics on t6040 and selects unsafe/unready bus probes, and prepared patches/uboot-t6040-noio-prep.patch. The draft APPLE_NOIO target maps only m1n1-fixed RAM/framebuffer, guards NVMe helpers, disables autoboot and PCI/NVMe/USB/input/DART/PMGR/WDT/serial, and embeds EFI hello. Two clean arm64-container builds reproduced exact config/binary hashes. Host-built a reproducible Linux+J614s DT+initramfs FIT and derived the required raw U-Boot Image-size zero padding. No artifact was saved as a live candidate; no rig/enrollment/APFS/Boot Policy work or external post. Result: done/2026-07-23-t6040-uboot-noio-prep.md.",
+  "author": "claude",
+  "deps": [],
+  "hashes": {
+    "patch": "7555aec41d86d6edb58a3e593199ed4b81b40be1316700c7c03ddf1d183963b5",
+    "result": "c3276f522f467d5dad0df73a25aa19485fa39498e59d6812b25048988c2ae031",
+    "config": "13ca83cd45606fbfc3aa05ca00f9acb7201fc85dcf15ec7caadbb19422675f6a",
+    "u_boot_nodtb": "f2f46cbc7dfbe8b82866859810939bdec49f26fcdd397ac29f7d2357b5853db9",
+    "fit_fixture": "d96c020cb93f70fe1aa3c9fe01bd6926662ed2549b67dde4cb4740cae8c05c1d"
+  },
+  "created": 1784039024,
+  "done_at": 1784841696
+}

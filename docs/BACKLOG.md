@@ -43,7 +43,9 @@ In rough order of leverage:
    verifier are documented. **081** packages a single self-contained object
    and prepares a tethered one-object proof; **082** prepares reversible raw
    enrollment and cold boot. Direct m1n1 is the selected B0 route; U-Boot
-   ticket **025** is B1. Installer requirements ticket **026** is complete:
+   ticket **025** is B1; its no-MMIO framebuffer/EFI-hello prep is complete,
+   with any live proof deferred until after B0. Installer requirements ticket
+   **026** is complete:
    raw enrollment already exists upstream; atomic self-contained-object
    handling, J614s/T6040 admission, and macOS 26 firmware extraction are the
    remaining upstream gaps.

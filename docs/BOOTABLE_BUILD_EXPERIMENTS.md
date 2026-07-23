@@ -198,8 +198,11 @@ That is milestone B0.
 
 ## After B0
 
-- Ticket 025 advances U-Boot/EFI as B1. Test it first as a payload inside the
-  proven raw object; do not make EFI a prerequisite for the first cold boot.
+- Ticket 025's offline B1 preparation is complete: a reproducible
+  framebuffer-only T6040 U-Boot target maps no MMIO, compiles a built-in EFI
+  hello test, and has no autoboot or bus drivers. Test it only after B0 as a
+  separately reviewed payload; do not make EFI a prerequisite for the first
+  cold boot. Result: `done/2026-07-23-t6040-uboot-noio-prep.md`.
 - Tickets 023, 032, and 060 remain the B2 external-root path. The next USB
   live discriminator needs a powered/self-powered fixture or reviewed T6040
   HPM/ATC support; repeating the passive right-side stick test is not useful.
