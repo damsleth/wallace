@@ -156,6 +156,14 @@ root path only with a powered/self-powered fixture or reviewed T6040 HPM/ATC
 support. Internal NVMe remains blocked by SPTM/CoastGuard. Do not fold storage,
 SMP, cpufreq, PCIe, or enrollment into the first self-contained boot.
 
+Ticket 060's rootfs recipe is now complete and host-tested. The guarded script
+pins Alpine 3.24.0 aarch64, stages matching modules and the paired firmware
+corpus, records GPT/PARTUUID/ext4 identities, and refuses destructive deployment
+unless given a Linux removable whole disk plus an exact erase confirmation.
+This does **not** clear the live gate: no real disk may be populated until a USB
+child and `sd*` persist for at least ten seconds. Exact recipe and test:
+`done/2026-07-23-t6040-usb-rootfs-recipe.md`.
+
 Ticket 023's 2026-07-23 upstream refresh found no published T6040 ATC/HPM
 implementation. The old `atcphy-new-tunables` branch is stale; the target
 right-port contract is now exactly inventoried but still needs the Apple SPMI

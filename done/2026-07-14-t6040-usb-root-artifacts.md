@@ -96,17 +96,19 @@ failure), retry from an isolated copy of a known-good build directory with
 `NPROC=1`. The successful build used `/build/linux-usb-host4`; output from the
 flaky `/build/linux-usb-host3` tree was discarded.
 
-## External rootfs recipe (populate at deploy)
+## External rootfs recipe (populate only after the smoke gate)
 
-Not a git artifact (multi-GB). Recipe:
-- Partition the external USB disk GPT, one ext4 root partition with a stable
-  `LABEL=t6040root` (and note its `PARTUUID`).
-- Populate a base arm64 userland (e.g. a minimal Debian/Alpine arm64 rootfs) with
-  `/sbin/init`; add the Asahi firmware corpus (tickets 014/016/030) for WiFi/BT
-  etc. Boot-critical path needs no firmware.
-- Kernel modules: the USB/storage/ext4 stack is built-in, so none are required to
-  reach root; install the full `modules/` tree into the rootfs for everything
-  else.
+Ticket 060 now supplies the reproducible, guarded implementation:
+`scripts/t6040-populate-usb-rootfs.sh`, documented in
+`done/2026-07-23-t6040-usb-rootfs-recipe.md`. It pins the Alpine 3.24.0 aarch64
+minirootfs, creates GPT + ext4 `LABEL=t6040root`, records fresh disk/partition/
+filesystem UUIDs, installs the matching modules tree and full firmware corpus,
+and emits the exact `root=PARTUUID=...` bootarg plus per-file manifest.
+
+Its safe `stage` mode is host-tested. Its destructive Linux-only `device` mode
+requires a whole removable disk and literal `ERASE:<device>` confirmation.
+Do not use `device` mode until a USB child and `sd*` persist for at least ten
+seconds; the 2026-07-21 passive-stick smoke did not clear that gate.
 
 ## Bootargs
 

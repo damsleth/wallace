@@ -72,8 +72,9 @@ In rough order of leverage:
    bootarg-gated automatic TX reporter; independent exact-archive review
    passed. Proposed one-shot TX-only capture **076** awaits explicit maintainer
    approval. No speculative receive kick.
-   Keep **060** recipe-only; do not populate a persistent USB rootfs
-   until enumeration persists for ≥10 s. Then ROOT-mode `switch_root` → **024**
+   **060** is complete as a guarded, host-tested recipe; do not use its
+   destructive device mode or populate a persistent USB rootfs until
+   enumeration persists for ≥10 s. Then ROOT-mode `switch_root` → **024**
    interim untethered boot.
 3. **PCIe → WiFi/BT** (pcie, P1). Op-115 stalls on its read side; **058** is
    the offline route-finding for the missing PHY-IP aperture precondition; only

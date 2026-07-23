@@ -1,0 +1,18 @@
+{
+  "seq": "060",
+  "slug": "usb-rootfs-recipe",
+  "needs": "offline",
+  "state": "done",
+  "track": "storage",
+  "priority": "P1",
+  "desc": "DONE offline: added guarded stage/device population and host tests. The recipe pins Alpine 3.24.0 aarch64, creates GPT + ext4 LABEL=t6040root, records fresh disk/PARTUUID/filesystem UUIDs, installs matching modules and rootfs-only paired firmware, emits exact bootargs plus a hash manifest, and refuses destructive mode without Linux/root/a removable whole disk/no mounts/literal ERASE:<device>. Host tests verify staging and refusal paths. No block device was touched; live deployment remains gated on a USB child and sd* persisting for >=10 seconds. Result: done/2026-07-23-t6040-usb-rootfs-recipe.md.",
+  "author": "claude",
+  "deps": [],
+  "hashes": {
+    "populate_script": "73e54977ecc777aed8c484796efee1400e66962c98b482974554da94a07172a2",
+    "test_script": "6b040c5abe8a915bd3f102c4a09516e5f1b35166cc75d9ee51439f6488b87d13",
+    "result": "bda8298ab3639d97d0eaa3c825511ab2bd5124e57e99ffdc1cb8e33945a47858"
+  },
+  "created": 1784634534,
+  "done_at": 1784841913
+}
