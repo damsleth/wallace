@@ -2,7 +2,7 @@
   "seq": "076",
   "slug": "alpine-hid-trace-auto-capture",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "hid",
   "priority": "P1",
   "desc": "One-shot storage-disabled rerun of ticket 074's exact observation-only HID trace kernel/DT with ticket 075's independently reviewed TX-only Alpine auto-reporter. Exact m1n1 1394c345..., Image e7138c03..., DTB 2782b922..., initramfs d5b790c6.... Keep external USB disconnected, KIS left-back, maxcpus=1 idle=nop, no root=, and add only t6040.hid_trace_auto=1. Capture the automatic bounded report through its end marker without sending any target command, then recover. No shell interaction, modules, extra mounts, network, probing, new MMIO, or control change. Stop on SError/reset/DART fault/storage or USB probe/lost TX/missing report markers or trace attributes. Preflight: done/2026-07-23-t6040-alpine-hid-trace-auto-preflight.md. Requires explicit maintainer approval.",
@@ -15,5 +15,7 @@
     "dtb": "2782b92237c35c8950212207391c3ae28c44b6b9c635b2e864c5748a77bb3cce",
     "initramfs": "d5b790c63276816a3d69071797da459918717924885174d2a8b84225c6b24093"
   },
-  "created": 1784837928
+  "created": 1784837928,
+  "approved_by": "maintainer",
+  "approved_at": 1784842544
 }
