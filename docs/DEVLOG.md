@@ -697,6 +697,23 @@ while surface clearing and GPU-dependent delivery remain incomplete. This is
 protocol/versioning groundwork only; it does not add the macOS 26.x ABI needed
 by J614s. See `done/2026-07-21-asahi-dev-log-review.md`.
 
+### MCC carveout/cache residual closed as a boot blocker (2026-07-23)
+
+Offline ticket 020 audited the captured J614s ADT, current m1n1 memory handoff,
+saved boot boundaries, and the exact 25F84 AppleT6041MCC/iBoot binaries. The
+normal-RAM interval ends at `0x105ce7a8000`, exactly where carveout region-id-4
+begins; region-id-2 lies higher. kboot exposes only the normal interval to
+Linux, so the all-zero reused T603x TZ registers do not expose either protected
+range to the kernel. The gap is limited to m1n1's broad EL2 identity map.
+
+`mcc_enable_cache()` is also proven rather than pending: iBoot already left
+plane 0 enabled (`+0x1c00 = 1`), the T6041 status is `0x00010101`, and the
+idempotent write/poll has preceded the project's repeated BusyBox and Alpine
+boots. Keep that exact path; it does not authorize other MCC/DCS writes.
+Future series work should use a bounds-checked ADT region-id-2/4 unmap fallback
+or finish static iBoot reconstruction. No blind AMCC probing. Evidence:
+`done/2026-07-23-t6040-mcc-carveout-analysis.md`.
+
 **Identity rewrite (2026-07-14, force-pushed).** All CJ-authored commits on
 the fork were rewritten with git-filter-repo: four author spellings collapsed
 to `CJ Damsleth <kim@damsleth.no>`, `Co-Authored-By: Claude` trailers

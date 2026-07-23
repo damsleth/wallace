@@ -1,0 +1,18 @@
+{
+  "seq": "020",
+  "slug": "mcc-carveout-re",
+  "needs": "offline",
+  "state": "done",
+  "track": "mcc",
+  "priority": "P2",
+  "desc": "RE the TZ/carveout offset (t603x regs read 0 despite real carveouts) and analyze the gated mcc_enable_cache() write (Stage B open)",
+  "author": "claude",
+  "deps": [],
+  "hashes": {
+    "analysis": "2a08fb19a25a761867ce07b1ec33ef498116f4a495103bcf4942930ba46e2c73",
+    "captured_adt": "7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84",
+    "build_manifest": "a6e764ca158e10ea2ace9b74701f445eefbf012c9cdb5aaa616aa10a0b5197ef"
+  },
+  "created": 1784039024,
+  "done_at": 1784839405
+}

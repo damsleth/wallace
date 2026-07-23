@@ -57,8 +57,9 @@ Full sequence: `docs/BOOTABLE_BUILD_EXPERIMENTS.md`.
 map, execute-and-return, broken_wfi handled (WFE park), ~10 s chainload loop.
 
 **Stage B effectively complete 2026-07-10** — cpufreq minimal (APSC/pstate;
-throttle offsets deferred, need RE), MCC t6041 Ph1+2 (TZ offset + cache-enable
-still open), PCIe register map plus clock/PLL targets resolved (the traced
+throttle offsets deferred, need RE), MCC t6041 Ph1+2 (cache-enable proven;
+unknown TZ offsets reduced to non-blocking m1n1 EL2 hardening by ticket 020),
+PCIe register map plus clock/PLL targets resolved (the traced
 `[70]` SError was a top-of-RAM log-buffer artifact; with the guard, Apple's
 complete 105-operation clock/tunable prefix runs and boots Linux cleanly),
 ATC/USB DART audited
@@ -150,13 +151,17 @@ doable solo with the proxy + ADT dumps; this is the highest-leverage local work.
 1. ✅ **cpufreq** (`src/cpufreq.c`) — **DONE (minimal) 2026-07-10.** T6040 reuses
    `t6031_clusters`; pstate/APSC working. Throttle features deferred (t6030 offsets
    SError on T6040 P-clusters → need RE). See `2026-07-10-t6040-cpufreq-plan.md`.
-2. **MCC** (`src/mcc.c`) — **Phases 1+2 DONE (2026-07-10).** `mcc_init_t6041()`
+2. ✅ **MCC** (`src/mcc.c`) — **Phases 1+2 DONE (2026-07-10); residual
+   bounded 2026-07-23.** `mcc_init_t6041()`
    added: t6031 reuse mis-parsed the ADT (AMCCs at `reg[12..15]` per `amcc-reg-idx`/
    `amcc-count`, no `plane-count-per-amcc`). Phase 2 hardware-RE'd the SLC: 1 plane
    per AMCC, status = 0x00010101 (T6031 decode wrong) — both encoded as `T6041_*`
-   constants. Boots clean, no MMIO at init. **Open (Stage C):** TZ/carveout offset
-   (t603x regs read 0 despite real carveouts) + the gated `mcc_enable_cache()`
-   write. Detailed in `2026-07-10-t6040-mcc-plan.md`. Needed for memory BW / DCP.
+   constants. The idempotent cache-enable write is proven by repeated Linux
+   boots. T603x TZ offsets still read zero, but region-id-4 begins at the
+   exclusive normal-RAM limit and region-id-2 is higher, so Linux never sees
+   either range. Remaining work is non-blocking m1n1 EL2 hardening via an
+   ADT-backed unmap or static iBoot decode; no live sweep. See
+   `2026-07-23-t6040-mcc-carveout-analysis.md`.
 3. **PCIe** (`src/pcie.c` + tunables) — **HOST-SIDE COMPLETE; LIVE GATED
    (2026-07-14).** Added
    `regs_t6040` + `apcie,t6040` dispatch branch. ADT-verified against live
