@@ -189,9 +189,12 @@ in `done/2026-07-23-t6040-rtkit-26x-draft-audit.md`.
 Ticket 051's guarded-side NVMe argument decode is complete. All nine handlers
 now have byte-proven input registers, including the formerly unverified
 ASQ/ACQ op-4 contract and the corrected op-0–3 init/TCB/configure split. This
-does not create a callable SPTM path: outer IOMMU dispatch and domain
-provenance remain ticket 052/055 work. Exact decode:
-`done/2026-07-23-t6040-sptm-nvme-op-args.md`.
+Ticket 052 then reproduced the map on the exact T6041 SPTM payload: argument
+contracts are unchanged, numeric offsets moved, and T6041 adds segment-count
+and NLB validation. This does not create a callable SPTM path: outer IOMMU
+dispatch and domain provenance remain ticket 055 work. Exact results:
+`done/2026-07-23-t6040-sptm-nvme-op-args.md` and
+`done/2026-07-23-t6041-sptm-exact-blob.md`.
 
 Ticket 046's m1n1 series shaping is complete. Current upstream
 `7c7716b6` already added initial T6041 identity and T6040's moved PCIe reset

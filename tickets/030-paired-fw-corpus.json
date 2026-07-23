@@ -5,7 +5,7 @@
   "state": "open",
   "track": "xcut",
   "priority": "P1",
-  "desc": "Retrieve this J614s machine's paired Asahi ESP firmware corpus (vendorfw and/or asahi/all_firmware.tar.gz), record macOS/iBoot provenance plus a SHA-256 inventory, and stage one read-only canonical input for tickets 014/016/028 (NEXT_STEPS §1; ROADMAP Stage C RTKit + Stage E). Partial completion: ticket 014 staged the 25F84 J614s BCM4388 WiFi/BT slice; ticket 016 reproducibly ranged-fetched Firmware/J614s_Multitouch.im4p from the same canonical IPSW and staged tpmtfw-j614s.bin (a1f4131d...). Remaining scope is the broader RTKit/ISP/ALS/kernel firmware corpus and durable regeneration inventory; no proprietary binaries enter Git.",
+  "desc": "Retrieve this J614s machine's paired Asahi ESP firmware corpus (vendorfw and/or asahi/all_firmware.tar.gz), record macOS/iBoot provenance plus a SHA-256 inventory, and stage one read-only canonical input for tickets 014/016/028 (NEXT_STEPS §1; ROADMAP Stage C RTKit + Stage E). Partial completion: ticket 014 staged the 25F84 J614s BCM4388 WiFi/BT slice; ticket 016 reproducibly ranged-fetched Firmware/J614s_Multitouch.im4p and staged tpmtfw-j614s.bin (a1f4131d...); ticket 052 staged and decoded the exact Firmware/sptm.t6041.release.im4p (f78979b6...). Remaining scope is the broader RTKit/ISP/ALS/kernel firmware corpus and durable regeneration inventory; no proprietary binaries enter Git.",
   "author": "sol",
   "deps": [],
   "hashes": null,

@@ -1,0 +1,19 @@
+{
+  "seq": "052",
+  "slug": "sptm-t6041-exact-blob",
+  "needs": "offline",
+  "state": "done",
+  "track": "storage",
+  "priority": "P2",
+  "desc": "DONE offline: reproducibly range-fetched Firmware/sptm.t6041.release.im4p from the pinned macOS 26.5.2 25F84 IPSW, decompressed the exact arm64e Mach-O, recorded hashes/provenance, and reran the nine-handler plus nvme_bootstrap decode. Op ordering and ticket-051 argument contracts are identical but all numeric offsets moved; T6041 additionally enforces ILLEGAL_SEG_COUNT and INVALID_NLB violations. Payloads remain host-local. Result: done/2026-07-23-t6041-sptm-exact-blob.md; extractor: scripts/t6040-extract-sptm-firmware.py.",
+  "author": "fable",
+  "deps": ["051", "030"],
+  "hashes": {
+    "im4p": "f78979b6cd9d7c0c5d13abf58229ec1ffc489751324708e1536cfba399ea4938",
+    "macho": "0755358864e4d9e24255dd126d41d0a26a803fcbac0593898f76a7ba644af01a",
+    "extractor": "9662ee56795cb59c1866b51fe1c225b6c0ae0b9f20513385b87c8bb79d85fa85",
+    "nvme_bootstrap": "0xfffffff0270c7a1c"
+  },
+  "created": 1784060527,
+  "done_at": 1784844482
+}
