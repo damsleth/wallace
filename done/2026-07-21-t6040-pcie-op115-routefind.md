@@ -116,16 +116,51 @@ that m1n1 never programs — the most likely reason the reg[3] PHY-IP aperture i
 dead when m1n1 first reads it. (The `apcie-cio3pllcore-tunables` m1n1 applies to
 reg[5] is the *CIO3* PLL, a different block from the clkgen PLL config here.)
 
-### How to close it
-1. **Decode `_configPciePLLs` exactly** (offline, next): disassemble its 4 clkgen
-   writes — the register offsets, masks, and values (and any read-poll between
-   them) — grounded in the binary. Cross-check each against the single ADT clkgen
-   tunable to confirm they are genuinely additional.
-2. Build a candidate m1n1 that replays that exact clkgen PLL-config sequence on
-   the t6040 path before the PHY-IP tunables, still returning before the first
-   PHY-IP *write*; pin hashes, cross-review, propose one gated read-only op-115
-   retest (does `0x417040090` read back instead of hanging?). Offsets/values must
-   come from step 1's decode, never invented.
+### `_configPciePLLs` decoded exactly (2026-07-23, grounded in the binary)
+`_configPciePLLs` (0xfffffe000a1c24a8, 212 bytes) does, in order, on the
+pcieclkgen aperture (reg[6], `0x415044000`; accessor base `[this+0x270]`, byte
+offsets):
+
+1. **Apply the `PCIECLKGEN` tunable via callback** — the same
+   `apcie-pcieclkgen-tunables` m1n1 applies (string label `"PCIECLKGEN"` at
+   `__TEXT+0xf2`; helper gets the read/write clkgen accessors). **m1n1 covers
+   this.**
+2. `w = _readPcieclkgenReg(0x4); _writePcieclkgenReg(0x4, w | 0x80000000)` →
+   **`clkgen[0x4] |= 0x8000_0000`** (set bit 31). *m1n1 omits.*
+3. `w = _readPcieclkgenReg(0x0); _writePcieclkgenReg(0x0, (w & ~0x7) | 0x1)` →
+   **`clkgen[0x0] = (clkgen[0x0] & ~0x7) | 0x1`** (low 3-bit field ← 1).
+   *m1n1 omits.* (Disjoint from the ADT tunable's `mask 0x3e0` — no conflict.)
+4. **Poll: `while (_readPcieclkgenReg(0x0) & 0x8000_0000) ;`** — wait for
+   `clkgen[0x0]` bit 31 to clear (PLL lock/ready). *m1n1 omits.*
+
+Instruction anchors: bit-31 set at `…2530 orr w2,w0,0x80000000`; low-field at
+`…254c and w8,w0,0xfffffff8` + `…2550 orr w2,w8,1`; poll at `…256c tbnz w0,#31,
+…2560`. Confirmed against `src/pcie.c`: m1n1 applies only the clkgen tunable
+(`pcie.c:490`) and has no clkgen+0x4/clkgen+0x0/PLL-lock code — grep for
+`clkgen`/`0x80000000` finds only the tunable apply and the unrelated port MSIMAP.
+
+**Mechanistic read:** steps 2–4 are the PCIe clkgen PLL enable + configure + lock
+wait. Without them the PLL feeding the PHY (hence the PHY-IP reg[3] clock) never
+comes up, so m1n1's first PHY-IP read at `0x417040090` hangs. This is the
+best-grounded precondition for op-115.
+
+### Exact candidate m1n1 change (for a reviewed, gated retest — not yet built)
+On the t6040 path, immediately after applying `apcie-pcieclkgen-tunables`
+(`pcie.c:490`), with `clkgen = reg[APCIE_T6040_PCIECLKGEN_IDX (=6)]` — every
+address ADT-derived, every offset/value from the decode above, nothing invented:
+
+```c
+set32(clkgen + 0x4, 0x80000000);                 /* PLL enable  (bit 31) */
+mask32(clkgen + 0x0, 0x7, 0x1);                  /* low field <- 1        */
+if (poll32(clkgen + 0x0, 0x80000000, 0, 250000)) /* wait PLL lock (b31=0) */
+    return -1;
+```
+
+Then the existing PHY-clock-gate + PHY bring-up runs unchanged. Keep the
+op-115 read-only stop (return before the first PHY-IP *write*) so the retest only
+answers "does `0x417040090` read back now?". Pin hashes, cross-review against
+`~/Code/m1n1/AGENTS.md`, and get CJ approval before any live boot; it competes
+with Sol for the rig, so queue it rather than run unilaterally.
 
 ## Apple side — earlier partial notes (superseded by the trace above)
 
