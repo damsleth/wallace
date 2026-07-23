@@ -2,12 +2,13 @@
   "seq": "040",
   "slug": "audio-j614s-map",
   "needs": "offline",
-  "state": "open",
+  "state": "done",
   "track": "audio",
   "priority": "P2",
   "desc": "Inventory the J614s ADT audio topology (amps/codecs, I2S, clocks, GPIO and power links), compare macaudio bindings and draft DT-only wiring; keep speakers muted and gate enablement on exact-chassis asahi-audio DSP data plus speakersafetyd limits (ROADMAP Stage G audio)",
   "author": "sol",
   "deps": [],
   "hashes": null,
-  "created": 1784040423
+  "created": 1784040423,
+  "done_at": 1784842739
 }
