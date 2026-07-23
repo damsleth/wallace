@@ -138,6 +138,14 @@ root path only with a powered/self-powered fixture or reviewed T6040 HPM/ATC
 support. Internal NVMe remains blocked by SPTM/CoastGuard. Do not fold storage,
 SMP, cpufreq, PCIe, or enrollment into the first self-contained boot.
 
+Ticket 023's 2026-07-23 upstream refresh found no published T6040 ATC/HPM
+implementation. The old `atcphy-new-tunables` branch is stale; the target
+right-port contract is now exactly inventoried but still needs the Apple SPMI
+controller, SN201202x role/orientation path, named 44-bank PHY map/bucket bases,
+and connector graph. Do not rerun the same unpowered topology or synthesize
+SPMI/PHY writes. Exact checkpoint:
+`done/2026-07-23-t6040-atcphy-upstream-checkpoint.md`.
+
 Ticket 022's 2026-07-23 refresh also confirms that native DCP is not a B0
 dependency. Its J614s DT topology is inventoried, but the macOS 26.x ABI, extra
 display MMIO bank, paired ASC IRQ layout, DART SID/register-bank delta, and

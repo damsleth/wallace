@@ -198,8 +198,11 @@ doable solo with the proxy + ADT dumps; this is the highest-leverage local work.
    names are stable; only per-bucket reg_offset/size is the unknown — mustn't
    invent). Graceful USB2-only fallback means this does NOT block Stage C; USB3/TB
    is a Stage D comfort. NHI/apciec (Thunderbolt) name-mapping also deferred.
-   Watch `upstream/atcphy-new-tunables`. Detailed in
-   `2026-07-10-t6040-atc-usb-dart-plan.md`.
+   The old `upstream/atcphy-new-tunables` pointer is stale at a January 2025
+   tip, not an active T6040 branch. Watch broader m1n1/Linux/#asahi-dev work for
+   an explicit T6040 44-bank map and SN201202x HPM path. Detailed in
+   `done/2026-07-10-t6040-atc-usb-dart-plan.md` and
+   `done/2026-07-23-t6040-atcphy-upstream-checkpoint.md`.
 5. **kboot FDT init** (`src/kboot.c` and friends) — **AUDITED + display FIXED
    2026-07-10.** kboot-only, FDT-only (safe), Stage-C-coupled (patches a kernel DT
    that doesn't exist yet). Generic parts already work for t6040: spin-table/
@@ -283,7 +286,9 @@ remain required.
   HPM/ATC work if it fails.
   M3 ATC PHY work
   enumerated a real device on 2026-07-20, but its SPMI wake and PHY data are not
-  T6040 parameters; USB3/TB stays track-and-test.
+  T6040 parameters; USB3/TB stays track-and-test. The 2026-07-23 upstream
+  refresh found no published T6040 compatible, SN201202x path, or mapping for
+  the target's 44 PHY register entries.
 - **Internal keyboard + trackpad:** ✅ **keyboard DONE early (2026-07-11)** via
   dockchannel-HID (three bugs fixed — see DEVLOG); trackpad registers as
   input0. Its missing HIDF loader and retry recovery are fixed. Ticket 016

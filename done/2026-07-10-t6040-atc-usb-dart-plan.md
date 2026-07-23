@@ -79,11 +79,13 @@ New source names vs older chips: `CIO4PLL_CORE`, `AUS40CMN_SHM`, `ATC_COMMON_CFG
 
 ### Upstream watch
 
-`upstream/atcphy-new-tunables` branch exists — new ATC tunable-format work is
-active upstream. It had no t6040 support in the shallow-fetched tip, but this is
-the thing to track/coordinate on (#asahi-dev) rather than fork a speculative
-t6040 table. A linux-asahi t6040 DTS, once it exists, would hand over the bucket
-`reg_offset`s directly (and is the authoritative FDT contract).
+Correction 2026-07-23: `upstream/atcphy-new-tunables` still exists at
+`9657a52e`, but it has not moved since 2025-01-16 and is 353 commits behind
+current m1n1 main. It is not an active T6040 implementation. Current main has
+newer T8122 handling but still no T6040 table/fuse entry, and published Linux
+ATC branches have no T6040 compatible. Track the broader upstream work and
+#asahi-dev rather than that branch alone. Exact refresh:
+`done/2026-07-23-t6040-atcphy-upstream-checkpoint.md`.
 
 ## Next steps (when unblocking)
 

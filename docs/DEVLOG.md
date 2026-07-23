@@ -708,6 +708,20 @@ isolated to preserve firmware scanout. No Linux-tree edit was made. Native DCP
 remains an upstream watch; B0 stays on simpledrm. Full matrix:
 `done/2026-07-23-t6040-dcp-upstream-dt-prep.md`.
 
+### ATC/HPM upstream pointer corrected (2026-07-23)
+
+Ticket 023 rechecked every published Asahi ATC branch against the captured
+J614s ADT. `m1n1`'s `atcphy-new-tunables` is stale at `9657a52e` from
+2025-01-16 and 353 commits behind main; neither it, current main, nor the
+published Linux ATC branches contains T6040 support. The right connector's
+contract is now exact offline: `aapl,spmi`/SN201202x `hpm2` → `acio2` →
+`atc-phy2`, whose T6040-only node has 44 register entries and new
+USB2/CIO4/AUS40 tunables. Addresses alone do not name the required buckets or
+authorize state-changing SPMI access. No rig or Linux-tree edit was made.
+Continue the RAM-root B0 path; only a powered fixture or an upstream-derived,
+reviewed T6040 HPM/PHY sequence reopens external-root testing. Full checkpoint:
+`done/2026-07-23-t6040-atcphy-upstream-checkpoint.md`.
+
 ### MCC carveout/cache residual closed as a boot blocker (2026-07-23)
 
 Offline ticket 020 audited the captured J614s ADT, current m1n1 memory handoff,

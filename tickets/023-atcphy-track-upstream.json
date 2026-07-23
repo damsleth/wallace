@@ -5,9 +5,14 @@
   "state": "open",
   "track": "usb",
   "priority": "P2",
-  "desc": "[UPSTREAM] Watch upstream/atcphy-new-tunables; map per-bucket reg_offset ONLY if upstream publishes it (never invent). Update 2026-07-20: M3 work needed a delay after SPMI wake and fixed >16-byte SPMI regmap reads, then enumerated an iPhone (05ac:12a8). T6040 ticket 063 subsequently proved right-port DART+xHCI root hubs but no child. The authoritative ADT maps that port through SPMI hpm2, atc-phy2 with T6040 USB2 host/device tunables, and acio2; Linux describes none of that physical-link path. This validates the direction but supplies no reviewed T6040 implementation and does not authorize SPMI writes here (done/2026-07-21-asahi-dev-log-review.md; done/2026-07-21-t6040-usb-right-no-connect-analysis.md)",
+  "desc": "[UPSTREAM] Track explicit T6040 ATC PHY + SN201202x HPM support; map per-bucket reg_offset only when upstream publishes it (never invent). Checked 2026-07-23: m1n1 atcphy-new-tunables is stale at 9657a52 (2025-01-16, 353 behind main) and has no T6040 data; current m1n1 and published Linux ATC branches also have no T6040 compatible/resource map. The captured right-port ADT contract is now exact: aapl,spmi hpm2 -> acio2 -> atc-phy2, with 44 PHY register entries and T6040-only USB2/CIO4 records. Ticket 063 proved DART+xHCI root hubs but no child. A safe implementation still needs SPMI controller, SN201202x role/orientation, named 44-bank PHY resources/bucket bases, connector graph, and reviewed ownership sequencing. No SPMI writes are authorized (done/2026-07-23-t6040-atcphy-upstream-checkpoint.md).",
   "author": "claude",
   "deps": [],
-  "hashes": null,
+  "hashes": {
+    "m1n1_atcphy_new_tunables": "9657a52e9183d09563fb57396fb36342d7b263d1",
+    "linux_sven_atcphy": "bb58cc6399a58218b8b5204a9fadf26f07c7f0f3",
+    "j614s_adt_sha256": "7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84"
+  },
+  "last_checked": "2026-07-23",
   "created": 1784039024
 }
