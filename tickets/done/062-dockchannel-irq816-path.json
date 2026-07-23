@@ -2,12 +2,13 @@
   "seq": "062",
   "slug": "dockchannel-irq816-path",
   "needs": "offline",
-  "state": "open",
+  "state": "done",
   "track": "console",
   "priority": "P1",
   "desc": "Rebuild the DockChannel-UART interrupt path on the measured real IRQ, superseding the IRQ-360 diagnostics (059 closed). #asahi-dev finding (done/2026-07-21-asahi-dev-irc-review.md and source-linked done/2026-07-21-asahi-dev-log-review.md): yuka's measurement + enverbalalic on real t6041 show ADT input 360 is a copy-paste error; the real UART AIC input is 816 on t6040/t6041. Our rxirq-txpoll total=0 result is consistent with listening on the wrong line. The base poll-mode J614s DT and current USB smoke artifacts already carry 816; this ticket is for the direct IRQ path. Do offline: (1) build a separate J614s direct-driver DT variant with DATA reg first (0x50882c000) so earlycon's 4K reg[0] mapping reaches it; (2) audit apple,dockchannel-uart against yuka's more-t6041/dcuart-t8142 work and make RX/TX BIT(1)/BIT(2) per-instance data; (3) pin hashes + cross-review, then propose a rig retest of interrupt-driven ttyDC0. No IRQ-360 retries. Any external report is draft-only; CJ posts.",
   "author": "claude",
   "deps": [],
   "hashes": null,
-  "created": 1784657506
+  "created": 1784657506,
+  "done_at": 1784836009
 }
