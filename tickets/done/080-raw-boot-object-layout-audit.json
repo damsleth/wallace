@@ -1,0 +1,18 @@
+{
+  "seq": "080",
+  "slug": "raw-boot-object-layout-audit",
+  "needs": "offline",
+  "state": "done",
+  "track": "distro",
+  "priority": "P1",
+  "desc": "DONE: selected direct raw m1n1 for B0. The byte stream is exact 16-KiB-aligned m1n1.bin prefix, chosen.bootargs, gzip/XZ kernel, raw FDT, gzip/XZ initramfs, and >=4 zero bytes; raw entry is 0x800 and no outer container/Mach-O/SPTM path is used. Added strict host verifier with exact-member/hash, order/count, compression integrity, truncation/tail, entry/alignment, 64-MiB object policy, and expansion/runtime budgets; built and parsed a 21,728,804-byte in-memory fixture. Current local m1n1 has unapproved PCIe work and is explicitly not a B0 input. Result: done/2026-07-23-t6040-raw-boot-object-layout.md; verifier: scripts/t6040-raw-object-verify.py. No APFS, Boot Policy, enrollment, or rig access occurred.",
+  "author": "codex",
+  "deps": [],
+  "hashes": {
+    "verifier": "03b6a0569b8fdff96c65e72107d3dcc08c433839cefc89598190295a802b0975",
+    "result": "0b73692fe152bf03552daf9c441a8b43162587c1e7201a5a55e2402a30bd5a83",
+    "in_memory_test_vector": "16be13794d2dd97f66d173befa0155faa3b77641c3721806c4c70cfa07104224"
+  },
+  "created": 1784838169,
+  "done_at": 1784840471
+}

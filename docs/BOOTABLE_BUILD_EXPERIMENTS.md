@@ -123,7 +123,7 @@ simpledrm/fbcon, watchdog, and no unexpected storage probe.
 
 ## Experiment 5 — audit the raw boot-object payload contract
 
-Ticket: **080**, offline and parallel with experiments 2–4.
+Ticket: **080**, completed offline 2026-07-23.
 
 Resolve how the already-enrolled raw m1n1 object can carry or locate the three
 Linux payloads without `linux.py`:
@@ -143,6 +143,20 @@ precise requirement for ticket 025’s U-Boot/FIT route.
 
 Exit: a byte-level layout specification, verifier, size budget, and selected
 direct-m1n1 or U-Boot route.
+
+Result: direct raw m1n1 is sufficient for B0. The object is the exact raw
+m1n1 prefix followed by `chosen.bootargs`, compressed kernel, raw DTB,
+compressed initramfs, and a zero terminator. The raw entry remains `0x800`;
+Wallace applies a conservative 64 MiB complete-object policy and exact
+component/expansion verification. Full contract:
+`done/2026-07-23-t6040-raw-boot-object-layout.md`. Host gate:
+`scripts/t6040-raw-object-verify.py`.
+
+The current local m1n1 build contains unapproved PCIe operation-115 work and
+was used only for an in-memory parser fixture. Ticket 081 must use an
+independently reviewed, PCIe-write-free m1n1 artifact and reverify every final
+byte. Its tethered proof must also prevent the optional early-proxy window
+from intercepting payload autoboot.
 
 ## Experiment 6 — build and tether-test one self-contained raw object
 

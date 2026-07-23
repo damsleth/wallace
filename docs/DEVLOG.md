@@ -392,11 +392,17 @@ Replacement preflight:
 The resulting bootable-build plan separates cold boot from persistent storage.
 The B0 target is boot picker → raw-enrolled m1n1 object → self-contained Alpine
 RAM distro, with the tether observational only. Tickets 077–079 restore HID
-and produce the release-like distro; 080 audits the embedded-payload contract;
+and produce the release-like distro. Ticket 080 completed the embedded-payload
+contract: raw m1n1 can directly autoboot a concatenated compressed kernel, raw
+DTB, and compressed initramfs at entry `0x800`; the new strict host verifier
+checks exact members, bounds, expansion, order, and truncation. The current
+local m1n1 carries unapproved PCIe work and is not a B0 input; retain the
+reviewed PCIe-write-free artifact until a new exact candidate is reviewed.
 081 prepares a tethered single-object autoboot; 082 prepares reversible
 enrollment/cold boot. The exact experiment and safety ladder is
-`docs/BOOTABLE_BUILD_EXPERIMENTS.md`. U-Boot/EFI and external USB root are B1
-and B2 respectively, not prerequisites for B0.
+`docs/BOOTABLE_BUILD_EXPERIMENTS.md`; exact layout:
+`done/2026-07-23-t6040-raw-boot-object-layout.md`. U-Boot/EFI and external USB
+root are B1 and B2 respectively, not prerequisites for B0.
 
 ### ANS/NVMe map (2026-07-13, session 5)
 

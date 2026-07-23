@@ -38,11 +38,12 @@ In rough order of leverage:
 1. **B0 bootable-build pipeline** (distro/HID, P1). Run proposed TX-only trace
    capture **076** only after explicit approval; decode it offline in **077**,
    build one minimal HID-restored candidate in **078**, then produce the
-   release-like RAM distro in **079**. In parallel, **080** audits and verifies
-   the raw m1n1 payload layout. **081** packages a single self-contained object
+   release-like RAM distro in **079**. **080 is complete**: direct raw m1n1,
+   entry `0x800`, exact concatenated payload contract, and strict host
+   verifier are documented. **081** packages a single self-contained object
    and prepares a tethered one-object proof; **082** prepares reversible raw
-   enrollment and cold boot. Direct m1n1 is the shortest B0 route; U-Boot
-   ticket **025** is B1 unless 080 proves it mandatory.
+   enrollment and cold boot. Direct m1n1 is the selected B0 route; U-Boot
+   ticket **025** is B1.
 2. **USB-root pipeline** (storage, P1 — the persistent Stage D exit).
    Build/port-map gates
    are clear. Ticket 063 proved the right-port DART+xHCI root hubs but no child

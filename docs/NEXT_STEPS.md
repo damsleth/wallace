@@ -125,13 +125,16 @@ The detailed experiment contract and safety gates are in
 
 After approved trace capture 076, ticket 077 decodes the exact HID boundary,
 078 builds one minimal evidence-backed repair candidate, and 079 turns the
-working result into a release-like RAM distro. In parallel, 080 audits the
-raw-object payload layout and builds a host verifier. Ticket 081 packages one
+working result into a release-like RAM distro. Ticket 080 is now complete:
+direct raw m1n1 supports the required concatenated payloads, entry `0x800`,
+and a strict host verifier under a conservative 64 MiB object policy. Ticket
+081 packages one
 self-contained object and prepares a tethered one-object proof without
 `linux.py`; 082 prepares, but does not execute, reversible enrollment and cold
 boot. Every live step still gets a separate reviewed exact-hash rig ticket and
-explicit approval. U-Boot/EFI is B1 after this direct-m1n1 B0 proof unless the
-layout audit proves it is required.
+explicit approval. U-Boot/EFI remains B1 after this direct-m1n1 B0 proof.
+Exact format and safety result:
+`done/2026-07-23-t6040-raw-boot-object-layout.md`.
 
 Persistent Linux state remains B2: tickets 023/032/060 resume the external USB
 root path only with a powered/self-powered fixture or reviewed T6040 HPM/ATC

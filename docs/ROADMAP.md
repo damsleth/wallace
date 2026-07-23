@@ -49,9 +49,12 @@ awaits explicit maintainer approval.
 enrolled raw m1n1 object carrying a self-contained Alpine RAM distro, reaching
 simpledrm/fbcon and internal keyboard without a host payload upload. It does
 not wait for USB or internal NVMe. Tickets 077–079 restore HID and produce the
-release-like distro; 080 audits the raw payload contract; 081 builds a
+release-like distro. Ticket 080 completed the raw payload audit and selected
+direct m1n1: exact prefix + command line + compressed kernel + raw DTB +
+compressed initramfs, entry `0x800`, with a strict host verifier. Ticket 081 builds a
 single-object tethered proof; 082 prepares reversible enrollment/cold boot.
-Full sequence: `docs/BOOTABLE_BUILD_EXPERIMENTS.md`.
+Full sequence: `docs/BOOTABLE_BUILD_EXPERIMENTS.md`. Layout result:
+`done/2026-07-23-t6040-raw-boot-object-layout.md`.
 
 **Stage A complete 2026-07-10** — proxy solid, 14/14 cores (4E+5P+5P), MPIDR
 map, execute-and-return, broken_wfi handled (WFE park), ~10 s chainload loop.
@@ -397,8 +400,8 @@ GPU/WiFi (USB ethernet).
   076–082 and `docs/BOOTABLE_BUILD_EXPERIMENTS.md` define the evidence-gated
   sequence.
 - **B1, standard boot flow:** after B0, make U-Boot/EFI work and move toward
-  GRUB/systemd-boot or a unified kernel image. Ticket 025 owns this unless the
-  raw-object audit shows U-Boot is required earlier.
+  GRUB/systemd-boot or a unified kernel image. Ticket 025 owns this; ticket
+  080 confirmed U-Boot is not required for B0.
 - **B2, persistent distro:** use external USB root after the HPM/ATC physical
   link enumerates a device; internal NVMe stays a later SPTM integration goal.
 - **asahi-installer:** must learn raw-boot-object enrollment for M4 (it enrolls
