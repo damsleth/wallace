@@ -186,6 +186,13 @@ whitelist additions, while SMC and SIO have no OS-firmware whitelist to extend.
 The DCP/ISP upstream test notes and forbidden speculative aliases are recorded
 in `done/2026-07-23-t6040-rtkit-26x-draft-audit.md`.
 
+Ticket 051's guarded-side NVMe argument decode is complete. All nine handlers
+now have byte-proven input registers, including the formerly unverified
+ASQ/ACQ op-4 contract and the corrected op-0–3 init/TCB/configure split. This
+does not create a callable SPTM path: outer IOMMU dispatch and domain
+provenance remain ticket 052/055 work. Exact decode:
+`done/2026-07-23-t6040-sptm-nvme-op-args.md`.
+
 Ticket 046's m1n1 series shaping is complete. Current upstream
 `7c7716b6` already added initial T6041 identity and T6040's moved PCIe reset
 bit, so the final RFC avoids those duplicates and reduces the 22-commit

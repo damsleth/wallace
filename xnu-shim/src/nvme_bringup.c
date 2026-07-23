@@ -8,7 +8,7 @@
  *
  * STATUS: skeleton only. Every sptm_nvme_call() is a no-op stub (see sptm_nvme_iface.h)
  * until ticket 053 proves (a) the SPTM call path for NVMe ops and (b) that Linux-at-EL1 is
- * tagged XNU_DOMAIN so the 0x12 permission is satisfied. Arg blocks are TBD-051/053. Do not
+ * tagged XNU_DOMAIN so the 0x12 permission is satisfied. Outer-call marshalling is TBD-053. Do not
  * run this against real hardware — issuing a mis-formed genter with no valid path wedged the
  * machine before (ticket 008); nothing here should reach the rig until 053 closes.
  */
@@ -17,10 +17,10 @@
 /* Call-ordering the backend enforces via validate_nvme_call_allowed(allowed_functions).
  * Exact prerequisite bitmap per op is TBD-053 (read allowed_functions transitions live). */
 static const enum nvme_op NVME_BRINGUP_ORDER[] = {
-    NVME_OP_PROTOCOL_NEGOTIATE,   /* 0: negotiate SPTM NVMe queueing protocol version */
-    NVME_OP_QUEUE_ENTRIES_TCB,    /* 1: query/limit queue entries; begin TCB/CID setup */
-    NVME_OP_TCB_CID_2,            /* 2: TCB/CID */
-    NVME_OP_TCB_CID_3,            /* 3: TCB/CID */
+    NVME_OP_INIT,                 /* 0: initialise the guarded NVMe instance */
+    NVME_OP_SET_TCB,              /* 1: map one CID's TCB and DMA page list */
+    NVME_OP_INVALIDATE_TCB,       /* 2: complete/invalidate one CID's TCB */
+    NVME_OP_CONFIGURE,            /* 3: queue-entry count + protocol version */
     NVME_OP_ADMIN_QUEUE_REGS,     /* 4: register admin SQ/CQ (ASQ/ACQ PA + depths) */
     NVME_OP_IOQA_REG,             /* 5: program I/O-queue-attributes register */
     NVME_OP_IOSQ_REG,             /* 6: register/activate I/O submission queue */
@@ -41,7 +41,7 @@ int sptm_nvme_bringup(void)
 {
     for (unsigned i = 0; i < sizeof(NVME_BRINGUP_ORDER)/sizeof(NVME_BRINGUP_ORDER[0]); i++) {
         enum nvme_op op = NVME_BRINGUP_ORDER[i];
-        struct nvme_op_args args = {0};   /* TBD-051/053: real per-op arg marshalling */
+        struct nvme_op_args args = {0};   /* Populate only after TBD-053 proves outer call. */
         int rc = sptm_nvme_call(op, &args);
         if (rc != 0)
             return rc;                     /* backend raised a VIOLATION_NVME_* — diagnose */

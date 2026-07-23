@@ -3,8 +3,8 @@
  *
  * Derived from the guarded-side decode (done/2026-07-14-t6040-sptm-nvme-guarded-backend-decode.md)
  * and the Steffin/Classen ABI (arXiv:2510.09272, appendices A.2–A.5). This header encodes
- * ONLY what was proven from the SPTM blob + kernelcache. Anything not byte-verified is marked
- * TBD-051 (static per-op arg decode) or TBD-053 (live HV trace). Do not invent arg layouts.
+ * ONLY what was proven from the SPTM blob + kernelcache. Guarded-side argument consumption
+ * is byte-verified in ticket 051; the outer IOMMU call marshalling remains TBD-053.
  *
  * IMPORTANT: ticket 007's "x16 = op | (service<<32)" veneer ABI was RETRACTED — no such
  * encoding exists in the kernelcache. NVMe ops are SPTM-internal (dispatch table 6 / IOMMU
@@ -48,15 +48,14 @@ enum sptm_iommu { IOMMU_SART=1, IOMMU_NVME=2 };
 #define NVME_IOMMU_PERMISSIONS  (PERM_XNU | PERM_XNU_HIB)   /* 0x12 */
 
 /* --- NVMe op set: func_state[0..8], gated by validate_nvme_call_allowed / allowed_functions ---
- * Indices 4..8 CONFIRMED from func_state[N] __func__ strings; 0..3 inferred from the caller
- * ANS2 symbols + validate_* set (confidence noted in the decode doc). The op index is passed
- * to SPTM as an argument on the IOMMU path (NOT as x16 endpoint) — exact mechanism = TBD-053.
+ * All indices and guarded-side contracts are confirmed from the handlers. The op index is
+ * passed to SPTM on the IOMMU path (NOT as an x16 endpoint); that outer mechanism is TBD-053.
  */
 enum nvme_op {
-    NVME_OP_PROTOCOL_NEGOTIATE = 0,   /* validate_nvme_protocol_version   (inferred) */
-    NVME_OP_QUEUE_ENTRIES_TCB  = 1,   /* validate_nvme_queue_entries/cid  (inferred) */
-    NVME_OP_TCB_CID_2          = 2,   /* CID/TCB                          (inferred) */
-    NVME_OP_TCB_CID_3          = 3,   /* CID/TCB                          (inferred) */
+    NVME_OP_INIT               = 0,   /* no caller arguments */
+    NVME_OP_SET_TCB            = 1,   /* qid, cid, TCB PA, page-list PA, count */
+    NVME_OP_INVALIDATE_TCB     = 2,   /* qid, cid, direction/state flag */
+    NVME_OP_CONFIGURE          = 3,   /* queue entries, protocol version */
     NVME_OP_ADMIN_QUEUE_REGS   = 4,   /* sptm_nvme_bar_admin_queue_regs   (CONFIRMED) */
     NVME_OP_IOQA_REG           = 5,   /* sptm_nvme_bar_ioqa_reg           (CONFIRMED) */
     NVME_OP_IOSQ_REG           = 6,   /* sptm_nvme_bar_iosq_reg           (CONFIRMED) */
@@ -66,11 +65,22 @@ enum nvme_op {
 };
 
 /*
- * Per-op argument contract — UNVERIFIED. Ticket 007's op-4 contract (x0=ASQ PA, x1=SQ
- * depth-1, x2=ACQ PA, x3=CQ depth-1) came from the debug patch, not a proven veneer; treat
- * as a hypothesis. Fill this from ticket 051 (static handler disasm) + 053 (live arg trace).
+ * Guarded-side register contracts, byte-proven on sptm.t8132.release:
+ *
+ * op 0: no arguments
+ * op 1: x0=qid, x1=cid, x2=TCB PA, x3=page-list PA, x4=page count
+ * op 2: x0=qid, x1=cid, x2=direction/state flag (low bit consumed)
+ * op 3: x0=queue entries, x1=protocol version
+ * op 4: x0=ASQ PA, x1=ASQ depth, x2=ACQ PA, x3=ACQ depth
+ * op 5: x0=IOSQ entries, x1=IOCQ entries
+ * op 6: x0=IOSQ register PA/value
+ * op 7: x0=IOCQ register PA/value
+ * op 8: x0=ANS SHA base PA, x1=buffer size, x2=packed-write config
+ *
+ * Addresses stay 64-bit; count/depth/config fields are consumed as w registers. The exact
+ * outer-call register preservation/return convention is still TBD-053.
  */
-struct nvme_op_args { uint64_t x[8]; };   /* TBD-051/053: real width/meaning per op */
+struct nvme_op_args { uint64_t x[8]; };
 
 /*
  * sptm_nvme_call — issue one NVMe SPTM op from Linux (post-handoff).
