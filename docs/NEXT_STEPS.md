@@ -138,6 +138,13 @@ root path only with a powered/self-powered fixture or reviewed T6040 HPM/ATC
 support. Internal NVMe remains blocked by SPTM/CoastGuard. Do not fold storage,
 SMP, cpufreq, PCIe, or enrollment into the first self-contained boot.
 
+Ticket 022's 2026-07-23 refresh also confirms that native DCP is not a B0
+dependency. Its J614s DT topology is inventoried, but the macOS 26.x ABI, extra
+display MMIO bank, paired ASC IRQ layout, DART SID/register-bank delta, and
+display-domain ownership transition remain unresolved. Keep simpledrm/fbcon
+for B0; exact evidence:
+`done/2026-07-23-t6040-dcp-upstream-dt-prep.md`.
+
 Keep the first USB smoke at `maxcpus=1 idle=nop`. The DT's extra `cpu@10105` is
 correctly disabled and 14 cores are available, but Linux secondary-core bring-up
 is still a separate staged experiment (tickets 005/034); do not combine it with

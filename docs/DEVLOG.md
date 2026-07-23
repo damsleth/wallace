@@ -697,6 +697,17 @@ while surface clearing and GPU-dependent delivery remain incomplete. This is
 protocol/versioning groundwork only; it does not add the macOS 26.x ABI needed
 by J614s. See `done/2026-07-21-asahi-dev-log-review.md`.
 
+Ticket 022 was refreshed again on 2026-07-23. PR 630 is still open at
+`7e391ffde033bf2fa0e22cc5bda575f83d2d584b`; chadmed's Linux branch is
+`f4df8984b39affb6d661ac67d097c131132b8f26`. The captured J614s ADT now gives
+an exact internal DCP/DART/display and `dcpext0/1` inventory, so DT preparation
+no longer needs a rig read. It also shows why an enabled node would be
+premature: the target has a fifth display register window, an eight-input ASC
+wrapper, SID/register-bank deltas, and a display PMGR domain deliberately
+isolated to preserve firmware scanout. No Linux-tree edit was made. Native DCP
+remains an upstream watch; B0 stays on simpledrm. Full matrix:
+`done/2026-07-23-t6040-dcp-upstream-dt-prep.md`.
+
 ### MCC carveout/cache residual closed as a boot blocker (2026-07-23)
 
 Offline ticket 020 audited the captured J614s ADT, current m1n1 memory handoff,

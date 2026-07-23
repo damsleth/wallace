@@ -299,7 +299,12 @@ remain required.
      external DP alt-mode). Firmware-version-locked; M4 + macOS 26.x firmware
      support must exist in the asahi DCP driver. The July 2026 `dcp/14.8.3`
      work now boots and has HPD/brightness progress, but is ABI groundwork rather
-     than 26.x/T6040 support.
+     than 26.x/T6040 support. The 2026-07-23 J614s ADT inventory prepares the
+     internal/external DT topology but also proves the local blockers: a fifth
+     display MMIO window, eight-input ASC wrapper, SID/register-bank deltas, and
+     the intentionally isolated raw-boot display power domain. Do not enable a
+     borrowed 14.x node; see
+     `done/2026-07-23-t6040-dcp-upstream-dt-prep.md`.
 - **SMC:** power button, lid, battery/charger via macsmc — mostly compat work.
   Track the July 2026 v2 hwmon/RTC DT-subdevice series; it has not established
   T6040 compatibility and does not relax the no-unreviewed-PMU/SPMI-write rule.
