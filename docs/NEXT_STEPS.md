@@ -380,17 +380,19 @@ the tunables without new static evidence. Continue offline route-finding for
 the missing PHY-IP aperture precondition/Apple transition, then require a new
 manifest, cross-review, and explicit approval for any changed live sequence.
 
-## 1. Provision and test the J614s trackpad firmware
+## 1. Build and review the J614s trackpad motion retest
 `event0` is Apple DockChannel Multi-touch and `event1` is the keyboard. The
 transport's missing firmware loader and stuck-start error path are fixed and
 live-tested in kernel build #12: repeated opens now independently request
 `apple/tpmtfw-j614s.bin` and return `-ENOENT`, with no invalid resets or stale
-`-EINPROGRESS`. Retrieve the paired HIDF blob from this target's Asahi ESP at
-`vendorfw/apple/tpmtfw-j614s.bin`, or process its
-`asahi/all_firmware.tar.gz` with `asahi-fwextract`, then rebuild with
-`TRACKPAD_FIRMWARE=/path/to/tpmtfw-j614s.bin`, and retest motion. If MTP then
-requests its reset GPIO, stop: the now-derived `gp1c` function resolves through
-the ADT's `smc-pmu` node, and PMU writes are forbidden by the project rules.
+`-EINPROGRESS`. Ticket 016 now reproducibly extracted the exact 25F84 J614s
+payload and staged `tpmtfw-j614s.bin` at SHA-256 `a1f4131d...`; extraction and
+integration evidence is
+`done/2026-07-23-t6040-trackpad-firmware-provision.md`. Rebuild and hash the
+exact trackpad-loader kernel/DT and firmware-bearing initramfs, independently
+review ticket 004, then retest motion. If MTP requests its reset GPIO, stop:
+the derived `gp1c` function resolves through the ADT's `smc-pmu` node, and PMU
+writes are forbidden by the project rules.
 No tactile click is expected yet (the haptic actuator is a separate interface).
 Full finding:
 `done/2026-07-12-t6040-trackpad-firmware.md`.

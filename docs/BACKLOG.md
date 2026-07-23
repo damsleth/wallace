@@ -80,9 +80,10 @@ In rough order of leverage:
    superseded. Audit/adapt the WIP direct `apple,dockchannel-uart` IRQ-816
    earlycon/`ttyDC0` path under **062** before proposing another rig test.
 5. **Make the approved rig queue runnable** (smp/cpufreq/hid). 004/005/006 are
-   approved with hashes TBD — **034** (SMP DT preflight), **035** (cpufreq DT
-   preflight), **016** (provision tpmtfw from the paired ESP/IPSW) produce the
-   pinned images so whoever holds the rig can drain them back-to-back.
+   approved with hashes TBD — **034** (SMP DT preflight) and **035** (cpufreq
+   DT preflight) produce the pinned images. Trackpad provisioning **016** is
+   complete (`tpmtfw-j614s.bin` `a1f4131d...`); ticket 004 now needs its exact
+   kernel/DT/initramfs rebuild and review before it is runnable.
 6. **Upstreaming proven work** (xcut, P1): **019** SMP/cpufreq drafts, **046**
    m1n1 T6040 series, **047** DT consolidation, **048** host tools; PMGR series
    is draft-ready (CJ asks flokli re J773s policy and posts).

@@ -192,10 +192,14 @@ Use `TRACKPAD_FIRMWARE=... scripts/t6040-make-initramfs.sh` after extracting the
 paired file; the script now validates its HIDF header and bounds before copying
 it. Current upstream `asahi-installer` needs no J614s mapping: its generic
 multitouch collector scans every `j*` directory and names the result from that
-directory. The actual blocker is retrieving this target's ESP copy at
-`vendorfw/apple/tpmtfw-j614s.bin` (or its `asahi/all_firmware.tar.gz`); neither
-is present on the development host. GPIO proxying remains intentionally absent
-until any request and
+directory. Ticket 016 reproduced the board-paired file directly from the
+canonical 25F84 restore identity: `Firmware/J614s_Multitouch.im4p` converts
+through the unmodified Asahi collector to `apple/tpmtfw-j614s.bin`, SHA-256
+`a1f4131d0cb7caf6fa15b19f47725458a6d7b0e3a34f15169339d5541663d9e2`.
+The proprietary file is staged only under `/private/tmp/t6040-vendorfw/`; the
+pinned ranged extractor and evidence are in
+`done/2026-07-23-t6040-trackpad-firmware-provision.md`. GPIO proxying remains
+intentionally absent until any request and
 its J614s ADT mapping are captured and reviewed. A later ADT-only capture found
 `function-afe-reset = pKW4('gp1c', 0x10000)` through phandle 294,
 `/arm-io/smc/iop-smc-nub/smc-pmu`. The legacy pulse would write SMC key `gp1c`

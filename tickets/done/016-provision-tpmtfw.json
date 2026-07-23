@@ -1,0 +1,18 @@
+{
+  "seq": "016",
+  "slug": "provision-tpmtfw",
+  "needs": "offline",
+  "state": "done",
+  "track": "hid",
+  "priority": "P1",
+  "desc": "Provision tpmtfw-j614s.bin from the target ESP vendorfw/ (or asahi-fwextract on all_firmware.tar.gz); stage for build (NEXT_STEPS §1). Unblocks ticket 004",
+  "author": "claude",
+  "deps": [],
+  "hashes": {
+    "extractor": "c73dcb1b1c5fe318a6785364d072d4fcca636c2eb35b36b837fee23a6fee0d63",
+    "source_im4p": "4f06afea3e412010fc56ed7dc1214d62fa48b400dbf4f75e261f14e8afe00bf4",
+    "tpmtfw": "a1f4131d0cb7caf6fa15b19f47725458a6d7b0e3a34f15169339d5541663d9e2"
+  },
+  "created": 1784039023,
+  "done_at": 1784838529
+}

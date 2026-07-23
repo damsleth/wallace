@@ -274,9 +274,11 @@ remain required.
   T6040 parameters; USB3/TB stays track-and-test.
 - **Internal keyboard + trackpad:** ✅ **keyboard DONE early (2026-07-11)** via
   dockchannel-HID (three bugs fixed — see DEVLOG); trackpad registers as
-  input0. Its missing HIDF loader and retry recovery are fixed; provision the
-  paired `tpmtfw-j614s.bin`, then determine whether J614s needs the legacy GPIO
-  proxy path (NEXT_STEPS #1).
+  input0. Its missing HIDF loader and retry recovery are fixed. Ticket 016
+  reproducibly staged the paired 25F84 `tpmtfw-j614s.bin` (`a1f4131d...`);
+  rebuild/review ticket 004, then determine whether J614s needs the forbidden
+  legacy PMU-backed GPIO proxy path without exercising that write
+  (NEXT_STEPS #1).
 - **Display:** two steps.
   1. `simpledrm` on the m1n1-provided framebuffer — works immediately, no
      driver; gives a desktop-capable (unaccelerated) console. This alone plus
