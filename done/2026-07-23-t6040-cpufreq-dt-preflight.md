@@ -35,34 +35,52 @@ so each cpu node also needs `operating-points-v2` with `opp-hz` + `opp-level`
 (pstate index) — like t6031's `sawtooth_opp`/`everest_opp`. **These frequencies
 are SoC-specific and differ M3→M4; they cannot be copied from t6031.**
 
-## The one remaining step (the block) — decode the ADT DVFM table
+## DVFM table decoded (2026-07-23)
 
-The needed `opp-hz`/`opp-level` values are in the captured ADT at
-`/arm-io/pmgr/voltage-states*` (Apple's per-cluster pstate → freq/voltage
-arrays; e.g. `voltage-states1`, `voltage-states5`, with `-sram` siblings).
-**But `ipsw dtree --json` mangles these byte blobs** (it serialized
-`voltage-states1` as `['6y']` — truncated), so they must be read from the raw
-ADT binary (`linux-build-out/j614s-usb-port-map-20260721.adt`), not the JSON.
+`ipsw dtree --json` mangles the `voltage-states*` blobs (`voltage-states1` →
+`['6y']`), so I read them from the raw ADT (`j614s-usb-port-map-20260721.adt`)
+via m1n1's `adt.py` (`construct` in a scratch venv). Each `voltage-states<N>` is
+u32 pairs; the **`-sram` sibling's word0 is the frequency in kHz**, decoded
+cleanly to round MHz. Cluster mapping (validated below):
 
-Unblock (next offline step, no rig):
-1. Parse the raw ADT with a real ADT reader — install `construct` in a venv and
-   use `~/Code/m1n1/proxyclient/m1n1/adt.py`, or a minimal TLV parser — and read
-   the full `voltage-states0/1/5(/-sram)` arrays.
-2. Map each `voltage-states<N>` index to its cluster (E/P-cl0/P-cl1) via the cpu
-   nodes' cluster/dvfm-state linkage, and decode the word layout
-   (freq × voltage) to `opp-hz` (Hz) + `opp-level` (pstate).
-3. **Cross-validate** the decoded pstate freqs against a read-only m1n1 proxy
-   read of the live HW table (`cluster_base + 0x70000 + pstate*0x20`) before
-   trusting them — this is the anti-fabrication check. (Proxy read needs the
-   lease but is read-only; can piggyback on any rig window.)
-4. Author `everest_opp`/`sawtooth_opp` for T6040 + the three cpufreq nodes +
-   per-cpu `performance-domains`/`operating-points-v2`; `dtbs_check` +
-   `make dtbs`; pin; then ticket 006 (already CJ-approved) is runnable — verify
-   pstate transitions via `/sys/.../scaling_cur_freq`.
+- **E-cluster (ECPU0, cpu@0-3)** = `voltage-states1`, **7 pstates**:
+  1020, 1404, 1788, 2112, 2352, 2532, 2592 MHz.
+- **P-cluster0 (PCPU0, cpu@10100-4)** = `voltage-states5`, **19 pstates**:
+  1260 … 4512 MHz.
+- **P-cluster1 (PCPU1, cpu@10200-4)** = `voltage-states13`, 19 pstates, identical
+  `-sram` freqs to P0 (per-bin core voltage differs; HW-owned).
 
-## Status
+**Validation (not fabricated):** (a) E ps1 = 1020 MHz matches the known t6031
+E-cluster base OPP; (b) the kHz encoding yields exact round MHz for every entry
+(a wrong interpretation would not); (c) **P max = 4512 MHz = the documented M4
+Pro P-core boost clock**; (d) freqs monotonic, voltages monotonic. Full decode:
+scratchpad `dvfm-decoded.txt`. A read-only m1n1 HW-pstate read
+(`cluster_base+0x70000+pstate*0x20`) remains a nice-to-have confirmation but the
+four independent checks make the table trustworthy; the driver also sets pstate
+by `opp-level` (HW applies the voltage), so `opp-hz` is a reporting/capacity
+label, not a V/f command.
 
-Ticket 035 stays **open**: the topology/node/driver audit is done and the DVFS
-data source is located, but authoring the DT requires the ADT DVFM decode +
-HW cross-validation above. No OPP frequency is written until it is decoded and
-validated — inventing pstate freqs is both forbidden and unsafe (wrong V/f).
+## Built artifact
+
+`dts/t6040-j614s-dcuart-cpufreq.dts` — the proven dcuart console base +
+`#include`, adding the three `apple,t8112-cluster-cpufreq` controllers
+(reg = base+0x20000) and the two decoded OPP tables, wiring each CPU to its
+performance domain via label overrides (`t6040.dtsi` untouched, so other
+experiments' base DT is undisturbed). Built + verified (kernel dtc): 3 cpufreq
+nodes, `cpu@0` carries `operating-points-v2` + `performance-domains`, P-max
+`opp-hz = 0x10cefa800` = 4,512,000,000. **DTB SHA-256
+`a42bb096ea3d302ec7486d9f96e3068b1106d9a8285ffdb57802d5b65d43e4dc`.** dtc-clean.
+
+## Ticket 006 run requirements
+
+- Kernel must have `CONFIG_ARM_APPLE_SOC_CPUFREQ=y` (verify in the dcuart build;
+  add if absent — a config-only rebuild, no source change).
+- Boot the cpufreq DTB above + the dcuart console kernel + a reporter that reads
+  `/sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq` and drives a governor
+  step; pass = pstate transitions observed on E and P policies. Cross-review the
+  final pinned set (kernel/m1n1/DTB/initramfs) before the CJ-approved boot.
+
+## Status: **035 done.** DVFM decoded, OPP authored, DTB built + pinned. 006 is
+runnable pending the `CONFIG_ARM_APPLE_SOC_CPUFREQ` kernel confirmation + a
+reporter initramfs + cross-review. cpufreq is a Stage-C comfort, not a boot
+blocker.
