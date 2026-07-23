@@ -1,0 +1,15 @@
+{
+  "seq": "083",
+  "slug": "fbcon-login-ondevice",
+  "needs": "offline",
+  "state": "open",
+  "track": "console",
+  "priority": "P2",
+  "desc": "U5 (docs/USABLE_MACHINE_EXPERIMENTS.md): on-device framebuffer login for a truly untethered usable machine. Add an OpenRC getty on the tty0/fb0 console in the RAM distro so the internal panel shows an Alpine login and the internal keyboard echoes locally, with no ttydc0 dependency. simpledrm+fbcon already render the m1n1 framebuffer (proven at BusyBox). Depends on the HID restore (ticket 078). Offline: build the getty-on-fbcon initramfs delta, host-check init/service ordering + console config, hash; then a gated one-shot rig boot. No new MMIO. Pass: panel login prompt + local keyboard echo. Post-B0.",
+  "author": "claude",
+  "deps": [
+    "078"
+  ],
+  "hashes": null,
+  "created": 1784838415
+}

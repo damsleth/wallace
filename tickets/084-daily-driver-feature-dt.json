@@ -1,0 +1,15 @@
+{
+  "seq": "084",
+  "slug": "daily-driver-feature-dt",
+  "needs": "offline",
+  "state": "open",
+  "track": "integration",
+  "priority": "P2",
+  "desc": "U8 (docs/USABLE_MACHINE_EXPERIMENTS.md): after SMP (005), cpufreq (006), and IRQ-816 console (073) each pass a solo rig boot, build ONE integrated J614s DT carrying all three (14 cores + apple,cluster-cpufreq + IRQ-816 interrupt console) on the proven dcuart base. Host-validate (dtbs_check), pin, cross-review, propose a single integration boot. This is the DT the usable RAM distro ships; the only step that combines boundaries, and only proven ones. Strictly post-B0 and after U1/U2/U3 individually pass. No forbidden writes.",
+  "author": "claude",
+  "deps": [
+    "005"
+  ],
+  "hashes": null,
+  "created": 1784838415
+}
