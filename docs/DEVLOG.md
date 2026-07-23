@@ -682,7 +682,14 @@ fixes sporadic secondary bring-up crashes, upstream #463/#480) and
 left set makes WFI drop the register file and re-enter at RVBAR. The fix
 writes `SYS_IMP_APL_CYC_OVRD` under `apple_sysregs_unlocked` — a no-op on
 this raw-boot machine (False, confirmed live), so the WFE park stays
-required here; the ticket-019 drafts should cite both commits. chadmed's DCP
+required here. Ticket 019 was finalized on 2026-07-23: the ready-to-post SMP
+draft now distinguishes the retention-bit root cause from the locked-sysreg
+WFE fallback and cites both commits; the companion cpufreq draft documents the
+validated PSTATE-only path and the asynchronous-SError throttle boundary.
+Linux `checkpatch.pl` was run and its tab-only findings were adjudicated
+against m1n1's four-space style; the changed ranges pass m1n1-style
+clang-format and `git diff --check`. Patch-mail rebase/series shaping remains
+ticket 046. chadmed's DCP
 commits are 14.x-era firmware ABI infra (V14_7 ABI, FW 14.8.3, trace_dcp) —
 watch pointer recorded on ticket 022. Follow-up through 2026-07-21: DCP now
 boots on that 14.8.3 work, HPD/brightness and much of the service stack operate,

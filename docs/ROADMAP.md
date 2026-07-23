@@ -76,8 +76,9 @@ fixed, dapf gate + watchdog arm added for M4.
 | Kernel build env (podman, arm64-native) with patch pipeline | USB gadget console (parked: EP0 dies post-enumeration) |
 | SMP/cpufreq/MCC groundwork; PCIe host+wireless DT and drivers build | board-audited Linux secondary-core test, cpufreq throttles, gated PCIe link-up test, wireless firmware, USB3/TB PHY tunables |
 
-**Upstreaming pending**: SMP/broken_wfi/MPIDR + cpufreq drafts (in `done/`);
-dockchannel-uart per-instance IRQ masks + poll-mode patch to the
+**Upstreaming pending**: the SMP/broken_wfi/MPIDR + cpufreq channel drafts are
+finalized in `done/` (ticket 019); actual m1n1 patch-mail rebase/series shaping
+is ticket 046. Also pending: dockchannel-uart per-instance IRQ masks + poll-mode patch to the
 dockchannel-branch authors (retire ADT IRQ 360; measured UART input is 816);
 curated code-only branch `t6040-bringup` tracks main's src/ (main merged AsahiLinux
 upstream 2026-07-14 at `16b1f61f`; curated branch rebased onto it the same
@@ -130,11 +131,12 @@ A→D are sequential. E/F/G parallelize after D. H wraps it all.
       **validated correct**; all 14 cores up. Plus execute-and-return + MPIDR map.
 - [x] `chainload.py -r build/m1n1.bin` reliable → ~10-second dev loop, kmutil retired
       **(done 2026-07-10, build chain fixed)**
-- [ ] Upstream: confirmed constants, features_m4/broken_wfi notes, raw-boot doc note
-      *(residual — draft ready in `2026-07-10-t6040-smp-writeup.md`; partially
-      overtaken 2026-07-14: upstream m1n1 now carries T6040 CPUSTART `0x88000`
-      in proxyclient/hv via yuka `0ec216de`, independently confirming our
-      constant — the broken_wfi/features_m4 notes remain ours to send)*
+- [x] Upstream posting draft: confirmed constants, MPIDRs, and the
+      features_m4/broken_wfi raw-boot note, finalized by ticket 019 in
+      `2026-07-10-t6040-smp-writeup.md`. Upstream m1n1 already carries T6040
+      CPUSTART `0x88000` in proxyclient/hv via yuka `0ec216de`; the draft
+      correctly frames WFE parking as the locked-sysreg fallback after Sven's
+      `c22ca847` retention-bit diagnosis. Actual patch mail is ticket 046.
 
 **Exit:** ✅ proxy stable across reboots, 14/14 cores. (chainload dev loop + upstream
 carry forward as small residuals; neither blocks Stage B.)
