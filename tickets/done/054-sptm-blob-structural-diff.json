@@ -1,0 +1,18 @@
+{
+  "seq": "054",
+  "slug": "sptm-blob-structural-diff",
+  "needs": "offline",
+  "state": "done",
+  "track": "storage",
+  "priority": "P3",
+  "desc": "DONE offline: decompressed and structurally compared T8132, T8140, and exact T6041 SPTM. Domain/table/IOMMU ids, XNU permission 0x12, nine-op func_state order, handler arguments, NVMe mapping, and SART boundary are stable; every function/bootstrap address is variant-specific. T8132/T8140 have identical NVMe/SART string inventories, while T6041 adds segment-count and NLB violations. This validates T8132 as a semantic proxy but forbids reusing offsets/policy. Result: done/2026-07-23-sptm-three-soc-structural-diff.md.",
+  "author": "fable",
+  "deps": ["052"],
+  "hashes": {
+    "t8132": "a265ec66a6b61b7d75704ac68f5dbdb8ab6cecce9a6605e78f39b89baaa979cb",
+    "t8140": "3292847e931ad6188b8dc8539646b66cdef2a5096ac695d96783c1adde5c1b0e",
+    "t6041": "0755358864e4d9e24255dd126d41d0a26a803fcbac0593898f76a7ba644af01a"
+  },
+  "created": 1784060529,
+  "done_at": 1784844740
+}

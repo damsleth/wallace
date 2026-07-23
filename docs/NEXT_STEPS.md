@@ -195,6 +195,10 @@ and NLB validation. This does not create a callable SPTM path: outer IOMMU
 dispatch and domain provenance remain ticket 055 work. Exact results:
 `done/2026-07-23-t6040-sptm-nvme-op-args.md` and
 `done/2026-07-23-t6041-sptm-exact-blob.md`.
+Ticket 054's three-SoC structural diff further confirms that dispatch ids,
+op ordering, arguments, and SART/NVMe ownership are stable across T8132,
+T8140, and T6041, while text/register offsets are strictly variant-specific:
+`done/2026-07-23-sptm-three-soc-structural-diff.md`.
 
 Ticket 046's m1n1 series shaping is complete. Current upstream
 `7c7716b6` already added initial T6041 identity and T6040's moved PCIe reset
