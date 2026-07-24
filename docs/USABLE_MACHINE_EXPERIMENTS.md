@@ -63,7 +63,9 @@ ships. It is the *only* step that combines boundaries, and only proven ones.
 - Persistent storage (B2): USB root blocked on ATC/HPM (023/032/060); internal
   NVMe behind SPTM (051/052/054/055).
 - GPU (drm/asahi), audio, ISP/webcam, suspend: upstream-tracked (039/040/027);
-  not on the usable-RAM-distro path.
+  not on the usable-RAM-distro path. GPU mule prep 039 is complete: there is
+  no current G16 candidate, and the ready evidence/test contract explicitly
+  forbids reusing a G14 identity.
 - Trackpad motion (004): a comfort, gated on tpmtfw provisioning (016).
 
 ## Milestone definition ("usable machine")

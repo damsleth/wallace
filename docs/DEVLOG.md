@@ -755,6 +755,19 @@ isolated to preserve firmware scanout. No Linux-tree edit was made. Native DCP
 remains an upstream watch; B0 stays on simpledrm. Full matrix:
 `done/2026-07-23-t6040-dcp-upstream-dt-prep.md`.
 
+Ticket 039's G16 upstream-mule preparation completed on 2026-07-24. Pinned
+source inspection found no live candidate: asahi-wip has hardware/firmware
+definitions only through T6022/G14; Mesa has AGX2 compiler groundwork but no
+explicit G16 chip/command-stream selection and currently classifies every GPU
+generation ≥14 as G14G/G14X; m1n1 has no T6040 `dt_set_gpu()` handoff case.
+The official T604x GPU feature remains TBA. The captured `gpu,t6040`/gfx-asc
+register, IRQ, perf-state and UAT-region inventory plus exact 25F84
+`AGXFirmwareKextG16RTBuddy`/`AGXG16X` kernelcache hashes are recorded without
+machine identifiers. A reusable admission gate, G0–G3 staged smoke, stop policy,
+and report template are ready. Do not create or run a G14 alias; B0 remains
+simpledrm/fbcon. See `done/2026-07-24-t6040-gpu-upstream-test-prep.md` and
+`docs/t6040-gpu-upstream-smoke.md`.
+
 ### ATC/HPM upstream pointer corrected (2026-07-23)
 
 Ticket 023 rechecked every published Asahi ATC branch against the captured

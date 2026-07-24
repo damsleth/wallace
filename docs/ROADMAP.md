@@ -372,6 +372,12 @@ GPU/WiFi (USB ethernet).
   dumps, run bring-up branches, report. Writing a G16 GPU driver from scratch
   here is out of scope; the raw-boot hypervisor limitation (no XNU tracing on
   M4) means even upstream does the RE on other hardware.
+- **2026-07-24 checkpoint:** current asahi-wip ends at T6022/G14, Mesa has no
+  explicit G16 chip path (generation ≥14 currently selects G14), m1n1 has no
+  T6040 GPU handoff case, and the official T604x GPU status is TBA. The exact
+  ADT/25F84 evidence packet and staged upstream-mule contract are ready in
+  `done/2026-07-24-t6040-gpu-upstream-test-prep.md` and
+  `docs/t6040-gpu-upstream-smoke.md`. Never test a G14 alias on this machine.
 - **Until it lands:** simpledrm desktop. KDE on simpledrm at 3024x1964 is
   serviceable; no video decode offload, no games, high CPU for compositing.
 

@@ -196,6 +196,14 @@ T6040 `0x548700000` auto-detection is already upstream, so there is no kisd
 patch. CJ posts, if desired. Exact branches and hashes:
 `done/2026-07-24-t6040-host-tools-upstream-prep.md`.
 
+Ticket 039's G16 mule preparation is also complete, with no live candidate.
+Current Linux ends at T6022/G14, Mesa has no explicit G16 path, m1n1 has no
+T6040 GPU handoff, and the official T604x GPU state remains TBA. The exact
+J614s ADT/25F84 firmware packet and a staged upstream-requested test/report
+contract are ready; never substitute a G14 alias. Keep B0 on simpledrm/fbcon.
+See `done/2026-07-24-t6040-gpu-upstream-test-prep.md` and
+`docs/t6040-gpu-upstream-smoke.md`.
+
 Ticket 051's guarded-side NVMe argument decode is complete. All nine handlers
 now have byte-proven input registers, including the formerly unverified
 ASQ/ACQ op-4 contract and the corrected op-0–3 init/TCB/configure split. This

@@ -103,8 +103,9 @@ In rough order of leverage:
    version-gate-only.
 8. **SPTM internal-NVMe long shot** (storage, background): 051/052/054/055 —
    static decode + the XNU-shim escalation draft for #asahi-dev. No rig time.
-9. **Track-and-test** ([UPSTREAM] tickets): 022 DCP, 023 ATC PHY, 026
-   installer, 039 GPU — watch, report, don't build here.
+9. **Track-and-test** ([UPSTREAM] tickets): 022 DCP and 023 ATC PHY remain
+   watchers. Installer 026 and GPU mule prep 039 are complete; the latter has
+   an exact evidence packet and test contract but no safe G16 candidate.
 
 ## Lanes (avoid duplicate work; not exclusive ownership)
 
@@ -115,7 +116,7 @@ Per COORDINATION.md roles, extended for the USB-root era:
 | Storage: RAM-root + USB-root pipeline + SPTM | **sol** | Alpine RAM-root boots; trace current-kernel HID boundary; powered USB later → ROOT boot or upstream HPM/ATC; 051/052/054/055 |
 | PCIe/WiFi-BT, DockChannel console | **claude** | 058, 044; 062 IRQ-816 direct-driver audit |
 | Rig-queue preflights, SMC/PM, upstream drafts | **claude** (first grab) | 061; 019/046/047/048 complete |
-| Rootfs recipe, xcut, tracking | either (queue order) | 060, 029/030, 022/023/026/039 |
+| Rootfs recipe, xcut, tracking | either (queue order) | 029/030, 022/023; 026/039/060 complete |
 
 The other agent still cross-reviews every live image regardless of lane, and
 either agent picks up an abandoned lane rather than waiting.
