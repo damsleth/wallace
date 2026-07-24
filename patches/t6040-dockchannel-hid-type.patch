@@ -1,0 +1,39 @@
+From: CJ Damsleth <kim@damsleth.no>
+Subject: [PATCH] HID: apple-dockchannel-hid: set hid->type so hid-apple binds
+
+The rebased hid-apple (Asahi "HID: apple: Bind to HOST devices for MTP")
+matches any BUS_HOST Apple device and, at the top of apple_probe(), returns
+-ENODEV unless hdev->type == HID_TYPE_SPI_KEYBOARD. apple_dockchannel_hid never
+sets hid->type, so every interface stays HID_TYPE_OTHER: hid-apple matches then
+bails, hid-generic then declines (hid-apple "matched"), nothing binds, and no
+input device is created (empty /proc/bus/input/devices, no /dev/input) even
+though hid_add_device() returns 0. Live-traced on J614s (ticket 076):
+create ret=0 for keyboard yet zero input devices.
+
+Set hid->type from the interface name before hid_add_device(), mirroring the
+sibling dockchannel-hid.c, so hid-apple's guard passes for the keyboard and the
+multi-touch collection is typed as a mouse. Minimal: type only (country-code is
+a layout nicety, not required for input registration).
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c b/drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c
+--- a/drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c
++++ b/drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c
+@@ -566,6 +566,12 @@
+ 	hid->vendor = le16_to_cpu(dchid->device_id.vendor_id);
+ 	hid->product = le16_to_cpu(dchid->device_id.product_id);
+ 	hid->version = le16_to_cpu(dchid->device_id.version_number);
+
++	hid->type = HID_TYPE_OTHER;
++	if (!strcmp(iface->name, "multi-touch"))
++		hid->type = HID_TYPE_SPI_MOUSE;
++	else if (!strcmp(iface->name, "keyboard"))
++		hid->type = HID_TYPE_SPI_KEYBOARD;
++
+ 	hid->dev.parent = iface->dchid->dev;
+ 	hid->driver_data = iface;
+ 	iface->hid = hid;

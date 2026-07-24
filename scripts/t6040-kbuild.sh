@@ -650,6 +650,20 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
             exit 1
         fi
     fi
+    # HID input-registration fix: set hid->type so hid-apple binds the internal
+    # keyboard (live-proven, ticket 078 -> /dev/input/event0). Without it, the
+    # rebased BUS_HOST hid-apple rejects the untyped device and nothing binds.
+    if grep -q 'hid->type = HID_TYPE_SPI_KEYBOARD' \
+        drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c; then
+        echo "t6040-dockchannel-hid-type.patch already applied"
+    elif git apply --check /out/t6040-dockchannel-hid-type.patch 2>/dev/null; then
+        git apply /out/t6040-dockchannel-hid-type.patch
+        echo "t6040-dockchannel-hid-type.patch applied OK"
+    else
+        echo "ERROR: t6040-dockchannel-hid-type.patch does not apply cleanly:"
+        git apply --check /out/t6040-dockchannel-hid-type.patch || true
+        exit 1
+    fi
     if [ "${DOCKCHANNEL_IRQ_TEST:-0}" = "1" ]; then
         echo "== apply bounded DockChannel IRQ diagnostic guard =="
         if grep -q 'IRQ storm guard tripped' drivers/mailbox/apple-dockchannel.c; then

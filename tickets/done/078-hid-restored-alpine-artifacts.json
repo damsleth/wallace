@@ -2,7 +2,7 @@
   "seq": "078",
   "slug": "hid-restored-alpine-artifacts",
   "needs": "offline",
-  "state": "open",
+  "state": "done",
   "track": "hid",
   "priority": "P1",
   "desc": "Build the smallest evidence-backed HID candidate from ticket 077 against the same config and storage-disabled DT, with a TX-only automatic registration/inventory report and no ttydc0 RX dependency. Host-test, static-safety audit, reproduce/hash, independently review, and stop before any rig proposal. Experiment 3 in docs/BOOTABLE_BUILD_EXPERIMENTS.md.",
@@ -11,5 +11,6 @@
     "077"
   ],
   "hashes": null,
-  "created": 1784838169
+  "created": 1784838169,
+  "done_at": 1784882859
 }
