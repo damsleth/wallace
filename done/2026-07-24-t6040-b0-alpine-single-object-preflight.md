@@ -91,3 +91,33 @@ Stop and recover on any hash mismatch, SError, reset loop, DART fault,
 unexpected USB/storage probe, missing report end marker, or lost TX. The live
 step still needs independent exact-artifact review and explicit maintainer
 approval. No APFS, Boot Policy, or enrollment action is part of this control.
+
+## Independent cross-review — claude, 2026-07-24 (author = codex/sol)
+
+Per COORDINATION.md the non-author reviews the manifest before boot. Verdict:
+**PASS — cleared to boot.**
+
+- **Object identity exact:** `linux-build-out/m1n1-b0-alpine-hid-restored.bin`
+  is 21,729,039 bytes, SHA-256 `b50f52ab…9172` — matches the ticket/preflight.
+- **Strict verifier re-run independently** (`t6040-raw-object-verify.py --strict`
+  with each pinned component + `--expect-bootargs`): PASS. Every member offset,
+  size, and hash reproduces the manifest — bootargs `b2db0cbb…`, kernel gzip
+  `d76463e5…`, DTB `2782b922…`, initramfs `d5b790c6…`, zero terminator, entry
+  `0x800`, reserve 63,051,211 B < 64 MiB. `--self-test` PASS.
+- **Every component resolves by content-hash to a live-proven artifact:** m1n1
+  `1394c345…` (PCIe-write-free upper-guard), kernel `df7657c1…` (the 078
+  HID-type-fix Image that registered event0), DTB `2782b922…` (storage-disabled
+  DCUART/HID), initramfs `d5b790c6…` (076 Alpine auto-reporter). No new artifact.
+- **Boot-script contract holds** (`t6040-boot-raw-object.sh`): sources
+  `rig-guard.sh` (lease-enforced), re-checks the exact object SHA and aborts on
+  mismatch, stops the competing PTY reader, runs `chainload.py -r` exactly once,
+  contains no `linux.py` and sends no target command (so no MMIO/PMU/SPMI/storage
+  op is reachable), reattaches a raw console reader. The `timeout 300` wraps only
+  the chainload child, not kisd — no KEEPALIVE-kill hazard.
+- **No forbidden boundary:** RAM-root only, storage-disabled DTB, no `root=`, no
+  USB/ATC/SPMI, no APFS/Boot-Policy/enrollment. Same risk class as the proven
+  dcuart Alpine boots, only repackaged as one self-contained object.
+
+Standing stop conditions (SError/reset/DART/USB or storage probe/lost TX/missing
+end marker) unchanged. Cleared for one boot under the maintainer approval already
+recorded in the ticket store.
