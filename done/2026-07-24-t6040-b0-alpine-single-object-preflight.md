@@ -1,7 +1,10 @@
 # T6040 Alpine single-object control preflight
 
+> **Final amendment:** ticket 089 passed this delivery control. The release
+> object was subsequently reviewed and passed live under ticket 100.
+
 Date: 2026-07-24  
-Scope: offline artifact build only; live run is proposed ticket 089
+Scope: historical preflight; live control completed under ticket 089
 
 ## Purpose
 

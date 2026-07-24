@@ -1,16 +1,15 @@
 {
   "seq": "099",
   "slug": "right-usb-root-untethered-boot",
-  "needs": "rig",
-  "state": "approved",
+  "needs": "offline",
+  "state": "open",
   "track": "distro",
   "priority": "P1",
-  "desc": "After the R3 right-port link proof and corrected OpenRC image are independently verified, flash the exact image to an explicitly identified removable USB stick on the M1 under a separate destructive-write confirmation, then perform one right-port M4 root=PARTUUID boot. First tethered run must prove ext4 root, OpenRC default runlevel, ttydc0 and tty0 login, watchdog, internal keyboard, expected USB block device only, and no internal NVMe access. Then perform a separate untethered/cold-boot observation using the already-approved B0 enrollment path; never combine flashing, enrollment, and first root boot in one action. Exact device identity, image hash, boot hashes, rollback, review, lease, and maintainer approvals required.",
+  "desc": "APPROVED-PLAN HISTORY; NON-RUNNABLE UMBRELLA. Image 098 is ready, but the original ticket combined destructive M1 flashing, first tethered M4 root, a write/persistence test, and untethered cold boot. Those are now separate child tickets: read-only block identity; flash preflight; explicitly confirmed M1 flash/readback; tethered OpenRC read-write persistence; and untethered external-root boot after B0 ticket 101. Historical plan approval does not approve any destructive write or new live artifact.",
   "author": "codex",
   "deps": [
-    "097",
     "098",
-    "082"
+    "097"
   ],
   "hashes": null,
   "created": 1784909165,

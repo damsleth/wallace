@@ -56,15 +56,14 @@ clears/masks interrupts, and contains unbounded/error-lifetime problems.
 
 ## Ticketed experiment ladder
 
-- 092: offline build and cross-review of separate direct-HPM2 R0/R1/R2
-  artifacts.
-- 093: R0 selector plus one-byte logical power-state `0x20` read.
-- 094: R1 WAKEUP plus conditional `SSPS` S0.
-- 095: R2 exact interrupt-mask save/change/restore with no W1C event clear.
+- 092: completed hardened direct-HPM2 artifact pattern.
+- 093: completed inactive-selector boundary.
+- 094: completed WAKEUP + power-state `0x07` read.
+- 095: completed SSPS-to-S0 (`0x00`) with no interrupt-mask code linked.
 - 096: offline class-10 attach/detach, VBUS, repeater, and ATC rollback decode.
-- 097: R3 passive-stick right-port host-link proof and no-root enumeration.
+- 097: non-runnable historical host-link umbrella; decomposed into 102–108.
 - 098: corrected OpenRC persistent-root image.
-- 099: tethered persistent-root proof, then a separate untethered boot.
+- 099: non-runnable historical root umbrella; decomposed into 109–113.
 
-The policy change authorizes preparation and proposal of these exact stages;
-it does not approve any rig ticket or allow generic SPMI experimentation.
+The original policy authorized preparation/proposal, not generic SPMI. Current
+child tickets retain their own review and approval gates.

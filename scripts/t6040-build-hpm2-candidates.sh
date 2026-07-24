@@ -81,9 +81,12 @@ build_one()
     grep -q ' spmi_ext_read$' "$pass_dir/symbols.txt"
     if test "$class" -ge 1; then
         grep -q ' spmi_send_wakeup$' "$pass_dir/symbols.txt"
-        grep -q ' spmi_ext_write$' "$pass_dir/symbols.txt"
     else
         ! grep -q ' spmi_send_wakeup$' "$pass_dir/symbols.txt"
+    fi
+    if test "$class" -ge 2; then
+        grep -q ' spmi_ext_write$' "$pass_dir/symbols.txt"
+    else
         ! grep -q ' spmi_ext_write$' "$pass_dir/symbols.txt"
     fi
 

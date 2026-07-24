@@ -1,6 +1,11 @@
 # T6040 bootable-build experiment ladder
 
-Date: 2026-07-23
+Date: 2026-07-24
+
+Current state: the tethered B0 release-object proof passed (tickets 081/100).
+The remaining B0 boundary is approved ticket 101's maintainer-executed
+enrolled cold boot, after ticket 082's exact volume identity/backup fields,
+dual-mode-object review/trigger validation, and the current rig recovery gate.
 
 ## Target milestone
 
@@ -47,7 +52,7 @@ but it must not deliver any payload or command needed for success.
 
 ## Experiment 1 — capture the current HID failure boundary
 
-Ticket: **076**, proposed rig experiment.
+Ticket: **076**, completed.
 
 Boot ticket 074’s exact observation-only kernel and storage-disabled DT with
 ticket 075’s TX-only auto-reporter. Send no target command. Capture the bounded
@@ -55,12 +60,11 @@ report and recover after its end marker.
 
 Pass is evidence, not necessarily working HID: the report must locate the
 furthest reached DockChannel/DCHID state and inventory input devices without
-depending on ttydc0 RX. This experiment is already independently reviewed and
-awaits explicit maintainer approval.
+depending on ttydc0 RX. The captured report led directly to 077/078.
 
 ## Experiment 2 — turn the trace into one minimal hypothesis
 
-Ticket: **077**, offline.
+Ticket: **077**, completed offline.
 
 Apply the interpretation matrix from ticket 074’s trace preflight to the exact
 ticket 076 report:
@@ -89,7 +93,7 @@ the exact live candidate registers `input0/event0` with empty partitions.
 
 ## Experiment 3 — build a HID-restored Alpine candidate
 
-Ticket: **078**, offline after 077.
+Ticket: **078**, completed.
 
 Build the minimal ticket-077 candidate against the same config and
 storage-disabled DT. Extend the automatic report with only:
@@ -109,7 +113,7 @@ to experiment 2; it does not authorize iterative live poking.
 
 ## Experiment 4 — make a release-like RAM distro bundle
 
-Ticket: **079**, offline after HID restoration.
+Ticket: **079**, completed offline.
 
 Turn the diagnostic minirootfs into a reproducible Alpine B0 image:
 
@@ -162,53 +166,51 @@ component/expansion verification. Full contract:
 `done/2026-07-23-t6040-raw-boot-object-layout.md`. Host gate:
 `scripts/t6040-raw-object-verify.py`.
 
-The current local m1n1 build contains unapproved PCIe operation-115 work and
-was used only for an in-memory parser fixture. Ticket 081 must use an
-independently reviewed, PCIe-write-free m1n1 artifact and reverify every final
-byte. Its tethered proof must also prevent the optional early-proxy window
-from intercepting payload autoboot.
+Ticket 081 used independently reviewed, PCIe-write-free m1n1 `1394c345...`,
+reverified every final byte, and passed the tethered proof under ticket 100.
 
 ## Experiment 6 — build and tether-test one self-contained raw object
 
-Ticket: **081**, offline artifact work after 079 and 080.
+Tickets: **081**, completed offline; live proof **100**, completed.
 
 Construct one raw object containing the exact B0 m1n1, kernel, DTB, and Alpine
 image. Reparse it with the experiment-5 verifier and independently review its
 source hashes, offsets, entry point, expansion bounds, and expected command
 line.
 
-The first eventual live test must chainload only this single object over KIS.
+The live test chainloaded only this single object over KIS.
 It must not run `linux.py` or upload a second payload. Success means the object
 autodiscovers its embedded payload and reaches the already-proven B0 Alpine
 acceptance state. KIS is observational only after chainload.
 
-Ticket 081 itself stops before a rig proposal. A later exact one-shot rig
-ticket is created only after the artifact and preflight pass review.
+Ticket 100 was the exact reviewed one-shot rig ticket and passed.
 
 Ticket 079's release userspace and the exact ticket-081 object candidate now
 exist. `initramfs-alpine-b0.cpio.gz` (`ddd981711e91...`) and
 `m1n1-b0-alpine-openrc.bin` (`2371ee5dfbfa...`) each reproduce byte-for-byte;
 the latter strictly decodes to safe m1n1 + the ticket-078 kernel + unchanged
 storage-disabled DTB + the OpenRC root. Result and hashes:
-`done/2026-07-24-t6040-alpine-b0-release-bundle.md`. This is artifact
-readiness, not independent review or permission to create the live ticket.
-The exact not-yet-approved one-shot procedure and review checklist are in
+`done/2026-07-24-t6040-alpine-b0-release-bundle.md`. Independent review
+reproduced it, and ticket 100 reached OpenRC default runlevel, watchdog, panel
+shell, `input0/event0`, empty partitions, and local keyboard echo. The exact
+procedure and review checklist are in
 `done/2026-07-24-t6040-alpine-openrc-single-object-preflight.md`.
 
 An earlier delivery-only control is now available without weakening that gate.
 `m1n1-b0-alpine-hid-restored.bin` (`b50f52ab1fac...`) packages the exact
 ticket-078 live-proven Alpine components behind safe m1n1 and passes strict
-offset/hash/expansion checks twice. Proposed ticket 089 uploads only this
+offset/hash/expansion checks twice. Completed ticket 089 uploaded only this
 object, invokes no `linux.py`, and expects the existing ttydc0 automatic report
-plus `event0`. It proves embedded autoboot before the release-like userspace,
-but cannot close 081 or serve as the enrolled B0 release.
+plus `event0`. It de-risked embedded autoboot before ticket 100 separately
+closed the release-object proof.
 
 ## Experiment 7 — prepare the reversible enrolled cold boot
 
-Ticket: **082**, offline after the single-object tethered test. Ticket 026's
-installer notes may inform it but do not block the manual B0 path.
+Ticket: **082**, procedure prepared after the successful single-object test.
+Approved live ticket: **101**. Ticket 026's installer notes may inform it but
+do not block the manual B0 path.
 
-Prepare, but do not execute:
+The procedure now contains:
 
 - exact `kmutil configure-boot --raw` invocation and verified raw entry point;
 - target-volume identity checks that make selecting the main macOS volume
@@ -219,10 +221,18 @@ Prepare, but do not execute:
 - recovery and rollback from 1TR or the main macOS volume;
 - pass/stop conditions for one cold boot.
 
-Enrollment and boot are separate approvals if the maintainer wants that split.
+Remaining before execution: fill the dedicated volume UUID, back up and hash
+the currently enrolled object, independently review dual-mode candidate
+`46237ade...` under ticket 119, validate its normal/debug trigger distinction, decide whether
+enrollment and boot use split approvals, and recover the current wedged KIS
+link. The agent does not execute `kmutil` or change Boot Policy; the maintainer
+performs enrollment.
+
+Enrollment and boot remain separate actions if the maintainer wants that split.
 The live pass condition is boot picker → m1n1 → Linux → Alpine login with
 simpledrm/fbcon, internal keyboard, watchdog, and no host payload transfer.
-That is milestone B0.
+That is milestone B0. Exact procedure:
+`done/2026-07-24-t6040-b0-enrolled-cold-boot-preflight.md`.
 
 ## After B0
 
@@ -231,9 +241,9 @@ That is milestone B0.
   hello test, and has no autoboot or bus drivers. Test it only after B0 as a
   separately reviewed payload; do not make EFI a prerequisite for the first
   cold boot. Result: `done/2026-07-23-t6040-uboot-noio-prep.md`.
-- Tickets 023, 032, and 060 remain the B2 external-root path. The next USB
-  live discriminator needs a powered/self-powered fixture or reviewed T6040
-  HPM/ATC support; repeating the passive right-side stick test is not useful.
+- Tickets 096–099 and the decomposed link/block/flash/root experiments are the
+  B2 external-root path. Right HPM2 now reaches S0 and image 098 is ready, but
+  role/VBUS/ATC, child enumeration, block access, flashing, and writes remain.
 - Ticket 030's paired 25F84 restore corpus is complete and can be supplied to
   later rootfs/initramfs builds. Its missing machine-private ALS calibration
   is ticket 087 and does not block B0 or B2 root mounting.
@@ -250,13 +260,14 @@ That is milestone B0.
        -> 078 HID-restored candidate
             -> 079 release-like RAM distro
                  -> 081 self-contained raw object
-                      -> reviewed tethered single-object boot
-                           -> 082 enrolled cold-boot preflight
-                                -> B0 cold boot
+                      -> 100 reviewed tethered single-object boot PASS
+                           -> 082 identity/backup + dual-mode review
+                                -> 101 enrolled cold boot (approved)
+                                     -> B0
 
 024 interim path -> 080 raw-object layout audit --------^
 026 enrollment notes (informational, not a B0 gate) ----^
 
 B0 -> 025 U-Boot/EFI (B1)
-B0 + reviewed HPM/ATC or powered USB -> 032/060 USB root (B2)
+B0 + reviewed HPM/ATC -> enumeration -> block read -> flash -> USB root (B2)
 ```

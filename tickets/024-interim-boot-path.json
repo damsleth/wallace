@@ -5,7 +5,7 @@
   "state": "open",
   "track": "distro",
   "priority": "P1",
-  "desc": "Umbrella for the B0 interim boot path: an enrolled raw m1n1 object boots a self-contained kernel+J614s DTB+Alpine RAM root from the dedicated APFS boot volume, with no host payload upload. The concrete experiment ladder is docs/BOOTABLE_BUILD_EXPERIMENTS.md: ticket 080 audits the raw-object payload contract, 081 builds and prepares a tethered single-object proof, and 082 prepares reversible enrollment/cold boot. Direct m1n1 payloads are preferred for B0; U-Boot is ticket 025/B1 unless the payload audit proves it mandatory.",
+  "desc": "B0 umbrella, current 2026-07-24: raw-object audit 080, artifact 081, delivery control 089, and tethered release-object boot 100 are done. Exact object 2371ee5d reached Alpine/OpenRC default runlevel, watchdog, panel shell, internal keyboard, and empty partitions from one upload. Ticket 082 has the reversible enrollment procedure but still needs volume UUID, current-object backup/hash, dual-mode object 46237ade review/trigger validation, and execution split confirmation. Approved ticket 101 is the maintainer-executed cold boot after those items and rig recovery. U-Boot remains post-B0 ticket 025/B1.",
   "author": "claude",
   "deps": [],
   "hashes": null,

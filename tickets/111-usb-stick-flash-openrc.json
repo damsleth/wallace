@@ -1,0 +1,17 @@
+{
+  "seq": "111",
+  "slug": "usb-stick-flash-openrc",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "storage",
+  "priority": "P1",
+  "desc": "DESTRUCTIVE PROPOSAL: on the M1 only, after ticket 110 independent review, flash exact image 1c493fad... to the exact removable USB whole disk under a separately supplied erase confirmation naming that disk. Unmount, write, sync, and full-readback hash against the source; record post-write GPT/ext4 identities. Never infer the disk from position/order and never combine with an M4 boot or enrollment. Historical ticket-099 approval does not approve this write.",
+  "author": "codex",
+  "deps": [
+    "110"
+  ],
+  "hashes": {
+    "image": "1c493fad1d1b44520d9265c5946c8ac00b867b3d47fac93f88d1f55cde25060e"
+  },
+  "created": 1784927435
+}

@@ -21,19 +21,19 @@ orientation, VBUS, the eUSB2-repeater reset, or USB2 host-PHY state. m1n1's
 inherited `usb_phy_bringup()` is a fixed legacy device-mode sequence that does
 **not** apply the ADT's `tunable_USB2PHY_HOST` records or deliver HPM orientation.
 
-## "Write on the M1, boot/read on the M4" — yes, and the write half is DONE
+## "Write on the M1, boot/read on the M4" — yes; the image is ready, the stick is not flashed
 
 This IS the right architecture and its image-construction half is done:
 
-- The primary GPT/ext4 artifact is the structurally verified 1 GiB
-  `linux-build-out/t6040-alpine-usb-root.img`, SHA-256
-  `32a897cb48bab0f066528b76cc6ef6b364a2807b43371d5b2f3c2abcced42cd1`,
-  PARTUUID `1b841e9b-65a5-4687-83f2-6c728961ad14`. It is the ticket-086 image
-  with complete identity, filesystem, and guarded flash-boundary documentation
-  in `done/2026-07-24-t6040-usb-root-image.md`.
-- It is not yet bootable: the Alpine minirootfs does not include the OpenRC
-  binary its inittab invokes. Ticket 098 must rebuild it from the verified
-  OpenRC RAM root before flashing.
+- The selected GPT/ext4 artifact is
+  `linux-build-out/t6040-alpine-openrc-usb-root.build4.img`, SHA-256
+  `1c493fad1d1b44520d9265c5946c8ac00b867b3d47fac93f88d1f55cde25060e`,
+  PARTUUID `e4731abe-3566-4c3a-8019-c8828ca27a5a`. Ticket 098 completed its
+  GPT/ext4/OpenRC/content checks and independent review. It is ready for a
+  separately confirmed destructive flash after M4 enumeration/read-only block
+  identity succeeds.
+- The older ticket-086 image `32a897cb...` is structurally valid but lacks
+  OpenRC and must not be flashed.
 - A secondary 512 MiB filesystem-only artifact was also built at
   `linux-build-out/t6040-usbroot-alpine.img` (`ccc18ab...`), but it is not the
   selected release artifact, has the same missing-OpenRC defect, and should
@@ -61,7 +61,7 @@ the **ATC host PHY** brought up with the ADT `tunable_USB2PHY_HOST`. Two paths:
    (`dcc5f1bc...`) is the first public code matching our exact Gen3
    SPMI/SN201202x nodes. It is not sanctioned for Wallace merely because the
    writes happen in m1n1. The endpoint-scoped policy permits only the separate
-   direct-HPM2 stages in tickets 092–097; this branch performs
+   direct-HPM2 policy; this branch performs
    WAKEUP/SHUTDOWN, register-select, possible `SSPS`, and IRQ writes across
    additional HPMs and has unresolved safety/correctness issues. Audit:
    `done/2026-07-24-t6040-yuka-hpm-spmi-branch-audit.md`.
@@ -69,16 +69,19 @@ the **ATC host PHY** brought up with the ADT `tunable_USB2PHY_HOST`. Two paths:
    path; tracked (ticket 023), not build-here.
 
 Either way, M4 USB-stick boot is gated on the HPM/ATC host-link bring-up. We
-cannot force it from the Linux side without a reviewed HPM/ATC sequence. The
-new R0/R1/R2/R3 ladder is tickets 092–097; no stage is implicitly approved.
+cannot force it from the Linux side without a reviewed HPM/ATC sequence.
+Tickets 093–095 proved the endpoint through S0; 096 and decomposed tickets
+102–113 own rollback, link, enumeration, block access, flash, and root tests.
+No new stage is implicitly approved.
 
 ## Net "landed state"
 
-- **Write (M1) → boot-read (M4)** is the correct plan; the filesystem image
-  still needs the ticket-098 OpenRC rebuild before it is flash-ready.
+- **Write (M1) → boot-read/write (M4)** is the correct plan; the ticket-098
+  image is flash-ready, but the stick has not been flashed.
 - **M4 read/enumeration is the remaining hard blocker**, gated on reviewed
-  m1n1 (or upstream Linux) HPM/ATC host-link support — not on anything we can
-  safely force now.
+  m1n1 (or upstream Linux) HPM/ATC host-link support. The exact HPM endpoint
+  now reaches S0 (`0x07` → `0x00`); role/VBUS/repeater/ATC and xHCI child
+  enumeration remain.
 - Therefore the **achievable untethered distro** is the RAM-root path (Alpine
-  boots today, keyboard now works); USB-stick persistent root activates the
-  moment the HPM/ATC link lands, with the stick already populated.
+  boots today, keyboard now works); USB-stick persistent root follows the
+  decomposed link, read-only block, flash, bounded-write, and cold-boot tests.

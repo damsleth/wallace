@@ -77,6 +77,11 @@ SPMI `SLEEP` and `SHUTDOWN` remain prohibited until a test proves the prior
 state and an exact restoration contract. A reboot is recovery, not proof of an
 inverse.
 
+Live evidence on 2026-07-24: exact right-HPM2 WAKEUP activated the selector
+window and exposed power state `0x07`; the separately reviewed DATA1 `00` +
+CMD1 `SSPS` sequence then produced state `0x00`. This proves only HPM S0.
+It does not authorize role/VBUS/config, interrupt handling, PHY, or storage.
+
 ### Class R2: interrupt/event handling
 
 Saving/restoring an interrupt mask can be reviewed, but clearing W1C event
@@ -84,6 +89,10 @@ registers destroys information and is not automatically reversible. The
 existing generic path's all-ones `IntClear1` plus zero `IntMask1` sequence is
 not approved. Any R2 candidate must name each register, preserve the original
 mask, avoid broad event clear, and describe handoff to Linux.
+
+No R2 interrupt-mask experiment has run. It was deliberately removed from
+ticket 095's SSPS-only binary. Create it only if the host-transition decode
+shows that mask ownership must change.
 
 ### Class R3: connector role, VBUS, and PHY transition
 
@@ -114,6 +123,10 @@ powered source during an unproven source-role/VBUS experiment.
   access outside the manifest. Recover with the documented warm reboot, then a
   power cycle if necessary.
 
+Current operational gate: ticket 095 passed but its following VDM/KIS recovery
+did not. The rig is marked NEEDS_RECOVERY; no SPMI or other live experiment may
+run until a healthy proxy recovery is recorded.
+
 ## Current upstream candidate
 
 Yuka's `tps6598x-spmi` branch at `dcc5f1bccbbe986099f218e9057f7fa99a0b1fe2`
@@ -128,3 +141,4 @@ The detailed topology and source audits are:
 - `done/2026-07-24-t6040-hpm-spmi-discovery-boundary.md`
 - `done/2026-07-24-t6040-hpm-class10-host-transition.md`
 - `done/2026-07-24-t6040-yuka-hpm-spmi-branch-audit.md`
+- `done/2026-07-24-t6040-hpm2-r2-ssps-s0-result.md`

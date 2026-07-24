@@ -1,0 +1,15 @@
+{
+  "seq": "106",
+  "slug": "right-hpm-host-transition-live",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "Proposed one-shot HPM-only host-role/source transition and exact rollback using ticket 105's reviewed artifact. Fixture is only the passive bus-powered right-port memory stick; never charger, powered dock, other host, or external source. Require role/orientation/power transcript and byte-exact rollback. No repeater/ATC/DWC3/xHCI/Linux/storage. Stop on unexpected source state, timeout, transport error, SError/reset, or recovery loss. Needs rig recovery, exact hashes, independent PASS, fresh maintainer approval, and lease.",
+  "author": "codex",
+  "deps": [
+    "105"
+  ],
+  "hashes": null,
+  "created": 1784927435
+}

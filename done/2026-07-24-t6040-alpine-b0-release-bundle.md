@@ -1,7 +1,13 @@
 # T6040 Alpine B0 release bundle
 
+> **Final amendment:** independent review and ticket 100's tethered
+> single-object run passed. Exact object `2371ee5d...` reached OpenRC default
+> runlevel, panel shell, internal keyboard echo, watchdog, and empty
+> partitions. Ticket 081 is done. Dual-mode enrollment candidate
+> `46237ade...` is a separate unreviewed follow-up under ticket 119.
+
 Date: 2026-07-24  
-Tickets: 079 complete; 081 artifact ready for independent review  
+Tickets: 079, 081, and live proof 100 complete
 Scope: offline build and verification only; no rig, USB, APFS, or enrollment
 
 ## Result
@@ -90,9 +96,7 @@ m1n1 heap is much larger; the per-component limits from ticket 080 all pass.
 
 ## Live boundary
 
-This closes the offline release-distro work in ticket 079. It does not claim
-that OpenRC, the framebuffer console, typed keyboard input, or the watchdog
-have been observed together. Ticket 081 remains open until another reviewer
-checks the exact object and preflight. Only then may a new one-shot rig ticket
-be proposed. Ticket 089 remains a delivery-only control for the earlier
-diagnostic userspace and must not be silently retargeted to this object.
+This closed offline ticket 079. Independent review then reproduced the exact
+object, and ticket 100 observed OpenRC, framebuffer shell, typed internal
+keyboard input, watchdog, and empty partitions together. Tickets 081 and 100
+are done. Ticket 089 remains the historical delivery-only control.

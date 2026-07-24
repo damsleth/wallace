@@ -5,10 +5,11 @@
   "state": "open",
   "track": "distro",
   "priority": "P1",
-  "desc": "After ticket 081's artifact has passed its separately reviewed tethered single-object rig proof, prepare but do not execute the reversible B0 enrollment/cold-boot procedure: target-volume identity guard, current object backup/hash, exact kmutil --raw entry-point command, boot-picker run, observational-only KIS capture, rollback/recovery, and pass/stop conditions. Do not close 082 before that live proof. Enrollment and cold boot require explicit maintainer approval and may be split. Experiment 7 in docs/BOOTABLE_BUILD_EXPERIMENTS.md.",
+  "desc": "IN PROGRESS after ticket-100 tethered PASS. The reversible maintainer-executed enrollment/cold-boot procedure exists at done/2026-07-24-t6040-b0-enrolled-cold-boot-preflight.md. Remaining: fill dedicated m1n1 volume UUID, back up/hash current enrolled object, independently review dual-mode candidate 46237ade and validate its normal-vs-DebugUSB trigger behavior, confirm enrollment/cold-boot approval split, and recover the current wedged rig. Agent remains observation-only and runs no kmutil/bputil. Do not close until the enrolled cold boot passes under 101.",
   "author": "codex",
   "deps": [
-    "081"
+    "100",
+    "119"
   ],
   "hashes": null,
   "created": 1784838169

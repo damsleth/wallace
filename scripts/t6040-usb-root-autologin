@@ -1,0 +1,10 @@
+#!/bin/sh
+# Passwordless local console for the isolated persistent USB-root image.
+export HOME=/root
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export TERM=${TERM:-linux}
+
+printf '\nAlpine B0 persistent USB-root diagnostic shell\n'
+printf 'Networking is disabled; internal NVMe is absent from the device tree.\n\n'
+cd /root || exit 1
+exec /bin/sh -l

@@ -1,0 +1,15 @@
+{
+  "seq": "108",
+  "slug": "right-usb-enumeration",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "Proposed exact right-port child-enumeration run from reviewed ticket 107. Passive memory stick only; HPM transition already live-proven separately. Pass = expected USB child identity persists at least 10 seconds, right DART/xHCI healthy, console responsive, no internal NVMe probe. No block-sector read, mount, or write. Stop/rollback on DART fault, SError, reset, role/power mismatch, lost console, or missing child. Needs rig recovery, exact hashes, independent PASS, fresh approval, and lease.",
+  "author": "codex",
+  "deps": [
+    "107"
+  ],
+  "hashes": null,
+  "created": 1784927435
+}

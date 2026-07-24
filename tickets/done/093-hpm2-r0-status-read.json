@@ -1,0 +1,23 @@
+{
+  "seq": "093",
+  "slug": "hpm2-r0-status-read",
+  "needs": "rig",
+  "state": "done",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "DONE as a bounded inactive-endpoint result after two conservative zero-transaction gate stops. Exact m1n1 471700035efd R0 passed the complete raw+translated ADT identity gate. Its approved Register-0 selector command to right HPM2/SID 0x0c ACKed, but the physical selector-window read returned 0x00; it stopped before the logical data-window read, with no WAKEUP, SSPS, extended write, IRQ/event, USB/PHY/storage path, SError, or retry. Automatic warm reboot and healthy proxy recovery passed. Public initialization requires WAKEUP+10 ms before selector access, so do not retry unchanged; ticket 094 is narrowed to WAKEUP plus the same read only. Evidence: done/2026-07-24-t6040-hpm2-r0-attempt3.md.",
+  "author": "codex",
+  "deps": [
+    "092"
+  ],
+  "hashes": {
+    "m1n1_commit": "471700035efd99e2e0bf4c3f5d6fbccaf07beb32",
+    "m1n1": "3a8af1e7daa65a431486f9cebbcad87f72995af5af601695ba93673710a2f01a",
+    "attempt1_transcript": "39c53222fd14bd73f11096d0d18567495bb999957f707dace5c8b10e11848385",
+    "attempt2_transcript": "cf8d09f032a87cac39c7dcceb5dae43e4f50335fe8cc791748a7f7c358c91d4a",
+    "attempt3_transcript": "aa982f7926b1e990d6f77622cfbd78bc5e5d4c448d1f19b38345e3fa980606ef"
+  },
+  "created": 1784909164,
+  "approved_by": "maintainer",
+  "approved_at": 1784909431
+}

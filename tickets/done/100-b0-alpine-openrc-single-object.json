@@ -10,7 +10,15 @@
   "deps": [
     "081"
   ],
-  "hashes": null,
+  "hashes": {
+    "m1n1": "1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b",
+    "image": "df7657c15ad73a486f5046bcc802f070d6b7ec071fb6bb70954fb8f222d4815a",
+    "kernel_gzip": "d76463e51cf3fb61e0af93f9ea6f24562de32db78988eeaa98a031f0c336bcc5",
+    "dtb": "2782b92237c35c8950212207391c3ae28c44b6b9c635b2e864c5748a77bb3cce",
+    "initramfs": "ddd981711e91c917b735d39df0e90dd50200c158e1ea54c7f2c171c8ad317024",
+    "object": "2371ee5dfbfab591397fc333e7da212fb7582bfb2eaddaa6438005f5bb41759b",
+    "delivery_script": "6b43591312e36e5dbbab33b16948d35658dff6236b81ea1719b8fb0a8176067c"
+  },
   "created": 1784910584,
   "approved_by": "maintainer",
   "approved_at": 1784923929,

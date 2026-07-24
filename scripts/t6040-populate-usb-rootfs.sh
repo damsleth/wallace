@@ -6,6 +6,7 @@
 # and protected by an exact confirmation string.
 set -euo pipefail
 
+SCRIPT_ROOT=$(cd "$(dirname "$0")/.." && pwd)
 ALPINE_SHA256_DEFAULT=4b8cd66a6688b2a87276c39843ed89c3a06d9534fc6a5823c586aff2696c1f2a
 LABEL=t6040root
 MODE=
@@ -104,14 +105,20 @@ sysfs /sys sysfs defaults 0 0
 devtmpfs /dev devtmpfs defaults 0 0
 EOF
     printf '%s\n' t6040-alpine >"$root/etc/hostname"
-    # The minirootfs ships only framebuffer gettys and a locked root account.
-    # Keep the bring-up image reachable over the proven DockChannel console
-    # after switch_root, without depending on inbound framebuffer keyboard
-    # support or changing the root password.
-    if ! grep -q '^ttydc0:' "$root/etc/inittab"; then
+    # Keep the bring-up image reachable over the proven DockChannel console.
+    # The verified OpenRC root already carries a delayed ttydc0 getty; the
+    # historical minirootfs does not.
+    if ! grep -Eq '^ttydc0:|t6040-b0-ttydc0-console' "$root/etc/inittab"; then
         printf '%s\n' \
             'ttydc0::respawn:/sbin/getty -L -n -l /bin/sh 0 ttydc0 vt100' \
             >>"$root/etc/inittab"
+    fi
+    if [ -x "$root/sbin/openrc" ]; then
+        printf '%s\n' "$partuuid" >"$root/etc/wallace-root-partuuid"
+        install -m 0755 "$SCRIPT_ROOT/scripts/t6040-usb-root-health-report" \
+            "$root/usr/local/sbin/t6040-b0-health-report"
+        install -m 0755 "$SCRIPT_ROOT/scripts/t6040-usb-root-autologin" \
+            "$root/usr/local/sbin/t6040-b0-autologin"
     fi
     cat >"$root/etc/motd" <<'EOF'
 T6040/J614s external-root bring-up image

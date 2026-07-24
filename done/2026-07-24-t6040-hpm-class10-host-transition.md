@@ -99,6 +99,14 @@ invokes another virtual operation. Those virtual callees and the
 disconnect/rollback path still need to be named before this becomes an
 implementation recipe.
 
+Follow-up PAC-aware decoding in ticket 096 names those calls precisely:
+`createUSB3PortObject`, `setPinConfiguration`, conditional
+`handleDetectChange(false)`, unconditional `handleDetectChange(true)`, the
+10,000 ms timer, and `printConnectedTransports`. It does not directly call
+IRQ clear, repeater reset, USB2-inactive, or the `0x23`/`0x24`/`0x55` HAL
+wrappers. Full corrected boundary:
+`done/2026-07-24-t6040-hpm2-detach-static-slice.md`.
+
 Most importantly, neither `turnOnVbus()` nor `forcePortEvaluation()` contains
 a local inverse for the OR-only `0x14` mutation. A candidate that merely saves
 and writes back nine bytes would be speculative: the block can contain live

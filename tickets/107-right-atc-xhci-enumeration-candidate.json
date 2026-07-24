@@ -1,0 +1,15 @@
+{
+  "seq": "107",
+  "slug": "right-atc-xhci-enumeration-candidate",
+  "needs": "offline",
+  "state": "open",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "After HPM-only transition/rollback passes, build one exact right-port eUSB2 repeater + T6040 ATC + DART/xHCI no-root candidate. Use only paired-driver/ADT-derived banks, offsets, masks, values, ordering, and proved inverse; keep left-back DebugUSB disabled in Linux. Reporter may enumerate USB IDs and require the child to persist 10 seconds, but must not read the block device, mount, or write. Pin all hashes and obtain independent review before proposing 108.",
+  "author": "codex",
+  "deps": [
+    "106"
+  ],
+  "hashes": null,
+  "created": 1784927435
+}

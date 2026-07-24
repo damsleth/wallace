@@ -1,0 +1,16 @@
+{
+  "seq": "104",
+  "slug": "hpm2-interrupt-ownership-decision",
+  "needs": "offline",
+  "state": "open",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "Decide from the complete 096 detach/rollback decode and 103 status evidence whether Wallace must change HPM interrupt masks at all. Trace cache/IRQ ownership and Linux handoff. Prefer no mask write. If unavoidable, specify a separate exact IntMask1 0x16 save/change/verify/restore artifact with uncertain-write restoration; never touch IntClear1 or any W1C event. This ticket is analysis/build only and does not authorize a live R2 run.",
+  "author": "codex",
+  "deps": [
+    "096",
+    "103"
+  ],
+  "hashes": null,
+  "created": 1784927435
+}

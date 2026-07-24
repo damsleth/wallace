@@ -1,0 +1,22 @@
+{
+  "seq": "094",
+  "slug": "hpm2-r1-wakeup-s0",
+  "needs": "rig",
+  "state": "done",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "DONE PASS with the independently reviewed narrowed artifact. Exact m1n1 3e4ea5b880d1 R1 bf369434... passed the raw+translated right-HPM2 identity gate, WAKEUP ACKed, exact 10 ms delay activated the selector window, selector read back 0x20, and logical system-power-state read returned 0x07. No extended write, SSPS, SLEEP/SHUTDOWN/RESET, IRQ/event, USB/PHY/storage path, fallback, or escalation was linked or executed. Automatic warm reboot and healthy proxy recovery passed. Ticket 095 is narrowed to SSPS-to-S0 only; mask testing moves later. Evidence: done/2026-07-24-t6040-hpm2-r1-wake-read-result.md.",
+  "author": "codex",
+  "deps": [
+    "092",
+    "093"
+  ],
+  "hashes": {
+    "m1n1_commit": "3e4ea5b880d13284de7383b1f8059f71ca08ad53",
+    "m1n1": "bf3694348739558df91b10ffe5f097b6e1a4b4878e3b4724cd3a9cac6744cf0a",
+    "transcript": "e68321259acd1a3dd942586a578ece6e5c8ded764f8d325370458f07068cd341"
+  },
+  "created": 1784909164,
+  "approved_by": "maintainer",
+  "approved_at": 1784909431
+}

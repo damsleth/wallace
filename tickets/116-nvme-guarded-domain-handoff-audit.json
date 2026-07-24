@@ -1,0 +1,16 @@
+{
+  "seq": "116",
+  "slug": "nvme-guarded-domain-handoff-audit",
+  "needs": "offline",
+  "state": "open",
+  "track": "storage",
+  "priority": "P2",
+  "desc": "Statically trace iBoot/XNU -> SPTM GXF/SPRR domain establishment and the NVMe CoastGuard/SART handoff using pinned paired firmware and the asahi_neo model. Determine whether any supported loader transition can retain or acquire the XNU-authorized domain after handoff. Produce a proof/no-go table; no target access, no raw BAR read, no GENTER execution.",
+  "author": "codex",
+  "deps": [
+    "114",
+    "115"
+  ],
+  "hashes": null,
+  "created": 1784927435
+}

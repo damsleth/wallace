@@ -1,0 +1,95 @@
+#!/bin/sh
+# Bounded, read-only health report for the persistent T6040 USB root.
+set -u
+
+report()
+{
+    failures=0
+    expected_partuuid=$(cat /etc/wallace-root-partuuid 2>/dev/null || echo missing)
+
+    echo "=== t6040 USB-root health report begin ==="
+    echo "release=$(cat /etc/alpine-release 2>/dev/null || echo unknown)"
+    echo "arch=$(apk --print-arch 2>/dev/null || echo unknown)"
+    uname -a
+
+    echo "-- init --"
+    printf 'pid1='
+    readlink /proc/1/exe 2>/dev/null || echo unknown
+
+    echo "-- root contract --"
+    echo "expected_partuuid=$expected_partuuid"
+    printf 'cmdline='
+    cat /proc/cmdline 2>/dev/null || true
+    if ! grep -qw "root=PARTUUID=$expected_partuuid" /proc/cmdline 2>/dev/null; then
+        echo "FAIL: root PARTUUID is absent from the kernel command line"
+        failures=$((failures + 1))
+    fi
+    root_mount=$(awk '$2 == "/" { print $1 " " $3; exit }' /proc/mounts)
+    echo "root_mount=$root_mount"
+    case "$root_mount" in
+        "/dev/sd"*' ext4') ;;
+        *)
+            echo "FAIL: root is not an ext4 sd partition"
+            failures=$((failures + 1))
+            ;;
+    esac
+
+    echo "-- partitions (one external sd disk expected; no internal NVMe) --"
+    sed -n '1,40p' /proc/partitions 2>/dev/null || true
+    if ! awk '$4 ~ /^sd[a-z][0-9]+$/ { found=1 } END { exit !found }' \
+            /proc/partitions 2>/dev/null; then
+        echo "FAIL: no sd partition is present"
+        failures=$((failures + 1))
+    fi
+    if awk '$4 ~ /^nvme/ { found=1 } END { exit !found }' \
+            /proc/partitions 2>/dev/null; then
+        echo "FAIL: internal NVMe unexpectedly appears"
+        failures=$((failures + 1))
+    fi
+
+    echo "-- framebuffer --"
+    for node in /sys/class/graphics/fb*/name; do
+        [ -r "$node" ] || continue
+        printf '%s=' "$node"
+        cat "$node"
+    done
+
+    echo "-- input --"
+    sed -n '1,160p' /proc/bus/input/devices 2>/dev/null || true
+
+    echo "-- watchdog --"
+    if [ -c /dev/watchdog0 ]; then
+        echo "watchdog0=present"
+    else
+        echo "FAIL: watchdog0 is missing"
+        failures=$((failures + 1))
+    fi
+
+    echo "-- network runlevel (must be empty) --"
+    network_links=$(find /etc/runlevels -type l \
+        \( -name networking -o -name networkmanager -o -name wpa_supplicant \) \
+        -print 2>/dev/null)
+    if [ -n "$network_links" ]; then
+        printf '%s\n' "$network_links"
+        echo "FAIL: a network service is enabled"
+        failures=$((failures + 1))
+    fi
+
+    echo "failures=$failures"
+    echo "=== t6040 USB-root health report end ==="
+    [ "$failures" -eq 0 ]
+}
+
+report >/dev/console 2>&1
+result=$?
+
+n=0
+while [ ! -c /dev/ttydc0 ] && [ "$n" -lt 20 ]; do
+    sleep 1
+    n=$((n + 1))
+done
+if [ -c /dev/ttydc0 ]; then
+    report >/dev/ttydc0 2>&1 || true
+fi
+
+exit "$result"

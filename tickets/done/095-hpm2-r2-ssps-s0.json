@@ -1,0 +1,22 @@
+{
+  "seq": "095",
+  "slug": "hpm2-r2-ssps-s0",
+  "needs": "rig",
+  "state": "done",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "DONE PASS at the intended SSPS-only boundary. Exact independently rebuilt/reviewed m1n1 276f4059d8c4 R2 artifact 23737cd3... passed the right-HPM2 identity gate, WAKEUP ACKed, initial logical power state was 0x07, DATA1 logical 0x09 accepted one byte 0x00, CMD1 logical 0x08 accepted exactly 'SSPS', command completion returned success, and final logical power state was 0x00 ('HPM is in S0'). The candidate linked no IntMask1, IntClear1, W1C/event, SLEEP/SHUTDOWN/RESET, role/VBUS/config, PHY/ATC/DWC3, USB/storage, other endpoint, or escalation. Transcript 630fe61a.... The intentional warm reboot was followed by a failed VDM recovery and a DebugUSB reattach without kisd/console, so the rig was released NEEDS_RECOVERY; do not attribute that recovery failure to SSPS without evidence. Mask preservation remains untested and moves to a separate ticket. Evidence: done/2026-07-24-t6040-hpm2-r2-ssps-s0-result.md.",
+  "author": "codex",
+  "deps": [
+    "092",
+    "094"
+  ],
+  "hashes": {
+    "m1n1_commit": "276f4059d8c4130ce56525f263afa1ef110447d1",
+    "m1n1": "23737cd31407c1046fb3c4e56e3a34f898ea845b8e98b978a98166eafe32b271",
+    "transcript": "630fe61aa8d8701a3e39968470cdc9a9789077d454a1a0749c09f76aee2272a5"
+  },
+  "created": 1784909164,
+  "approved_by": "maintainer",
+  "approved_at": 1784909431
+}

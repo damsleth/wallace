@@ -1,28 +1,28 @@
 # t6040 Linux bring-up — NEXT STEPS
 
-Handoff state (2026-07-13): mainline Linux boots to a BusyBox shell on the
-M4 Pro with working internal keyboard, watchdog, and a **fully remote dev
-loop** — two-way m1n1 proxy AND Linux shell (`/dev/ttydc0`) over one DebugUSB
-cable; reboot via `macvdmtool`. No screen-reading or physical access needed.
-Operational details, recipes, and history: `DEVLOG.md`. Long-term: `ROADMAP.md`.
-Read the DebugUSB link rules in DEVLOG before touching the rig.
+Handoff state (2026-07-24): the exact B0 release object boots tethered into
+Alpine/OpenRC with the internal panel, keyboard, watchdog, and no storage
+probe. The right-side HPM2 has also passed the staged inactive → WAKEUP/state
+`0x07` → SSPS/S0 `0x00` ladder. The passive USB stick has **not** enumerated,
+and the verified OpenRC disk image has not been flashed.
 
-## Immediate storage-path gate: map USB ports, then smoke host mode
+**First action on the rig is recovery only.** Immediately after the successful
+SSPS run, the normal VDM recovery failed; one bounded DebugUSB reattach had no
+`kisd` console. The lease is free but marked **NEEDS_RECOVERY**. Power-cycle or
+otherwise restore a healthy `Running proxy`, then run
+`scripts/rig-lease.sh recovered <agent>` before any live ticket.
 
-The first USB2-host kernel/DT/initramfs set now builds and passes static checks;
-hashes and exact no-root boot procedure are in
-`done/2026-07-21-t6040-usb-host-smoke-preflight.md`. Do **not** boot its current
-three-port DTB yet: an independent review identified an avoidable role risk
-because the physical DWC3 index carrying the DebugUSB/DFU tether is unknown.
+In parallel, finish offline ticket 096's exact host-transition rollback, close
+the remaining ticket-082 volume identity/backup fields, and review the
+dual-mode B0 object. Operational details and history: `DEVLOG.md`; long-term:
+`ROADMAP.md`. Read the DebugUSB rules before touching the rig.
 
-Rig ticket 057 is the reviewed, approved next step. It captures the existing
-ADT over KIS using RAM reads only (no Linux boot, USB init, MMIO, PMU/SPMI, or
-target-memory writes); procedure and helper hash are in
-`done/2026-07-21-t6040-usb-port-map-adt-preflight.md`. After CJ approval and
-capture, build a single-port DTB that leaves the DebugUSB port disabled, repeat
-the hash/cross-review, then propose the no-`root=` USB enumeration smoke. Only
-after that device remains present for 10 seconds should an external distro
-rootfs be populated or mounted.
+## Immediate storage-path gate: finish right-port HPM/ATC host link
+
+The port map and first no-root host smoke are complete historical gates. The
+authoritative map is `usb-drd0 = left-back` (DebugUSB), `usb-drd1 = left-front`,
+and `usb-drd2 = right` (the attached stick). Keep `usb-drd0` disabled in every
+host-mode experiment.
 
 **Result 2026-07-21:** the initial KIS attempts failed even after a cold start
 because the tether was on the wrong physical port. Moving it to the previously
@@ -38,8 +38,8 @@ external drive, then run the no-`root=` smoke. Exact capture result:
 so the live candidate is exclusively `usb-drd2` /
 `t6040-j614s-dcuart-usb-host-right.dtb`, SHA-256
 `9bee944b8bb0d6d7ab541962ea2edc9a57c4069fedcd6c32db21e3b824a43759`.
-Ticket 063 is proposed with the independently reviewed six-file manifest; do
-not substitute the left-front or retired all-port DTB.
+Ticket 063 used the independently reviewed six-file manifest; do not
+substitute the left-front or retired all-port DTB.
 
 **Smoke result 2026-07-21:** ticket 063 ran once. The right-side DARTs and xHCI
 controller initialized cleanly at `0x392f00000`/`0x392f80000` and
@@ -130,29 +130,33 @@ on simpledrm/fbcon with internal keyboard, watchdog, and no host payload upload.
 The detailed experiment contract and safety gates are in
 `docs/BOOTABLE_BUILD_EXPERIMENTS.md`.
 
-Tickets 076–080 are complete. Ticket 079 produced the twice-reproducible
+Tickets 076–081, 089, and the live release proof 100 are complete. Ticket 079 produced the twice-reproducible
 Alpine/OpenRC release RAM distro `ddd981711e91...`: normal init/runlevels,
 fbcon and delayed ttydc0 consoles, watchdog, bounded health report, locked
 password, no enabled networking, and no block nodes. Ticket 080 established
 that direct raw m1n1 supports the
 required concatenated payloads, entry
 `0x800`, and a strict host verifier under a conservative 64 MiB object policy.
-A control object using ticket 078's exact live-proven HID-restored payload is
-now built and twice reproduced:
+A control object using ticket 078's exact live-proven HID-restored payload was
+built, twice reproduced, and passed its single-object delivery test:
 `m1n1-b0-alpine-hid-restored.bin`,
 `b50f52ab1fac473db2e9257c5363ef7905e4d1da5c8535fbf417209b09319172`.
-Proposed ticket 089 tests one upload with no `linux.py`; it does not close 081
-because its userspace remains diagnostic. The final release object is now
-packaged and twice reproduced as `m1n1-b0-alpine-openrc.bin`,
+Ticket 089 remained a diagnostic control. The release object was packaged,
+twice reproduced, independently reviewed, and live-proven as
+`m1n1-b0-alpine-openrc.bin`,
 `2371ee5dfbfab591397fc333e7da212fb7582bfb2eaddaa6438005f5bb41759b`.
-Ticket 081 remains open for independent exact-object/preflight review before
-any new rig proposal; 082 remains gated on that tethered proof. Exact format,
-control preflight, and release result:
+Ticket 100 reached the OpenRC default runlevel, kept the watchdog alive, found
+the internal input device, kept `/proc/partitions` empty, and accepted a line
+typed on the internal keyboard at the panel shell. Ticket 081 is done. Ticket
+082's procedure exists; only target-volume UUID, current enrolled-object
+backup/hash, dual-mode-candidate review/trigger check, and split-vs-single
+execution approval remain before approved ticket 101 can run. Exact format,
+preflights, and results:
 `done/2026-07-23-t6040-raw-boot-object-layout.md` and
 `done/2026-07-24-t6040-b0-alpine-single-object-preflight.md`, and
-`done/2026-07-24-t6040-alpine-b0-release-bundle.md`. The exact final-object
-review checklist and not-yet-approved invocation are in
-`done/2026-07-24-t6040-alpine-openrc-single-object-preflight.md`.
+`done/2026-07-24-t6040-alpine-b0-release-bundle.md`, plus
+`done/2026-07-24-t6040-b0-alpine-openrc-single-object-result.md` and
+`done/2026-07-24-t6040-b0-enrolled-cold-boot-preflight.md`.
 
 Ticket 026's installer audit corrected a stale premise: current
 asahi-installer already enrolls `boot.bin` with the required raw entry `2048`
@@ -181,10 +185,11 @@ ARM64 Image `image_size`; exact audit and draft:
 `done/2026-07-23-t6040-uboot-noio-prep.md` and
 `patches/uboot-t6040-noio-prep.patch`. No live run is proposed.
 
-Persistent Linux state remains B2. Tickets 032 and 060 have completed the
-hash-pinned USB-host artifacts and guarded rootfs recipe, but the path resumes
-only when ticket 023 has either a powered/self-powered fixture or reviewed
-T6040 HPM/ATC support. Internal NVMe remains blocked by SPTM/CoastGuard. Do not
+Persistent Linux state remains B2. Tickets 032, 060, and 098 have completed
+the host artifacts, guarded recipe, and verified OpenRC image. The path resumes
+only after ticket 096 proves rollback and the decomposed right-port HPM/ATC,
+enumeration, read-only block, flash, and write-test tickets pass. Internal NVMe
+remains blocked by SPTM/CoastGuard. Do not
 fold storage, SMP, cpufreq, PCIe, or enrollment into the first self-contained
 boot.
 
@@ -202,11 +207,17 @@ image without touching a block device. The image SHA-256 is
 its root selector is
 `PARTUUID=1b841e9b-65a5-4687-83f2-6c728961ad14`. A later PID-1 audit found
 that its minirootfs lacks `/sbin/openrc`, so it must not be flashed; ticket 098
-rebuilds it from the verified OpenRC B0 root. The stick is currently attached
-to the M4, not the M1. This does not clear the already-proven M4 enumeration
-failure: external root waits on staged tickets 092–097 and the corrected
-image. Exact historical artifact boundary:
-`done/2026-07-24-t6040-usb-root-image.md`.
+now supersedes it with a verified OpenRC B0 GPT/ext4 image, SHA-256
+`1c493fad1d1b...`, PARTUUID `e4731abe-3566-4c3a-8019-c8828ca27a5a`.
+Primary/backup GPT, ext4, OpenRC runlevels, watchdog/health services, consoles,
+and 22-file firmware manifest pass independent host inspection. Two builds
+have byte-identical normalized trees; raw nondeterminism is fully isolated to
+`mkfs.ext4 -d` inode ctimes and checksums. The stick is currently attached to
+the M4, not the M1. This does not clear the already-proven M4 enumeration
+failure: external root still waits on ticket 096 and the decomposed
+right-port link/enumeration/block/flash/root tests. Exact results:
+`done/2026-07-24-t6040-usb-root-image.md` and
+`done/2026-07-24-t6040-openrc-usb-root-image.md`.
 
 Ticket 023's 2026-07-23 upstream refresh found no published T6040 ATC/HPM
 implementation. The 2026-07-24 paired-kext decode has now removed one static
@@ -252,39 +263,73 @@ eligible endpoint is exact right-port `/arm-io/nub-spmi-a1/hpm2` (Gen3,
 reg0 `0x309198000`, sole child, SID `0x0c`) under
 `docs/SPMI_SAFETY.md`.
 
-Do not run Yuka's branch wholesale. New offline ticket **092** first builds
-and independently reviews three separate direct-HPM2 artifacts. Plan-approved
-rig **093** is R0 selector+one-byte logical `0x20` status only; **094** adds
-WAKEUP+conditional SSPS S0; **095** tests exact interrupt-mask preservation
-without W1C event clear. Offline **096** must prove the complete class-10
-detach/rollback path before plan-approved R3 host-link **097** can combine
-reviewed HPM, repeater, ATC, and the existing no-root xHCI smoke with the
-passive right-side stick. Offline **098** rebuilds the defective ticket-086
-image from the verified OpenRC root; plan-approved **099** is the later
-persistent-root and separately untethered boot. Plan approval does not make
-any of these rig tickets runnable: each still needs exact hashes and an
-independent artifact review.
+Do not run Yuka's branch wholesale. Ticket 092 established the exact-endpoint,
+fail-closed candidate pattern. The completed live ladder is:
 
-**Ticket 092 build milestone:** m1n1 commit `d4f13a62b626` now provides
-separate strict R0/R1/R2 builds. All four output formats reproduce
-byte-identically across two clean builds per class. The pinned `m1n1.bin`
-hashes are R0 `0aca1b98...`, R1 `6710c6e4...`, and R2 `c8449b7e...`.
-Runtime checks bind the candidate to the captured ADT and exact direct HPM2
-path; linked-symbol inspection proves R0 has no WAKEUP/write and no candidate
-contains RESET/SLEEP/SHUTDOWN, generic HPM/TPS iteration, USB, or PHY bring-up.
-An independent clean rebuild reproduced all hashes and passed the source,
-transport, identity-gate, linked-boundary, and R2 restore review. Ticket 092
-is done. Only R0/093 is eligible now; R1/R2 remain dependency-gated. Exact
-preflight:
-`done/2026-07-24-t6040-hpm2-r0-r2-preflight.md`.
+- 093: selector ACKed but the inactive window returned `0x00`; no data read;
+- 094: WAKEUP + 10 ms activated it and logical power state read `0x07`;
+- 095: exact DATA1 `00` + CMD1 `SSPS` completed and final state read `0x00`.
 
-**R0 attempt 1:** the original full-tree CRC gate rejected the standard
+No mask/W1C, role/VBUS, USB configuration, PHY, xHCI, or storage operation was
+present in those binaries. Ticket 096 must still prove class-10 detach and
+rollback. Tickets 097 and 099 are now umbrellas for smaller experiments:
+post-S0 status, optional mask work only if justified, HPM host transition,
+ATC/xHCI enumeration, read-only block access, separate destructive flashing,
+tethered read-write root, and a final untethered root boot. Ticket 098's
+OpenRC image is complete. New tickets are proposals, not approvals.
+
+**R0/R1/R2 result history:** the original full-tree CRC gate rejected the standard
 chainloader's volatile ADT handoff-field rewrites, explicitly logged zero SPMI
 transactions, and recovered normally. Replacement commit `ef707f51f181`
-retains all endpoint-selecting property gates, treats full CRC as telemetry,
-and independently reproduced/reviewed as R0 `3a686c71...`, R1 `ae136a14...`,
-R2 `169c081a...`. R0/093 remains the only eligible live class. See
-`done/2026-07-24-t6040-hpm2-r0-attempt1.md`.
+then failed closed because `adt_get_reg()` returned the `/arm-io`-translated
+`0x509...` addresses while the gate expected raw `0x309...` tuples. A leased,
+read-only ADT query confirmed both representations without MMIO or SPMI.
+Commit `471700035efd` then passed the gate: its selector command ACKed but read
+back `0x00`, proving the endpoint register window remains inactive without
+WAKEUP. The independently reviewed narrowed R1 at `3e4ea5b880d1` sent one
+WAKEUP, waited exactly 10 ms, then read selector `0x20` and logical power state
+`0x07`; it linked no extended write or SSPS and recovered healthy. Tickets
+093 and 094 are done. Independently reviewed m1n1 `276f4059d8c4`, binary
+`23737cd3...`, then repeated WAKEUP, observed `0x07`, wrote only DATA1 `00`
+and CMD1 `SSPS`, and observed final state `0x00`. Ticket 095 is done. Its
+transcript is `630fe61a...`. R1/R2 were never combined with USB/PHY.
+The following VDM recovery failed and one DebugUSB reattach had no console, so
+the rig remains NEEDS_RECOVERY. Do not infer causality without a recovery
+control.
+See `done/2026-07-24-t6040-hpm2-r0-attempt1.md` and
+`done/2026-07-24-t6040-hpm2-r0-attempt2.md`, plus
+`done/2026-07-24-t6040-hpm2-r0-attempt3.md` and
+`done/2026-07-24-t6040-hpm2-r1-wake-read-result.md`, plus
+`done/2026-07-24-t6040-hpm2-r2-ssps-s0-result.md`.
+
+**Concrete right-stick ladder (new tickets 102–113):**
+
+1. 102 builds a named, bounded post-S0 read candidate; proposed 103 reads only
+   power/config/status.
+2. 104 decides whether interrupt-mask ownership must change at all. It prefers
+   no mask write and forbids W1C clear.
+3. 105 builds the HPM-only forward+inverse host transition; proposed 106 runs
+   that boundary without PHY or Linux.
+4. 107 builds the exact eUSB2/ATC/DART/xHCI no-root candidate; proposed 108
+   requires a stable child but performs no block read.
+5. Proposed 109 identifies and reads fixed block sectors only.
+6. 110 prepares exact M1 removable-disk identity and destructive guards;
+   proposed 111 flashes image `1c493fad...` only under a separate erase
+   confirmation and full readback.
+7. Proposed 112 boots tethered from the right stick and performs one bounded,
+   fsynced persistence write; proposed 113 performs the separate untethered
+   external-root cold boot after B0 ticket 101.
+
+Tickets 097 and 099 remain non-runnable historical umbrellas. Their old plan
+approval does not approve these child artifacts or the destructive flash.
+
+**Internal NVMe remains offline-only:** 114 refreshes public SPTM work, 115
+builds a host-only service-6 contract harness, 116 audits guarded-domain
+handoff, and 117 creates a live candidate only if primary evidence proves a
+side-effect-free supported query. Otherwise it records NO-GO. Never retry the
+known-failing raw BAR read or unchanged GENTER. Ticket 118 separately analyzes
+the post-SSPS KIS recovery failure; ticket 119 independently reviews the
+dual-mode B0 object.
 
 Ticket 022's 2026-07-23 refresh also confirms that native DCP is not a B0
 dependency. Its J614s DT topology is inventoried, but the macOS 26.x ABI, extra
@@ -941,5 +986,6 @@ namespace. Prior exact output:
   `done/2026-07-23-t6040-cpufreq-throttle-analysis.md`.
 - ATC PHY tunables (USB3/TB) — the paired 25F84 kext now proves the T6040
   44-bank order, tunable encoding, banks-0/1 direct eUSB2 init sequence, and
-  exact XHCI host branch. The full SPMI/SN201202x HPM path remains staged
-  through tickets 092–097; USB2 root hubs alone are not a functioning fallback.
+  exact XHCI host branch. HPM reaches S0, but the remaining rollback, host
+  transition, and enumeration path is staged through 096 and 102–108; USB2
+  root hubs alone are not a functioning fallback.

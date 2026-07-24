@@ -5,10 +5,17 @@
   "state": "approved",
   "track": "smp",
   "priority": "P2",
-  "desc": "maxcpus=2 J614s bring-up: 2nd core online, /proc/cpuinfo, watch WFE/idle park (Stage C exit). Yuka's WIP more-t6041 branch proves family-level all-core boot but is not board-topology-correct; ticket 034 must produce hashes and cross-review before boot",
+  "desc": "Exact maxcpus=2 J614s bring-up candidate from completed preflight 034: safe m1n1 1394c345..., Image a6c2f093..., board-correct 14-active-core DTB b3858f60..., reporter initramfs 160cd9bd..., bootarg maxcpus=2 idle=nop. Pass = CPUs 0-1 online, two /proc/cpuinfo processors, taskset cpu1 liveness, responsive shell, no watchdog reset. No DT/MMIO/storage/SPMI change. Still needs independent exact-artifact cross-review and current rig recovery before the already-approved one-shot boot.",
   "author": "claude",
-  "deps": [],
-  "hashes": null,
+  "deps": [
+    "034"
+  ],
+  "hashes": {
+    "m1n1": "1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b",
+    "image": "a6c2f09354bf1d61559b450f9430eb06d42f94d027d539c2deade708d708c4ff",
+    "dtb": "b3858f60aa96ab81f7314659284174cb10ddcec061140c1c67d397f52d617814",
+    "initramfs": "160cd9bdc8b75f10243124c1baea7ae0f4cd9e45b7284b948681e74edd8e90ea"
+  },
   "created": 1784039023,
   "approved_by": "maintainer",
   "approved_at": 1784045044

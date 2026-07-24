@@ -26,7 +26,7 @@ safety gate still stands — before an agent boots a new-MMIO image, the other
 agent cross-reviews the exact hashes against `~/Code/m1n1/AGENTS.md`
 (§ Cross-agent review in COORDINATION.md).
 
-## Priority & dependency order (updated 2026-07-23)
+## Priority & dependency order (updated 2026-07-24)
 
 There are now two explicit milestones. **B0 bootable build** is an enrolled,
 self-contained Alpine RAM distro and does not wait for Linux storage. **B2
@@ -35,7 +35,12 @@ NVMe is NO-GO near-term (008: SPTM-gated, no raw-boot guarded entry). The
 sequenced gates are in `docs/BOOTABLE_BUILD_EXPERIMENTS.md`.
 In rough order of leverage:
 
-1. **B0 bootable-build pipeline** (distro/HID, P1). Captures **076**, decode
+1. **Restore the rig link** (xcut, P0). Ticket 095 passed its intended
+   SSPS-to-S0 boundary, but the following VDM recovery and one bounded KIS
+   reattach failed. The rig is free and **NEEDS_RECOVERY**. The first hardware
+   action is a recovery boot, stable `Running proxy`, and
+   `rig-lease.sh recovered <agent>`—not another experiment.
+2. **B0 bootable-build pipeline** (distro/HID, P1). Captures **076**, decode
    **077**, and the HID-type repair **078** are complete. The rebased
    `hid-apple` rejected the untyped BUS_HOST keyboard; the minimal type
    assignment now live-registers `input0/event0`. **079 is complete** with a
@@ -44,18 +49,22 @@ In rough order of leverage:
    configuration. **080 is complete**: direct raw m1n1,
    entry `0x800`, exact concatenated payload contract, and strict host
    verifier are documented. Ticket-078's exact HID-restored Alpine components
-   are now packed in reproducible object `b50f52ab...`; proposed control **089** tests
-   one upload with no `linux.py`. The final release candidate object is
-   `2371ee5d...`; **081** now owns its independent exact review and eventual
-   tethered proof gate. **082** prepares reversible raw
-   enrollment and cold boot. Direct m1n1 is the selected B0 route; U-Boot
+   were packed in reproducible object `b50f52ab...`; control **089** passed one
+   upload with no `linux.py`. The final release object `2371ee5d...` passed
+   independent review and ticket **100**'s tethered single-object boot:
+   OpenRC, watchdog, panel shell, internal keyboard, and empty partitions.
+   **081/100 are done.** **082** has the reversible enrollment procedure and
+   now needs the target-volume UUID, enrolled-object backup/hash, review and
+   trigger validation of dual-mode candidate `46237ade...`, and execution
+   split confirmation. **101** is plan-approved but not runnable until those
+   items and rig recovery pass. Direct m1n1 is the selected B0 route; U-Boot
    ticket **025** is B1; its no-MMIO framebuffer/EFI-hello prep is complete,
    with any live proof deferred until after B0. Installer requirements ticket
    **026** is complete:
    raw enrollment already exists upstream; atomic self-contained-object
    handling, J614s/T6040 admission, and macOS 26 firmware extraction are the
    remaining upstream gaps.
-2. **USB-root pipeline** (storage, P1 — the persistent Stage D exit).
+3. **USB-root pipeline** (storage, P1 — the persistent Stage D exit).
    Build/port-map gates
    are clear. Ticket 063 proved the right-port DART+xHCI root hubs but no child
    device enumerated. **064** bounded the gap to the Linux-absent SPMI HPM +
@@ -80,17 +89,21 @@ In rough order of leverage:
    PMU/charger/NVRAM/firmware and unknown endpoints prohibited. Offline
    **092** produced reproducible staged candidates. The first R0 live attempt
    failed closed before SPMI because the standard chainloader changes volatile
-   ADT handoff fields. Replacement m1n1 `ef707f51f181` keeps the full CRC as
-   telemetry while retaining exact endpoint-selecting properties as fatal
-   gates; its R0/R1/R2 artifacts independently reproduced and passed review.
-   Plan-approved rig **093/094/095** test selector/status, WAKEUP+S0, and mask
-   preservation one boundary at a time. Review passed for the exact first
-   three artifacts, so only R0/**093** is presently eligible; R1 and R2 retain
-   their preceding-live-pass gates. Offline **096** owns the class-10
-   detach/rollback decode; plan-approved **097** is the later passive-stick R3
-   host-link
-   proof. Corrected OpenRC USB image **098** then gates plan-approved
-   untethered-root **099**. Later stages retain their own build/review gates.
+   ADT handoff fields. Its replacement also failed closed before SPMI after
+   correctly exposing a raw-versus-translated ADT address mismatch in the
+   gate. m1n1 `471700035efd` requires both the raw `0x309...` tuples and
+   translated `0x509...` physical banks. R0/**093** then proved the selector
+   window stays inactive until WAKEUP. Narrowed R1/**094** passed with one
+   WAKEUP and a read-only state result of `0x07`; no extended write was linked.
+   Ticket **095** then passed the narrowed SSPS-only boundary: initial state
+   `0x07`, exact DATA1/CMD1 `SSPS`, final S0 state `0x00`; mask access was
+   absent and remains untested. Offline **096** owns class-10 detach/rollback.
+   Umbrellas **097/099** are decomposed into post-S0 status, optional mask only
+   if justified, HPM host transition, ATC/xHCI enumeration, read-only block
+   identity, separate destructive flashing, bounded read-write root, and
+   untethered root boot. Corrected OpenRC image **098** is complete
+   (`1c493fad...`, PARTUUID `e4731abe-...`). Each new live step needs its own
+   review and approval. Exact child ladder: **102–113**.
    Canonical rules: `docs/SPMI_SAFETY.md`.
    Reviewed rig control **070** was inconclusive: the old keyboard kernel never
    reached the Alpine framebuffer shell in two exact attempts and has no
@@ -101,44 +114,46 @@ In rough order of leverage:
    Independently reviewed one-shot capture **074** reached Alpine over ttydc0
    TX, but ttydc0 RX was non-responsive, so the trace could not be requested.
    Do not retry it unchanged. Offline ticket **075** built and host-tested a
-   bootarg-gated automatic TX reporter; independent exact-archive review
-   passed. Proposed one-shot TX-only capture **076** awaits explicit maintainer
-   approval. No speculative receive kick.
+   bootarg-gated automatic TX reporter; capture **076**, decode **077**, and
+   HID repair **078** then completed. No speculative receive kick remains.
    **060** is complete as a guarded, host-tested recipe; do not use its
    destructive device mode or populate a persistent USB rootfs until
-   enumeration persists for ≥10 s. Then ROOT-mode `switch_root` → **024**
-   interim untethered boot.
-3. **PCIe → WiFi/BT** (pcie, P1). Op-115 stalls on its read side; **058** is
+   enumeration and read-only block identity pass. Tickets 110–113 then isolate
+   flashing, tethered read-write root, and untethered boot.
+4. **PCIe → WiFi/BT** (pcie, P1). Op-115 stalls on its read side; **058** is
    the offline route-finding for the missing PHY-IP aperture precondition; only
    a new evidence-backed manifest goes live. **044** (port-0/BCM4388 manifest)
    is the pre-reviewed stage after link-up; the complete restore-recoverable
    firmware corpus is staged and ticket 030 is done.
-4. **Two-way remote console** (console, P2 but high leverage for every later
+5. **Two-way remote console** (console, P2 but high leverage for every later
    rig experiment). Poll-mode tty is proven. The ADT's IRQ 360 is now known
    wrong; measured UART input is 816, so 059's timing image is closed
    superseded. Audit/adapt the WIP direct `apple,dockchannel-uart` IRQ-816
    earlycon/`ttyDC0` path under **062** before proposing another rig test.
-5. **Make the approved rig queue runnable** (smp/cpufreq/hid). 004/005/006 are
-   approved with hashes TBD — **034** (SMP DT preflight) and **035** (cpufreq
-   DT preflight) produce the pinned images. Trackpad provisioning **016** is
+6. **Make the approved rig queue runnable** (smp/cpufreq/hid). The exact
+   preflights **034/035** are complete; 005/006 now record their real artifact
+   and review gaps instead of “hashes TBD.” Trackpad provisioning **016** is
    complete (`tpmtfw-j614s.bin` `a1f4131d...`); ticket 004's exact reproducible
    kernel/DT/initramfs set is now pinned in its 2026-07-24 preflight and needs
    only an independent exact-artifact review before it is runnable.
-6. **Upstreaming proven work** (xcut, P1): SMP/cpufreq posting drafts are
+7. **Upstreaming proven work** (xcut, P1): SMP/cpufreq posting drafts are
    finalized under completed **019**; **046** now provides the rebased
    nine-patch m1n1 RFC and cover letter. **047** now provides the consolidated
    J614s Linux DT series, and **048** provides clean m1n1-PTY and macvdmtool
    ACE3 mail drafts (kisd's T6040 support is already upstream). PMGR series is
    draft-ready (CJ asks flokli re J773s policy and posts).
-7. **Stage-D comforts, offline-preparable**: **061** SMC DT wiring (battery,
+8. **Stage-D comforts, offline-preparable**: **061** SMC DT wiring (battery,
    power button, lid — read-only keys). **037** is complete: its audited patch
    set is intentionally empty because none of the 26.x deltas is
    version-gate-only. **027** suspend analysis is complete and correctly gated
    on a reviewed T6040 retention/cpuidle contract; do not allowlist T6040 in
    the existing deep-WFI driver.
-8. **SPTM internal-NVMe long shot** (storage, background): 051/052/054/055 —
-   static decode + the XNU-shim escalation draft for #asahi-dev. No rig time.
-9. **Track-and-test** ([UPSTREAM] tickets): 022 DCP and 023 ATC PHY remain
+9. **SPTM internal-NVMe long shot** (storage, background): keep **114–117**
+   host-only. Refresh public SPTM work, validate the service-6 contracts in a
+   host harness, and audit guarded-state/domain provenance. Do not retry
+   unchanged GENTER or raw NVMe BAR access; both have already failed at the
+   protected boundary.
+10. **Track-and-test** ([UPSTREAM] tickets): 022 DCP and 023 ATC PHY remain
    watchers. Installer 026 and GPU mule prep 039 are complete; the latter has
    an exact evidence packet and test contract but no safe G16 candidate.
 

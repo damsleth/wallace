@@ -7,6 +7,8 @@ TOOL="$ROOT/scripts/t6040-populate-usb-rootfs.sh"
 OUT=${OUT:-/Users/damsleth/Code/linux-build-out}
 ALPINE=${ALPINE:-"$OUT/alpine-minirootfs-3.24.0-aarch64.tar.gz"}
 PARTUUID=11111111-2222-3333-4444-555555555555
+OPENRC_ROOT=${OPENRC_ROOT:-"$OUT/initramfs-alpine-b0.cpio.gz"}
+OPENRC_SHA256=ddd981711e91c917b735d39df0e90dd50200c158e1ea54c7f2c171c8ad317024
 
 [ -f "$ALPINE" ] || {
     echo "missing pinned Alpine archive: $ALPINE" >&2
@@ -42,6 +44,34 @@ grep -Fx \
 [ -x "$TMP/root/bin/busybox" ]
 [ -L "$TMP/root/sbin/init" ]
 [ "$(readlink "$TMP/root/sbin/init")" = /bin/busybox ]
+
+if [ -f "$OPENRC_ROOT" ]; then
+    mkdir "$TMP/openrc-root"
+    "$TOOL" stage \
+        --root "$TMP/openrc-root" \
+        --partuuid "$PARTUUID" \
+        --alpine "$OPENRC_ROOT" \
+        --alpine-sha256 "$OPENRC_SHA256" \
+        --modules "$TMP/modules" \
+        --firmware "$TMP/firmware" \
+        --manifest "$TMP/openrc-manifest.txt"
+
+    [ -x "$TMP/openrc-root/sbin/openrc" ]
+    grep -Fx "$PARTUUID" "$TMP/openrc-root/etc/wallace-root-partuuid"
+    grep -Fq 't6040 USB-root health report begin' \
+        "$TMP/openrc-root/usr/local/sbin/t6040-b0-health-report"
+    ! grep -Fq 'partitions (must be empty)' \
+        "$TMP/openrc-root/usr/local/sbin/t6040-b0-health-report"
+    grep -Fq 'persistent USB-root diagnostic shell' \
+        "$TMP/openrc-root/usr/local/sbin/t6040-b0-autologin"
+    ! grep -Fq 'no persistence' \
+        "$TMP/openrc-root/usr/local/sbin/t6040-b0-autologin"
+    [ "$(grep -c 't6040-b0-ttydc0-console' \
+        "$TMP/openrc-root/etc/inittab")" -eq 1 ]
+    ! grep -q '^ttydc0:' "$TMP/openrc-root/etc/inittab"
+    [ -L "$TMP/openrc-root/etc/runlevels/default/t6040-watchdog" ]
+    [ -L "$TMP/openrc-root/etc/runlevels/default/t6040-health-report" ]
+fi
 
 mkdir "$TMP/nonempty"
 printf 'guard\n' >"$TMP/nonempty/user-data"

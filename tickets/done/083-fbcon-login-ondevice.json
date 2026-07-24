@@ -1,0 +1,16 @@
+{
+  "seq": "083",
+  "slug": "fbcon-login-ondevice",
+  "needs": "offline",
+  "state": "done",
+  "track": "console",
+  "priority": "P2",
+  "desc": "DONE through the ticket-100 B0 release-object proof. The exact OpenRC root independently verified tty0 inittab/service ordering with no ttydc0 dependency; live boot reached the Alpine local shell on the internal simpledrm/fbcon panel and the maintainer typed a line that echoed through the internal keyboard. Watchdog, default runlevel, input0/event0, and empty partitions also passed. No new MMIO. This satisfies U5's on-device-console function; a conventional password-authenticated getty may be a later distro-hardening choice, not a missing hardware experiment.",
+  "author": "claude",
+  "deps": [
+    "078"
+  ],
+  "hashes": null,
+  "created": 1784838415,
+  "done_at": 1784924576
+}

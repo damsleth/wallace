@@ -1,0 +1,18 @@
+{
+  "seq": "110",
+  "slug": "usb-stick-flash-preflight",
+  "needs": "offline",
+  "state": "open",
+  "track": "storage",
+  "priority": "P1",
+  "desc": "Prepare the destructive M1-side flash procedure only after M4 read-only identity succeeds. Pin image 098 SHA-256 1c493fad..., require the stick be moved from M4 to M1, resolve exact removable whole-disk identity/capacity/USB serial, prove the target is not internal/system storage, specify unmount/write/sync/full readback-hash steps and recovery. No disk access in this ticket and no command without a separate exact erase confirmation.",
+  "author": "codex",
+  "deps": [
+    "098",
+    "109"
+  ],
+  "hashes": {
+    "image": "1c493fad1d1b44520d9265c5946c8ac00b867b3d47fac93f88d1f55cde25060e"
+  },
+  "created": 1784927435
+}

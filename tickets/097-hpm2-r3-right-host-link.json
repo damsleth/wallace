@@ -1,15 +1,13 @@
 {
   "seq": "097",
   "slug": "hpm2-r3-right-host-link",
-  "needs": "rig",
-  "state": "approved",
+  "needs": "offline",
+  "state": "open",
   "track": "usb",
   "priority": "P1",
-  "desc": "One-shot right-port physical-link proof after R0/R1/R2 and the complete class-10 detach decode pass. Build an exact right-HPM2-only host-transition artifact from reviewed upstream-derived operations: bounded HPM attach/source-role policy, VBUS only after passive-sink detection, eUSB2 repeater and T6040 ATC PHY sequence, then the already-proven right DART+xHCI no-root Linux smoke. Fixture must be the passive bus-powered USB memory stick; never a charger, powered dock, another host, or externally powered source. DebugUSB HPM0 remains untouched. Pass = child USB device remains present for 10 seconds, exact role/orientation/power transcript, no DART/SError/reset, followed by reviewed detach/rollback or reboot recovery. No filesystem mount or block write. Exact hashes, independent review, and explicit approval required.",
+  "desc": "APPROVED-PLAN HISTORY; NON-RUNNABLE UMBRELLA. The original one-shot combined HPM source policy, VBUS, repeater, ATC, DART/xHCI, and enumeration—too many unproved boundaries. Completed inputs: 093 inactive selector, 094 WAKEUP/state 0x07, 095 SSPS/S0 0x00. Blockers: 096 rollback, current NEEDS_RECOVERY, no exact forward artifact. Decomposed children now own post-S0 status, optional mask only if justified, HPM-only host transition/rollback, and separate ATC+xHCI enumeration. Preserve the passive bus-powered stick fixture and all original prohibitions. Historical plan approval does not approve the new child artifacts.",
   "author": "codex",
   "deps": [
-    "093",
-    "094",
     "095",
     "096"
   ],

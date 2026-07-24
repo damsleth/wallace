@@ -1,0 +1,15 @@
+{
+  "seq": "103",
+  "slug": "hpm2-post-s0-status-read",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "Proposed one-shot execution of ticket 102's independently reviewed exact post-S0 status artifact after rig recovery. Passive bus-powered memory stick on right; DebugUSB left-back. Reproduce identity, WAKEUP and SSPS S0, read only the named 0x20/0x23/0x24 windows, log and warm-reboot. No mask/event, 0x14/0x55 write, role/VBUS, repeater/PHY/xHCI/storage. Requires exact hashes, independent PASS, fresh maintainer approval, lease, and healthy recovery control.",
+  "author": "codex",
+  "deps": [
+    "102"
+  ],
+  "hashes": null,
+  "created": 1784927435
+}

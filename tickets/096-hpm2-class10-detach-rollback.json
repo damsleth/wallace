@@ -5,10 +5,10 @@
   "state": "open",
   "track": "usb",
   "priority": "P1",
-  "desc": "Complete the host-side static decode needed for an R3 candidate. Resolve AppleTCControllerType10 forceUSB23On virtual callees, address-0x14 cached/event semantics, USB config/status/data-control 0x23/0x24/0x55, interrupt ordering, power-state transitions, disconnect/detach path, VBUS removal, eUSB2 repeater reset, and ATC rollback from the exact 25F84 AppleHPM/AppleSPMI/AppleT6040TypeCPhy binaries and captured J614s ADT. Produce a forward+inverse state machine and identify every unresolved bit; never invent an inverse or touch the rig. This ticket must close before any R3 live artifact is built.",
+  "desc": "IN PROGRESS: PAC-aware 25F84 decoding resolved Type10 forceUSB23On: createUSB3PortObject, setPinConfiguration, handleDetectChange, 10 s timer, printConnectedTransports; it does not directly call IRQ clear, repeater reset, USB2 inactive, or 0x23/0x24/0x55. turnOnVbus does dispatch Type10 forcePortEvaluation, whose 0x14 OR-only event/cache mutation has no proved inverse and can race live cache ownership. 0x23 setter destroys unmapped raw bits, 0x24 is read-only status with incomplete semantics, and 0x55 is a full replacement with no readback/neutral proof. resetDataControl is 0x50; disablePort is 0x28/4CC; no VBUS removal, USB3 object removal, detect restoration, eUSB2/ATC teardown, or interrupt/cache quiescence ordering is proved. Next: trace removeUSB3PortObject, setHPMInactive, detach branches in processStatusRegisters/processModeFlags, and TypeCPhy teardown. Evidence: done/2026-07-24-t6040-hpm2-detach-static-slice.md. Never invent an inverse or touch the rig; 096 must close before R3.",
   "author": "codex",
   "deps": [
-    "023"
+    "095"
   ],
   "hashes": null,
   "created": 1784909164

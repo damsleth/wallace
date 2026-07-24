@@ -4,8 +4,8 @@ End-goal: a bootable Linux distro on this MacBook Pro 14" M4 Pro with GPU accel,
 WiFi, Bluetooth, keyboard/trackpad, audio, webcam, power management — daily-driver
 comfort comparable to macOS.
 
-Written 2026-07-10, last updated **2026-07-24** (HID-restored Alpine/OpenRC B0
-release candidate).
+Written 2026-07-10, last updated **2026-07-24** (tethered B0 PASS; right HPM2
+reaches S0; rig NEEDS_RECOVERY).
 Companion docs: `NEXT_STEPS.md` (immediate work), `DEVLOG.md`
 (operational reference + solved blockers), `t6040-dt-checklist.md` (Stage C
 reference), and `BOOTABLE_BUILD_EXPERIMENTS.md` (B0 cold-boot ladder).
@@ -44,31 +44,43 @@ Linux registers no input device. Ticket 077 found the exact surrounding delta:
 Asahi's BUS_HOST `hid-apple` rejects the transport's unset `hid->type`.
 Ticket 078's minimal type assignment now live-registers `input0/event0`.
 
-**Bootable-build path defined (2026-07-23).** The immediate B0 milestone is an
+**Bootable-build path live-proven tethered (2026-07-24).** The B0 milestone is an
 enrolled raw m1n1 object carrying a self-contained Alpine RAM distro, reaching
 simpledrm/fbcon and internal keyboard without a host payload upload. It does
 not wait for USB or internal NVMe. Tickets 077–079 restore HID and produce the
 release-like distro. Ticket 080 completed the raw payload audit and selected
 direct m1n1: exact prefix + command line + compressed kernel + raw DTB +
-compressed initramfs, entry `0x800`, with a strict host verifier. Ticket 081 builds a
-single-object tethered proof; 082 prepares reversible enrollment/cold boot.
-Full sequence: `docs/BOOTABLE_BUILD_EXPERIMENTS.md`. Layout result:
+compressed initramfs, entry `0x800`, with a strict host verifier. Tickets 081
+and 100 completed the independently reviewed single-object tethered proof:
+OpenRC default runlevel, watchdog, internal panel shell, keyboard echo, and no
+block devices passed. Ticket 082's enrollment procedure exists; exact volume
+identity/backup plus the dual-mode candidate review/trigger check remain
+before approved ticket 101's maintainer-executed cold boot. Full sequence:
+`docs/BOOTABLE_BUILD_EXPERIMENTS.md`. Layout result:
 `done/2026-07-23-t6040-raw-boot-object-layout.md`.
 
 **Concrete raw-object control (2026-07-24).** The exact ticket-076 Alpine
 HID-restored payload is now packaged behind safe m1n1 `1394c345...` as a
 twice-reproduced, strictly verified 21,729,039-byte object `b50f52ab1fac...`.
-Proposed ticket 089
-tests one upload and embedded autoboot with no `linux.py`; it is a delivery
-control, not the final HID-restored B0 object.
+Ticket 089 passed one upload and embedded autoboot with no `linux.py`; it was a
+delivery control, not the final B0 object.
 
 **Release RAM distro built (2026-07-24).** Ticket 079 now provides a
 twice-reproducible Alpine/OpenRC RAM distro (`ddd98171...`) with normal
 runlevels, fbcon plus delayed ttydc0 consoles, watchdog, a bounded health
 report, locked root password, no enabled network configuration, and zero block
-nodes. Its exact self-contained raw-object candidate is the twice-reproduced,
-strictly decoded 22,183,563-byte `2371ee5d...`. Independent review and the
-one-shot tethered proof remain ticket 081's gate; nothing is enrolled.
+nodes. Its exact self-contained raw object is the twice-reproduced, strictly
+decoded 22,183,563-byte `2371ee5d...`; ticket 100 live-proved it. The
+dual-mode replacement candidate `46237ade...` preserves the proven payload and
+adds only `EARLY_PROXY_TIMEOUT=5`, but still needs independent review and
+on-M4 trigger validation. Nothing is enrolled.
+
+**Right-port HPM reaches S0 (2026-07-24).** The staged endpoint-only sequence
+proved the selector window inactive before WAKEUP, read power state `0x07`
+after WAKEUP, then issued the exact `SSPS` command and read final state
+`0x00`. Role/VBUS, repeater, ATC, xHCI child enumeration, and block access are
+not yet proved. The verified OpenRC GPT/ext4 image is unflashed. The post-run
+VDM recovery failed, so the rig is NEEDS_RECOVERY before any live work.
 
 **Stage A complete 2026-07-10** — proxy solid, 14/14 cores (4E+5P+5P), MPIDR
 map, execute-and-return, broken_wfi handled (WFE park), ~10 s chainload loop.
@@ -87,9 +99,11 @@ fixed, dapf gate + watchdog arm added for M4.
 
 | Works | Not yet |
 |---|---|
+| Tethered single-object Alpine/OpenRC B0: panel shell, internal keyboard, watchdog, empty partitions | Enrolled untethered cold boot (082 remaining identity/backup/review gates; 101 approved) |
 | BusyBox userspace; full PMGR with property-free T6041 quirk, reproducible | PMGR draft review/submission (split, checkpatch/schema-clean; NEXT_STEPS #2) |
 | Internal keyboard at the shell; trackpad registers + validated firmware-loader path; paired trackpad/BCM/ISP/ASMedia corpus staged | Trackpad motion retest; PMU-backed reset remains forbidden; maxcpus>1/idle states |
 | Two-way Linux shell + m1n1 proxy over one DebugUSB cable; remote reboot | Printk over ttydc needs a separate polled/atomic TX path; current TTY queue is not console-safe |
+| Right HPM2 WAKEUP + SSPS: state `0x07` → S0 `0x00`; verified OpenRC disk image | USB role/VBUS/repeater/ATC, child enumeration, block read/write, image flashing |
 | Linux apple_wdt; fbcon early console | NVMe rootfs (power/SART/ANS work; queue and per-command TCB setup require unavailable raw-boot SPTM entry) |
 | Kernel build env (podman, arm64-native) with patch pipeline | USB gadget console (parked: EP0 dies post-enumeration) |
 | SMP/cpufreq/MCC groundwork; PCIe host+wireless DT and drivers build | board-audited Linux secondary-core test, cpufreq throttles, gated PCIe link-up test, wireless firmware, USB3/TB PHY tunables |
@@ -225,8 +239,11 @@ doable solo with the proxy + ADT dumps; this is the highest-leverage local work.
    also proved: a nine-byte address-`0x14` RMW. It has no local inverse, and
    the remaining power/config/repeater coordination must not be invented.
    The maintainer-approved `docs/SPMI_SAFETY.md` now permits only exact
-   right-HPM2 stages: 092 builds, 093 R0 status, 094 R1 wake/S0, 095 R2 mask
-   preservation, 096 detach/rollback, and 097 later R3 host link.
+   right-HPM2 stages. Tickets 093–095 have proved inactive selector, WAKEUP +
+   state `0x07`, and SSPS + state `0x00`; the mask experiment was removed and
+   remains untested. Ticket 096 owns detach/rollback, and decomposed later
+   tickets own host role, ATC/xHCI enumeration, block reads, flashing, and
+   bounded writes.
    Root hubs without that physical path are not a functional USB2 fallback.
    USB3/TB remains a Stage D comfort.
    NHI/apciec (Thunderbolt) name-mapping is also deferred.
@@ -332,8 +349,10 @@ remain required.
   only reported test is the legacy T6000/I2C iterator. The T6040 path performs
   multiple state-changing SPMI/HPM operations and has unbounded/error-lifetime
   issues, so it is an implementation lead rather than a live artifact.
-  Wallace now extracts only exact direct-HPM2 operations through tickets
-  092–097 under `docs/SPMI_SAFETY.md`; the branch is never run wholesale.
+  Wallace extracted only exact direct-HPM2 operations under
+  `docs/SPMI_SAFETY.md`; 093–095 reached S0, while 096 and 102–108 own the
+  remaining rollback/link/enumeration boundaries. The branch is never run
+  wholesale.
   M3 ATC PHY work
   enumerated a real device on 2026-07-20, but its SPMI wake and PHY data are not
   T6040 parameters; USB3/TB stays track-and-test. The 2026-07-23 upstream
@@ -342,11 +361,13 @@ remain required.
   banks and the raw tunable encoding. Its direct eUSB2 sequence is now bounded
   to banks 0/1 and six offsets; paired XHCI also proves the host branch,
   leaving HPM ownership as the actual implementation blocker. Ticket 086's
-  1 GiB Alpine GPT/ext4 image is structurally verified (`32a897cb...`) but not
-  bootable because its minirootfs lacks `/sbin/openrc`; ticket 098 rebuilds it
-  from the verified OpenRC B0 root. It has not been written to the stick,
-  which is attached to the M4 rather than the M1; M4 enumeration remains the
-  gate.
+  historical 1 GiB Alpine GPT/ext4 image is structurally verified
+  (`32a897cb...`) but not bootable because its minirootfs lacks
+  `/sbin/openrc`. Ticket 098 supersedes it with the verified OpenRC B0 image
+  (`1c493fad...`, PARTUUID `e4731abe-3566-4c3a-8019-c8828ca27a5a`);
+  GPT/ext4/OpenRC/content checks pass and its normalized tree reproduces.
+  It has not been written to the stick, which is attached to the M4 rather
+  than the M1; M4 enumeration remains the gate.
 - **Internal keyboard + trackpad:** ✅ **keyboard DONE early (2026-07-11)** via
   dockchannel-HID (three bugs fixed — see DEVLOG); trackpad registers as
   input0. Its missing HIDF loader and retry recovery are fixed. Ticket 016
@@ -467,16 +488,22 @@ GPU/WiFi (USB ethernet).
 - **B0, personal cold boot:** use the dedicated APFS/m1n1 volume and raw
   enrollment to boot one self-contained m1n1 + kernel + J614s DTB + Alpine RAM
   distro. DebugUSB may observe but supplies no payload. This is intentionally
-  storage-free and is the first “this machine boots Linux” milestone. Tickets
-  076–082 and `docs/BOOTABLE_BUILD_EXPERIMENTS.md` define the evidence-gated
-  sequence.
+  storage-free and is the first “this machine boots Linux” milestone. The
+  tethered object proof (081/100) has passed. Ticket 082 now owns only the
+  final volume identity/backup/review fields; approved ticket 101 is the
+  maintainer-executed cold boot. `docs/BOOTABLE_BUILD_EXPERIMENTS.md` defines
+  the evidence-gated sequence.
 - **B1, standard boot flow:** after B0, make U-Boot/EFI work and move toward
   GRUB/systemd-boot or a unified kernel image. Ticket 025's offline prep now
   provides a reproducible no-MMIO T6040 U-Boot/EFI-hello target; any live proof
   remains a separate post-B0 review/approval. Ticket 080 confirmed U-Boot is
   not required for B0.
-- **B2, persistent distro:** use external USB root after the HPM/ATC physical
-  link enumerates a device; internal NVMe stays a later SPTM integration goal.
+- **B2, persistent distro:** use the verified external OpenRC USB image after
+  HPM/ATC brings up a child, read-only block identity passes, the image is
+  flashed separately on the M1, and bounded read-write persistence passes.
+  Tickets 102–113 encode those boundaries. Internal NVMe stays a later SPTM
+  integration goal; tickets 114–117 remain static/host-only unless a supported
+  guarded-entry contract appears.
 - **asahi-installer:** its current second stage already invokes
   `kmutil --raw --entry-point 2048 --lowest-virtual-address 0`. It must add
   Mac16,8/T6040 admission, preserve a complete kernel+DTB+initramfs payload

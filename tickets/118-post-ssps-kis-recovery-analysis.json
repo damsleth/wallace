@@ -1,0 +1,15 @@
+{
+  "seq": "118",
+  "slug": "post-ssps-kis-recovery-analysis",
+  "needs": "offline",
+  "state": "open",
+  "track": "xcut",
+  "priority": "P1",
+  "desc": "Analyze the post-095 recovery failure before attributing it to HPM2 SSPS. Inventory the successful transcript, warm-reboot boundary, failed VDM output, reattach/kisd state, host processes and prior known KIS wedge signatures. Produce an exact recovery-control checklist. No hardware action in this ticket; the first live action remains a normal recovery boot and healthy proxy declaration.",
+  "author": "codex",
+  "deps": [
+    "095"
+  ],
+  "hashes": null,
+  "created": 1784927435
+}

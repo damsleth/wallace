@@ -1,0 +1,17 @@
+{
+  "seq": "115",
+  "slug": "nvme-service6-host-harness",
+  "needs": "offline",
+  "state": "open",
+  "track": "storage",
+  "priority": "P2",
+  "desc": "Build a host-only encoder/parser and unit-test harness for the pinned T6041/M4-family SPTM NVMe service-6 contracts decoded in 051/052/054. Validate descriptor packing, per-op lengths, queue/TCB/page-list ownership constraints, overflow/alignment rejection, and expected status decoding against static blobs. It must have no target transport or live GENTER path.",
+  "author": "codex",
+  "deps": [
+    "051",
+    "052",
+    "054"
+  ],
+  "hashes": null,
+  "created": 1784927435
+}

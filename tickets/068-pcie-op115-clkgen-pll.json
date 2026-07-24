@@ -5,12 +5,18 @@
   "state": "approved",
   "track": "",
   "priority": "P1",
-  "desc": "Read-only op-115 retest with the PCIe-PLL bring-up m1n1 omitted (ticket 058 decode). m1n1 e4671e08 adds the exact _configPciePLLs clkgen(reg[6]) sequence before PHY-IP: set32(clkgen+0x4,0x80000000); mask32(clkgen+0x0,0x7,0x1); poll clkgen+0x0 bit31 clear (PLL lock). ADT-derived base, offsets/values from the paired AppleT6040PCIe driver, no invented addresses. Existing op-115 read-only stop unchanged -> only new reg[3] access is the single read of 0x417040090 this measures. Preflight+hashes: done/2026-07-23-t6040-pcie-op115-clkgen-pll-preflight.md; decode: done/2026-07-21-t6040-pcie-op115-routefind.md. m1n1.bin 3e0c90af; PCIe-free DTB b3858f60; initramfs 512c69da. Needs: rig recovery first (NEEDS_RECOVERY), independent cross-review vs m1n1/AGENTS.md, CJ approval. Pass = 0x417040090 reads back instead of hanging. One boot; stop on SError/watchdog/nonzero L2C.",
+  "desc": "Read-only op-115 retest with the PCIe-PLL bring-up m1n1 omitted (ticket 058 decode). m1n1 e4671e08 adds the exact _configPciePLLs clkgen(reg[6]) sequence before PHY-IP: set32(clkgen+0x4,0x80000000); mask32(clkgen+0x0,0x7,0x1); poll clkgen+0x0 bit31 clear (PLL lock). ADT-derived base, offsets/values from paired AppleT6040PCIe, no invented addresses. Existing op-115 read-only stop unchanged: the only new reg[3] access is one read of 0x417040090. Exact hashes are pinned from done/2026-07-23-t6040-pcie-op115-clkgen-pll-preflight.md. Plan approval is recorded; still requires current rig recovery and independent exact cross-review before one boot. Pass = read returns instead of hanging; stop on SError/watchdog/nonzero L2C.",
   "author": "claude",
   "deps": [
     "058"
   ],
-  "hashes": null,
+  "hashes": {
+    "m1n1": "3e0c90af77e1f13930e432f3ed124215d2ddeb6de050c8b29b90173a2818f31f",
+    "m1n1_macho": "2373e435677d5cf97ba9e2eee065abb7d659a7badcc7bd687896f1ae59ea5ae3",
+    "image": "aca9a55614b1a588e33cf8a41ad01108d0d3de15b77c8b047991bd04b8b44000",
+    "dtb": "b3858f60aa96ab81f7314659284174cb10ddcec061140c1c67d397f52d617814",
+    "initramfs": "512c69da94884f3ea83f9a6a4ea0731dcad6b5aaa87eb875ca5a6d7b24c317ca"
+  },
   "created": 1784813656,
   "approved_by": "maintainer",
   "approved_at": 1784819112

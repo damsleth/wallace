@@ -1,0 +1,23 @@
+{
+  "seq": "101",
+  "slug": "b0-enrolled-cold-boot",
+  "needs": "rig",
+  "state": "approved",
+  "track": "distro",
+  "priority": "P1",
+  "desc": "PLAN-APPROVED, NOT YET RUNNABLE untethered B0 milestone. Ticket-100 object 2371ee5d is the live-proven fallback. Preferred dual-mode candidate 46237ade preserves its payload byte-for-byte and adds only EARLY_PROXY_TIMEOUT=5, but still needs independent rebuild review and on-M4 normal-vs-DebugUSB trigger validation. Maintainer executes kmutil enrollment and boot picker cold boot; agent only observes/records and runs no kmutil/bputil. Ticket 082 must first fill volume UUID, back up/hash current enrolled object, choose 2371ee5d vs reviewed 46237ade, and confirm action split; current rig NEEDS_RECOVERY. Pass = panel Alpine/OpenRC default runlevel, watchdog, keyboard echo, no host payload. Rollback = main macOS + re-enroll backup. Procedure: done/2026-07-24-t6040-b0-enrolled-cold-boot-preflight.md.",
+  "author": "claude",
+  "deps": [
+    "082",
+    "100"
+  ],
+  "hashes": {
+    "live_proven_object": "2371ee5dfbfab591397fc333e7da212fb7582bfb2eaddaa6438005f5bb41759b",
+    "dual_mode_candidate": "46237ade7e314cd752e1482930e21b62319e1b0b707a0f23e86392701555f0c9",
+    "dual_mode_m1n1": "11f6fbf1d9bfd4b5d4ea6308444beffc8063446553d48791c3a34e20c1458b91",
+    "preflight": "b742d8b26e69a86c7a51af4cf6bff228a23748da3746d4fb1f35c53d6ed63bfe"
+  },
+  "created": 1784925235,
+  "approved_by": "maintainer",
+  "approved_at": 1784925801
+}

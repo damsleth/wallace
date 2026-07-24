@@ -6,6 +6,17 @@ separate explicit maintainer approvals and are maintainer-executed on the M4.
 Scope of this document: procedure, guards, and rollback only. No APFS, Boot
 Policy, `kmutil`, `bputil`, or enrollment action is performed by authoring it.
 
+> **Current amendment:** ticket 100's tethered proof passed. The preferred
+> enrollment candidate is now dual-mode object
+> `46237ade7e314cd752e1482930e21b62319e1b0b707a0f23e86392701555f0c9`,
+> but only after ticket 119 independently reproduces/reviews it and its
+> normal-boot versus DebugUSB trigger behavior is validated. The live-proven
+> pure-autoboot object `2371ee5d...` remains the fallback. Substitute neither
+> hash silently. The rig is currently NEEDS_RECOVERY after the post-095
+> VDM/KIS failure; recover it before ticket 101. Later commands naming
+> `2371ee5d` describe the fallback unless the reviewed 082/101 manifest
+> explicitly selects `46237ade`.
+
 ## Current M4 state (maintainer-confirmed 2026-07-24)
 
 The M4 already has the Asahi-style dual setup:

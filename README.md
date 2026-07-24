@@ -1,26 +1,51 @@
 # Project Wallace
 
-Mainline Linux on a MacBook Pro 14" M4 Pro (t6040 "Brava Chop", Mac16,8 / J614s). It boots. BusyBox userspace, working internal keyboard, and a fully remote dev loop over a single USB-C cable: reboot, chainload, boot, interactive shell, all from the host, no fingers on the power button.
+Mainline Linux on a MacBook Pro 14" M4 Pro (t6040 "Brava Chop",
+Mac16,8 / J614s). It boots into Alpine/OpenRC with the internal panel,
+keyboard, watchdog, and a remote DebugUSB development loop.
 
 This repo is the umbrella. The code lives in four sibling repos and the knowledge kept getting smeared across them so everything that guides the work now lives here: plans, scripts, kernel patches, post-mortems.
 
-## Status (2026-07-14)
+## Status (2026-07-24)
 
-Works: raw boot via m1n1 (kmutil raw enrollment, SPTM allows nothing else), all 14 cores in the proxy, BusyBox shell on an Asahi-based kernel (`asahi-wip` plus the t6040 patch stack), internal keyboard, watchdog handover, fbcon on the panel, and a two-way serial console over DebugUSB (`/dev/ttydc0`).
+The tethered B0 release object now boots a self-contained Alpine 3.24/OpenRC
+system from one raw m1n1 object. The internal panel reaches a local shell, the
+internal keyboard echoes, the watchdog stays serviced, and the storage-disabled
+health report passes. A dual-mode enrollment candidate has also been built; it
+still needs independent review, trigger validation, volume identity/backup
+completion, and the maintainer-executed cold-boot experiment (ticket 101).
 
-pmgr, the previous blocker, is solved. The full 214-domain topology boots to BusyBox 3/3 with a minimal T6041 quirk: preserve firmware-active domains, disable `disp_cpu`, and skip auto-enable on the two `dispext*_cpu` domains. Every other exclusion we'd been carrying turned out to be unnecessary.
+Core bring-up is solid: m1n1 sees all 14 active cores, PMGR's 214-domain
+topology is understood, Linux boots reliably at `maxcpus=1`, fbcon and
+DockChannel polling console work, and the internal keyboard is usable.
+`maxcpus=2`, cpufreq, IRQ-driven console, and trackpad-motion tests have
+prepared tickets but remain separate unrun boundaries.
 
-It's a clean two-patch series now, checkpatch and binding schemas both pass; upstreaming is next.
+The right-side USB-C path has crossed its first hardware-management boundary.
+The exact right HPM2 endpoint accepted WAKEUP, reported state `0x07`, accepted
+the public-driver `SSPS` sequence, and reported S0 (`0x00`). That does not yet
+establish connector role, VBUS, repeater/ATC PHY, xHCI enumeration, or block
+access. The attached memory stick has therefore **not** enumerated on the M4
+and has not been written. A host-verified OpenRC GPT/ext4 root image is ready,
+but flashing and read-write boot tests remain behind the staged USB link
+experiments.
 
-**Internal NVMe** is a no-go for the foreseeable future. The T8140 controller routes every queue operation through Apple's signed SPTM, and raw boot has no path into that guarded state. We decoded the complete GENTER service-6 ABI from the paired kernelcache, so we know exactly what to call; the machine simply refuses the call from anything outside Apple's own boot chain, and the SPTM service-6 ABI is not documented anywhere. The only path to a usable machine is USB-attached root, which is now fully working.
+Internal NVMe remains blocked by Apple's SPTM/CoastGuard guarded state. We have
+decoded the protected operation contracts, but raw boot has no supported path
+to acquire the required execution/domain context. Work here stays static and
+host-only unless a documented, non-mutating guarded-entry route appears.
 
-**PCIe**, which carries WiFi/BT and the SD reader, runs Apple's init sequence cleanly through operation 114 and stalls on 115, the first PHY-IP PLL read. Route-finding for the missing aperture precondition continues offline. The paired BCM4388 firmware is already extracted, waiting for the link to come up.
+PCIe, which carries WiFi/BT and the SD reader, still stalls at operation 115,
+the first PHY-IP PLL read. The next exact clock-generator candidate is prepared
+but not run.
 
-Along the way I spent a day chasing an SError that turned out to be m1n1's own log ring sitting flush against top-of-RAM. The PCIe writes were innocent the whole time.
+DebugUSB/KIS remains the only practical remote console. Immediately after the
+successful HPM SSPS test, the normal VDM recovery failed and a bounded
+reattach produced no `kisd` console. The rig is currently **NEEDS_RECOVERY**:
+a recovery boot and healthy proxy confirmation must precede every live ticket.
 
-**Console**: M4 raw-boot has no serial port, no hypervisor tricks (SPTM killed those), and the SBU pins are a confirmed dead end on ACE3. The one path is DebugUSB/KIS through the DFU port. This on the other hand works sorta-nicely.
-
-Linux still polls that DockChannel FIFO every 5 ms. The corrected RX BIT(1) interrupt diagnostic ran clean and answered the wrong question: injected bytes never even reached the AP-side FIFO in the IRQ-mode build, so interrupt delivery has still never been exercised. Polling stays until the build delta between the two IRQ-mode runs is understood.
+Linux still polls the DockChannel FIFO every 5 ms. The corrected IRQ-816
+candidate is prepared, but polling remains the proven console path.
 
 The blow-by-blow lives in [DEVLOG.md](docs/DEVLOG.md), and the current plan of attack is [NEXT_STEPS.md](docs/NEXT_STEPS.md).
 

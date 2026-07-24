@@ -1,0 +1,15 @@
+{
+  "seq": "102",
+  "slug": "hpm2-post-s0-status-candidate",
+  "needs": "offline",
+  "state": "open",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "Build and independently review an exact right-HPM2 post-S0 observation candidate. Reuse only the proven identity gate, WAKEUP, and SSPS-to-S0 prefix, then perform bounded named reads of logical power state 0x20 and only the statically justified USB config/status windows 0x23 (4 bytes) and 0x24 (9 bytes). No 0x14 or 0x55 write, mask/clear/W1C, role/VBUS, repeater, PHY, USB, or storage path. Output exact source/disassembly/hash proof and a value interpretation table; stop before a live proposal if read semantics are still ambiguous.",
+  "author": "codex",
+  "deps": [
+    "095"
+  ],
+  "hashes": null,
+  "created": 1784927435
+}

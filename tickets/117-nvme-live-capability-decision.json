@@ -1,0 +1,17 @@
+{
+  "seq": "117",
+  "slug": "nvme-live-capability-decision",
+  "needs": "offline",
+  "state": "open",
+  "track": "storage",
+  "priority": "P2",
+  "desc": "Decision gate after 114–116. If and only if primary-source evidence proves a supported, side-effect-free guarded capability query reachable from Wallace's execution context, specify a separate exact live candidate for later review. Otherwise publish a current NO-GO and park live NVMe. Never retry the known failing raw BAR read or unchanged GENTER, and never set up queues/TCBs on the rig from inference alone.",
+  "author": "codex",
+  "deps": [
+    "114",
+    "115",
+    "116"
+  ],
+  "hashes": null,
+  "created": 1784927435
+}

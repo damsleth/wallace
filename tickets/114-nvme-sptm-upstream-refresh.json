@@ -1,0 +1,15 @@
+{
+  "seq": "114",
+  "slug": "nvme-sptm-upstream-refresh",
+  "needs": "offline",
+  "state": "open",
+  "track": "storage",
+  "priority": "P2",
+  "desc": "Refresh primary-source public work on M2/M3/M4 SPTM/GXF/SPRR and NVMe CoastGuard after the existing 051/052/054/055 decode. Look specifically for a supported way to acquire/preserve the guarded execution/domain context on raw boot. Record exact commits and whether any non-mutating capability query exists. No rig, no unchanged GENTER retry, and no inference that a decoded ABI supplies authority.",
+  "author": "codex",
+  "deps": [
+    "055"
+  ],
+  "hashes": null,
+  "created": 1784927435
+}

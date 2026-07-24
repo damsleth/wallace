@@ -1,0 +1,17 @@
+{
+  "seq": "105",
+  "slug": "right-hpm-host-transition-candidate",
+  "needs": "offline",
+  "state": "open",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "Build the exact HPM-only right-port host transition after 096/103/104 resolve forward and inverse semantics. Passive-sink detection must precede source/VBUS; target only nub-spmi-a1/hpm2 SID 0x0c. Include byte-exact rollback of every cache/config/role/VBUS change and bounded failure handling. Do not link eUSB2, ATC, DWC3/xHCI, Linux, block, or filesystem code. Produce source/disassembly/hash/reproducibility evidence and stop before live execution.",
+  "author": "codex",
+  "deps": [
+    "096",
+    "103",
+    "104"
+  ],
+  "hashes": null,
+  "created": 1784927435
+}

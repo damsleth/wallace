@@ -5,7 +5,7 @@
   "state": "done",
   "track": "usb",
   "priority": "P1",
-  "desc": "COMPLETED AND AMENDED 2026-07-24: strict direct-right-HPM2 R0/R1/R2 candidates build byte-reproducibly with bounded transport, raw-before-validation logging, exact endpoint gates, separated linked boundaries, uncertain-write restore, and no forbidden operations. The original d4f13a62 artifact failed closed on live R0 before SPMI because standard chainload.py rewrites volatile ADT handoff fields. Replacement ef707f51 retains whole-tree CRC as telemetry and fail-closes on ADT size plus every root/chip/board/controller/sole-child/SID/rid/class/port/right property that determines the endpoint. Independent clean rebuild/review passed replacement artifacts under linux-build-out/t6040-hpm2-ef707f51f181. Only R0/093 is eligible; R1/R2 remain dependency-gated.",
+  "desc": "DONE as the hardened candidate-pattern milestone. Strict direct-right-HPM2 candidates built reproducibly with bounded transport, raw-before-validation logging, exact endpoint gates, separated linked boundaries, and no forbidden operations. Live diagnostics then evolved the artifacts without weakening the pattern: 093 passed the corrected raw+translated address gate and found the inactive selector; 094's narrowed binary sent WAKEUP and read state 0x07; 095's narrowed binary sent only DATA1 00 + CMD1 SSPS and read final state 0x00. All three are done. The original interrupt-mask candidate was never run and was removed from 095; mask/W1C handling remains untested. Exact final live hashes live in tickets 093–095 and their result docs.",
   "author": "codex",
   "deps": [
     "090"

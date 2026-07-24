@@ -5,13 +5,17 @@ set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 POPULATE="$ROOT/scripts/t6040-populate-usb-rootfs.sh"
 OUT=${OUT:-/Users/damsleth/Code/linux-build-out}
-ALPINE=${ALPINE:-"$OUT/alpine-minirootfs-3.24.0-aarch64.tar.gz"}
-IMAGE=${IMAGE:-"$OUT/t6040-alpine-usb-root.img"}
-MANIFEST=${MANIFEST:-"$OUT/t6040-alpine-usb-root.manifest"}
+ALPINE=${ALPINE:-"$OUT/initramfs-alpine-b0.cpio.gz"}
+ALPINE_SHA256=${ALPINE_SHA256:-ddd981711e91c917b735d39df0e90dd50200c158e1ea54c7f2c171c8ad317024}
+IMAGE=${IMAGE:-"$OUT/t6040-alpine-openrc-usb-root.img"}
+MANIFEST=${MANIFEST:-"$OUT/t6040-alpine-openrc-usb-root.manifest"}
 SIZE_MIB=${SIZE_MIB:-1024}
 MODULES=
 FIRMWARE=
 CONTAINER_IMAGE=${CONTAINER_IMAGE:-docker.io/library/fedora:41}
+DISK_GUID=${DISK_GUID:-}
+PARTUUID=${PARTUUID:-}
+FSUUID=${FSUUID:-}
 
 usage() {
     cat <<'EOF'
@@ -21,9 +25,13 @@ Options:
   --image FILE       Output raw GPT image
   --manifest FILE    Output identity/hash manifest
   --size-mib N       Sparse image size (default: 1024)
-  --alpine FILE      Pinned Alpine aarch64 minirootfs
+  --alpine FILE      Verified Alpine/OpenRC B0 root archive
+  --alpine-sha256 H  Exact SHA-256 for the root archive
   --modules DIR      Optional matching modules tree
   --firmware DIR     Optional paired firmware tree
+  --disk-guid UUID   Fixed GPT disk GUID (default: random)
+  --partuuid UUID    Fixed partition GUID/PARTUUID (default: random)
+  --fsuuid UUID      Fixed ext4 UUID (default: random)
 
 The output is a regular file. This script never opens or writes a block device.
 It refuses to overwrite either output. Flashing remains a separate, explicit,
@@ -46,8 +54,12 @@ while [ "$#" -gt 0 ]; do
         --manifest) MANIFEST=$2; shift 2 ;;
         --size-mib) SIZE_MIB=$2; shift 2 ;;
         --alpine) ALPINE=$2; shift 2 ;;
+        --alpine-sha256) ALPINE_SHA256=$2; shift 2 ;;
         --modules) MODULES=$2; shift 2 ;;
         --firmware) FIRMWARE=$2; shift 2 ;;
+        --disk-guid) DISK_GUID=$2; shift 2 ;;
+        --partuuid) PARTUUID=$2; shift 2 ;;
+        --fsuuid) FSUUID=$2; shift 2 ;;
         -h|--help) usage; exit 0 ;;
         *) die "unknown argument: $1" ;;
     esac
@@ -85,17 +97,35 @@ FIRMWARE=${FIRMWARE:-"$WORK/empty-firmware"}
 [ -d "$MODULES" ] || die "modules directory not found: $MODULES"
 [ -d "$FIRMWARE" ] || die "firmware directory not found: $FIRMWARE"
 
-DISK_GUID=$(uuidgen | tr '[:upper:]' '[:lower:]')
-PARTUUID=$(uuidgen | tr '[:upper:]' '[:lower:]')
-FSUUID=$(uuidgen | tr '[:upper:]' '[:lower:]')
+DISK_GUID=${DISK_GUID:-$(uuidgen | tr '[:upper:]' '[:lower:]')}
+PARTUUID=${PARTUUID:-$(uuidgen | tr '[:upper:]' '[:lower:]')}
+FSUUID=${FSUUID:-$(uuidgen | tr '[:upper:]' '[:lower:]')}
 
 "$POPULATE" stage \
     --root "$WORK/root" \
     --partuuid "$PARTUUID" \
     --alpine "$ALPINE" \
+    --alpine-sha256 "$ALPINE_SHA256" \
     --modules "$MODULES" \
     --firmware "$FIRMWARE" \
     --manifest "$WORK/rootfs.manifest"
+
+# This builder is specifically for the release-qualified B0 userspace.  The
+# generic population helper still supports the historical minirootfs tests,
+# but accepting one here would silently recreate ticket 086's nonbootable
+# root.
+[ -x "$WORK/root/sbin/openrc" ] ||
+    die "root archive is missing executable /sbin/openrc"
+[ -x "$WORK/root/sbin/openrc-run" ] ||
+    die "root archive is missing executable /sbin/openrc-run"
+grep -q '/sbin/openrc sysinit' "$WORK/root/etc/inittab" ||
+    die "root archive is missing the OpenRC sysinit entry"
+grep -q '/sbin/openrc default' "$WORK/root/etc/inittab" ||
+    die "root archive is missing the OpenRC default entry"
+[ "$(readlink "$WORK/root/etc/runlevels/default/t6040-watchdog" 2>/dev/null || true)" = /etc/init.d/t6040-watchdog ] ||
+    die "root archive is missing the default watchdog service"
+[ "$(readlink "$WORK/root/etc/runlevels/default/t6040-health-report" 2>/dev/null || true)" = /etc/init.d/t6040-health-report ] ||
+    die "root archive is missing the default health-report service"
 
 cp "$WORK/rootfs.manifest" "$WORK/rootfs.manifest.input"
 IMAGE_BASE=$(basename "$IMAGE")
@@ -124,7 +154,13 @@ podman run --rm \
         test -n "$end"
         sectors=$((end - start + 1))
         truncate -s $((sectors * 512)) "$work/root.ext4"
-        mkfs.ext4 -q -F -L t6040root -U '"$FSUUID"' \
+        find "$work/root" -exec touch -h -d @0 {} +
+        # e2fsprogs treats fake time 0 as "not set"; use one second after the
+        # epoch to fix superblock timestamps. mkfs.ext4 -d still stamps imported
+        # inode ctimes from wall clock, so raw image hashes are not reproducible;
+        # ticket 098 qualifies the normalized filesystem tree instead.
+        E2FSPROGS_FAKE_TIME=1 mkfs.ext4 -q -F -L t6040root -U '"$FSUUID"' \
+            -E lazy_itable_init=0,lazy_journal_init=0,hash_seed='"$FSUUID"' \
             -d "$work/root" "$work/root.ext4"
         e2fsck -fn "$work/root.ext4"
         dd if="$work/root.ext4" of="$image" bs=512 seek="$start" \

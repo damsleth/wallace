@@ -8,6 +8,11 @@ and is deliberately kept *out* of the B0 cold-boot proof per that doc's rules
 live step keeps the same gate: own hashes, independent review, preflight, rig
 ticket, CJ approval, lease.
 
+Current B0 state: ticket 100 passed the tethered single-object OpenRC boot,
+including panel shell and internal-keyboard echo. Ticket 101 is approved for
+the maintainer-executed enrolled cold boot but remains blocked on ticket 082's
+identity/backup/object-review fields and the rig's NEEDS_RECOVERY state.
+
 ## Where each experiment stands (most are already readied)
 
 | # | Experiment | Ticket | State | End-goal contribution |
@@ -16,7 +21,7 @@ ticket, CJ approval, lease.
 | U2 | **cpufreq DVFS** (E 7-ps, P 19-ps to 4512 MHz) | 006 (+035) | approved, DT built (`a42bb096`) | thermals + performance scaling |
 | U3 | **Interrupt-driven console** (IRQ 816) | 073 (+062) | approved, pinned | a non-busy-poll console; prereq for a printk console |
 | U4 | **SMC**: power button, lid, battery status | 061 | offline, open | on-device power control + battery gauge (read-only keys) |
-| U5 | **On-device framebuffer login** (fbcon getty) | 083 (+079) | offline artifact built; live post-B0 | a real console on the laptop panel, not just ttydc0 |
+| U5 | **On-device framebuffer console** | 083 (+079/+100) | **done** | a real local shell on the laptop panel, not just ttydc0 |
 | U6 | **PCIe link-up** (op-115 clkgen-PLL) | 068 (+058) | approved, pinned | unblocks WiFi/BT + SD reader |
 | U7 | **WiFi/BT bring-up** after link-up | 044 → 030 fw | offline pre-review | networking |
 | U8 | **Daily-driver feature DT** (integrate U1+U2+U3) | **new (084)** | to file, post-B0 | one DT the usable build actually ships |
@@ -29,7 +34,7 @@ B0 (Sol) ──► U1 SMP ──┐
 B0 ──► U2 cpufreq ────┤          (integrate, one gate at a time)
 B0 ──► U3 IRQ console ┘
 B0 ──► U4 SMC power/battery ─────► on-device power control
-B0 ──► U5 fbcon login ───────────► usable without any tether
+B0 tethered proof ──► U5 fbcon shell PASS; 101 makes it untethered
 U6 PCIe link-up ─► U7 WiFi/BT ───► networking (then B2 USB root also unblocks)
 ```
 
@@ -51,13 +56,15 @@ m1n1. Offline: build the getty-on-fbcon initramfs delta + host-check init/servic
 ordering; then a gated one-shot rig boot. Pass: panel login prompt + keyboard
 echoes locally with no ttydc0 dependency.
 
-Ticket 079's exact Alpine/OpenRC B0 image now contains the offline U5 delta:
+Ticket 079's exact Alpine/OpenRC B0 image contains the U5 delta:
 its inittab respawns the local diagnostic shell on `tty0` and separately waits
-for `ttydc0`; no ttydc0 dependency exists for panel login. Host validation and
-two-build reproducibility pass at `ddd981711e91...`. Ticket 083 remains open
-for the intentionally post-B0 visual/keyboard live observation; do not add a
-second userspace candidate. Exact artifact:
-`done/2026-07-24-t6040-alpine-b0-release-bundle.md`.
+for `ttydc0`; no ttydc0 dependency exists for the panel. Host validation and
+two-build reproducibility pass at `ddd981711e91...`. Ticket 100 then
+live-proved the panel shell and local keyboard echo, so 083 is done. A
+conventional password-authenticated getty is distro hardening, not another
+hardware boundary. Exact artifact and result:
+`done/2026-07-24-t6040-alpine-b0-release-bundle.md` and
+`done/2026-07-24-t6040-b0-alpine-openrc-single-object-result.md`.
 
 ### U8 — daily-driver feature DT (ticket 084, offline, strictly post-B0)
 Once U1 (SMP), U2 (cpufreq), and U3 (IRQ console) have each passed a solo rig
@@ -67,10 +74,12 @@ pin, and propose a single integration boot. This is the DT the usable RAM distro
 ships. It is the *only* step that combines boundaries, and only proven ones.
 
 ## Explicitly out of scope here (tracked elsewhere)
-- B0 itself and enrollment: Sol's `BOOTABLE_BUILD_EXPERIMENTS.md` (076–082).
-- Persistent storage (B2): endpoint-scoped right-HPM2/ATC ladder 092–097,
-  corrected OpenRC image 098, and plan-approved but not-yet-runnable root boot
-  099; internal NVMe remains behind SPTM (051/052/054/055).
+- B0 itself and enrollment: `BOOTABLE_BUILD_EXPERIMENTS.md`; 081/100 passed,
+  082/101 own the remaining enrolled cold boot.
+- Persistent storage (B2): right HPM2 reaches S0; 096 still owns rollback,
+  image 098 is complete (`1c493fad...`), and decomposed
+  link/block/flash/root tickets own the remaining path. Internal NVMe remains
+  behind SPTM.
 - GPU (drm/asahi), audio, ISP/webcam, suspend: upstream-tracked (039/040/027);
   not on the usable-RAM-distro path. GPU mule prep 039 is complete: there is
   no current G16 candidate, and the ready evidence/test contract explicitly

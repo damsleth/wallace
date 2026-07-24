@@ -5,7 +5,7 @@
   "state": "open",
   "track": "xcut",
   "priority": "P2",
-  "desc": "Keep DEVLOG.md / done/ current; convert every new dead-end into a documented grave",
+  "desc": "Evergreen documentation hygiene. Last full audit 2026-07-24 reconciled README, NEXT_STEPS, DEVLOG, ROADMAP, BACKLOG, bootable/usable/SPMI surfaces, host memory, and all open tickets with B0 ticket-100 PASS, HPM2 0x07->0x00 PASS, OpenRC image 098, and the post-095 NEEDS_RECOVERY state. Continue converting every new result and dead end into a documented grave.",
   "author": "claude",
   "deps": [],
   "hashes": null,
