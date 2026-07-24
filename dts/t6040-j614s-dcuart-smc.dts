@@ -1,39 +1,82 @@
 // SPDX-License-Identifier: GPL-2.0+ OR MIT
 /*
- * J614s DockChannel console + macsmc (ticket 061, "U4" in
- * docs/USABLE_MACHINE_EXPERIMENTS.md). Adds the SMC RTKit endpoint so Linux can
- * read battery/thermal status via the macsmc stack — no forbidden writes.
+ * J614s DockChannel console + macsmc (ticket 061, "U4"). Adds the SMC RTKit
+ * endpoint (battery/thermal) plus, per CJ's 2026-07-24 ruling, the reboot/RTC
+ * nvram path.
  *
- * Data from the live J614s ADT /arm-io/smc (iop,ascwrap-v6) via m1n1 adt.py,
- * recorded in done/2026-07-23-t6040-smc-adt-data.md:
- *   ascwrap base 0x30c600000 (size 0x88000); ASC IRQs 997/996/999/998
- *   (send-empty/send-not-empty/recv-empty/recv-not-empty, ADT order);
- *   iop-smc-nub region-base 0x50df00000 size 0x100000 (RTKit shared SRAM);
- *   smc-pmu event bits: pwrbtn=0, lid=8, sdconn=9, charger=11.
- * Reg split follows the upstream Asahi ASC convention (t8112): the SMC command
- * block at ascwrap+0x0 and the ASC mailbox at ascwrap+0x8000, each 0x4000.
+ * SMC data from the live J614s ADT /arm-io/smc (iop,ascwrap-v6) via m1n1 adt.py
+ * (done/2026-07-23-t6040-smc-adt-data.md): ascwrap base 0x30c600000; ASC IRQs
+ * 997/996/999/998; iop-smc-nub region-base 0x50df00000/0x100000 (RTKit SRAM);
+ * smc-pmu events pwrbtn=0, lid=8. ASC reg split follows the upstream convention
+ * (smc @ base+0x0, mailbox @ base+0x8000, each 0x4000).
  *
- * DELIBERATELY OMITTED (safety): apple,smc-reboot and apple,smc-rtc — those
- * write PMIC nvram cells (boot_stage/shutdown_flag/rtc_offset) over SPMI, which
- * the project rules forbid. The smc-charger-util nodes (charger control) are
- * likewise never wired. This node is read-status only: battery gauge + thermals
- * (hwmon) + a gpio-controller instance (no gpio consumer drives a line here).
+ * SAFETY / CJ ruling 2026-07-24: smc_reboot (boot_stage/shutdown_flag) and
+ * smc_rtc (rtc_offset) are ALLOWED — they write boot-policy/clock nvram cells
+ * via the SMC/abbey-PMIC, which pose NO threat to physical integrity (they are
+ * not charger current/voltage, PMU rails, or thermal limits, and are what macOS
+ * writes every boot; a wrong value is boot-policy only, recoverable via 1TR/DFU).
+ * STILL FORBIDDEN and NOT wired: smc-charger-util (charge control) and any
+ * PMU/SPMI voltage-rail write.
  *
- * THREE ITEMS TO CONFIRM before any rig boot (see the writeup):
- *  1. sram = the iop-smc-nub RAM carveout (0x50df00000), not an MMIO aperture as
- *     on t8112 — needs the apple,smc driver to accept a carveout-backed sram, or
- *     m1n1 to reserve it; verify the driver binds.
- *  2. mailbox sub-offset (ascwrap+0x8000) is the t8112 convention inferred onto
- *     T6040's single ascwrap reg, not independently ADT-confirmed.
- *  3. power-button/lid events arrive via smc-pmu — confirm the macsmc path is
- *     SMC-mediated (RTKit notifications), not a direct PMU register write, before
- *     relying on it. Battery/thermal (this node) needs none of that.
+ * GROUNDED-WITH-FLAGS (confirm on an M4/abbey reference before upstreaming):
+ *  - SPMI controller reg 0x309014000/0x4000 (nub-spmi0; the +0x14000 command
+ *    window, matching t8112's +0x714000 pattern — one of three ADT windows).
+ *  - abbey PMIC at SPMI USID 0xe (same USID as t8112 stowe; ADT-confirmed).
+ *  - nvmem cell offsets (f701/f702/f703/f70f/f801/f900) are the STABLE Apple
+ *    SMC-nvram layout, byte-identical t8103->t8112; inherited for abbey. The
+ *    generic apple,spmi-nvmem provider needs no abbey-specific PMIC driver.
+ *  - sram = the iop-smc-nub RAM carveout (0x50df00000), not an MMIO aperture.
+ *  - mailbox +0x8000 sub-offset and the power-button/lid smc-pmu path (see doc).
  */
 /dts-v1/;
 
+#include <dt-bindings/spmi/spmi.h>
 #include "t6040-j614s-dcuart.dts"
 
 &soc {
+	nub_spmi0: spmi@309014000 {
+		compatible = "apple,t6000-spmi", "apple,spmi";
+		reg = <0x3 0x09014000 0x0 0x4000>;
+		#address-cells = <2>;
+		#size-cells = <0>;
+
+		pmic1: pmic@e {
+			compatible = "apple,spmi-nvmem";
+			reg = <0xe SPMI_USID>;
+
+			nvmem-layout {
+				compatible = "fixed-layout";
+				#address-cells = <1>;
+				#size-cells = <1>;
+
+				boot_stage: boot-stage@f701 {
+					reg = <0xf701 0x1>;
+				};
+				boot_error_count: boot-error-count@f702,0 {
+					reg = <0xf702 0x1>;
+					bits = <0 4>;
+				};
+				panic_count: panic-count@f702,4 {
+					reg = <0xf702 0x1>;
+					bits = <4 4>;
+				};
+				boot_error_stage: boot-error-stage@f703 {
+					reg = <0xf703 0x1>;
+				};
+				shutdown_flag: shutdown-flag@f70f,3 {
+					reg = <0xf70f 0x1>;
+					bits = <3 1>;
+				};
+				pm_setting: pm-setting@f801 {
+					reg = <0xf801 0x1>;
+				};
+				rtc_offset: rtc-offset@f900 {
+					reg = <0xf900 0x6>;
+				};
+			};
+		};
+	};
+
 	smc_mbox: mbox@30c608000 {
 		compatible = "apple,t6040-asc-mailbox", "apple,asc-mailbox-v4";
 		reg = <0x3 0x0c608000 0x0 0x4000>;
@@ -63,6 +106,20 @@
 		smc_hwmon: hwmon {
 			compatible = "apple,smc-hwmon";
 		};
-		/* No smc_reboot / smc_rtc: those write SPMI PMIC nvram (forbidden). */
+
+		smc_rtc: rtc {
+			compatible = "apple,smc-rtc";
+			nvmem-cells = <&rtc_offset>;
+			nvmem-cell-names = "rtc_offset";
+		};
+
+		smc_reboot: reboot {
+			compatible = "apple,smc-reboot";
+			nvmem-cells = <&shutdown_flag>, <&boot_stage>,
+				      <&boot_error_count>, <&panic_count>;
+			nvmem-cell-names = "shutdown_flag", "boot_stage",
+					   "boot_error_count", "panic_count";
+		};
+		/* No smc-charger-util / PMU voltage-rail writes (forbidden). */
 	};
 };
