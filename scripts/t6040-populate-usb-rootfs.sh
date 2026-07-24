@@ -104,6 +104,15 @@ sysfs /sys sysfs defaults 0 0
 devtmpfs /dev devtmpfs defaults 0 0
 EOF
     printf '%s\n' t6040-alpine >"$root/etc/hostname"
+    # The minirootfs ships only framebuffer gettys and a locked root account.
+    # Keep the bring-up image reachable over the proven DockChannel console
+    # after switch_root, without depending on inbound framebuffer keyboard
+    # support or changing the root password.
+    if ! grep -q '^ttydc0:' "$root/etc/inittab"; then
+        printf '%s\n' \
+            'ttydc0::respawn:/sbin/getty -L -n -l /bin/sh 0 ttydc0 vt100' \
+            >>"$root/etc/inittab"
+    fi
     cat >"$root/etc/motd" <<'EOF'
 T6040/J614s external-root bring-up image
 Internal NVMe is intentionally absent from the Linux device tree.
@@ -181,6 +190,8 @@ write_manifest() {
             awk '{print "file  "$1"  bin/busybox"}'
         sha256_file "$root/etc/fstab" |
             awk '{print "file  "$1"  etc/fstab"}'
+        sha256_file "$root/etc/inittab" |
+            awk '{print "file  "$1"  etc/inittab"}'
     } >"$manifest_tmp"
     mkdir -p "$(dirname "$MANIFEST")"
     mv "$manifest_tmp" "$MANIFEST"

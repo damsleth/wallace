@@ -166,6 +166,18 @@ This does **not** clear the live gate: no real disk may be populated until a USB
 child and `sd*` persist for at least ten seconds. Exact recipe and test:
 `done/2026-07-23-t6040-usb-rootfs-recipe.md`.
 
+Ticket 086 now turns that recipe into a concrete, flash-ready 1 GiB GPT/ext4
+Alpine image without touching a block device. The image SHA-256 is
+`32a897cb48bab0f066528b76cc6ef6b364a2807b43371d5b2f3c2abcced42cd1`;
+its root selector is
+`PARTUUID=1b841e9b-65a5-4687-83f2-6c728961ad14`. It includes a `ttydc0`
+bring-up shell and needs no modules for the built-in USB-root path. The stick is
+currently attached to the M4, not the M1, so it has not been flashed. Moving it
+to the M1 is the next safe host action. This does not clear the already-proven
+M4 enumeration failure: an external root boot still waits on a powered fixture
+or reviewed T6040 SPMI/SN201202x HPM/ATC support. Exact artifact and flash
+boundary: `done/2026-07-24-t6040-usb-root-image.md`.
+
 Ticket 023's 2026-07-23 upstream refresh found no published T6040 ATC/HPM
 implementation. The old `atcphy-new-tunables` branch is stale; the target
 right-port contract is now exactly inventoried but still needs the Apple SPMI

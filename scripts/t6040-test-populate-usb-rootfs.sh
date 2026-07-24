@@ -36,6 +36,9 @@ grep -Fx "root_bootarg=root=PARTUUID=$PARTUUID rootfstype=ext4 rootwait" \
     "$TMP/manifest.txt"
 grep -Fq 'lib/modules/7.1.3-t6040/fixture.ko' "$TMP/manifest.txt"
 grep -Fq 'lib/firmware/apple/fixture.bin' "$TMP/manifest.txt"
+grep -Fx \
+    'ttydc0::respawn:/sbin/getty -L -n -l /bin/sh 0 ttydc0 vt100' \
+    "$TMP/root/etc/inittab"
 [ -x "$TMP/root/bin/busybox" ]
 [ -L "$TMP/root/sbin/init" ]
 [ "$(readlink "$TMP/root/sbin/init")" = /bin/busybox ]

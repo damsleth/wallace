@@ -414,6 +414,19 @@ enrollment/cold boot. The exact experiment and safety ladder is
 `done/2026-07-23-t6040-raw-boot-object-layout.md`. U-Boot/EFI and external USB
 root are B1 and B2 respectively, not prerequisites for B0.
 
+Ticket 086 nevertheless closes the external-root *image construction* half of
+B2. `scripts/t6040-build-usb-root-image.sh` created and verified a 1 GiB raw
+GPT/ext4 Alpine image without opening any block device. The final image is
+`linux-build-out/t6040-alpine-usb-root.img`, SHA-256 `32a897cb48ba...`, with
+root selector `PARTUUID=1b841e9b-65a5-4687-83f2-6c728961ad14`; its Alpine
+inittab provides a no-login `ttydc0` bring-up shell after `switch_root`. The
+stick is currently connected to the M4, so the M1 has no external disk to
+flash. The M4 link gate also remains: the unchanged right-port stack has
+already shown root hubs only, and neither Linux nor m1n1 controls the T6040
+SPMI SN201202x/HPM role-orientation path. Do not repeat that topology or guess
+SPMI writes. Exact image, flash boundary, and paired boot hashes:
+`done/2026-07-24-t6040-usb-root-image.md`.
+
 Ticket 025 prepared B1 without weakening that ordering. Upstream U-Boot
 `8aa706b2` builds, but its normal Apple target has no T6040 memory map, panics
 on the compatible, then would scan PCIe/NVMe/USB and autostart watchdog-backed

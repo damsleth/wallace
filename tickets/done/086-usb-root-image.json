@@ -1,0 +1,21 @@
+{
+  "seq": "086",
+  "slug": "usb-root-image",
+  "needs": "offline",
+  "state": "done",
+  "track": "storage",
+  "priority": "P1",
+  "desc": "Build and host-verify a flash-ready 1 GiB GPT/ext4 Alpine 3.24.0 aarch64 USB-root image with recorded disk/PARTUUID/filesystem identities, DockChannel no-login root shell, no modules/firmware dependency for boot-critical built-in drivers, and no block-device access. Document exact flash and M4 boot boundary; do not rerun unchanged right-port enumeration or touch SPMI/HPM.",
+  "author": "codex",
+  "deps": [],
+  "hashes": {
+    "image": "32a897cb48bab0f066528b76cc6ef6b364a2807b43371d5b2f3c2abcced42cd1",
+    "alpine": "4b8cd66a6688b2a87276c39843ed89c3a06d9534fc6a5823c586aff2696c1f2a",
+    "m1n1": "1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b",
+    "kernel": "6f0daf57baf942d6e1f43d8efa2ebd4160e976c02ccfaad232dd42e918eb7482",
+    "dtb": "9bee944b8bb0d6d7ab541962ea2edc9a57c4069fedcd6c32db21e3b824a43759",
+    "initramfs": "8b9b80c4eaad07aa0efa578a827f9d0766be81e9a4aed2650e748b1fc65993c8"
+  },
+  "created": 1784878497,
+  "done_at": 1784878525
+}

@@ -296,7 +296,11 @@ remain required.
   enumerated a real device on 2026-07-20, but its SPMI wake and PHY data are not
   T6040 parameters; USB3/TB stays track-and-test. The 2026-07-23 upstream
   refresh found no published T6040 compatible, SN201202x path, or mapping for
-  the target's 44 PHY register entries.
+  the target's 44 PHY register entries. A flash-ready 1 GiB Alpine GPT/ext4
+  image is now host-built and verified (`32a897cb...`, ticket 086), so rootfs
+  construction is no longer on the critical path. It has not been written to
+  the stick, which is attached to the M4 rather than the M1; M4 enumeration
+  remains the gate.
 - **Internal keyboard + trackpad:** ✅ **keyboard DONE early (2026-07-11)** via
   dockchannel-HID (three bugs fixed — see DEVLOG); trackpad registers as
   input0. Its missing HIDF loader and retry recovery are fixed. Ticket 016
