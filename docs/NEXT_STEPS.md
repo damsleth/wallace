@@ -188,6 +188,14 @@ whitelist additions, while SMC and SIO have no OS-firmware whitelist to extend.
 The DCP/ISP upstream test notes and forbidden speculative aliases are recorded
 in `done/2026-07-23-t6040-rtkit-26x-draft-audit.md`.
 
+Ticket 048's remote-loop host-tool preparation is complete. Signed mail drafts
+now isolate generic m1n1 proxyclient PTY support and macvdmtool's ACE3
+`actions`/`vdm`/`dven`/`localserial` commands; both reproduce their clean branch
+trees through `git am`, and the PTY byte-preservation/build tests pass. kisd's
+T6040 `0x548700000` auto-detection is already upstream, so there is no kisd
+patch. CJ posts, if desired. Exact branches and hashes:
+`done/2026-07-24-t6040-host-tools-upstream-prep.md`.
+
 Ticket 051's guarded-side NVMe argument decode is complete. All nine handlers
 now have byte-proven input registers, including the formerly unverified
 ASQ/ACQ op-4 contract and the corrected op-0–3 init/TCB/configure split. This

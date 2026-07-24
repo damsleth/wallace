@@ -708,6 +708,18 @@ only J614s's proven clock prefix and stops before unresolved operation 115.
 `patches/m1n1-t6040-upstream-v1/` and
 `done/2026-07-23-t6040-m1n1-upstream-series.md`. Nothing was posted or run.
 
+**Host-tool series (2026-07-24, ticket 048):** proxyclient's generic kisd-PTY
+transport is isolated on m1n1 branch `codex/proxyclient-pty` (`13c52b61`) and
+macvdmtool's ACE3 `actions`/`vdm`/`dven`/`localserial` commands are isolated on
+`codex/ace3-host-tools` (`3e2038ee`). Both signed mail drafts pass exact
+`git am` tree checks; the PTY patch also passes a byte-preservation test, and
+macvdmtool builds cleanly apart from existing IOKit deprecations. kisd needs no
+patch: upstream already recognizes M4 Pro/KIS 4.00, auto-detects the Pro/Max
+base offset, and documents verified T6040 base `0x548700000`. NOPASSWD is
+operator policy, not an upstream source change. Exact hashes and disposition:
+`done/2026-07-24-t6040-host-tools-upstream-prep.md`. Nothing was posted,
+pushed, installed, or run on the target.
+
 Follow-up (same day): reviewed chadmed/m1n1 `dcp/14.8.3` (remote `chadmed`
 in `~/Code/m1n1`). Everything on it except chadmed's seven DCP commits is
 already in our main via the fork base — including Sven Peter's `954f80c6`

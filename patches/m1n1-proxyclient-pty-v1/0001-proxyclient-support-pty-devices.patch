@@ -1,0 +1,44 @@
+From 13c52b61f2b3bb2a6524a198899b762096aa73ce Mon Sep 17 00:00:00 2001
+From: CJ Damsleth <kim@damsleth.no>
+Date: Fri, 24 Jul 2026 09:15:23 +0200
+Subject: [PATCH] proxyclient: support pty devices
+
+ptys such as the one allocated by kisd come up with echo and CR-LF termios settings that corrupt the binary proxy protocol. They may also reject baud-rate ioctls.
+
+Force raw termios after opening the port and tolerate unsupported baud ioctls, allowing M1N1DEVICE to point at a kisd DebugUSB bridge.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ proxyclient/m1n1/proxy.py | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/proxyclient/m1n1/proxy.py b/proxyclient/m1n1/proxy.py
+index ad9faf9a..f0a51cdf 100644
+--- a/proxyclient/m1n1/proxy.py
++++ b/proxyclient/m1n1/proxy.py
+@@ -18,6 +18,22 @@ class Serial(serial.Serial):
+     def reset_input_buffer(self):
+         return
+ 
++    def _set_special_baudrate(self, baudrate):
++        try:
++            super()._set_special_baudrate(baudrate)
++        except OSError:
++            pass  # ptys (e.g. kisd's) don't support baud rate ioctls
++
++    def open(self):
++        super().open()
++        # ptys (e.g. kisd's) come up with echo/CR-LF translation that
++        # corrupts the binary proxy protocol; force fully raw termios
++        try:
++            import tty
++            tty.setraw(self.fd)
++        except Exception:
++            pass
++
+ class UartError(RuntimeError):
+     pass
+ 
+-- 
+2.47.1
+

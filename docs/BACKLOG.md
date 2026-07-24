@@ -93,9 +93,10 @@ In rough order of leverage:
    kernel/DT/initramfs rebuild and review before it is runnable.
 6. **Upstreaming proven work** (xcut, P1): SMP/cpufreq posting drafts are
    finalized under completed **019**; **046** now provides the rebased
-   nine-patch m1n1 RFC and cover letter. Continue with **047** DT consolidation
-   and **048** host tools. PMGR series is draft-ready (CJ asks flokli re J773s
-   policy and posts).
+   nine-patch m1n1 RFC and cover letter. **047** now provides the consolidated
+   J614s Linux DT series, and **048** provides clean m1n1-PTY and macvdmtool
+   ACE3 mail drafts (kisd's T6040 support is already upstream). PMGR series is
+   draft-ready (CJ asks flokli re J773s policy and posts).
 7. **Stage-D comforts, offline-preparable**: **061** SMC DT wiring (battery,
    power button, lid — read-only keys). **037** is complete: its audited patch
    set is intentionally empty because none of the 26.x deltas is
@@ -113,7 +114,7 @@ Per COORDINATION.md roles, extended for the USB-root era:
 |---|---|---|
 | Storage: RAM-root + USB-root pipeline + SPTM | **sol** | Alpine RAM-root boots; trace current-kernel HID boundary; powered USB later → ROOT boot or upstream HPM/ATC; 051/052/054/055 |
 | PCIe/WiFi-BT, DockChannel console | **claude** | 058, 044; 062 IRQ-816 direct-driver audit |
-| Rig-queue preflights, SMC/PM, upstream drafts | **claude** (first grab) | 061; 047/048 (019/046 complete) |
+| Rig-queue preflights, SMC/PM, upstream drafts | **claude** (first grab) | 061; 019/046/047/048 complete |
 | Rootfs recipe, xcut, tracking | either (queue order) | 060, 029/030, 022/023/026/039 |
 
 The other agent still cross-reviews every live image regardless of lane, and

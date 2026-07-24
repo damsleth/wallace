@@ -1,0 +1,243 @@
+From 3e2038ee1981d74f5cf0560033a5dcc9fdb2e9f5 Mon Sep 17 00:00:00 2001
+From: CJ Damsleth <kim@damsleth.no>
+Date: Fri, 24 Jul 2026 09:16:37 +0200
+Subject: [PATCH] Add ACE3 diagnostic and local serial commands
+
+ACE3 targets expose a different action set and can reject the target-side serial-mode VDM. Add commands to enumerate advertised actions, issue bounded raw VDM and local DVEn requests, and enter serial mode on the local end only.
+
+Document the new interfaces and reject malformed or oversized diagnostic words before sending them.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ README.md |  10 ++++
+ main.cpp  | 167 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 177 insertions(+)
+
+diff --git a/README.md b/README.md
+index 2b7d8bb..7639d35 100644
+--- a/README.md
++++ b/README.md
+@@ -38,6 +38,10 @@ Run it as root (`sudo ./macvdmtool`).
+ Usage: ./macvdmtool <command>
+ Commands:
+   serial - enter serial mode on both ends
++  localserial - enter serial mode on the local end only
++  actions - query the target's supported VDM actions
++  vdm <word...> - send raw target VDM hex words
++  dven <word...> - perform a raw local DVEn action
+   debugusb - enter debug usb mode on the target
+   reboot - reboot the target
+   reboot serial - reboot the target and enter serial mode
+@@ -50,3 +54,9 @@ For serial mode use `/dev/cu.debug_console` on the local machine as your serial
+ For debugusb mode use `/dev/cu.kis-100000-ch-0` on the local machine as your serial device. To use it with m1n1, `export M1N1DEVICE=/dev/cu.kis-100000-ch-0`.
+ 
+ For typical development, the command you want to use is `macvdmtool reboot serial` or `macvdmtool reboot debugusb`. This will reboot the target, and immediately put it back into serial or debugusb mode, with the right timing to make it work.
++
++On ACE3 targets that reject the target-side serial-mode VDM, `localserial`
++switches only the host end. The `actions` command prints the target's advertised
++action IDs and their descriptors. The `vdm` and `dven` commands are diagnostic
++interfaces that accept one or more 32-bit hexadecimal words; `vdm` sends a
++target VDM and `dven` performs an action on the local end.
+diff --git a/main.cpp b/main.cpp
+index 740e0d8..5eae7a4 100644
+--- a/main.cpp
++++ b/main.cpp
+@@ -3,7 +3,9 @@
+ 
+ #include "AppleHPMLib.h"
+ #include "ssops.h"
++#include <cerrno>
+ #include <cstdio>
++#include <cstdlib>
+ #include <iostream>
+ #include <string>
+ #include <unistd.h>
+@@ -223,6 +225,159 @@ void DoVDM(HPMPluginInstance &inst, int no, std::vector<uint32_t> vdm)
+     }
+ }
+ 
++std::vector<uint32_t> DoVDMQuery(HPMPluginInstance &inst, int no, std::vector<uint32_t> vdm)
++{
++    if (vdm.empty() || vdm.size() > 15)
++        throw failure("VDM must contain between 1 and 15 words");
++
++    auto rs = inst.readRegister(no, 0x4d);
++    uint8_t rxst = rs[0];
++
++    std::stringstream args;
++    put(args, (uint8_t)(((3 << 4) | vdm.size())));
++    for (uint32_t i : vdm)
++        put(args, i);
++
++    if (inst.command(no, 'VDMs', args.str()))
++        throw failure("Failed to send VDM\n");
++
++    int i;
++    for (i = 0; i < 16; i++) {
++        rs = inst.readRegister(no, 0x4d);
++        if ((uint8_t)rs[0] != rxst)
++            break;
++    }
++    if (i >= 16)
++        throw failure("Did not get a reply to VDM\n");
++
++    std::stringstream reply;
++    reply.str(rs);
++    get(reply, rxst);
++
++    std::vector<uint32_t> out;
++    printf("  rxst=0x%02x reply:", rxst);
++    for (int w = 0; w < 15; w++) {
++        uint32_t v;
++        get(reply, v);
++        out.push_back(v);
++        printf(" %08x", v);
++    }
++    printf("\n");
++    return out;
++}
++
++bool ParseHexWord(const char *arg, uint32_t &word)
++{
++    char *end = nullptr;
++    errno = 0;
++    unsigned long value = strtoul(arg, &end, 16);
++    if (errno || arg[0] == '\0' || end[0] != '\0' || value > 0xfffffffful)
++        return false;
++    word = (uint32_t)value;
++    return true;
++}
++
++int DoActions(HPMPluginInstance &inst, int no)
++{
++    printf("Get Action List:\n");
++    auto list = DoVDMQuery(inst, no, {0x5ac8010});
++
++    if ((list[0] & 0xffff00ff) != 0x5ac0050) {
++        printf("Unexpected reply header %08x\n", list[0]);
++        return 1;
++    }
++
++    std::vector<uint16_t> ids;
++    for (size_t w = 1; w < list.size(); w++) {
++        uint16_t lo = list[w] & 0xffff, hi = list[w] >> 16;
++        if (!lo)
++            break;
++        ids.push_back(lo);
++        if (!hi)
++            break;
++        ids.push_back(hi);
++    }
++
++    printf("Actions:");
++    for (auto id : ids)
++        printf(" %04x", id);
++    printf("\n");
++
++    for (auto id : ids) {
++        printf("Action info %04x:\n", id);
++        DoVDMQuery(inst, no, {0x5ac8011, id});
++    }
++    return 0;
++}
++
++int DoRawVDM(HPMPluginInstance &inst, int no, int argc, char **argv)
++{
++    if (argc < 1 || argc > 15) {
++        printf("vdm: need between 1 and 15 hex words\n");
++        return 1;
++    }
++
++    std::vector<uint32_t> vdm;
++    for (int i = 0; i < argc; i++) {
++        uint32_t word;
++        if (!ParseHexWord(argv[i], word)) {
++            printf("vdm: invalid 32-bit hex word: %s\n", argv[i]);
++            return 1;
++        }
++        vdm.push_back(word);
++    }
++    printf("Sending VDM:");
++    for (uint32_t w : vdm)
++        printf(" %08x", w);
++    printf("\n");
++    DoVDMQuery(inst, no, vdm);
++    return 0;
++}
++
++int DoDVEn(HPMPluginInstance &inst, int no, int argc, char **argv)
++{
++    if (argc < 1 || argc > 16) {
++        printf("dven: need between 1 and 16 hex words\n");
++        return 1;
++    }
++
++    std::stringstream args;
++    printf("Local DVEn:");
++    for (int i = 0; i < argc; i++) {
++        uint32_t w;
++        if (!ParseHexWord(argv[i], w)) {
++            printf("\ndven: invalid 32-bit hex word: %s\n", argv[i]);
++            return 1;
++        }
++        printf(" %08x", w);
++        put(args, w);
++    }
++    printf("... ");
++
++    if (inst.command(no, 'DVEn', args.str())) {
++        printf("Failed.\n");
++        return 1;
++    }
++    printf("OK\n");
++    return 0;
++}
++
++int DoLocalSerial(HPMPluginInstance &inst, int no)
++{
++    printf("Putting local end into serial mode... ");
++
++    std::stringstream args;
++    put(args, (uint32_t)0x1840306);
++
++    if (inst.command(no, 'DVEn', args.str())) {
++        printf("Failed.\n");
++        return 1;
++    }
++    printf("OK\n");
++
++    return 0;
++}
++
+ int DoSerial(HPMPluginInstance &inst, int no)
+ {
+     printf("Putting target into serial mode... ");
+@@ -310,6 +465,10 @@ int main2(int argc, char **argv)
+         printf("Usage: %s <command>\n", argv[0]);
+         printf("Commands:\n");
+         printf("  serial - enter serial mode on both ends\n");
++        printf("  localserial - enter serial mode on the local end only\n");
++        printf("  actions - query the target's supported VDM actions\n");
++        printf("  vdm <word...> - send raw target VDM hex words\n");
++        printf("  dven <word...> - perform a raw local DVEn action\n");
+         printf("  debugusb - enter debugusb mode on the target\n");
+         printf("  reboot - reboot the target\n");
+         printf("  reboot serial - reboot the target and enter serial mode\n");
+@@ -358,6 +517,14 @@ int main2(int argc, char **argv)
+ 
+     if (cmd == "serial")
+         return DoSerial(*inst, no);
++    else if (cmd == "localserial")
++        return DoLocalSerial(*inst, no);
++    else if (cmd == "actions")
++        return DoActions(*inst, no);
++    else if (cmd == "vdm")
++        return DoRawVDM(*inst, no, argc - 2, argv + 2);
++    else if (cmd == "dven")
++        return DoDVEn(*inst, no, argc - 2, argv + 2);
+     else if (cmd == "debugusb")
+         return DoDebugUSB(*inst, no);
+     else if (cmd == "reboot") {
+-- 
+2.47.1
+

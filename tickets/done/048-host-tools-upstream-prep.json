@@ -1,0 +1,25 @@
+{
+  "seq": "048",
+  "slug": "host-tools-upstream-prep",
+  "needs": "offline",
+  "state": "done",
+  "track": "xcut",
+  "priority": "P2",
+  "desc": "DONE offline: shaped signed-off upstream branches and mail drafts for m1n1 proxyclient PTY transport (codex/proxyclient-pty at 13c52b61) and macvdmtool ACE3 actions/vdm/dven/localserial commands (codex/ace3-host-tools at 3e2038ee). Tightened raw word validation/documentation; py_compile, byte-preserving PTY test, clean macOS build, and exact git-am tree checks pass. kisd needs no duplicate patch: current upstream already recognizes KIS 4.00/M4 Pro, auto-detects the Pro/Max offset, and documents verified T6040 base 0x548700000. NOPASSWD remains local operator policy. Nothing posted/pushed/run. Result: done/2026-07-24-t6040-host-tools-upstream-prep.md.",
+  "author": "fable",
+  "deps": [],
+  "hashes": {
+    "m1n1_base": "7c7716b6a196c7e601f9f22bb8af335c1b8173ce",
+    "m1n1_tip": "13c52b61f2b3bb2a6524a198899b762096aa73ce",
+    "m1n1_tree": "99d2196f8ebc0d4c67c5a560cd2cedd5653eec79",
+    "m1n1_patch": "1d9a48c7990b4bb5295ccd816675c0fa7420739ba105fcc8112bf7ada7a1f1b4",
+    "macvdmtool_base": "b22ae51eb43a0e1daa21d41616ac899f28e7bf8a",
+    "macvdmtool_tip": "3e2038ee1981d74f5cf0560033a5dcc9fdb2e9f5",
+    "macvdmtool_tree": "fd359f3aa8e37638a4b569232c3865dbcde520bf",
+    "macvdmtool_patch": "2d425a3c1fcae9be897520ce58e901b5c126eea217b8edf907d2ef024322e7db",
+    "kisd_upstream": "d36655c24b2172ffe0999800be3baa8650870928",
+    "result": "03ef52f4e3ed3da08235fef25c71b32f2841f05a28d914a0a089d279df5378d6"
+  },
+  "created": 1784041751,
+  "done_at": 1784877467
+}
