@@ -204,10 +204,12 @@ doable solo with the proxy + ADT dumps; this is the highest-leverage local work.
    `AppleT6040TypeCPhy` table exactly matches all 44 ADT ranges for all four
    ports, and its tunable format proves bank+offset. The paired direct eUSB2
    initializer is now decoded to banks 0/1 and six offsets, and the paired
-   XHCI driver proves the exact host branch. The SPMI/SN201202x HPM
-   role/orientation/VBUS/repeater path remains blocked and must not be
-   invented. Root hubs without that physical
-   path are not a functional USB2 fallback. USB3/TB remains a Stage D comfort.
+   XHCI driver proves the exact host branch. The target's Gen3 SPMI and
+   SN201202x class-10 discovery boundary is now inventoried, including six
+   initial register windows, but even that read path changes provider/timer
+   state. The HPM role/orientation/VBUS/repeater path remains blocked and must
+   not be invented. Root hubs without that physical path are not a functional
+   USB2 fallback. USB3/TB remains a Stage D comfort.
    NHI/apciec (Thunderbolt) name-mapping is also deferred.
    The old `upstream/atcphy-new-tunables` pointer is stale at a January 2025
    tip, not an active T6040 branch. Watch broader m1n1/Linux/#asahi-dev work for
@@ -215,7 +217,9 @@ doable solo with the proxy + ADT dumps; this is the highest-leverage local work.
    `done/2026-07-10-t6040-atc-usb-dart-plan.md` and
    `done/2026-07-23-t6040-atcphy-upstream-checkpoint.md`, with the paired
    bank-map proof in `done/2026-07-24-t6040-atcphy-kext-bank-map.md` and the
-   direct sequence in `done/2026-07-24-t6040-eusb2-init-sequence.md`.
+   direct sequence in `done/2026-07-24-t6040-eusb2-init-sequence.md`, and the
+   HPM boundary in
+   `done/2026-07-24-t6040-hpm-spmi-discovery-boundary.md`.
 5. **kboot FDT init** (`src/kboot.c` and friends) — **AUDITED + display FIXED
    2026-07-10.** kboot-only, FDT-only (safe), Stage-C-coupled (patches a kernel DT
    that doesn't exist yet). Generic parts already work for t6040: spin-table/

@@ -200,14 +200,17 @@ The direct 8,580-byte eUSB2 initializer is now decoded too: it uses only banks
 0/1 and six offsets with an exact RMW/reset/event/status/mode sequence. Paired
 `AppleT8150USBXHCI` proves its host call uses power level 2, options
 `0x40000`, timeout 500 ms, selecting the false/false branch and final mode 2.
-This still is not a live candidate. The target's Apple SPMI Gen3 controller
-plus SN201202x
-attach/role/orientation/VBUS/repeater ownership remain the bus-powered-stick
-gate. Do not rerun the same unpowered topology or synthesize SPMI/PHY writes.
-Exact checkpoints:
+This still is not a live candidate. The target ADT explicitly selects Apple
+SPMI Gen3 plus an SN201202x class-10 HPM. Paired discovery reads six bounded
+register windows, but it first crosses a provider state boundary and its
+`readRegs()` changes timer/transaction state; this is not an observation-only
+live probe. Attach/role/orientation/VBUS/repeater ownership remains the
+bus-powered-stick gate. Do not rerun the same unpowered topology or synthesize
+SPMI/PHY writes. Exact checkpoints:
 `done/2026-07-23-t6040-atcphy-upstream-checkpoint.md` and
 `done/2026-07-24-t6040-atcphy-kext-bank-map.md`, plus
-`done/2026-07-24-t6040-eusb2-init-sequence.md`.
+`done/2026-07-24-t6040-eusb2-init-sequence.md` and
+`done/2026-07-24-t6040-hpm-spmi-discovery-boundary.md`.
 
 Ticket 022's 2026-07-23 refresh also confirms that native DCP is not a B0
 dependency. Its J614s DT topology is inventoried, but the macOS 26.x ABI, extra

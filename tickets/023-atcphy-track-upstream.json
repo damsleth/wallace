@@ -5,7 +5,7 @@
   "state": "open",
   "track": "usb",
   "priority": "P2",
-  "desc": "[UPSTREAM + paired static decode] Track explicit T6040 ATC PHY + SN201202x HPM support. The 25F84 AppleT6040TypeCPhy kext byte-proves the full 44-bank map and raw tunable encoding. Its direct 8,580-byte eUSB2 init is exactly decoded: only banks 0/1, six offsets, ordered RMW/reset/event/status/mode sequence, with right-port addresses derived from the matched profile. Paired AppleT8150USBXHCI proves host powerLevel=2/options=0x40000/timeout=500, selecting the false/false branch and final mode 2. HOST reg[4]+0x8 equals DFLT and is not a useful test. Ticket 063 proved DART+xHCI root hubs but no child. Remaining blockers are the target's Apple SPMI Gen3 controller and SN201202x attach/role/orientation/VBUS/repeater ownership plus rollback. No SPMI or live PHY writes are authorized. Exact host-only proofs: done/2026-07-24-t6040-atcphy-kext-bank-map.md and done/2026-07-24-t6040-eusb2-init-sequence.md; upstream checkpoint: done/2026-07-23-t6040-atcphy-upstream-checkpoint.md.",
+  "desc": "[UPSTREAM + paired static decode] Track explicit T6040 ATC PHY + SN201202x HPM support. The 25F84 AppleT6040TypeCPhy kext byte-proves the full 44-bank map and raw tunable encoding. Its direct 8,580-byte eUSB2 init is exactly decoded: only banks 0/1, six offsets, ordered RMW/reset/event/status/mode sequence. Paired AppleT8150USBXHCI proves host powerLevel=2/options=0x40000/timeout=500, selecting the false/false branch and final mode 2. The target ADT explicitly selects Apple SPMI Gen3 and right-port SN201202x class 10. Paired publishHPMDevices reads six bounded identity windows, but crosses a provider state boundary and readRegs changes timer/transaction state, so no live read census is authorized. Ticket 063 proved DART+xHCI root hubs but no child. Remaining blockers are SN201202x attach/role/orientation/VBUS/repeater ownership plus rollback. No SPMI or live PHY writes are authorized. Exact host-only proofs: done/2026-07-24-t6040-atcphy-kext-bank-map.md, done/2026-07-24-t6040-eusb2-init-sequence.md, and done/2026-07-24-t6040-hpm-spmi-discovery-boundary.md.",
   "author": "claude",
   "deps": [],
   "hashes": {
@@ -16,7 +16,11 @@
     "bank_map_script_sha256": "a19e06a29d9b73674456b9d3b99400ae8a491c86644cdb49bcd16fa14662fcfb",
     "eusb2phy_init_bytes_sha256": "dbcb646331558971195222da3d360c4f61c66e714e344ffd5abde3102f7be29d",
     "apple_synopsys_usbxhci_kext_sha256": "f8b96fabf19180125a1a545790e5d45bef96e9bbd28b7168fda536ed27383e44",
-    "apple_t8150_xhci_start_bytes_sha256": "1c57011198f21227eae3f8cdca6baebb8b59f4aed186dc29d2d821f207ed667e"
+    "apple_t8150_xhci_start_bytes_sha256": "1c57011198f21227eae3f8cdca6baebb8b59f4aed186dc29d2d821f207ed667e",
+    "apple_hpm_kext_sha256": "b6eab85a4478fe354c29d4a274fa1ea23ced1c051e3b320fdfad54d65dce381d",
+    "apple_spmi_kext_sha256": "707edb5eb41bcf7252853f8fb24fb2a454e7923dc363294b8e18a6373c284878",
+    "apple_hpm_spmi_read_regs_bytes_sha256": "90763bfc20f68c519f077c7df9987c78a19bd98e02645f9522a2a2ef6a4d2cb6",
+    "apple_hpm_publish_devices_bytes_sha256": "84aae78c3ca4c2a1c521f9c92db04bebc062bffe5496fdc73f04f5b77f32bd13"
   },
   "last_checked": "2026-07-24",
   "created": 1784039024

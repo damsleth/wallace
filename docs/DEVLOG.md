@@ -847,6 +847,16 @@ attach/orientation/source-role/VBUS/repeater state. Those remain in the
 SPMI/SN201202x HPM path, which is forbidden live. Exact sequence and function
 hashes: `done/2026-07-24-t6040-eusb2-init-sequence.md`.
 
+The HPM follow-up corrects the target generation and bounds the next static
+layer. J614s explicitly selects Apple SPMI **Gen3** and a right-port
+SN201202x class-10 HPM. Paired `publishHPMDevices()` reads six exact windows:
+`0x0f/4`, `0x00/4`, `0x01/4`, `0x05/0x11`, `0x2c/1`, and `0x2d/0x34`.
+This does not authorize a live census: the path first invokes a provider state
+transition and 100 ms sleep when not ready, while `readRegs()` changes HPM
+timer/transaction state and can poll for up to one second. Exact function
+boundaries, hashes, target ADT facts, and the remaining class-10 decode:
+`done/2026-07-24-t6040-hpm-spmi-discovery-boundary.md`.
+
 ### MCC carveout/cache residual closed as a boot blocker (2026-07-23)
 
 Offline ticket 020 audited the captured J614s ADT, current m1n1 memory handoff,

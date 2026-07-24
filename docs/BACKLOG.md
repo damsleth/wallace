@@ -63,8 +63,9 @@ In rough order of leverage:
    The 2026-07-24 paired-kext decode now proves the T6040 44-bank ATC map and
    tunable encoding exactly. Its direct eUSB2 sequence is now bounded to banks
    0/1 and six offsets, and paired XHCI proves the exact host branch; ticket
-   **023** remains open for the forbidden-until-reviewed SPMI/SN201202x
-   role/orientation/VBUS/repeater path.
+   **023** now also proves the target is SPMI Gen3 and bounds the class-10 HPM
+   discovery reads, but remains open for the forbidden-until-reviewed
+   SN201202x role/orientation/VBUS/repeater path.
    Reviewed rig control **070** was inconclusive: the old keyboard kernel never
    reached the Alpine framebuffer shell in two exact attempts and has no
    ttydc0 failure log. Do not retry it. The one-shot corrected-kernel **071**
