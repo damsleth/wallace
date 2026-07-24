@@ -5,7 +5,7 @@
   "state": "open",
   "track": "distro",
   "priority": "P1",
-  "desc": "B0 umbrella, current 2026-07-24: raw-object audit 080, artifact 081, delivery control 089, and tethered release-object boot 100 are done. Exact object 2371ee5d reached Alpine/OpenRC default runlevel, watchdog, panel shell, internal keyboard, and empty partitions from one upload. Ticket 082 has the reversible enrollment procedure but still needs volume UUID, current-object backup/hash, dual-mode object 46237ade review/trigger validation, and execution split confirmation. Approved ticket 101 is the maintainer-executed cold boot after those items and rig recovery. U-Boot remains post-B0 ticket 025/B1.",
+  "desc": "B0 umbrella, current 2026-07-24: raw-object audit 080, artifact 081, delivery control 089, and tethered release-object boot 100 are done. Exact object 2371ee5d reached Alpine/OpenRC default runlevel, watchdog, panel shell, internal keyboard, and empty partitions from one upload. Ticket 082 closes after volume UUID, current-object backup/hash, dual-mode review/selection, and execution split are complete. Plan-approved runnable=false ticket 101 then owns the maintainer-executed cold boot and any selected dual-mode trigger validation after rig recovery. U-Boot remains post-B0 ticket 025/B1.",
   "author": "claude",
   "deps": [],
   "hashes": null,

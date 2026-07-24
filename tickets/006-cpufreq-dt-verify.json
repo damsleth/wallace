@@ -3,12 +3,14 @@
   "slug": "cpufreq-dt-verify",
   "needs": "rig",
   "state": "approved",
+  "runnable": false,
   "track": "cpufreq",
   "priority": "P2",
-  "desc": "Prepared DT boundary from completed preflight 035: board-derived E 7-pstate and P 19-pstate OPP tables, three apple,cluster-cpufreq nodes, exact DTB a42bb096.... NOT RUNNABLE: confirm/build a kernel with CONFIG_ARM_APPLE_SOC_CPUFREQ=y, create and host-test the bounded sysfs/governor reporter initramfs, pin safe m1n1/kernel/reporter hashes, and obtain independent review. Then one approved boot verifies E/P policy transitions. No speculative voltages or other MMIO; current rig recovery also required.",
+  "desc": "Prepared DT boundary from completed preflight 035: board-derived E 7-pstate and P 19-pstate OPP tables, three apple,cluster-cpufreq nodes, exact DTB a42bb096.... NOT RUNNABLE: ticket 121 must first prove all 14 CPUs online so both P policies exist; then confirm/build CONFIG_ARM_APPLE_SOC_CPUFREQ=y, create and host-test the bounded sysfs/governor reporter, pin safe hashes, and obtain independent review. One plan-approved boot verifies E/P policy transitions. No speculative voltages or other MMIO; rig recovery required.",
   "author": "claude",
   "deps": [
-    "035"
+    "035",
+    "121"
   ],
   "hashes": {
     "dtb": "a42bb096ea3d302ec7486d9f96e3068b1106d9a8285ffdb57802d5b65d43e4dc"

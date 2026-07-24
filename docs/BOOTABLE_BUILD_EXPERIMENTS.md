@@ -3,9 +3,10 @@
 Date: 2026-07-24
 
 Current state: the tethered B0 release-object proof passed (tickets 081/100).
-The remaining B0 boundary is approved ticket 101's maintainer-executed
-enrolled cold boot, after ticket 082's exact volume identity/backup fields,
-dual-mode-object review/trigger validation, and the current rig recovery gate.
+The remaining B0 boundary is plan-approved ticket 101's maintainer-executed
+enrolled cold boot, after ticket 082's exact volume identity/backup fields and
+dual-mode-object review/selection. Ticket 101 owns its hardware trigger check
+if selected; the current rig recovery gate also remains.
 
 ## Target milestone
 
@@ -38,7 +39,7 @@ but it must not deliver any payload or command needed for success.
 - Change one boundary at a time. Do not combine HID repair, SMP, cpufreq, USB,
   PCIe, U-Boot, or enrollment in one first run.
 - Keep `maxcpus=1 idle=nop` through the B0 milestone. SMP and cpufreq have
-  separate approved gates.
+  separate staged gates.
 - The first B0 images keep all USB/DART/ANS/SART/NVMe nodes disabled.
 - Never write PMU/charger/NVRAM/firmware, unknown SPMI endpoints, or invent
   MMIO offsets. A non-PMU SPMI transaction is allowed only as its own exact
@@ -222,11 +223,11 @@ The procedure now contains:
 - pass/stop conditions for one cold boot.
 
 Remaining before execution: fill the dedicated volume UUID, back up and hash
-the currently enrolled object, independently review dual-mode candidate
-`46237ade...` under ticket 119, validate its normal/debug trigger distinction, decide whether
-enrollment and boot use split approvals, and recover the current wedged KIS
-link. The agent does not execute `kmutil` or change Boot Policy; the maintainer
-performs enrollment.
+the currently enrolled object, independently review/select dual-mode candidate
+`46237ade...` under ticket 119, decide whether enrollment and boot use split
+approvals, and recover the current wedged KIS link. If selected, ticket 101
+validates its normal/debug trigger distinction live. The agent does not
+execute `kmutil` or change Boot Policy; the maintainer performs enrollment.
 
 Enrollment and boot remain separate actions if the maintainer wants that split.
 The live pass condition is boot picker → m1n1 → Linux → Alpine login with
@@ -262,7 +263,7 @@ That is milestone B0. Exact procedure:
                  -> 081 self-contained raw object
                       -> 100 reviewed tethered single-object boot PASS
                            -> 082 identity/backup + dual-mode review
-                                -> 101 enrolled cold boot (approved)
+                                -> 101 enrolled cold boot (plan-approved, runnable=false)
                                      -> B0
 
 024 interim path -> 080 raw-object layout audit --------^

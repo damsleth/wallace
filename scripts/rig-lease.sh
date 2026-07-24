@@ -9,10 +9,10 @@
 # a NEEDS_RECOVERY flag the next acquirer must clear via a recovery boot first.
 #
 # The scheduling model (see docs/COORDINATION.md):
-#   - Agents only ever hold the rig for work already APPROVED + hashed by the
-#     maintainer. Approval happens offline; never hold the cable across a human
-#     round-trip. The approved queue IS the schedule.
-#   - Whoever holds drains its approved batch (grouped by m1n1 SHA to avoid
+#   - Agents only ever hold the rig for work already plan-APPROVED and marked
+#     READY after exact independent review. Both happen offline; never hold the
+#     cable across a human round-trip. The approved+ready queue IS the schedule.
+#   - Whoever holds drains its ready batch (grouped by m1n1 SHA to avoid
 #     needless reflashes), verifies the rig healthy, then releases.
 #
 # Usage:
@@ -26,7 +26,8 @@
 #   rig-lease.sh queue add <agent> <slug> "<desc>" [--needs rig|offline]
 #              [--track T] [--pri P1] [--dep NNN]... [--image H --dtb H --initramfs H]
 #   rig-lease.sh queue approve <seq|start-end|all> [--by <name>]   # rig tickets only
-#   rig-lease.sh queue next [--rig|--offline]            # rig: next approved; offline: next open
+#   rig-lease.sh queue next [--rig|--offline]            # rig: next approved+ready; offline: next open
+#   rig-lease.sh queue ready <seq> --reviewed-by <agent> # exact review + deps complete
 #   rig-lease.sh queue list [--rig|--offline|--all]
 #   rig-lease.sh queue show <seq>                        # full JSON
 #   rig-lease.sh queue done <seq>
@@ -74,6 +75,20 @@ tk_seqmax() {  # highest seq across active + done (so numbers are never reused)
     b="$(basename "$f")"; n=$((10#${b%%-*})); [ "$n" -gt "$m" ] && m=$n
   done
   echo "$m"
+}
+tk_deps_done() { # ticket file -> success only when every dependency is in tickets/done
+  local f="$1" dep df
+  for dep in $(jq -r '.deps[]? // empty' "$f"); do
+    df="$(ls "$TICKETS_DONE/$dep"-*.json 2>/dev/null | head -1)" || df=""
+    [ -n "$df" ] || return 1
+  done
+}
+tk_rig_ready() { # ticket file -> approved, explicitly reviewed-ready, deps done
+  local f="$1"
+  [ "$(jq -r '.needs' "$f")" = rig ] &&
+    [ "$(jq -r '.state' "$f")" = approved ] &&
+    [ "$(jq -r '.runnable // false' "$f")" = true ] &&
+    tk_deps_done "$f"
 }
 
 # Build a complete lease into a private temp file; print its path. The caller
@@ -189,10 +204,10 @@ cmd_status() {
     for f in "$TICKETS_DIR"/*.json; do
       [ -e "$f" ] || continue
       needs="$(jq -r '.needs' "$f")"; state="$(jq -r '.state' "$f")"
-      [ "$needs" = rig ] && [ "$state" = approved ] && rig_ready=$((rig_ready + 1))
+      tk_rig_ready "$f" && rig_ready=$((rig_ready + 1))
       [ "$needs" = offline ] && [ "$state" = open ] && off_open=$((off_open + 1))
     done
-    echo "tickets: $rig_ready approved rig experiment(s), $off_open open offline task(s). 'rig-lease.sh queue list' for detail."
+    echo "tickets: $rig_ready approved+ready rig experiment(s), $off_open open offline task(s). 'rig-lease.sh queue list' for detail."
   else
     echo "tickets: (none, or jq missing). 'rig-lease.sh queue list' for detail."
   fi
@@ -201,7 +216,8 @@ cmd_status() {
 # The ticket store: one git-tracked JSON file per ticket, offline and rig alike.
 #   needs  = offline (grab and do, no approval) | rig (needs lease + approval)
 #   state  = open (offline, actionable) | proposed (rig, awaiting CJ) |
-#            approved (rig, ready to run) | done
+#            approved (rig plan-approved; runnable=true only after exact review
+#            and completed dependencies) | done
 cmd_queue() {
   tk_need_jq; mktickets
   local sub="${1:-list}"; shift || true
@@ -254,7 +270,9 @@ cmd_queue() {
         [ -n "$f" ] || { miss="$miss $1"; return; }
         [ "$(jq -r '.needs' "$f")" = rig ] || { skip="$skip $1"; return; }
         local t="$f.tmp"
-        jq --arg by "$by" --arg at "$(now)" '.state="approved" | .approved_by=$by | .approved_at=($at|tonumber)' "$f" >"$t" && mv "$t" "$f"
+        jq --arg by "$by" --arg at "$(now)" \
+          '.state="approved" | .runnable=false | .approved_by=$by | .approved_at=($at|tonumber)' \
+          "$f" >"$t" && mv "$t" "$f"
         audit "TICKET-APPROVE seq=$1 by=$by"; n=$((n + 1))
       }
       local s f
@@ -274,6 +292,31 @@ cmd_queue() {
       [ -n "$miss" ] && echo "  (no such ticket:$miss)"
       [ -n "$skip" ] && echo "  (offline, no approval needed:$skip)"
       ;;
+    ready)
+      local seq="${1:-}" reviewer=""
+      [ -n "$seq" ] || die "queue ready <seq> --reviewed-by <agent>"
+      shift
+      while [ $# -gt 0 ]; do case "$1" in
+        --reviewed-by) reviewer="${2:-}"; shift 2;;
+        *) shift;;
+      esac; done
+      [ -n "$reviewer" ] || die "queue ready needs --reviewed-by <agent>"
+      seq="$(printf '%03d' "$((10#$seq))")"
+      local f; f="$(tk_file "$seq")"; [ -n "$f" ] || die "no ticket $seq" 2
+      [ "$(jq -r '.needs' "$f")" = rig ] || die "ticket $seq is not a rig ticket"
+      [ "$(jq -r '.state' "$f")" = approved ] || die "ticket $seq is not plan-approved"
+      [ "$(jq -r '.author' "$f")" != "$reviewer" ] ||
+        die "ticket $seq needs an independent reviewer (author is $reviewer)"
+      [ "$(jq -r '(.hashes // {}) | length' "$f")" -gt 0 ] ||
+        die "ticket $seq has no pinned hashes"
+      tk_deps_done "$f" || die "ticket $seq has incomplete dependencies"
+      local t="$f.tmp"
+      jq --arg by "$reviewer" --arg at "$(now)" \
+        '.runnable=true | .reviewed_by=$by | .ready_at=($at|tonumber)' \
+        "$f" >"$t" && mv "$t" "$f"
+      audit "TICKET-READY seq=$seq reviewed_by=$reviewer"
+      echo "ready [$seq] — exact review recorded; approved dependencies complete."
+      ;;
     next)
       # Default: the next approved RIG ticket (the lease-holder's schedule).
       # --offline: the next open OFFLINE task an idle agent can grab.
@@ -285,7 +328,13 @@ cmd_queue() {
       esac; done
       local f
       for f in $(ls "$TICKETS_DIR"/*.json 2>/dev/null | sort); do
-        if [ "$(jq -r '.needs' "$f")" = "$mode" ] && [ "$(jq -r '.state' "$f")" = "$want" ]; then
+        if [ "$mode" = rig ] && tk_rig_ready "$f"; then
+          local dep; dep="$(jq -r '.deps | join(" ")' "$f")"
+          echo "next $mode: [$(jq -r '.seq' "$f")] $(jq -r '.slug' "$f")$(jq -r 'if .priority=="" then "" else " "+.priority end' "$f")"
+          echo "  $(jq -r '.desc' "$f")"
+          [ -n "$dep" ] && echo "  deps: $dep"
+          return 0
+        elif [ "$mode" = offline ] && [ "$(jq -r '.needs' "$f")" = "$mode" ] && [ "$(jq -r '.state' "$f")" = "$want" ]; then
           local dep; dep="$(jq -r '.deps | join(" ")' "$f")"
           echo "next $mode: [$(jq -r '.seq' "$f")] $(jq -r '.slug' "$f")$(jq -r 'if .priority=="" then "" else " "+.priority end' "$f")"
           echo "  $(jq -r '.desc' "$f")"
@@ -323,7 +372,7 @@ cmd_queue() {
       audit "TICKET-DONE seq=$seq"
       echo "done [$seq] — moved to tickets/done/."
       ;;
-    *) die "unknown queue subcommand: $sub (add|approve|next|list|show|done)" ;;
+    *) die "unknown queue subcommand: $sub (add|approve|ready|next|list|show|done)" ;;
   esac
 }
 

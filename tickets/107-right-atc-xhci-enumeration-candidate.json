@@ -5,7 +5,7 @@
   "state": "open",
   "track": "usb",
   "priority": "P1",
-  "desc": "After HPM-only transition/rollback passes, build one exact right-port eUSB2 repeater + T6040 ATC + DART/xHCI no-root candidate. Use only paired-driver/ADT-derived banks, offsets, masks, values, ordering, and proved inverse; keep left-back DebugUSB disabled in Linux. Reporter may enumerate USB IDs and require the child to persist 10 seconds, but must not read the block device, mount, or write. Pin all hashes and obtain independent review before proposing 108.",
+  "desc": "After HPM-only transition/rollback passes, build one exact composed artifact: replay the proven ticket-105 HPM transition, keep that host state active while bringing up right eUSB2 repeater + T6040 ATC + DART/xHCI, enumerate, then run the proved inverse/rollback. A prior 106 run leaves no state behind. Use only paired-driver/ADT-derived operations; keep left-back DebugUSB disabled in Linux. Reporter may require the USB child for 10 seconds but must not read block sectors, mount, or write. Pin all hashes and obtain independent review before 108.",
   "author": "codex",
   "deps": [
     "106"

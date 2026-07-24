@@ -334,12 +334,11 @@ PHY state, but does not consume the T6040 named host/device tunables, so that
 state is not a reproducible Linux contract.
 
 Do not mount or populate a rootfs. The failed device is confirmed to have been
-a directly attached, bus-powered USB-C memory stick. Ticket 065 proposes one
-freshly approved retry of the exact image with a host-validated powered hub and
-simple known-good USB2 drive as the last safe no-code discriminator. Connect
-and power the complete topology before the M4 power cycle; do not hotplug during
-the run. If that retry also shows root hubs only, stop and track reviewed T6040
-HPM/SPMI + ATC PHY support. Full result, analysis, and powered preflight:
+a directly attached, bus-powered USB-C memory stick. At this point ticket 065
+proposed one powered-fixture discriminator; it was later cancelled unrun, as
+recorded immediately below. The active plan now keeps the same passive stick
+and stages reviewed T6040 HPM/SPMI + ATC PHY support. Full historical result,
+analysis, and cancelled powered preflight:
 `done/2026-07-21-t6040-usb-host-right-smoke-result.md` and
 `done/2026-07-21-t6040-usb-right-no-connect-analysis.md`, then
 `done/2026-07-21-t6040-usb-right-powered-smoke-preflight.md`.
@@ -460,9 +459,9 @@ kept the watchdog alive, reported `input0/event0`, kept partitions empty, and
 accepted a line from the internal keyboard at the panel shell. Ticket 082 now
 contains the reversible enrollment/cold-boot procedure; its remaining fields
 are the exact volume UUID, enrolled-object backup/hash, dual-mode candidate
-review/trigger validation, and the maintainer's execution split. Approved
-ticket 101 performs the enrollment/cold boot only after those gates and rig
-recovery. The exact experiment and safety ladder is
+review/selection, and the maintainer's execution split. Plan-approved ticket
+101 performs the enrollment/cold boot and any selected dual-mode trigger
+validation only after 082 closes and rig recovery. The exact experiment and safety ladder is
 `docs/BOOTABLE_BUILD_EXPERIMENTS.md`; exact layout:
 `done/2026-07-23-t6040-raw-boot-object-layout.md`. U-Boot/EFI and external USB
 root are B1 and B2 respectively, not prerequisites for B0.
@@ -495,7 +494,8 @@ Ticket 100 live-proved this exact release object through one tethered upload;
 `46237ade7e314cd752e1482930e21b62319e1b0b707a0f23e86392701555f0c9`
 has since been built so normal boot may autoboot while DebugUSB retains a
 five-second proxy window. It is not yet the enrollment object: independent
-review and on-M4 trigger validation remain. Exact results:
+review remains, and on-M4 trigger validation belongs to ticket 101 if selected.
+Exact results:
 `done/2026-07-24-t6040-alpine-b0-release-bundle.md`,
 `done/2026-07-24-t6040-b0-alpine-openrc-single-object-result.md`, and
 `done/2026-07-24-t6040-b0-dualmode-earlyproxy-object.md`.
@@ -890,8 +890,9 @@ contract is now exact offline: `aapl,spmi`/SN201202x `hpm2` → `acio2` →
 `atc-phy2`, whose T6040-only node has 44 register entries and new
 USB2/CIO4/AUS40 tunables. Addresses alone do not name the required buckets or
 authorize state-changing SPMI access. No rig or Linux-tree edit was made.
-Continue the RAM-root B0 path; only a powered fixture or an upstream-derived,
-reviewed T6040 HPM/PHY sequence reopens external-root testing. Full checkpoint:
+Continue the RAM-root B0 path. The powered-fixture alternative was later
+retired; only the staged, upstream-derived and independently reviewed T6040
+HPM/PHY sequence reopens external-root testing. Full checkpoint:
 `done/2026-07-23-t6040-atcphy-upstream-checkpoint.md`.
 
 The 2026-07-24 paired-kext pass removes the bank-map unknown without touching

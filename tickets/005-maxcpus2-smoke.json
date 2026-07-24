@@ -3,9 +3,10 @@
   "slug": "maxcpus2-smoke",
   "needs": "rig",
   "state": "approved",
+  "runnable": false,
   "track": "smp",
   "priority": "P2",
-  "desc": "Exact maxcpus=2 J614s bring-up candidate from completed preflight 034: safe m1n1 1394c345..., Image a6c2f093..., board-correct 14-active-core DTB b3858f60..., reporter initramfs 160cd9bd..., bootarg maxcpus=2 idle=nop. Pass = CPUs 0-1 online, two /proc/cpuinfo processors, taskset cpu1 liveness, responsive shell, no watchdog reset. No DT/MMIO/storage/SPMI change. Still needs independent exact-artifact cross-review and current rig recovery before the already-approved one-shot boot.",
+  "desc": "Exact maxcpus=2 J614s bring-up candidate from completed preflight 034: safe m1n1 1394c345..., Image a6c2f093..., board-correct 14-active-core DTB b3858f60..., reporter initramfs 160cd9bd..., bootarg maxcpus=2 idle=nop. Pass = CPUs 0-1 online, two /proc/cpuinfo processors, taskset cpu1 liveness, responsive shell, no watchdog reset. No DT/MMIO/storage/SPMI change. Plan-approved but runnable=false: still needs independent exact-artifact cross-review and current rig recovery before the one-shot boot.",
   "author": "claude",
   "deps": [
     "034"

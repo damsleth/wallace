@@ -97,13 +97,12 @@ bounded-poll, lifetime, bounds, and rollback issues. It is tracked as the
 leading implementation candidate, not a reason to retry:
 `done/2026-07-24-t6040-yuka-hpm-spmi-branch-audit.md`.
 
-Do not guess or replay SPMI/HPM writes. The next M4 root-mode boot requires
-either:
-
-1. a standards-compliant powered/self-powered fixture that makes a child
-   persist for ten seconds, or
-2. reviewed T6040 SPMI + SN201202x/HPM + ATC PHY support derived from the
-   paired driver/ADT and accepted under the hardware-write safety process.
+Do not guess or replay SPMI/HPM writes. Later 2026-07-24 testing retired the
+powered-fixture discriminator and proved only the exact endpoint-scoped
+inactive → WAKEUP/state `0x07` → SSPS/S0 `0x00` ladder. The next M4 root-mode
+boot still requires the decomposed 096/102–108 rollback, HPM host transition,
+ATC/xHCI, and enumeration sequence; read/flash/write/root are separate
+109–113 boundaries.
 
 Untethered boot is a separate layer: Apple Boot Policy starts an internally
 enrolled raw m1n1 object, which then loads this external root. The USB stick is

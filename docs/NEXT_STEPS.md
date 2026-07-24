@@ -117,8 +117,9 @@ control preflight and result:
 Artifact, preflight, and result:
 `done/2026-07-23-t6040-alpine-ramroot-artifact.md`,
 `done/2026-07-23-t6040-alpine-ramroot-preflight.md`, and
-`done/2026-07-23-t6040-alpine-ramroot-boot-result.md`. The powered USB test may
-be revived later when a valid fixture exists; HPM/ATC remains the
+`done/2026-07-23-t6040-alpine-ramroot-boot-result.md`. A powered-fixture
+discriminator is no longer in the plan: the attached passive right-port stick
+is the fixed test device, and staged HPM/ATC bring-up remains the
 persistent-root blocker. Exact initial USB run result:
 `done/2026-07-21-t6040-usb-host-right-smoke-result.md`.
 
@@ -149,8 +150,9 @@ Ticket 100 reached the OpenRC default runlevel, kept the watchdog alive, found
 the internal input device, kept `/proc/partitions` empty, and accepted a line
 typed on the internal keyboard at the panel shell. Ticket 081 is done. Ticket
 082's procedure exists; only target-volume UUID, current enrolled-object
-backup/hash, dual-mode-candidate review/trigger check, and split-vs-single
-execution approval remain before approved ticket 101 can run. Exact format,
+backup/hash, dual-mode-candidate review/selection, and split-vs-single
+execution approval remain before plan-approved runnable=false ticket 101 can
+run. Ticket 101 owns any selected dual-mode hardware trigger check. Exact format,
 preflights, and results:
 `done/2026-07-23-t6040-raw-boot-object-layout.md` and
 `done/2026-07-24-t6040-b0-alpine-single-object-preflight.md`, and
@@ -409,8 +411,9 @@ prerequisites. Audit and mail:
 
 Keep the first USB smoke at `maxcpus=1 idle=nop`. The DT's extra `cpu@10105` is
 correctly disabled and 14 cores are available, but Linux secondary-core bring-up
-is still a separate staged experiment (tickets 005/034); do not combine it with
-the first USB-host test.
+is still a separate staged experiment: completed preflight 034 feeds the
+`maxcpus=2` control (005), then 120 prepares and 121 proves all 14 cores. Do not
+combine any of those with a USB-host test; cpufreq ticket 006 follows 121.
 
 **Upstream correction, 2026-07-21:** a bounded m1n1 experiment on M4 Pro
 measured DockChannel-UART on AIC input **816**; the ADT's 360 is wrong. The
@@ -418,8 +421,9 @@ standard USB-smoke DT uses `apple,poll-mode`, so this does not change its consol
 behavior, but all newly built DTBs must carry 816. Yuka's WIP `more-t6041`
 branch also reached a shell on M4 Pro with all cores and PMGR, providing strong
 family-level SMP evidence. It is not a J614s-ready artifact (its inherited CPU
-topology and memory-channel domains do not match this 14-core board), so ticket
-034 remains the gate and the USB smoke stays single-core. Full 11–21 July log
+topology and memory-channel domains do not match this 14-core board), so
+005→120→121 remains the J614s proof sequence and USB smokes stay single-core.
+Full 11–21 July log
 review: `done/2026-07-21-asahi-dev-log-review.md`.
 
 ## 0. Retire IRQ-360 diagnostics; evaluate the direct IRQ-816 driver offline
@@ -428,10 +432,10 @@ The 2026-07-14 diagnostics below are retained as experiment history. They used
 the ADT-provided input 360, now known not to be the UART interrupt. Their direct
 FIFO observations remain valid, but they cannot establish whether the real AIC
 input 816 works or fails. Do not run ticket 059 or any other 360-based image.
-Instead, audit the direct `apple,dockchannel-uart` driver from `more-t6041`
-(data register first, `earlycon=dockchannel,mmio32,0x50882c000`, `ttyDC0`) and
-adapt it to the measured J614s DT before proposing a new live console test
-(offline ticket 062).
+The direct `apple,dockchannel-uart` driver from `more-t6041` was audited and
+adapted to the measured J614s DT under completed ticket 062 (data register
+first, `earlycon=dockchannel,mmio32,0x50882c000`, `ttyDC0`). Plan-approved
+ticket 073 is the separate, currently `runnable=false`, live proof.
 
 The storm-bounded UART TX/RX BIT(2)/BIT(1) diagnostic ran once on 2026-07-14.
 Linux reached BusyBox and TX worked, but neither an LF-terminated nor a
@@ -517,10 +521,10 @@ measurement experiment and enverbalalic's reproduction on real T6041 hardware
 both show the ADT's dockchannel-uart input 360 is an Apple copy-paste error and
 the real AIC input is **816** on t6040/t6041 (full trawl:
 `done/2026-07-21-asahi-dev-irc-review.md`). Our `total=0` RX result is consistent
-with having listened on input 360. **Next step is ticket 062**
-(`dockchannel-irq816-path`): rebuild the DT on IRQ 816 with the data reg
-(`0x50882c000`) first for earlycon, make the RX/TX bits a DT property, then
-propose a fresh interrupt-driven `ttyDC0` rig retest.
+with having listened on input 360. Ticket 062 completed the IRQ-816 path:
+the DT uses input 816, the data reg (`0x50882c000`) comes first for earlycon,
+and RX/TX bits are a DT property. The next live step is the independently
+reviewed ticket-073 `ttyDC0` retest once it is marked runnable.
 
 ## 0.1 Extend the proven T6040 PCIe path through PHY setup
 

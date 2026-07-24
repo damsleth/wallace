@@ -54,8 +54,9 @@ compressed initramfs, entry `0x800`, with a strict host verifier. Tickets 081
 and 100 completed the independently reviewed single-object tethered proof:
 OpenRC default runlevel, watchdog, internal panel shell, keyboard echo, and no
 block devices passed. Ticket 082's enrollment procedure exists; exact volume
-identity/backup plus the dual-mode candidate review/trigger check remain
-before approved ticket 101's maintainer-executed cold boot. Full sequence:
+identity/backup plus the dual-mode candidate review/selection remain before
+plan-approved ticket 101's maintainer-executed cold boot and trigger check.
+Full sequence:
 `docs/BOOTABLE_BUILD_EXPERIMENTS.md`. Layout result:
 `done/2026-07-23-t6040-raw-boot-object-layout.md`.
 
@@ -72,8 +73,9 @@ report, locked root password, no enabled network configuration, and zero block
 nodes. Its exact self-contained raw object is the twice-reproduced, strictly
 decoded 22,183,563-byte `2371ee5d...`; ticket 100 live-proved it. The
 dual-mode replacement candidate `46237ade...` preserves the proven payload and
-adds only `EARLY_PROXY_TIMEOUT=5`, but still needs independent review and
-on-M4 trigger validation. Nothing is enrolled.
+adds only `EARLY_PROXY_TIMEOUT=5`, but still needs independent review. Its
+on-M4 trigger validation is part of ticket 101 if selected. Nothing is
+enrolled.
 
 **Right-port HPM reaches S0 (2026-07-24).** The staged endpoint-only sequence
 proved the selector window inactive before WAKEUP, read power state `0x07`
@@ -311,10 +313,12 @@ early console. (Testable incrementally against Stage C.)
 
 **Exit:** linux-asahi + our DT boots to initramfs shell over USB gadget/serial,
 all 14 cores online, cpufreq working.
-**Status 2026-07-21:** initramfs shell and full PMGR are proven locally at
+**Status 2026-07-24:** initramfs shell and full PMGR are proven locally at
 maxcpus=1. A WIP `more-t6041` branch independently reached an M4 Pro shell with
 all cores and PMGR, but its inherited CPU/domain topology is not J614s-correct;
-ticket 034 still gates a 14-core-board-specific secondary test. T6040/T6041 AIC
+completed preflight 034 feeds the separate `maxcpus=2` control (005), followed
+by all-14-core candidate/run tickets 120/121. Cpufreq ticket 006 waits for 121.
+T6040/T6041 AIC
 sysregs remain firmware-locked, so the trap-avoidance patch and `idle=nop`
 remain required.
 
@@ -338,12 +342,14 @@ remain required.
   but no attached device enumerated. The saved ADT maps that port through a
   right-side SPMI HPM, `atc-phy,t6040`, and `acio2`, while Linux describes none
   of that connector/PHY path; force-host therefore starts xHCI with no generic
-  PHY provider. The failed device was a directly attached bus-powered USB-C
-  stick, but ticket 065's powered fixture is unavailable. Ticket 067 therefore
+  PHY provider. The failed device was the directly attached passive USB-C stick
+  that remains the fixed right-port test device. Ticket 065's powered-fixture
+  discriminator was cancelled and is not a remaining gate. Ticket 067 therefore
   supplies the interim distro milestone: Alpine booted entirely from a
   m1n1-uploaded RAM-root with all storage paths disabled. Persistent external
-  root remains gated on a powered-device discriminator, then reviewed T6040
-  HPM/ATC work if it fails.
+  root is gated directly on reviewed T6040 HPM/ATC work, enumeration, read-only
+  block identity, separately confirmed flashing, and a bounded
+  write/persistence test.
   A late-2026-07-24 public m1n1 WIP (`tps6598x-spmi`, `dcc5f1bc...`) now
   recognizes the exact J614s Gen3 SPMI/SN201202x topology and compiles, but its
   only reported test is the legacy T6000/I2C iterator. The T6040 path performs
@@ -490,8 +496,9 @@ GPU/WiFi (USB ethernet).
   distro. DebugUSB may observe but supplies no payload. This is intentionally
   storage-free and is the first “this machine boots Linux” milestone. The
   tethered object proof (081/100) has passed. Ticket 082 now owns only the
-  final volume identity/backup/review fields; approved ticket 101 is the
-  maintainer-executed cold boot. `docs/BOOTABLE_BUILD_EXPERIMENTS.md` defines
+  final volume identity/backup/review fields; plan-approved, `runnable=false`
+  ticket 101 is the maintainer-executed cold boot.
+  `docs/BOOTABLE_BUILD_EXPERIMENTS.md` defines
   the evidence-gated sequence.
 - **B1, standard boot flow:** after B0, make U-Boot/EFI work and move toward
   GRUB/systemd-boot or a unified kernel image. Ticket 025's offline prep now

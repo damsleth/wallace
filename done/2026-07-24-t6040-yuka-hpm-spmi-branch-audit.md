@@ -110,8 +110,10 @@ unproven inference, not a test premise.
 3. First resolve the bounded-poll, lifetime, bounds, and error-reporting
    issues; obtain an exact T6040 state/rollback explanation and upstream test
    result.
-4. Preserve the alternative: a powered/self-powered fixture still bypasses
-   the need to make Wallace the first tester of state-changing SPMI code.
+4. Historical note: a powered/self-powered fixture was then retained as an
+   alternative. It is no longer available or an active gate; later endpoint-
+   scoped tickets 093–095 proved only inactive → WAKEUP → SSPS/S0, and
+   096/102–113 now own the remaining decomposed work.
 
 No repository outside Wallace was modified. Fetches changed only remote/FETCH
 metadata; the temporary build worktree and binary were removed.

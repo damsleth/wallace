@@ -5,7 +5,7 @@
   "state": "proposed",
   "track": "storage",
   "priority": "P1",
-  "desc": "Proposed first read-only block boundary after 108. Identify the one right-port removable sd device by USB IDs, capacity and sysfs ancestry; assert no nvme device. Read and hash only fixed GPT/header/partition sectors, run non-mutating filesystem inspection or mount read-only with no journal replay, then unmount and recover. No block write, fsck repair, partition change, or flash. Exact reporter/artifact hashes, independent review, fresh approval, lease, and healthy rig required.",
+  "desc": "Proposed first read-only block boundary after 108. Identify the one right-port removable sd device by USB IDs, capacity and sysfs ancestry; assert no nvme device. Read and hash only fixed GPT/header/partition sectors and compare expected identities. Do not mount any filesystem, replay a journal, run fsck, write, partition, or flash; known-ext4 mounting starts at 112. Exact reporter/artifact hashes, independent review, fresh approval, lease, and healthy rig required.",
   "author": "codex",
   "deps": [
     "108"

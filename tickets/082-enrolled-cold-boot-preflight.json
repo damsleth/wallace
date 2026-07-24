@@ -5,7 +5,7 @@
   "state": "open",
   "track": "distro",
   "priority": "P1",
-  "desc": "IN PROGRESS after ticket-100 tethered PASS. The reversible maintainer-executed enrollment/cold-boot procedure exists at done/2026-07-24-t6040-b0-enrolled-cold-boot-preflight.md. Remaining: fill dedicated m1n1 volume UUID, back up/hash current enrolled object, independently review dual-mode candidate 46237ade and validate its normal-vs-DebugUSB trigger behavior, confirm enrollment/cold-boot approval split, and recover the current wedged rig. Agent remains observation-only and runs no kmutil/bputil. Do not close until the enrolled cold boot passes under 101.",
+  "desc": "IN PROGRESS after ticket-100 tethered PASS. The reversible maintainer-executed enrollment/cold-boot procedure exists at done/2026-07-24-t6040-b0-enrolled-cold-boot-preflight.md. Remaining preflight work: fill dedicated m1n1 volume UUID, back up/hash current enrolled object, complete independent ticket-119 review of dual-mode candidate 46237ade, select 46237ade or live-proven fallback 2371ee5d in the exact manifest, and confirm the action split/rollback. Close 082 when those offline readiness items are complete; ticket 101 owns the live cold-boot and, if selected, dual-mode trigger validation. Agent runs no kmutil/bputil.",
   "author": "codex",
   "deps": [
     "100",

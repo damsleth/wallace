@@ -3,6 +3,7 @@
   "slug": "trackpad-motion-retest",
   "needs": "rig",
   "state": "approved",
+  "runnable": false,
   "track": "hid",
   "priority": "P2",
   "desc": "Exact storage-disabled, TX-only bounded J614s motion candidate prepared: m1n1 1394c345..., Image 86e031db..., DTB 2782b922..., initramfs 3a47c95d..., paired tpmtfw a1f4131d.... Auto-inventories input and captures at most 12 seconds/32 records per event; no tty RX dependency. STOP if MTP requests reset GPIO (PMU-forbidden), or on SError/DART/storage/USB probe. Preflight: done/2026-07-24-t6040-trackpad-motion-preflight.md. Existing approval retains independent exact-artifact cross-review gate; do not boot before recorded PASS. Current rig NEEDS_RECOVERY first.",

@@ -86,16 +86,18 @@ the CLI. Two kinds:
 scripts/rig-lease.sh queue next --offline            # next open offline task — just grab it
 scripts/rig-lease.sh queue add <you> <slug> "<desc>" --needs offline --track T --pri P1
 
-# RIG experiments — need the lease + CJ approval.
+# RIG experiments — need CJ plan approval, exact review/readiness, and lease.
 scripts/rig-lease.sh queue add <you> <slug> "<desc>" --needs rig --pri P1 [--dep NNN]
-scripts/rig-lease.sh queue next --rig                # next APPROVED rig experiment == the turn order
+scripts/rig-lease.sh queue ready <seq> --reviewed-by <other-agent>
+scripts/rig-lease.sh queue next --rig                # next APPROVED+READY experiment
 scripts/rig-lease.sh queue done <seq>                # after you've run + recorded it
 ```
 
-The rig only ever runs *approved, hashed* experiments. Propose yours; CJ
+The rig only ever runs *approved, independently reviewed, hashed, dependency-
+complete* experiments. Propose yours; CJ
 batch-approves (`queue approve 001-006 --by cj`); whoever's free runs the next
-approved one. Do **not** hold the lease while waiting for CJ to approve the next
-step — that starves the other agents while CJ is away. Approval happens offline,
+approved+ready one. Do **not** hold the lease while waiting for CJ to approve
+the next step — that starves the other agents while CJ is away. Approval happens offline,
 ahead of rig time.
 
 When the rig is busy or you're between experiments, **pull an offline ticket** —

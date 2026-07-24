@@ -3,6 +3,7 @@
   "slug": "dockchannel-irq816-smoke",
   "needs": "rig",
   "state": "approved",
+  "runnable": false,
   "track": "",
   "priority": "P1",
   "desc": "Interrupt-driven DockChannel RX retest on measured AIC input 816; the prior image listened on wrong ADT input 360. Exact pinned set uses PCIe-write-free m1n1 1394c345, Image a6c2f093 with poll+rx-rearm code, no-poll-mode DTB 21a34468 (816, RX BIT1), and initramfs 512c69da. Plan approval is recorded; still requires current rig recovery and independent exact cross-review. Pass = ttydc0 shell echoes/runs host input via IRQ with no storm. Console-only, no PMU/SPMI/storage. One boot.",

@@ -12,14 +12,17 @@ The tethered B0 release object now boots a self-contained Alpine 3.24/OpenRC
 system from one raw m1n1 object. The internal panel reaches a local shell, the
 internal keyboard echoes, the watchdog stays serviced, and the storage-disabled
 health report passes. A dual-mode enrollment candidate has also been built; it
-still needs independent review, trigger validation, volume identity/backup
-completion, and the maintainer-executed cold-boot experiment (ticket 101).
+still needs independent review and volume identity/backup completion. Its
+hardware trigger validation belongs to the maintainer-executed cold-boot
+experiment (ticket 101), not the offline preflight. That plan is approved but
+remains `runnable=false` until its identity, backup, and review gates close.
 
 Core bring-up is solid: m1n1 sees all 14 active cores, PMGR's 214-domain
 topology is understood, Linux boots reliably at `maxcpus=1`, fbcon and
 DockChannel polling console work, and the internal keyboard is usable.
-`maxcpus=2`, cpufreq, IRQ-driven console, and trackpad-motion tests have
-prepared tickets but remain separate unrun boundaries.
+The next CPU steps are the prepared `maxcpus=2` proof (005), then a separately
+reviewed all-14-core candidate/run (120/121); cpufreq (006), IRQ-driven console,
+and trackpad motion remain separate unrun boundaries.
 
 The right-side USB-C path has crossed its first hardware-management boundary.
 The exact right HPM2 endpoint accepted WAKEUP, reported state `0x07`, accepted

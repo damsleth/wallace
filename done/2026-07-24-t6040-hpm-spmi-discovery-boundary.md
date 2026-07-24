@@ -136,5 +136,10 @@ Do not turn the census above into a live probe, and do not synthesize HPM,
 SPMI, charger, or VBUS writes. The next static task is to identify the exact
 class-10 object selected from these reads and then trace its host-mode
 transition and rollback. An untethered external-root attempt remains blocked
-until that path is independently reviewed and explicitly authorized, or until
-a powered/self-powered USB fixture becomes available.
+until that path is independently reviewed and explicitly authorized.
+
+Later 2026-07-24 status: tickets 093–095 proved the exact right-HPM2 inactive,
+WAKEUP/state `0x07`, and SSPS/S0 `0x00` boundaries under the endpoint-scoped
+policy. They did not prove role, VBUS, repeater/ATC, enumeration, or rollback.
+The powered-fixture alternative is no longer an active gate; 096 and 102–113
+now encode the decomposed path.

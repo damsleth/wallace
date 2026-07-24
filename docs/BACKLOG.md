@@ -7,9 +7,10 @@ This is the **map**, not the ticket list. The actionable work lives in tickets:
   ```sh
   scripts/rig-lease.sh queue list [--rig|--offline]   # what's there
   scripts/rig-lease.sh queue next --offline           # next open offline task (grab it)
-  scripts/rig-lease.sh queue next --rig               # next approved rig experiment (needs lease)
+  scripts/rig-lease.sh queue next --rig               # next approved+ready rig experiment
   scripts/rig-lease.sh queue add <you> <slug> "<desc>" --needs offline|rig [--track T --pri P1 --dep NNN]
   scripts/rig-lease.sh queue approve 001-006 --by cj  # rig tickets only; offline needs no approval
+  scripts/rig-lease.sh queue ready 001 --reviewed-by sol
   scripts/rig-lease.sh queue show <seq>               # full JSON
   ```
 - **`.rig/`** — the lease only (ephemeral, gitignored). Not the backlog.
@@ -17,14 +18,16 @@ This is the **map**, not the ticket list. The actionable work lives in tickets:
 Each ticket has `needs: offline | rig`. **Offline tickets** (`state: open`) need
 no rig and no approval — any agent grabs one and does it; that's where parallel
 speed comes from, so favour them. **Rig tickets** (`state: proposed` →
-`approved` → `done`) need the lease and CJ's approval, and their depth is
+`approved` → `done`) need the lease and CJ's approval. `runnable:true` is
+separate: `queue ready` requires pinned hashes, all dependencies done, and an
+independent reviewer before `queue next --rig` will schedule the ticket. Their depth is
 bounded by data-dependency (you can't spec step N+2 before step N runs), so the
 rig list stays short and the deep pipeline stays here as offline analysis.
 
-**Pre-approval semantics:** `queue approve` authorizes the *plan*. The per-image
-safety gate still stands — before an agent boots a new-MMIO image, the other
-agent cross-reviews the exact hashes against `~/Code/m1n1/AGENTS.md`
-(§ Cross-agent review in COORDINATION.md).
+**Pre-approval semantics:** `queue approve` authorizes the *plan* and sets
+`runnable:false`. The per-image safety gate still stands: after the other agent
+cross-reviews exact hashes against `~/Code/m1n1/AGENTS.md`, run
+`queue ready`; unresolved dependencies or absent hashes fail closed.
 
 ## Priority & dependency order (updated 2026-07-24)
 
@@ -54,10 +57,11 @@ In rough order of leverage:
    independent review and ticket **100**'s tethered single-object boot:
    OpenRC, watchdog, panel shell, internal keyboard, and empty partitions.
    **081/100 are done.** **082** has the reversible enrollment procedure and
-   now needs the target-volume UUID, enrolled-object backup/hash, review and
-   trigger validation of dual-mode candidate `46237ade...`, and execution
-   split confirmation. **101** is plan-approved but not runnable until those
-   items and rig recovery pass. Direct m1n1 is the selected B0 route; U-Boot
+   now needs the target-volume UUID, enrolled-object backup/hash,
+   review/selection of dual-mode candidate `46237ade...`, and execution split
+   confirmation. **101** is plan-approved but runnable=false until 082 closes;
+   it owns the cold boot and any selected dual-mode hardware trigger check
+   after rig recovery. Direct m1n1 is the selected B0 route; U-Boot
    ticket **025** is B1; its no-MMIO framebuffer/EFI-hello prep is complete,
    with any live proof deferred until after B0. Installer requirements ticket
    **026** is complete:
@@ -129,10 +133,12 @@ In rough order of leverage:
    rig experiment). Poll-mode tty is proven. The ADT's IRQ 360 is now known
    wrong; measured UART input is 816, so 059's timing image is closed
    superseded. Audit/adapt the WIP direct `apple,dockchannel-uart` IRQ-816
-   earlycon/`ttyDC0` path under **062** before proposing another rig test.
+   earlycon/`ttyDC0` path is complete under **062**; plan-approved 073 is the
+   currently non-runnable live proof.
 6. **Make the approved rig queue runnable** (smp/cpufreq/hid). The exact
-   preflights **034/035** are complete; 005/006 now record their real artifact
-   and review gaps instead of “hashes TBD.” Trackpad provisioning **016** is
+   preflights **034/035** are complete. Review/run maxcpus=2 ticket 005 first,
+   then prepare/review/run the separate all-14-core 120/121 pair; cpufreq 006
+   waits for 121. Trackpad provisioning **016** is
    complete (`tpmtfw-j614s.bin` `a1f4131d...`); ticket 004's exact reproducible
    kernel/DT/initramfs set is now pinned in its 2026-07-24 preflight and needs
    only an independent exact-artifact review before it is runnable.
@@ -163,9 +169,9 @@ Per COORDINATION.md roles, extended for the USB-root era:
 
 | Lane | Primary | Current contents |
 |---|---|---|
-| Storage: RAM-root + USB-root pipeline + SPTM | **sol** | Alpine RAM-root boots; trace current-kernel HID boundary; powered USB later → ROOT boot or upstream HPM/ATC; 051/052/054/055 |
-| PCIe/WiFi-BT, DockChannel console | **claude** | 058, 044; 062 IRQ-816 direct-driver audit |
-| Rig-queue preflights, SMC/PM, upstream drafts | **claude** (first grab) | 061; 019/046/047/048 complete |
+| Storage: RAM-root + USB-root pipeline + SPTM | **sol** | right HPM2 reached S0; 096/102–113 stage link → read → confirmed flash → RW root; 114–117 keep NVMe host-only |
+| PCIe/WiFi-BT, DockChannel console | **claude** | 068/044; completed 062 feeds non-runnable 073 |
+| Rig-queue preflights, SMC/PM, upstream drafts | **claude** (first grab) | 005→120/121→006; 061 and 019/046/047/048 complete |
 | Rootfs recipe, xcut, tracking | either (queue order) | 029/030, 022/023; 026/039/060 complete |
 
 The other agent still cross-reviews every live image regardless of lane, and

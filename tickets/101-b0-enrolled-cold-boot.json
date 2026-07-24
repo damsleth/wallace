@@ -3,9 +3,10 @@
   "slug": "b0-enrolled-cold-boot",
   "needs": "rig",
   "state": "approved",
+  "runnable": false,
   "track": "distro",
   "priority": "P1",
-  "desc": "PLAN-APPROVED, NOT YET RUNNABLE untethered B0 milestone. Ticket-100 object 2371ee5d is the live-proven fallback. Preferred dual-mode candidate 46237ade preserves its payload byte-for-byte and adds only EARLY_PROXY_TIMEOUT=5, but still needs independent rebuild review and on-M4 normal-vs-DebugUSB trigger validation. Maintainer executes kmutil enrollment and boot picker cold boot; agent only observes/records and runs no kmutil/bputil. Ticket 082 must first fill volume UUID, back up/hash current enrolled object, choose 2371ee5d vs reviewed 46237ade, and confirm action split; current rig NEEDS_RECOVERY. Pass = panel Alpine/OpenRC default runlevel, watchdog, keyboard echo, no host payload. Rollback = main macOS + re-enroll backup. Procedure: done/2026-07-24-t6040-b0-enrolled-cold-boot-preflight.md.",
+  "desc": "PLAN-APPROVED, runnable=false untethered B0 milestone. Ticket-100 object 2371ee5d is the live-proven fallback. Preferred 46237ade preserves its payload byte-for-byte and adds EARLY_PROXY_TIMEOUT=5; ticket 119 must review it before selection. After 082 closes, the maintainer enrolls the selected object and performs boot-picker cold boot; the agent only observes/records. B0 pass = panel Alpine/OpenRC default runlevel, watchdog, keyboard echo, no host payload. If 46237ade is selected, the same reviewed session separately tests macvdmtool reboot debugusb -> proxy window; failure of that second property triggers documented fallback/rollback and is not silently called success. Current rig NEEDS_RECOVERY. Agent runs no kmutil/bputil. Procedure: done/2026-07-24-t6040-b0-enrolled-cold-boot-preflight.md.",
   "author": "claude",
   "deps": [
     "082",

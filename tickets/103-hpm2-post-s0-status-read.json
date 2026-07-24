@@ -5,10 +5,12 @@
   "state": "proposed",
   "track": "usb",
   "priority": "P1",
-  "desc": "Proposed one-shot execution of ticket 102's independently reviewed exact post-S0 status artifact after rig recovery. Passive bus-powered memory stick on right; DebugUSB left-back. Reproduce identity, WAKEUP and SSPS S0, read only the named 0x20/0x23/0x24 windows, log and warm-reboot. No mask/event, 0x14/0x55 write, role/VBUS, repeater/PHY/xHCI/storage. Requires exact hashes, independent PASS, fresh maintainer approval, lease, and healthy recovery control.",
+  "desc": "Proposed class-R3 observation run only if tickets 096/102 prove the 0x23/0x24 reads and amend docs/SPMI_SAFETY.md, and 118 resolves the post-095 KIS recovery control. Replay the already-proven identity+WAKEUP+SSPS precondition, then read only named 0x20/0x23/0x24 windows, log, and warm-reboot. Passive right-port stick; DebugUSB left-back. No mask/event, 0x14/0x55 write, role/VBUS, repeater/PHY/xHCI/storage. Requires completed 096/102/118, exact hashes, independent PASS, fresh maintainer approval, lease, and healthy recovery.",
   "author": "codex",
   "deps": [
-    "102"
+    "096",
+    "102",
+    "118"
   ],
   "hashes": null,
   "created": 1784927435

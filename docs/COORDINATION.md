@@ -53,8 +53,9 @@ scripts/rig-lease.sh recovered <agent>               # clear NEEDS_RECOVERY afte
 
 # the ticket store — git-tracked JSON in tickets/, offline tasks AND rig experiments:
 scripts/rig-lease.sh queue add <agent> <slug> "<desc>" --needs offline|rig [--track T --pri P1 --dep NNN]
-scripts/rig-lease.sh queue approve 001-006 --by cj   # MAINTAINER; rig tickets only, batch/ranges/all
-scripts/rig-lease.sh queue next --rig                # next approved rig experiment == the schedule
+scripts/rig-lease.sh queue approve 001-006 --by cj   # MAINTAINER plan approval; runnable stays false
+scripts/rig-lease.sh queue ready 001 --reviewed-by sol # after exact review + completed deps
+scripts/rig-lease.sh queue next --rig                # next approved+runnable rig experiment
 scripts/rig-lease.sh queue next --offline            # next open offline task (no approval needed)
 scripts/rig-lease.sh queue list [--rig|--offline]
 scripts/rig-lease.sh queue show <seq>                # full JSON
@@ -63,9 +64,11 @@ scripts/rig-lease.sh queue done <seq>
 
 Two ticket kinds. `needs: offline` (state `open`) — no rig, no approval, any
 agent grabs and does it; this is the bulk of the backlog and where parallel
-speed comes from. `needs: rig` (state `proposed`→`approved`→`done`) — needs the
-lease and CJ's batch approval. Tickets live in git (`tickets/`); the strategy/
-priorities/graves map is `BACKLOG.md`.
+speed comes from. `needs: rig` (state `proposed`→`approved`→`done`) needs the
+lease and CJ's batch plan approval. An approved ticket is schedulable only
+after `queue ready` records the independent exact-artifact review, verifies
+pinned hashes, and finds every dependency in `tickets/done/`. Tickets live in
+git (`tickets/`); the strategy/priorities/graves map is `BACKLOG.md`.
 
 **Concurrent-add race:** `queue add` allocates the next sequence number
 non-atomically — two agents adding at the same time can silently clobber one
@@ -97,43 +100,47 @@ scripts/rig-lease.sh release claude --state healthy
 
 ## Turn-taking rules (why timing matters)
 
-- **Only acquire the rig for work that is already APPROVED + hashed.** Approval
-  (`queue approve`) happens offline, ahead of rig time. **Never hold the lease
+- **Only acquire the rig for work that is APPROVED + READY.** Plan approval
+  (`queue approve`) and exact review (`queue ready`) happen offline, ahead of
+  rig time. **Never hold the lease
   while waiting on the maintainer to approve the next step** — that starves the
   other agent for as long as CJ is away from the keyboard (priority inversion).
-- **The approved queue IS the schedule.** The order CJ approves entries is the
-  turn order. Each agent's offline job is to keep that queue full of reviewed,
+- **The approved+ready queue IS the schedule.** `queue next --rig` skips
+  approved plans whose review is incomplete or whose dependencies remain
+  open. Each agent's offline job is to turn approved plans into reviewed,
   hashed, ready-to-boot manifests.
 - **Batch by holder; don't ping-pong.** Because each handoff costs a recovery +
   reflash, whoever holds the rig drains the approved entries that share its
   m1n1 SHA back-to-back, then releases. Fine-grained fairness is the worst
   policy; fairness comes from CJ approving both agents' work into one queue.
 - **Auto-acquire is on, either agent may drive.** When the lease is free and
-  `queue next` returns approved work, an agent may take the rig on its own. The
-  approval gate still bounds every live boot.
+  `queue next` returns approved+ready work, an agent may take the rig on its
+  own. The approval and review gates still bound every live boot.
 - **The idle agent does not spin.** It works its offline track and checks
   `rig-lease.sh status` on a coarse, boot-cycle cadence (minutes, not seconds).
 
 ## Experiment lifecycle (shared vocabulary)
 
 ```
-proposed → approved → [acquire] → recovery-if-needed → boot → run →
+proposed → plan-approved → exact review/ready → [acquire] →
+           recovery-if-needed → boot → run →
            verify-rig-healthy → record(commit + done/) → queue done → release
 ```
 Only `acquire … release` is exclusive. Everything left of `acquire`
 (build, hash, cross-review) and the write-up afterward is offline.
 
-## Cross-agent review before approval (high value here)
+## Cross-agent exact review before readiness (high value here)
 
 A wrong MMIO offset raises an async SError that kills m1n1. Before a live-image
-manifest is proposed for approval, the **other** agent reviews it against the
+manifest is marked runnable, the **other** agent reviews it against the
 non-negotiables in `~/Code/m1n1/AGENTS.md`: no
 PMU/charger/NVRAM/firmware or unknown-SPMI writes; any eligible non-PMU SPMI
 transaction matches `docs/SPMI_SAFETY.md` exactly; no blind MMIO; addresses
 are ADT-derived (never swept); hashes are pinned; and the intentional stop
 lands before the next operation class. Two independent models checking each
 other catch the mistake a single invested author talks itself past. Note the
-reviewing agent in the queue entry's `desc`. CJ approves last.
+reviewing agent through `queue ready --reviewed-by`. CJ may approve the plan
+before that review; approval alone never schedules it.
 
 ## Roles
 

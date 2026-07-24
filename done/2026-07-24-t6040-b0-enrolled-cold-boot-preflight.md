@@ -9,8 +9,9 @@ Policy, `kmutil`, `bputil`, or enrollment action is performed by authoring it.
 > **Current amendment:** ticket 100's tethered proof passed. The preferred
 > enrollment candidate is now dual-mode object
 > `46237ade7e314cd752e1482930e21b62319e1b0b707a0f23e86392701555f0c9`,
-> but only after ticket 119 independently reproduces/reviews it and its
-> normal-boot versus DebugUSB trigger behavior is validated. The live-proven
+> but only after ticket 119 independently reproduces/reviews it. Its
+> normal-boot versus DebugUSB trigger behavior is validated during ticket 101
+> if selected. The live-proven
 > pure-autoboot object `2371ee5d...` remains the fallback. Substitute neither
 > hash silently. The rig is currently NEEDS_RECOVERY after the post-095
 > VDM/KIS failure; recover it before ticket 101. Later commands naming
@@ -171,10 +172,11 @@ the m1n1 volume; that is not the risk surface — the boot object is).
 - The agent's role at execution time is limited to: staging/hashing the object,
   read-only KIS observation if requested, and recording the result.
 
-## Do not close 082 until the live cold boot passes
+## Closure boundary
 
-Per the ticket, 082 stays open until the enrolled cold boot is observed. This
-preflight is the reviewable procedure; it is not itself the proof.
+Close 082 when the volume identity, rollback backup/hash, ticket-119 review,
+selected-object manifest, and action split are complete. Ticket 101 depends on
+that completed preflight and exclusively owns the live enrolled cold boot.
 
 ## Open items for maintainer confirmation
 
