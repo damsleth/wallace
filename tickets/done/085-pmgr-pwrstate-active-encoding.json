@@ -2,12 +2,13 @@
   "seq": "085",
   "slug": "pmgr-pwrstate-active-encoding",
   "needs": "offline",
-  "state": "open",
+  "state": "done",
   "track": "pmgr",
   "priority": "P1",
   "desc": "Reconcile our 214-domain T6041 PMGR quirk with yuka's #asahi-dev finding (07-22/07-24, done/2026-07-24-asahi-dev-irc-review.md): the t6040 (J614s) ADT marks t6041's extra memory-channel + dispext domains as active (!no_ps) even though t6040 silicon lacks them (yuka: 't6040 does not really have ps_dispext3_cpu'; big t6020-vs-t6021 diff = fewer memory channels/dispexts). yuka suspects a NEW pmgr ADT encoding bit marking devices active/inactive that adt2dt misreads. Our preserve-active + dispext0/1 skip quirk boots 3/3 but may be papering over the same over-count. Parse the pmgr 'devices' blob (485 entries) with m1n1 pmgr.py/adt2dt, identify the active/inactive flag, and determine the correct t6040 domain set vs our current no_ps interpretation. Output: evidence table (which domains adt2dt marks active that t6040 lacks) + whether the encoding bit supersedes preserve-active as the upstream-correct shape. Coordinate with yuka (draft-for-CJ; agents don't post). Offline, no rig.",
   "author": "claude",
   "deps": [],
   "hashes": null,
-  "created": 1784877908
+  "created": 1784877908,
+  "done_at": 1784878677
 }
