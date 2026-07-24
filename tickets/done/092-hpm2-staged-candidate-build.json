@@ -1,0 +1,21 @@
+{
+  "seq": "092",
+  "slug": "hpm2-staged-candidate-build",
+  "needs": "offline",
+  "state": "done",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "INDEPENDENT REVIEW PASS 2026-07-24: m1n1 d4f13a62b626 builds separate exact J614s right-HPM2 SPMI candidates for R0/R1/R2 under scripts/t6040-build-hpm2-candidates.sh. The reviewer independently reproduced all hashes from two clean builds per class. Runtime gate checks captured ADT size+CRC plus exact board/controller/sole-child/SID/rid/right-port properties; strict transport bounds RX/FIFO/selector/command waits, rejects leftover RX, and logs raw response headers/data before validation. It directly addresses only nub-spmi-a1/hpm2. R0 links no WAKEUP or extended write; R1 adds WAKEUP+conditional SSPS S0; R2 adds IntMask1 0x16 nine-byte zero-mask verify and byte-exact original restore, with no W1C clear. From the first temporary-write attempt, R2 assumes the write may have landed even on a lost/malformed response and always attempts restore. RESET/SLEEP/SHUTDOWN, generic HPM/TPS iteration, USB/PHY bring-up, and long transfers are absent from linked candidates. Artifacts: linux-build-out/t6040-hpm2-d4f13a62b626. Review makes only R0/093 eligible; R1/R2 remain dependency-gated. Offline only; no rig touched.",
+  "author": "codex",
+  "deps": [
+    "090"
+  ],
+  "hashes": {
+    "source_commit": "d4f13a62b62690e91f811f5571862d319fefa301",
+    "r0_m1n1": "0aca1b9881409e6a246837e4872a7b3d9fbdfc223035abd2f5edbfb51ef65afd",
+    "r1_m1n1": "6710c6e411fbea210ad182976bd78808c26c8a74eb94320bcc1cfb93ae47107b",
+    "r2_m1n1": "c8449b7e43c51a1bff67a2169dc1268bd43885db4476a93afc452609758d30a3"
+  },
+  "created": 1784909163,
+  "done_at": 1784910541
+}

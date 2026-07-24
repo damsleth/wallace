@@ -5,13 +5,16 @@
   "state": "approved",
   "track": "usb",
   "priority": "P1",
-  "desc": "Third endpoint-scoped SPMI proof, only after 094 passes. Boot only ticket-092 R2 artifact. Reassert exact right HPM2 identity and repeat the proven R1 prefix, then read and save the exact SN201202x interrupt mask, apply only the reviewed temporary mask needed for handoff, read back, restore the original bytes, and verify equality. Never write all ones to IntClear1 or clear any W1C event; no role/VBUS/config, PHY/ATC/DWC3, USB/storage, SHUTDOWN/RESET, other endpoint, or escalation. Pass = byte-exact save/change/restore transcript and healthy reboot. Exact register/length/value manifest, hashes, independent review, and approval required.",
+  "desc": "PLAN APPROVED; INDEPENDENT ARTIFACT REVIEW PASSED; NOT RUNNABLE UNTIL 094 PASS. Third endpoint-scoped SPMI proof. Boot only m1n1 d4f13a62b626 R2 artifact c8449b7e.... Reassert exact right HPM2 identity and repeat the proven R1 prefix, then read/save IntMask1 logical 0x16 (exactly nine bytes), write nine zero bytes as the temporary all-masked state, verify, restore the original nine bytes, and verify equality. From the first temporary-write attempt, assume it may have landed even on a lost/malformed response and always attempt byte-exact restore. Never access IntClear1 or clear any W1C event; no role/VBUS/config, PHY/ATC/DWC3, USB/storage, SLEEP/SHUTDOWN/RESET, other endpoint, or escalation. Pass = byte-exact transcript and healthy automatic warm reboot. Review accepted zero-mask semantics and the restore path, with transport failure during restoration recorded as a residual non-blocker.",
   "author": "codex",
   "deps": [
     "092",
     "094"
   ],
-  "hashes": null,
+  "hashes": {
+    "m1n1_commit": "d4f13a62b62690e91f811f5571862d319fefa301",
+    "m1n1": "c8449b7e43c51a1bff67a2169dc1268bd43885db4476a93afc452609758d30a3"
+  },
   "created": 1784909164,
   "approved_by": "maintainer",
   "approved_at": 1784909431

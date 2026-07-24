@@ -947,6 +947,21 @@ link. Corrected OpenRC image 098 and untethered root boot 099 follow. Their
 queue entries are plan-approved, but no rig ticket is runnable until its exact
 artifact hashes and independent review are recorded.
 
+Ticket 092 now has the final hardened artifacts. m1n1 `d4f13a62b626` replaces
+generic iteration with an exact direct-HPM2 path, validates the captured ADT
+identity and endpoint before any transaction, bounds every FIFO/selector/
+command wait, rejects leftover RX, logs raw response words before validating
+them, and warm-reboots at the class boundary before USB/PHY/payload code. Two
+clean builds match for each class: R0 `0aca1b98...`, R1 `6710c6e4...`, R2
+`c8449b7e...`.
+Linked-symbol inspection proves forbidden SPMI opcodes and generic HPM/USB
+paths are absent. An independent clean rebuild reproduced all hashes and
+accepted the strict transport, exact ADT gate, linked boundary, and R2's
+nine-byte IntMask1 zero/verify/restore behavior. Ticket 092 is done. Only
+R0/093 is eligible now; R1/R2 retain their preceding-live-pass gates. Full
+preflight:
+`done/2026-07-24-t6040-hpm2-r0-r2-preflight.md`.
+
 ### MCC carveout/cache residual closed as a boot blocker (2026-07-23)
 
 Offline ticket 020 audited the captured J614s ADT, current m1n1 memory handoff,

@@ -265,6 +265,19 @@ persistent-root and separately untethered boot. Plan approval does not make
 any of these rig tickets runnable: each still needs exact hashes and an
 independent artifact review.
 
+**Ticket 092 build milestone:** m1n1 commit `d4f13a62b626` now provides
+separate strict R0/R1/R2 builds. All four output formats reproduce
+byte-identically across two clean builds per class. The pinned `m1n1.bin`
+hashes are R0 `0aca1b98...`, R1 `6710c6e4...`, and R2 `c8449b7e...`.
+Runtime checks bind the candidate to the captured ADT and exact direct HPM2
+path; linked-symbol inspection proves R0 has no WAKEUP/write and no candidate
+contains RESET/SLEEP/SHUTDOWN, generic HPM/TPS iteration, USB, or PHY bring-up.
+An independent clean rebuild reproduced all hashes and passed the source,
+transport, identity-gate, linked-boundary, and R2 restore review. Ticket 092
+is done. Only R0/093 is eligible now; R1/R2 remain dependency-gated. Exact
+preflight:
+`done/2026-07-24-t6040-hpm2-r0-r2-preflight.md`.
+
 Ticket 022's 2026-07-23 refresh also confirms that native DCP is not a B0
 dependency. Its J614s DT topology is inventoried, but the macOS 26.x ABI, extra
 display MMIO bank, paired ASC IRQ layout, DART SID/register-bank delta, and

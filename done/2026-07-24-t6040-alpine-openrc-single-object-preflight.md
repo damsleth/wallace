@@ -82,3 +82,41 @@ reset loop, DART/USB/storage probe, missing health-report end marker, absent
 watchdog, lost framebuffer, or any attempt to access storage. A successful
 tethered proof still authorizes neither enrollment nor cold boot; ticket 082
 remains separately gated.
+
+## Independent cross-review — claude, 2026-07-24 (author = codex/sol)
+
+Verdict: **PASS — cleared for a proposed rig ticket** (not for enrollment/cold
+boot; 082 stays gated). De-risked by ticket 089, which proved the identical
+single-object autoboot mechanism live with the diagnostic userspace.
+
+Re-ran the strict verifier against the exact pinned components — all 6 review-gate
+items confirmed:
+
+- **Object** `2371ee5d…759b`, 22,183,563 B, entry 0x800 — matches; below the
+  64 MiB object policy (runtime payload reserve 67,911,671 B is informational,
+  larger than 089's only because the OpenRC initramfs is bigger).
+- **(1) m1n1 prefix** = `1394c345…` (safe upper-guard), not dirty `3e0c90af`. ✓
+- **(2) DTB** = `2782b922…` (storage-disabled DCUART/HID), not `b3858f60`. ✓
+- **(3) kernel** gzip member `d76463e5…` = the 078 live-proven `df7657c…`
+  (same member the 089 object carried). ✓
+- **(4) bootargs** (offset 0x10c000, 145 B): `maxcpus=1 idle=nop nokaslr
+  pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32
+  ignore_loglevel rdinit=/sbin/init` — `rdinit=/sbin/init`, `maxcpus=1`,
+  `idle=nop` exact; no `root=`, USB, SMP, cpufreq, PCIe, or storage; and
+  correctly **no** `t6040.hid_trace_auto` (release, not diagnostic). ✓
+- **(5) delivery script** `t6040-boot-raw-object.sh`: `chainload.py -r` once, no
+  `linux.py`, no target/shell command, no APFS/Boot-Policy/enrollment. **Note:**
+  the script was corrected during the 089 run (default `PY` → the m1n1 venv
+  interpreter, since bare `python3` lacks `construct`); its hash is now
+  `6b435913…`, superseding the preflight's pinned `65763ee2…`. The change is
+  contract-neutral (interpreter selection only) and is the same fix this OpenRC
+  boot needs. Re-pin `6b435913…` in the rig ticket.
+- **(6) service surface** (release-bundle doc): 4 sysinit (devfs/dmesg/procfs/
+  sysfs) + default-runlevel watchdog + bounded health report; no network/block/
+  storage/mount/secret; initramfs 699 entries, **0 block nodes**. ✓
+
+The only new element vs. 089 is the release userspace and the panel-interaction
+pass criteria (tty0 Alpine shell on the internal panel + a maintainer-typed line
+echoing from the internal keyboard). Those require the maintainer physically at
+the machine, so the boot is a maintainer-attended step, not fully autonomous.
+Cleared to propose the rig ticket.

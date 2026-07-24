@@ -5,13 +5,16 @@
   "state": "approved",
   "track": "usb",
   "priority": "P1",
-  "desc": "Second endpoint-scoped SPMI proof, only after 093 passes. Boot only ticket-092 R1 artifact. Reassert exact nub-spmi-a1/hpm2 identity; run bounded WAKEUP, read logical power state 0x20, issue SSPS with target S0 only if state is nonzero, boundedly poll command completion, and verify final state 0. No SLEEP/SHUTDOWN/RESET, IRQ clear/mask, role/VBUS/config, PHY/ATC/DWC3, USB/storage, other endpoint, or fallback. Passive sink only on right port; no charger/powered dock/other host. Pass = exact transaction transcript, S0 verification, and healthy warm-reboot recovery. Stop on mismatch/timeout/SError. Exact hashes/review/maintainer approval required.",
+  "desc": "PLAN APPROVED; INDEPENDENT ARTIFACT REVIEW PASSED; NOT RUNNABLE UNTIL 093 PASS. Second endpoint-scoped SPMI proof. Boot only m1n1 d4f13a62b626 R1 artifact 6710c6e4.... Reassert exact nub-spmi-a1/hpm2 identity; run bounded WAKEUP, read logical power state 0x20, issue SSPS with target S0 only if state is nonzero, boundedly poll command completion, and verify final state 0. No SLEEP/SHUTDOWN/RESET, IRQ clear/mask, role/VBUS/config, PHY/ATC/DWC3, USB/storage, other endpoint, or fallback. Passive sink only on right port; no charger/powered dock/other host. Pass = exact transaction transcript, S0 verification, and healthy automatic warm-reboot recovery. Stop on mismatch/timeout/SError.",
   "author": "codex",
   "deps": [
     "092",
     "093"
   ],
-  "hashes": null,
+  "hashes": {
+    "m1n1_commit": "d4f13a62b62690e91f811f5571862d319fefa301",
+    "m1n1": "6710c6e411fbea210ad182976bd78808c26c8a74eb94320bcc1cfb93ae47107b"
+  },
   "created": 1784909164,
   "approved_by": "maintainer",
   "approved_at": 1784909431

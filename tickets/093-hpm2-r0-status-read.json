@@ -5,12 +5,15 @@
   "state": "approved",
   "track": "usb",
   "priority": "P1",
-  "desc": "First endpoint-scoped SPMI live proof. Boot only the ticket-092 R0 artifact. Runtime-assert exact J614s ADT/controller/sole-child/SID/right-port identity, issue one bounded SN201202x Register-0 selector for logical system-power-state 0x20, bounded selector poll, and one-byte extended data-window read. No WAKEUP/SLEEP/SHUTDOWN/SSPS, IRQ/event access, HPM application write, PHY/ATC/DWC3, USB/storage, fallback, retry escalation, or other SPMI controller/SID. DebugUSB stays left-back and passive stick stays right. Pass = expected ACKs plus one logged state byte and healthy proxy after reboot. Stop on any mismatch/timeout/leftover FIFO/SError. Exact artifact hashes and independent review required before approval.",
+  "desc": "PLAN APPROVED; INDEPENDENT ARTIFACT REVIEW PASSED. First endpoint-scoped SPMI live proof. Boot only m1n1 d4f13a62b626 R0 artifact 0aca1b98.... Runtime-assert exact J614s ADT/controller/sole-child/SID/right-port identity, issue one bounded SN201202x Register-0 selector for logical system-power-state 0x20, bounded selector poll, and one-byte extended data-window read. No WAKEUP/SLEEP/SHUTDOWN/SSPS, IRQ/event access, HPM application write, PHY/ATC/DWC3, USB/storage, fallback, retry escalation, or other SPMI controller/SID. DebugUSB stays left-back and passive stick stays right. Pass = expected ACKs plus one logged state byte and healthy proxy after automatic warm reboot. Stop on any mismatch/timeout/leftover FIFO/SError. Exact source, artifact hashes, transport, and linked boundary independently passed review; this is the only HPM2 live class currently eligible.",
   "author": "codex",
   "deps": [
     "092"
   ],
-  "hashes": null,
+  "hashes": {
+    "m1n1_commit": "d4f13a62b62690e91f811f5571862d319fefa301",
+    "m1n1": "0aca1b9881409e6a246837e4872a7b3d9fbdfc223035abd2f5edbfb51ef65afd"
+  },
   "created": 1784909164,
   "approved_by": "maintainer",
   "approved_at": 1784909431

@@ -1,0 +1,25 @@
+{
+  "seq": "089",
+  "slug": "b0-alpine-single-object-control",
+  "needs": "rig",
+  "state": "done",
+  "track": "distro",
+  "priority": "P1",
+  "desc": "One-shot self-contained raw-object control. Upload only m1n1-b0-alpine-hid-restored.bin b50f52ab... with chainload.py -r; never invoke linux.py or send a second payload/target command. The object contains safe m1n1 1394c345... plus ticket-078's exact live-proven HID-restored Image df7657c1..., storage-disabled DTB 2782b922..., Alpine auto-report initramfs d5b790c6..., and exact bootargs. Strict verifier passes every offset/hash/expansion, entry 0x800, size 21,729,039, two builds match. Pass = embedded payload discovery then Alpine 3.24/aarch64, keyboard 05ac:0359 + event0, complete ttydc0 report, empty partitions. Stop on mismatch/SError/reset/DART/USB/storage/lost TX; recover stable proxy. No APFS/enrollment. Preflight done/2026-07-24-t6040-b0-alpine-single-object-preflight.md. Requires independent exact-object/script review and explicit maintainer approval.",
+  "author": "codex",
+  "deps": [
+    "078",
+    "080"
+  ],
+  "hashes": {
+    "object": "b50f52ab1fac473db2e9257c5363ef7905e4d1da5c8535fbf417209b09319172",
+    "m1n1": "1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b",
+    "image": "df7657c15ad73a486f5046bcc802f070d6b7ec071fb6bb70954fb8f222d4815a",
+    "dtb": "2782b92237c35c8950212207391c3ae28c44b6b9c635b2e864c5748a77bb3cce",
+    "initramfs": "d5b790c63276816a3d69071797da459918717924885174d2a8b84225c6b24093"
+  },
+  "created": 1784882348,
+  "approved_by": "maintainer",
+  "approved_at": 1784907548,
+  "done_at": 1784910352
+}
