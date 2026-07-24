@@ -1,0 +1,68 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * J614s DockChannel console + macsmc (ticket 061, "U4" in
+ * docs/USABLE_MACHINE_EXPERIMENTS.md). Adds the SMC RTKit endpoint so Linux can
+ * read battery/thermal status via the macsmc stack — no forbidden writes.
+ *
+ * Data from the live J614s ADT /arm-io/smc (iop,ascwrap-v6) via m1n1 adt.py,
+ * recorded in done/2026-07-23-t6040-smc-adt-data.md:
+ *   ascwrap base 0x30c600000 (size 0x88000); ASC IRQs 997/996/999/998
+ *   (send-empty/send-not-empty/recv-empty/recv-not-empty, ADT order);
+ *   iop-smc-nub region-base 0x50df00000 size 0x100000 (RTKit shared SRAM);
+ *   smc-pmu event bits: pwrbtn=0, lid=8, sdconn=9, charger=11.
+ * Reg split follows the upstream Asahi ASC convention (t8112): the SMC command
+ * block at ascwrap+0x0 and the ASC mailbox at ascwrap+0x8000, each 0x4000.
+ *
+ * DELIBERATELY OMITTED (safety): apple,smc-reboot and apple,smc-rtc — those
+ * write PMIC nvram cells (boot_stage/shutdown_flag/rtc_offset) over SPMI, which
+ * the project rules forbid. The smc-charger-util nodes (charger control) are
+ * likewise never wired. This node is read-status only: battery gauge + thermals
+ * (hwmon) + a gpio-controller instance (no gpio consumer drives a line here).
+ *
+ * THREE ITEMS TO CONFIRM before any rig boot (see the writeup):
+ *  1. sram = the iop-smc-nub RAM carveout (0x50df00000), not an MMIO aperture as
+ *     on t8112 — needs the apple,smc driver to accept a carveout-backed sram, or
+ *     m1n1 to reserve it; verify the driver binds.
+ *  2. mailbox sub-offset (ascwrap+0x8000) is the t8112 convention inferred onto
+ *     T6040's single ascwrap reg, not independently ADT-confirmed.
+ *  3. power-button/lid events arrive via smc-pmu — confirm the macsmc path is
+ *     SMC-mediated (RTKit notifications), not a direct PMU register write, before
+ *     relying on it. Battery/thermal (this node) needs none of that.
+ */
+/dts-v1/;
+
+#include "t6040-j614s-dcuart.dts"
+
+&soc {
+	smc_mbox: mbox@30c608000 {
+		compatible = "apple,t6040-asc-mailbox", "apple,asc-mailbox-v4";
+		reg = <0x3 0x0c608000 0x0 0x4000>;
+		interrupt-parent = <&aic>;
+		interrupts = <AIC_IRQ 997 IRQ_TYPE_LEVEL_HIGH>,
+			     <AIC_IRQ 996 IRQ_TYPE_LEVEL_HIGH>,
+			     <AIC_IRQ 999 IRQ_TYPE_LEVEL_HIGH>,
+			     <AIC_IRQ 998 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-names = "send-empty", "send-not-empty",
+				  "recv-empty", "recv-not-empty";
+		#mbox-cells = <0>;
+	};
+
+	smc: smc@30c600000 {
+		compatible = "apple,t6040-smc", "apple,smc";
+		reg = <0x3 0x0c600000 0x0 0x4000>,
+		      <0x5 0x0df00000 0x0 0x100000>;
+		reg-names = "smc", "sram";
+		mboxes = <&smc_mbox>;
+
+		smc_gpio: gpio {
+			compatible = "apple,smc-gpio";
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		smc_hwmon: hwmon {
+			compatible = "apple,smc-hwmon";
+		};
+		/* No smc_reboot / smc_rtc: those write SPMI PMIC nvram (forbidden). */
+	};
+};
