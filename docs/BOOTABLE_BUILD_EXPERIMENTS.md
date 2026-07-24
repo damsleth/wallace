@@ -189,6 +189,8 @@ the latter strictly decodes to safe m1n1 + the ticket-078 kernel + unchanged
 storage-disabled DTB + the OpenRC root. Result and hashes:
 `done/2026-07-24-t6040-alpine-b0-release-bundle.md`. This is artifact
 readiness, not independent review or permission to create the live ticket.
+The exact not-yet-approved one-shot procedure and review checklist are in
+`done/2026-07-24-t6040-alpine-openrc-single-object-preflight.md`.
 
 An earlier delivery-only control is now available without weakening that gate.
 `m1n1-b0-alpine-hid-restored.bin` (`b50f52ab1fac...`) packages the exact

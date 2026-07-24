@@ -150,7 +150,9 @@ any new rig proposal; 082 remains gated on that tethered proof. Exact format,
 control preflight, and release result:
 `done/2026-07-23-t6040-raw-boot-object-layout.md` and
 `done/2026-07-24-t6040-b0-alpine-single-object-preflight.md`, and
-`done/2026-07-24-t6040-alpine-b0-release-bundle.md`.
+`done/2026-07-24-t6040-alpine-b0-release-bundle.md`. The exact final-object
+review checklist and not-yet-approved invocation are in
+`done/2026-07-24-t6040-alpine-openrc-single-object-preflight.md`.
 
 Ticket 026's installer audit corrected a stale premise: current
 asahi-installer already enrolls `boot.bin` with the required raw entry `2048`
