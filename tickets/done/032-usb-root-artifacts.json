@@ -1,0 +1,22 @@
+{
+  "seq": "032",
+  "slug": "usb-root-artifacts",
+  "needs": "offline",
+  "state": "done",
+  "track": "storage",
+  "priority": "P1",
+  "desc": "DONE offline: built and hash-pinned the USB2 host Image, config/System.map, smoke/root initramfs, and independently reviewed one-port DTBs; documented exact no-root smoke and read-only first-root procedure. Ticket 060 adds the guarded Alpine rootfs/modules/firmware population recipe and manifest. The right-side smoke later proved xHCI/DART init but no child device, so no disk was populated; HPM/ATC or a powered fixture remains the live gate. Result: done/2026-07-14-t6040-usb-root-artifacts.md and done/2026-07-23-t6040-usb-rootfs-recipe.md.",
+  "author": "sol",
+  "deps": [
+    "009",
+    "031"
+  ],
+  "hashes": {
+    "image": "6f0daf57baf942d6e1f43d8efa2ebd4160e976c02ccfaad232dd42e918eb7482",
+    "right_dtb": "9bee944b8bb0d6d7ab541962ea2edc9a57c4069fedcd6c32db21e3b824a43759",
+    "initramfs": "8b9b80c4eaad07aa0efa578a827f9d0766be81e9a4aed2650e748b1fc65993c8",
+    "config": "8e11399b172035f7d88c0915ccfbf1bb277eb16097462336c4158b54d8d6bc80"
+  },
+  "created": 1784040423,
+  "done_at": 1784845700
+}

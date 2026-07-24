@@ -151,10 +151,12 @@ ARM64 Image `image_size`; exact audit and draft:
 `done/2026-07-23-t6040-uboot-noio-prep.md` and
 `patches/uboot-t6040-noio-prep.patch`. No live run is proposed.
 
-Persistent Linux state remains B2: tickets 023/032/060 resume the external USB
-root path only with a powered/self-powered fixture or reviewed T6040 HPM/ATC
-support. Internal NVMe remains blocked by SPTM/CoastGuard. Do not fold storage,
-SMP, cpufreq, PCIe, or enrollment into the first self-contained boot.
+Persistent Linux state remains B2. Tickets 032 and 060 have completed the
+hash-pinned USB-host artifacts and guarded rootfs recipe, but the path resumes
+only when ticket 023 has either a powered/self-powered fixture or reviewed
+T6040 HPM/ATC support. Internal NVMe remains blocked by SPTM/CoastGuard. Do not
+fold storage, SMP, cpufreq, PCIe, or enrollment into the first self-contained
+boot.
 
 Ticket 060's rootfs recipe is now complete and host-tested. The guarded script
 pins Alpine 3.24.0 aarch64, stages matching modules and the paired firmware
