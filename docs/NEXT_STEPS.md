@@ -196,17 +196,17 @@ This does **not** clear the live gate: no real disk may be populated until a USB
 child and `sd*` persist for at least ten seconds. Exact recipe and test:
 `done/2026-07-23-t6040-usb-rootfs-recipe.md`.
 
-Ticket 086 now turns that recipe into a concrete, flash-ready 1 GiB GPT/ext4
-Alpine image without touching a block device. The image SHA-256 is
+Ticket 086 turned that recipe into a structurally valid 1 GiB GPT/ext4 Alpine
+image without touching a block device. The image SHA-256 is
 `32a897cb48bab0f066528b76cc6ef6b364a2807b43371d5b2f3c2abcced42cd1`;
 its root selector is
-`PARTUUID=1b841e9b-65a5-4687-83f2-6c728961ad14`. It includes a `ttydc0`
-bring-up shell and needs no modules for the built-in USB-root path. The stick is
-currently attached to the M4, not the M1, so it has not been flashed. Moving it
-to the M1 is the next safe host action. This does not clear the already-proven
-M4 enumeration failure: an external root boot still waits on a powered fixture
-or reviewed T6040 SPMI/SN201202x HPM/ATC support. Exact artifact and flash
-boundary: `done/2026-07-24-t6040-usb-root-image.md`.
+`PARTUUID=1b841e9b-65a5-4687-83f2-6c728961ad14`. A later PID-1 audit found
+that its minirootfs lacks `/sbin/openrc`, so it must not be flashed; ticket 098
+rebuilds it from the verified OpenRC B0 root. The stick is currently attached
+to the M4, not the M1. This does not clear the already-proven M4 enumeration
+failure: external root waits on staged tickets 092–097 and the corrected
+image. Exact historical artifact boundary:
+`done/2026-07-24-t6040-usb-root-image.md`.
 
 Ticket 023's 2026-07-23 upstream refresh found no published T6040 ATC/HPM
 implementation. The 2026-07-24 paired-kext decode has now removed one static
@@ -233,6 +233,37 @@ same unpowered topology or synthesize SPMI/PHY writes. Exact checkpoints:
 `done/2026-07-24-t6040-eusb2-init-sequence.md` and
 `done/2026-07-24-t6040-hpm-spmi-discovery-boundary.md`, plus
 `done/2026-07-24-t6040-hpm-class10-host-transition.md`.
+
+**Late 2026-07-24 upstream movement:** yuka's public `tps6598x-spmi` branch
+head `dcc5f1bc...` recognizes the exact J614s Gen3 SPMI and SN201202x
+compatibles and compiles locally. It is the leading implementation candidate,
+but the only reported hardware success is T6000's I2C `foreach-hpm` path.
+T6040 initialization is state-changing (WAKEUP/SHUTDOWN, register-select
+writes, possible `SSPS`, IRQ clear/mask) and currently has an unbounded poll,
+double-shutdown path, and other error/bounds issues. Do not build a rig
+candidate or retry the stick from it. Audit:
+`done/2026-07-24-t6040-yuka-hpm-spmi-branch-audit.md`.
+
+**Maintainer-approved SPMI policy refinement, 2026-07-24:** SPMI is now
+deny-by-default and endpoint/opcode-scoped rather than transport-wide
+forbidden. PMU/Abbey, charger, NVRAM, firmware/flash, AOP-SPMI, RESET, unknown
+endpoints, scanning, and blind register access remain prohibited. The sole
+eligible endpoint is exact right-port `/arm-io/nub-spmi-a1/hpm2` (Gen3,
+reg0 `0x309198000`, sole child, SID `0x0c`) under
+`docs/SPMI_SAFETY.md`.
+
+Do not run Yuka's branch wholesale. New offline ticket **092** first builds
+and independently reviews three separate direct-HPM2 artifacts. Plan-approved
+rig **093** is R0 selector+one-byte logical `0x20` status only; **094** adds
+WAKEUP+conditional SSPS S0; **095** tests exact interrupt-mask preservation
+without W1C event clear. Offline **096** must prove the complete class-10
+detach/rollback path before plan-approved R3 host-link **097** can combine
+reviewed HPM, repeater, ATC, and the existing no-root xHCI smoke with the
+passive right-side stick. Offline **098** rebuilds the defective ticket-086
+image from the verified OpenRC root; plan-approved **099** is the later
+persistent-root and separately untethered boot. Plan approval does not make
+any of these rig tickets runnable: each still needs exact hashes and an
+independent artifact review.
 
 Ticket 022's 2026-07-23 refresh also confirms that native DCP is not a B0
 dependency. Its J614s DT topology is inventoried, but the macOS 26.x ABI, extra
@@ -889,5 +920,5 @@ namespace. Prior exact output:
   `done/2026-07-23-t6040-cpufreq-throttle-analysis.md`.
 - ATC PHY tunables (USB3/TB) — the paired 25F84 kext now proves the T6040
   44-bank order, tunable encoding, banks-0/1 direct eUSB2 init sequence, and
-  exact XHCI host branch. The SPMI/SN201202x HPM path remains blocked; USB2
-  root hubs alone are not a functioning fallback.
+  exact XHCI host branch. The full SPMI/SN201202x HPM path remains staged
+  through tickets 092–097; USB2 root hubs alone are not a functioning fallback.

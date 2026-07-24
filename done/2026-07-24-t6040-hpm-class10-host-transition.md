@@ -8,6 +8,11 @@ Scope: host-only static analysis of the paired 25F84 `AppleHPM` kext and the
 captured J614s ADT. No rig, proxy, MMIO, SPMI, PMU, charger, target-memory,
 storage-device, or Boot Policy access.
 
+Policy update later on 2026-07-24: `docs/SPMI_SAFETY.md` now permits exact
+staged right-HPM2 transactions. The address-`0x14` mutation remains outside
+R0/R1/R2 and is not approved; offline ticket 096 must prove attach and
+detach/rollback before R3 ticket 097 can be reviewed.
+
 ## Exact class selection
 
 The right-port class path is proved at both layers:

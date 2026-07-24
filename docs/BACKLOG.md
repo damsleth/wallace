@@ -71,9 +71,21 @@ In rough order of leverage:
    0/1 and six offsets, and paired XHCI proves the exact host branch; ticket
    **023** now also proves the target is SPMI Gen3 and bounds the class-10 HPM
    discovery reads. HALType5/Type10 selection and the first nine-byte host RMW
-   are exact too, but the ticket remains open for the
-   forbidden-until-reviewed disconnect/rollback, power/config, and repeater
-   path.
+   are exact too, but ticket 023 remains open for the separately gated
+   disconnect/rollback, power/config, and repeater path.
+   Yuka's new compiling `tps6598x-spmi` branch (`dcc5f1bc...`) is the first
+   public code to match the exact J614s SPMI/SN201202x nodes, but reported
+   hardware success covers only T6000/I2C. The 2026-07-24 endpoint-scoped
+   policy now permits separately reviewed right-HPM2 operations while keeping
+   PMU/charger/NVRAM/firmware and unknown endpoints prohibited. Offline
+   **092** hardens and builds separate R0/R1/R2 artifacts; plan-approved rig
+   **093/094/095** test selector/status, WAKEUP+S0, and mask preservation one
+   boundary at a time. Offline **096** owns the class-10 detach/rollback
+   decode; plan-approved **097** is the later passive-stick R3 host-link
+   proof. Corrected OpenRC USB image **098** then gates plan-approved
+   untethered-root **099**. None of the rig tickets is runnable before its
+   exact hashes and independent artifact review are recorded. Canonical rules:
+   `docs/SPMI_SAFETY.md`.
    Reviewed rig control **070** was inconclusive: the old keyboard kernel never
    reached the Alpine framebuffer shell in two exact attempts and has no
    ttydc0 failure log. Do not retry it. The one-shot corrected-kernel **071**
@@ -149,6 +161,8 @@ enablement halves of C–E. See ROADMAP.md for the full stage map.
 - SBU analog serial (confirmed dead on ACE3).
 - USB gadget console (EP0 dies post-enumeration).
 - Inventing ATC PHY per-bucket reg offsets.
-- Any blind MMIO probing, or any SPMI/PMU/charger/NVRAM write.
+- Any blind MMIO probing; any PMU/charger/NVRAM/firmware or unknown-SPMI
+  write; or any non-PMU SPMI transaction outside the exact
+  `docs/SPMI_SAFETY.md` allowlist and ticket.
 - Any further DockChannel IRQ-360 diagnostic — input 360 came from a lying ADT;
   bounded M4 Pro measurement found the real UART interrupt at AIC input 816.

@@ -4,9 +4,10 @@ Date: 2026-07-24
 Ticket: 086  
 Scope: host-only; no block device, rig, SPMI, PMU, HPM, or Boot Policy access
 
-## Result
+## Result and 2026-07-24 userspace correction
 
-A flash-ready 1 GiB raw disk image now exists outside the repository:
+A structurally verified but non-bootable 1 GiB raw disk image exists outside
+the repository:
 
 | Item | Identity |
 |---|---|
@@ -18,6 +19,14 @@ A flash-ready 1 GiB raw disk image now exists outside the repository:
 | ext4 UUID | `6831bf2b-06cf-40c9-9e86-39ddb792ba18` |
 | label | `t6040root` |
 | manifest | `/Users/damsleth/Code/linux-build-out/t6040-alpine-usb-root.manifest` |
+
+The GPT, ext4, identities, and contents validate, but the image is **not yet a
+bootable distro root**. A later PID-1 audit found that Alpine's minirootfs
+contains a BusyBox `/sbin/init` and an inittab that invokes `/sbin/openrc`, but
+does not contain `/sbin/openrc`. After `switch_root`, init would repeatedly
+fail its OpenRC actions. Do not flash or call this bootable until ticket 098
+rebuilds the filesystem from the verified Alpine/OpenRC B0 root and repeats
+the image/hash checks.
 
 The matching boot selector is:
 
@@ -69,10 +78,9 @@ line plus the `root=PARTUUID=... rootfstype=ext4 rootwait` selector above.
 
 ## What is and is not unblocked
 
-The image is ready to flash as soon as the stick is attached to the M1 and its
-exact removable whole-disk node is reviewed. The current attachment is to the
-M4, so `diskutil list external physical` on the M1 correctly shows no target.
-No flash has occurred.
+The image is not ready to flash until ticket 098 corrects the missing OpenRC
+userspace. Independently, the stick is attached to the M4, so
+`diskutil list external physical` on the M1 has no target. No flash occurred.
 
 The M4-side gate is unchanged. Ticket 063 already tested this bus-powered
 USB-C stick on the right port: T6040 DART and xHCI root hubs initialized, but no
@@ -80,6 +88,14 @@ child or `sd*` appeared. Current m1n1 detects the M3/M4 SPMI layout but
 deliberately skips the HPM controller and only powers the PHY blocks. Linux
 likewise lacks the T6040 SN201202x/SPMI role-orientation and ATC PHY provider.
 Repeating the same attached-at-boot topology cannot prove anything new.
+
+Late-2026-07-24 update: yuka's public `tps6598x-spmi` WIP (`dcc5f1bc...`) now
+matches the exact target compatibles and compiles, but the reported
+`foreach-hpm` hardware success covers T6000/I2C, not T6040 SPMI. The new path
+performs multiple state-changing SPMI/HPM operations and has unresolved
+bounded-poll, lifetime, bounds, and rollback issues. It is tracked as the
+leading implementation candidate, not a reason to retry:
+`done/2026-07-24-t6040-yuka-hpm-spmi-branch-audit.md`.
 
 Do not guess or replay SPMI/HPM writes. The next M4 root-mode boot requires
 either:

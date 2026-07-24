@@ -36,8 +36,9 @@ resolves the complete port-3 relationship:
 
 This corrects the older shorthand that M4 has "no AP-visible HPM." The HPM is
 described in the ADT, but the current Linux DT/driver set does not expose a
-supported HPM-to-Type-C/ATC path, and direct SPMI writes are forbidden by the
-project safety rules.
+supported HPM-to-Type-C/ATC path. The later endpoint-scoped policy permits
+only the staged direct right-HPM2 experiments in tickets 092–097; PMU,
+charger, persistent, unknown-endpoint, and broad HPM writes remain prohibited.
 
 ## Why ticket 063 produced only root hubs
 

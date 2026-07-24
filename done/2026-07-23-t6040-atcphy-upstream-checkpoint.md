@@ -103,9 +103,10 @@ string:
 5. A safe ownership/initialization sequence: HPM/repeater and USB2 host state,
    DWC3, then USB3/pipehandler, with explicit rollback.
 
-The project must not synthesize steps 1–3 from addresses alone. HPM access is
-SPMI state mutation and remains forbidden until an upstream-derived exact
-sequence has been separately reviewed and approved.
+The project must not synthesize steps 1–3 from addresses alone. Under the
+later `docs/SPMI_SAFETY.md`, exact direct-HPM2 R0/R1/R2 transactions can be
+separately built and reviewed in tickets 092–095; role/VBUS/PHY remains
+R3-gated on the complete ticket-096 detach/rollback proof and ticket 097.
 
 ## Decision
 
@@ -118,4 +119,3 @@ No further unpowered USB-host rerun is useful. A powered/self-powered fixture
 would still be a valid no-code discriminator when available; it is not
 available now. The autonomous bootable-build path therefore remains the
 storage-free B0 Alpine RAM image.
-

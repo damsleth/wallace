@@ -224,6 +224,9 @@ doable solo with the proxy + ADT dumps; this is the highest-leverage local work.
    state. The exact HALType5/Type10 class path and its first host mutation are
    also proved: a nine-byte address-`0x14` RMW. It has no local inverse, and
    the remaining power/config/repeater coordination must not be invented.
+   The maintainer-approved `docs/SPMI_SAFETY.md` now permits only exact
+   right-HPM2 stages: 092 builds, 093 R0 status, 094 R1 wake/S0, 095 R2 mask
+   preservation, 096 detach/rollback, and 097 later R3 host link.
    Root hubs without that physical path are not a functional USB2 fallback.
    USB3/TB remains a Stage D comfort.
    NHI/apciec (Thunderbolt) name-mapping is also deferred.
@@ -324,6 +327,13 @@ remain required.
   m1n1-uploaded RAM-root with all storage paths disabled. Persistent external
   root remains gated on a powered-device discriminator, then reviewed T6040
   HPM/ATC work if it fails.
+  A late-2026-07-24 public m1n1 WIP (`tps6598x-spmi`, `dcc5f1bc...`) now
+  recognizes the exact J614s Gen3 SPMI/SN201202x topology and compiles, but its
+  only reported test is the legacy T6000/I2C iterator. The T6040 path performs
+  multiple state-changing SPMI/HPM operations and has unbounded/error-lifetime
+  issues, so it is an implementation lead rather than a live artifact.
+  Wallace now extracts only exact direct-HPM2 operations through tickets
+  092–097 under `docs/SPMI_SAFETY.md`; the branch is never run wholesale.
   M3 ATC PHY work
   enumerated a real device on 2026-07-20, but its SPMI wake and PHY data are not
   T6040 parameters; USB3/TB stays track-and-test. The 2026-07-23 upstream
@@ -331,11 +341,12 @@ remain required.
   25F84 Type-C PHY kext now independently resolves all 44 target register
   banks and the raw tunable encoding. Its direct eUSB2 sequence is now bounded
   to banks 0/1 and six offsets; paired XHCI also proves the host branch,
-  leaving HPM ownership as the actual implementation blocker. A flash-ready 1 GiB
-  Alpine GPT/ext4 image is now host-built and verified (`32a897cb...`, ticket 086), so rootfs
-  construction is no longer on the critical path. It has not been written to
-  the stick, which is attached to the M4 rather than the M1; M4 enumeration
-  remains the gate.
+  leaving HPM ownership as the actual implementation blocker. Ticket 086's
+  1 GiB Alpine GPT/ext4 image is structurally verified (`32a897cb...`) but not
+  bootable because its minirootfs lacks `/sbin/openrc`; ticket 098 rebuilds it
+  from the verified OpenRC B0 root. It has not been written to the stick,
+  which is attached to the M4 rather than the M1; M4 enumeration remains the
+  gate.
 - **Internal keyboard + trackpad:** ✅ **keyboard DONE early (2026-07-11)** via
   dockchannel-HID (three bugs fixed — see DEVLOG); trackpad registers as
   input0. Its missing HIDF loader and retry recovery are fixed. Ticket 016
@@ -363,7 +374,9 @@ remain required.
      `done/2026-07-23-t6040-dcp-upstream-dt-prep.md`.
 - **SMC:** power button, lid, battery/charger via macsmc — mostly compat work.
   Track the July 2026 v2 hwmon/RTC DT-subdevice series; it has not established
-  T6040 compatibility and does not relax the no-unreviewed-PMU/SPMI-write rule.
+  T6040 compatibility. PMU/charger/NVRAM writes remain absolutely prohibited;
+  the endpoint-scoped right-HPM2 exception in `docs/SPMI_SAFETY.md` does not
+  extend to SMC/PMU or charge control.
 
 **Exit:** boot an external USB root to a desktop on simpledrm, with working
 built-in keyboard/trackpad and battery status. Internal NVMe is a later secure-

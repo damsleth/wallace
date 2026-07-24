@@ -142,7 +142,7 @@ standalone live experiment:
 
 The stick is bus powered, so replaying this now-exact host function without
 the HPM sequence cannot establish that the port will source power. It could
-also conflict with firmware ownership. No live PHY or SPMI write is
-authorized. The next safe work item is a static HPM state-machine decode which
-identifies the ordering boundary and separates read-only status from
-unavoidable mutation.
+also conflict with firmware ownership. The later endpoint-scoped policy
+permits only tickets 093–095's staged right-HPM2 R0/R1/R2 operations; no live
+PHY or R3 role/VBUS write is authorized. Ticket 096 must complete the HPM
+attach/detach state machine before ticket 097 can be reviewed.

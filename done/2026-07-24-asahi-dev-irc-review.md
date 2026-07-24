@@ -62,6 +62,17 @@ is the upstream track that would eventually give T6040 USB host its CC/orientati
 path. Our ADT confirms the HPMs are `usbc,sn201202x,spmi` on `nub-spmi-a0/a1`
 (hpm0/1/2/5). Track; the HPM/ATC path stays the USB-root gate.
 
+**Late-day source follow-up:** at 08:57 yuka reported that `foreach-hpm` works
+on T6000, then published `feature/foreach-hpm` `0f6cf87b...` and the
+`tps6598x-spmi` head `dcc5f1bc...`. The latter explicitly iterates
+`aapl,spmi`/`spmi,gen3` buses and `usbc,sn201202x,spmi` children, matching
+J614s exactly, and builds locally. This is the first concrete WIP for our
+missing path. It is not safe/live-ready: the reported test covers the older
+I2C path, while the SPMI path sends WAKEUP/SHUTDOWN, register-select writes,
+possible `SSPS`, IRQ clear/mask writes, and has an unbounded selection poll plus
+several lifetime/bounds bugs. Exact audit:
+`done/2026-07-24-t6040-yuka-hpm-spmi-branch-audit.md`.
+
 ## 4. atc-phy tunables (bears on ATC PHY / USB3-TB, deferred)
 
 **07-23 11:33 / 12:16**: chaos_princess asks if `tunable_LN1_RX_TOP_USB_EQA`
@@ -80,6 +91,12 @@ dies — relevant when the deferred `atc-phy,t6040` driver work resumes (ticket
 - yuka: macOS 27 beta slow-boot on MacBook Neo (FB filed) — unrelated to us; a
   reminder to keep our paired macOS at 26.x, not 27 beta (also breaks chadmed's
   DCP, per 07-21 review).
+- The later Samsung-UART `UCON` bit-10 discussion is not actionable for J614s:
+  Wallace's useful console is DockChannel, and nobody identified the bit's
+  semantics.
+- Sven's `genter` immediate/`ESR_GL1` and GL0→GL1→GL0 experiment is concrete
+  progress on the SPRR/GXF hypervisor route already tracked above, but it does
+  not provide an SPTM/NVMe entry point yet.
 
 ## Actions
 1. **New ticket: PMGR pwrstate active/inactive reconciliation** (P1, pmgr) —

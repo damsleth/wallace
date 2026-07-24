@@ -6,7 +6,10 @@
 - Proxy: `/dev/cu.usbmodemJ22GYCN4YG1`; `...YG3` is the secondary m1n1 UART,
   not a working raw-kernel console.
 - Read the root `AGENTS.md` and `proxyclient/AGENTS.md` before hardware access.
-- Never write SPMI/PMU/charger/NVRAM. PMGR/cluster/unknown MMIO writes are gated:
+- Historical note: this session used the former blanket SPMI ban. It was
+  superseded on 2026-07-24 by `docs/SPMI_SAFETY.md`; PMU/charger/NVRAM/
+  firmware and unknown endpoints remain prohibited, and only exact staged
+  right-HPM2 transactions are eligible. PMGR/cluster/unknown MMIO writes are gated:
   show exact address and value and wait for maintainer approval. Never blind-probe.
 - Do not unplug USB. If proxy wedges, stop and let the maintainer power-cycle.
 

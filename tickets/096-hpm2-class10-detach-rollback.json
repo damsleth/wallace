@@ -1,0 +1,15 @@
+{
+  "seq": "096",
+  "slug": "hpm2-class10-detach-rollback",
+  "needs": "offline",
+  "state": "open",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "Complete the host-side static decode needed for an R3 candidate. Resolve AppleTCControllerType10 forceUSB23On virtual callees, address-0x14 cached/event semantics, USB config/status/data-control 0x23/0x24/0x55, interrupt ordering, power-state transitions, disconnect/detach path, VBUS removal, eUSB2 repeater reset, and ATC rollback from the exact 25F84 AppleHPM/AppleSPMI/AppleT6040TypeCPhy binaries and captured J614s ADT. Produce a forward+inverse state machine and identify every unresolved bit; never invent an inverse or touch the rig. This ticket must close before any R3 live artifact is built.",
+  "author": "codex",
+  "deps": [
+    "023"
+  ],
+  "hashes": null,
+  "created": 1784909164
+}

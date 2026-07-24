@@ -5,7 +5,7 @@
   "state": "done",
   "track": "storage",
   "priority": "P1",
-  "desc": "Build and host-verify a flash-ready 1 GiB GPT/ext4 Alpine 3.24.0 aarch64 USB-root image with recorded disk/PARTUUID/filesystem identities, DockChannel no-login root shell, no modules/firmware dependency for boot-critical built-in drivers, and no block-device access. Document exact flash and M4 boot boundary; do not rerun unchanged right-port enumeration or touch SPMI/HPM.",
+  "desc": "Historical result corrected 2026-07-24: built and structurally host-verified a 1 GiB GPT/ext4 Alpine 3.24.0 aarch64 image with recorded disk/PARTUUID/filesystem identities and no block-device access, but the selected minirootfs lacks /sbin/openrc while inittab invokes it, so the artifact is not bootable and must not be flashed. Ticket 098 supersedes it with a verified OpenRC-root rebuild; ticket 099 owns the later boot after right-port link ticket 097.",
   "author": "codex",
   "deps": [],
   "hashes": {

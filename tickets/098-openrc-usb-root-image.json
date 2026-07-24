@@ -1,0 +1,16 @@
+{
+  "seq": "098",
+  "slug": "openrc-usb-root-image",
+  "needs": "offline",
+  "state": "open",
+  "track": "distro",
+  "priority": "P1",
+  "desc": "Rebuild the structurally valid but non-bootable ticket-086 GPT/ext4 image from the verified Alpine OpenRC B0 root, not Alpine minirootfs. Require /sbin/openrc, valid init/inittab/getty/watchdog behavior, exact PARTUUID/root= contract, no conflicting RAM-root health assertion, modules/firmware manifest, e2fsck+GPT validation, mount/extract inspection, two byte-identical builds or fully explained filesystem nondeterminism, and pinned SHA-256. Host regular-file work only; never write a block device. Supersedes ticket 086 as the bootable persistent-root artifact.",
+  "author": "codex",
+  "deps": [
+    "079",
+    "086"
+  ],
+  "hashes": null,
+  "created": 1784909164
+}

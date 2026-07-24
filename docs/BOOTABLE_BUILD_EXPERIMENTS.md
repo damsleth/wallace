@@ -35,7 +35,10 @@ but it must not deliver any payload or command needed for success.
 - Keep `maxcpus=1 idle=nop` through the B0 milestone. SMP and cpufreq have
   separate approved gates.
 - The first B0 images keep all USB/DART/ANS/SART/NVMe nodes disabled.
-- Never write SPMI/PMU/charger/NVRAM or invent MMIO offsets.
+- Never write PMU/charger/NVRAM/firmware, unknown SPMI endpoints, or invent
+  MMIO offsets. A non-PMU SPMI transaction is allowed only as its own exact
+  staged experiment under `docs/SPMI_SAFETY.md`; it must never be smuggled
+  into a B0 image.
 - Enrollment is a separate, explicitly approved action with a known-good
   rollback boot volume. No offline ticket authorizes `kmutil`, `bputil`, APFS,
   or Boot Policy changes.

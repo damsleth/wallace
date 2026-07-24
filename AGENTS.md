@@ -27,9 +27,14 @@ kernel patches. The code lives in sibling repos under `~/Code/` (below).
 
 ## Non-negotiables (full rules in `~/Code/m1n1/AGENTS.md`)
 
-- Never write SPMI/PMU/charger/NVRAM. MMIO writes outside known-safe paths are
-  gated on the maintainer. Never blind-probe MMIO offsets — wrong offsets raise
-  **async SErrors** that kill m1n1 (derive addresses from the ADT).
+- Never write PMU/charger/NVRAM/firmware or unknown SPMI endpoints. SPMI is
+  deny-by-default, not transport-wide forbidden: only an exact, reviewed
+  non-PMU endpoint transaction permitted by `docs/SPMI_SAFETY.md` may run.
+  The sole current candidate is right-port
+  `/arm-io/nub-spmi-a1/hpm2` (Gen3, controller `0x309198000`, SID `0x0c`);
+  generic HPM iteration is not allowed. MMIO writes outside known-safe paths
+  are gated on the maintainer. Never blind-probe MMIO offsets — wrong offsets
+  raise **async SErrors** that kill m1n1 (derive addresses from the ADT).
 - Never post externally (GitHub/IRC) — draft only; the maintainer posts.
 - The remote dev loop is sanctioned: reboot/chainload/boot via
   `scripts/t6040-debugusb-console.sh [reboot]` + `scripts/t6040-boot-dcuart.sh`.

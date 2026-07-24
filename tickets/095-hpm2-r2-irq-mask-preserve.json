@@ -1,0 +1,18 @@
+{
+  "seq": "095",
+  "slug": "hpm2-r2-irq-mask-preserve",
+  "needs": "rig",
+  "state": "approved",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "Third endpoint-scoped SPMI proof, only after 094 passes. Boot only ticket-092 R2 artifact. Reassert exact right HPM2 identity and repeat the proven R1 prefix, then read and save the exact SN201202x interrupt mask, apply only the reviewed temporary mask needed for handoff, read back, restore the original bytes, and verify equality. Never write all ones to IntClear1 or clear any W1C event; no role/VBUS/config, PHY/ATC/DWC3, USB/storage, SHUTDOWN/RESET, other endpoint, or escalation. Pass = byte-exact save/change/restore transcript and healthy reboot. Exact register/length/value manifest, hashes, independent review, and approval required.",
+  "author": "codex",
+  "deps": [
+    "092",
+    "094"
+  ],
+  "hashes": null,
+  "created": 1784909164,
+  "approved_by": "maintainer",
+  "approved_at": 1784909431
+}

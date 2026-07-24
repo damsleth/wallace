@@ -1,0 +1,18 @@
+{
+  "seq": "094",
+  "slug": "hpm2-r1-wakeup-s0",
+  "needs": "rig",
+  "state": "approved",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "Second endpoint-scoped SPMI proof, only after 093 passes. Boot only ticket-092 R1 artifact. Reassert exact nub-spmi-a1/hpm2 identity; run bounded WAKEUP, read logical power state 0x20, issue SSPS with target S0 only if state is nonzero, boundedly poll command completion, and verify final state 0. No SLEEP/SHUTDOWN/RESET, IRQ clear/mask, role/VBUS/config, PHY/ATC/DWC3, USB/storage, other endpoint, or fallback. Passive sink only on right port; no charger/powered dock/other host. Pass = exact transaction transcript, S0 verification, and healthy warm-reboot recovery. Stop on mismatch/timeout/SError. Exact hashes/review/maintainer approval required.",
+  "author": "codex",
+  "deps": [
+    "092",
+    "093"
+  ],
+  "hashes": null,
+  "created": 1784909164,
+  "approved_by": "maintainer",
+  "approved_at": 1784909431
+}

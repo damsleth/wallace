@@ -1,0 +1,16 @@
+{
+  "seq": "090",
+  "slug": "yuka-hpm-spmi-branch-audit",
+  "needs": "offline",
+  "state": "done",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "Audit yuka's 2026-07-24 feature/foreach-hpm and tps6598x-spmi branches against the captured J614s Gen3 SPMI/SN201202x HPM topology and Wallace no-SPMI-write rules. Record exact commits, code path, state-changing operations, correctness hazards, and whether it changes the passive right-port USB gate. Host/source-only; never run the branch or access target SPMI.",
+  "author": "codex",
+  "deps": [
+    "023"
+  ],
+  "hashes": null,
+  "created": 1784907881,
+  "done_at": 1784907992
+}

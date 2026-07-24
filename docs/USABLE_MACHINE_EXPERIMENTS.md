@@ -68,8 +68,9 @@ ships. It is the *only* step that combines boundaries, and only proven ones.
 
 ## Explicitly out of scope here (tracked elsewhere)
 - B0 itself and enrollment: Sol's `BOOTABLE_BUILD_EXPERIMENTS.md` (076–082).
-- Persistent storage (B2): USB root blocked on ATC/HPM (023/032/060); internal
-  NVMe behind SPTM (051/052/054/055).
+- Persistent storage (B2): endpoint-scoped right-HPM2/ATC ladder 092–097,
+  corrected OpenRC image 098, and plan-approved but not-yet-runnable root boot
+  099; internal NVMe remains behind SPTM (051/052/054/055).
 - GPU (drm/asahi), audio, ISP/webcam, suspend: upstream-tracked (039/040/027);
   not on the usable-RAM-distro path. GPU mule prep 039 is complete: there is
   no current G16 candidate, and the ready evidence/test contract explicitly

@@ -124,7 +124,9 @@ trustworthy picture of who holds the rig — provided nobody sets `RIG_ENFORCE=0
 
 A wrong MMIO offset raises an async SError that kills m1n1. So before proposing
 a live image, another already-onboarded agent reviews it against the
-non-negotiables in `~/Code/m1n1/AGENTS.md` (no SPMI/PMU/NVRAM writes, no blind
-MMIO, ADT-derived addresses only, hashes pinned, intentional stop before the
-first dangerous write) — and you do the same for theirs. Note the reviewer in
-the queue entry. CJ approves last.
+non-negotiables in `~/Code/m1n1/AGENTS.md`: no PMU/charger/NVRAM/firmware or
+unknown-SPMI writes, exact compliance with `docs/SPMI_SAFETY.md` for any
+allowlisted non-PMU SPMI transaction, no blind MMIO, ADT-derived addresses
+only, hashes pinned, and an intentional stop before the next operation class.
+You do the same for theirs. Note the reviewer in the queue entry. CJ approves
+last.

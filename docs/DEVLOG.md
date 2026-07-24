@@ -480,17 +480,19 @@ This is ticket-081 artifact readiness only: independent review and one
 tethered proof still precede a rig proposal or enrollment. Exact result:
 `done/2026-07-24-t6040-alpine-b0-release-bundle.md`.
 
-Ticket 086 nevertheless closes the external-root *image construction* half of
-B2. `scripts/t6040-build-usb-root-image.sh` created and verified a 1 GiB raw
-GPT/ext4 Alpine image without opening any block device. The final image is
+Ticket 086 established the external-root GPT/ext4 construction and validation
+mechanics without opening any block device, but a later PID-1 audit found its
+Alpine minirootfs lacks `/sbin/openrc`; it is structurally valid but not
+bootable and must not be flashed. The superseding ticket 098 rebuilds from the
+verified OpenRC B0 root. The historical ticket-086 image is
 `linux-build-out/t6040-alpine-usb-root.img`, SHA-256 `32a897cb48ba...`, with
-root selector `PARTUUID=1b841e9b-65a5-4687-83f2-6c728961ad14`; its Alpine
-inittab provides a no-login `ttydc0` bring-up shell after `switch_root`. The
+root selector `PARTUUID=1b841e9b-65a5-4687-83f2-6c728961ad14`. The
 stick is currently connected to the M4, so the M1 has no external disk to
 flash. The M4 link gate also remains: the unchanged right-port stack has
 already shown root hubs only, and neither Linux nor m1n1 controls the T6040
-SPMI SN201202x/HPM role-orientation path. Do not repeat that topology or guess
-SPMI writes. Exact image, flash boundary, and paired boot hashes:
+SPMI SN201202x/HPM role-orientation path. Follow staged tickets 092–097 and
+`docs/SPMI_SAFETY.md`; do not repeat the unchanged topology or guess
+transactions. Exact historical image and paired boot hashes:
 `done/2026-07-24-t6040-usb-root-image.md`.
 
 Ticket 025 prepared B1 without weakening that ordering. Upstream U-Boot
@@ -870,8 +872,10 @@ carry the signed byte offset. The right-port USB2 HOST record is
 alone cannot supply HPM/VBUS/repeater state and is not a useful live test.
 `scripts/t6040-atcphy-kext-map.py` reproduces the mapping while refusing any
 other kext hash or ambiguous ADT. Direct eUSB2 sequencing and the
-SPMI/SN201202x path remain offline work; SPMI and live PHY writes remain
-forbidden. Full static result:
+SPMI/SN201202x path remained offline work at that checkpoint. The later
+`docs/SPMI_SAFETY.md` permits only tickets 092–095's staged direct-HPM2
+R0/R1/R2 work; live PHY/role/VBUS remains R3-gated on 096/097. Full static
+result:
 `done/2026-07-24-t6040-atcphy-kext-bank-map.md`.
 
 The follow-on static decode bounded the direct eUSB2 half further. The
@@ -883,8 +887,10 @@ not a live candidate. Paired `AppleT8150USBXHCI::start` proves the host call as
 power level 2/options `0x40000`/timeout 500 ms, selecting the false/false
 branch and final mode 2, but the routine does not own
 attach/orientation/source-role/VBUS/repeater state. Those remain in the
-SPMI/SN201202x HPM path, which is forbidden live. Exact sequence and function
-hashes: `done/2026-07-24-t6040-eusb2-init-sequence.md`.
+SPMI/SN201202x HPM path. They are now eligible only through the staged,
+endpoint-scoped policy in `docs/SPMI_SAFETY.md`; no R3 role/VBUS/PHY sequence
+is approved yet. Exact sequence and function hashes:
+`done/2026-07-24-t6040-eusb2-init-sequence.md`.
 
 The HPM follow-up corrects the target generation and bounds the next static
 layer. J614s explicitly selects Apple SPMI **Gen3** and a right-port
@@ -905,9 +911,41 @@ bytes at HPM address `0x14`, ORs `0x0d` into byte 1 and `0x08` into byte 7,
 then writes all nine bytes. Its cached path performs the same masks and merges
 with a fresh read. HALType5 separately proves USB config/status/data-control
 addresses `0x23`, `0x24`, and `0x55`. There is no local inverse for the
-address-`0x14` mutation, so it remains forbidden live. Exact class proof,
-packing, function hashes, and remaining rollback work:
+address-`0x14` mutation, so it remains outside the current R0/R1/R2 allowlist
+and requires ticket 096's complete detach/rollback proof before R3. Exact
+class proof, packing, function hashes, and remaining rollback work:
 `done/2026-07-24-t6040-hpm-class10-host-transition.md`.
+
+Yuka's late-2026-07-24 `tps6598x-spmi` branch (`dcc5f1bc...`) is now the first
+public m1n1 WIP that matches J614s's exact `aapl,spmi` Gen3 bus and
+`usbc,sn201202x,spmi` children. A detached host build succeeds. It does not yet
+clear the live gate: the IRC success report is for T6000/I2C, while the new
+SPMI path automatically sends WAKEUP and SHUTDOWN, uses a write to select every
+logical register, may issue `SSPS`, clears/masks IRQs, and then runs PHY
+bring-up. Static review also found an unbounded selection poll, a
+double-shutdown path, an index bound error, and misleading success reporting.
+Never substitute this branch into a safe rig artifact without resolving those
+issues and reviewing exact state/rollback semantics. Full audit:
+`done/2026-07-24-t6040-yuka-hpm-spmi-branch-audit.md`.
+
+### SPMI policy refined to endpoint/opcode gating (2026-07-24)
+
+The maintainer approved replacing the blanket "never write SPMI" rule with
+`docs/SPMI_SAFETY.md`. The captured J614s ADT proves that system PMUs are on
+separate `nub-spmi0/1/2` controllers, while right-port HPM2 is the sole child
+of Gen3 `nub-spmi-a1` at reg0 `0x309198000`, SID `0x0c`. PMU/Abbey,
+charger, NVRAM, firmware/flash, AOP-SPMI, RESET, unknown endpoints, scanning,
+and blind register access remain prohibited.
+
+The new experiment ladder is deliberately narrower than Yuka's branch:
+offline ticket 092 builds separate direct-HPM2 artifacts; rig 093 performs
+only the required selector write plus one-byte logical power-state read; 094
+adds WAKEUP and conditional SSPS-to-S0; 095 tests exact interrupt-mask
+save/change/restore without clearing W1C events; offline 096 completes
+class-10 detach/rollback; and rig 097 is the later passive-stick HPM+ATC host
+link. Corrected OpenRC image 098 and untethered root boot 099 follow. Their
+queue entries are plan-approved, but no rig ticket is runnable until its exact
+artifact hashes and independent review are recorded.
 
 ### MCC carveout/cache residual closed as a boot blocker (2026-07-23)
 

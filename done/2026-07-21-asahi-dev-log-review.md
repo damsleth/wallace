@@ -123,8 +123,9 @@ not enable unverified PMU/SPMI operations.
 m1n1 PR 626 (reviewed head
 `cd333da11dceb9906aeca34f5fe7f3c3c4b4f605`) let a t6050 reset its panic
 counter and enter DebugUSB itself. There was no evidence that J614s shares the
-same SPMI generation or safe register contract. This is watch-only under the
-project's absolute no-unreviewed-PMU/SPMI-write rule.
+same SPMI generation or safe register contract. This remained watch-only at
+the time. The later `docs/SPMI_SAFETY.md` keeps PMU and unknown endpoints
+prohibited while permitting only exact staged right-HPM2 transactions.
 
 ### M4-cohort PCIe work
 

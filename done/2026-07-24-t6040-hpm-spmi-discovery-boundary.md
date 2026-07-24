@@ -8,6 +8,12 @@ Scope: host-only static analysis of the captured J614s ADT and paired 25F84
 `AppleHPM`/`AppleSPMI` kexts. No rig, proxy, MMIO, SPMI, PMU, charger,
 target-memory, storage-device, or Boot Policy access.
 
+Policy update later on 2026-07-24: the maintainer replaced the blanket SPMI
+ban with `docs/SPMI_SAFETY.md`. This report's warning against replaying the
+full Apple discovery path remains valid. Ticket 093 may instead test only the
+separately hardened R0 selector plus one-byte logical `0x20` status read after
+offline ticket 092 and exact review.
+
 ## Result
 
 The right-side Type-C manager is not on an Apple SPMI Gen4 controller. The

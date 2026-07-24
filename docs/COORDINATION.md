@@ -127,11 +127,13 @@ Only `acquire … release` is exclusive. Everything left of `acquire`
 
 A wrong MMIO offset raises an async SError that kills m1n1. Before a live-image
 manifest is proposed for approval, the **other** agent reviews it against the
-non-negotiables in `~/Code/m1n1/AGENTS.md`: no SPMI/PMU/NVRAM writes, no blind
-MMIO, addresses ADT-derived (never swept), hashes pinned, and the intentional
-stop lands before the first dangerous write. Two independent models checking
-each other catch the mistake a single invested author talks itself past. Note
-the reviewing agent in the queue entry's `desc`. CJ approves last.
+non-negotiables in `~/Code/m1n1/AGENTS.md`: no
+PMU/charger/NVRAM/firmware or unknown-SPMI writes; any eligible non-PMU SPMI
+transaction matches `docs/SPMI_SAFETY.md` exactly; no blind MMIO; addresses
+are ADT-derived (never swept); hashes are pinned; and the intentional stop
+lands before the next operation class. Two independent models checking each
+other catch the mistake a single invested author talks itself past. Note the
+reviewing agent in the queue entry's `desc`. CJ approves last.
 
 ## Roles
 

@@ -113,10 +113,9 @@ the physical Type-C path, and the same paired fileset shows:
 - explicit HPM sleep/wake, status, role, orientation, VBUS, and repeater-reset
   state transitions.
 
-Those paths mutate SPMI/HPM state and remain absolutely forbidden. The next
-offline work is to decode the minimal read/status and ownership sequence, then
-separate any unavoidable SPMI mutation from the now-proven ATC register map.
-No live ticket should be proposed until an upstream-derived or byte-proven
-sequence has exact addresses/values, rollback, independent review, and explicit
-maintainer authorization. Repeating ticket 063 or applying only the
+Those paths mutate SPMI/HPM state. Under the later maintainer-approved
+`docs/SPMI_SAFETY.md`, only direct right-HPM2 R0/R1/R2 operations may be
+prepared in ticket 092 and proposed as tickets 093–095. Role/VBUS/PHY remains
+R3-gated on ticket 096's exact attach/detach rollback, independent review, and
+explicit authorization. Repeating ticket 063 or applying only the
 HOST-equals-DFLT record would not add evidence.
