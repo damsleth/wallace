@@ -29,7 +29,7 @@ domains t6040 silicon lacks:
 So **there is no over-count on J614s**: the phantom t6041 domains (DCS_16-31,
 DISPEXT2/3) are already `no_ps=1` and adt2dt drops them. The "new encoding that
 marks devices active/inactive" is the existing **`no_ps` flag**, and on this ADT
-it is set correctly. (Flag census across 485 devices: 229 are `no_ps=1`;
+it is set correctly. (Flag census across 485 devices: 271 are `no_ps=1`;
 `b7/b6/b2` are essentially unused — 3× b7, 1× b2 — so there is no *additional*
 hidden active/inactive bit beyond `no_ps` + `on`.)
 
@@ -39,9 +39,10 @@ The three display-CPU domains that are **emitted** (`no_ps=0`) and **off at boot
 (`on=0`) are exactly `DISP_CPU`, `DISPEXT0_CPU`, `DISPEXT1_CPU`. Our quirk
 disables `disp_cpu` and skips auto-enable on `dispext0_cpu`/`dispext1_cpu` —
 i.e. it acts only on real, firmware-off display-CPU domains (force-enabling them
-pre-console hangs, the empirical 3/3 result). `preserve-active` keys on the `on`
-flag (firmware-active), which never sees the phantom domains because they are
-`no_ps=1` and unemitted. **No phantom domain is emitted or preserved.**
+pre-console hangs, the empirical 3/3 result). `preserve-active` reads the real
+power-state registers at Linux probe time; it never sees the phantom domains
+because they are `no_ps=1` and unemitted. **No phantom domain is emitted or
+preserved.**
 
 ## Conclusion + collaboration note
 
@@ -51,12 +52,15 @@ flag (firmware-active), which never sees the phantom domains because they are
 2. yuka is on **j773s** (t6040 Mac Mini). Either that board's ADT sets `no_ps`
    differently, or the concern conflates "present in the 485-device list" with
    "emitted (`!no_ps`)". **Draft-for-CJ to yuka:** on J614s, `no_ps` already gates
-   DCS_16-31 and DISPEXT2/3 — ask him to check the same flags on the j773s ADT;
-   if his differ, that's a board/firmware delta, not an adt2dt bug. (Agents don't
-   post; CJ sends.)
+   DCS_16-31 and DISPEXT2/3 — ask them to check the same flags on the j773s ADT;
+   if those differ, that's a board/firmware delta, not an adt2dt bug. (Agents
+   don't post; CJ sends.)
 3. The upstream-correct shape stays: **trust `no_ps`** (adt2dt already does) plus
    our empirically-necessary display-CPU auto-enable skip. `preserve-active` is a
    safe superset given every phantom domain is unemitted.
 
-Parse method: `adt.py` `PMGRDevices` over `/arm-io/pmgr.devices`; raw data in the
-scratchpad. No rig, no writes. Ticket 085 done.
+Parse method: `adt.py` `PMGRDevices` over `/arm-io/pmgr.devices`; exact live ADT
+SHA-256 `7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84`.
+The complete flag distribution and evidence table are in
+`done/2026-07-24-t6040-pmgr-active-encoding.md`. No rig, no writes. Ticket 085
+done.

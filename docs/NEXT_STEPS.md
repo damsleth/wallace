@@ -537,6 +537,15 @@ removes the experiment-only properties from the standard DT. The series passes
 checkpatch and both binding schemas validate. No further policy bisection is
 needed.
 
+The 2026-07-24 active/inactive reconciliation also found no topology over-count
+on the exact live J614s ADT. AMCC/DCS 16–31 carry flag `0x19` versus `0x09`
+for 0–15, and every dispext2/3 record carries `0x10/0x12`; `0x10` is the
+existing `no_ps` bit. The generated DT therefore already excludes all of them.
+Do not invent another encoding bit or remove the preserve-active quirk: its
+3/3 result concerns real domains and remains independently necessary. Exact
+table and draft question for yuka:
+`done/2026-07-24-t6040-pmgr-active-encoding.md`.
+
 Next, in leverage order:
 1. Ask flokli for the J773s PMGR policy (draft only here; maintainer sends).
 2. If pre-userspace attribution becomes necessary, first add a bounded

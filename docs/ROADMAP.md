@@ -243,7 +243,10 @@ early console. (Testable incrementally against Stage C.)
   `dispext0_cpu` and `dispext1_cpu`) boots 3/3. Both CPU skips are necessary;
   the former `sys`, `fe`, and ANE restrictions are not.
   The live-tested T6041-compatible quirk now carries that policy without custom
-  DT booleans; review/upstream submission is the remaining Stage C PMGR work**;
+  DT booleans. A 2026-07-24 raw-record audit confirms the exact J614s ADT
+  already excludes AMCC/DCS 16–31 and dispext2/3 through the existing `no_ps`
+  bit, so the 214-domain topology is not over-counted and no new decoder bit
+  supersedes the quirk. Review/upstream submission is the remaining Stage C PMGR work**;
   see NEXT_STEPS #2 and DEVLOG's PMGR section.
 - **AIC3:** **works** — the AsahiLinux `asahi-wip` base has
   `apple,t8122-aic3` support; boots and

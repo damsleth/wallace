@@ -894,6 +894,16 @@ DTB `a99ad7c3f304198280814de1e4a31d83c268751af608afad7003aa982a69f65a`.
 Apple `critical` no longer silently becomes Linux always-on policy, and parents
 with `no_ps` no longer produce dangling phandles.
 
+**Active/inactive encoding audit (2026-07-24):** the exact live J614s ADT
+already marks the T6041/Max-only half correctly with the existing `no_ps`
+bit. AMCC/DCS 0–15 use `0x09`; 16–31 use `0x19`. The real
+dispext0/1 SYS/FE/CPU records use `0x00/0x02`; every dispext2/3 record uses
+`0x10/0x12`. Current adt2dt emits 214 nodes and none of the inactive records.
+Thus the IRC-suspected over-count was not reproduced on Mac16,8/25F84, and no
+parser change is justified. Preserve-active plus the dispext0/1 CPU exceptions
+remains the independently proven raw-boot policy. Full reconciliation:
+`done/2026-07-24-t6040-pmgr-active-encoding.md`.
+
 ### Earlier blind investigation (historical context)
 
 The full generated four-controller/214-domain `t6040-pmgr.dtsi` hangs the

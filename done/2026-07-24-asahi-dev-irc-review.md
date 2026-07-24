@@ -30,6 +30,15 @@ supersedes the preserve-active workaround and is the correct upstream shape.**
 This is a strong collaboration point (our PMGR quirk is further along; yuka has
 the multi-die comparison).
 
+**Resolved locally 2026-07-24:** the concern does not reproduce in the exact
+live-captured J614s/25F84 ADT (`7a92e6e4...`). Its existing `no_ps` bit cleanly
+marks AMCC/DCS 16–31 and every dispext2/3 record inactive; the generated
+214-domain DT contains only AMCC/DCS 0–15 and dispext0/1. No new parser bit is
+needed for this board. The preserve-active quirk therefore remains a separate
+raw-boot ownership policy. Ask yuka for the exact board/firmware/record bytes
+before generalizing; evidence and a draft-for-CJ message are in
+`done/2026-07-24-t6040-pmgr-active-encoding.md`.
+
 ## 2. sven: SPRR/SPTM emulation under hv on M4 (bears on our NVMe blocker)
 
 **07-23 19:41–20:03**, sven + chaos_princess: sven is prototyping **SPRR
