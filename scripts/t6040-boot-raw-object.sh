@@ -14,7 +14,8 @@ OBJECT=${OBJECT:-$OUT/m1n1-b0-alpine-hid-restored.bin}
 OBJECT_SHA=${OBJECT_SHA:-b50f52ab1fac473db2e9257c5363ef7905e4d1da5c8535fbf417209b09319172}
 CONLOG=${CONLOG:-$OUT/raw-object-console.log}
 CHAINLOAD_LOG=${CHAINLOAD_LOG:-$OUT/raw-object-chainload.log}
-PY=${PYTHON:-python3}
+# m1n1 proxyclient needs the venv (construct, etc.); match t6040-boot-dcuart.sh.
+PY=${PYTHON:-/Users/damsleth/Code/m1n1/venv/bin/python}
 
 [ -e "$M1" ] || {
     echo "missing KIS pty: $M1" >&2
