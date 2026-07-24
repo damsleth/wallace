@@ -200,15 +200,19 @@ doable solo with the proxy + ADT dumps; this is the highest-leverage local work.
 4. **ATC/USB tunables + DART config** — **AUDITED 2026-07-10 (mostly verify+defer).**
    All kboot-only, FDT-only (safe). **DART = done** (t6040 DARTs are `dart,t8110`,
    fully supported). **ACIO USB4 rc+pcie_adapter = works as-is** (prop names match).
-   **ATC PHY tunables = blocked** on the t6040 PHY reg-bucket offsets (FDT bucket
-   names are stable; only per-bucket reg_offset/size is the unknown — mustn't
-   invent). Graceful USB2-only fallback means this does NOT block Stage C; USB3/TB
-   is a Stage D comfort. NHI/apciec (Thunderbolt) name-mapping also deferred.
+   **ATC PHY bank map = statically resolved 2026-07-24.** The paired 25F84
+   `AppleT6040TypeCPhy` table exactly matches all 44 ADT ranges for all four
+   ports, and its tunable format proves bank+offset. Direct eUSB2 sequencing
+   and the SPMI/SN201202x HPM role/orientation/VBUS/repeater path remain
+   blocked and must not be invented. Root hubs without that physical path are
+   not a functional USB2 fallback. USB3/TB remains a Stage D comfort.
+   NHI/apciec (Thunderbolt) name-mapping is also deferred.
    The old `upstream/atcphy-new-tunables` pointer is stale at a January 2025
    tip, not an active T6040 branch. Watch broader m1n1/Linux/#asahi-dev work for
-   an explicit T6040 44-bank map and SN201202x HPM path. Detailed in
+   an explicit T6040 SN201202x HPM path. Detailed in
    `done/2026-07-10-t6040-atc-usb-dart-plan.md` and
-   `done/2026-07-23-t6040-atcphy-upstream-checkpoint.md`.
+   `done/2026-07-23-t6040-atcphy-upstream-checkpoint.md`, with the paired
+   bank-map proof in `done/2026-07-24-t6040-atcphy-kext-bank-map.md`.
 5. **kboot FDT init** (`src/kboot.c` and friends) — **AUDITED + display FIXED
    2026-07-10.** kboot-only, FDT-only (safe), Stage-C-coupled (patches a kernel DT
    that doesn't exist yet). Generic parts already work for t6040: spin-table/
@@ -298,9 +302,11 @@ remain required.
   M3 ATC PHY work
   enumerated a real device on 2026-07-20, but its SPMI wake and PHY data are not
   T6040 parameters; USB3/TB stays track-and-test. The 2026-07-23 upstream
-  refresh found no published T6040 compatible, SN201202x path, or mapping for
-  the target's 44 PHY register entries. A flash-ready 1 GiB Alpine GPT/ext4
-  image is now host-built and verified (`32a897cb...`, ticket 086), so rootfs
+  refresh found no published T6040 compatible or SN201202x path. The paired
+  25F84 Type-C PHY kext now independently resolves all 44 target register
+  banks and the raw tunable encoding, leaving the direct eUSB2 sequence and
+  HPM ownership as the actual implementation blockers. A flash-ready 1 GiB
+  Alpine GPT/ext4 image is now host-built and verified (`32a897cb...`, ticket 086), so rootfs
   construction is no longer on the critical path. It has not been written to
   the stick, which is attached to the M4 rather than the M1; M4 enumeration
   remains the gate.

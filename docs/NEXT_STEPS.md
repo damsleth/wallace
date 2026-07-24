@@ -191,12 +191,17 @@ or reviewed T6040 SPMI/SN201202x HPM/ATC support. Exact artifact and flash
 boundary: `done/2026-07-24-t6040-usb-root-image.md`.
 
 Ticket 023's 2026-07-23 upstream refresh found no published T6040 ATC/HPM
-implementation. The old `atcphy-new-tunables` branch is stale; the target
-right-port contract is now exactly inventoried but still needs the Apple SPMI
-controller, SN201202x role/orientation path, named 44-bank PHY map/bucket bases,
-and connector graph. Do not rerun the same unpowered topology or synthesize
-SPMI/PHY writes. Exact checkpoint:
-`done/2026-07-23-t6040-atcphy-upstream-checkpoint.md`.
+implementation. The 2026-07-24 paired-kext decode has now removed one static
+blocker: `AppleT6040TypeCPhy::_sRegisters[44][8]` matches all four target ADT
+bank lists exactly, and the tunable encoding byte-proves bank+offset. The
+right-port USB2 HOST record is `reg[4]+0x8`, mask `0x7003`, value `0x3`—the
+same as DFLT—so replaying that one record cannot test the missing link.
+Remaining work is the direct eUSB2 sequence plus Apple SPMI Gen4 and SN201202x
+attach/role/orientation/VBUS/repeater ownership. Do not rerun the same
+unpowered topology or synthesize SPMI/PHY writes. Exact checkpoint and new
+map:
+`done/2026-07-23-t6040-atcphy-upstream-checkpoint.md` and
+`done/2026-07-24-t6040-atcphy-kext-bank-map.md`.
 
 Ticket 022's 2026-07-23 refresh also confirms that native DCP is not a B0
 dependency. Its J614s DT topology is inventoried, but the macOS 26.x ABI, extra
@@ -851,5 +856,7 @@ namespace. Prior exact output:
   RegMap-mediated generic paths. Keep the proven PSTATE/APSC-only table; do not
   probe neighboring offsets. See
   `done/2026-07-23-t6040-cpufreq-throttle-analysis.md`.
-- ATC PHY tunables (USB3/TB) — blocked on t6040 PHY reg-bucket offsets;
-  USB2-only fallback is fine for now.
+- ATC PHY tunables (USB3/TB) — the paired 25F84 kext now proves the T6040
+  44-bank order and tunable bank+offset encoding. Direct init sequencing and
+  the SPMI/SN201202x HPM path remain blocked; USB2 root hubs alone are not a
+  functioning fallback.

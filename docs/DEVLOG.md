@@ -822,6 +822,19 @@ Continue the RAM-root B0 path; only a powered fixture or an upstream-derived,
 reviewed T6040 HPM/PHY sequence reopens external-root testing. Full checkpoint:
 `done/2026-07-23-t6040-atcphy-upstream-checkpoint.md`.
 
+The 2026-07-24 paired-kext pass removes the bank-map unknown without touching
+the rig. The exact 25F84 `AppleT6040TypeCPhy::_sRegisters[44][8]` table matches
+ADT `atc-phy0..3` profiles 0..3, all 44 ranges and in the same order. Its
+`applyTunables` disassembly proves bits 31:27 select that bank and bits 26:0
+carry the signed byte offset. The right-port USB2 HOST record is
+`reg[4]+0x8`, mask `0x7003`, value `0x3`, exactly the DFLT value; replaying it
+alone cannot supply HPM/VBUS/repeater state and is not a useful live test.
+`scripts/t6040-atcphy-kext-map.py` reproduces the mapping while refusing any
+other kext hash or ambiguous ADT. Direct eUSB2 sequencing and the
+SPMI/SN201202x path remain offline work; SPMI and live PHY writes remain
+forbidden. Full static result:
+`done/2026-07-24-t6040-atcphy-kext-bank-map.md`.
+
 ### MCC carveout/cache residual closed as a boot blocker (2026-07-23)
 
 Offline ticket 020 audited the captured J614s ADT, current m1n1 memory handoff,

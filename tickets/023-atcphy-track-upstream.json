@@ -5,14 +5,16 @@
   "state": "open",
   "track": "usb",
   "priority": "P2",
-  "desc": "[UPSTREAM] Track explicit T6040 ATC PHY + SN201202x HPM support; map per-bucket reg_offset only when upstream publishes it (never invent). Checked 2026-07-23: m1n1 atcphy-new-tunables is stale at 9657a52 (2025-01-16, 353 behind main) and has no T6040 data; current m1n1 and published Linux ATC branches also have no T6040 compatible/resource map. The captured right-port ADT contract is now exact: aapl,spmi hpm2 -> acio2 -> atc-phy2, with 44 PHY register entries and T6040-only USB2/CIO4 records. Ticket 063 proved DART+xHCI root hubs but no child. A safe implementation still needs SPMI controller, SN201202x role/orientation, named 44-bank PHY resources/bucket bases, connector graph, and reviewed ownership sequencing. No SPMI writes are authorized (done/2026-07-23-t6040-atcphy-upstream-checkpoint.md).",
+  "desc": "[UPSTREAM + paired static decode] Track explicit T6040 ATC PHY + SN201202x HPM support. The 25F84 AppleT6040TypeCPhy kext now byte-proves the full 44-bank map: profiles 0-3 match atc-phy0-3 ADT reg[] order 44/44, and raw tunables encode bank in bits 31:27 plus signed 27-bit offset. Right-port USB2 HOST is reg[4]+0x8, mask 0x7003/value 0x3, identical to DFLT, so replaying it alone is not a useful test. Ticket 063 proved DART+xHCI root hubs but no child. Remaining implementation blockers are the direct eUSB2 sequence, Apple SPMI Gen4 controller, SN201202x attach/role/orientation/VBUS/repeater path, connector graph, and reviewed ownership/rollback. No SPMI or live PHY writes are authorized. Exact host-only proof: done/2026-07-24-t6040-atcphy-kext-bank-map.md; upstream checkpoint: done/2026-07-23-t6040-atcphy-upstream-checkpoint.md.",
   "author": "claude",
   "deps": [],
   "hashes": {
     "m1n1_atcphy_new_tunables": "9657a52e9183d09563fb57396fb36342d7b263d1",
     "linux_sven_atcphy": "bb58cc6399a58218b8b5204a9fadf26f07c7f0f3",
-    "j614s_adt_sha256": "7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84"
+    "j614s_adt_sha256": "7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84",
+    "apple_t6040_typecphy_kext_sha256": "d0a766201c15bb01b8eeaf6617c91707562ae0c50511ebfccbd9d918acd499f3",
+    "bank_map_script_sha256": "a19e06a29d9b73674456b9d3b99400ae8a491c86644cdb49bcd16fa14662fcfb"
   },
-  "last_checked": "2026-07-23",
+  "last_checked": "2026-07-24",
   "created": 1784039024
 }

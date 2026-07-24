@@ -60,6 +60,10 @@ In rough order of leverage:
    input device. Offline **069** tested the current-mailbox RX
    acknowledge/drain race with a storage-disabled mask/drain/re-arm candidate
    and the failed image's config byte-for-byte.
+   The 2026-07-24 paired-kext decode now proves the T6040 44-bank ATC map and
+   tunable encoding exactly; ticket **023** remains open for the direct eUSB2
+   sequence and forbidden-until-reviewed SPMI/SN201202x
+   role/orientation/VBUS/repeater path.
    Reviewed rig control **070** was inconclusive: the old keyboard kernel never
    reached the Alpine framebuffer shell in two exact attempts and has no
    ttydc0 failure log. Do not retry it. The one-shot corrected-kernel **071**
