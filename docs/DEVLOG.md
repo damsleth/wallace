@@ -10,26 +10,27 @@ long-term plan in `ROADMAP.md`; per-session write-ups in `done/`.
 |---|---|
 | Mainline Linux to Alpine 3.24/OpenRC | tethered self-contained B0 object passed; storage-disabled, `maxcpus=1 idle=nop` |
 | Two-way m1n1 proxy/console over DebugUSB (KIS) | one DP/TB cable in the DFU port; no second machine-side cable needed |
-| Two-way **Linux shell** on `/dev/ttydc0` over the same cable | poll-mode dockchannel driver; full remote dev loop, no screen-reading |
+| Two-way **Linux shell** on `/dev/ttydc0` over the same cable | poll-mode fallback plus live-proven interrupt mode on measured AIC input 816 |
 | Internal keyboard at the local panel shell | DockChannel HID type fix; trackpad motion remains unproved |
 | Framebuffer console (simpledrm + fbcon) | B0 panel shell and local keyboard echo live-proven |
 | Linux `apple_wdt` takes over m1n1's watchdog | shell survives past the 20 s bite |
-| Remote reboot via `macvdmtool` | normally full reboot→chainload→boot→shell; currently NEEDS_RECOVERY after post-095 VDM failure |
+| Remote reboot via `macvdmtool` | post-095 recovery control and later cycles healthy; exact fail-closed checklist in ticket 118 result |
 | Right HPM2 WAKEUP + SSPS | state `0x07` → S0 `0x00`; role/VBUS/PHY/xHCI/device access not proved |
 | OpenRC external-root image | host-verified GPT/ext4 image ready; stick not flashed or enumerated on M4 |
 
-Active: recover DebugUSB/KIS first, finish HPM/ATC detach/rollback offline,
+Active: finish HPM/ATC detach/rollback offline,
 close the dual-mode B0 enrollment preflight, and decompose USB enumeration,
 read-only block access, flashing, and bounded write tests. Internal NVMe
 remains behind SPTM/CoastGuard. Trackpad firmware and the paired firmware
 corpus are staged. Parked: USB gadget console (EP0 dies post-enumeration;
 `done/2026-07-11-t6040-usb-gadget-plan.md`).
 
-**Rig recovery gate:** after ticket 095's successful SSPS-to-S0 run, the
-standard VDM recovery failed and one DebugUSB reattach produced neither
-`kisd` attachment nor console bytes. The lease was released `wedged`. No live
-ticket may run until a recovery boot reaches a stable `Running proxy` and the
-holder records `scripts/rig-lease.sh recovered <agent>`.
+**Recovery status:** after ticket 095's successful SSPS-to-S0 run, one VDM
+recovery and bounded reattach failed. Ticket 118's later control passed after a
+maintainer power cycle: fresh KIS, raw PTY, `Running proxy`, and the bounded
+T6040 health check all passed. Several subsequent reboot/re-entry cycles were
+healthy. Keep the fail-closed checklist; do not attribute the original
+transient to SSPS.
 
 ## Operating the rig
 
@@ -1046,8 +1047,9 @@ The IRQ-mask roundtrip was removed and remains untested.
 
 The intentional class-boundary warm reboot was followed by a failed VDM
 recovery. One bounded reattach entered DebugUSB but did not attach `kisd` or
-produce console bytes. The rig is free but NEEDS_RECOVERY; do not infer that
-SSPS caused the recovery failure without a controlled recovery boot. Exact
+produce console bytes. Ticket 118 later passed the controlled recovery after a
+maintainer power cycle and subsequent reboot cycles remained healthy; do not
+infer that SSPS caused the original transient. Exact
 result:
 `done/2026-07-24-t6040-hpm2-r2-ssps-s0-result.md`.
 

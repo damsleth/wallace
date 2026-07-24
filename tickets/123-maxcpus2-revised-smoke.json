@@ -1,0 +1,15 @@
+{
+  "seq": "123",
+  "slug": "maxcpus2-revised-smoke",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "smp",
+  "priority": "P1",
+  "desc": "PROPOSED replacement only after offline ticket 122 produces exact artifacts and an independent review. One storage-disabled maxcpus=2 boot with idle=nop and the proven polling console plus the minimal early-output/secondary-start diagnostic. No cpufreq, USB/storage, PCIe, SPMI, or new MMIO. Requires exact hashes, fresh maintainer approval, healthy rig, lease, and bounded stop/recovery; ticket 005 must not be retried unchanged.",
+  "author": "sol",
+  "deps": [
+    "122"
+  ],
+  "hashes": null,
+  "created": 1784928885
+}

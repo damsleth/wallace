@@ -2,15 +2,19 @@
   "seq": "121",
   "slug": "maxcpus14-smoke",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "smp",
   "priority": "P2",
-  "desc": "Proposed one-shot all-14-core bring-up using reviewed ticket-120 artifacts after maxcpus=2 ticket 005 passes. Keep idle=nop and the proven polling console. Pass = 0-13 online with correct 4E+5P+5P mapping, task liveness on each cluster, watchdog and shell stable. No cpufreq, IRQ-console, USB/storage, PCIe, or new hardware operation. Requires exact hashes, independent review, fresh approval, healthy rig, and lease.",
+  "desc": "PLAN-APPROVED but blocked: ticket 005 failed at the no-Linux-output boundary, so replacement maxcpus=2 ticket 123 must pass before reviewed ticket-120 all-core artifacts can exist. Then run one all-14-core bring-up with idle=nop and the proven polling console. Pass = 0-13 online with correct 4E+5P+5P mapping, task liveness on each cluster, watchdog and shell stable. No cpufreq, IRQ-console, USB/storage, PCIe, or new hardware operation. Requires exact hashes, independent review, healthy rig, and lease.",
   "author": "codex",
   "deps": [
     "005",
+    "123",
     "120"
   ],
   "hashes": null,
-  "created": 1784927435
+  "created": 1784927435,
+  "runnable": false,
+  "approved_by": "maintainer",
+  "approved_at": 1784928482
 }

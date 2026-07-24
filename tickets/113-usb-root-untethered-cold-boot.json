@@ -2,7 +2,7 @@
   "seq": "113",
   "slug": "usb-root-untethered-cold-boot",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "storage",
   "priority": "P1",
   "desc": "Proposed final external-root milestone after 101 and 112 both pass: maintainer selects the enrolled m1n1 volume with the verified stick in the right port; no host payload or command. Pass = m1n1 -> Linux -> external ext4/OpenRC root, panel shell, internal keyboard, watchdog, prior ticket-112 persistence marker, expected USB block device only, no internal NVMe. Observation only; no flashing, enrollment, partitioning, or new write. Separate exact object/bootargs review, fresh approval, rollback, lease, and healthy rig required.",
@@ -12,5 +12,8 @@
     "112"
   ],
   "hashes": null,
-  "created": 1784927435
+  "created": 1784927435,
+  "runnable": false,
+  "approved_by": "maintainer",
+  "approved_at": 1784928482
 }

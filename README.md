@@ -20,9 +20,11 @@ remains `runnable=false` until its identity, backup, and review gates close.
 Core bring-up is solid: m1n1 sees all 14 active cores, PMGR's 214-domain
 topology is understood, Linux boots reliably at `maxcpus=1`, fbcon and
 DockChannel polling console work, and the internal keyboard is usable.
-The next CPU steps are the prepared `maxcpus=2` proof (005), then a separately
-reviewed all-14-core candidate/run (120/121); cpufreq (006), IRQ-driven console,
-and trackpad motion remain separate unrun boundaries.
+The first exact `maxcpus=2` proof (005) reached kernel vectoring but produced
+no Linux output, so 122/123 now own the diagnosis/replacement before all-core
+120/121 or cpufreq 006. Interrupt-driven DockChannel on measured AIC input 816
+has passed with stable bidirectional shell traffic. Trackpad motion remains an
+attended physical-input test.
 
 The right-side USB-C path has crossed its first hardware-management boundary.
 The exact right HPM2 endpoint accepted WAKEUP, reported state `0x07`, accepted
@@ -39,16 +41,17 @@ to acquire the required execution/domain context. Work here stays static and
 host-only unless a documented, non-mutating guarded-entry route appears.
 
 PCIe, which carries WiFi/BT and the SD reader, still stalls at operation 115,
-the first PHY-IP PLL read. The next exact clock-generator candidate is prepared
-but not run.
+the first PHY-IP PLL read. Ticket 068 proved the newly decoded clkgen sequence
+locks its PLL, but the read still hangs; offline ticket 124 owns the next
+paired-driver precondition trace.
 
-DebugUSB/KIS remains the only practical remote console. Immediately after the
-successful HPM SSPS test, the normal VDM recovery failed and a bounded
-reattach produced no `kisd` console. The rig is currently **NEEDS_RECOVERY**:
-a recovery boot and healthy proxy confirmation must precede every live ticket.
+DebugUSB/KIS remains the practical remote console. The post-SSPS recovery
+control passed after a power cycle and several later reboot/reattach cycles
+returned healthy proxies. Ticket 118 records the exact fail-closed checklist;
+the earlier VDM failure is not attributed to SSPS.
 
-Linux still polls the DockChannel FIFO every 5 ms. The corrected IRQ-816
-candidate is prepared, but polling remains the proven console path.
+Polling remains the conservative DockChannel fallback, while the corrected
+IRQ-816 path is now independently reviewed and live-proven.
 
 The blow-by-blow lives in [DEVLOG.md](docs/DEVLOG.md), and the current plan of attack is [NEXT_STEPS.md](docs/NEXT_STEPS.md).
 

@@ -123,9 +123,11 @@ powered source during an unproven source-role/VBUS experiment.
   access outside the manifest. Recover with the documented warm reboot, then a
   power cycle if necessary.
 
-Current operational gate: ticket 095 passed but its following VDM/KIS recovery
-did not. The rig is marked NEEDS_RECOVERY; no SPMI or other live experiment may
-run until a healthy proxy recovery is recorded.
+Current recovery status: ticket 095 passed but its following VDM/KIS recovery
+did not. Ticket 118 later completed a healthy proxy control after a maintainer
+power cycle and recorded the exact fail-closed checklist. The transient remains
+unattributed; every later SPMI experiment still requires a fresh healthy proxy
+check and normal recovery gate.
 
 ## Current upstream candidate
 

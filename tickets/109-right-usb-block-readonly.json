@@ -2,7 +2,7 @@
   "seq": "109",
   "slug": "right-usb-block-readonly",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "storage",
   "priority": "P1",
   "desc": "Proposed first read-only block boundary after 108. Identify the one right-port removable sd device by USB IDs, capacity and sysfs ancestry; assert no nvme device. Read and hash only fixed GPT/header/partition sectors and compare expected identities. Do not mount any filesystem, replay a journal, run fsck, write, partition, or flash; known-ext4 mounting starts at 112. Exact reporter/artifact hashes, independent review, fresh approval, lease, and healthy rig required.",
@@ -11,5 +11,8 @@
     "108"
   ],
   "hashes": null,
-  "created": 1784927435
+  "created": 1784927435,
+  "runnable": false,
+  "approved_by": "maintainer",
+  "approved_at": 1784928481
 }

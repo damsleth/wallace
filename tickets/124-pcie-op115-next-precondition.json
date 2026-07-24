@@ -1,0 +1,15 @@
+{
+  "seq": "124",
+  "slug": "pcie-op115-next-precondition",
+  "needs": "offline",
+  "state": "open",
+  "track": "pcie",
+  "priority": "P1",
+  "desc": "Continue paired AppleT6040PCIe static tracing after ticket 068 proved clkgen PLL lock but reg[3]+0x90 still hangs. Resolve every remaining operation before the first _readPhyIPReg, especially PHY-IP power/reset/domain ownership, against ADT indices and exact accessors. Produce a proof/no-go or one separately gated candidate; no rig, no guessed offsets, and never retry 068 unchanged.",
+  "author": "sol",
+  "deps": [
+    "068"
+  ],
+  "hashes": null,
+  "created": 1784929344
+}

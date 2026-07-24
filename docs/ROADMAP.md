@@ -5,7 +5,7 @@ WiFi, Bluetooth, keyboard/trackpad, audio, webcam, power management — daily-dr
 comfort comparable to macOS.
 
 Written 2026-07-10, last updated **2026-07-24** (tethered B0 PASS; right HPM2
-reaches S0; rig NEEDS_RECOVERY).
+reaches S0; IRQ-816 console PASS; rig healthy).
 Companion docs: `NEXT_STEPS.md` (immediate work), `DEVLOG.md`
 (operational reference + solved blockers), `t6040-dt-checklist.md` (Stage C
 reference), and `BOOTABLE_BUILD_EXPERIMENTS.md` (B0 cold-boot ladder).
@@ -82,7 +82,8 @@ proved the selector window inactive before WAKEUP, read power state `0x07`
 after WAKEUP, then issued the exact `SSPS` command and read final state
 `0x00`. Role/VBUS, repeater, ATC, xHCI child enumeration, and block access are
 not yet proved. The verified OpenRC GPT/ext4 image is unflashed. The post-run
-VDM recovery failed, so the rig is NEEDS_RECOVERY before any live work.
+VDM recovery failed once; ticket 118's post-power-cycle control and later
+reboot cycles are healthy, without attributing the transient to SSPS.
 
 **Stage A complete 2026-07-10** — proxy solid, 14/14 cores (4E+5P+5P), MPIDR
 map, execute-and-return, broken_wfi handled (WFE park), ~10 s chainload loop.
@@ -104,11 +105,11 @@ fixed, dapf gate + watchdog arm added for M4.
 | Tethered single-object Alpine/OpenRC B0: panel shell, internal keyboard, watchdog, empty partitions | Enrolled untethered cold boot (082 remaining identity/backup/review gates; 101 approved) |
 | BusyBox userspace; full PMGR with property-free T6041 quirk, reproducible | PMGR draft review/submission (split, checkpatch/schema-clean; NEXT_STEPS #2) |
 | Internal keyboard at the shell; trackpad registers + validated firmware-loader path; paired trackpad/BCM/ISP/ASMedia corpus staged | Trackpad motion retest; PMU-backed reset remains forbidden; maxcpus>1/idle states |
-| Two-way Linux shell + m1n1 proxy over one DebugUSB cable; remote reboot | Printk over ttydc needs a separate polled/atomic TX path; current TTY queue is not console-safe |
+| Two-way Linux shell + m1n1 proxy over one DebugUSB cable; poll fallback and IRQ-816 RX both proven | Printk over ttydc needs a separate polled/atomic TX path; current TTY queue is not console-safe |
 | Right HPM2 WAKEUP + SSPS: state `0x07` → S0 `0x00`; verified OpenRC disk image | USB role/VBUS/repeater/ATC, child enumeration, block read/write, image flashing |
 | Linux apple_wdt; fbcon early console | NVMe rootfs (power/SART/ANS work; queue and per-command TCB setup require unavailable raw-boot SPTM entry) |
 | Kernel build env (podman, arm64-native) with patch pipeline | USB gadget console (parked: EP0 dies post-enumeration) |
-| SMP/cpufreq/MCC groundwork; PCIe host+wireless DT and drivers build | board-audited Linux secondary-core test, cpufreq throttles, gated PCIe link-up test, wireless firmware, USB3/TB PHY tunables |
+| SMP/cpufreq/MCC groundwork; PCIe host+wireless DT and drivers build | maxcpus=2 replacement after 005 no-console result; cpufreq; PCIe op-115 still hangs after PLL lock; wireless; USB3/TB |
 
 **Upstreaming pending**: the SMP/broken_wfi/MPIDR + cpufreq channel drafts are
 finalized in `done/` (ticket 019). Ticket 046 has now shaped the actual
@@ -316,8 +317,10 @@ all 14 cores online, cpufreq working.
 **Status 2026-07-24:** initramfs shell and full PMGR are proven locally at
 maxcpus=1. A WIP `more-t6041` branch independently reached an M4 Pro shell with
 all cores and PMGR, but its inherited CPU/domain topology is not J614s-correct;
-completed preflight 034 feeds the separate `maxcpus=2` control (005), followed
-by all-14-core candidate/run tickets 120/121. Cpufreq ticket 006 waits for 121.
+completed preflight 034 fed `maxcpus=2` control 005, which reached kernel
+vectoring but produced no Linux output. Diagnosis 122 and a separately
+approved replacement 123 now precede all-core candidate/run tickets 120/121.
+Cpufreq ticket 006 waits for 121.
 T6040/T6041 AIC
 sysregs remain firmware-locked, so the trap-avoidance patch and `idle=nop`
 remain required.

@@ -5,10 +5,11 @@
   "state": "open",
   "track": "smp",
   "priority": "P2",
-  "desc": "After ticket 005 proves the first secondary E core, prepare the separate all-14-core J614s candidate. Reuse the board-correct topology and idle=nop; build a bounded reporter for possible/present/online masks, per-cluster CPU identities, pinned task liveness on E/P0/P1, watchdog and console stability. No cpufreq, IRQ-console, storage, PCIe, or new MMIO. Pin artifacts and obtain independent review before 121.",
+  "desc": "BLOCKED after ticket 005 reached kernel vectoring but produced no Linux output. After replacement ticket 123 proves the first secondary E core, prepare the separate all-14-core J614s candidate. Reuse the board-correct topology and idle=nop; build a bounded reporter for possible/present/online masks, per-cluster CPU identities, pinned task liveness on E/P0/P1, watchdog and console stability. No cpufreq, IRQ-console, storage, PCIe, or new MMIO. Pin artifacts and obtain independent review before 121.",
   "author": "codex",
   "deps": [
-    "005"
+    "005",
+    "123"
   ],
   "hashes": null,
   "created": 1784927435

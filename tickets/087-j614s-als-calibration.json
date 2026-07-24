@@ -2,12 +2,15 @@
   "seq": "087",
   "slug": "j614s-als-calibration",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "xcut",
   "priority": "P2",
   "desc": "Capture the machine-private J614s ambient-light calibration read-only from this M4's macOS installation: ioreg als CalibrationData -> apple/aop-als-cal.bin plus matching HmCA* FactoryData, with source/build provenance and SHA-256 inventory. Never substitute the M1's calibration. Prepare an exact reviewed read-only procedure before touching the rig; no NVRAM, PMU/SPMI, Boot Policy, or target write. Current rig NEEDS_RECOVERY first.",
   "author": "codex",
   "deps": [],
   "hashes": null,
-  "created": 1784879471
+  "created": 1784879471,
+  "runnable": false,
+  "approved_by": "maintainer",
+  "approved_at": 1784928481
 }

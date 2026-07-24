@@ -6,11 +6,10 @@ probe. The right-side HPM2 has also passed the staged inactive → WAKEUP/state
 `0x07` → SSPS/S0 `0x00` ladder. The passive USB stick has **not** enumerated,
 and the verified OpenRC disk image has not been flashed.
 
-**First action on the rig is recovery only.** Immediately after the successful
-SSPS run, the normal VDM recovery failed; one bounded DebugUSB reattach had no
-`kisd` console. The lease is free but marked **NEEDS_RECOVERY**. Power-cycle or
-otherwise restore a healthy `Running proxy`, then run
-`scripts/rig-lease.sh recovered <agent>` before any live ticket.
+The rig is healthy at `Running proxy`. Ticket 118's post-SSPS recovery control
+passed after the maintainer's power cycle and bounded proxy health check; the
+earlier VDM failure remains unattributed. Continue to use its exact
+fail-closed recovery checklist for every live ticket.
 
 In parallel, finish offline ticket 096's exact host-transition rollback, close
 the remaining ticket-082 volume identity/backup fields, and review the
@@ -295,9 +294,10 @@ WAKEUP, waited exactly 10 ms, then read selector `0x20` and logical power state
 `23737cd3...`, then repeated WAKEUP, observed `0x07`, wrote only DATA1 `00`
 and CMD1 `SSPS`, and observed final state `0x00`. Ticket 095 is done. Its
 transcript is `630fe61a...`. R1/R2 were never combined with USB/PHY.
-The following VDM recovery failed and one DebugUSB reattach had no console, so
-the rig remains NEEDS_RECOVERY. Do not infer causality without a recovery
-control.
+The following VDM recovery failed and one DebugUSB reattach had no console.
+Ticket 118 later completed the recovery control after a maintainer power cycle:
+KIS attached, the proxy health check passed, and later reboot/re-entry cycles
+were healthy. Do not infer that SSPS caused the original transient.
 See `done/2026-07-24-t6040-hpm2-r0-attempt1.md` and
 `done/2026-07-24-t6040-hpm2-r0-attempt2.md`, plus
 `done/2026-07-24-t6040-hpm2-r0-attempt3.md` and
@@ -411,9 +411,10 @@ prerequisites. Audit and mail:
 
 Keep the first USB smoke at `maxcpus=1 idle=nop`. The DT's extra `cpu@10105` is
 correctly disabled and 14 cores are available, but Linux secondary-core bring-up
-is still a separate staged experiment: completed preflight 034 feeds the
-`maxcpus=2` control (005), then 120 prepares and 121 proves all 14 cores. Do not
-combine any of those with a USB-host test; cpufreq ticket 006 follows 121.
+is still a separate staged experiment. Ticket 005 reached kernel vectoring but
+gave no Linux output, so offline 122 and a separately approved replacement 123
+must pass before 120 prepares or 121 proves all 14 cores. Do not combine any
+of those with a USB-host test; cpufreq ticket 006 follows 121.
 
 **Upstream correction, 2026-07-21:** a bounded m1n1 experiment on M4 Pro
 measured DockChannel-UART on AIC input **816**; the ADT's 360 is wrong. The
@@ -422,7 +423,7 @@ behavior, but all newly built DTBs must carry 816. Yuka's WIP `more-t6041`
 branch also reached a shell on M4 Pro with all cores and PMGR, providing strong
 family-level SMP evidence. It is not a J614s-ready artifact (its inherited CPU
 topology and memory-channel domains do not match this 14-core board), so
-005→120→121 remains the J614s proof sequence and USB smokes stay single-core.
+122→123→120→121 is now the J614s proof sequence and USB smokes stay single-core.
 Full 11–21 July log
 review: `done/2026-07-21-asahi-dev-log-review.md`.
 
@@ -435,7 +436,9 @@ input 816 works or fails. Do not run ticket 059 or any other 360-based image.
 The direct `apple,dockchannel-uart` driver from `more-t6041` was audited and
 adapted to the measured J614s DT under completed ticket 062 (data register
 first, `earlycon=dockchannel,mmio32,0x50882c000`, `ttyDC0`). Plan-approved
-ticket 073 is the separate, currently `runnable=false`, live proof.
+ticket 073 has now passed: the non-polling shell received and executed two
+host command batches and reported 652 DockChannel mailbox interrupts with
+zero errors. Poll mode remains the conservative fallback.
 
 The storm-bounded UART TX/RX BIT(2)/BIT(1) diagnostic ran once on 2026-07-14.
 Linux reached BusyBox and TX worked, but neither an LF-terminated nor a
@@ -523,8 +526,8 @@ the real AIC input is **816** on t6040/t6041 (full trawl:
 `done/2026-07-21-asahi-dev-irc-review.md`). Our `total=0` RX result is consistent
 with having listened on input 360. Ticket 062 completed the IRQ-816 path:
 the DT uses input 816, the data reg (`0x50882c000`) comes first for earlycon,
-and RX/TX bits are a DT property. The next live step is the independently
-reviewed ticket-073 `ttyDC0` retest once it is marked runnable.
+and RX/TX bits are a DT property. Ticket 073 live-proved the path; exact result:
+`done/2026-07-24-t6040-dockchannel-irq816-result.md`.
 
 ## 0.1 Extend the proven T6040 PCIe path through PHY setup
 
@@ -652,6 +655,13 @@ Do not try a write-only operation 115 or move the later PHY-clock poll ahead of
 the tunables without new static evidence. Continue offline route-finding for
 the missing PHY-IP aperture precondition/Apple transition, then require a new
 manifest, cross-review, and explicit approval for any changed live sequence.
+
+Ticket 068 then tested the exact paired-driver clkgen-PLL sequence. The PLL
+locked, gate/PHY clock acknowledgements completed, but output stopped again on
+the pre-read marker for `0x417040090`; no value returned. Thus clkgen lock is
+necessary-looking but insufficient. Ticket 124 resumes static tracing; never
+retry 068 unchanged. Exact result:
+`done/2026-07-24-t6040-pcie-op115-clkgen-pll-result.md`.
 
 ## 1. Independently review the prepared J614s trackpad motion retest
 `event0` is Apple DockChannel Multi-touch and `event1` is the keyboard. The

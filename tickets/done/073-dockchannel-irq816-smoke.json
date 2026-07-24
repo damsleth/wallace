@@ -1,0 +1,26 @@
+{
+  "seq": "073",
+  "slug": "dockchannel-irq816-smoke",
+  "needs": "rig",
+  "state": "done",
+  "runnable": true,
+  "track": "",
+  "priority": "P1",
+  "desc": "DONE PASS: exact reviewed no-poll DT on measured AIC input 816 booted once. The ttydc0 shell received, echoed, and executed two host command batches across a 12-second interval; /proc/interrupts showed 652 events for 50880c000.mailbox and Err: 0. No storm/reset/SError; normal recovery healthy. Result: done/2026-07-24-t6040-dockchannel-irq816-result.md.",
+  "author": "claude",
+  "deps": [
+    "062"
+  ],
+  "hashes": {
+    "m1n1": "1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b",
+    "image": "a6c2f09354bf1d61559b450f9430eb06d42f94d027d539c2deade708d708c4ff",
+    "dtb": "21a3446830a50a0d739a6e55e2ef9f9ee3986bcc677d12e5caceced708cf22a2",
+    "initramfs": "512c69da94884f3ea83f9a6a4ea0731dcad6b5aaa87eb875ca5a6d7b24c317ca"
+  },
+  "created": 1784835989,
+  "approved_by": "maintainer",
+  "approved_at": 1784836986,
+  "reviewed_by": "sol",
+  "ready_at": 1784928912,
+  "done_at": 1784929117
+}

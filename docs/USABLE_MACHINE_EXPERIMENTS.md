@@ -11,25 +11,25 @@ ticket, CJ approval, lease.
 Current B0 state: ticket 100 passed the tethered single-object OpenRC boot,
 including panel shell and internal-keyboard echo. Ticket 101 is plan-approved
 but `runnable=false`; it remains blocked on ticket 082's
-identity/backup/object-review fields and the rig's NEEDS_RECOVERY state.
+identity/backup/object-review fields.
 
 ## Where each experiment stands
 
 | # | Experiment | Ticket | State | End-goal contribution |
 |---|---|---|---|---|
-| U1 | **maxcpus=2 SMP** → then all 14 cores | 005 → 120/121 (+034) | 005 plan-approved; all-core candidate/run open/proposed | responsiveness; the machine uses its cores |
+| U1 | **maxcpus=2 SMP** → then all 14 cores | 005 → 122/123 → 120/121 | 005 no-console FAIL; replacement analysis/candidate required | responsiveness; the machine uses its cores |
 | U2 | **cpufreq DVFS** (E 7-ps, P 19-ps to 4512 MHz) | 006 (+035; after 121) | plan-approved, `runnable=false`, DT built (`a42bb096`) | thermals + performance scaling |
-| U3 | **Interrupt-driven console** (IRQ 816) | 073 (+062) | plan-approved, `runnable=false`, pinned | a non-busy-poll console; prereq for a printk console |
+| U3 | **Interrupt-driven console** (IRQ 816) | 073 (+062) | **live PASS** | a non-busy-poll console; prereq for a printk console |
 | U4 | **SMC**: power button, lid, battery status | 061 | **done offline**; live integration later | on-device power control + battery gauge (read-only keys) |
 | U5 | **On-device framebuffer console** | 083 (+079/+100) | **done** | a real local shell on the laptop panel, not just ttydc0 |
-| U6 | **PCIe link-up** (op-115 clkgen-PLL) | 068 (+058) | plan-approved, `runnable=false`, pinned | unblocks WiFi/BT + SD reader |
+| U6 | **PCIe link-up** (op-115 clkgen-PLL) | 068 → 124 | PLL locks; PHY-IP read still hangs | unblocks WiFi/BT + SD reader |
 | U7 | **WiFi/BT bring-up** after link-up | 044 → 030 fw | offline pre-review | networking |
 | U8 | **Daily-driver feature DT** (integrate U1+U2+U3) | 084 | open after 101/121/006/073 | one DT the usable build actually ships |
 
 ## Sequencing / dependencies
 
 ```
-B0/101 ─► 005 maxcpus=2 ─► 120/121 all 14 cores ─► 006 cpufreq ─┐
+B0/101 ─► 122/123 maxcpus=2 replacement ─► 120/121 all cores ─► 006 cpufreq ─┐
 B0/101 ────────────────────────────────► 073 IRQ console ──────┼─► 084/U8
                                                               └─► usable RAM distro
 B0 ──► U4 SMC power/battery ─────► on-device power control
@@ -66,7 +66,7 @@ hardware boundary. Exact artifact and result:
 `done/2026-07-24-t6040-b0-alpine-openrc-single-object-result.md`.
 
 ### U8 — daily-driver feature DT (ticket 084, offline, strictly post-B0)
-Strictly after 101, the `maxcpus=2` control (005), all-14-core proof (120/121),
+Strictly after 101, the replacement `maxcpus=2` control (123), all-14-core proof (120/121),
 cpufreq (006), and IRQ console (073) have each passed their solo rig boots,
 build **one** integrated J614s DT that carries all three features (14 cores,
 cluster-cpufreq, IRQ-816 console) on the proven base, host-validate

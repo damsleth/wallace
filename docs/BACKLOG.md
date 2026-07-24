@@ -38,11 +38,10 @@ NVMe is NO-GO near-term (008: SPTM-gated, no raw-boot guarded entry). The
 sequenced gates are in `docs/BOOTABLE_BUILD_EXPERIMENTS.md`.
 In rough order of leverage:
 
-1. **Restore the rig link** (xcut, P0). Ticket 095 passed its intended
-   SSPS-to-S0 boundary, but the following VDM recovery and one bounded KIS
-   reattach failed. The rig is free and **NEEDS_RECOVERY**. The first hardware
-   action is a recovery boot, stable `Running proxy`, and
-   `rig-lease.sh recovered <agent>`—not another experiment.
+1. **Rig link healthy; preserve the recovery control** (xcut). Ticket 118
+   closed the post-095 recovery question after a maintainer power cycle,
+   healthy proxy check, and later successful reboot cycles. Keep its
+   fail-closed checklist; causality remains unattributed.
 2. **B0 bootable-build pipeline** (distro/HID, P1). Captures **076**, decode
    **077**, and the HID-type repair **078** are complete. The rebased
    `hid-apple` rejected the untyped BUS_HOST keyboard; the minimal type
@@ -124,21 +123,23 @@ In rough order of leverage:
    destructive device mode or populate a persistent USB rootfs until
    enumeration and read-only block identity pass. Tickets 110–113 then isolate
    flashing, tethered read-write root, and untethered boot.
-4. **PCIe → WiFi/BT** (pcie, P1). Op-115 stalls on its read side; **058** is
-   the offline route-finding for the missing PHY-IP aperture precondition; only
-   a new evidence-backed manifest goes live. **044** (port-0/BCM4388 manifest)
+4. **PCIe → WiFi/BT** (pcie, P1). Ticket 068 proved the exact clkgen sequence
+   locks its PLL but does not unstick the op-115 PHY-IP read. **124** resumes
+   paired-driver route-finding; only a new evidence-backed manifest goes live.
+   **044** (port-0/BCM4388 manifest)
    is the pre-reviewed stage after link-up; the complete restore-recoverable
    firmware corpus is staged and ticket 030 is done.
 5. **Two-way remote console** (console, P2 but high leverage for every later
    rig experiment). Poll-mode tty is proven. The ADT's IRQ 360 is now known
    wrong; measured UART input is 816, so 059's timing image is closed
    superseded. Audit/adapt the WIP direct `apple,dockchannel-uart` IRQ-816
-   earlycon/`ttyDC0` path is complete under **062**; plan-approved 073 is the
-   currently non-runnable live proof.
+   earlycon/`ttyDC0` path is complete under **062**; **073 passed** with stable
+   bidirectional IRQ-driven shell traffic and zero reported IRQ errors.
 6. **Make the approved rig queue runnable** (smp/cpufreq/hid). The exact
-   preflights **034/035** are complete. Review/run maxcpus=2 ticket 005 first,
-   then prepare/review/run the separate all-14-core 120/121 pair; cpufreq 006
-   waits for 121. Trackpad provisioning **016** is
+   preflights **034/035** are complete, but maxcpus=2 ticket 005 reached kernel
+   vectoring with no Linux output. Diagnose/build under 122, then obtain fresh
+   approval for replacement 123 before all-core 120/121; cpufreq 006 waits for
+   121. Trackpad provisioning **016** is
    complete (`tpmtfw-j614s.bin` `a1f4131d...`); ticket 004's exact reproducible
    kernel/DT/initramfs set is now pinned in its 2026-07-24 preflight and needs
    only an independent exact-artifact review before it is runnable.
@@ -171,7 +172,7 @@ Per COORDINATION.md roles, extended for the USB-root era:
 |---|---|---|
 | Storage: RAM-root + USB-root pipeline + SPTM | **sol** | right HPM2 reached S0; 096/102–113 stage link → read → confirmed flash → RW root; 114–117 keep NVMe host-only |
 | PCIe/WiFi-BT, DockChannel console | **claude** | 068/044; completed 062 feeds non-runnable 073 |
-| Rig-queue preflights, SMC/PM, upstream drafts | **claude** (first grab) | 005→120/121→006; 061 and 019/046/047/048 complete |
+| Rig-queue preflights, SMC/PM, upstream drafts | **claude** (first grab) | 122→123→120/121→006; 061 and 019/046/047/048 complete |
 | Rootfs recipe, xcut, tracking | either (queue order) | 029/030, 022/023; 026/039/060 complete |
 
 The other agent still cross-reviews every live image regardless of lane, and
