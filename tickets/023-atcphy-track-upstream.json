@@ -5,7 +5,7 @@
   "state": "open",
   "track": "usb",
   "priority": "P2",
-  "desc": "[UPSTREAM + paired static decode] Track explicit T6040 ATC PHY + SN201202x HPM support. The 25F84 AppleT6040TypeCPhy kext byte-proves the full 44-bank map and raw tunable encoding. Its direct 8,580-byte eUSB2 init is exactly decoded: only banks 0/1, six offsets, ordered RMW/reset/event/status/mode sequence. Paired AppleT8150USBXHCI proves host powerLevel=2/options=0x40000/timeout=500, selecting the false/false branch and final mode 2. The target ADT explicitly selects Apple SPMI Gen3 and right-port SN201202x class 10. Paired publishHPMDevices reads six bounded identity windows, but crosses a provider state boundary and readRegs changes timer/transaction state, so no live read census is authorized. Ticket 063 proved DART+xHCI root hubs but no child. Remaining blockers are SN201202x attach/role/orientation/VBUS/repeater ownership plus rollback. No SPMI or live PHY writes are authorized. Exact host-only proofs: done/2026-07-24-t6040-atcphy-kext-bank-map.md, done/2026-07-24-t6040-eusb2-init-sequence.md, and done/2026-07-24-t6040-hpm-spmi-discovery-boundary.md.",
+  "desc": "[UPSTREAM + paired static decode] Track explicit T6040 ATC PHY + SN201202x HPM support. The paired kexts prove the 44-bank ATC map, direct eUSB2 host branch, target SPMI Gen3, and SN201202x HALType5/AppleTCControllerType10 selection. Type10 turnOnVbus reaches an exact nine-byte HPM address-0x14 RMW: byte1 OR 0x0d and byte7 OR 0x08. HALType5 proves USB config/status/data-control addresses 0x23/0x24/0x55. This is not a live recipe: discovery and readRegs change provider/timer state, address 0x14 has no local inverse, and cached command, interrupt, power/config, disconnect, and repeater coordination remain unresolved. Ticket 063 proved DART+xHCI root hubs but no child. No SPMI or live PHY writes are authorized. Exact host-only proofs: done/2026-07-24-t6040-atcphy-kext-bank-map.md, done/2026-07-24-t6040-eusb2-init-sequence.md, done/2026-07-24-t6040-hpm-spmi-discovery-boundary.md, and done/2026-07-24-t6040-hpm-class10-host-transition.md.",
   "author": "claude",
   "deps": [],
   "hashes": {
@@ -20,7 +20,11 @@
     "apple_hpm_kext_sha256": "b6eab85a4478fe354c29d4a274fa1ea23ced1c051e3b320fdfad54d65dce381d",
     "apple_spmi_kext_sha256": "707edb5eb41bcf7252853f8fb24fb2a454e7923dc363294b8e18a6373c284878",
     "apple_hpm_spmi_read_regs_bytes_sha256": "90763bfc20f68c519f077c7df9987c78a19bd98e02645f9522a2a2ef6a4d2cb6",
-    "apple_hpm_publish_devices_bytes_sha256": "84aae78c3ca4c2a1c521f9c92db04bebc062bffe5496fdc73f04f5b77f32bd13"
+    "apple_hpm_publish_devices_bytes_sha256": "84aae78c3ca4c2a1c521f9c92db04bebc062bffe5496fdc73f04f5b77f32bd13",
+    "apple_tc_type10_probe_bytes_sha256": "f09c1325c6d0b70b91890a09d97aba6322b2e3c5443d41fabb1b48cf844ff737",
+    "apple_tc_type10_force_port_evaluation_bytes_sha256": "c3068687c33afe20625a4e13c1f1b5280f580f7a4f938cfe5ce39e1ef2fc7c24",
+    "apple_tc_type10_turn_on_vbus_bytes_sha256": "66bd1875ad2e7650b84476a51d4dd502db1db96d1e1dd05bd6cb10389d395bb9",
+    "apple_hpm_hal5_set_usb_config_bytes_sha256": "db11df27faeb72b9bd7e5ecfa90e5868f9bc9058505bd927249d7502af0b6251"
   },
   "last_checked": "2026-07-24",
   "created": 1784039024

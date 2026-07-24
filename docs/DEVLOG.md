@@ -857,6 +857,19 @@ timer/transaction state and can poll for up to one second. Exact function
 boundaries, hashes, target ADT facts, and the remaining class-10 decode:
 `done/2026-07-24-t6040-hpm-spmi-discovery-boundary.md`.
 
+The next paired pass proves the right-port object chain:
+SN201202x selects `AppleHPMDeviceHALType5`, while
+`AppleTCControllerType10::probe()` requires the target's
+`hpm-class-type = 10`. Type10 `turnOnVbus()` clears its wait flag, stops its
+USB timer, then dispatches `forcePortEvaluation()`. That method reads nine
+bytes at HPM address `0x14`, ORs `0x0d` into byte 1 and `0x08` into byte 7,
+then writes all nine bytes. Its cached path performs the same masks and merges
+with a fresh read. HALType5 separately proves USB config/status/data-control
+addresses `0x23`, `0x24`, and `0x55`. There is no local inverse for the
+address-`0x14` mutation, so it remains forbidden live. Exact class proof,
+packing, function hashes, and remaining rollback work:
+`done/2026-07-24-t6040-hpm-class10-host-transition.md`.
+
 ### MCC carveout/cache residual closed as a boot blocker (2026-07-23)
 
 Offline ticket 020 audited the captured J614s ADT, current m1n1 memory handoff,

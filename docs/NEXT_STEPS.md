@@ -204,13 +204,17 @@ This still is not a live candidate. The target ADT explicitly selects Apple
 SPMI Gen3 plus an SN201202x class-10 HPM. Paired discovery reads six bounded
 register windows, but it first crosses a provider state boundary and its
 `readRegs()` changes timer/transaction state; this is not an observation-only
-live probe. Attach/role/orientation/VBUS/repeater ownership remains the
-bus-powered-stick gate. Do not rerun the same unpowered topology or synthesize
-SPMI/PHY writes. Exact checkpoints:
+live probe. The class path is now proved as HALType5 plus
+`AppleTCControllerType10`, and `turnOnVbus()` reaches an exact nine-byte
+address-`0x14` RMW (`raw[1] |= 0x0d`, `raw[7] |= 0x08`). That is still not a
+live candidate: no local inverse exists, and cached command, interrupt,
+USB-config, power-state, and repeater coordination remain. Do not rerun the
+same unpowered topology or synthesize SPMI/PHY writes. Exact checkpoints:
 `done/2026-07-23-t6040-atcphy-upstream-checkpoint.md` and
 `done/2026-07-24-t6040-atcphy-kext-bank-map.md`, plus
 `done/2026-07-24-t6040-eusb2-init-sequence.md` and
-`done/2026-07-24-t6040-hpm-spmi-discovery-boundary.md`.
+`done/2026-07-24-t6040-hpm-spmi-discovery-boundary.md`, plus
+`done/2026-07-24-t6040-hpm-class10-host-transition.md`.
 
 Ticket 022's 2026-07-23 refresh also confirms that native DCP is not a B0
 dependency. Its J614s DT topology is inventoried, but the macOS 26.x ABI, extra
