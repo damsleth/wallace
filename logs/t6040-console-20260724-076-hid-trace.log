@@ -1,0 +1,74 @@
+Preparing to run next stage at 0x1000f000000...
+USB0: shutdown
+USB1: shutdown
+USB2: shutdown
+MMU: shutting down...
+MMU: shutdown successful, clearing caches
+Vectoring to next stage...
+
+*** Alpine RAM-root ready on /dev/ttydc0 ***
+No USB or internal storage is mounted.
+Linux wallace-ramroot 7.1.3-g96ac043df12f-dirty #2 SMP PREEMPT Thu Jul 23 19:51:56 UTC 2026 aarch64 Linux
+Alpine 3.24.0 (aarch64)
+
+===== T6040 HID TRACE AUTO REPORT BEGIN =====
+[release]
+Linux wallace-ramroot 7.1.3-g96ac043df12f-dirty #2 SMP PREEMPT Thu Jul 23 19:51:56 UTC 2026 aarch64 Linux
+Alpine 3.24.0 (aarch64)
+[HIDTRACE dmesg, last 200 matching lines]
+[    0.176948] dockchannel-hid 514600000.hid: HIDTRACE event=0xf0 length=109
+[    0.177456] dockchannel-hid 514600000.hid: HIDTRACE init iface=3 name=stm more=0 length=109
+[    0.179003] dockchannel-hid 514600000.hid: HIDTRACE create iface=3 name=stm ret=0 vendor=0x0 product=0x0
+[    0.185601] dockchannel-hid 514600000.hid: HIDTRACE event=0xf0 length=192
+[    0.186420] dockchannel-hid 514600000.hid: HIDTRACE init iface=1 name=multi-touch more=0 length=192
+[    0.187053] dockchannel-hid 514600000.hid: HIDTRACE event=0xf0 length=264
+[    0.187604] dockchannel-hid 514600000.hid: HIDTRACE init iface=2 name=keyboard more=0 length=264
+[    0.188134] dockchannel-hid 514600000.hid: HIDTRACE event=0xf0 length=109
+[    0.188634] dockchannel-hid 514600000.hid: HIDTRACE init iface=5 name=tp-accel more=0 length=109
+[    0.196686] dockchannel-hid 514600000.hid: HIDTRACE event=0xf0 length=118
+[    0.197224] dockchannel-hid 514600000.hid: HIDTRACE init iface=4 name=actuator more=0 length=118
+[    0.197709] dockchannel-hid 514600000.hid: HIDTRACE event=0xf0 length=111
+[    0.198188] dockchannel-hid 514600000.hid: HIDTRACE init iface=6 name=mtp more=0 length=111
+[    0.198659] dockchannel-hid 514600000.hid: HIDTRACE event=0xf1 length=4
+[    0.199114] dockchannel-hid 514600000.hid: HIDTRACE ready iface=3 name=stm
+[    0.210225] dockchannel-hid 514600000.hid: HIDTRACE stm id_ret=34 serial_ret=23 id=0x5ac:0x359:0x510
+[    0.213037] dockchannel-hid 514600000.hid: HIDTRACE create iface=1 name=multi-touch ret=0 vendor=0x5ac product=0x359
+[    0.215141] dockchannel-hid 514600000.hid: HIDTRACE event=0xf1 length=4
+[    0.215692] dockchannel-hid 514600000.hid: HIDTRACE ready iface=2 name=keyboard
+[    0.216522] dockchannel-hid 514600000.hid: HIDTRACE create iface=2 name=keyboard ret=0 vendor=0x5ac product=0x359
+[    0.224983] dockchannel-hid 514600000.hid: HIDTRACE create iface=4 name=actuator ret=0 vendor=0x5ac product=0x359
+[    0.225864] dockchannel-hid 514600000.hid: HIDTRACE event=0xf1 length=4
+[    0.226516] dockchannel-hid 514600000.hid: HIDTRACE ready iface=4 name=actuator
+[    0.227251] dockchannel-hid 514600000.hid: HIDTRACE event=0xf1 length=4
+[    0.227893] dockchannel-hid 514600000.hid: HIDTRACE ready iface=5 name=tp-accel
+[    0.232102] dockchannel-hid 514600000.hid: HIDTRACE create iface=5 name=tp-accel ret=0 vendor=0x5ac product=0x359
+[    0.234292] dockchannel-hid 514600000.hid: HIDTRACE event=0xf1 length=4
+[    0.234898] dockchannel-hid 514600000.hid: HIDTRACE ready iface=6 name=mtp
+[    0.236981] dockchannel-hid 514600000.hid: HIDTRACE create iface=6 name=mtp ret=0 vendor=0x5ac product=0x359
+[dc_trace and hid_trace]
+--- /sys/devices/platform/soc/50880c000.mailbox/dc_trace
+mode=poll irq=0 tx_mask=0x4 rx_mask=0x2
+irq_calls=0 irq_wakes=0 rx_runs=175
+rx_batches=0 rx_bytes=0
+last_flags=0x0 last_pending=0x0 last_mask=0x0 last_rx_count=0
+--- /sys/devices/platform/soc/514600000.hid/hid_trace
+rx_callbacks=13 rx_bytes=1396 packets=19
+cmd_packets=8 report_packets=11 acks=8 ack_matches=8 events=11
+last_channel=0x11 last_iface=0 last_seq=5 last_event=0xf1
+last_ack_report=0xb4 last_ack_retcode=0x0 rx_buffered=0
+init_seen=0x7e ready_seen=0x7c create_queued=0x7e create_ok=0x7e deferred=0x76
+stm_id_ret=34 stm_serial_ret=23 id_ready=1 id=0x5ac:0x359:0x510
+--- /sys/devices/platform/soc/514b14000.mailbox/dc_trace
+mode=irq irq=41 tx_mask=0x4 rx_mask=0x8
+irq_calls=26 irq_wakes=19 rx_runs=19
+rx_batches=13 rx_bytes=1396
+last_flags=0x8 last_pending=0x8 last_mask=0x8 last_rx_count=0
+[/proc/bus/input/devices]
+[/dev/input]
+[unavailable]
+[/proc/partitions]
+major minor  #blocks  name
+
+===== T6040 HID TRACE AUTO REPORT END =====
+[ramroot] spawning Alpine root shell
+wallace-ramroot:~# [6n
