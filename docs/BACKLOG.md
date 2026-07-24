@@ -89,8 +89,9 @@ In rough order of leverage:
 5. **Make the approved rig queue runnable** (smp/cpufreq/hid). 004/005/006 are
    approved with hashes TBD — **034** (SMP DT preflight) and **035** (cpufreq
    DT preflight) produce the pinned images. Trackpad provisioning **016** is
-   complete (`tpmtfw-j614s.bin` `a1f4131d...`); ticket 004 now needs its exact
-   kernel/DT/initramfs rebuild and review before it is runnable.
+   complete (`tpmtfw-j614s.bin` `a1f4131d...`); ticket 004's exact reproducible
+   kernel/DT/initramfs set is now pinned in its 2026-07-24 preflight and needs
+   only an independent exact-artifact review before it is runnable.
 6. **Upstreaming proven work** (xcut, P1): SMP/cpufreq posting drafts are
    finalized under completed **019**; **046** now provides the rebased
    nine-patch m1n1 RFC and cover letter. **047** now provides the consolidated

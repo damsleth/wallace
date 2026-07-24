@@ -309,8 +309,10 @@ remain required.
   input0. Its missing HIDF loader and retry recovery are fixed. Ticket 016
   reproducibly staged the paired 25F84 `tpmtfw-j614s.bin` (`a1f4131d...`).
   Ticket 030 now also provides a deterministic full restore corpus and
-  22-file Linux tree (`cb7a4ee2...` raw archive); rebuild/review ticket 004,
-  then determine whether J614s needs the forbidden
+  22-file Linux tree (`cb7a4ee2...` raw archive). Ticket 004's exact
+  reproducible TX-only motion candidate is now pinned (`86e031db...` Image,
+  `3a47c95d...` initramfs); independent review remains before its one-shot
+  boot. The result will determine whether J614s needs the forbidden
   legacy PMU-backed GPIO proxy path without exercising that write
   (NEXT_STEPS #1).
 - **Display:** two steps.

@@ -1,0 +1,129 @@
+#!/bin/busybox sh
+# Bounded, TX-only J614s trackpad registration and motion reporter.
+
+BB=/bin/busybox
+
+$BB mount -t proc none /proc
+$BB mount -t sysfs none /sys
+$BB mount -t devtmpfs none /dev 2>/dev/null
+
+if [ -c /dev/watchdog0 ]; then
+    $BB watchdog -T 30 -t 10 /dev/watchdog0 &
+fi
+
+n=0
+while [ ! -c /dev/ttydc0 ] && [ "$n" -lt 15 ]; do
+    $BB sleep 1
+    n=$((n + 1))
+done
+
+have_tty=0
+if [ -c /dev/ttydc0 ]; then
+    # Keep the port open after the report; closing the final writer has caused
+    # output loss with this bring-up driver.
+    exec 9<>/dev/ttydc0
+    have_tty=1
+fi
+
+emit()
+{
+    echo "$*"
+    if [ "$have_tty" -eq 1 ]; then
+        echo "$*" >&9
+    fi
+}
+
+emit_file()
+{
+    $BB cat "$1"
+    if [ "$have_tty" -eq 1 ]; then
+        $BB cat "$1" >&9
+    fi
+}
+
+emit "=== T6040 TRACKPAD MOTION REPORT START ==="
+$BB uname -a > /tmp/uname
+emit_file /tmp/uname
+
+# Give DockChannel HID asynchronous probe/registration a bounded window.
+n=0
+while [ "$n" -lt 20 ]; do
+    set -- /dev/input/event*
+    [ -e "$1" ] && break
+    $BB sleep 1
+    n=$((n + 1))
+done
+
+emit "--- input devices before open ---"
+if [ -r /proc/bus/input/devices ]; then
+    $BB cat /proc/bus/input/devices > /tmp/input-devices-before
+else
+    echo "(missing /proc/bus/input/devices)" > /tmp/input-devices-before
+fi
+emit_file /tmp/input-devices-before
+
+$BB ls -la /dev/input > /tmp/input-nodes-before 2>&1 ||
+    echo "(missing /dev/input)" > /tmp/input-nodes-before
+emit_file /tmp/input-nodes-before
+
+$BB dmesg | $BB grep -Ei \
+    'dockchannel|dchid|multi-touch|trackpad|firmware|reset gpio|hid:' \
+    | $BB tail -80 > /tmp/trackpad-dmesg-before
+emit "--- relevant dmesg before event opens ---"
+emit_file /tmp/trackpad-dmesg-before
+
+set -- /dev/input/event*
+if [ ! -e "$1" ]; then
+    emit "NO_INPUT_EVENT_NODES"
+else
+    emit "TOUCH_TRACKPAD_NOW_FOR_12_SECONDS"
+    pids=""
+    nodes=""
+    for node in /dev/input/event*; do
+        base=${node##*/}
+        (
+            $BB timeout 12 $BB dd if="$node" bs=24 count=32 2>/dev/null |
+                $BB hexdump -Cv > "/tmp/$base.hex"
+        ) &
+        pids="$pids $!"
+        nodes="$nodes $base"
+    done
+    for pid in $pids; do
+        wait "$pid" 2>/dev/null || true
+    done
+    for base in $nodes; do
+        emit "--- $base bounded bytes ---"
+        if [ -s "/tmp/$base.hex" ]; then
+            emit_file "/tmp/$base.hex"
+        else
+            emit "(no bytes)"
+        fi
+    done
+fi
+
+$BB dmesg | $BB grep -Ei \
+    'dockchannel|dchid|multi-touch|trackpad|firmware|reset gpio|hid:' \
+    | $BB tail -120 > /tmp/trackpad-dmesg-after
+emit "--- relevant dmesg after event opens ---"
+emit_file /tmp/trackpad-dmesg-after
+
+if [ -r /proc/bus/input/devices ]; then
+    $BB cat /proc/bus/input/devices > /tmp/input-devices-after
+    emit "--- input devices after open ---"
+    emit_file /tmp/input-devices-after
+fi
+
+emit "=== T6040 TRACKPAD MOTION REPORT END ==="
+
+if [ "$have_tty" -eq 1 ]; then
+    emit "[dcuart] spawning persistent shell"
+    (
+        while :; do
+            $BB setsid $BB sh -c \
+                'exec /bin/busybox sh -i <>/dev/ttydc0 >&0 2>&1'
+            $BB sleep 2
+        done
+    ) &
+fi
+
+exec $BB sh

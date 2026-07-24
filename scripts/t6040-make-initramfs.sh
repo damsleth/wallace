@@ -71,8 +71,10 @@ for pair in ${EXTRA_FILES:-}; do
     install -m 0644 "$src" "$TMP/$dest"
 done
 
-(cd "$TMP" && LC_ALL=C find . -print | LC_ALL=C sort | \
-    LC_ALL=C cpio -o -H newc 2>/dev/null | gzip -9) >"$DEST"
+# BSD cpio records temporary host inode numbers. Use the project writer so
+# path order, inode values, ownership, mtimes, padding, and gzip header are all
+# deterministic across fresh unpack directories.
+"$ROOT/scripts/reproducible-newc.py" "$TMP" | gzip -9 -n >"$DEST"
 
 echo "initramfs -> $DEST"
 shasum -a 256 "$DEST"

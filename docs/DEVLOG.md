@@ -211,6 +211,18 @@ as `0x10001` then `0x10000`; do not implement or exercise it under the absolute
 no-PMU-write rule. Details:
 `done/2026-07-12-t6040-trackpad-firmware.md`.
 
+The 2026-07-24 ticket-004 rebuild pins a byte-reproducible trackpad candidate:
+Image `86e031db...`, storage-disabled DTB `2782b922...`, and paired-firmware
+initramfs `3a47c95d...`. The dedicated init automatically emits registration,
+dmesg, and a bounded 12-second event read over ttydc0 TX, avoiding the current
+RX regression. The initramfs builder now uses
+`scripts/reproducible-newc.py` plus `gzip -n`; this removes BSD cpio's temporary
+host-inode nondeterminism. The base archive contains no hardlinked regular
+files or special nodes, and two fresh archives byte-match. No live run is
+authorized until an independent exact-artifact review records PASS. Full
+manifest and stop conditions:
+`done/2026-07-24-t6040-trackpad-motion-preflight.md`.
+
 ### BCM4388 wireless firmware corpus (2026-07-14, ticket 014)
 
 The `apple,mriya` WiFi/BT firmware (chip 4388 **C2** per the 25F84 Bluetooth

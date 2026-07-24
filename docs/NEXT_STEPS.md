@@ -516,17 +516,25 @@ the tunables without new static evidence. Continue offline route-finding for
 the missing PHY-IP aperture precondition/Apple transition, then require a new
 manifest, cross-review, and explicit approval for any changed live sequence.
 
-## 1. Build and review the J614s trackpad motion retest
+## 1. Independently review the prepared J614s trackpad motion retest
 `event0` is Apple DockChannel Multi-touch and `event1` is the keyboard. The
 transport's missing firmware loader and stuck-start error path are fixed and
 live-tested in kernel build #12: repeated opens now independently request
 `apple/tpmtfw-j614s.bin` and return `-ENOENT`, with no invalid resets or stale
-`-EINPROGRESS`. Ticket 016 now reproducibly extracted the exact 25F84 J614s
+`-EINPROGRESS`. Ticket 016 reproducibly extracted the exact 25F84 J614s
 payload and staged `tpmtfw-j614s.bin` at SHA-256 `a1f4131d...`; extraction and
 integration evidence is
-`done/2026-07-23-t6040-trackpad-firmware-provision.md`. Rebuild and hash the
-exact trackpad-loader kernel/DT and firmware-bearing initramfs, independently
-review ticket 004, then retest motion. If MTP requests its reset GPIO, stop:
+`done/2026-07-23-t6040-trackpad-firmware-provision.md`.
+
+The exact ticket-004 candidate is now built twice and pinned: Image
+`86e031db...`, unchanged storage-disabled DTB `2782b922...`, paired-firmware
+initramfs `3a47c95d...`, and PCIe-write-free m1n1 `1394c345...`. Its TX-only
+init automatically inventories input and captures at most 12 seconds/32
+records per event, so it does not depend on ttydc0 RX. Do not boot until an
+onboarded independent reviewer records PASS for these exact bytes. Preflight:
+`done/2026-07-24-t6040-trackpad-motion-preflight.md`.
+
+If MTP requests its reset GPIO, stop:
 the derived `gp1c` function resolves through the ADT's `smc-pmu` node, and PMU
 writes are forbidden by the project rules.
 No tactile click is expected yet (the haptic actuator is a separate interface).
