@@ -2,7 +2,7 @@
   "seq": "100",
   "slug": "b0-alpine-openrc-single-object",
   "needs": "rig",
-  "state": "approved",
+  "state": "done",
   "track": "distro",
   "priority": "P1",
   "desc": "Tethered single-object proof of the B0 Alpine/OpenRC RELEASE object (closes 081; precursor to 082 enrollment). Boot only m1n1-b0-alpine-openrc.bin 2371ee5d (22,183,563 B, entry 0x800) via chainload.py -r once; no linux.py, no second payload/target command. Object = safe m1n1 1394c345 + 078 kernel df7657c/d76463e5 + storage-disabled DTB 2782b922 + OpenRC root initramfs ddd98171 (699 entries, 0 block nodes) + bootargs rdinit=/sbin/init maxcpus=1 idle=nop (no root/USB/SMP/cpufreq/PCIe/storage). Delivery script t6040-boot-raw-object.sh 6b435913 (venv-python fix, re-pinned; supersedes preflight 65763ee2). Independently cross-reviewed by claude — PASS (all 6 review-gate items), see done/2026-07-24-t6040-alpine-openrc-single-object-preflight.md. De-risked by 089 (same autoboot mechanism, diagnostic userspace, PASS). Pass: embedded payload discovery -> Linux -> OpenRC default runlevel + watchdog, health report end marker + input0/event0, /proc/partitions empty, tty0 Alpine shell on the internal panel, one maintainer-typed line echoes from the internal keyboard. MAINTAINER-ATTENDED (panel + keyboard). Stop on hash mismatch/SError/reset/DART/USB/storage/missing marker/absent watchdog/lost framebuffer. No APFS/enrollment. One boot; recovery first.",
@@ -13,5 +13,6 @@
   "hashes": null,
   "created": 1784910584,
   "approved_by": "maintainer",
-  "approved_at": 1784923929
+  "approved_at": 1784923929,
+  "done_at": 1784924576
 }
