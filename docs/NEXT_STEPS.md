@@ -278,6 +278,14 @@ is done. Only R0/093 is eligible now; R1/R2 remain dependency-gated. Exact
 preflight:
 `done/2026-07-24-t6040-hpm2-r0-r2-preflight.md`.
 
+**R0 attempt 1:** the original full-tree CRC gate rejected the standard
+chainloader's volatile ADT handoff-field rewrites, explicitly logged zero SPMI
+transactions, and recovered normally. Replacement commit `ef707f51f181`
+retains all endpoint-selecting property gates, treats full CRC as telemetry,
+and independently reproduced/reviewed as R0 `3a686c71...`, R1 `ae136a14...`,
+R2 `169c081a...`. R0/093 remains the only eligible live class. See
+`done/2026-07-24-t6040-hpm2-r0-attempt1.md`.
+
 Ticket 022's 2026-07-23 refresh also confirms that native DCP is not a B0
 dependency. Its J614s DT topology is inventoried, but the macOS 26.x ABI, extra
 display MMIO bank, paired ASC IRQ layout, DART SID/register-bank delta, and

@@ -78,8 +78,11 @@ In rough order of leverage:
    hardware success covers only T6000/I2C. The 2026-07-24 endpoint-scoped
    policy now permits separately reviewed right-HPM2 operations while keeping
    PMU/charger/NVRAM/firmware and unknown endpoints prohibited. Offline
-   **092** now has reproducible, hash-pinned R0/R1/R2 artifacts at m1n1
-   `d4f13a62b626`; independent rebuild and safety review passed.
+   **092** produced reproducible staged candidates. The first R0 live attempt
+   failed closed before SPMI because the standard chainloader changes volatile
+   ADT handoff fields. Replacement m1n1 `ef707f51f181` keeps the full CRC as
+   telemetry while retaining exact endpoint-selecting properties as fatal
+   gates; its R0/R1/R2 artifacts independently reproduced and passed review.
    Plan-approved rig **093/094/095** test selector/status, WAKEUP+S0, and mask
    preservation one boundary at a time. Review passed for the exact first
    three artifacts, so only R0/**093** is presently eligible; R1 and R2 retain

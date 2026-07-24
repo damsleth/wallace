@@ -962,6 +962,18 @@ R0/093 is eligible now; R1/R2 retain their preceding-live-pass gates. Full
 preflight:
 `done/2026-07-24-t6040-hpm2-r0-r2-preflight.md`.
 
+The first R0 live attempt proved the original gate failed closed: the candidate
+reported ADT size `606208`, runtime CRC `a9876072`, then
+`ADT verification FAIL; zero SPMI transactions` and warm-rebooted. The
+captured-tree CRC is not stable because `chainload.py` necessarily rewrites
+volatile `/chosen/memory-map` handoff addresses before pushing the ADT. Normal
+proxy recovery passed. Replacement m1n1 `ef707f51f181` makes the whole-tree CRC
+diagnostic-only while retaining size plus every exact root/chip/board/
+controller/sole-child/SID/rid/class/port/right property as fatal gates. An
+independent clean rebuild and review passed replacement hashes R0
+`3a686c71...`, R1 `ae136a14...`, and R2 `169c081a...`. Attempt record:
+`done/2026-07-24-t6040-hpm2-r0-attempt1.md`.
+
 ### MCC carveout/cache residual closed as a boot blocker (2026-07-23)
 
 Offline ticket 020 audited the captured J614s ADT, current m1n1 memory handoff,
