@@ -196,12 +196,18 @@ blocker: `AppleT6040TypeCPhy::_sRegisters[44][8]` matches all four target ADT
 bank lists exactly, and the tunable encoding byte-proves bank+offset. The
 right-port USB2 HOST record is `reg[4]+0x8`, mask `0x7003`, value `0x3`—the
 same as DFLT—so replaying that one record cannot test the missing link.
-Remaining work is the direct eUSB2 sequence plus Apple SPMI Gen4 and SN201202x
-attach/role/orientation/VBUS/repeater ownership. Do not rerun the same
-unpowered topology or synthesize SPMI/PHY writes. Exact checkpoint and new
-map:
+The direct 8,580-byte eUSB2 initializer is now decoded too: it uses only banks
+0/1 and six offsets with an exact RMW/reset/event/status/mode sequence. Paired
+`AppleT8150USBXHCI` proves its host call uses power level 2, options
+`0x40000`, timeout 500 ms, selecting the false/false branch and final mode 2.
+This still is not a live candidate. The target's Apple SPMI Gen3 controller
+plus SN201202x
+attach/role/orientation/VBUS/repeater ownership remain the bus-powered-stick
+gate. Do not rerun the same unpowered topology or synthesize SPMI/PHY writes.
+Exact checkpoints:
 `done/2026-07-23-t6040-atcphy-upstream-checkpoint.md` and
-`done/2026-07-24-t6040-atcphy-kext-bank-map.md`.
+`done/2026-07-24-t6040-atcphy-kext-bank-map.md`, plus
+`done/2026-07-24-t6040-eusb2-init-sequence.md`.
 
 Ticket 022's 2026-07-23 refresh also confirms that native DCP is not a B0
 dependency. Its J614s DT topology is inventoried, but the macOS 26.x ABI, extra
@@ -857,6 +863,6 @@ namespace. Prior exact output:
   probe neighboring offsets. See
   `done/2026-07-23-t6040-cpufreq-throttle-analysis.md`.
 - ATC PHY tunables (USB3/TB) — the paired 25F84 kext now proves the T6040
-  44-bank order and tunable bank+offset encoding. Direct init sequencing and
-  the SPMI/SN201202x HPM path remain blocked; USB2 root hubs alone are not a
-  functioning fallback.
+  44-bank order, tunable encoding, banks-0/1 direct eUSB2 init sequence, and
+  exact XHCI host branch. The SPMI/SN201202x HPM path remains blocked; USB2
+  root hubs alone are not a functioning fallback.

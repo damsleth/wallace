@@ -835,6 +835,18 @@ SPMI/SN201202x path remain offline work; SPMI and live PHY writes remain
 forbidden. Full static result:
 `done/2026-07-24-t6040-atcphy-kext-bank-map.md`.
 
+The follow-on static decode bounded the direct eUSB2 half further. The
+8,580-byte `eusb2phy_init(bool,bool)` routine touches only ATC banks 0 and 1:
+six offsets total, with two setup branches followed by reset release, one
+event write/status read, and final USB mode selection. For right-port
+`atc-phy2`, the two bases are `0x392a90000` and `0x392800000`. This is still
+not a live candidate. Paired `AppleT8150USBXHCI::start` proves the host call as
+power level 2/options `0x40000`/timeout 500 ms, selecting the false/false
+branch and final mode 2, but the routine does not own
+attach/orientation/source-role/VBUS/repeater state. Those remain in the
+SPMI/SN201202x HPM path, which is forbidden live. Exact sequence and function
+hashes: `done/2026-07-24-t6040-eusb2-init-sequence.md`.
+
 ### MCC carveout/cache residual closed as a boot blocker (2026-07-23)
 
 Offline ticket 020 audited the captured J614s ADT, current m1n1 memory handoff,

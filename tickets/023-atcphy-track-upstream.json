@@ -5,7 +5,7 @@
   "state": "open",
   "track": "usb",
   "priority": "P2",
-  "desc": "[UPSTREAM + paired static decode] Track explicit T6040 ATC PHY + SN201202x HPM support. The 25F84 AppleT6040TypeCPhy kext now byte-proves the full 44-bank map: profiles 0-3 match atc-phy0-3 ADT reg[] order 44/44, and raw tunables encode bank in bits 31:27 plus signed 27-bit offset. Right-port USB2 HOST is reg[4]+0x8, mask 0x7003/value 0x3, identical to DFLT, so replaying it alone is not a useful test. Ticket 063 proved DART+xHCI root hubs but no child. Remaining implementation blockers are the direct eUSB2 sequence, Apple SPMI Gen4 controller, SN201202x attach/role/orientation/VBUS/repeater path, connector graph, and reviewed ownership/rollback. No SPMI or live PHY writes are authorized. Exact host-only proof: done/2026-07-24-t6040-atcphy-kext-bank-map.md; upstream checkpoint: done/2026-07-23-t6040-atcphy-upstream-checkpoint.md.",
+  "desc": "[UPSTREAM + paired static decode] Track explicit T6040 ATC PHY + SN201202x HPM support. The 25F84 AppleT6040TypeCPhy kext byte-proves the full 44-bank map and raw tunable encoding. Its direct 8,580-byte eUSB2 init is exactly decoded: only banks 0/1, six offsets, ordered RMW/reset/event/status/mode sequence, with right-port addresses derived from the matched profile. Paired AppleT8150USBXHCI proves host powerLevel=2/options=0x40000/timeout=500, selecting the false/false branch and final mode 2. HOST reg[4]+0x8 equals DFLT and is not a useful test. Ticket 063 proved DART+xHCI root hubs but no child. Remaining blockers are the target's Apple SPMI Gen3 controller and SN201202x attach/role/orientation/VBUS/repeater ownership plus rollback. No SPMI or live PHY writes are authorized. Exact host-only proofs: done/2026-07-24-t6040-atcphy-kext-bank-map.md and done/2026-07-24-t6040-eusb2-init-sequence.md; upstream checkpoint: done/2026-07-23-t6040-atcphy-upstream-checkpoint.md.",
   "author": "claude",
   "deps": [],
   "hashes": {
@@ -13,7 +13,10 @@
     "linux_sven_atcphy": "bb58cc6399a58218b8b5204a9fadf26f07c7f0f3",
     "j614s_adt_sha256": "7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84",
     "apple_t6040_typecphy_kext_sha256": "d0a766201c15bb01b8eeaf6617c91707562ae0c50511ebfccbd9d918acd499f3",
-    "bank_map_script_sha256": "a19e06a29d9b73674456b9d3b99400ae8a491c86644cdb49bcd16fa14662fcfb"
+    "bank_map_script_sha256": "a19e06a29d9b73674456b9d3b99400ae8a491c86644cdb49bcd16fa14662fcfb",
+    "eusb2phy_init_bytes_sha256": "dbcb646331558971195222da3d360c4f61c66e714e344ffd5abde3102f7be29d",
+    "apple_synopsys_usbxhci_kext_sha256": "f8b96fabf19180125a1a545790e5d45bef96e9bbd28b7168fda536ed27383e44",
+    "apple_t8150_xhci_start_bytes_sha256": "1c57011198f21227eae3f8cdca6baebb8b59f4aed186dc29d2d821f207ed667e"
   },
   "last_checked": "2026-07-24",
   "created": 1784039024
