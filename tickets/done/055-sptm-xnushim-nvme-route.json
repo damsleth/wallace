@@ -1,0 +1,20 @@
+{
+  "seq": "055",
+  "slug": "sptm-xnushim-nvme-route",
+  "needs": "offline",
+  "state": "done",
+  "track": "storage",
+  "priority": "P1",
+  "desc": "DONE offline: completed the XNU-shim feasibility checkpoint and sharpened draft escalation using the exact T6041 handler decode and three-SoC comparison. The route remains coherent but low-confidence: boot a permissive XNU KC, inherit genuine SPTM, and pivot post-init_xnu_ro_data. Two blockers are explicit—caller-domain provenance and survival of CoastGuard TCB/CID/SART/queue plus SEP-loaded key state. The m1n1-HV trace route is dead; only an upstream answer or signed shim boot can resolve them. P0 skeleton/interface/signing scope is complete and sptm_nvme_call remains stubbed. Draft only; nothing posted or run. Result: done/2026-07-23-t6040-sptm-xnushim-feasibility.md.",
+  "author": "fable",
+  "deps": [
+    "008",
+    "010",
+    "051"
+  ],
+  "hashes": {
+    "exact_t6041": "0755358864e4d9e24255dd126d41d0a26a803fcbac0593898f76a7ba644af01a"
+  },
+  "created": 1784060530,
+  "done_at": 1784845100
+}

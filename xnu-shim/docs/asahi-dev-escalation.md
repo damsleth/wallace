@@ -8,20 +8,20 @@ with the evidence we've gathered so the ask is concrete, not open-ended.
 
 **Subject: M4 internal NVMe via an XNU-shim that rides genuine SPTM — viable, and does the CoastGuard TCB survive an XNU→Linux pivot?**
 
-Context: on M4 (T6041) macOS uses **SPTM** (confirmed: XNU SPTM runtime strings + NVMe
+Context: on M4 (T6041 family) macOS uses **SPTM** (confirmed: XNU SPTM runtime strings + NVMe
 CoastGuard/SART in the kernelcache; PPL vestigial), and the internal NVMe controller only
 accepts queue programming mediated by SPTM. Raw m1n1 boot has no resident SPTM, so any
-NVMe SPTM call wedges (no monitor behind `genter`). We've decoded the guarded-side NVMe
-backend from the SPTM blob: 9 ops (`func_state[0..8]`: protocol → queue-entries → TCB →
-admin-queue → IOQA → IOSQ → IOCQ → ANS-SHA), each gated by a call-ordering check
-(`allowed_functions`), with a per-CID TCB DMA-authorisation state machine + SART.
+NVMe SPTM call wedges (no monitor behind `genter`). We range-extracted the exact T6041
+SPTM and decoded its guarded NVMe backend: 9 ops (`func_state[0..8]`: init → SetTCB →
+invalidate TCB → queue/protocol configure → admin queues → IOQA → IOSQ → IOCQ → ANS
+SHA), each gated by `allowed_functions`, with per-CID TCB DMA authorisation + SART.
+The handler register contracts are byte-proven, including ASQ/ACQ addresses and depths.
 
 The route we think is viable (essentially your XNU-shim idea, Path B, applied to NVMe):
 
 1. Boot a Permissive-Security XNU-style kernelcache with a shim kext linked in.
-2. Let XNU bring up SPTM normally through `init_xnu_ro_data` (registers the NVMe/IOMMU
-   dispatch table — id 6, registered **XNU-callable**, `permissions = 0x12` per
-   `IOMMU_bootstrap`).
+2. Let XNU bring up SPTM normally through `init_xnu_ro_data` (registers NVMe dispatch
+   table 6 / IOMMU id 2 as **XNU-callable**, `permissions = 0x12` per `IOMMU_bootstrap`).
 3. Intercept at `IOPlatformExpert::start()` and pivot to Linux.
 4. Linux-at-EL1 drives NVMe ops 0..8 against the now-resident SPTM.
 
@@ -38,14 +38,18 @@ Two questions where your read would save us a lot of rig time:
   controller/TCB state stay valid for a *different* EL1 owner, or is queue/TCB state latched
   to XNU's context (SEP/ANS-tied) such that Linux must tear down and re-register from op 0?
 
-We're happy to run the empirical check ourselves (m1n1 EL2 HV genter-trace of macOS NVMe
-init) — mainly asking whether either question is already known-answered from the M1/M2/M3
-pmap/SPTM work before we build the shim toolchain.
+July discussion also noted that SEP loads APFS keys into the NVMe controller. We treat
+that as additional secure-stack coupling, not as a way around SPTM/CoastGuard. Is the
+key/controller state another handoff invariant we must preserve or explicitly rebuild?
+
+The obvious EL2 experiment is unavailable: m1n1-HV cannot boot under T6040's SPTM/GXF
+configuration, so we cannot trace macOS calls before building the shim. Is either domain
+or TCB/key survival already known from M1/M2/M3 pmap/SPTM work?
 
 *(Attachments CJ can include: the guarded-backend decode + the cross-review with the
 capability-model analysis and the ticket-007 retraction.)*
 
 ---
 
-Note for us: keep it a question, not a claim. We have NOT proven Q1/Q2 — the HV trace
-(ticket 053) is how we'd answer Q1 empirically if #asahi-dev can't.
+Note for us: keep it a question, not a claim. We have NOT proven Q1/Q2. The static ABI is
+complete; only an informed upstream answer or a future signed shim boot can resolve them.

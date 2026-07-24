@@ -199,6 +199,12 @@ Ticket 054's three-SoC structural diff further confirms that dispatch ids,
 op ordering, arguments, and SART/NVMe ownership are stable across T8132,
 T8140, and T6041, while text/register offsets are strictly variant-specific:
 `done/2026-07-23-sptm-three-soc-structural-diff.md`.
+Ticket 055's XNU-shim feasibility checkpoint and draft escalation are complete.
+The remaining blockers are no longer raw-m1n1 experiments: they are a
+permissive-kernelcache signing path, SPTM caller-domain survival, and
+CoastGuard/SART/SEP controller-state survival across the pivot. The live call
+stub remains disabled:
+`done/2026-07-23-t6040-sptm-xnushim-feasibility.md`.
 
 Ticket 046's m1n1 series shaping is complete. Current upstream
 `7c7716b6` already added initial T6041 identity and T6040's moved PCIe reset

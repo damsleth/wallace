@@ -3,11 +3,14 @@
 Goal: give Linux **internal NVMe (read + write)** on M4 by booting through a permissive
 XNU kernelcache that brings up genuine SPTM, intercepting after `init_xnu_ro_data`, and
 pivoting to Linux that inherits a live SPTM with the NVMe IOMMU dispatch registered.
-This is ticket **055** (route), gated by ticket **053** (HV trace) and the done evidence:
+This is ticket **055** (route), with the former ticket **053** trace route retired and the
+static handler work complete:
 
 - `done/2026-07-14-t6040-nvme-sptm-route-finding.md` — the blocker (raw boot: no resident SPTM)
 - `done/2026-07-14-t6040-sptm-xnushim-asahi-neo-crossref.md` — the route + capability model + ticket-007 retraction
 - `done/2026-07-14-t6040-sptm-nvme-guarded-backend-decode.md` — the guarded-side NVMe op map (ops 0..8)
+- `done/2026-07-23-t6040-sptm-nvme-op-args.md` — byte-proven handler arguments
+- `done/2026-07-23-t6041-sptm-exact-blob.md` — exact T6041 offsets and policy delta
 - asahi_neo `ARCHITECTURE.md` / `docs/SPTM_FINDINGS.md` — the XNU-shim mechanism (A18 Pro origin)
 
 ## Honest status (read before touching anything)
@@ -18,8 +21,8 @@ escalation). The boot itself is gated on three walls, none of which this session
 
 1. **Domain provenance is unproven** — the whole route assumes a post-handoff Linux at EL1
    is still tagged `XNU_DOMAIN` by SPTM (domain is read from `TPIDR`/context, not the x16
-   immediate — paper §5.4.1). Until ticket **053** (HV genter trace on the rig) confirms
-   this, the shim's ability to issue *any* SPTM call as Linux is a hypothesis.
+   immediate — paper §5.4.1). The HV trace route is infeasible; only upstream knowledge
+   or a future signed shim boot can confirm this.
 2. **No permissive-kernelcache signing/build path exists here** — Phase 2 needs a
    non-Apple-signed XNU-style kernelcache under Permissive Security with our shim kext
    linked in. Toolchain + signing unproven on this project.
@@ -33,8 +36,8 @@ layouts. Where the decode is uncertain, the code says `/* TBD-055: … */` and c
 
 | Phase | Deliverable | Needs | Gate | This session |
 |---|---|---|---|---|
-| **P0** | SPTM/NVMe interface from the decode; bring-up sequence skeleton; shim skeletons; Asahi escalation draft; signing-path scoping | offline | — | **STARTED (this pass)** |
-| **P1** | Validate domain provenance + capture live per-op args; finalize `sptm_nvme_iface` | **rig** (ticket 053) | m1n1 GXF-on-M4 first | blocked → 053 |
+| **P0** | SPTM/NVMe interface, exact handler arguments, three-SoC comparison, shim skeletons, escalation, signing scope | offline | — | **COMPLETE** |
+| **P1** | Validate domain provenance and outer IOMMU marshalling | upstream answer or shim boot | signed permissive KC | blocked |
 | **P2** | Permissive XNU KC + shim kext; intercept at `IOPlatformExpert::start()` post-`init_xnu_ro_data` | signing + toolchain | P1 | blocked |
 | **P3** | Linux loader via SPTM `retype`/`map_page`; FDT; EL1 handoff | rig | P2 | blocked |
 | **P4** | NVMe bring-up ops 0..8 from Linux; confirm **read**; then **write** behind an APFS-safe carve-out | rig | P3 | blocked |
@@ -43,7 +46,7 @@ layouts. Where the decode is uncertain, the code says `/* TBD-055: … */` and c
 
 - **`include/sptm_nvme_iface.h`** — the SPTM dispatch descriptor + the NVMe op enum (0..8)
   from `func_state[N]`, the `allowed_functions` call-ordering, and the domain/permission
-  facts. Encodes *only* what the decode proved; every arg layout is marked TBD-051/053.
+  facts and exact guarded-side argument layouts. Outer IOMMU marshalling remains stubbed.
 - **`src/nvme_bringup.c`** — the ops 0..8 sequence a post-handoff Linux would issue, in
   `allowed_functions` order (protocol → queue-entries → TCB → admin-queue → IOQA → IOSQ →
   IOCQ → ANS-SHA). Documented skeleton; issues nothing until P1 confirms the call path.
@@ -60,9 +63,10 @@ Guarded-side backend `nvme.c`, 9 ops in `nvme_instance->func_state[0..8]`, each 
 
 | op | function | validated |
 |---:|---|---|
-| 0 | protocol negotiate | `validate_nvme_protocol_version` |
-| 1 | queue-entries / TCB setup | `validate_nvme_queue_entries`, `validate_cid` |
-| 2–3 | TCB / CID ops | `validate_cid`, `invalidate_tcb_entry` |
+| 0 | guarded instance init | no caller arguments |
+| 1 | SetTCB + DMA pages | qid/cid/TCB/list/count validation |
+| 2 | TCB completion/invalidation | qid/cid/state transition |
+| 3 | queue/protocol configure | queue entries + protocol version |
 | 4 | `sptm_nvme_bar_admin_queue_regs` | queue addr/len |
 | 5 | `sptm_nvme_bar_ioqa_reg` | — |
 | 6 | `sptm_nvme_bar_iosq_reg` | queue addr/len |
