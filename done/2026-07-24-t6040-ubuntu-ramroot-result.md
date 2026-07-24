@@ -50,8 +50,32 @@ input isn't echoed remotely — but the internal keyboard `event0` works, per th
   M4 USB-enumeration unblock (ATC/HPM, ticket 023 / Sol) — at which point the
   same ubuntu-base populates a persistent ext4 root (ticket 086 GPT image flow).
 
+## Refinements (2026-07-24, both re-booted clean)
+
+CJ, watching the M4 **panel** (confirming fbcon on the internal display works),
+flagged two things:
+
+1. **`watchdog: watchdog0: watchdog did not stop!`** — the first init pinged the
+   watchdog with `echo 1 > /dev/watchdog0` in a loop, which *opens and closes* the
+   device each iteration; on every close the framework tries to stop apple_wdt,
+   can't, and warns. Non-fatal (the write still pinged it; timeout > 10 s interval,
+   so it survived) but noisy. **Fixed**: hold one fd open —
+   `( exec 8>/dev/watchdog0; while true; do echo 1 >&8; sleep 10; done ) &` — no
+   per-ping close, no warning.
+2. **Norwegian keyboard** — CJ's J614s is Norwegian, so the panel console needs the
+   Norwegian keymap. Injected `loadkeys` (Ubuntu `kbd`) + the Debian `console-data`
+   keymaps and added `loadkeys no-latin1 || loadkeys no` to the init.
+
+Final image: `initramfs-ubuntu-ramroot-no.cpio.gz` SHA-256
+`0987cb7c22cabe2c4fdd5f25544441733452bee0b2b605b5c20b9275298323fa` (29 MB) —
+watchdog-fix **and** Norwegian keymap. Re-booted clean to `root@(none):/#`
+(`logs/t6040-console-20260724-ubuntu-no.log`); the `loadkeys`/watchdog output
+goes to `tty0` (the panel), which CJ observes. See memory `norwegian-keyboard`:
+apply `loadkeys no` + `nb_NO` to all future boot images.
+
 ## Reproduce
 `ubuntu-base-arm64.tar.gz` in `linux-build-out/`; build the initramfs by
-extracting it to a stage dir, adding the `/init` above (see this file / the
-git history), `find . | cpio -o -H newc | gzip -9`. Kernel = any current dcuart
-build (carries the HID-type fix via kbuild). Ticket 091 done.
+extracting it to a stage dir, adding the `/init` above, injecting `kbd`'s
+`loadkeys` + `console-data` `no*.kmap.gz` for the Norwegian keymap, then
+`find . | cpio -o -H newc | gzip -9`. Kernel = any current dcuart build (carries
+the HID-type fix via kbuild). Ticket 091 done.
