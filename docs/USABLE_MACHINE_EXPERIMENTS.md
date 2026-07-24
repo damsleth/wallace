@@ -65,7 +65,8 @@ ships. It is the *only* step that combines boundaries, and only proven ones.
 - GPU (drm/asahi), audio, ISP/webcam, suspend: upstream-tracked (039/040/027);
   not on the usable-RAM-distro path. GPU mule prep 039 is complete: there is
   no current G16 candidate, and the ready evidence/test contract explicitly
-  forbids reusing a G14 identity.
+  forbids reusing a G14 identity. Suspend analysis 027 is complete: current
+  T6040 deep WFI is unsafe under locked sysregs, so keep `idle=nop`.
 - Trackpad motion (004): a comfort, gated on tpmtfw provisioning (016).
 
 ## Milestone definition ("usable machine")

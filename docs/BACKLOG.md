@@ -100,7 +100,9 @@ In rough order of leverage:
 7. **Stage-D comforts, offline-preparable**: **061** SMC DT wiring (battery,
    power button, lid — read-only keys). **037** is complete: its audited patch
    set is intentionally empty because none of the 26.x deltas is
-   version-gate-only.
+   version-gate-only. **027** suspend analysis is complete and correctly gated
+   on a reviewed T6040 retention/cpuidle contract; do not allowlist T6040 in
+   the existing deep-WFI driver.
 8. **SPTM internal-NVMe long shot** (storage, background): 051/052/054/055 —
    static decode + the XNU-shim escalation draft for #asahi-dev. No rig time.
 9. **Track-and-test** ([UPSTREAM] tickets): 022 DCP and 023 ATC PHY remain

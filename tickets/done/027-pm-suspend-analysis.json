@@ -1,0 +1,20 @@
+{
+  "seq": "027",
+  "slug": "pm-suspend-analysis",
+  "needs": "offline",
+  "state": "done",
+  "track": "pm",
+  "priority": "P2",
+  "desc": "DONE offline: corrected the premise—generic Linux s2idle is entered through cpuidle; macsmc-input only supplies lid/power hard wake events (fixed by upstream 56269d58), not an SMC sleep command. Current cpuidle-apple saves x18-x30, unconditionally touches locked CYC_OVRD, and executes WFI; its allowlist ends at T6034. Merely adding T6040 would conflict with this rig's proven WFI/WFIT state loss, m1n1 broken_wfi=true/SLEEP_NONE, and required idle=nop. With idle=nop and no T6040 driver, s2idle only spins and gives no useful residency. Defined the required upstream T6040 retention contract and staged cpuidle, SMC-wake, then RAM-root s2idle order. No rig/MMIO/SMC write proposed. Result: done/2026-07-24-t6040-suspend-feasibility.md.",
+  "author": "claude",
+  "deps": [],
+  "hashes": {
+    "linux_asahi_wip": "f4dd286f7888b348c757b9a2f28dd7bde4c3532b",
+    "cpuidle_apple": "30284f0d1c367b62671e1dce6a2a0d17e67be8e8",
+    "cpuidle_m3_enable": "33bdeb453661ef6635452790bc1376fe29cbc992",
+    "smc_s2idle_wake_fix": "56269d58523d7e53d6a5053881d26de008c47cc7",
+    "result": "87b1d96fbe80bc0a86698300cd553c0a122bcb0f4274449ae91999bd0a8844ce"
+  },
+  "created": 1784039024,
+  "done_at": 1784877930
+}

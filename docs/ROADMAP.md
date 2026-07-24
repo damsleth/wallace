@@ -392,12 +392,15 @@ GPU/WiFi (USB ethernet).
   profile → speakers stay muted. Headphones/USB audio work much earlier.
 - **Webcam:** apple-isp driver + m1n1 ISP prealloc (Stage B item) + new sensor/
   firmware handling for the 12MP Center Stage camera. Upstream-tracking.
-- **Power management:** s2idle suspend via SMC (works on M1/M2, needs T6040
-  validation); `features_m4` sleep_mode currently SLEEP_NONE in m1n1 — deep-WFI/
-  cpuidle needs careful enablement under locked sysregs. EFI-PSCI CPU power-down
-  is making upstream progress, but does not yet replace the J614s raw-kboot
-  release/WFE audit. Battery life tuning (devfreq, runtime PM on
-  DARTs/coprocessors) trails everything else.
+- **Power management:** ticket 027 established that SMC supplies lid/power hard
+  wake events but generic s2idle residency comes from `cpuidle-apple`. That
+  driver stops at T6034 and its current deep path writes locked CYC_OVRD then
+  executes WFI; merely allowlisting T6040 is unsafe given proven state loss,
+  `broken_wfi = true`, `SLEEP_NONE`, and the required `idle=nop`. A reviewed
+  T6040 retention contract, bounded cpuidle test, and separate SMC-wake test
+  must precede s2idle. EFI-PSCI progress does not yet replace the J614s
+  raw-kboot release/WFE audit. Full analysis:
+  `done/2026-07-24-t6040-suspend-feasibility.md`.
 - **Explicitly never (or SEP-blocked):** Touch ID. **Late/limited:** Thunderbolt
   tunneling (USB3/DP alt-mode work; full TB is still open upstream), video
   decode engines (AVD is M1/M2-era work, M4 unexplored).

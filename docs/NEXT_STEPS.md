@@ -204,6 +204,13 @@ contract are ready; never substitute a G14 alias. Keep B0 on simpledrm/fbcon.
 See `done/2026-07-24-t6040-gpu-upstream-test-prep.md` and
 `docs/t6040-gpu-upstream-smoke.md`.
 
+Ticket 027's suspend analysis is complete with no live proposal. SMC is a
+wake-event source, not the s2idle entry mechanism; current residency depends
+on `cpuidle-apple`, which excludes T6040 and uses locked CYC_OVRD plus WFI.
+Keep `idle=nop`. A reviewed M4 retention contract and separate bounded cpuidle
+and SMC-wake tests must pass before RAM-root s2idle. Details:
+`done/2026-07-24-t6040-suspend-feasibility.md`.
+
 Ticket 051's guarded-side NVMe argument decode is complete. All nine handlers
 now have byte-proven input registers, including the formerly unverified
 ASQ/ACQ op-4 contract and the corrected op-0–3 init/TCB/configure split. This

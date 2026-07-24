@@ -921,6 +921,11 @@ dtsi/dts) lived in that session's scratchpad; the method is documented in
 
 ## Dead ends (do not re-investigate)
 
+- **Do not add T6040 to `cpuidle-apple` unchanged.** Its deep state
+  unconditionally touches locked CYC_OVRD and executes WFI, while this machine
+  requires `idle=nop` and has proven WFI/WFIT architectural-state loss. SMC
+  provides hard wake events; it does not make CPU residency safe. Prerequisite
+  order and evidence: `done/2026-07-24-t6040-suspend-feasibility.md`.
 - **SBU analog serial on M4/ACE3:** ACE3 advertises action 0x306 but rejects
   every enter attempt (host VDM → BUSY 0x40030004; target-side DVEn via SPMI →
   result 0x3 for pin sets 2/7; pin set 0 accepted but no HW drain to SBU; pin
