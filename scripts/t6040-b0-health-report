@@ -1,0 +1,46 @@
+#!/bin/sh
+# Emit a bounded, read-only boot health report to every available console.
+set -u
+
+report()
+{
+    echo "=== t6040 B0 health report begin ==="
+    echo "release=$(cat /etc/alpine-release 2>/dev/null || echo unknown)"
+    echo "arch=$(apk --print-arch 2>/dev/null || echo unknown)"
+    uname -a
+    echo "-- init --"
+    printf 'pid1='
+    readlink /proc/1/exe 2>/dev/null || echo unknown
+    echo "-- framebuffer --"
+    for node in /sys/class/graphics/fb*/name; do
+        [ -r "$node" ] || continue
+        printf '%s=' "$node"
+        cat "$node"
+    done
+    echo "-- input --"
+    sed -n '1,160p' /proc/bus/input/devices 2>/dev/null || true
+    echo "-- partitions (must be empty) --"
+    sed -n '1,40p' /proc/partitions 2>/dev/null || true
+    echo "-- watchdog --"
+    if [ -c /dev/watchdog0 ]; then
+        echo "watchdog0=present"
+    else
+        echo "watchdog0=missing"
+    fi
+    echo "-- network runlevel (must be empty) --"
+    find /etc/runlevels -type l \
+        \( -name networking -o -name networkmanager -o -name wpa_supplicant \) \
+        -print 2>/dev/null || true
+    echo "=== t6040 B0 health report end ==="
+}
+
+report >/dev/console 2>&1
+
+n=0
+while [ ! -c /dev/ttydc0 ] && [ "$n" -lt 20 ]; do
+    sleep 1
+    n=$((n + 1))
+done
+if [ -c /dev/ttydc0 ]; then
+    report >/dev/ttydc0 2>&1
+fi

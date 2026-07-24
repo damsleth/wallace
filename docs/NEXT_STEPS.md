@@ -130,8 +130,11 @@ on simpledrm/fbcon with internal keyboard, watchdog, and no host payload upload.
 The detailed experiment contract and safety gates are in
 `docs/BOOTABLE_BUILD_EXPERIMENTS.md`.
 
-Tickets 076–078 are complete; 079 now turns the HID-restored result into a
-release-like RAM distro. Ticket 080 is complete: direct raw m1n1 supports the
+Tickets 076–080 are complete. Ticket 079 produced the twice-reproducible
+Alpine/OpenRC release RAM distro `ddd981711e91...`: normal init/runlevels,
+fbcon and delayed ttydc0 consoles, watchdog, bounded health report, locked
+password, no enabled networking, and no block nodes. Ticket 080 established
+that direct raw m1n1 supports the
 required concatenated payloads, entry
 `0x800`, and a strict host verifier under a conservative 64 MiB object policy.
 A control object using ticket 078's exact live-proven HID-restored payload is
@@ -139,11 +142,15 @@ now built and twice reproduced:
 `m1n1-b0-alpine-hid-restored.bin`,
 `b50f52ab1fac473db2e9257c5363ef7905e4d1da5c8535fbf417209b09319172`.
 Proposed ticket 089 tests one upload with no `linux.py`; it does not close 081
-because its userspace remains diagnostic. Ticket 081 packages the final
-release object and 082 prepares reversible enrollment/cold boot. Exact format
-and control preflight:
+because its userspace remains diagnostic. The final release object is now
+packaged and twice reproduced as `m1n1-b0-alpine-openrc.bin`,
+`2371ee5dfbfab591397fc333e7da212fb7582bfb2eaddaa6438005f5bb41759b`.
+Ticket 081 remains open for independent exact-object/preflight review before
+any new rig proposal; 082 remains gated on that tethered proof. Exact format,
+control preflight, and release result:
 `done/2026-07-23-t6040-raw-boot-object-layout.md` and
-`done/2026-07-24-t6040-b0-alpine-single-object-preflight.md`.
+`done/2026-07-24-t6040-b0-alpine-single-object-preflight.md`, and
+`done/2026-07-24-t6040-alpine-b0-release-bundle.md`.
 
 Ticket 026's installer audit corrected a stale premise: current
 asahi-installer already enrolls `boot.bin` with the required raw entry `2048`

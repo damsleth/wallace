@@ -4,8 +4,8 @@ End-goal: a bootable Linux distro on this MacBook Pro 14" M4 Pro with GPU accel,
 WiFi, Bluetooth, keyboard/trackpad, audio, webcam, power management — daily-driver
 comfort comparable to macOS.
 
-Written 2026-07-10, last updated **2026-07-23** (Alpine RAM-root and bounded
-HID state-trace candidate).
+Written 2026-07-10, last updated **2026-07-24** (HID-restored Alpine/OpenRC B0
+release candidate).
 Companion docs: `NEXT_STEPS.md` (immediate work), `DEVLOG.md`
 (operational reference + solved blockers), `t6040-dt-checklist.md` (Stage C
 reference), and `BOOTABLE_BUILD_EXPERIMENTS.md` (B0 cold-boot ladder).
@@ -61,6 +61,14 @@ twice-reproduced, strictly verified 21,729,039-byte object `b50f52ab1fac...`.
 Proposed ticket 089
 tests one upload and embedded autoboot with no `linux.py`; it is a delivery
 control, not the final HID-restored B0 object.
+
+**Release RAM distro built (2026-07-24).** Ticket 079 now provides a
+twice-reproducible Alpine/OpenRC RAM distro (`ddd98171...`) with normal
+runlevels, fbcon plus delayed ttydc0 consoles, watchdog, a bounded health
+report, locked root password, no enabled network configuration, and zero block
+nodes. Its exact self-contained raw-object candidate is the twice-reproduced,
+strictly decoded 22,183,563-byte `2371ee5d...`. Independent review and the
+one-shot tethered proof remain ticket 081's gate; nothing is enrolled.
 
 **Stage A complete 2026-07-10** — proxy solid, 14/14 cores (4E+5P+5P), MPIDR
 map, execute-and-return, broken_wfi handled (WFE park), ~10 s chainload loop.

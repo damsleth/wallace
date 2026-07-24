@@ -1,0 +1,16 @@
+#!/bin/sh
+# Wait for asynchronous DockChannel tty registration, then start its getty.
+n=0
+while [ ! -c /dev/ttydc0 ] && [ "$n" -lt 30 ]; do
+    sleep 1
+    n=$((n + 1))
+done
+
+if [ ! -c /dev/ttydc0 ]; then
+    echo "t6040-b0: ttydc0 absent after ${n}s; retrying via init respawn" \
+        >/dev/console
+    exit 1
+fi
+
+exec /sbin/getty -L -n -l /usr/local/sbin/t6040-b0-autologin \
+    115200 ttydc0 vt100

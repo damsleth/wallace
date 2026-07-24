@@ -464,6 +464,22 @@ keyboard, not enrollment.
 Preflight:
 `done/2026-07-24-t6040-b0-alpine-single-object-preflight.md`.
 
+Ticket 079 now replaces the custom diagnostic `/init` with a release-like,
+normal OpenRC boot. `scripts/t6040-build-alpine-b0.sh` pins the Alpine
+minirootfs and every added APK by version and SHA, installs only local verified
+packages, then creates explicit `sysinit`, `boot`, and `default` runlevels.
+Framebuffer tty0 and delayed ttydc0 gettys invoke a physically local
+RAM-only shell; root's password remains locked. Watchdog and bounded
+health-report services are enabled, while resolver/interface configuration and
+all network services are absent. Two clean builds byte-match as
+`initramfs-alpine-b0.cpio.gz` `ddd981711e91...`; the strict archive verifier
+sees 699 aarch64 entries and zero block nodes. The corresponding safe-prefix,
+HID-restored raw object is 22,183,563 bytes,
+`m1n1-b0-alpine-openrc.bin` `2371ee5dfbfa...`, and also reproduces exactly.
+This is ticket-081 artifact readiness only: independent review and one
+tethered proof still precede a rig proposal or enrollment. Exact result:
+`done/2026-07-24-t6040-alpine-b0-release-bundle.md`.
+
 Ticket 086 nevertheless closes the external-root *image construction* half of
 B2. `scripts/t6040-build-usb-root-image.sh` created and verified a 1 GiB raw
 GPT/ext4 Alpine image without opening any block device. The final image is

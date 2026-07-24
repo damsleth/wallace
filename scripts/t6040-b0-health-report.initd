@@ -1,0 +1,15 @@
+#!/sbin/openrc-run
+
+description="Emit the bounded T6040 B0 boot health report"
+
+depend()
+{
+    after t6040-watchdog
+}
+
+start()
+{
+    ebegin "$description"
+    /usr/local/sbin/t6040-b0-health-report
+    eend $?
+}

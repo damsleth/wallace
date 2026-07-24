@@ -1,0 +1,10 @@
+#!/bin/sh
+# Passwordless local console for the storage- and network-disabled B0 image.
+export HOME=/root
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export TERM=${TERM:-linux}
+
+printf '\nAlpine B0 RAM distro — local diagnostic shell (no persistence)\n'
+printf 'Storage and networking are disabled in this image.\n\n'
+cd /root || exit 1
+exec /bin/sh -l

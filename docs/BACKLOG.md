@@ -38,13 +38,16 @@ In rough order of leverage:
 1. **B0 bootable-build pipeline** (distro/HID, P1). Captures **076**, decode
    **077**, and the HID-type repair **078** are complete. The rebased
    `hid-apple` rejected the untyped BUS_HOST keyboard; the minimal type
-   assignment now live-registers `input0/event0`. Next is the release-like RAM
-   distro in **079**. **080 is complete**: direct raw m1n1,
+   assignment now live-registers `input0/event0`. **079 is complete** with a
+   twice-reproducible Alpine/OpenRC RAM distro (`ddd98171...`), normal
+   runlevels, dual local consoles, watchdog, and no storage/network runtime
+   configuration. **080 is complete**: direct raw m1n1,
    entry `0x800`, exact concatenated payload contract, and strict host
    verifier are documented. Ticket-078's exact HID-restored Alpine components
    are now packed in reproducible object `b50f52ab...`; proposed control **089** tests
-   one upload with no `linux.py`. **081** still owns the final HID-restored
-   object and its tethered proof; **082** prepares reversible raw
+   one upload with no `linux.py`. The final release candidate object is
+   `2371ee5d...`; **081** now owns its independent exact review and eventual
+   tethered proof gate. **082** prepares reversible raw
    enrollment and cold boot. Direct m1n1 is the selected B0 route; U-Boot
    ticket **025** is B1; its no-MMIO framebuffer/EFI-hello prep is complete,
    with any live proof deferred until after B0. Installer requirements ticket

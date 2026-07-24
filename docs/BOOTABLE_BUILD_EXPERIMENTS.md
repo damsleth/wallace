@@ -182,6 +182,14 @@ acceptance state. KIS is observational only after chainload.
 Ticket 081 itself stops before a rig proposal. A later exact one-shot rig
 ticket is created only after the artifact and preflight pass review.
 
+Ticket 079's release userspace and the exact ticket-081 object candidate now
+exist. `initramfs-alpine-b0.cpio.gz` (`ddd981711e91...`) and
+`m1n1-b0-alpine-openrc.bin` (`2371ee5dfbfa...`) each reproduce byte-for-byte;
+the latter strictly decodes to safe m1n1 + the ticket-078 kernel + unchanged
+storage-disabled DTB + the OpenRC root. Result and hashes:
+`done/2026-07-24-t6040-alpine-b0-release-bundle.md`. This is artifact
+readiness, not independent review or permission to create the live ticket.
+
 An earlier delivery-only control is now available without weakening that gate.
 `m1n1-b0-alpine-hid-restored.bin` (`b50f52ab1fac...`) packages the exact
 ticket-078 live-proven Alpine components behind safe m1n1 and passes strict
