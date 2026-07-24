@@ -206,6 +206,9 @@ That is milestone B0.
 - Tickets 023, 032, and 060 remain the B2 external-root path. The next USB
   live discriminator needs a powered/self-powered fixture or reviewed T6040
   HPM/ATC support; repeating the passive right-side stick test is not useful.
+- Ticket 030's paired 25F84 restore corpus is complete and can be supplied to
+  later rootfs/initramfs builds. Its missing machine-private ALS calibration
+  is ticket 087 and does not block B0 or B2 root mounting.
 - Internal NVMe remains behind the documented SPTM/CoastGuard boundary.
   Tickets 051/052/054/055 are research, not a near-term boot dependency.
 - SMP, cpufreq, PCIe/WiFi, trackpad firmware, SMC, GPU, audio, and suspend are

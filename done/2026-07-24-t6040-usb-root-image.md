@@ -32,6 +32,10 @@ It adds an automatic no-login `/bin/sh` getty on `ttydc0`, so a successful
 internal keyboard receive path. The image intentionally has empty modules and
 firmware trees. The paired USB-root kernel has all boot-critical components
 built in: ext4, SCSI disk, USB storage/UAS, xHCI, DWC3, and Apple DART.
+Ticket 030 subsequently staged the complete restore-recoverable J614s
+`vendorfw/` tree at `/private/tmp/t6040-paired-fw-25F84/vendorfw/`. It is
+available for a feature-enabled rebuild but remains unnecessary for mounting
+this external root.
 
 ## Builder and verification
 

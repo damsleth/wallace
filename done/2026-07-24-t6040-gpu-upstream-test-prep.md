@@ -83,10 +83,11 @@ Hashes:
 | decompressed arm64e kernelcache | `ed556fe62efc2c229f3d4c7ebbbcd21fd5c8d099fbb4d9b5ae636dd78b61d3f6` |
 
 The paired blob proves the generation/build identity, but it is not yet an
-upstream-consumable firmware package. Ticket 030 owns broader paired-firmware
-collection. When GPU maintainers request a specific extraction format, derive
-it reproducibly from this exact object and record the tool/hash; do not guess a
-filename or substitute a different macOS build.
+upstream-consumable GPU firmware package. Ticket 030 subsequently completed the
+restore-recoverable corpus; iBoot-loaded GFX is deliberately not part of the
+fallback archive. When GPU maintainers request a specific extraction format,
+derive it reproducibly from this exact object and record the tool/hash; do not
+guess a filename or substitute a different macOS build.
 
 ## Ready test contract
 

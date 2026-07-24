@@ -114,5 +114,7 @@ ban on four misleading changes:
 - no ISP 26.x enum without a T6040/H16 hardware port;
 - no SMC/SIO “compat” patch where no version gate exists.
 
-Ticket 030 still owns exact paired firmware extraction. Tickets 022, 039, 040,
-and 061 own the evidence needed for the corresponding real driver work.
+Ticket 030 subsequently completed exact restore-recoverable paired firmware
+extraction, including raw DCP and all six ISP setfiles. Tickets 022, 039, 040,
+and 061 still own the corresponding real driver work; firmware availability
+does not remove their ABI and hardware-port blockers.

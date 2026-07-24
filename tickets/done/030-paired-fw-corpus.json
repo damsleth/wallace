@@ -1,0 +1,22 @@
+{
+  "seq": "030",
+  "slug": "paired-fw-corpus",
+  "needs": "offline",
+  "state": "done",
+  "track": "xcut",
+  "priority": "P1",
+  "desc": "DONE host-only: built a deterministic, hash-pinned Mac16,8/J614s 25F84 restore corpus outside Git. It contains five exact non-iBoot FUD objects (DCP/SPTM/TXM/InputDevice/Multitouch), 72 raw mriya WiFi inputs, both USI/AMKOR BT pairs, appleh13camerad, the paired kernelcache, and 22 regression-checked Linux vendorfw outputs (14 BCM, trackpad, six ISP, ASMedia). The read-only raw archive reproduced byte-for-byte; full SHA256SUMS passes. Machine-private ALS is not in the restore and is split to ticket 087 for read-only capture from the M4, never the M1. Result: done/2026-07-24-t6040-paired-fw-corpus.md.",
+  "author": "sol",
+  "deps": [],
+  "hashes": {
+    "raw_archive": "cb7a4ee2e3a7660c9745b3daff6cdd1da4f1875109d5bc170591fe272b1e639a",
+    "sha256sums": "b137dcdaf4b5238e6bb4d692b03a3a799597f1ffd536f1f986fdc0963b387cd8",
+    "dcp": "2cf904473f6b1a165d7ec7e57845f3c96ac1ac690411c860e031d9c3143361b2",
+    "sptm": "f78979b6cd9d7c0c5d13abf58229ec1ffc489751324708e1536cfba399ea4938",
+    "txm": "6d26ef9195becf28c6a0eed7ee35cf214de45807e5fefcb5ad0c1ab441d0995b",
+    "input_device": "e62bd25ed8d61d282a758d34211ca9fa1a0e9c56010ae6fbb6862e1b43d081e0",
+    "multitouch": "4f06afea3e412010fc56ed7dc1214d62fa48b400dbf4f75e261f14e8afe00bf4"
+  },
+  "created": 1784040422,
+  "done_at": 1784879471
+}

@@ -92,9 +92,10 @@ make modules_install INSTALL_MOD_PATH=/out/t6040-usb-root-modules
 Pass the resulting
 `/out/t6040-usb-root-modules/lib/modules/<kernel-release>` directory as
 `--modules`. Pass the root-ready contents destined below `/lib/firmware` as
-`--firmware`. Ticket 030 still owns the complete J614s paired-firmware corpus;
-the host currently has only proven WiFi/BT and multitouch slices, not the full
-daily-driver corpus.
+`--firmware`. Ticket 030 subsequently completed the restore-recoverable J614s
+corpus. Its root-ready tree is
+`/private/tmp/t6040-paired-fw-25F84/vendorfw/`; machine-private ALS calibration
+remains ticket 087 and is not a root-mount dependency.
 
 Safe staging example:
 

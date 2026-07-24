@@ -74,7 +74,7 @@ fixed, dapf gate + watchdog arm added for M4.
 | Works | Not yet |
 |---|---|
 | BusyBox userspace; full PMGR with property-free T6041 quirk, reproducible | PMGR draft review/submission (split, checkpatch/schema-clean; NEXT_STEPS #2) |
-| Internal keyboard at the shell; trackpad registers + validated firmware-loader path | Target ESP's paired trackpad blob; PMU-backed reset remains forbidden; maxcpus>1/idle states |
+| Internal keyboard at the shell; trackpad registers + validated firmware-loader path; paired trackpad/BCM/ISP/ASMedia corpus staged | Trackpad motion retest; PMU-backed reset remains forbidden; maxcpus>1/idle states |
 | Two-way Linux shell + m1n1 proxy over one DebugUSB cable; remote reboot | Printk over ttydc needs a separate polled/atomic TX path; current TTY queue is not console-safe |
 | Linux apple_wdt; fbcon early console | NVMe rootfs (power/SART/ANS work; queue and per-command TCB setup require unavailable raw-boot SPTM entry) |
 | Kernel build env (podman, arm64-native) with patch pipeline | USB gadget console (parked: EP0 dies post-enumeration) |
@@ -307,8 +307,10 @@ remain required.
 - **Internal keyboard + trackpad:** ✅ **keyboard DONE early (2026-07-11)** via
   dockchannel-HID (three bugs fixed — see DEVLOG); trackpad registers as
   input0. Its missing HIDF loader and retry recovery are fixed. Ticket 016
-  reproducibly staged the paired 25F84 `tpmtfw-j614s.bin` (`a1f4131d...`);
-  rebuild/review ticket 004, then determine whether J614s needs the forbidden
+  reproducibly staged the paired 25F84 `tpmtfw-j614s.bin` (`a1f4131d...`).
+  Ticket 030 now also provides a deterministic full restore corpus and
+  22-file Linux tree (`cb7a4ee2...` raw archive); rebuild/review ticket 004,
+  then determine whether J614s needs the forbidden
   legacy PMU-backed GPIO proxy path without exercising that write
   (NEXT_STEPS #1).
 - **Display:** two steps.
@@ -354,10 +356,11 @@ GPU/WiFi (USB ethernet).
   Exact result in `done/2026-07-14-t6040-pcie-phy-diagnostic.md`. Until link-up
   succeeds, firmware work cannot be exercised.
 - **WiFi:** `brcmfmac` PCIe path; m1n1 already copies the MAC, antenna SKU and
-  calibration blob from ADT when `wifi0` is aliased. Firmware still has to be
-  extracted from the paired macOS install for board type `apple,mriya`.
+  calibration blob from ADT when `wifi0` is aliased. Ticket 030 stages the
+  exact C0/C2 `apple,mriya` firmware and raw 26.x-only metadata.
 - **Bluetooth:** `hci_bcm4377`; m1n1 copies the address and calibration blobs.
-  The paired BCM4388 firmware still has to be packaged in the initramfs/rootfs.
+  The paired USI output is ready for initramfs/rootfs. The AMKOR pair is
+  preserved raw because current tooling has no agreed Linux filename mapping.
 - If the chip generation is genuinely new (not just a new ID), this becomes
   upstream-collab work — but Broadcom generations have been incremental so far.
 

@@ -19,8 +19,9 @@ long-term plan in `ROADMAP.md`; per-session write-ups in `done/`.
 
 Active: full PMGR topology boots reproducibly with the exact minimal raw-boot
 policy; only its upstream shape remains (see PMGR section).
-Trackpad firmware loading is implemented; provisioning the paired J614s blob is
-next. Parked: USB gadget console (EP0 dies post-enumeration;
+Trackpad firmware loading is implemented and the paired J614s blob plus the
+restore-recoverable firmware corpus are staged and reproducible. Parked: USB
+gadget console (EP0 dies post-enumeration;
 `done/2026-07-11-t6040-usb-gadget-plan.md`).
 
 ## Operating the rig
@@ -198,8 +199,9 @@ directory. Ticket 016 reproduced the board-paired file directly from the
 canonical 25F84 restore identity: `Firmware/J614s_Multitouch.im4p` converts
 through the unmodified Asahi collector to `apple/tpmtfw-j614s.bin`, SHA-256
 `a1f4131d0cb7caf6fa15b19f47725458a6d7b0e3a34f15169339d5541663d9e2`.
-The proprietary file is staged only under `/private/tmp/t6040-vendorfw/`; the
-pinned ranged extractor and evidence are in
+The proprietary file is staged under
+`/private/tmp/t6040-paired-fw-25F84/vendorfw/apple/`; the pinned ranged
+extractor and evidence are in
 `done/2026-07-23-t6040-trackpad-firmware-provision.md`. GPIO proxying remains
 intentionally absent until any request and
 its J614s ADT mapping are captured and reviewed. A later ADT-only capture found
@@ -212,8 +214,9 @@ no-PMU-write rule. Details:
 ### BCM4388 wireless firmware corpus (2026-07-14, ticket 014)
 
 The `apple,mriya` WiFi/BT firmware (chip 4388 **C2** per the 25F84 Bluetooth
-tree) is staged at `/private/tmp/t6040-vendorfw/` with a SHA-256 inventory,
-derived from the canonical Mac16,8 macOS 26.5.2 (25F84) IPSW: ranged fetch of
+tree) was initially staged at `/private/tmp/t6040-vendorfw/` with a SHA-256
+inventory, derived from the canonical Mac16,8 macOS 26.5.2 (25F84) IPSW:
+ranged fetch of
 only the BaseSystem member, AEA-decrypt, then the unmodified asahi-installer
 collectors. Key 26.x finding (feeds ticket 026): the installer flow breaks on
 26.x images — BaseSystem is `.dmg.aea`, WiFi payloads moved from
@@ -224,6 +227,18 @@ gained a tested `VENDORFW_DIR` hook installing the 14-file mriya set. Usability
 is gated on PCIe port-0 (op-115) + a `brcmfmac`/`hci_bcm4377` kernel build.
 Full provenance, hashes, layout notes, and the regeneration recipe:
 `done/2026-07-14-t6040-bcm4388-fw-extract.md`.
+
+Ticket 030 consolidated that slice with the exact non-iBoot FUD set, all six
+ISP setfiles, the kernel-embedded ASMedia blob, and trackpad output. The
+deterministic raw archive is
+`/private/tmp/t6040-paired-fw-25F84/j614s-25F84-raw-firmware.tar.gz`
+(`cb7a4ee2...`, mode `0444`); the directly consumable 22-file tree is
+`/private/tmp/t6040-paired-fw-25F84/vendorfw/`. The builder pins and hashes
+the restore, BaseSystem, kernelcache, and asahi-installer commit, asserts the
+five-member FUD selection and every Linux output hash, and refuses overwrite.
+Machine-private ALS data cannot come from an IPSW and is split to ticket 087
+for a read-only capture from the M4's macOS installation. Exact result:
+`done/2026-07-24-t6040-paired-fw-corpus.md`.
 
 Ticket 026 audited current asahi-installer at `c53d66dc7193`. Its second-stage
 raw `kmutil` invocation already matches M4; the missing pieces are

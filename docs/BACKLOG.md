@@ -79,8 +79,8 @@ In rough order of leverage:
 3. **PCIe → WiFi/BT** (pcie, P1). Op-115 stalls on its read side; **058** is
    the offline route-finding for the missing PHY-IP aperture precondition; only
    a new evidence-backed manifest goes live. **044** (port-0/BCM4388 manifest)
-   is the pre-reviewed stage after link-up; then firmware (staged, ticket 030
-   corpus).
+   is the pre-reviewed stage after link-up; the complete restore-recoverable
+   firmware corpus is staged and ticket 030 is done.
 4. **Two-way remote console** (console, P2 but high leverage for every later
    rig experiment). Poll-mode tty is proven. The ADT's IRQ 360 is now known
    wrong; measured UART input is 816, so 059's timing image is closed

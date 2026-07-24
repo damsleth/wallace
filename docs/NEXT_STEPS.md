@@ -143,6 +143,18 @@ self-contained Linux payload as an atomic object during install/repair/upgrade,
 and macOS 26 AEA plus moved/extended firmware layouts. Requirements and safe
 patch split: `done/2026-07-23-t6040-asahi-installer-requirements.md`.
 
+Ticket 030 has now completed the restore-recoverable paired-firmware corpus.
+The deterministic, read-only 25F84 raw archive (`cb7a4ee2...`) and its
+22-file Linux `vendorfw/` tree are staged at
+`/private/tmp/t6040-paired-fw-25F84/`; the exact path/hash map is enforced by
+`scripts/t6040-build-paired-firmware-corpus.py`. This closes firmware
+provisioning for trackpad, BCM4388, ISP setfiles, and kernel-embedded ASMedia,
+and preserves DCP/SPTM/TXM/InputDevice raw payloads. The only non-restore item
+is machine-private ALS calibration; ticket 087 owns a later read-only capture
+from the M4's macOS installation. It is not a B0 or USB-root dependency.
+Provenance and limits:
+`done/2026-07-24-t6040-paired-fw-corpus.md`.
+
 Ticket 025's B1 host preparation is also complete but remains post-B0. The
 draft T6040 U-Boot target maps only DT-derived RAM/framebuffer, disables
 autoboot and every MMIO-backed bus/device driver, builds reproducibly, and
