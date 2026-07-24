@@ -5,7 +5,7 @@
   "state": "open",
   "track": "usb",
   "priority": "P1",
-  "desc": "After 096 finishes the class-R3 semantics, determine whether bounded reads of logical USB config/status 0x23 (4 bytes) and 0x24 (9 bytes) are genuinely observation-only. Update docs/SPMI_SAFETY.md if and only if that proof holds, then build/review an exact right-HPM2 candidate that replays the proven identity+WAKEUP+SSPS precondition and reads only 0x20/0x23/0x24. No 0x14/0x55 write, mask/clear/W1C, role/VBUS, repeater, PHY, USB, or storage. Stop without a live artifact if semantics remain ambiguous.",
+  "desc": "BLOCKED / NO ARTIFACT after 096's final R3 no-go. Logical 0x24 is a nine-byte status getter with incomplete semantics, while the replayed WAKEUP+SSPS precondition has no proved restoration to observed state 0x07. Do not build an ambiguous post-S0 reader merely to gather more status. Resume only with new primary evidence proving observation and restoration boundaries; no 0x14/0x55, mask/clear/W1C, role/VBUS, repeater, PHY, USB, or storage.",
   "author": "codex",
   "deps": [
     "095",

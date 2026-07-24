@@ -11,10 +11,16 @@ passed after the maintainer's power cycle and bounded proxy health check; the
 earlier VDM failure remains unattributed. Continue to use its exact
 fail-closed recovery checklist for every live ticket.
 
-In parallel, finish offline ticket 096's exact host-transition rollback, close
-the remaining ticket-082 volume identity/backup fields, and review the
-dual-mode B0 object. Operational details and history: `DEVLOG.md`; long-term:
+In parallel, seek new primary evidence for ticket 096's R3 rollback no-go and
+close the remaining ticket-082 volume identity/backup/action-split fields.
+Ticket 119 has conditionally reviewed the dual-mode B0 object; its live trigger
+classification remains ticket 101 work. Operational details and history: `DEVLOG.md`; long-term:
 `ROADMAP.md`. Read the DebugUSB rules before touching the rig.
+
+The complete approved-ticket overnight disposition is
+`done/2026-07-24-t6040-open-rig-ticket-audit.md`: none was both independently
+ready and safely unattended, so the healthy `Running proxy` state was
+preserved while offline blockers advanced.
 
 ## Immediate storage-path gate: finish right-port HPM/ATC host link
 
@@ -149,9 +155,11 @@ Ticket 100 reached the OpenRC default runlevel, kept the watchdog alive, found
 the internal input device, kept `/proc/partitions` empty, and accepted a line
 typed on the internal keyboard at the panel shell. Ticket 081 is done. Ticket
 082's procedure exists; only target-volume UUID, current enrolled-object
-backup/hash, dual-mode-candidate review/selection, and split-vs-single
-execution approval remain before plan-approved runnable=false ticket 101 can
-run. Ticket 101 owns any selected dual-mode hardware trigger check. Exact format,
+backup/hash, and split-vs-single execution approval remain before
+plan-approved runnable=false ticket 101 can run. Ticket 119 conditionally
+passed dual-mode object `46237ade...`, with exact post-prefix identity and an
+explicit version/Rust provenance caveat. Ticket 101 owns separate cold-boot
+and DebugUSB trigger checks. Exact format,
 preflights, and results:
 `done/2026-07-23-t6040-raw-boot-object-layout.md` and
 `done/2026-07-24-t6040-b0-alpine-single-object-preflight.md`, and
@@ -174,7 +182,11 @@ The deterministic, read-only 25F84 raw archive (`cb7a4ee2...`) and its
 provisioning for trackpad, BCM4388, ISP setfiles, and kernel-embedded ASMedia,
 and preserves DCP/SPTM/TXM/InputDevice raw payloads. The only non-restore item
 is machine-private ALS calibration; ticket 087 owns a later read-only capture
-from the M4's macOS installation. It is not a B0 or USB-root dependency.
+from the M4's macOS installation. The exact upstream-derived capture and
+fail-closed M1 extractor are prepared at
+`done/2026-07-24-t6040-als-calibration-preflight.md`; corrected independent
+review passed, and only an attended main-macOS boot remains. It is not a B0 or
+USB-root dependency.
 Provenance and limits:
 `done/2026-07-24-t6040-paired-fw-corpus.md`.
 
@@ -272,8 +284,12 @@ fail-closed candidate pattern. The completed live ladder is:
 - 095: exact DATA1 `00` + CMD1 `SSPS` completed and final state read `0x00`.
 
 No mask/W1C, role/VBUS, USB configuration, PHY, xHCI, or storage operation was
-present in those binaries. Ticket 096 must still prove class-10 detach and
-rollback. Tickets 097 and 099 are now umbrellas for smaller experiments:
+present in those binaries. Ticket 096's final PAC-aware static pass found
+paired software-object removal and semantic eUSB2/ACIO shutdown, but no
+VBUS-off operation, race-safe `0x14`/W1C/cache inverse, exact mask/detect
+restoration, or restoration of pre-SSPS state `0x07`. R3 therefore remains a
+no-go and tickets 102–108 must not be built or run without new primary
+evidence. Tickets 097 and 099 remain umbrellas for smaller experiments:
 post-S0 status, optional mask work only if justified, HPM host transition,
 ATC/xHCI enumeration, read-only block access, separate destructive flashing,
 tethered read-write root, and a final untethered root boot. Ticket 098's
@@ -306,8 +322,8 @@ See `done/2026-07-24-t6040-hpm2-r0-attempt1.md` and
 
 **Concrete right-stick ladder (new tickets 102–113):**
 
-1. 102 builds a named, bounded post-S0 read candidate; proposed 103 reads only
-   power/config/status.
+1. 102/103 are blocked by 096's R3 no-go; no post-S0 candidate may be built
+   merely to gather ambiguous status.
 2. 104 decides whether interrupt-mask ownership must change at all. It prefers
    no mask write and forbids W1C clear.
 3. 105 builds the HPM-only forward+inverse host transition; proposed 106 runs
@@ -329,9 +345,9 @@ approval does not approve these child artifacts or the destructive flash.
 builds a host-only service-6 contract harness, 116 audits guarded-domain
 handoff, and 117 creates a live candidate only if primary evidence proves a
 side-effect-free supported query. Otherwise it records NO-GO. Never retry the
-known-failing raw BAR read or unchanged GENTER. Ticket 118 separately analyzes
-the post-SSPS KIS recovery failure; ticket 119 independently reviews the
-dual-mode B0 object.
+known-failing raw BAR read or unchanged GENTER. Ticket 118 closed the
+post-SSPS recovery control; ticket 119 completed the conditional dual-mode B0
+object review.
 
 Ticket 022's 2026-07-23 refresh also confirms that native DCP is not a B0
 dependency. Its J614s DT topology is inventoried, but the macOS 26.x ABI, extra
@@ -412,9 +428,12 @@ prerequisites. Audit and mail:
 Keep the first USB smoke at `maxcpus=1 idle=nop`. The DT's extra `cpu@10105` is
 correctly disabled and 14 cores are available, but Linux secondary-core bring-up
 is still a separate staged experiment. Ticket 005 reached kernel vectoring but
-gave no Linux output, so offline 122 and a separately approved replacement 123
-must pass before 120 prepares or 121 proves all 14 cores. Do not combine any
-of those with a USB-host test; cpufreq ticket 006 follows 121.
+gave no Linux output. Offline 122 is now done: its exact storage-disabled,
+non-blocking early-DockChannel replacement passed independent review. Ticket
+123 still needs fresh maintainer approval because it was created after the
+last approve-all; it must pass before 120 prepares or 121 proves all 14 cores.
+Do not combine any of those with a USB-host test; cpufreq ticket 006 follows
+121.
 
 **Upstream correction, 2026-07-21:** a bounded m1n1 experiment on M4 Pro
 measured DockChannel-UART on AIC input **816**; the ADT's 360 is wrong. The
@@ -423,7 +442,8 @@ behavior, but all newly built DTBs must carry 816. Yuka's WIP `more-t6041`
 branch also reached a shell on M4 Pro with all cores and PMGR, providing strong
 family-level SMP evidence. It is not a J614s-ready artifact (its inherited CPU
 topology and memory-channel domains do not match this 14-core board), so
-122→123→120→121 is now the J614s proof sequence and USB smokes stay single-core.
+completed 122 → freshly approved 123 → 120 → 121 is now the J614s proof
+sequence and USB smokes stay single-core.
 Full 11–21 July log
 review: `done/2026-07-21-asahi-dev-log-review.md`.
 
@@ -663,7 +683,7 @@ necessary-looking but insufficient. Ticket 124 resumes static tracing; never
 retry 068 unchanged. Exact result:
 `done/2026-07-24-t6040-pcie-op115-clkgen-pll-result.md`.
 
-## 1. Independently review the prepared J614s trackpad motion retest
+## 1. Rebuild the J614s trackpad motion retest, then obtain fresh approval
 `event0` is Apple DockChannel Multi-touch and `event1` is the keyboard. The
 transport's missing firmware loader and stuck-start error path are fixed and
 live-tested in kernel build #12: repeated opens now independently request
@@ -673,13 +693,27 @@ payload and staged `tpmtfw-j614s.bin` at SHA-256 `a1f4131d...`; extraction and
 integration evidence is
 `done/2026-07-23-t6040-trackpad-firmware-provision.md`.
 
-The exact ticket-004 candidate is now built twice and pinned: Image
+The exact ticket-004 candidate was built twice and pinned: Image
 `86e031db...`, unchanged storage-disabled DTB `2782b922...`, paired-firmware
 initramfs `3a47c95d...`, and PCIe-write-free m1n1 `1394c345...`. Its TX-only
 init automatically inventories input and captures at most 12 seconds/32
-records per event, so it does not depend on ttydc0 RX. Do not boot until an
-onboarded independent reviewer records PASS for these exact bytes. Preflight:
-`done/2026-07-24-t6040-trackpad-motion-preflight.md`.
+records per event, so it does not depend on ttydc0 RX. Independent review
+retired those bytes unrun: the Image omitted the already-proven `hid->type`
+fix and left `HID_MULTITOUCH=m` while the initramfs carries no modules, so no
+multi-touch event node could bind or invoke the runtime firmware path.
+
+Offline ticket 125 is complete: `HID_TYPE_FIX=1`, `TRACKPAD_MOTION=1`, and
+built-in multitouch produced two byte-identical Images at `446eeb2e...`; the
+new independent exact-artifact review passed. Proposed live ticket 126 was
+created after the approve-all and is not approved. Before it can run, the maintainer must
+also record a narrow exception to the unqualified firmware-write rule for the
+exact paired `a1f4131d...` non-persistent HIDF upload into volatile coherent
+DMA. That exception does not permit flash/NVM, another blob, or GPIO/PMU reset.
+Original preflight and review:
+`done/2026-07-24-t6040-trackpad-motion-preflight.md` and
+`done/2026-07-24-t6040-trackpad-motion-crossreview.md`. Corrected manifest and
+review:
+`done/2026-07-24-t6040-trackpad-motion-revised-preflight.md`.
 
 If MTP requests its reset GPIO, stop:
 the derived `gp1c` function resolves through the ADT's `smc-pmu` node, and PMU

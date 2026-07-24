@@ -43,9 +43,12 @@ defect. Nothing in the CPU DT needs changing to bring up a second core.
 
 ## maxcpus=2 test — minimal, no MMIO / no DT change
 
-Bring up exactly the boot CPU (`cpu@0`, E) + its first sibling (`cpu@1`, E) via
-the existing spin-table path and self-report. This is the smallest SMP assertion:
-it exercises Linux's secondary-core release + WFE/idle park on one sibling.
+Bring up exactly the boot CPU plus Linux logical CPU 1 via the existing
+spin-table path and self-report. The physical boot CPU is P-core `smp_id 4`
+(`MPIDR 0x80010100`), not DT node `cpu@0`; arm64 assigns it Linux logical CPU
+0 after matching the live MPIDR. The first remaining enabled node in DT order
+is E-core `smp_id 0`, so it is expected to become Linux logical CPU 1. This is
+the smallest SMP assertion: it exercises one secondary release plus WFE/idle.
 
 - **No kernel or DT change.** Reuses the proven dcuart console kernel + base
   dcuart DT; the only delta is the boot argument and a reporting initramfs.

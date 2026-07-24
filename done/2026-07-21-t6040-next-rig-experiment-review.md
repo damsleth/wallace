@@ -16,7 +16,7 @@ and the M4 showed a local `Running proxy` but failed to present KIS to the M1.
 
 | Ticket | Readiness | Decision |
 |---|---|---|
-| 004 trackpad motion | **Prepared, not yet runnable (2026-07-24 correction).** The paired firmware now exists and an exact, reproducible storage-disabled TX-only candidate is pinned in `done/2026-07-24-t6040-trackpad-motion-preflight.md`; its independent exact-artifact review is still missing | Do not boot before recorded review PASS |
+| 004 trackpad motion | **Superseded by 125/126 (2026-07-24 correction).** The first exact candidate was independently rejected before boot because it lacked the HID type fix and left multitouch modular without modules. Offline 125 later byte-reproduced and passed review. See `done/2026-07-24-t6040-trackpad-motion-revised-preflight.md` | Live 126 needs fresh approval, volatile-runtime-HIDF exception, and attended motion |
 | 005 `maxcpus=2` | **Not runnable.** Yuka's WIP `more-t6041` branch reached an M4 Pro shell with all cores and PMGR, but its inherited CPU/domain description is not board-correct for 14-core J614s. Ticket 034 still must audit topology/release/WFE constraints and produce hashed, self-reporting artifacts plus cross-review | Do not boot |
 | 006 cpufreq DT | **Not runnable.** m1n1's minimal `+0x20020` APSC path is proven, but offline ticket 035 has not produced/schema-checked the Linux DT or pinned artifacts; T6040 throttle offsets remain unsafe | Do not boot |
 | 057 USB port-map ADT | **Completed.** Moving DebugUSB to the known-good left-back port restored KIS; the RAM-read capture maps `usb-drd0/1/2` to `left-back/left-front/right` | Build a single-port DTB with `usb-drd0` disabled |

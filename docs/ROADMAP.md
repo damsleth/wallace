@@ -5,7 +5,7 @@ WiFi, Bluetooth, keyboard/trackpad, audio, webcam, power management — daily-dr
 comfort comparable to macOS.
 
 Written 2026-07-10, last updated **2026-07-24** (tethered B0 PASS; right HPM2
-reaches S0; IRQ-816 console PASS; rig healthy).
+reaches S0; IRQ-816 console PASS; dual-mode cross-review complete; rig healthy).
 Companion docs: `NEXT_STEPS.md` (immediate work), `DEVLOG.md`
 (operational reference + solved blockers), `t6040-dt-checklist.md` (Stage C
 reference), and `BOOTABLE_BUILD_EXPERIMENTS.md` (B0 cold-boot ladder).
@@ -54,8 +54,10 @@ compressed initramfs, entry `0x800`, with a strict host verifier. Tickets 081
 and 100 completed the independently reviewed single-object tethered proof:
 OpenRC default runlevel, watchdog, internal panel shell, keyboard echo, and no
 block devices passed. Ticket 082's enrollment procedure exists; exact volume
-identity/backup plus the dual-mode candidate review/selection remain before
-plan-approved ticket 101's maintainer-executed cold boot and trigger check.
+identity/backup and the maintainer action split remain before plan-approved
+ticket 101's cold boot and trigger check. Ticket 119 conditionally passed
+dual-mode candidate `46237ade...`: the payload is exact, but version/Rust
+inputs must be pinned before claiming a fully reproducible m1n1 rebuild.
 Full sequence:
 `docs/BOOTABLE_BUILD_EXPERIMENTS.md`. Layout result:
 `done/2026-07-23-t6040-raw-boot-object-layout.md`.
@@ -73,9 +75,10 @@ report, locked root password, no enabled network configuration, and zero block
 nodes. Its exact self-contained raw object is the twice-reproduced, strictly
 decoded 22,183,563-byte `2371ee5d...`; ticket 100 live-proved it. The
 dual-mode replacement candidate `46237ade...` preserves the proven payload and
-adds only `EARLY_PROXY_TIMEOUT=5`, but still needs independent review. Its
-on-M4 trigger validation is part of ticket 101 if selected. Nothing is
-enrolled.
+adds only `EARLY_PROXY_TIMEOUT=5`. Ticket 119's conditional independent review
+reproduced the object and post-prefix identity, exposed the unpinned version
+tag/Rust nightly, and left the display/DebugUSB classification for ticket
+101's two separate bounded live checks. Nothing is enrolled.
 
 **Right-port HPM reaches S0 (2026-07-24).** The staged endpoint-only sequence
 proved the selector window inactive before WAKEUP, read power state `0x07`
@@ -102,14 +105,14 @@ fixed, dapf gate + watchdog arm added for M4.
 
 | Works | Not yet |
 |---|---|
-| Tethered single-object Alpine/OpenRC B0: panel shell, internal keyboard, watchdog, empty partitions | Enrolled untethered cold boot (082 remaining identity/backup/review gates; 101 approved) |
+| Tethered single-object Alpine/OpenRC B0: panel shell, internal keyboard, watchdog, empty partitions | Enrolled untethered cold boot (082 remaining identity/backup/action-split gates; 101 approved) |
 | BusyBox userspace; full PMGR with property-free T6041 quirk, reproducible | PMGR draft review/submission (split, checkpatch/schema-clean; NEXT_STEPS #2) |
-| Internal keyboard at the shell; trackpad registers + validated firmware-loader path; paired trackpad/BCM/ISP/ASMedia corpus staged | Trackpad motion retest; PMU-backed reset remains forbidden; maxcpus>1/idle states |
+| Internal keyboard at the shell; trackpad registers + validated firmware-loader path; paired trackpad/BCM/ISP/ASMedia corpus staged; corrected trackpad candidate 125 reproduced/reviewed | live trackpad 126 approval plus volatile-runtime-HIDF exception and attended motion; PMU-backed reset remains forbidden; maxcpus>1/idle states |
 | Two-way Linux shell + m1n1 proxy over one DebugUSB cable; poll fallback and IRQ-816 RX both proven | Printk over ttydc needs a separate polled/atomic TX path; current TTY queue is not console-safe |
 | Right HPM2 WAKEUP + SSPS: state `0x07` → S0 `0x00`; verified OpenRC disk image | USB role/VBUS/repeater/ATC, child enumeration, block read/write, image flashing |
 | Linux apple_wdt; fbcon early console | NVMe rootfs (power/SART/ANS work; queue and per-command TCB setup require unavailable raw-boot SPTM entry) |
 | Kernel build env (podman, arm64-native) with patch pipeline | USB gadget console (parked: EP0 dies post-enumeration) |
-| SMP/cpufreq/MCC groundwork; PCIe host+wireless DT and drivers build | maxcpus=2 replacement after 005 no-console result; cpufreq; PCIe op-115 still hangs after PLL lock; wireless; USB3/TB |
+| SMP/cpufreq/MCC groundwork; PCIe host+wireless DT and drivers build | reviewed maxcpus=2 early-DockChannel replacement awaits fresh approval; cpufreq; PCIe op-115 still hangs after PLL lock; wireless; USB3/TB |
 
 **Upstreaming pending**: the SMP/broken_wfi/MPIDR + cpufreq channel drafts are
 finalized in `done/` (ticket 019). Ticket 046 has now shaped the actual
@@ -244,9 +247,11 @@ doable solo with the proxy + ADT dumps; this is the highest-leverage local work.
    The maintainer-approved `docs/SPMI_SAFETY.md` now permits only exact
    right-HPM2 stages. Tickets 093–095 have proved inactive selector, WAKEUP +
    state `0x07`, and SSPS + state `0x00`; the mask experiment was removed and
-   remains untested. Ticket 096 owns detach/rollback, and decomposed later
-   tickets own host role, ATC/xHCI enumeration, block reads, flashing, and
-   bounded writes.
+   remains untested. Ticket 096's final static pass found semantic eUSB2/ACIO
+   teardown but no complete VBUS/event/cache/mask/detect/power-state inverse,
+   so R3 and tickets 102–108 remain blocked pending new primary evidence.
+   Decomposed later tickets own host role, ATC/xHCI enumeration, block reads,
+   flashing, and bounded writes only after that gate clears.
    Root hubs without that physical path are not a functional USB2 fallback.
    USB3/TB remains a Stage D comfort.
    NHI/apciec (Thunderbolt) name-mapping is also deferred.
@@ -318,9 +323,11 @@ all 14 cores online, cpufreq working.
 maxcpus=1. A WIP `more-t6041` branch independently reached an M4 Pro shell with
 all cores and PMGR, but its inherited CPU/domain topology is not J614s-correct;
 completed preflight 034 fed `maxcpus=2` control 005, which reached kernel
-vectoring but produced no Linux output. Diagnosis 122 and a separately
-approved replacement 123 now precede all-core candidate/run tickets 120/121.
-Cpufreq ticket 006 waits for 121.
+vectoring but produced no Linux output. Diagnosis 122 is complete; its exact
+storage-disabled early-DockChannel replacement passed independent review.
+Ticket 123 remains proposed pending fresh maintainer approval because it was
+created after the last approve-all. It precedes all-core candidate/run tickets
+120/121, and cpufreq ticket 006 waits for 121.
 T6040/T6041 AIC
 sysregs remain firmware-locked, so the trap-avoidance patch and `idle=nop`
 remain required.
@@ -383,9 +390,13 @@ remain required.
   reproducibly staged the paired 25F84 `tpmtfw-j614s.bin` (`a1f4131d...`).
   Ticket 030 now also provides a deterministic full restore corpus and
   22-file Linux tree (`cb7a4ee2...` raw archive). Ticket 004's exact
-  reproducible TX-only motion candidate is now pinned (`86e031db...` Image,
-  `3a47c95d...` initramfs); independent review remains before its one-shot
-  boot. The result will determine whether J614s needs the forbidden
+  reproducible TX-only candidate (`86e031db...` Image, `3a47c95d...`
+  initramfs) was retired unrun after review found the HID type fix absent and
+  multitouch modular without modules. Replacement 125 adds the fix and
+  built-in driver and now byte-reproduces/reviews PASS at Image `446eeb2e...`.
+  Live 126 requires fresh approval plus a narrow explicit policy exception for
+  the paired volatile runtime HIDF upload. The result will
+  determine whether J614s needs the forbidden
   legacy PMU-backed GPIO proxy path without exercising that write
   (NEXT_STEPS #1).
 - **Display:** two steps.

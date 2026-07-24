@@ -1,0 +1,66 @@
+diff --git a/drivers/tty/apple_dockchannel_tty.c b/drivers/tty/apple_dockchannel_tty.c
+index c50cfa8f022c..b51dcc0290ed 100644
+--- a/drivers/tty/apple_dockchannel_tty.c
++++ b/drivers/tty/apple_dockchannel_tty.c
+@@ -15,6 +15,7 @@
+ #include <linux/mailbox_client.h>
+ #include <linux/module.h>
+ #include <linux/mutex.h>
++#include <linux/serial_core.h>
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <linux/sizes.h>
+@@ -25,6 +26,9 @@
+ #include <linux/tty_flip.h>
+ #include <linux/tty_port.h>
+ #include <linux/workqueue.h>
++
++#define APPLE_DCTTY_DATA_TX8		0x4
++#define APPLE_DCTTY_DATA_TX_FREE	0x14
+ 
+ #define APPLE_DCTTY_NAME		"ttydc"
+ #define APPLE_DCTTY_DRIVER_NAME		"apple-dockchannel-tty"
+@@ -33,5 +37,43 @@
+ #define APPLE_DCTTY_TX_FIFO_SIZE	(SZ_64K)
+ 
++#ifdef CONFIG_SERIAL_EARLYCON
++/*
++ * Bring-up-only polled console for failures before the mailbox and TTY
++ * drivers probe. The explicit earlycon address is the DockChannel data
++ * window, not the mailbox node's first (IRQ) resource.
++ *
++ * Never wait for host drainage: losing diagnostic bytes is preferable to
++ * delaying boot when DebugUSB is absent or the FIFO is full.
++ */
++static void apple_dctty_early_putchar(struct uart_port *port, unsigned char c)
++{
++	if (!readl_relaxed(port->membase + APPLE_DCTTY_DATA_TX_FREE))
++		return;
++
++	writel_relaxed(c, port->membase + APPLE_DCTTY_DATA_TX8);
++}
++
++static void apple_dctty_early_write(struct console *con, const char *s,
++				    unsigned int count)
++{
++	struct earlycon_device *device = con->data;
++
++	uart_console_write(&device->port, s, count,
++			   apple_dctty_early_putchar);
++}
++
++static int __init
++apple_dctty_early_setup(struct earlycon_device *device, const char *options)
++{
++	if (!device->port.membase)
++		return -ENODEV;
++
++	device->con->write = apple_dctty_early_write;
++	return 0;
++}
++EARLYCON_DECLARE(dockchannel, apple_dctty_early_setup);
++#endif
++
+ struct apple_dctty {
+ 	struct device *dev;
+ 	struct tty_port port;

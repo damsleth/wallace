@@ -1,0 +1,23 @@
+{
+  "seq": "119",
+  "slug": "b0-dualmode-object-crossreview",
+  "needs": "offline",
+  "state": "done",
+  "track": "distro",
+  "priority": "P1",
+  "desc": "DONE conditional PASS. Fresh rebuild exposed two missing provenance pins: M1N1_VERSION_TAG width and Rust nightly. With the exact archived 2026-07-09 Rust output, fresh C relink reproduced base 1394c345 and dual 11f6fbf1; exact old-rustc installation remains to make this a fully independent rebuild. Fresh deterministic packing reproduced object 46237ade, and every byte after its 1097728-byte prefix matches live-proven 2371ee5d. Source review bounds the no-connection path to nominal 5 s and confirms connected proxy is intentionally indefinite; display/lp-sip trigger assumptions require separate ticket-101 cold-boot and DebugUSB validation. Evidence: done/2026-07-24-t6040-b0-dualmode-crossreview.md.",
+  "author": "codex",
+  "deps": [
+    "100"
+  ],
+  "hashes": {
+    "base_m1n1": "1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b",
+    "dual_mode_m1n1": "11f6fbf1d9bfd4b5d4ea6308444beffc8063446553d48791c3a34e20c1458b91",
+    "dual_mode_object": "46237ade7e314cd752e1482930e21b62319e1b0b707a0f23e86392701555f0c9",
+    "kernel": "d76463e51cf3fb61e0af93f9ea6f24562de32db78988eeaa98a031f0c336bcc5",
+    "dtb": "2782b92237c35c8950212207391c3ae28c44b6b9c635b2e864c5748a77bb3cce",
+    "initramfs": "ddd981711e91c917b735d39df0e90dd50200c158e1ea54c7f2c171c8ad317024",
+    "result": "0a8291589693b973829c8d18b409a29b8bf310f74c4c848ed1ff9ec88c43ee42"
+  },
+  "created": 1784927435
+}

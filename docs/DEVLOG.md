@@ -11,15 +11,18 @@ long-term plan in `ROADMAP.md`; per-session write-ups in `done/`.
 | Mainline Linux to Alpine 3.24/OpenRC | tethered self-contained B0 object passed; storage-disabled, `maxcpus=1 idle=nop` |
 | Two-way m1n1 proxy/console over DebugUSB (KIS) | one DP/TB cable in the DFU port; no second machine-side cable needed |
 | Two-way **Linux shell** on `/dev/ttydc0` over the same cable | poll-mode fallback plus live-proven interrupt mode on measured AIC input 816 |
-| Internal keyboard at the local panel shell | DockChannel HID type fix; trackpad motion remains unproved |
+| Internal keyboard at the local panel shell | DockChannel HID type fix; corrected trackpad-motion candidate 125 byte-reproduced/reviewed, live 126 unapproved |
 | Framebuffer console (simpledrm + fbcon) | B0 panel shell and local keyboard echo live-proven |
 | Linux `apple_wdt` takes over m1n1's watchdog | shell survives past the 20 s bite |
 | Remote reboot via `macvdmtool` | post-095 recovery control and later cycles healthy; exact fail-closed checklist in ticket 118 result |
 | Right HPM2 WAKEUP + SSPS | state `0x07` → S0 `0x00`; role/VBUS/PHY/xHCI/device access not proved |
 | OpenRC external-root image | host-verified GPT/ext4 image ready; stick not flashed or enumerated on M4 |
 
-Active: finish HPM/ATC detach/rollback offline,
-close the dual-mode B0 enrollment preflight, and decompose USB enumeration,
+Active: seek new primary evidence for the HPM/ATC rollback no-go,
+fill the maintainer-only B0 volume/backup/action fields, and obtain fresh
+approval for reviewed SMP ticket 123. Trackpad ticket 125 is complete; live
+126 remains unapproved and policy/attendance-gated. USB enumeration remains
+decomposed behind the rollback gate,
 read-only block access, flashing, and bounded write tests. Internal NVMe
 remains behind SPTM/CoastGuard. Trackpad firmware and the paired firmware
 corpus are staged. Parked: USB gadget console (EP0 dies post-enumeration;
@@ -219,17 +222,59 @@ as `0x10001` then `0x10000`; do not implement or exercise it under the absolute
 no-PMU-write rule. Details:
 `done/2026-07-12-t6040-trackpad-firmware.md`.
 
-The 2026-07-24 ticket-004 rebuild pins a byte-reproducible trackpad candidate:
+The first 2026-07-24 ticket-004 rebuild pinned a byte-reproducible candidate:
 Image `86e031db...`, storage-disabled DTB `2782b922...`, and paired-firmware
 initramfs `3a47c95d...`. The dedicated init automatically emits registration,
 dmesg, and a bounded 12-second event read over ttydc0 TX, avoiding the current
 RX regression. The initramfs builder now uses
 `scripts/reproducible-newc.py` plus `gzip -n`; this removes BSD cpio's temporary
 host-inode nondeterminism. The base archive contains no hardlinked regular
-files or special nodes, and two fresh archives byte-match. No live run is
-authorized until an independent exact-artifact review records PASS. Full
-manifest and stop conditions:
-`done/2026-07-24-t6040-trackpad-motion-preflight.md`.
+files or special nodes, and two fresh archives byte-match.
+
+Independent review retired those exact bytes unrun: they omitted the proven
+DockChannel `hid->type` fix and left `HID_MULTITOUCH=m` while the RAM image
+contains no modules, so no multi-touch event node could bind or trigger the
+runtime HIDF path. Offline replacement 125 added the type fix and built-in
+multitouch; two independent builds byte-match at Image `446eeb2e...`, and
+independent exact-artifact review passed. Proposed live ticket 126 remains
+unapproved. It also requires an explicit narrow exception to the unqualified
+firmware-write rule for the exact paired, volatile, non-persistent runtime
+upload. It never authorizes flash/NVM or GPIO/PMU reset. Full manifests and
+reviews:
+`done/2026-07-24-t6040-trackpad-motion-preflight.md` and
+`done/2026-07-24-t6040-trackpad-motion-crossreview.md`, plus
+`done/2026-07-24-t6040-trackpad-motion-revised-preflight.md`.
+
+### First-secondary visibility (2026-07-24, tickets 005/122/123)
+
+Ticket 005 ran its exact reviewed `maxcpus=2` set once. m1n1 prepared the
+kernel and vectored to Linux, but the polling DockChannel owner emitted no
+Linux line in the bounded window. Recovery returned a healthy proxy. This
+correlates the loss of visibility with enabling a secondary; it does not prove
+that the secondary itself caused the failure. Do not retry 005 unchanged.
+
+Ticket 122 corrected the topology model: the physical boot CPU is P-core
+`smp_id=4`, which arm64 numbers logical CPU0; the first secondary expected as
+logical CPU1 is E-core `smp_id=0`. Source audit also confirmed that repeated
+`maxcpus=` options are processed left-to-right, m1n1 releases all secondaries
+to WFE park addresses, and the T6040 AIC locked-sysreg skips remain required.
+
+The replacement adds a diagnostic earlycon confined to the already-proven
+DockChannel data window. Per byte it reads `TX_FREE` once at `+0x14`, drops
+immediately if full, and otherwise writes TX8 at `+0x04`; there is no wait,
+RX, configuration, IRQ, or new offset. The exact bootarg suffix is:
+
+```text
+maxcpus=2 earlycon=dockchannel,mmio32,0x50882c000 keep_bootcon initcall_blacklist=apple_dctty_init
+```
+
+The blacklist prevents the normal UART client from becoming a second TX
+owner, while a reproducible kmsg-only init reports CPU masks and pinned
+liveness without requiring tty RX. Independent exact-artifact review passed.
+Offline 122 is done; live ticket 123 remains proposed and needs fresh
+maintainer approval because it was created after the last approve-all. Full
+hashes, ownership proof, and stop contract:
+`done/2026-07-24-t6040-maxcpus2-earlycon-analysis.md`.
 
 ### BCM4388 wireless firmware corpus (2026-07-14, ticket 014)
 
@@ -257,7 +302,11 @@ deterministic raw archive is
 the restore, BaseSystem, kernelcache, and asahi-installer commit, asserts the
 five-member FUD selection and every Linux output hash, and refuses overwrite.
 Machine-private ALS data cannot come from an IPSW and is split to ticket 087
-for a read-only capture from the M4's macOS installation. Exact result:
+for a read-only capture from the M4's macOS installation. Its exact
+upstream-derived capture procedure and fail-closed extractor are now prepared;
+the corrected private-file procedure passed independent review, and only an
+attended main-macOS boot remains. Exact results:
+`done/2026-07-24-t6040-als-calibration-preflight.md` and
 `done/2026-07-24-t6040-paired-fw-corpus.md`.
 
 Ticket 026 audited current asahi-installer at `c53d66dc7193`. Its second-stage
@@ -459,10 +508,13 @@ single-object autoboot. The release object reached OpenRC's default runlevel,
 kept the watchdog alive, reported `input0/event0`, kept partitions empty, and
 accepted a line from the internal keyboard at the panel shell. Ticket 082 now
 contains the reversible enrollment/cold-boot procedure; its remaining fields
-are the exact volume UUID, enrolled-object backup/hash, dual-mode candidate
-review/selection, and the maintainer's execution split. Plan-approved ticket
-101 performs the enrollment/cold boot and any selected dual-mode trigger
-validation only after 082 closes and rig recovery. The exact experiment and safety ladder is
+are the exact volume UUID, enrolled-object backup/hash, and the maintainer's
+execution split. Ticket 119 conditionally passed dual-mode candidate
+`46237ade...`: every byte after the m1n1 prefix matches live-proven
+`2371ee5d...`, while the exact Rust nightly and version tag need pinning before
+claiming a fully reproducible rebuild. Plan-approved ticket 101 performs the
+enrollment/cold boot and the separate trigger validation only after 082
+closes. The exact experiment and safety ladder is
 `docs/BOOTABLE_BUILD_EXPERIMENTS.md`; exact layout:
 `done/2026-07-23-t6040-raw-boot-object-layout.md`. U-Boot/EFI and external USB
 root are B1 and B2 respectively, not prerequisites for B0.
@@ -494,12 +546,18 @@ Ticket 100 live-proved this exact release object through one tethered upload;
 081 and 100 are done. A dual-mode prefix candidate
 `46237ade7e314cd752e1482930e21b62319e1b0b707a0f23e86392701555f0c9`
 has since been built so normal boot may autoboot while DebugUSB retains a
-five-second proxy window. It is not yet the enrollment object: independent
-review remains, and on-M4 trigger validation belongs to ticket 101 if selected.
+five-second proxy window. Ticket 119's independent review conditionally
+passed it for ticket 101: exact repacking reproduced `46237ade...`, all
+post-prefix bytes match live-proven `2371ee5d...`, and source review bounded
+the no-connection path. The fresh rebuild also proved the original version tag
+and Rust nightly were not pinned, so do not claim full byte reproducibility
+until they are. The display/DebugUSB trigger distinction remains a hardware
+validation, not an offline fact.
 Exact results:
 `done/2026-07-24-t6040-alpine-b0-release-bundle.md`,
 `done/2026-07-24-t6040-b0-alpine-openrc-single-object-result.md`, and
-`done/2026-07-24-t6040-b0-dualmode-earlyproxy-object.md`.
+`done/2026-07-24-t6040-b0-dualmode-earlyproxy-object.md`, and
+`done/2026-07-24-t6040-b0-dualmode-crossreview.md`.
 
 Ticket 086 established the external-root GPT/ext4 construction and validation
 mechanics without opening any block device, but a later PID-1 audit found its
@@ -956,7 +1014,13 @@ directly touch `0x23`/`0x24`/`0x55`, clear IRQs, reset the repeater, or mark
 USB2 inactive. `turnOnVbus()` does dispatch `forcePortEvaluation()`. The
 `0x14` event/cache mutation still has no race-safe inverse; `0x23` destroys
 unmapped bits on write, `0x24` lacks complete status semantics, and `0x55`
-lacks readback or a proved neutral value. Ticket 096 remains open. Evidence:
+lacks readback or a proved neutral value. The final PAC-aware pass found the
+actual mode-flag detach branches, software-only USB2/USB3 object removal,
+HPM inactive/active mask reconstruction, and paired semantic eUSB2/ACIO
+shutdown. It still found no VBUS-off operation, exact cache/mask/detect or
+pre-SSPS-state restoration, or safe cross-layer teardown order. Ticket 096
+remains open with an R3 no-go; do not build or run 102–108 without new primary
+evidence. Evidence:
 `done/2026-07-24-t6040-hpm2-detach-static-slice.md`.
 
 Yuka's late-2026-07-24 `tps6598x-spmi` branch (`dcc5f1bc...`) is now the first

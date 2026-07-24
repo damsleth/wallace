@@ -14,6 +14,9 @@
 #   podman exec -e DOCKCHANNEL=1 -e HID_STATE_TRACE=1 -e HID_TYPE_FIX=1 \
 #       -e BUILD_DIR=/build/linux-hid-type-fix kbuild \
 #       bash /out/t6040-kbuild.sh image
+#   podman exec -e DOCKCHANNEL=1 -e DOCKCHANNEL_EARLYCON=1 \
+#       -e BUILD_DIR=/build/linux-dcuart-earlycon kbuild \
+#       bash /out/t6040-kbuild.sh image
 # (The old /kbuild.sh bind mount predates the .plans refactor and is stale;
 # exec via /out instead.)
 # The mac host FS is case-insensitive, which corrupts kernel files (xt_CONNMARK.h
@@ -45,6 +48,16 @@ if [ ! -d "$BUILD_DIR/.git" ]; then
 fi
 cd "$BUILD_DIR"
 git checkout -q "$BRANCH"
+
+# Make independently cloned builds byte-reproducible. The kernel otherwise
+# embeds the wall-clock compile time (and ambient container identity) in the
+# Image even when source, config, System.map, and DTB are identical.
+export KBUILD_BUILD_TIMESTAMP="${KBUILD_BUILD_TIMESTAMP:-$(git show -s --format=%cI HEAD)}"
+export KBUILD_BUILD_USER="${KBUILD_BUILD_USER:-wallace}"
+export KBUILD_BUILD_HOST="${KBUILD_BUILD_HOST:-t6040-kbuild}"
+export KBUILD_BUILD_VERSION="${KBUILD_BUILD_VERSION:-1}"
+export KCFLAGS="${KCFLAGS:+$KCFLAGS }-fdebug-prefix-map=$BUILD_DIR=/build/linux"
+export KAFLAGS="${KAFLAGS:+$KAFLAGS }-fdebug-prefix-map=$BUILD_DIR=/build/linux"
 
 echo "== copy in our t6040 DT files (uncommitted on host) =="
 cp /src/$APPLE/t6040.dtsi        $APPLE/
@@ -139,6 +152,30 @@ if [ "${HID_TYPE_FIX:-0}" = "1" ]; then
     }
     [ "${USB_HOST:-0}" = "0" ] || {
         echo "ERROR: HID_TYPE_FIX=1 is a storage-disabled candidate"
+        exit 1
+    }
+fi
+if [ "${TRACKPAD_MOTION:-0}" = "1" ]; then
+    [ "${DOCKCHANNEL:-0}" = "1" ] || {
+        echo "ERROR: TRACKPAD_MOTION=1 requires DOCKCHANNEL=1"
+        exit 1
+    }
+    [ "${HID_TYPE_FIX:-0}" = "1" ] || {
+        echo "ERROR: TRACKPAD_MOTION=1 requires HID_TYPE_FIX=1"
+        exit 1
+    }
+    [ "${USB_HOST:-0}" = "0" ] || {
+        echo "ERROR: TRACKPAD_MOTION=1 is a storage-disabled candidate"
+        exit 1
+    }
+fi
+if [ "${DOCKCHANNEL_EARLYCON:-0}" = "1" ]; then
+    [ "${DOCKCHANNEL:-0}" = "1" ] || {
+        echo "ERROR: DOCKCHANNEL_EARLYCON=1 requires DOCKCHANNEL=1"
+        exit 1
+    }
+    [ "${USB_HOST:-0}" = "0" ] || {
+        echo "ERROR: DOCKCHANNEL_EARLYCON=1 is a storage-disabled diagnostic"
         exit 1
     }
 fi
@@ -638,6 +675,28 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
             b8dcbdcb9cbf1d18be7cf30c1f839a204b0aec33 | git apply
         echo "DockChannel serial TTY applied OK"
     fi
+    if [ "${DOCKCHANNEL_EARLYCON:-0}" = "1" ]; then
+        echo "== apply bounded DockChannel early console diagnostic =="
+        if grep -q 'apple_dctty_early_setup' \
+                drivers/tty/apple_dockchannel_tty.c; then
+            echo "t6040-dockchannel-earlycon-debug.patch already applied"
+        elif git apply --check \
+                /out/t6040-dockchannel-earlycon-debug.patch 2>/dev/null; then
+            git apply /out/t6040-dockchannel-earlycon-debug.patch
+            echo "t6040-dockchannel-earlycon-debug.patch applied OK"
+        else
+            echo "ERROR: t6040-dockchannel-earlycon-debug.patch does not apply:"
+            git apply --check \
+                /out/t6040-dockchannel-earlycon-debug.patch || true
+            exit 1
+        fi
+    elif grep -q 'apple_dctty_early_setup' \
+            drivers/tty/apple_dockchannel_tty.c &&
+            git apply -R --check \
+                /out/t6040-dockchannel-earlycon-debug.patch 2>/dev/null; then
+        git apply -R /out/t6040-dockchannel-earlycon-debug.patch
+        echo "t6040-dockchannel-earlycon-debug.patch removed"
+    fi
     # Local fallback plus per-instance IRQ masks. MTP uses RX BIT(3), while the
     # UART FIFO uses RX BIT(1). The base DT retains apple,poll-mode; bounded M4
     # Pro measurement corrected the ADT's false IRQ 360 to AIC input 816.
@@ -808,6 +867,12 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
         -e HID -e HID_APPLE -e APPLE_DOCKCHANNEL \
         -e APPLE_DOCKCHANNEL_HID -e APPLE_DOCKCHANNEL_TTY
 fi
+if [ "${TRACKPAD_MOTION:-0}" = "1" ]; then
+    # The bounded RAM image has no module-loading path. Multi-touch must be
+    # built in so opening the event node can invoke the paired volatile HIDF
+    # upload path; ticket 004's first exact candidate incorrectly left this m.
+    ./scripts/config --file .config -e HID_MULTITOUCH
+fi
 if [ "${HID_RX_REARM:-0}" = "1" ] ||
    [ "${HID_STATE_TRACE:-0}" = "1" ]; then
     # Match the ticket-067 kernel config exactly so the live A/B changes only
@@ -912,7 +977,11 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
     cp $APPLE/t6040-j614s-kbd.dtb /out/ \
         && echo "DTB -> /out/t6040-j614s-kbd.dtb"
     make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart.dtb
-    if [ "${HID_STATE_TRACE:-0}" = "1" ]; then
+    if [ "${TRACKPAD_MOTION:-0}" = "1" ]; then
+        cp $APPLE/t6040-j614s-dcuart.dtb \
+            /out/t6040-j614s-dcuart-trackpad-motion.dtb \
+            && echo "DTB -> /out/t6040-j614s-dcuart-trackpad-motion.dtb"
+    elif [ "${HID_STATE_TRACE:-0}" = "1" ]; then
         cp $APPLE/t6040-j614s-dcuart.dtb \
             /out/t6040-j614s-dcuart-hid-state-trace.dtb \
             && echo "DTB -> /out/t6040-j614s-dcuart-hid-state-trace.dtb"
@@ -1057,6 +1126,14 @@ if [ "${1:-}" = "image" ]; then
         image_name=Image-hid-type-fix
         map_name=System.map-hid-type-fix
     fi
+    if [ "${TRACKPAD_MOTION:-0}" = "1" ]; then
+        image_name=Image-trackpad-motion
+        map_name=System.map-trackpad-motion
+    fi
+    if [ "${DOCKCHANNEL_EARLYCON:-0}" = "1" ]; then
+        image_name=Image-dcuart-earlycon
+        map_name=System.map-dcuart-earlycon
+    fi
     cp arch/arm64/boot/Image "/out/$image_name" \
         && echo "Image -> /out/$image_name ($(du -h arch/arm64/boot/Image | cut -f1))"
     # System.map lets t6040-ramdump.py locate __log_buf for a post-mortem console
@@ -1077,6 +1154,14 @@ if [ "${1:-}" = "image" ]; then
     if [ "${HID_TYPE_FIX:-0}" = "1" ]; then
         cp .config /out/config-hid-type-fix \
             && echo "config -> /out/config-hid-type-fix"
+    fi
+    if [ "${TRACKPAD_MOTION:-0}" = "1" ]; then
+        cp .config /out/config-trackpad-motion \
+            && echo "config -> /out/config-trackpad-motion"
+    fi
+    if [ "${DOCKCHANNEL_EARLYCON:-0}" = "1" ]; then
+        cp .config /out/config-dcuart-earlycon \
+            && echo "config -> /out/config-dcuart-earlycon"
     fi
 fi
 echo "== done =="

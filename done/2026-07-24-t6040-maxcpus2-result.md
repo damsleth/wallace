@@ -48,8 +48,10 @@ Evidence hashes:
 - `dcuart-console.log`:
   `2108fcc9657c24c247ab7a63542297d7c7a9d8a8e9f30108e6aefe3a0766609f`
 
-This is evidence for a Linux secondary-core bring-up failure before the
-polling DockChannel driver becomes visible, not evidence that the reporter or
-CPU-1 liveness test failed. Tickets 120/121 and cpufreq ticket 006 remain
-blocked. The next step is an offline early-output/secondary-start diagnosis
-and a separately reviewed candidate; do not rerun this image unchanged.
+This is evidence for a Linux failure correlated with enabling the first
+secondary and occurring before the polling DockChannel driver becomes
+visible. It does not by itself prove that the secondary-start path caused the
+failure, nor that the reporter or CPU-1 liveness test ran. Tickets 120/121 and
+cpufreq ticket 006 remain blocked. The next step is an offline
+early-output/secondary-start diagnosis and a separately reviewed candidate;
+do not rerun this image unchanged.

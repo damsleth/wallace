@@ -5,11 +5,22 @@
   "state": "proposed",
   "track": "smp",
   "priority": "P1",
-  "desc": "PROPOSED replacement only after offline ticket 122 produces exact artifacts and an independent review. One storage-disabled maxcpus=2 boot with idle=nop and the proven polling console plus the minimal early-output/secondary-start diagnostic. No cpufreq, USB/storage, PCIe, SPMI, or new MMIO. Requires exact hashes, fresh maintainer approval, healthy rig, lease, and bounded stop/recovery; ticket 005 must not be retried unchanged.",
+  "desc": "PROPOSED, NOT APPROVED. Offline ticket 122 is done and independent exact-artifact review PASSed. One storage-disabled maxcpus=2 boot appends exactly 'maxcpus=2 earlycon=dockchannel,mmio32,0x50882c000 keep_bootcon initcall_blacklist=apple_dctty_init' and uses a reproducible kmsg-only reporter. The early writer performs one proven TX_FREE 0x14 read per byte, drops immediately when full, and otherwise writes TX8 0x04; it has no wait/RX/config/IRQ/new offset. No cpufreq, USB/storage, PCIe, SPMI, or other new MMIO. Requires fresh maintainer approval because this ticket postdates the last approve-all, plus healthy rig, lease, and bounded stop/recovery. Never retry ticket 005 unchanged.",
   "author": "sol",
   "deps": [
     "122"
   ],
-  "hashes": null,
+  "hashes": {
+    "m1n1": "1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b",
+    "patch": "c70a9b2c215be2212d7794f8895b707fc54759c99baf7b9e20c68a7b4facd725",
+    "build_harness": "ac2140b5b1a83435857db72401858071b10ce3c5c0bfaca89c46576d1874c1ea",
+    "reporter": "b9884700bcad261084bc2995e49abcb95b18874555b6569a6238e625e80c40a6",
+    "image": "0c1811804ac6cca6f3c539b7b513f3463ebf4ab9868ae8e35d49dcc19118b9ac",
+    "system_map": "f926a2af144811ffb09df587ce1177c209d6022449a535d4b00846010597b7fc",
+    "config": "27c615803298a366e93c1858caaf4ad6ce95db7dfcbff51ecd404d980f6f4228",
+    "dtb": "2782b92237c35c8950212207391c3ae28c44b6b9c635b2e864c5748a77bb3cce",
+    "initramfs": "43944ef26f93eb52558cda5d4283007b4af5fa2c30715bccae07a5824dec7149",
+    "preflight": "ecd16f3db3a998ffb3c2c15bdd88c4d3a1dec4b8d01a2ebd26d9cb8264d6942b"
+  },
   "created": 1784928885
 }

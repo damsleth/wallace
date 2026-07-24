@@ -5,7 +5,7 @@
   "state": "approved",
   "track": "storage",
   "priority": "P1",
-  "desc": "Proposed final external-root milestone after 101 and 112 both pass: maintainer selects the enrolled m1n1 volume with the verified stick in the right port; no host payload or command. Pass = m1n1 -> Linux -> external ext4/OpenRC root, panel shell, internal keyboard, watchdog, prior ticket-112 persistence marker, expected USB block device only, no internal NVMe. Observation only; no flashing, enrollment, partitioning, or new write. Separate exact object/bootargs review, fresh approval, rollback, lease, and healthy rig required.",
+  "desc": "PLAN-APPROVED BUT BLOCKED until 101 and 112 both pass. Then the maintainer selects the enrolled m1n1 volume with the verified stick in the right port; no host payload or command. Pass = m1n1 -> Linux -> external ext4/OpenRC root, panel shell, internal keyboard, watchdog, prior ticket-112 persistence marker, expected USB block device only, no internal NVMe. Observation only; no flashing, enrollment, partitioning, or new write. Requires separate exact object/bootargs review, rollback, lease, and healthy rig.",
   "author": "codex",
   "deps": [
     "101",

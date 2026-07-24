@@ -4,7 +4,9 @@
 > single-object run passed. Exact object `2371ee5d...` reached OpenRC default
 > runlevel, panel shell, internal keyboard echo, watchdog, and empty
 > partitions. Ticket 081 is done. Dual-mode enrollment candidate
-> `46237ade...` is a separate unreviewed follow-up under ticket 119.
+> `46237ade...` subsequently received ticket 119's conditional independent
+> PASS: exact post-prefix identity is proved, while version/Rust inputs must
+> be pinned before claiming a fully reproducible m1n1 rebuild.
 
 Date: 2026-07-24  
 Tickets: 079, 081, and live proof 100 complete

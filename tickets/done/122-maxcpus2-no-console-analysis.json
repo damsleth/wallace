@@ -1,0 +1,27 @@
+{
+  "seq": "122",
+  "slug": "maxcpus2-no-console-analysis",
+  "needs": "offline",
+  "state": "done",
+  "track": "smp",
+  "priority": "P1",
+  "desc": "DONE: corrected the boot-CPU model (physical P-core smp_id4 is Linux logical0; the first secondary is E-core smp_id0), confirmed repeated maxcpus parsing and the m1n1 release/WFE and AIC locked-sysreg boundaries, and produced exact replacement ticket 123. The independently reviewed storage-disabled candidate adds a non-blocking early DockChannel writer confined to the proven TX_FREE 0x14 read and TX8 0x04 write, blacklists the normal apple_dctty_init TX owner, and embeds a reproducible kmsg-only SMP reporter. Review PASS; ticket 123 still requires fresh maintainer approval and must not run automatically. Evidence: done/2026-07-24-t6040-maxcpus2-earlycon-analysis.md.",
+  "author": "sol",
+  "deps": [
+    "005"
+  ],
+  "hashes": {
+    "m1n1": "1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b",
+    "patch": "c70a9b2c215be2212d7794f8895b707fc54759c99baf7b9e20c68a7b4facd725",
+    "build_harness": "ac2140b5b1a83435857db72401858071b10ce3c5c0bfaca89c46576d1874c1ea",
+    "reporter": "b9884700bcad261084bc2995e49abcb95b18874555b6569a6238e625e80c40a6",
+    "image": "0c1811804ac6cca6f3c539b7b513f3463ebf4ab9868ae8e35d49dcc19118b9ac",
+    "system_map": "f926a2af144811ffb09df587ce1177c209d6022449a535d4b00846010597b7fc",
+    "config": "27c615803298a366e93c1858caaf4ad6ce95db7dfcbff51ecd404d980f6f4228",
+    "dtb": "2782b92237c35c8950212207391c3ae28c44b6b9c635b2e864c5748a77bb3cce",
+    "initramfs": "43944ef26f93eb52558cda5d4283007b4af5fa2c30715bccae07a5824dec7149",
+    "result": "ecd16f3db3a998ffb3c2c15bdd88c4d3a1dec4b8d01a2ebd26d9cb8264d6942b"
+  },
+  "created": 1784928884,
+  "done_at": 1784931228
+}

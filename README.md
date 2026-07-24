@@ -12,28 +12,38 @@ The tethered B0 release object now boots a self-contained Alpine 3.24/OpenRC
 system from one raw m1n1 object. The internal panel reaches a local shell, the
 internal keyboard echoes, the watchdog stays serviced, and the storage-disabled
 health report passes. A dual-mode enrollment candidate has also been built; it
-still needs independent review and volume identity/backup completion. Its
-hardware trigger validation belongs to the maintainer-executed cold-boot
-experiment (ticket 101), not the offline preflight. That plan is approved but
-remains `runnable=false` until its identity, backup, and review gates close.
+passed a conditional independent review and preserves every post-m1n1 byte of
+the live-proven object. Its version tag and exact Rust nightly must be pinned
+before claiming full rebuild reproducibility. Volume identity/backup and the
+maintainer's execution split still block ticket 101; its display/DebugUSB
+trigger behavior is deliberately a separate live validation.
 
 Core bring-up is solid: m1n1 sees all 14 active cores, PMGR's 214-domain
 topology is understood, Linux boots reliably at `maxcpus=1`, fbcon and
 DockChannel polling console work, and the internal keyboard is usable.
 The first exact `maxcpus=2` proof (005) reached kernel vectoring but produced
 no Linux output, so 122/123 now own the diagnosis/replacement before all-core
-120/121 or cpufreq 006. Interrupt-driven DockChannel on measured AIC input 816
-has passed with stable bidirectional shell traffic. Trackpad motion remains an
-attended physical-input test.
+120/121 or cpufreq 006. Offline diagnosis 122 is complete: its reproducible,
+storage-disabled early-DockChannel candidate passed independent exact-artifact
+review and can reveal the previously blind boot interval. Live ticket 123
+remains proposed because it was created after the last manual approve-all; it
+requires fresh explicit approval. Interrupt-driven DockChannel on measured AIC
+input 816 has passed with stable bidirectional shell traffic. Trackpad motion
+candidate 004 was retired unrun after review found a missing HID type fix and
+modular multitouch without modules. Offline replacement 125 was corrected,
+byte-reproduced, and independently passed; live 126
+still requires fresh approval, a narrow volatile-runtime-firmware policy
+exception, and attended finger motion.
 
 The right-side USB-C path has crossed its first hardware-management boundary.
 The exact right HPM2 endpoint accepted WAKEUP, reported state `0x07`, accepted
 the public-driver `SSPS` sequence, and reported S0 (`0x00`). That does not yet
 establish connector role, VBUS, repeater/ATC PHY, xHCI enumeration, or block
-access. The attached memory stick has therefore **not** enumerated on the M4
-and has not been written. A host-verified OpenRC GPT/ext4 root image is ready,
-but flashing and read-write boot tests remain behind the staged USB link
-experiments.
+access. Final static rollback review found semantic USB/PHY teardown but no
+complete VBUS, event/cache/mask/detect, or pre-SSPS-state inverse, so R3 and
+the USB link experiments are blocked pending new primary evidence. The
+attached memory stick has therefore **not** enumerated on the M4 and has not
+been written. A host-verified OpenRC GPT/ext4 root image is ready.
 
 Internal NVMe remains blocked by Apple's SPTM/CoastGuard guarded state. We have
 decoded the protected operation contracts, but raw boot has no supported path

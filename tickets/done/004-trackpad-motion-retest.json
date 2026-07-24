@@ -1,0 +1,27 @@
+{
+  "seq": "004",
+  "slug": "trackpad-motion-retest",
+  "needs": "rig",
+  "state": "done",
+  "runnable": false,
+  "track": "hid",
+  "priority": "P2",
+  "desc": "DONE STATIC NO-GO; exact candidate retired unrun. Independent review matched every byte and passed its storage/MMIO/bounds checks, but Image 86e031db lacks the proven hid->type fix and leaves HID_MULTITOUCH=m while the initramfs has no modules. No multi-touch event node can bind or trigger the volatile HIDF upload. Offline replacement 125 subsequently applied both corrections, byte-reproduced, and independently passed. Proposed live ticket 126 still requires fresh approval, explicit maintainer authorization for the exact paired non-persistent runtime firmware upload, and attended finger motion. Evidence: done/2026-07-24-t6040-trackpad-motion-crossreview.md.",
+  "author": "claude",
+  "deps": [
+    "016"
+  ],
+  "hashes": {
+    "m1n1": "1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b",
+    "image": "86e031dba708ad21d1a393e0cc4da97ddb3110f9bfd28cdc86398c859d441112",
+    "dtb": "2782b92237c35c8950212207391c3ae28c44b6b9c635b2e864c5748a77bb3cce",
+    "initramfs": "3a47c95d629def71bedb3cdba4dbf3390575015b9f0d08d86154d2767d83d6ae",
+    "firmware": "a1f4131d0cb7caf6fa15b19f47725458a6d7b0e3a34f15169339d5541663d9e2",
+    "review": "686c0d2121b6bf393dc933c8d57f0a0c95538891244f84b436171a57eac99326"
+  },
+  "created": 1784039023,
+  "approved_by": "maintainer",
+  "approved_at": 1784045044,
+  "reviewed_by": "claude",
+  "done_at": 1784931591
+}

@@ -5,12 +5,18 @@
   "state": "approved",
   "track": "xcut",
   "priority": "P2",
-  "desc": "Capture the machine-private J614s ambient-light calibration read-only from this M4's macOS installation: ioreg als CalibrationData -> apple/aop-als-cal.bin plus matching HmCA* FactoryData, with source/build provenance and SHA-256 inventory. Never substitute the M1's calibration. Prepare an exact reviewed read-only procedure before touching the rig; no NVRAM, PMU/SPMI, Boot Policy, or target write. Current rig NEEDS_RECOVERY first.",
+  "desc": "EXACT PREFLIGHT REVIEW PASS; runnable=false only because capture is maintainer-attended. From upstream asahi-installer c53d66dc, collect this M4's ioreg ALS plist, exact Mac16,8 model, macOS version, and nonempty HmCA* FactoryData under set -eu/umask077 into a fresh mode-0700 capture and mode-0600 archive; extract atomically on the M1 with fail-closed script 7c05d56b... to private apple/aop-als-cal.bin, matching HmCA*, and manifest. Never substitute the M1. No NVRAM, PMU/SPMI, Boot Policy, kmutil/bputil, or hardware/config write. Do not discard the healthy proxy unattended; run only during an attended boot into the M4's main macOS. Preflight: done/2026-07-24-t6040-als-calibration-preflight.md.",
   "author": "codex",
   "deps": [],
-  "hashes": null,
+  "hashes": {
+    "extractor": "7c05d56bd81ceabc7d4a3ddb27e3b2e737be07c57b0604888ad96c456e2f92e3",
+    "preflight": "10137e64817f364c86c391a57b3abf1391e552d55144e57ea1d4c12d53935fb2",
+    "upstream_installer": "c53d66dc71937efa2530d4323c81addaebb5a09b"
+  },
   "created": 1784879471,
   "runnable": false,
   "approved_by": "maintainer",
-  "approved_at": 1784928481
+  "approved_at": 1784928481,
+  "reviewed_by": "claude",
+  "reviewed_at": 1784931591
 }

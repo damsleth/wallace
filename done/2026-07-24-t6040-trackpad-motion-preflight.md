@@ -4,7 +4,12 @@ Date: 2026-07-24
 
 Rig ticket: 004
 
-State: **exact artifacts prepared; independent review required before boot**
+State: **retired unrun after independent functional NO-GO**. This document
+preserves the exact historical bytes and procedure; replacement work is
+tickets 125/126. Offline 125 is now complete and reviewed; live 126 remains
+proposed and unapproved. See
+`done/2026-07-24-t6040-trackpad-motion-crossreview.md` and
+`done/2026-07-24-t6040-trackpad-motion-revised-preflight.md`.
 
 ## Purpose
 

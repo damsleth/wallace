@@ -143,8 +143,11 @@ T6040 evidence may change the op-115 plan.
   SPTM/CoastGuard command boundary. External USB root remains the practical
   path.
 - Keyboard/trackpad progress on t6050 and M5 Pro did not supply J614s's paired
-  `tpmtfw-j614s.bin` or authorize the PMU-backed reset. Ticket 004 remains
-  blocked on the board firmware artifact and safety gate.
+  `tpmtfw-j614s.bin` or authorize the PMU-backed reset. This was the state on
+  21 July. Ticket 016 later extracted the exact J614s blob; ticket 004 was
+  retired unrun after static review. Offline 125 later reproduced and passed
+  review; proposed live 126 owns the remaining approval/policy/attendance
+  gates. PMU-backed reset remains prohibited.
 - A Broadcom OWE crash and iwd's `OweDisable=brcmfmac` fallback were reported
   on 16 July. Record this for eventual wireless validation; it does not affect
   PCIe link-up or BCM4388 firmware extraction.

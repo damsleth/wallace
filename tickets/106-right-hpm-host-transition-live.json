@@ -5,7 +5,7 @@
   "state": "approved",
   "track": "usb",
   "priority": "P1",
-  "desc": "Proposed one-shot HPM-only host-role/source transition and exact rollback using ticket 105's reviewed artifact. Fixture is only the passive bus-powered right-port memory stick; never charger, powered dock, other host, or external source. Require role/orientation/power transcript and byte-exact rollback. No repeater/ATC/DWC3/xHCI/Linux/storage. Stop on unexpected source state, timeout, transport error, SError/reset, or recovery loss. Needs rig recovery, exact hashes, independent PASS, fresh maintainer approval, and lease.",
+  "desc": "PLAN-APPROVED BUT BLOCKED by 096/103/104/105: no safe forward/inverse artifact exists. When those gates resolve, run one HPM-only host-role/source transition and exact rollback against only the passive bus-powered right-port memory stick; never charger, powered dock, other host, or external source. Require role/orientation/power transcript and byte-exact rollback. No repeater/ATC/DWC3/xHCI/Linux/storage. Stop on unexpected source state, timeout, transport error, SError/reset, or recovery loss. Requires exact hashes, independent PASS, healthy rig/recovery checklist, and lease.",
   "author": "codex",
   "deps": [
     "105"

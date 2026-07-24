@@ -56,11 +56,13 @@ In rough order of leverage:
    independent review and ticket **100**'s tethered single-object boot:
    OpenRC, watchdog, panel shell, internal keyboard, and empty partitions.
    **081/100 are done.** **082** has the reversible enrollment procedure and
-   now needs the target-volume UUID, enrolled-object backup/hash,
-   review/selection of dual-mode candidate `46237ade...`, and execution split
-   confirmation. **101** is plan-approved but runnable=false until 082 closes;
-   it owns the cold boot and any selected dual-mode hardware trigger check
-   after rig recovery. Direct m1n1 is the selected B0 route; U-Boot
+   now needs the target-volume UUID, enrolled-object backup/hash, and execution
+   split confirmation. Ticket **119** completed a conditional independent
+   PASS on dual-mode candidate `46237ade...`: its payload is byte-identical to
+   the live-proven object, while the version tag and exact Rust nightly need
+   pinning before claiming full rebuild reproducibility. **101** is
+   plan-approved but runnable=false until 082 closes; it owns separate cold
+   boot and dual-mode trigger checks. Direct m1n1 is the selected B0 route; U-Boot
    ticket **025** is B1; its no-MMIO framebuffer/EFI-hello prep is complete,
    with any live proof deferred until after B0. Installer requirements ticket
    **026** is complete:
@@ -100,7 +102,9 @@ In rough order of leverage:
    WAKEUP and a read-only state result of `0x07`; no extended write was linked.
    Ticket **095** then passed the narrowed SSPS-only boundary: initial state
    `0x07`, exact DATA1/CMD1 `SSPS`, final S0 state `0x00`; mask access was
-   absent and remains untested. Offline **096** owns class-10 detach/rollback.
+   absent and remains untested. Offline **096** found semantic detach/PHY
+   shutdown but no complete byte/state inverse; R3 remains a no-go pending new
+   primary evidence.
    Umbrellas **097/099** are decomposed into post-S0 status, optional mask only
    if justified, HPM host transition, ATC/xHCI enumeration, read-only block
    identity, separate destructive flashing, bounded read-write root, and
@@ -137,12 +141,16 @@ In rough order of leverage:
    bidirectional IRQ-driven shell traffic and zero reported IRQ errors.
 6. **Make the approved rig queue runnable** (smp/cpufreq/hid). The exact
    preflights **034/035** are complete, but maxcpus=2 ticket 005 reached kernel
-   vectoring with no Linux output. Diagnose/build under 122, then obtain fresh
-   approval for replacement 123 before all-core 120/121; cpufreq 006 waits for
-   121. Trackpad provisioning **016** is
-   complete (`tpmtfw-j614s.bin` `a1f4131d...`); ticket 004's exact reproducible
-   kernel/DT/initramfs set is now pinned in its 2026-07-24 preflight and needs
-   only an independent exact-artifact review before it is runnable.
+   vectoring with no Linux output. Diagnosis/build **122 is done** and its
+   exact non-blocking early-DockChannel candidate passed independent review;
+   obtain fresh approval for replacement 123 before all-core 120/121. Cpufreq
+   006 waits for 121. Trackpad provisioning **016** is
+   complete (`tpmtfw-j614s.bin` `a1f4131d...`); ticket 004's first exact set
+   was retired unrun after review found the HID type fix absent and multitouch
+   modular without modules. Offline 125 now byte-reproduces and independently
+   passes with Image `446eeb2e...`; proposed 126 additionally needs fresh
+   approval and an explicit narrow volatile-runtime-firmware exception before
+   an attended run.
 7. **Upstreaming proven work** (xcut, P1): SMP/cpufreq posting drafts are
    finalized under completed **019**; **046** now provides the rebased
    nine-patch m1n1 RFC and cover letter. **047** now provides the consolidated
@@ -170,7 +178,7 @@ Per COORDINATION.md roles, extended for the USB-root era:
 
 | Lane | Primary | Current contents |
 |---|---|---|
-| Storage: RAM-root + USB-root pipeline + SPTM | **sol** | right HPM2 reached S0; 096/102–113 stage link → read → confirmed flash → RW root; 114–117 keep NVMe host-only |
+| Storage: RAM-root + USB-root pipeline + SPTM | **sol** | right HPM2 reached S0; 096 is R3 no-go and blocks 102–113 pending new evidence; 114–117 keep NVMe host-only |
 | PCIe/WiFi-BT, DockChannel console | **claude** | 068/044; completed 062 feeds non-runnable 073 |
 | Rig-queue preflights, SMC/PM, upstream drafts | **claude** (first grab) | 122→123→120/121→006; 061 and 019/046/047/048 complete |
 | Rootfs recipe, xcut, tracking | either (queue order) | 029/030, 022/023; 026/039/060 complete |

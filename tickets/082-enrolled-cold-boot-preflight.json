@@ -5,12 +5,16 @@
   "state": "open",
   "track": "distro",
   "priority": "P1",
-  "desc": "IN PROGRESS after ticket-100 tethered PASS. The reversible maintainer-executed enrollment/cold-boot procedure exists at done/2026-07-24-t6040-b0-enrolled-cold-boot-preflight.md. Remaining preflight work: fill dedicated m1n1 volume UUID, back up/hash current enrolled object, complete independent ticket-119 review of dual-mode candidate 46237ade, select 46237ade or live-proven fallback 2371ee5d in the exact manifest, and confirm the action split/rollback. Close 082 when those offline readiness items are complete; ticket 101 owns the live cold-boot and, if selected, dual-mode trigger validation. Agent runs no kmutil/bputil.",
+  "desc": "IN PROGRESS after ticket-100 tethered PASS and ticket-119 conditional review PASS. Dual-mode 46237ade preserves every post-prefix byte of live-proven 2371ee5d and is acceptable for bounded hardware validation; pin M1N1_VERSION_TAG and the exact 2026-07-09 Rust nightly before claiming full rebuild reproducibility. Remaining preflight work requires maintainer/macOS facts: fill the dedicated m1n1 volume UUID, back up/hash the currently enrolled object, record the exact selected-object manifest, and confirm the enrollment/cold-boot action split and rollback. Ticket 101 owns the live checks. Agent runs no kmutil/bputil. Procedure: done/2026-07-24-t6040-b0-enrolled-cold-boot-preflight.md.",
   "author": "codex",
   "deps": [
     "100",
     "119"
   ],
-  "hashes": null,
+  "hashes": {
+    "dual_mode_candidate": "46237ade7e314cd752e1482930e21b62319e1b0b707a0f23e86392701555f0c9",
+    "dual_mode_review": "0a8291589693b973829c8d18b409a29b8bf310f74c4c848ed1ff9ec88c43ee42",
+    "live_proven_fallback": "2371ee5dfbfab591397fc333e7da212fb7582bfb2eaddaa6438005f5bb41759b"
+  },
   "created": 1784838169
 }

@@ -17,7 +17,7 @@ identity/backup/object-review fields.
 
 | # | Experiment | Ticket | State | End-goal contribution |
 |---|---|---|---|---|
-| U1 | **maxcpus=2 SMP** → then all 14 cores | 005 → 122/123 → 120/121 | 005 no-console FAIL; replacement analysis/candidate required | responsiveness; the machine uses its cores |
+| U1 | **maxcpus=2 SMP** → then all 14 cores | 005 → 122/123 → 120/121 | 005 no-console FAIL; 122/review PASS, 123 awaits fresh approval | responsiveness; the machine uses its cores |
 | U2 | **cpufreq DVFS** (E 7-ps, P 19-ps to 4512 MHz) | 006 (+035; after 121) | plan-approved, `runnable=false`, DT built (`a42bb096`) | thermals + performance scaling |
 | U3 | **Interrupt-driven console** (IRQ 816) | 073 (+062) | **live PASS** | a non-busy-poll console; prereq for a printk console |
 | U4 | **SMC**: power button, lid, battery status | 061 | **done offline**; live integration later | on-device power control + battery gauge (read-only keys) |
@@ -77,8 +77,9 @@ only proven ones.
 ## Explicitly out of scope here (tracked elsewhere)
 - B0 itself and enrollment: `BOOTABLE_BUILD_EXPERIMENTS.md`; 081/100 passed,
   082/101 own the remaining enrolled cold boot.
-- Persistent storage (B2): right HPM2 reaches S0; 096 still owns rollback,
-  image 098 is complete (`1c493fad...`), and decomposed
+- Persistent storage (B2): right HPM2 reaches S0, but 096's final static
+  rollback review is an R3 no-go pending new primary evidence. Image 098 is
+  complete (`1c493fad...`), and decomposed
   link/block/flash/root tickets own the remaining path. Internal NVMe remains
   behind SPTM.
 - GPU (drm/asahi), audio, ISP/webcam, suspend: upstream-tracked (039/040/027);
@@ -86,7 +87,10 @@ only proven ones.
   no current G16 candidate, and the ready evidence/test contract explicitly
   forbids reusing a G14 identity. Suspend analysis 027 is complete: current
   T6040 deep WFI is unsafe under locked sysregs, so keep `idle=nop`.
-- Trackpad motion (004): a comfort, gated on tpmtfw provisioning (016).
+- Trackpad motion: retired candidate 004 is replaced by byte-reproduced,
+  independently reviewed offline candidate 125. Attended live proposal 126
+  remains unapproved and needs the narrow volatile-runtime-HIDF policy
+  exception.
 
 ## Milestone definition ("usable machine")
 B0 + U1 + U2 + U4 + U5 = **the M4 cold-boots to an Alpine login on its own

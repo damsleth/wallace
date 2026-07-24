@@ -9,12 +9,13 @@ Policy, `kmutil`, `bputil`, or enrollment action is performed by authoring it.
 > **Current amendment:** ticket 100's tethered proof passed. The preferred
 > enrollment candidate is now dual-mode object
 > `46237ade7e314cd752e1482930e21b62319e1b0b707a0f23e86392701555f0c9`,
-> but only after ticket 119 independently reproduces/reviews it. Its
-> normal-boot versus DebugUSB trigger behavior is validated during ticket 101
-> if selected. The live-proven
+> conditionally passed by ticket 119 for bounded hardware validation. Exact
+> packing and post-prefix identity pass; pin the exact version tag and
+> 2026-07-09 Rust nightly before calling the m1n1 build fully reproducible.
+> Its normal-boot versus DebugUSB behavior is validated during ticket 101. The live-proven
 > pure-autoboot object `2371ee5d...` remains the fallback. Substitute neither
-> hash silently. The rig is currently NEEDS_RECOVERY after the post-095
-> VDM/KIS failure; recover it before ticket 101. Later commands naming
+> hash silently. The post-095 recovery control and later proxy cycles pass;
+> still run the standard health preflight before ticket 101. Later commands naming
 > `2371ee5d` describe the fallback unless the reviewed 082/101 manifest
 > explicitly selects `46237ade`.
 
@@ -174,9 +175,10 @@ the m1n1 volume; that is not the risk surface — the boot object is).
 
 ## Closure boundary
 
-Close 082 when the volume identity, rollback backup/hash, ticket-119 review,
-selected-object manifest, and action split are complete. Ticket 101 depends on
-that completed preflight and exclusively owns the live enrolled cold boot.
+Close 082 when the volume identity, rollback backup/hash, selected-object
+manifest, and action split are complete. Ticket 119's conditional review is
+complete. Ticket 101 depends on the remaining preflight and exclusively owns
+the live enrolled cold boot and trigger validation.
 
 ## Open items for maintainer confirmation
 

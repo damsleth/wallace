@@ -5,7 +5,7 @@
   "state": "approved",
   "track": "usb",
   "priority": "P1",
-  "desc": "Proposed exact composed right-port run from reviewed 107: perform the proven HPM transition, hold host state through eUSB2/ATC/DART/xHCI enumeration, then execute the proved rollback. Passive memory stick only. Pass = expected USB child persists 10 seconds, right DART/xHCI healthy, console responsive, no internal NVMe. No block-sector read, mount, or write. Stop/rollback on fault, role/power mismatch, lost console, or missing child. Needs rig recovery, exact hashes, independent PASS, fresh approval, and lease.",
+  "desc": "PLAN-APPROVED BUT BLOCKED by 096/106/107: no reviewed composed host-link artifact exists. When those gates pass, perform the proven HPM transition, hold host state through eUSB2/ATC/DART/xHCI enumeration, then execute the proved rollback. Passive memory stick only. Pass = expected USB child persists 10 seconds, right DART/xHCI healthy, console responsive, no internal NVMe. No block-sector read, mount, or write. Stop/rollback on fault, role/power mismatch, lost console, or missing child. Requires exact hashes, independent PASS, healthy rig/recovery checklist, and lease.",
   "author": "codex",
   "deps": [
     "107"

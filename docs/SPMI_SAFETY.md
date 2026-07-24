@@ -101,6 +101,13 @@ policy, VBUS/VCONN, eUSB2 repeater, and ATC PHY writes require a complete
 host-transition and detach/rollback design. They are not permanently banned,
 but each exact sequence is separately gated.
 
+The 2026-07-24 final ticket-096 decode found paired software-object removal
+and framework-managed eUSB2/ACIO semantic shutdown, but no VBUS-off operation,
+race-safe inverse for `0x14` plus W1C/cache state, exact mask/detect
+restoration, or restoration of the observed pre-SSPS state `0x07`. This is an
+explicit R3 no-go. Do not build or run tickets 102–108 until new primary
+evidence closes those boundaries.
+
 R3 tests may use only a known passive sink such as the bus-powered USB memory
 stick. Never attach a charger, powered dock, another host, or any externally
 powered source during an unproven source-role/VBUS experiment.

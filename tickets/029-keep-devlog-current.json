@@ -5,7 +5,7 @@
   "state": "open",
   "track": "xcut",
   "priority": "P2",
-  "desc": "Evergreen documentation hygiene. Last full audit 2026-07-24 reconciled README, NEXT_STEPS, DEVLOG, ROADMAP, BACKLOG, bootable/usable/SPMI surfaces, host memory, and all open tickets with B0 ticket-100 PASS, HPM2 0x07->0x00 PASS, OpenRC image 098, and the post-095 NEEDS_RECOVERY state. Continue converting every new result and dead end into a documented grave.",
+  "desc": "Evergreen documentation hygiene. Full 2026-07-24 reconciliation now includes B0 ticket-100 PASS, conditional dual-mode review 119, HPM2 0x07->0x00 plus final R3 rollback no-go, recovery-control PASS, IRQ-816 console PASS, PCIe op115 negative, maxcpus2 negative plus reviewed replacement 123, trackpad-004 static NO-GO plus byte-reproduced/reviewed offline 125 and unapproved live 126, corrected ALS preflight PASS, and OpenRC image 098. Continue converting every result and dead end into a documented grave.",
   "author": "claude",
   "deps": [],
   "hashes": null,

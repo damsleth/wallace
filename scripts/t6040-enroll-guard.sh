@@ -19,7 +19,7 @@ EXPECT_NAME="m1n1"
 TARGET="${TARGET:-/Volumes/m1n1}"
 
 # --- approved objects (SHA-256 -> label). Anything else is refused. ---
-#  46237ade… dual-mode (EARLY_PROXY_TIMEOUT=5) — PREFERRED, pending ticket 119 review
+#  46237ade… dual-mode (EARLY_PROXY_TIMEOUT=5) — conditionally reviewed preferred object
 #  2371ee5d… pure auto-boot                    — ticket-100 live-proven fallback
 #  1394c345… bare proxy-m1n1                    — ROLLBACK object (restores dev loop)
 APPROVED_HASHES="\

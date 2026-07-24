@@ -1,0 +1,26 @@
+{
+  "seq": "126",
+  "slug": "trackpad-motion-revised-live",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "hid",
+  "priority": "P2",
+  "desc": "PROPOSED, NOT APPROVED. Offline 125 byte-reproduced and independently passed with Image 446eeb2e..., built-in multitouch, the proven hid->type fix, exact storage-disabled DTB/initramfs, and bounded reporter. One attended J614s trackpad-motion run still requires fresh manual ticket approval and an explicit maintainer-recorded exception to the unqualified firmware-write rule for exactly the paired a1f4131d non-persistent runtime HIDF upload into volatile coherent DMA and known interface reset; it never authorizes flash/NVM, arbitrary firmware, another board blob, GPIO/PMU reset, or other writes. Finger stimulus, exact hashes, lease, healthy rig and stop/recovery contract required.",
+  "author": "codex",
+  "deps": [
+    "125"
+  ],
+  "hashes": {
+    "m1n1": "1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b",
+    "build_harness": "d2cc6afbced04d235bce296cb2289c97052450794763acabfd777a3b0d65eeb6",
+    "reporter": "400ab9bed41dd0e717c435e2d2211805196f68989942773adc3c837039c72676",
+    "image": "446eeb2eb28d85ec29c327d52b55c223a928e4cccbd5fcc2d00ed70e98e3a490",
+    "system_map": "82f71c0e311e9acd20394e6b2054443b2add6f6ce52a6ddc34e24295eb5e4e2a",
+    "config": "0769da6d1f6145c236ffbe044480ce94a2b7c7fd7aa057be09e71da49012e5d3",
+    "dtb": "2782b92237c35c8950212207391c3ae28c44b6b9c635b2e864c5748a77bb3cce",
+    "initramfs": "3a47c95d629def71bedb3cdba4dbf3390575015b9f0d08d86154d2767d83d6ae",
+    "firmware": "a1f4131d0cb7caf6fa15b19f47725458a6d7b0e3a34f15169339d5541663d9e2",
+    "preflight": "160ac035326998a8c3a765cd326e833acbc54d7913fca515bf4b74b4682f38be"
+  },
+  "created": 1784931592
+}

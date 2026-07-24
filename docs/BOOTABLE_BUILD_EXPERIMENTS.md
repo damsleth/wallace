@@ -5,8 +5,8 @@ Date: 2026-07-24
 Current state: the tethered B0 release-object proof passed (tickets 081/100).
 The remaining B0 boundary is plan-approved ticket 101's maintainer-executed
 enrolled cold boot, after ticket 082's exact volume identity/backup fields and
-dual-mode-object review/selection. Ticket 101 owns its hardware trigger check
-if selected; the current rig recovery gate also remains.
+action split. Ticket 119 conditionally passed the dual-mode object; ticket 101
+owns its two separate cold-boot and DebugUSB trigger checks. The rig is healthy.
 
 ## Target milestone
 
@@ -223,10 +223,12 @@ The procedure now contains:
 - pass/stop conditions for one cold boot.
 
 Remaining before execution: fill the dedicated volume UUID, back up and hash
-the currently enrolled object, independently review/select dual-mode candidate
-`46237ade...` under ticket 119, decide whether enrollment and boot use split
-approvals, and recover the current wedged KIS link. If selected, ticket 101
-validates its normal/debug trigger distinction live. The agent does not
+the currently enrolled object, and decide whether enrollment and boot use
+split approvals. Ticket 119 conditionally passed selected dual-mode candidate
+`46237ade...`: exact packing and post-prefix identity pass, while the build
+recipe must pin the exact version tag and Rust nightly before being called
+fully reproducible. Ticket 101 validates its normal/debug trigger distinction
+live. The agent does not
 execute `kmutil` or change Boot Policy; the maintainer performs enrollment.
 
 Enrollment and boot remain separate actions if the maintainer wants that split.
@@ -247,7 +249,9 @@ That is milestone B0. Exact procedure:
   role/VBUS/ATC, child enumeration, block access, flashing, and writes remain.
 - Ticket 030's paired 25F84 restore corpus is complete and can be supplied to
   later rootfs/initramfs builds. Its missing machine-private ALS calibration
-  is ticket 087 and does not block B0 or B2 root mounting.
+  is ticket 087; the corrected private/fail-closed capture preflight passed
+  independent review, but still needs an attended M4 macOS boot. It does not
+  block B0 or B2 root mounting.
 - Internal NVMe remains behind the documented SPTM/CoastGuard boundary.
   Tickets 051/052/054/055 are research, not a near-term boot dependency.
 - SMP, cpufreq, PCIe/WiFi, trackpad firmware, SMC, GPU, audio, and suspend are

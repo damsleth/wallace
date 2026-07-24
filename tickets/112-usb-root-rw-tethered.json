@@ -5,7 +5,7 @@
   "state": "approved",
   "track": "storage",
   "priority": "P1",
-  "desc": "Proposed first tethered OpenRC external-root read-write test after verified flash. Reinsert the exact stick on M4 right, boot root=PARTUUID=e4731abe-3566-4c3a-8019-c8828ca27a5a, prove ext4 rw root, OpenRC default runlevel, watchdog, tty0/ttydc0, internal keyboard, and no internal NVMe. Create one namespaced bounded marker, fsync, hash, remount/reboot, and verify persistence. Retain the marker unchanged through ticket 113; cleanup is later. Do not enroll or cold-boot here. Needs exact hashes/reporter, independent review, fresh approval, lease, and healthy rig.",
+  "desc": "PLAN-APPROVED BUT BLOCKED until 108 enumerates and 111 completes an explicitly confirmed, verified flash. Then reinsert the exact stick on M4 right, boot root=PARTUUID=e4731abe-3566-4c3a-8019-c8828ca27a5a, prove ext4 rw root, OpenRC default runlevel, watchdog, tty0/ttydc0, internal keyboard, and no internal NVMe. Create one namespaced bounded marker, fsync, hash, remount/reboot, and verify persistence. Retain the marker unchanged through ticket 113; cleanup is later. Do not enroll or cold-boot here. Requires exact hashes/reporter, independent review, lease, and healthy rig.",
   "author": "codex",
   "deps": [
     "108",
