@@ -11,6 +11,9 @@
 #   podman exec -e DOCKCHANNEL=1 -e HID_STATE_TRACE=1 \
 #       -e BUILD_DIR=/build/linux-hid-state-trace kbuild \
 #       bash /out/t6040-kbuild.sh image
+#   podman exec -e DOCKCHANNEL=1 -e HID_STATE_TRACE=1 -e HID_TYPE_FIX=1 \
+#       -e BUILD_DIR=/build/linux-hid-type-fix kbuild \
+#       bash /out/t6040-kbuild.sh image
 # (The old /kbuild.sh bind mount predates the .plans refactor and is stale;
 # exec via /out instead.)
 # The mac host FS is case-insensitive, which corrupts kernel files (xt_CONNMARK.h
@@ -126,6 +129,16 @@ if [ "${HID_STATE_TRACE:-0}" = "1" ]; then
     }
     [ "${HID_RX_REARM:-0}" = "0" ] || {
         echo "ERROR: HID_STATE_TRACE=1 uses the unmodified receive control flow"
+        exit 1
+    }
+fi
+if [ "${HID_TYPE_FIX:-0}" = "1" ]; then
+    [ "${DOCKCHANNEL:-0}" = "1" ] || {
+        echo "ERROR: HID_TYPE_FIX=1 requires DOCKCHANNEL=1"
+        exit 1
+    }
+    [ "${USB_HOST:-0}" = "0" ] || {
+        echo "ERROR: HID_TYPE_FIX=1 is a storage-disabled candidate"
         exit 1
     }
 fi
@@ -650,19 +663,30 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
             exit 1
         fi
     fi
-    # HID input-registration fix: set hid->type so hid-apple binds the internal
-    # keyboard (live-proven, ticket 078 -> /dev/input/event0). Without it, the
-    # rebased BUS_HOST hid-apple rejects the untyped device and nothing binds.
-    if grep -q 'hid->type = HID_TYPE_SPI_KEYBOARD' \
-        drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c; then
-        echo "t6040-dockchannel-hid-type.patch already applied"
-    elif git apply --check /out/t6040-dockchannel-hid-type.patch 2>/dev/null; then
-        git apply /out/t6040-dockchannel-hid-type.patch
-        echo "t6040-dockchannel-hid-type.patch applied OK"
-    else
-        echo "ERROR: t6040-dockchannel-hid-type.patch does not apply cleanly:"
-        git apply --check /out/t6040-dockchannel-hid-type.patch || true
-        exit 1
+    if [ "${HID_TYPE_FIX:-0}" = "1" ]; then
+        # Set hid->type so the rebased BUS_HOST hid-apple driver accepts the
+        # internal keyboard. Ticket 078 registered event0 with this source
+        # change; keep it gated so unrelated historical candidates are stable.
+        if grep -q 'hid->type = HID_TYPE_SPI_KEYBOARD' \
+            drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c; then
+            echo "t6040-dockchannel-hid-type.patch already applied"
+        elif git apply --check \
+                /out/t6040-dockchannel-hid-type.patch 2>/dev/null; then
+            git apply /out/t6040-dockchannel-hid-type.patch
+            echo "t6040-dockchannel-hid-type.patch applied OK"
+        else
+            echo "ERROR: t6040-dockchannel-hid-type.patch does not apply cleanly:"
+            git apply --check /out/t6040-dockchannel-hid-type.patch || true
+            exit 1
+        fi
+    elif grep -q 'hid->type = HID_TYPE_SPI_KEYBOARD' \
+            drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c &&
+            git apply -R --check \
+                /out/t6040-dockchannel-hid-type.patch 2>/dev/null; then
+        # Reused case-sensitive build directories retain applied patches.
+        # Restore the baseline when this candidate is not explicitly selected.
+        git apply -R /out/t6040-dockchannel-hid-type.patch
+        echo "t6040-dockchannel-hid-type.patch removed (HID_TYPE_FIX=0)"
     fi
     if [ "${DOCKCHANNEL_IRQ_TEST:-0}" = "1" ]; then
         echo "== apply bounded DockChannel IRQ diagnostic guard =="
@@ -1029,6 +1053,10 @@ if [ "${1:-}" = "image" ]; then
         image_name=Image-hid-state-trace
         map_name=System.map-hid-state-trace
     fi
+    if [ "${HID_TYPE_FIX:-0}" = "1" ]; then
+        image_name=Image-hid-type-fix
+        map_name=System.map-hid-type-fix
+    fi
     cp arch/arm64/boot/Image "/out/$image_name" \
         && echo "Image -> /out/$image_name ($(du -h arch/arm64/boot/Image | cut -f1))"
     # System.map lets t6040-ramdump.py locate __log_buf for a post-mortem console
@@ -1045,6 +1073,10 @@ if [ "${1:-}" = "image" ]; then
     if [ "${HID_STATE_TRACE:-0}" = "1" ]; then
         cp .config /out/config-hid-state-trace \
             && echo "config -> /out/config-hid-state-trace"
+    fi
+    if [ "${HID_TYPE_FIX:-0}" = "1" ]; then
+        cp .config /out/config-hid-type-fix \
+            && echo "config -> /out/config-hid-type-fix"
     fi
 fi
 echo "== done =="

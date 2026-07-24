@@ -32,10 +32,17 @@ hid-apple rebase.
 Six lines in `dchid_create_interface_work`, before `hid_add_device`, mirroring
 the sibling: `hid->type = HID_TYPE_OTHER;` then `"multi-touch" → HID_TYPE_SPI_MOUSE`,
 `"keyboard" → HID_TYPE_SPI_KEYBOARD`. Driver-only — no MMIO/PMU/SPMI, safest
-class. Built onto the state-trace kernel: `Image-hid-type-fix`
-`df7657c15ad73a486f5046bcc802f070d6b7ec071fb6bb70954fb8f222d4815a`. Wired into
-`scripts/t6040-kbuild.sh` (applied after rx-rearm) so all future dcuart/Alpine
-builds carry it.
+class. Built onto the state-trace kernel: live-proven `Image-hid-type-fix`
+`df7657c15ad73a486f5046bcc802f070d6b7ec071fb6bb70954fb8f222d4815a`.
+`scripts/t6040-kbuild.sh` carries it behind explicit `HID_TYPE_FIX=1`; unrelated
+historical candidates therefore retain their exact source.
+
+The live artifact was an incremental build. Two forced relinks with fixed build
+metadata instead match each other at
+`ac330436590436344622823d1c7d4e1caac2f06b4a75f9ca9dea94972da9b0cc`
+(same source/config, not yet live-tested). Keep `df7657c1...` as the exact
+hardware-proven input and use the reproducible successor only after its own
+exact-hash gate.
 
 ## Live result — keyboard registers
 
@@ -56,14 +63,16 @@ crw-------  1 root root  13, 64  event0
 ```
 
 `event0` with the full `kbd` handler + LEDs, on Alpine RAM-root over ttydc0. The
-074/076 empty-`/dev/input` state is resolved. (Trackpad multi-touch still needs
+074/076 empty-`/dev/input` state is resolved. This run proves registration, not
+yet local typed-key echo; ticket 083 owns that on-device check. (Trackpad
+multi-touch still needs
 `HID_MULTITOUCH` present — a module absent from this RAM initramfs — a separate,
 non-blocking follow-up.)
 
 ## Impact
 
-The internal keyboard is the gating blocker for a *usable* untethered distro; it
-now works on the current kernel. Remaining untethered pieces: on-device fbcon
+The internal keyboard registration blocker for a *usable* untethered distro is
+now fixed on the current kernel. Remaining untethered pieces: on-device fbcon
 login (083, needs this fixed HID — now unblocked), enrollment/cold-boot
 (081/082, Sol), and the distro progression (Alpine RAM-root boots; Ubuntu-in-RAM
 next). Tickets 077 + 078 done.

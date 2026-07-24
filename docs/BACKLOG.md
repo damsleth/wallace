@@ -35,13 +35,16 @@ NVMe is NO-GO near-term (008: SPTM-gated, no raw-boot guarded entry). The
 sequenced gates are in `docs/BOOTABLE_BUILD_EXPERIMENTS.md`.
 In rough order of leverage:
 
-1. **B0 bootable-build pipeline** (distro/HID, P1). Run proposed TX-only trace
-   capture **076** only after explicit approval; decode it offline in **077**,
-   build one minimal HID-restored candidate in **078**, then produce the
-   release-like RAM distro in **079**. **080 is complete**: direct raw m1n1,
+1. **B0 bootable-build pipeline** (distro/HID, P1). Captures **076**, decode
+   **077**, and the HID-type repair **078** are complete. The rebased
+   `hid-apple` rejected the untyped BUS_HOST keyboard; the minimal type
+   assignment now live-registers `input0/event0`. Next is the release-like RAM
+   distro in **079**. **080 is complete**: direct raw m1n1,
    entry `0x800`, exact concatenated payload contract, and strict host
-   verifier are documented. **081** packages a single self-contained object
-   and prepares a tethered one-object proof; **082** prepares reversible raw
+   verifier are documented. Ticket-078's exact HID-restored Alpine components
+   are now packed in reproducible object `b50f52ab...`; proposed control **089** tests
+   one upload with no `linux.py`. **081** still owns the final HID-restored
+   object and its tethered proof; **082** prepares reversible raw
    enrollment and cold boot. Direct m1n1 is the selected B0 route; U-Boot
    ticket **025** is B1; its no-MMIO framebuffer/EFI-hello prep is complete,
    with any live proof deferred until after B0. Installer requirements ticket

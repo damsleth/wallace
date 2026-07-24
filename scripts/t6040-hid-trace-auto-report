@@ -35,6 +35,17 @@ else
     dmesg 2>/dev/null | grep 'HIDTRACE' | tail -n 200
 fi
 
+echo "[HID/input probe dmesg, last 200 matching lines]"
+if [ -n "$dmesg_file" ]; then
+    grep -iE 'dockchannel|(^|[[:space:]])hid|input|05ac|0359|probe' \
+        "$dmesg_file" 2>/dev/null | grep -v 'HIDTRACE' | tail -n 200
+else
+    dmesg 2>/dev/null |
+        grep -iE 'dockchannel|(^|[[:space:]])hid|input|05ac|0359|probe' |
+        grep -v 'HIDTRACE' |
+        tail -n 200
+fi
+
 echo "[dc_trace and hid_trace]"
 find "$sys_root" -type f \( -name dc_trace -o -name hid_trace \) 2>/dev/null |
     LC_ALL=C sort |
@@ -45,6 +56,43 @@ find "$sys_root" -type f \( -name dc_trace -o -name hid_trace \) 2>/dev/null |
                 echo "[read failed: $trace_file]"
         fi
     done
+
+echo "[HID bus devices]"
+hid_devices_found=0
+for hid_device in "$sys_root"/bus/hid/devices/*; do
+    [ -e "$hid_device" ] || continue
+    hid_devices_found=1
+    echo "--- $hid_device"
+    if [ -L "$hid_device/driver" ]; then
+        printf 'driver='
+        readlink "$hid_device/driver" 2>/dev/null || echo "[read failed]"
+    else
+        echo "driver=[unbound]"
+    fi
+    if [ -r "$hid_device/uevent" ]; then
+        cat "$hid_device/uevent" 2>/dev/null || echo "[uevent read failed]"
+    else
+        echo "uevent=[unavailable]"
+    fi
+done
+if [ "$hid_devices_found" -eq 0 ]; then
+    echo "[none]"
+fi
+
+echo "[input class devices]"
+input_devices_found=0
+for input_device in "$sys_root"/class/input/*; do
+    [ -e "$input_device" ] || continue
+    input_devices_found=1
+    echo "--- $input_device"
+    if [ -r "$input_device/name" ]; then
+        printf 'name='
+        cat "$input_device/name" 2>/dev/null || echo "[read failed]"
+    fi
+done
+if [ "$input_devices_found" -eq 0 ]; then
+    echo "[none]"
+fi
 
 echo "[/proc/bus/input/devices]"
 if [ -r "$proc_root/bus/input/devices" ]; then

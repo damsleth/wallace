@@ -91,10 +91,17 @@ bootarg-gated initramfs reporter that automatically emits the same bounded
 trace/input/partition inventory over working ttydc0 TX without requiring an
 inbound shell command. Its exact reproducible archive is
 `d5b790c63276816a3d69071797da459918717924885174d2a8b84225c6b24093`;
-host gating/output tests and embedded-script identity pass. Independent exact
-artifact review passed with the rig untouched. Ticket 076 is the resulting
-one-shot TX-only capture proposal and remains proposed pending explicit
-maintainer approval; do not run it from an unanchored short-lived process.
+host gating/output tests and embedded-script identity pass. Ticket 076 then
+captured the complete report: HID DockChannel IRQ/FIFO RX, DCHID parsing,
+identity, and all six `hid_add_device()` calls succeeded, but no Linux input
+device appeared. Ticket 077 corrects the first interpretation: relevant
+configs and imported DockChannel HID source match the known-good line, while
+the failing Asahi `hid-apple` adds a BUS_HOST match and rejects the transport's
+unset `hid->type`. Ticket 078's six-line type assignment live-registers
+`Apple DockChannel Keyboard` as `input0/event0`. Exact result and decode:
+`done/2026-07-24-t6040-076-hid-trace-result.md` and
+`done/2026-07-24-t6040-077-hid-boundary-decode.md`, plus
+`done/2026-07-24-t6040-hid-type-fix-result.md`.
 Analysis, preflight, and result:
 `done/2026-07-23-t6040-alpine-hid-regression-analysis.md` and
 `done/2026-07-23-t6040-alpine-hid-rx-rearm-preflight.md`, and
@@ -123,18 +130,20 @@ on simpledrm/fbcon with internal keyboard, watchdog, and no host payload upload.
 The detailed experiment contract and safety gates are in
 `docs/BOOTABLE_BUILD_EXPERIMENTS.md`.
 
-After approved trace capture 076, ticket 077 decodes the exact HID boundary,
-078 builds one minimal evidence-backed repair candidate, and 079 turns the
-working result into a release-like RAM distro. Ticket 080 is now complete:
-direct raw m1n1 supports the required concatenated payloads, entry `0x800`,
-and a strict host verifier under a conservative 64 MiB object policy. Ticket
-081 packages one
-self-contained object and prepares a tethered one-object proof without
-`linux.py`; 082 prepares, but does not execute, reversible enrollment and cold
-boot. Every live step still gets a separate reviewed exact-hash rig ticket and
-explicit approval. U-Boot/EFI remains B1 after this direct-m1n1 B0 proof.
-Exact format and safety result:
-`done/2026-07-23-t6040-raw-boot-object-layout.md`.
+Tickets 076–078 are complete; 079 now turns the HID-restored result into a
+release-like RAM distro. Ticket 080 is complete: direct raw m1n1 supports the
+required concatenated payloads, entry
+`0x800`, and a strict host verifier under a conservative 64 MiB object policy.
+A control object using ticket 078's exact live-proven HID-restored payload is
+now built and twice reproduced:
+`m1n1-b0-alpine-hid-restored.bin`,
+`b50f52ab1fac473db2e9257c5363ef7905e4d1da5c8535fbf417209b09319172`.
+Proposed ticket 089 tests one upload with no `linux.py`; it does not close 081
+because its userspace remains diagnostic. Ticket 081 packages the final
+release object and 082 prepares reversible enrollment/cold boot. Exact format
+and control preflight:
+`done/2026-07-23-t6040-raw-boot-object-layout.md` and
+`done/2026-07-24-t6040-b0-alpine-single-object-preflight.md`.
 
 Ticket 026's installer audit corrected a stale premise: current
 asahi-installer already enrolls `boot.bin` with the required raw entry `2048`

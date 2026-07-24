@@ -417,7 +417,7 @@ command and recovered a stable proxy. Therefore the trace did not locate the
 HID boundary. Do not retry 074 unchanged. Offline ticket 075 built a
 bootarg-gated automatic TX reporter into a new reproducible initramfs; its
 host gate/output tests and independent exact-artifact review pass. Proposed
-one-shot TX-only capture ticket 076 awaits explicit maintainer approval.
+one-shot TX-only capture ticket 076 then emitted its complete report.
 Automatic reporter build audit:
 `done/2026-07-23-t6040-alpine-hid-trace-auto-reporter.md`. Trace build audit,
 procedure, and result:
@@ -425,6 +425,18 @@ procedure, and result:
 `done/2026-07-23-t6040-alpine-hid-state-trace-result.md`.
 Replacement preflight:
 `done/2026-07-23-t6040-alpine-hid-trace-auto-preflight.md`.
+
+Ticket 076 proves the HID mailbox receives 1,396 bytes in 13 batches, DCHID
+matches all eight ACKs, obtains identity `05ac:0359:0510`, and returns zero
+from all six `hid_add_device()` calls. `/proc/bus/input/devices` is nevertheless
+empty. Ticket 077 narrows the honest boundary: the known-good and failing
+configs match, as do the imported DockChannel HID sources, while the failing
+Asahi `hid-apple` wildcard-matches Apple BUS_HOST and rejects the unset
+`hid->type`; `hid-generic` therefore declines too. Ticket 078's six-line type
+assignment live-registers the keyboard as `input0/event0`. Result and decode:
+`done/2026-07-24-t6040-076-hid-trace-result.md` and
+`done/2026-07-24-t6040-077-hid-boundary-decode.md`, plus
+`done/2026-07-24-t6040-hid-type-fix-result.md`.
 
 The resulting bootable-build plan separates cold boot from persistent storage.
 The B0 target is boot picker → raw-enrolled m1n1 object → self-contained Alpine
@@ -440,6 +452,17 @@ enrollment/cold boot. The exact experiment and safety ladder is
 `docs/BOOTABLE_BUILD_EXPERIMENTS.md`; exact layout:
 `done/2026-07-23-t6040-raw-boot-object-layout.md`. U-Boot/EFI and external USB
 root are B1 and B2 respectively, not prerequisites for B0.
+
+The first concrete HID-restored safe-prefix object is now built. It embeds
+ticket 078's exact live-proven Alpine kernel/DT/initramfs, entry `0x800`, and command
+line behind m1n1 `1394c345...`. Strict verification and two builds produce
+21,729,039-byte object `b50f52ab1fac...`; runtime reserve is 63,051,211 bytes.
+`scripts/t6040-boot-raw-object.sh` performs one hash-gated `chainload.py -r`
+upload and contains no `linux.py` call. Proposed ticket 089 tests embedded
+payload discovery, Alpine auto-report, and preservation of the registered
+keyboard, not enrollment.
+Preflight:
+`done/2026-07-24-t6040-b0-alpine-single-object-preflight.md`.
 
 Ticket 086 nevertheless closes the external-root *image construction* half of
 B2. `scripts/t6040-build-usb-root-image.sh` created and verified a 1 GiB raw

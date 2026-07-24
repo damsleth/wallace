@@ -38,12 +38,11 @@ ready`. A storage-disabled test of the suspected unmasked
 acknowledge/threaded-drain race booted successfully but still registered no
 input device, so that change is not a sufficient fix. The next gate is bounded
 observation-only tracing across the DockChannel IRQ/FIFO and DCHID
-event/identity boundary. Ticket 072 built and statically verified that trace.
-Ticket 074 booted it once, but ttydc0 RX was non-responsive despite working TX,
-so no trace command ran. Offline ticket 075 built a host-tested replacement
-that automatically reports over TX without depending on shell input;
-independent exact-artifact review passed, and proposed one-shot capture 076
-awaits explicit maintainer approval.
+event/identity boundary. Tickets 075/076 completed the TX-only automatic
+capture: transport, identity, and every `hid_add_device()` call succeed, but
+Linux registers no input device. Ticket 077 found the exact surrounding delta:
+Asahi's BUS_HOST `hid-apple` rejects the transport's unset `hid->type`.
+Ticket 078's minimal type assignment now live-registers `input0/event0`.
 
 **Bootable-build path defined (2026-07-23).** The immediate B0 milestone is an
 enrolled raw m1n1 object carrying a self-contained Alpine RAM distro, reaching
@@ -55,6 +54,13 @@ compressed initramfs, entry `0x800`, with a strict host verifier. Ticket 081 bui
 single-object tethered proof; 082 prepares reversible enrollment/cold boot.
 Full sequence: `docs/BOOTABLE_BUILD_EXPERIMENTS.md`. Layout result:
 `done/2026-07-23-t6040-raw-boot-object-layout.md`.
+
+**Concrete raw-object control (2026-07-24).** The exact ticket-076 Alpine
+HID-restored payload is now packaged behind safe m1n1 `1394c345...` as a
+twice-reproduced, strictly verified 21,729,039-byte object `b50f52ab1fac...`.
+Proposed ticket 089
+tests one upload and embedded autoboot with no `linux.py`; it is a delivery
+control, not the final HID-restored B0 object.
 
 **Stage A complete 2026-07-10** — proxy solid, 14/14 cores (4E+5P+5P), MPIDR
 map, execute-and-return, broken_wfi handled (WFE park), ~10 s chainload loop.

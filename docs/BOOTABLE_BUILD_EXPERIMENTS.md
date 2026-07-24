@@ -77,6 +77,13 @@ Do not guess a receive kick, retry, new MMIO access, or IRQ change.
 Exit: a reviewable patch or a narrowly justified next observation patch, plus
 an exact statement of what result would falsify it.
 
+Result 2026-07-24: the trace reaches every `hid_add_device()` return with zero,
+but that only proves `device_add()`. Ticket 077 found the causal surrounding
+delta: Asahi's wildcard BUS_HOST `hid-apple` rejects the active transport's
+unset `hid->type`, while `hid-generic` declines because a special driver
+matched. Ticket 078 copies the sibling driver's keyboard/mouse type assignment;
+the exact live candidate registers `input0/event0` with empty partitions.
+
 ## Experiment 3 — build a HID-restored Alpine candidate
 
 Ticket: **078**, offline after 077.
@@ -174,6 +181,14 @@ acceptance state. KIS is observational only after chainload.
 
 Ticket 081 itself stops before a rig proposal. A later exact one-shot rig
 ticket is created only after the artifact and preflight pass review.
+
+An earlier delivery-only control is now available without weakening that gate.
+`m1n1-b0-alpine-hid-restored.bin` (`b50f52ab1fac...`) packages the exact
+ticket-078 live-proven Alpine components behind safe m1n1 and passes strict
+offset/hash/expansion checks twice. Proposed ticket 089 uploads only this
+object, invokes no `linux.py`, and expects the existing ttydc0 automatic report
+plus `event0`. It proves embedded autoboot before the release-like userspace,
+but cannot close 081 or serve as the enrolled B0 release.
 
 ## Experiment 7 — prepare the reversible enrolled cold boot
 

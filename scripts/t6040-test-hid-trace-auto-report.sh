@@ -9,6 +9,9 @@ trap 'rm -rf "$TMP"' EXIT
 mkdir -p \
     "$TMP/sys/devices/dockchannel" \
     "$TMP/sys/devices/dchid" \
+    "$TMP/sys/bus/hid/devices/0018:05AC:0359.0001" \
+    "$TMP/sys/bus/hid/drivers/apple" \
+    "$TMP/sys/class/input/input0" \
     "$TMP/proc/bus/input" \
     "$TMP/dev/input" \
     "$TMP/etc"
@@ -17,6 +20,7 @@ printf '%s\n' 'console=ttydc0' >"$TMP/cmdline"
 printf '%s\n' '3.24.0' >"$TMP/etc/alpine-release"
 printf '%s\n' \
     'ordinary kernel line' \
+    'hid-generic 0018:05AC:0359.0001: input,hidraw0: Apple DockChannel Keyboard' \
     'HIDTRACE irq status=0x1' \
     'HIDTRACE event type=keyboard' >"$TMP/dmesg"
 printf '%s\n' 'irq_count: 4' >"$TMP/sys/devices/dockchannel/dc_trace"
@@ -25,6 +29,13 @@ printf '%s\n' 'N: Name="Apple Internal Keyboard"' \
     >"$TMP/proc/bus/input/devices"
 printf '%s\n' 'major minor  #blocks  name' >"$TMP/proc/partitions"
 touch "$TMP/dev/input/event0"
+ln -s "$TMP/sys/bus/hid/drivers/apple" \
+    "$TMP/sys/bus/hid/devices/0018:05AC:0359.0001/driver"
+printf '%s\n' \
+    'DRIVER=apple' \
+    'HID_ID=0018:000005AC:00000359' \
+    >"$TMP/sys/bus/hid/devices/0018:05AC:0359.0001/uevent"
+printf '%s\n' 'Apple Internal Keyboard' >"$TMP/sys/class/input/input0/name"
 
 common_env=(
     CMDLINE_FILE="$TMP/cmdline"
@@ -53,6 +64,9 @@ env "${common_env[@]}" "$REPORT" >"$TMP/enabled.out"
 grep -qF '===== T6040 HID TRACE AUTO REPORT BEGIN =====' "$TMP/enabled.out"
 grep -qF 'HIDTRACE irq status=0x1' "$TMP/enabled.out"
 grep -qF 'HIDTRACE event type=keyboard' "$TMP/enabled.out"
+grep -qF 'hid-generic 0018:05AC:0359.0001' "$TMP/enabled.out"
+grep -qF 'HID_ID=0018:000005AC:00000359' "$TMP/enabled.out"
+grep -qF 'driver=' "$TMP/enabled.out"
 grep -qF 'irq_count: 4' "$TMP/enabled.out"
 grep -qF 'events: 2' "$TMP/enabled.out"
 grep -qF 'Apple Internal Keyboard' "$TMP/enabled.out"
