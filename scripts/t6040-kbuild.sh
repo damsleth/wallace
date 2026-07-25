@@ -941,7 +941,90 @@ if [ "${USB_HOST:-0}" = "1" ]; then
         -e SCSI -e BLK_DEV_SD \
         -e EXT4_FS
 fi
+if [ "${DIET:-0}" = "1" ]; then
+    echo "== DIET: strip everything the B0 RAM-root does not need =="
+    # Why: arm64 defconfig builds a ~50 MiB Image (10.9 MiB XZ). The enrolled
+    # boot object must stay under iBoot's (small) limit, so cut the Image, not
+    # just the compression. Keep: Apple SoC + dockchannel HID + simpledrm/fbcon
+    # + watchdog + initramfs/tmpfs. Drop: every other ARM platform and the big
+    # unused subsystems. Asserted below - the build fails if an essential
+    # symbol got dropped as a side effect.
+
+    # 1. Every non-Apple ARM64 platform (each pulls its own driver set).
+    for sym in $(grep -oE '^CONFIG_ARCH_[A-Z0-9_]+(?==y)' .config 2>/dev/null || \
+                 grep -E '^CONFIG_ARCH_[A-Z0-9_]+=y' .config | sed 's/^CONFIG_//;s/=y$//'); do
+        case "$sym" in
+            ARCH_APPLE) continue ;;                       # ours
+            ARCH_MMAP_RND*|ARCH_FORCE*|ARCH_SUSPEND*|ARCH_WANT*|ARCH_HAS*|\
+            ARCH_SUPPORTS*|ARCH_USE*|ARCH_KEEP*|ARCH_ENABLE*|ARCH_STACKWALK|\
+            ARCH_DMA*|ARCH_INLINE*|ARCH_SPARSEMEM*|ARCH_SELECT*|ARCH_PROC*|\
+            ARCH_HIBERNATION*|ARCH_MEMORY*|ARCH_CORRECT*|ARCH_NR_GPIO)
+                continue ;;                               # generic capability flags, not platforms
+        esac
+        ./scripts/config --file .config -d "$sym"
+    done
+
+    # 2. Big subsystems with no B0 consumer. Networking: the B0 root has no
+    #    network runlevel at all (verified 0 network services), so NET goes.
+    ./scripts/config --file .config \
+        -d NET -d WIRELESS -d WLAN -d BT -d NFC -d CAN -d RFKILL \
+        -d SOUND -d SND -d MEDIA_SUPPORT -d DVB_CORE \
+        -d PCI -d PCIEPORTBUS \
+        -d SCSI -d BLK_DEV_SD -d BLK_DEV_NVME -d NVME_CORE -d ATA -d MD -d DM_BUILTIN \
+        -d USB_SUPPORT -d MMC -d MTD \
+        -d EXT4_FS -d BTRFS_FS -d XFS_FS -d F2FS_FS -d JFS_FS -d NTFS3_FS \
+        -d FAT_FS -d VFAT_FS -d EXFAT_FS -d NFS_FS -d CIFS -d OVERLAY_FS -d FUSE_FS \
+        -d QUOTA -d FSCACHE -d SQUASHFS -d ISO9660_FS -d UDF_FS \
+        -d VIRTUALIZATION -d KVM -d XEN -d VFIO \
+        -d FTRACE -d KPROBES -d BPF_SYSCALL -d KALLSYMS_ALL \
+        -d DEBUG_INFO_BTF -d DEBUG_KERNEL -d DEBUG_MISC \
+        -d GCOV_KERNEL -d KUNIT -d STACKPROTECTOR_STRONG \
+        -d CRYPTO_USER_API -d CRYPTO_TEST \
+        -d INFINIBAND -d STAGING -d COMEDI -d IIO -d W1 \
+        -d POWER_RESET -d THERMAL_STATISTICS \
+        -d DRM_TTM -d DRM_SCHED -d DRM_PANEL -d DRM_BRIDGE -d DRM_DISPLAY_HELPER \
+        -d NLS -d HWMON -d I2C_CHARDEV -d SPI_SPIDEV \
+        -d MODULES \
+        || true
+
+    # 3. Keep the initramfs/RAM-root essentials explicitly (some may have been
+    #    turned off as dependents of the above).
+    ./scripts/config --file .config \
+        -e BLK_DEV_INITRD -e RD_GZIP -e RD_XZ \
+        -e DEVTMPFS -e DEVTMPFS_MOUNT -e TMPFS -e PROC_FS -e SYSFS \
+        -e BINFMT_ELF -e BINFMT_SCRIPT -e UNIX98_PTYS \
+        -e DRM -e DRM_SIMPLEDRM -e DRM_FBDEV_EMULATION \
+        -e FB -e VT -e VT_CONSOLE -e FRAMEBUFFER_CONSOLE -e FONTS \
+        -e WATCHDOG -e APPLE_WATCHDOG \
+        -e HID -e HID_APPLE -e HID_GENERIC -e INPUT -e INPUT_EVDEV \
+        -e APPLE_MAILBOX -e APPLE_RTKIT -e APPLE_DART \
+        -e APPLE_DOCKCHANNEL -e APPLE_DOCKCHANNEL_HID -e APPLE_DOCKCHANNEL_TTY \
+        -e ARCH_APPLE
+    if grep -q "CONFIG_FONT_TER16x32" .config; then
+        sed -i 's|# CONFIG_FONT_TER16x32 is not set|CONFIG_FONT_TER16x32=y|' .config
+    else
+        echo "CONFIG_FONT_TER16x32=y" >> .config
+    fi
+fi
 make ARCH=arm64 olddefconfig >/dev/null
+if [ "${DIET:-0}" = "1" ]; then
+    echo "== DIET: assert every boot-essential symbol survived =="
+    diet_fail=0
+    for sym in ARCH_APPLE BLK_DEV_INITRD RD_GZIP RD_XZ DEVTMPFS DEVTMPFS_MOUNT \
+               TMPFS PROC_FS SYSFS BINFMT_ELF UNIX98_PTYS \
+               DRM DRM_SIMPLEDRM DRM_FBDEV_EMULATION FB VT VT_CONSOLE \
+               FRAMEBUFFER_CONSOLE FONT_TER16x32 WATCHDOG APPLE_WATCHDOG \
+               HID HID_APPLE INPUT INPUT_EVDEV \
+               APPLE_MAILBOX APPLE_RTKIT APPLE_DART \
+               APPLE_DOCKCHANNEL APPLE_DOCKCHANNEL_HID APPLE_DOCKCHANNEL_TTY; do
+        grep -q "^CONFIG_${sym}=y" .config || { echo "  DIET LOST: CONFIG_${sym}"; diet_fail=1; }
+    done
+    grep -q "^CONFIG_ARM64_SME=y" .config && { echo "  DIET ERROR: ARM64_SME re-enabled"; diet_fail=1; }
+    [ "$diet_fail" = "0" ] && echo "  all boot-essential symbols present" || {
+        echo "DIET config is missing boot essentials; refusing to build" >&2
+        exit 1
+    }
+fi
 if [ "${GADGET:-0}" = "1" ]; then
     echo "-- resulting gadget-relevant config --"
     grep -E "CONFIG_(USB_DWC3|USB_DWC3_GADGET|USB_CONFIGFS|USB_CONFIGFS_ACM)=" .config || true
