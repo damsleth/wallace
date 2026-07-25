@@ -1,0 +1,13 @@
+{
+  "seq": "141",
+  "slug": "b0-ubuntu-untethered-live",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "distro",
+  "priority": "P2",
+  "desc": "Boot the untethered Ubuntu object built in ticket 136: m1n1-b0-ubuntu-untethered.bin (6b5060d04388b91335416c1f524330a79b974ce76bbdf853228e420aa5f816aa, 22.59 MiB, 1446 pages, strict-verify PASS) = m1n1 v3 fb-visible + diet kernel + storage-disabled DTB + the ticket-091 live-proven Ubuntu 24.04 RAM root re-compressed as minilzlib-safe xz, bootargs rdinit=/init. Prefer a TETHERED chainload smoke first (scripts/t6040-boot-raw-object.sh) since it needs no enroll cycle, then enroll for the cold boot. THE UNTESTED ASPECT is large-payload decompression: the kernel must unpack a 97.3 MiB cpio, the first big one on this path (iBoot's load ceiling and m1n1's decompress capacity are different limits; m1n1's xz decoder advertises 1 GiB and RAM is ~23 GiB, so it should be fine but is unproven). Expect a visibly slower boot than the 3.4 MiB Alpine root. Pass = Ubuntu glibc userspace on the internal panel, Norwegian keymap loaded (this image uses Ubuntu's real loadkeys + no-latin1.kmap.gz, NOT BusyBox loadkmap), watchdog fed, /proc/partitions empty. Evidence: done/2026-07-25-t6040-ubuntu-untethered-object.md.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785011067
+}

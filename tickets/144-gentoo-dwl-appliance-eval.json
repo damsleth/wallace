@@ -1,0 +1,13 @@
+{
+  "seq": "144",
+  "slug": "gentoo-dwl-appliance-eval",
+  "needs": "offline",
+  "state": "open",
+  "track": "distro",
+  "priority": "P3",
+  "desc": "Tracking/decision ticket (deliberately later): evaluate Gentoo + dwl as the eventual 'appliance' boot image, once USB (138) and WiFi (139) work and the machine can build comfortably on itself. Context from 2026-07-25: object size is NOT a constraint (ticket 137 found no ceiling to 256 MiB), so Alpine's size advantage is moot; the real trade-offs are ITERATION SPEED (apk in seconds vs Gentoo builds in hours, which matters while hardware bugs are still being hunted) and MUSL VS GLIBC compatibility for any vendor tooling or prebuilt binaries. Gentoo's USE flags plus suckless compile-time configuration are a natural fit for a tailored appliance. dwl specifics: wlroots HAS a pixman software renderer (WLR_RENDERER=pixman), so NO Mesa/GLES is needed — an earlier claim to the contrary was wrong. The genuine unknown is wlroots' DRM backend on simpledrm, which offers a single fixed mode with dumb buffers; Xorg 'modesetting' on a dumb framebuffer is the better-trodden path, so verify wlroots/simpledrm compatibility BEFORE committing. Deliverable: a build-path decision (catalyst/crossdev vs native) and a wlroots-on-simpledrm feasibility answer. Do not start before 138/139 land.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785011068
+}

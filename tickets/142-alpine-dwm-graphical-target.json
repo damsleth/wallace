@@ -1,0 +1,13 @@
+{
+  "seq": "142",
+  "slug": "alpine-dwm-graphical-target",
+  "needs": "offline",
+  "state": "open",
+  "track": "distro",
+  "priority": "P2",
+  "desc": "Build a graphical Alpine boot object: Xorg + dwm + st + dmenu on the simpledrm framebuffer. Rationale: dwm is keyboard-driven, which matches our hardware exactly — the internal keyboard works (event0) but the trackpad does not (MTP open, tickets 004/126) — and a tiling WM needs no GPU acceleration, which matters because there is no M4 GPU driver. Object size is NOT a constraint: ticket 137 proved objects load in full to at least 256 MiB. Approach: Alpine packages xorg-server, xf86-input-libinput, dwm, st, dmenu, font-terminus; Xorg 'modesetting' driver with AccelMethod none / shadowfb so NO Mesa is required for 2D. RISKS to check before promising it: (1) the DIET=1 kernel may be too aggressive for X — it disables DRM_TTM/DRM_SCHED/DRM_DISPLAY_HELPER and NLS; simpledrm+modesetting probably does not need them but a graphical variant of DIET may be required; (2) Xorg can object to having no pointer device — xf86-input-libinput plus the event0 keyboard should satisfy it; (3) suckless config is COMPILE-TIME, so pick MODKEY, a Norwegian-friendly binding set and a terminal-spawn key deliberately, since changing them means rebuilding the object. Iterate via TETHERED chainload (fast), enroll only once it works. Pass = dwm running on the internal panel with a usable st terminal driven by the internal keyboard.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785011067
+}

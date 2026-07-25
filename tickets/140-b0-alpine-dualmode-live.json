@@ -1,0 +1,13 @@
+{
+  "seq": "140",
+  "slug": "b0-alpine-dualmode-live",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "distro",
+  "priority": "P1",
+  "desc": "Live-verify the dual-mode daily-driver object: enroll m1n1-b0-alpine-dualmode.bin (b409d89e85d309edb79defe01465c094fa642d5643a004a81c54c3e862f5bb5a, 9.03 MiB, 578 pages, strict-verify PASS) from 1TR and cold-boot. Expected: fb console active immediately, 'Bringing up USB for early debug' + 'Waiting for proxy connection... ....' visible ON THE PANEL for 10 s, then either (a) a host connects within the window and gets an m1n1 proxy with the payload NOT booted, or (b) 'Timed out' and Alpine boots as in milestone B0. m1n1 v6 = c10a502f (patches/m1n1-dualmode-window.patch on a61fd099, -DEARLY_PROXY_TIMEOUT=10 -DEARLY_PROXY_UNCONDITIONAL=1 -DFB_CONSOLE_ALWAYS=1). THE OPEN VARIABLE IS HOST-SIDE: whether macOS enumerates the m1n1 USB gadget within 10 s at cold boot — if the countdown shows but no /dev/cu.usbmodem* appears in time, just raise EARLY_PROXY_TIMEOUT (15/20 s); nothing else changes. Cable note: the window uses the m1n1 USB GADGET, not DebugUSB/KIS, and they are mutually exclusive on the DFU port — do NOT run macvdmtool debugusb; plain cold boot with the M1 cable attached, then connect with M1N1DEVICE=/dev/cu.usbmodemJ22GYCN4YG1. Pass = countdown visible AND (proxy attach succeeds OR clean timeout into Alpine). Evidence: done/2026-07-25-t6040-alpine-dualmode-object.md.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785011067
+}
