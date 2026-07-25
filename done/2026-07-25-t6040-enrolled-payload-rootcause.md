@@ -1,4 +1,12 @@
-# T6040 enrolled appended-payload ROOT CAUSE (2026-07-25)
+# T6040 enrolled appended-payload — RETRACTED root cause + corrected hypothesis
+
+> **RETRACTION 2026-07-25.** This document originally claimed the root cause was
+> "m1n1's payload scan looks at its own image". **That conclusion is wrong and is
+> withdrawn.** The `[AFK]` bytes found at `base+0x10C000` were **stale RAM from a
+> previous boot**, observed with a *payload-free* loader — a mundane explanation I
+> failed to control for. Corrected analysis is in the section
+> "Corrected analysis (2026-07-25)" at the end; the measurements above it are still
+> accurate, only the interpretation was wrong. See also ticket 129.
 
 Measured live over the USB-gadget proxy, with the bare 1.1 MiB rollback loader
 (`1394c345`) enrolled and running.
@@ -88,3 +96,76 @@ Diet kernel `Image-b0-diet` (16.8 MiB, -67%), `initramfs-alpine-b0-nb2.cpio.xz`
 (unconditional early-proxy window, verified), v3 `c59d5820` (+FB_CONSOLE_ALWAYS).
 All are independent of the loader architecture and carry over to whichever route
 wins.
+
+## Corrected analysis (2026-07-25)
+
+### What is actually proven
+
+1. **The linker layout is self-consistent.** From the exact `1394c345` rebuild:
+   `_base=0`, `.rodata@0x50000` (size `0x11E58`), `.stack` ends at `0x10C000`, and
+   `_end = _payload_start = 0x10C000` — exactly the 1,097,728-byte file size. So an
+   appended payload lands at `base+0x10C000`, which is precisely where m1n1 looks.
+2. **m1n1 does not self-relocate.** `src/start.S` only processes PIE relocations
+   (`adrp x0, _base`); there is no self-copy, and `_payload_start` resolves
+   PC-relative to the running image.
+3. **Discovery of appended data WORKS.** The 14 MiB `0xA5` filler object made m1n1
+   print `Unknown payload at 0x10005f18000 (magic: a5a5a5a5)` — `a5a5a5a5` is our
+   filler, read at the correct address. iBoot loaded it and m1n1 parsed it.
+4. **There is no adjacent SEPFW to corrupt.** Every `/chosen/memory-map` entry on
+   this machine reads `0xffffffffffffffff`, so the SEPFW-overlap theory is also dead.
+5. `bootargs.top_of_kernel_data` = **`base + 0x77C000` (7.5 MiB)**, identical across
+   two boots with different bases (`0x1000482C000` and `0x100054E4000`).
+
+### The corrected hypothesis
+
+Point 3 only proves iBoot loaded the object up to `base+0x10C000` — **1.05 MiB in**,
+the very start of the filler. It does *not* prove all 14 MiB were loaded. That
+reframes everything:
+
+| Enrolled object | Needs data past ~7.5 MiB? | Result |
+|---|---|---|
+| 14 MiB / 16 MiB filler | **no** (nothing is needed past 1.05 MiB) | boots |
+| 22.2 MB gz | yes — kernel member is 16.5 MiB | loop |
+| 15.2 MiB xz | yes — kernel member is 11.4 MiB | loop |
+| 9.02 MiB diet | yes — initramfs ends at 9.02 MiB | loop |
+
+**Every failing object has payload members extending past ~7.5 MiB; neither
+working object needs anything past 1 MiB.** So the candidate cause is that iBoot
+loads only a bounded region of the boot object (plausibly the `0x77C000` window
+implied by `top_of_kernel_data`), leaving later members **truncated** — a truncated
+XZ/gzip member then fails or crashes during decompression, which matches a hard
+reset with no exception trace.
+
+Note `top_of_kernel_data` was measured only for the 1.05 MiB bare loader, so
+`0x77C000` may be "m1n1 + other boot data" rather than a fixed cap. That is exactly
+what the next measurement settles — it is a hypothesis, not a conclusion.
+
+### The measurement that settles it
+
+`linux-build-out/probe-graded-20M.bin`
+(`3bf31cde0a22460a40e02d7c523a25ba958b1ae125b0ff59bf0611c33c98725b`, 21,020,672 B):
+the exact `1394c345` prefix followed by self-describing 64 KiB blocks from
+`0x10C000` to 20 MiB, each starting `b"WLOFS"` + its own offset as u64 LE (304
+blocks, all verified). Being payload-free, it boots to `Running proxy` like any
+filler probe.
+
+With it enrolled, `scripts/t6040-probe-load-extent.py` (read-only, over the proxy)
+reads `base+offset` for each block and classifies it LOADED / zero / stale, printing
+the highest loaded offset. That directly measures how much of an enrolled object
+iBoot places in RAM.
+
+### Why this matters
+
+If the limit is real and near 7.5 MiB, then **an object that fits entirely inside it
+should boot** — and the diet kernel already gets us close: 4.68 MiB (kernel XZ) +
+0.05 (DTB) + 1.05 (m1n1) = 5.78 MiB, leaving ~1.7 MiB for a userland. A BusyBox
+initramfs (~0.7 MiB) instead of Alpine/OpenRC would fit, which would make an
+untethered enrolled B0 boot possible with no USB and no NVMe dependency.
+
+### Process note
+
+This is the third over-conclusion in one session, all the same failure mode:
+treating an absence or an ambiguous reading as proof (missing console output;
+missing USB gadget node; stale RAM read as a scan-address bug). The measurements
+that actually settled things were positive, self-identifying readings — hence a
+probe whose every block states its own offset.
