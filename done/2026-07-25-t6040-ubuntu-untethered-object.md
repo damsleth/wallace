@@ -41,3 +41,40 @@ Strict verifier PASS. Headroom against the measured 64 MiB ceiling: **41.4 MiB**
 
 Pass: Ubuntu userspace on the internal panel, Norwegian keymap loaded, watchdog fed,
 `/proc/partitions` empty.
+
+## Two harness lessons from the first smoke attempts (2026-07-25)
+
+### 1. A dual-mode object cannot be tethered-smoke-tested
+
+The first attempt chainloaded the dual-mode-based object. Its own 10 s window caught
+`chainload.py`'s post-jump handshake:
+
+```text
+Waiting for proxy connection...  Connected!
+Proxy is alive again
+```
+
+so m1n1 handed control back to the host and never booted the payload. Correct behaviour,
+useless as a test. **Rule: enrolled/daily-driver objects use the window build; tethered
+smoke objects must be window-free.** Added `m1n1-t6040-fbonly-v7.bin`
+(`ecd264a51f83673a2d0ff00bd7dd882a0c582f982c7a940f4a63b564f55b4796` — `FB_CONSOLE_ALWAYS`
+only, no early-proxy window) for exactly this, and
+`m1n1-b0-ubuntu-smoke.bin` (`4784c29c957ac206ffb2367c5e28c89792d65896e5793da4ae388a015728904f`,
+22.59 MiB) built from it.
+
+### 2. The USB gadget cannot observe this image at all
+
+The window-free object uploaded and jumped cleanly (`Loading kernel image (0x1698004
+bytes)... Entry point: 0x100052f4800`; the trailing `Reconnection timed out` is the
+expected autoboot signature), but **0 bytes** of post-jump console appeared, because:
+
+- the object's bootargs are `console=tty0` — the internal panel only;
+- the Ubuntu image's init writes to `/dev/ttydc0`, the **DockChannel UART**, which is
+  observable only over **DebugUSB/KIS**;
+- we were attached via the **USB gadget**, and gadget vs DebugUSB are mutually exclusive
+  on the DFU port.
+
+So the agent is blind in that configuration and only the panel shows the result.
+**Rule: smoke-test this image over the KIS path** (`macvdmtool debugusb` + kisd +
+`M1N1DEVICE=/tmp/m1n1`), which is how the original tethered Ubuntu RAM-root test produced
+readable output. Use the gadget for *proxy control*, KIS for *watching a boot*.
