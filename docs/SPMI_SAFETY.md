@@ -2,6 +2,12 @@
 
 Approved by the maintainer: 2026-07-24
 
+Revised 2026-07-25 at maintainer request: the Class R2 and Class R3 register
+scope now names each HPM address with its exact operation, adding `0x18` and
+`0x50` (which the class-10 path writes) and withdrawing the claim that it writes
+`0x14`. Evidence: `done/2026-07-25-t6040-hpm2-rollback-evidence.md`. No
+prohibition was relaxed by that revision.
+
 SPMI is a transport, not a single risk class. Transactions are deny-by-default,
 but an exact, ADT-verified non-PMU endpoint may be approved when its controller,
 SID, operation, bounds, fixture, and recovery behavior are all explicit.
@@ -90,23 +96,61 @@ existing generic path's all-ones `IntClear1` plus zero `IntMask1` sequence is
 not approved. Any R2 candidate must name each register, preserve the original
 mask, avoid broad event clear, and describe handoff to Linux.
 
+On this part the registers are `IntEvent1` = `0x14` (9 bytes, read),
+`IntMask1` = `0x16` (8 bytes on class 10), and `IntClear1` = `0x18` (9 bytes,
+W1C). Note that the class-10 host-transition path in R3 below reaches `0x18`
+and `0x16` on its own, so an R3 candidate inherits these R2 requirements
+whether or not it is labelled an interrupt experiment.
+
 No R2 interrupt-mask experiment has run. It was deliberately removed from
 ticket 095's SSPS-only binary. Create it only if the host-transition decode
 shows that mask ownership must change.
 
 ### Class R3: connector role, VBUS, and PHY transition
 
-HPM logical addresses `0x14`, `0x23`, `0x24`, and `0x55`, Type-C role/source
-policy, VBUS/VCONN, eUSB2 repeater, and ATC PHY writes require a complete
-host-transition and detach/rollback design. They are not permanently banned,
-but each exact sequence is separately gated.
+HPM logical addresses `0x14`, `0x16`, `0x18`, `0x23`, `0x24`, `0x50`, and
+`0x55`, Type-C role/source policy, VBUS/VCONN, eUSB2 repeater, and ATC PHY
+writes require a complete host-transition and detach/rollback design. They are
+not permanently banned, but each exact sequence is separately gated.
 
-The 2026-07-24 final ticket-096 decode found paired software-object removal
-and framework-managed eUSB2/ACIO semantic shutdown, but no VBUS-off operation,
-race-safe inverse for `0x14` plus W1C/cache state, exact mask/detect
-restoration, or restoration of the observed pre-SSPS state `0x07`. This is an
-explicit R3 no-go. Do not build or run tickets 102–108 until new primary
-evidence closes those boundaries.
+The 2026-07-25 decode (`done/2026-07-25-t6040-hpm2-rollback-evidence.md`)
+established which of these the macOS class-10 path actually touches. It is not
+what the earlier wording implied, so each is now named with its exact operation:
+
+- **`0x50` (data control) — written, and the sharp edge.** `clearDpIRQ()`
+  performs a blind 4-byte full-word write of `0x00002000`, with no prior read
+  and no saved value, and it is reached unconditionally from
+  `setCurrentModeFlags()` on every mode-flag reset. `resetDataControl()` is the
+  preserving variant but still discards the low 16 bits. An R3 candidate must
+  read and save the full 4-byte word before any mutation, and must carry a
+  reviewed position on whether writing a saved word back can re-assert the
+  W1C-style bit 13.
+- **`0x18` (`IntClear1`, 9 bytes) — written**, as the W1C half of
+  `getAndClearInterrupt(0x14 -> 0x18)`. This is an R2-class event clear reached
+  from an R3 path, so the R2 rules above apply to it in full. It has no inverse:
+  `0x14` is never written anywhere in the paired driver.
+- **`0x14` (`IntEvent1`, 9 bytes) — read only.** The earlier claim that the
+  class-10 host transition *writes* `0x14` was a mis-decode and is withdrawn:
+  the `raw[1] |= 0x0d` / `raw[7] |= 0x08` masks are applied to a software
+  buffer, not to hardware. Reading it still consumes event state via the paired
+  `0x18` clear, so it is not free.
+- **`0x16` (`IntMask1`, 8 bytes) — written** by `setInterruptMask()` as a fully
+  synthesized constant. macOS never reads `0x16` on this class and never saves
+  the prior mask, so there is no restoration sequence to copy. R2 applies.
+- **`0x23`, `0x24`, `0x55` — not reachable from class 10 at all** in macOS;
+  their only callers gate on `hpm-class-type` 16/17. They stay gated here, and
+  the absence makes them *more* hazardous rather than less: an artifact writing
+  them would have no reference sequence, no readback path for `0x55`, and no
+  proven neutral value.
+
+This remains an explicit R3 no-go and ticket 096 is still open. No VBUS-off
+operation exists in either direction (macOS has no VBUS primitive at all on this
+port); the `0x18` W1C consumption is irreversible; and there is no restoration
+for the interrupt mask, the detect state, or the observed pre-SSPS state `0x07`.
+Apple performs no cross-layer teardown on detach, so there is no composition
+order to copy for HPM <-> eUSB2 repeater <-> ATC PHY <-> ACIO/DWC3 either. Do
+not build or run tickets 102–108 until new primary evidence closes those
+boundaries.
 
 R3 tests may use only a known passive sink such as the bus-powered USB memory
 stick. Never attach a charger, powered dock, another host, or any externally
