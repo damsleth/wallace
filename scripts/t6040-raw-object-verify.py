@@ -45,6 +45,7 @@ GZIP_MAGIC = b"\x1f\x8b"
 XZ_MAGIC = b"\xfd7zXZ\x00"
 FDT_MAGIC = b"\xd0\x0d\xfe\xed"
 KERNEL_MAGIC = b"ARM\x64"
+EXT_SB_MAGIC = b"\x53\xef"  # ext2/3/4 superblock magic at offset 0x438
 CPIO_MAGICS = (b"070701", b"070702")
 SIGNATURE_MAGIC = b"m1n1_sig"
 INITRAMFS_MAGIC = b"m1n1_initramfs"
@@ -163,7 +164,7 @@ def parse_variable(data: bytes, offset: int) -> tuple[str, str, int] | None:
     return name, value, line_end + 1
 
 
-def parse_payload_stream(data: bytes, start: int) -> tuple[list[Record], dict[str, str]]:
+def parse_payload_stream(data: bytes, start: int, allow_fs_image: bool = False) -> tuple[list[Record], dict[str, str]]:
     records: list[Record] = []
     variables: dict[str, str] = {}
     offset = start
@@ -242,7 +243,20 @@ def parse_payload_stream(data: bytes, start: int) -> tuple[list[Record], dict[st
                 )
             payload = remaining[header_size:total]
             if not payload.startswith(CPIO_MAGICS):
-                raise VerificationError("wrapped initramfs is not a newc/crc cpio archive")
+                # A wrapped payload is normally a cpio initramfs. It may deliberately be
+                # a FILESYSTEM IMAGE instead: m1n1's load_cpio() performs no content
+                # validation, so with CONFIG_BLK_DEV_RAM Linux loads a non-cpio initrd
+                # into /dev/ram0 and root=/dev/ram0 mounts it. That is the persistent-root
+                # rehearsal of ticket 145, and it is only accepted when explicitly
+                # requested, so a genuinely malformed initramfs still fails by default.
+                if allow_fs_image and len(payload) > 0x440 and payload[0x438:0x43A] == EXT_SB_MAGIC:
+                    pass
+                else:
+                    raise VerificationError(
+                        "wrapped initramfs is not a newc/crc cpio archive"
+                        + ("" if allow_fs_image else
+                           " (pass --initrd-fs-image if it is deliberately a filesystem image)")
+                    )
             if payload_size > MAX_INITRAMFS_EXPANDED:
                 raise VerificationError("wrapped initramfs exceeds B0 expansion limit")
             member = remaining[:total]
@@ -325,6 +339,7 @@ def verify_object(
     expected: dict[str, bytes] | None = None,
     expected_bootargs: str | None = None,
     strict: bool = False,
+    allow_fs_image: bool = False,
     max_object_size: int = MAX_OBJECT_SIZE,
 ) -> dict:
     if len(object_data) > max_object_size:
@@ -356,7 +371,7 @@ def verify_object(
     if not object_data.startswith(m1n1_data):
         raise VerificationError("object prefix is not byte-identical to supplied m1n1.bin")
 
-    records, variables = parse_payload_stream(object_data, len(m1n1_data))
+    records, variables = parse_payload_stream(object_data, len(m1n1_data), allow_fs_image)
     payload_records = [r for r in records if r.role in ("kernel", "dtb", "initramfs")]
     roles = [r.role for r in payload_records]
     if roles != ["kernel", "dtb", "initramfs"]:
@@ -510,6 +525,9 @@ def main() -> int:
         default=MAX_OBJECT_SIZE,
         help="policy ceiling in bytes (default: 64 MiB; accepts 0x...)",
     )
+    parser.add_argument("--initrd-fs-image", action="store_true",
+                        help="accept a filesystem image (ext2/3/4) as the wrapped initrd, "
+                             "for root=/dev/ram0 objects (ticket 145)")
     parser.add_argument("--json", action="store_true", help="emit machine-readable JSON")
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args()
@@ -542,6 +560,7 @@ def main() -> int:
             expected_bootargs=args.expect_bootargs,
             strict=args.strict,
             max_object_size=args.max_object_size,
+            allow_fs_image=args.initrd_fs_image,
         )
     except (OSError, VerificationError) as exc:
         print(f"FAIL: {exc}", file=sys.stderr)

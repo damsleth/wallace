@@ -78,6 +78,9 @@ def main() -> int:
         type=Path,
         help="also save the exact compressed kernel member",
     )
+    parser.add_argument("--initrd-wrapped", action="store_true",
+                        help="wrap an uncompressed blob in m1n1's m1n1_initramfs header "
+                             "(for a filesystem image used with root=/dev/ram0)")
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
 
@@ -101,7 +104,17 @@ def main() -> int:
         raise ValueError("DTB totalsize does not equal file size")
 
     initramfs = args.initramfs.read_bytes()
-    if not (initramfs.startswith(GZIP_MAGIC) or initramfs.startswith(XZ_MAGIC)):
+    if args.initrd_wrapped:
+        # m1n1's "m1n1_initramfs" + LE32 size wrapper. load_cpio() performs NO content
+        # validation — it just calls kboot_set_initrd(p, size) — so this passes an
+        # arbitrary blob (e.g. an ext4 filesystem image) to Linux as an initrd. With
+        # CONFIG_BLK_DEV_RAM a non-cpio initrd is loaded into /dev/ram0, which is how
+        # root=/dev/ram0 is rehearsed before USB storage exists (ticket 145).
+        # The wrapper carries an explicit size, so the blob must be UNCOMPRESSED.
+        if initramfs.startswith(GZIP_MAGIC) or initramfs.startswith(XZ_MAGIC):
+            raise ValueError("--initrd-wrapped expects an uncompressed blob")
+        initramfs = (b"m1n1_initramfs" + struct.pack("<I", len(initramfs)) + initramfs)
+    elif not (initramfs.startswith(GZIP_MAGIC) or initramfs.startswith(XZ_MAGIC)):
         raise ValueError("initramfs must be a gzip or xz member")
 
     variable = f"chosen.bootargs={args.bootargs}\n".encode("ascii")
