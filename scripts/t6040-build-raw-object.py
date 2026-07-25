@@ -107,6 +107,20 @@ def main() -> int:
     variable = f"chosen.bootargs={args.bootargs}\n".encode("ascii")
     output = m1n1 + variable + kernel + dtb + initramfs + b"\0" * 4
 
+    # iBoot requires the enrolled boot object's total size to be a multiple of the
+    # 16 KiB page size: an object of any other length is never executed (m1n1 is not
+    # entered at all, and iBoot resets ~every 5 s, 5 times, then shows the
+    # "needs to be reinstalled" screen). Measured 2026-07-25 across ten objects --
+    # see done/2026-07-25-t6040-enrolled-payload-rootcause.md. Padding with zeros is
+    # inert: m1n1 stops scanning at the 4-zero terminator, and the ticket-080 contract
+    # already requires the remainder of the object to be zero.
+    if len(output) % M1N1_ALIGNMENT:
+        pad = M1N1_ALIGNMENT - (len(output) % M1N1_ALIGNMENT)
+        output += b"\0" * pad
+        print(f"pad    {pad:9d} zero bytes -> 16 KiB-aligned object "
+              f"({len(output) // M1N1_ALIGNMENT} pages)")
+    assert len(output) % M1N1_ALIGNMENT == 0
+
     if args.kernel_output:
         atomic_write(args.kernel_output, kernel, force=args.force)
     atomic_write(args.output, output, force=args.force)

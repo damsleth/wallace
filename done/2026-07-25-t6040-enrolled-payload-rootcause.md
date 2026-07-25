@@ -512,3 +512,48 @@ Outcome reading:
   Padding becomes a one-line rule in the object builder.
 - **loops** -> alignment is not it either, and the correlation was coincidence across
   ten samples; fall back to ticket 128.
+
+## ✅ CONFIRMED ROOT CAUSE: enrolled boot objects must be a whole number of 16 KiB pages
+
+`m1n1-b0-diet-aligned.bin` (`f290833c`, 578 x 16 KiB) **BOOTS**. It is byte-identical to
+the object that had been looping, plus 14,796 zero bytes of padding.
+
+**The requirement is total-size alignment to the 16 KiB Apple Silicon page size.** An
+object of any other length is never executed at all: m1n1 is not entered, nothing
+appears on the panel, no gadget enumerates, no logbuf is written, and iBoot resets about
+every 5 s, five times, then shows "the version of macOS on the selected disk needs to be
+reinstalled".
+
+Every earlier theory is superseded: size-in-megabytes, compression format, kernel size,
+m1n1 prefix, payload discovery, SEPFW adjacency, load extent, the early-proxy window,
+and payload content/obfuscation. All of them were wrong.
+
+### Why this took six attempts
+
+Every control I built was accidentally page-aligned: the fillers came from
+`truncate -s 4m/8m/14m/16m` and from appending whole 64 KiB blocks, and the bare loader
+is 67 x 16384 exactly because `m1n1-raw.ld` aligns every section to `0x4000`. Real
+payload objects have arbitrary lengths. So my controls differed from my test cases in a
+variable I was not tracking, and every "content" correlation I found was an artefact of
+my own generator. The lesson is not "measure more" — I measured plenty — it is
+**make controls differ from the test case in exactly one deliberate variable, and
+enumerate what else silently differs.**
+
+### The fix
+
+`scripts/t6040-build-raw-object.py` now pads every object to a 16 KiB multiple and
+asserts the invariant, printing the pad size. Rebuilding the release object through the
+fixed builder reproduces `f290833c` byte-identically. Padding is inert: m1n1 stops
+scanning at the 4-zero terminator, and the ticket-080 contract already required the
+remainder of the object to be zero.
+
+`scripts/t6040-raw-object-verify.py` should also grow a hard check that any object
+intended for enrollment is 16 KiB-aligned (follow-up ticket).
+
+### What this unblocks
+
+The appended-payload B0 route is **alive**, with no USB, NVMe, HPM, or U-Boot
+dependency, and every artifact built today applies unchanged: the diet kernel
+(`Image-b0-diet`, -67%), the Norwegian-keymap OpenRC initramfs
+(`initramfs-alpine-b0-nb2.cpio.xz`), and the m1n1 variants. Tickets 082/101 are revived;
+ticket 133's obfuscation is unnecessary (keep the patch, it is harmless and documented).

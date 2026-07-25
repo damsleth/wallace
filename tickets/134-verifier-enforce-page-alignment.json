@@ -1,0 +1,13 @@
+{
+  "seq": "134",
+  "slug": "verifier-enforce-page-alignment",
+  "needs": "offline",
+  "state": "open",
+  "track": "distro",
+  "priority": "P2",
+  "desc": "Add a hard 16 KiB total-size alignment check to scripts/t6040-raw-object-verify.py (fail, not warn) for any object intended for enrollment, mirroring the padding the builder now applies. Root cause context: ticket 129 — a non-page-aligned enrolled object is never executed by iBoot. Also worth documenting the invariant in docs/BOOTABLE_BUILD_EXPERIMENTS.md and the ticket-080 raw-object contract. Small, offline.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785008780
+}
