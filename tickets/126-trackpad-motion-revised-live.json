@@ -2,7 +2,7 @@
   "seq": "126",
   "slug": "trackpad-motion-revised-live",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "hid",
   "priority": "P2",
   "desc": "PROPOSED, NOT APPROVED. Offline 125 byte-reproduced and independently passed with Image 446eeb2e..., built-in multitouch, the proven hid->type fix, exact storage-disabled DTB/initramfs, and bounded reporter. One attended J614s trackpad-motion run still requires fresh manual ticket approval and an explicit maintainer-recorded exception to the unqualified firmware-write rule for exactly the paired a1f4131d non-persistent runtime HIDF upload into volatile coherent DMA and known interface reset; it never authorizes flash/NVM, arbitrary firmware, another board blob, GPIO/PMU reset, or other writes. Finger stimulus, exact hashes, lease, healthy rig and stop/recovery contract required.",
@@ -22,5 +22,8 @@
     "firmware": "a1f4131d0cb7caf6fa15b19f47725458a6d7b0e3a34f15169339d5541663d9e2",
     "preflight": "160ac035326998a8c3a765cd326e833acbc54d7913fca515bf4b74b4682f38be"
   },
-  "created": 1784931592
+  "created": 1784931592,
+  "runnable": false,
+  "approved_by": "maintainer",
+  "approved_at": 1784975299
 }

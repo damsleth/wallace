@@ -2,7 +2,7 @@
   "seq": "123",
   "slug": "maxcpus2-revised-smoke",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "smp",
   "priority": "P1",
   "desc": "PROPOSED, NOT APPROVED. Offline ticket 122 is done and independent exact-artifact review PASSed. One storage-disabled maxcpus=2 boot appends exactly 'maxcpus=2 earlycon=dockchannel,mmio32,0x50882c000 keep_bootcon initcall_blacklist=apple_dctty_init' and uses a reproducible kmsg-only reporter. The early writer performs one proven TX_FREE 0x14 read per byte, drops immediately when full, and otherwise writes TX8 0x04; it has no wait/RX/config/IRQ/new offset. No cpufreq, USB/storage, PCIe, SPMI, or other new MMIO. Requires fresh maintainer approval because this ticket postdates the last approve-all, plus healthy rig, lease, and bounded stop/recovery. Never retry ticket 005 unchanged.",
@@ -22,5 +22,8 @@
     "initramfs": "43944ef26f93eb52558cda5d4283007b4af5fa2c30715bccae07a5824dec7149",
     "preflight": "ecd16f3db3a998ffb3c2c15bdd88c4d3a1dec4b8d01a2ebd26d9cb8264d6942b"
   },
-  "created": 1784928885
+  "created": 1784928885,
+  "runnable": false,
+  "approved_by": "maintainer",
+  "approved_at": 1784975299
 }
