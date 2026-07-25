@@ -1,0 +1,37 @@
+diff --git a/src/main.c b/src/main.c
+index d4e828c5..141160c0 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -83,7 +83,17 @@ void run_actions(void)
+         printf("Boot policy: sip0 = %ld\n", lp_sip0);
+     }
+ 
++#ifdef EARLY_PROXY_UNCONDITIONAL
++    /*
++     * Wallace B0: this machine/volume reports sip0 != 127 with the internal
++     * panel already initialized, so the upstream gate can never arm. Always
++     * offer the window; it times out and auto-boots the payload if no host
++     * connects, which keeps the untethered cold boot working.
++     */
++    if (true) {
++#else
+     if (!cur_boot_args.video.display && lp_sip0 == 127) {
++#endif
+         printf("Bringing up USB for early debug...\n");
+ 
+         usb_init();
+@@ -117,6 +127,14 @@ void run_actions(void)
+ #endif
+ #endif
+ 
++#ifdef FB_CONSOLE_ALWAYS
++    /*
++     * Wallace: fb console is normally activated only on the no-payload path, so
++     * an enrolled payload boot runs invisibly behind the Apple logo. Force it on
++     * up front so a failing enrolled boot is readable on the internal panel.
++     */
++    fb_set_active(true);
++#endif
+     printf("Checking for payloads...\n");
+ 
+     if (payload_run() == 0) {
