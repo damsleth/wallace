@@ -35,32 +35,23 @@ machine constantly — every `t6040-debugusb-console.sh reboot`, every chainload
 cycle, every recovery boot. A state that clears on power cycle is inside the
 normal operating loop, not an incident.
 
-## So why is R3 still not the next thing to run?
+## Separate, unchanged fact
 
-**Not for safety reasons — for expected-value reasons.** The *forward* sequence is
-incomplete, not just the reverse:
+The ticket-096 forward/reverse decode is still incomplete (`0x14` semantics, raw
+masks, cached-command/interrupt/power-config/repeater coordination). That is a
+completeness question about the *sequence*, tracked in 096 — it is not a danger
+statement and should not be quoted as one.
 
-- the address-`0x14` mutation semantics are unresolved;
-- the interrupt masks "must remain raw rather than being assigned guessed Type-C"
-  meanings;
-- cached-command, interrupt ordering, power/config coordination and repeater
-  sequencing are unresolved (`tickets/096`, ticket 023 notes).
+## Bounds for an exploratory run
 
-Building R3 today therefore means issuing SPMI writes derived from *guessed*
-semantics, with a low probability of achieving enumeration. The trade is "probably
-learn nothing, possibly cost a power cycle" — a poor trade now, and a good one as
-soon as the decode fills in. That decode is the actual critical path.
+Capture pre-state with an R0-class read, keep the passive stick as the only
+right-port device, stop at the first unexpected reply, and expect a full shutdown
+afterwards.
 
-## Practical consequence
+## Language discipline for future notes
 
-- R3 stays gated on the ticket-096 decode, and the recorded reason is
-  **incompleteness of the forward path**, not fear of permanent harm.
-- If the maintainer chooses to run an exploratory R3 anyway, that is a reasonable
-  call. Sensible bounds: capture pre-state with an R0-class read, keep the passive
-  stick as the only right-port device, stop at the first unexpected reply, and
-  expect a full shutdown afterwards.
-- Language discipline for future notes: distinguish **volatile state needing a
-  power cycle** (cheap, routine here) from **persistent/non-volatile change**
-  (would need flash/OTP/patch writes, which are not in scope and not present in
-  the decoded op set). Do not use "unrecoverable", "brick", or "permanent damage"
-  without naming the specific non-volatile mechanism that would cause it.
+Distinguish **volatile state needing a power cycle** (cheap and routine in this
+workflow) from **persistent/non-volatile change** (would require flash/OTP/patch
+writes, which are out of scope and absent from the decoded op set). Do not write
+"unrecoverable", "brick", or "permanent damage" without naming the specific
+non-volatile mechanism that would cause it.
