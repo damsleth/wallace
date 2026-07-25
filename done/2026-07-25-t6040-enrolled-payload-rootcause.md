@@ -217,3 +217,35 @@ Linux handoff**, which allows directly:
 Procedure: enroll `m1n1-b0-diet-fbvisible.bin` (`ad156a4b`), let it loop, and poll
 for `/dev/cu.usbmodem*` while attaching a proxy immediately. No panel observation
 required, and nothing is written.
+
+## 5-second window was not catchable — v4 raises it to 60 s
+
+With `ad156a4b` (v3, 5 s window) enrolled and looping, `/dev/cu.usbmodem*` never
+appeared across ~40 s of polling (many loop cycles). **This is inconclusive**, and
+deliberately not read as "m1n1 dies early": macOS may simply be unable to finish
+enumerating a CDC device that exists for at most 5 s per cycle. The graded probe's
+gadget was catchable only because `Running proxy` holds it up indefinitely.
+
+To make presence/absence unambiguous, two artifacts with a **60-second** window
+(same source, only `EARLY_PROXY_TIMEOUT` changed from 5 to 60):
+
+| Artifact | SHA-256 | Purpose |
+|---|---|---|
+| `m1n1-t6040-window60-v4.bin` | `62394006675197c3a10488e844f3809ed8ae84a8216cfc33ad437208f7ec6cd4` | v4 m1n1: unconditional window (60 s) + FB_CONSOLE_ALWAYS |
+| `probe-window60-bare.bin` | same hash (it *is* the bare m1n1) | **control**: payload-free, must show the window and reach proxy |
+| `m1n1-b0-diet-window60.bin` | `9f30b42a70790e2d42381e651d9a77411371f68915cefc8ddf30d4f028ea06a0` | 9.02 MiB diet payload object, strict-verified PASS |
+
+Test order matters — the control first, so the window mechanism is proven before it
+is used as a probe:
+
+1. Enroll `probe-window60-bare.bin`. Expect `Waiting for proxy connection...` for a
+   full minute, a stable `/dev/cu.usbmodem*` during it, then `No valid payload
+   found` -> `Running proxy`. This validates that the window arms at cold boot and
+   that a 60 s gadget is catchable.
+2. Enroll `m1n1-b0-diet-window60.bin` (same m1n1, plus the payload).
+   - **Gadget appears** -> attach inside the window and take the three measurements
+     (log buffer for the exact failure point; payload members in RAM verified
+     against known hashes; heap/`top_of_kernel_data` versus payload extent).
+   - **No gadget, given step 1 passed** -> m1n1 with a payload does not reach
+     `run_actions()`, which is then a sound conclusion rather than an inference from
+     one ambiguous absence.
