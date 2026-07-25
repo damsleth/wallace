@@ -403,3 +403,54 @@ Readings:
   content, and the whole framing needs revisiting.
 
 Run the control first so the instrument is validated before it is used.
+
+## CONCLUSION: iBoot never enters m1n1 when the appended region looks like a payload
+
+`probe-fdt-only.bin` (1.10 MiB, m1n1 + one DTB) shows **only the Apple logo**, then the
+5 s loop. That is decisive, because the probe was built so that a running m1n1 *must*
+be visible: a DTB with no kernel does not satisfy autoboot, so m1n1 would print
+`Found a devicetree…` and `No valid payload found`, and the no-payload path calls
+`fb_set_active(true)`, which renders its whole log on the panel (exactly as captured in
+the maintainer's screenshot of the bare loader).
+
+Five independent lines now agree that **m1n1 does not execute** for payload-carrying
+enrolled objects:
+
+1. no m1n1 text on the panel, while the identical prefix renders a full log when the
+   appended region is magic-free;
+2. no USB gadget, even with a 60 s unconditional early-proxy window;
+3. no kboot logbuf anywhere in the top 2 MiB of RAM;
+4. loop period is exactly 5 s for both `EARLY_PROXY_TIMEOUT=5` and `=60`, so no m1n1
+   timeout is involved;
+5. a 1.10 MiB object fails while payload-free objects of 14/16/20 MiB boot, so it is
+   content, not size.
+
+So the failure is **iBoot-side**: it inspects the enrolled object and declines to run
+it, retrying ~5 times before the "needs to be reinstalled" screen. The precise check
+inside iBoot is not visible to us and is deliberately left unstated here.
+
+**Consequence:** the appended-payload enrollment shape is unusable on J614s as-is.
+Everything downstream of it (m1n1, kernel, DTB, initramfs, decompression) was never
+reached and is not implicated — all of those components remain proven via chainload.
+
+## Promising revival path: payload obfuscation
+
+If iBoot declines the object because the appended bytes are *recognisable*, then
+storing them **masked** removes the trigger while changing nothing about the boot:
+
+- build the object with every appended byte XOR-masked (single-byte key, or a keystream)
+  so no gz/xz/FDT/cpio magic and no ASCII `chosen.bootargs=` appears anywhere;
+- add a small m1n1 patch that un-masks the payload region in place at the very start of
+  `run_actions()`, before `payload_run()` — the length and key are compile-time
+  constants, so this is a short, reviewable loop with no allocation;
+- everything after that is the already-proven path.
+
+This works under either reading of the iBoot check — a magic-byte scan finds nothing,
+and a structural validator finds nothing parseable. It needs no USB, no NVMe, no HPM
+work, and reuses the artifacts already verified today (diet kernel, Norwegian OpenRC
+initramfs, m1n1 v2/v3/v4 variants).
+
+Worth doing first, cheaply: run `probe-magic-none.bin` (control) and one magic probe to
+learn whether a bare magic byte is enough to trigger the refusal. That is not required
+for the obfuscation build, but it tells us how careful the masking has to be, and it
+documents the actual trigger for any future upstream conversation.

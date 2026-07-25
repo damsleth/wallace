@@ -2,10 +2,10 @@
   "seq": "132",
   "slug": "uboot-stage2-usb-probe",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "distro",
   "priority": "P1",
-  "desc": "PROPOSED ONE-SHOT (step 2 of the stage-2 preflight; 131 PASSED): tethered chainload of the USB-PROBE U-Boot variant \u2014 same reviewed stage-2 build plus CONFIG_PREBOOT='usb info; usb start; usb tree' (recipe: apple_t6040_stage2_defconfig + PREBOOT line + olddefconfig; double-built byte-identical). Composed image ~/Code/linux-build-out/uboot-stage2-probe-chainload.bin = m1n1 v3 c59d5820 + DTB 759d00ba + u-boot-nodtb f3da1c17 (550,624 B, image_size 1,031,760) + 481,136 zero B; total 2,181,215 B sha256 4069efa9; structure machine-verified. Run is a bounded 20 s wdt-self-recovering cycle (131-proven). ATTENDED: eyes on panel required \u2014 this run's whole value is the on-screen output of the PREBOOT usb commands. A passive bus-powered stick MAY be in the right port per the 108-series fixture rules (its presence changes nothing until R3). PASS = PMGR/DART/DWC3 probe without fault, xHCI registers, root hubs listed, EXPECTED zero devices; wdt reset; proxy self-return. STOP = SError/panic/freeze before prompt, any storage/NVMe output, proxy absent after reset (DebugUSB recovery). No SPMI/PMU/NVRAM writes exist in the artifact. Needs maintainer approve; author self-review recorded; sol review still waived per CJ.",
+  "desc": "PROPOSED ONE-SHOT (step 2 of the stage-2 preflight; 131 PASSED): tethered chainload of the USB-PROBE U-Boot variant — same reviewed stage-2 build plus CONFIG_PREBOOT='usb info; usb start; usb tree' (recipe: apple_t6040_stage2_defconfig + PREBOOT line + olddefconfig; double-built byte-identical). Composed image ~/Code/linux-build-out/uboot-stage2-probe-chainload.bin = m1n1 v3 c59d5820 + DTB 759d00ba + u-boot-nodtb f3da1c17 (550,624 B, image_size 1,031,760) + 481,136 zero B; total 2,181,215 B sha256 4069efa9; structure machine-verified. Run is a bounded 20 s wdt-self-recovering cycle (131-proven). ATTENDED: eyes on panel required — this run's whole value is the on-screen output of the PREBOOT usb commands. A passive bus-powered stick MAY be in the right port per the 108-series fixture rules (its presence changes nothing until R3). PASS = PMGR/DART/DWC3 probe without fault, xHCI registers, root hubs listed, EXPECTED zero devices; wdt reset; proxy self-return. STOP = SError/panic/freeze before prompt, any storage/NVMe output, proxy absent after reset (DebugUSB recovery). No SPMI/PMU/NVRAM writes exist in the artifact. Needs maintainer approve; author self-review recorded; sol review still waived per CJ.",
   "author": "claude",
   "deps": [
     "131"
@@ -17,5 +17,8 @@
     "dtb": "759d00ba8983d856ef621a4bffae8b16e7fa40db90fdad2628ec7a768bcd7656",
     "m1n1_v3": "c59d5820df4ef3d98a41e620a48e14a097cc5bf952c43226f3dac693268b8472"
   },
-  "created": 1785003702
+  "created": 1785003702,
+  "runnable": false,
+  "approved_by": "maintainer",
+  "approved_at": 1785004402
 }

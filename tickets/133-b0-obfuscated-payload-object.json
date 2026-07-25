@@ -1,0 +1,13 @@
+{
+  "seq": "133",
+  "slug": "b0-obfuscated-payload-object",
+  "needs": "offline",
+  "state": "open",
+  "track": "distro",
+  "priority": "P1",
+  "desc": "Revive untethered B0 by defeating iBoot's content inspection: build an enrolled raw object whose appended payload is XOR-masked so no gz/xz/FDT/cpio magic and no ASCII 'chosen.bootargs=' appears, plus a minimal reviewed m1n1 patch that un-masks the payload region in place at the start of run_actions() before payload_run() (length and key as compile-time constants; short loop, no allocation). Justification: ticket 129 concluded iBoot never enters m1n1 when the appended region looks like a payload (probe-fdt-only at 1.10 MiB loops with no panel output while payload-free 20 MiB objects boot). Masking removes the trigger under either reading of the check (magic scan or structural validation) and needs no USB, NVMe or HPM work. Reuses today's verified artifacts: Image-b0-diet.xz (67% smaller, chainload-proven), initramfs-alpine-b0-nb2.cpio.xz (Norwegian no-mac keymap verified), m1n1 v2/v3/v4. Deliverables: reproducible masked object with pinned hashes, the m1n1 patch, a strict-verifier mode that validates a masked object, and a tethered chainload smoke BEFORE any enrollment. Optional first: probe-magic-none control plus one magic probe to document the exact trigger. Offline build; enrollment needs maintainer approval and 1TR.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785006853
+}
