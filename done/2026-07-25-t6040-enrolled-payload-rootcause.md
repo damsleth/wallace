@@ -249,3 +249,49 @@ is used as a probe:
    - **No gadget, given step 1 passed** -> m1n1 with a payload does not reach
      `run_actions()`, which is then a sound conclusion rather than an inference from
      one ambiguous absence.
+
+## The 5-second period is NOT the proxy window (retracting the previous reading)
+
+Maintainer enrolled `9f30b42a` — identical to `ad156a4b` except
+`EARLY_PROXY_TIMEOUT` 5 -> **60** — and the loop period stayed **exactly 5 s**, still
+5 attempts then the recovery screen.
+
+So the previous turn's conclusion ("m1n1 reaches the window, waits it out, then dies
+in payload_run") is **withdrawn**. If the window were the timer, a 60 s build would
+loop at ~60 s. It does not, so with a payload enrolled m1n1 apparently never reaches
+the wait loop — or does not reach `run_actions()` at all.
+
+**What the 5 s actually is: unknown.** It is identical across two m1n1 builds and is
+not any timeout we control. Candidates, none verified: an iBoot-side boot timeout, a
+watchdog that `wdt_disable()` does not actually silence on M4 (m1n1 prints "Primary
+WDT disabled"/"Secondary WDT disabled", which is a claim, not a confirmation), or a
+SEP/SMC-driven reset. Notably a payload-free object at the same base runs
+indefinitely at `Running proxy`, so whatever fires at 5 s is triggered by the
+payload-carrying case, not by the object merely being large.
+
+## Next: RAM forensics instead of another inference
+
+RAM survives a warm reset — proven earlier in this very investigation, when stale
+`[AFK]` bytes from a previous boot were misread as a live scan result. That property
+is now usable as a tool.
+
+m1n1 allocates its stage-2 log buffer at the **top of RAM**
+(`src/kboot.c:2751`, `top_of_memory_alloc(LOGBUF_SIZE + LOGBUF_TOP_GUARD_SIZE)`) during
+`kboot` and registers it as a console iodev, so a boot that reached kboot leaves its
+tail output in RAM for the *next* boot to read.
+
+`scripts/t6040-ram-forensics.py` (read-only) scans the top MiBs of RAM for markers
+(`Uncompressing`, `XZ decode`, `uncompressed to`, `Preparing to boot`, `Vectoring to
+next stage`, `Linux version`, `Kernel panic`, `Unhandled exception`, ...) and prints
+the longest printable runs around any hit.
+
+Procedure: with the failing object having just looped, enroll **any payload-free
+object** (`probe-window60-bare.bin` or `rollback-m1n1-1394c345.bin`), boot to
+`Running proxy`, and run the script. Binary outcome:
+
+- **markers found** -> the failing boot reached kboot/Linux, and the recovered text
+  states how far it got;
+- **nothing found** -> it died before kboot, i.e. during payload decompression or
+  earlier, which also narrows the 5 s trigger.
+
+Either way this is a reading, not an inference.
