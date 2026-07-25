@@ -454,3 +454,61 @@ Worth doing first, cheaply: run `probe-magic-none.bin` (control) and one magic p
 learn whether a bare magic byte is enough to trigger the refusal. That is not required
 for the obfuscation build, but it tells us how careful the masking has to be, and it
 documents the actual trigger for any future upstream conversation.
+
+## The masked object also loops — obfuscation premise falsified
+
+`m1n1-b0-masked.bin` (`ef8e0a30`, XOR-0x80, no xz/FDT/cpio magic, no legible ASCII)
+shows **only the Apple logo** and the same 5 s loop. So iBoot's refusal is **not** keyed
+on recognisable payload content, and ticket 133's premise is dead.
+
+## 16 KiB SIZE ALIGNMENT — perfect correlation across all ten objects
+
+Re-examining every object tested tonight by *total file size*:
+
+| Object | Size | /16 KiB | Result |
+|---|---|---|---|
+| bare loader | 1,097,728 | **67.000** | boot |
+| 16 MiB zeros filler | 16,777,216 | **1024.000** | boot |
+| 14 MiB `0xA5` filler | 14,680,064 | **896.000** | boot |
+| 20 MiB graded probe | 21,020,672 | **1283.000** | boot |
+| m1n1 + DTB | 1,149,391 | 70.153 | LOOP |
+| 22.2 MB gz | 22,183,563 | 1353.977 | LOOP |
+| 15.2 MiB xz | 15,945,580 | 973.241 | LOOP |
+| 9.02 MiB diet (v2/v4/masked) | 9,455,156 | 577.097 | LOOP |
+
+**Every booting object's size is an exact multiple of 16 KiB; every failing object's is
+not.** Ten objects, no exceptions.
+
+This also explains why every probe I built happened to boot, and why I kept
+mis-attributing the difference to content: the fillers were made with
+`truncate -s 14m/16m` and by appending whole 64 KiB blocks, so they were *accidentally*
+page-aligned, while every real payload object has an arbitrary length. The bare loader
+is 67 x 16384 exactly because `m1n1-raw.ld` aligns every section to `0x4000`. The
+"content" correlation was an artefact of how I generated the controls.
+
+Mechanistically plausible: 16 KiB is the Apple Silicon page size, so iBoot mapping or
+length-checking the boot object in whole pages would reject a non-page-multiple file.
+
+## Test artifact
+
+Padding is safe and already required by the ticket-080 contract ("the remainder of the
+object must be zero"), and m1n1 stops scanning at the 4-zero terminator, so trailing
+zeros are inert.
+
+```text
+m1n1-b0-diet-aligned.bin
+SHA-256 f290833c8a9dd7ea4086571b925e6b775c113dd3b4626a7ef2644ebc76fd03fd
+9,469,952 B = 578 x 16 KiB exactly (14,796 zero bytes appended)
+= m1n1-b0-diet-fbvisible.bin (v3, fb console forced on) + zero padding
+```
+
+Strict verifier PASS; prefix and payload bytes byte-identical to the unpadded source,
+only the terminator record grew from 4 to 14,800 zeros.
+
+Outcome reading:
+
+- **boots** -> the enrolled-object requirement is 16 KiB size alignment, the entire
+  appended-payload B0 route is alive, and every artifact built today applies unchanged.
+  Padding becomes a one-line rule in the object builder.
+- **loops** -> alignment is not it either, and the correlation was coincidence across
+  ten samples; fall back to ticket 128.
