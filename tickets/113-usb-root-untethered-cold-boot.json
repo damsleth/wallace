@@ -5,7 +5,7 @@
   "state": "approved",
   "track": "storage",
   "priority": "P1",
-  "desc": "PLAN-APPROVED BUT BLOCKED until 101 and 112 both pass. Then the maintainer selects the enrolled m1n1 volume with the verified stick in the right port; no host payload or command. Pass = m1n1 -> Linux -> external ext4/OpenRC root, panel shell, internal keyboard, watchdog, prior ticket-112 persistence marker, expected USB block device only, no internal NVMe. Observation only; no flashing, enrollment, partitioning, or new write. Requires separate exact object/bootargs review, rollback, lease, and healthy rig.",
+  "desc": "PLAN-APPROVED BUT BLOCKED until 101 and 112 both pass. Then the maintainer selects the enrolled m1n1 volume with the verified stick in the right port; no host payload or command. Pass = m1n1 -> Linux -> external ext4/OpenRC root, panel shell, internal keyboard, watchdog, prior ticket-112 persistence marker, expected USB block device only, no internal NVMe. Observation only; no flashing, enrollment, partitioning, or new write. Requires separate exact object/bootargs review, rollback, lease, and healthy rig. DEPENDENCY UPDATE 2026-07-25 (claude): this depends on 101, which is now non-runnable \u2014 the enrolled appended-payload shape is root-caused dead (done/2026-07-25-t6040-enrolled-payload-rootcause.md). Untethered cold boot needs a working stage-2 loader path first (USB stage 2), independent of the USB enumeration work.",
   "author": "codex",
   "deps": [
     "101",

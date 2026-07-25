@@ -5,7 +5,7 @@
   "state": "open",
   "track": "storage",
   "priority": "P2",
-  "desc": "Refresh primary-source public work on M2/M3/M4 SPTM/GXF/SPRR and NVMe CoastGuard after the existing 051/052/054/055 decode. Look specifically for a supported way to acquire/preserve the guarded execution/domain context on raw boot. Record exact commits and whether any non-mutating capability query exists. No rig, no unchanged GENTER retry, and no inference that a decoded ABI supplies authority.",
+  "desc": "Refresh primary-source public work on M2/M3/M4 SPTM/GXF/SPRR and NVMe CoastGuard after the existing 051/052/054/055 decode. Look specifically for a supported way to acquire/preserve the guarded execution/domain context on raw boot. Record exact commits and whether any non-mutating capability query exists. No rig, no unchanged GENTER retry, and no inference that a decoded ABI supplies authority. NEW PRIMARY EVIDENCE 2026-07-25 (claude): the NVMe boundary is enforced BELOW the OS, not just via the Linux guarded ABI. m1n1's own pre-Linux NVMe path was probed read-only on the rig (ticket 127, maintainer-approved): the identity gate passed and a single p.nvme_init() raised an async L2C SError (ESR 0xbe000000, L2C_ERR_STS 0x82, L2C_ERR_ADR 0x28360040dce4908), taking m1n1 down with 'Unhandled exception, rebooting...'. Signature matches the known M4 fault family m1n1 already works around by skipping dart-aop/dart-pmp/dart-isp0 (src/dapf.c:171). So bare, pre-Linux m1n1 cannot bring ANS up either \u2014 a perfect Linux-side driver would still hit this. Fold into the refresh. Evidence: done/2026-07-25-t6040-nvme-probe-result.md.",
   "author": "codex",
   "deps": [
     "055"

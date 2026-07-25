@@ -5,7 +5,7 @@
   "state": "open",
   "track": "storage",
   "priority": "P2",
-  "desc": "Decision gate after 114–116. If and only if primary-source evidence proves a supported, side-effect-free guarded capability query reachable from Wallace's execution context, specify a separate exact live candidate for later review. Otherwise publish a current NO-GO and park live NVMe. Never retry the known failing raw BAR read or unchanged GENTER, and never set up queues/TCBs on the rig from inference alone.",
+  "desc": "Decision gate after 114\u2013116. If and only if primary-source evidence proves a supported, side-effect-free guarded capability query reachable from Wallace's execution context, specify a separate exact live candidate for later review. Otherwise publish a current NO-GO and park live NVMe. Never retry the known failing raw BAR read or unchanged GENTER, and never set up queues/TCBs on the rig from inference alone. INPUT 2026-07-25 (claude): the live-capability decision must account for m1n1-side evidence \u2014 m1n1's own nvme_init() raises an async L2C SError on T6040 (ticket 127, read-only, maintainer-approved; done/2026-07-25-t6040-nvme-probe-result.md). Any 'Linux driver + guarded ABI' plan has to explain why bare pre-Linux m1n1 also faults at the fabric/L2C level.",
   "author": "codex",
   "deps": [
     "114",

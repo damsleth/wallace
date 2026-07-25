@@ -1,0 +1,13 @@
+{
+  "seq": "129",
+  "slug": "m1n1-appended-payload-feasibility",
+  "needs": "offline",
+  "state": "open",
+  "track": "distro",
+  "priority": "P1",
+  "desc": "Determine whether the enrolled appended-payload shape is FIXABLE in m1n1 rather than merely unsupported — if it is, milestone B0 revives without any USB/NVMe dependency. Measured fact: with the bare 1.1 MiB loader enrolled, m1n1 scans base+0x10C000 (=0x10004938000) and finds its OWN .rodata there ('[AFK]%s send cmd:' from src/afk.c, magic 5b41464b), while bootargs.top_of_kernel_data=0x10004FA8000 shows iBoot reserving ~7.5 MiB of kernel-data from base 0x1000482C000. Investigate offline from source: how _payload_start is computed for the m1n1-raw link vs the macho link; whether m1n1-raw.ld places BSS or other sections past _payload_start (which would make an appended payload overlap m1n1's own runtime memory); whether m1n1 self-relocates and what that does to the payload base; and how iBoot's raw kernelcache load interacts with the 7.5 MiB kernel-data reservation. Deliverable: either an exact reviewed m1n1 change that makes an appended payload discoverable on the enrolled path, or a definitive statement that the raw enrolled shape cannot host a payload and why. Evidence: done/2026-07-25-t6040-enrolled-payload-rootcause.md. OFFLINE ONLY; any resulting m1n1 change needs independent review + a separate rig ticket.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1784999876
+}
