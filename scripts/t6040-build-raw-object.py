@@ -21,6 +21,7 @@ M1N1_ALIGNMENT = 0x4000
 RAW_ENTRY_POINT = 0x800
 KERNEL_MAGIC = b"ARM\x64"
 GZIP_MAGIC = b"\x1f\x8b"
+XZ_MAGIC = b"\xfd7zXZ\x00"
 FDT_MAGIC = b"\xd0\x0d\xfe\xed"
 
 
@@ -49,10 +50,13 @@ def atomic_write(path: Path, data: bytes, *, force: bool) -> None:
 
 
 def kernel_member(data: bytes) -> bytes:
-    if data.startswith(GZIP_MAGIC):
+    if data.startswith(GZIP_MAGIC) or data.startswith(XZ_MAGIC):
+        # Pre-compressed member used verbatim. XZ members must be
+        # minilzlib-compatible: single-stream, single-block (-T1),
+        # --check=crc32 (or none), no BCJ filter.
         return data
     if len(data) < 0x3C or data[0x38:0x3C] != KERNEL_MAGIC:
-        raise ValueError("kernel is neither a gzip member nor an ARM64 Image")
+        raise ValueError("kernel is neither a gzip/xz member nor an ARM64 Image")
     image_size = struct.unpack_from("<Q", data, 0x10)[0]
     if not image_size or len(data) > image_size:
         raise ValueError(
@@ -97,8 +101,8 @@ def main() -> int:
         raise ValueError("DTB totalsize does not equal file size")
 
     initramfs = args.initramfs.read_bytes()
-    if not initramfs.startswith(GZIP_MAGIC):
-        raise ValueError("initramfs must be a gzip member")
+    if not (initramfs.startswith(GZIP_MAGIC) or initramfs.startswith(XZ_MAGIC)):
+        raise ValueError("initramfs must be a gzip or xz member")
 
     variable = f"chosen.bootargs={args.bootargs}\n".encode("ascii")
     output = m1n1 + variable + kernel + dtb + initramfs + b"\0" * 4
