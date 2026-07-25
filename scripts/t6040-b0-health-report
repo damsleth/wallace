@@ -31,6 +31,8 @@ report()
     find /etc/runlevels -type l \
         \( -name networking -o -name networkmanager -o -name wpa_supplicant \) \
         -print 2>/dev/null || true
+echo "-- console keymap --"
+cat /run/wallace-keymap-status 2>/dev/null || echo "keymap status unknown"
     echo "=== t6040 B0 health report end ==="
 }
 

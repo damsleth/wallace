@@ -1,0 +1,24 @@
+#!/sbin/openrc-run
+description="Load the Norwegian (Mac) console keymap"
+
+depend() {
+    need devfs
+    before t6040-health-report
+}
+
+start() {
+    ebegin "Loading Norwegian console keymap (no-mac)"
+    # BusyBox provides the *loadkmap* applet (binary keymap on STDIN); it has no
+    # loadkeys (that is kbd's text-keymap tool) and ships no applet symlink for
+    # loadkmap, so invoke it through the busybox multiplexer explicitly.
+    for map in /usr/share/bkeymaps/no/no-mac.bmap /usr/share/bkeymaps/no/no.bmap; do
+        [ -f "$map" ] || continue
+        if busybox loadkmap < "$map" 2>/dev/null; then
+            printf 'loaded %s\n' "${map##*/}" > /run/wallace-keymap-status
+            eend 0
+            return 0
+        fi
+    done
+    printf 'FAILED (no keymap loaded; console stays US)\n' > /run/wallace-keymap-status
+    eend 1 "no Norwegian keymap could be loaded"
+}
