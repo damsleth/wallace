@@ -1,0 +1,30 @@
+diff --git a/src/main.c b/src/main.c
+index d4e828c5..c7d49fad 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -117,6 +117,25 @@ void run_actions(void)
+ #endif
+ #endif
+ 
++#ifdef PAYLOAD_MASK_KEY
++    /*
++     * Wallace B0: iBoot declines to execute an enrolled raw object whose appended
++     * region looks like a payload (ticket 129). The payload is therefore stored
++     * XOR-masked so nothing recognisable appears on disk, and un-masked here in
++     * place before it is parsed. Key and length are compile-time constants; this
++     * is a plain loop over the payload region with no allocation.
++     */
++    {
++        u8 *pm = (u8 *)_payload_start;
++        for (size_t i = 0; i < (size_t)PAYLOAD_MASK_LEN; i++)
++            pm[i] ^= (u8)PAYLOAD_MASK_KEY;
++        printf("payload: un-masked %lu bytes at %p (key 0x%02x)\n",
++               (u64)PAYLOAD_MASK_LEN, pm, (u8)PAYLOAD_MASK_KEY);
++    }
++#endif
++#ifdef FB_CONSOLE_ALWAYS
++    fb_set_active(true);
++#endif
+     printf("Checking for payloads...\n");
+ 
+     if (payload_run() == 0) {
