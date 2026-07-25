@@ -2,12 +2,13 @@
   "seq": "135",
   "slug": "b0-sysctl-clean-boot",
   "needs": "offline",
-  "state": "open",
+  "state": "done",
   "track": "distro",
   "priority": "P3",
   "desc": "Cosmetic: the B0 boot prints ~13 'sysctl: error: ... is an unknown key' lines for net/ipv4/*, net/ipv6/* and kernel.unprivileged_bpf_disabled, because the DIET kernel disables CONFIG_NET and BPF while Alpine's stock /etc/sysctl.conf (and sysctl.d) still reference those keys. Trim the sysctl config in scripts/t6040-build-alpine-b0.sh (or drop the sysctl service from the boot runlevel) so the untethered boot is clean. Offline, small; rebuild initramfs + object and re-pin hashes.",
   "author": "claude",
   "deps": [],
   "hashes": null,
-  "created": 1785009191
+  "created": 1785009191,
+  "done_at": 1785015729
 }

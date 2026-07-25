@@ -94,6 +94,24 @@ cat >"$TMP/etc/inittab" <<'EOF'
 tty0::respawn:/sbin/getty -n -l /usr/local/sbin/t6040-b0-autologin 38400 tty0 linux
 ::respawn:/usr/local/sbin/t6040-b0-ttydc0-console
 EOF
+# Alpine's stock /usr/lib/sysctl.d/00-alpine.conf sets 13 net.*/bpf keys that do not
+# exist when the kernel is built with CONFIG_NET=n (the DIET B0 kernel), so the boot
+# prints 13 "sysctl: error: ... is an unknown key" lines. Comment those out; the useful
+# non-network hardening (kernel.panic, fs.protected_*) is kept. Set NET_SYSCTL=1 when
+# building a root for a networking-capable kernel (DIET_CAPABLE) to leave them intact.
+# Ticket 135.
+if [ "${NET_SYSCTL:-0}" != "1" ]; then
+    sysctl_conf="$TMP/usr/lib/sysctl.d/00-alpine.conf"
+    if [ -f "$sysctl_conf" ]; then
+        # NB: '#' delimiter — using '|' would collide with the regex alternation and
+        # BSD sed (this runs host-side on macOS) rejects it as unbalanced parentheses.
+        sed -i.bak -E 's#^([[:space:]]*(net\.|kernel\.unprivileged_bpf))#\# no CONFIG_NET: \1#' \
+            "$sysctl_conf"
+        rm -f "$sysctl_conf.bak"
+        echo "sysctl: commented out $(grep -c '^# no CONFIG_NET:' "$sysctl_conf") net/bpf keys"
+    fi
+fi
+
 printf 'wallace-b0\n' >"$TMP/etc/hostname"
 : >"$TMP/etc/fstab"
 : >"$TMP/etc/modules"
