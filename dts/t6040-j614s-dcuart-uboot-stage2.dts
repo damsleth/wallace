@@ -1,0 +1,67 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * T6040 J614s U-Boot stage-2 USB loader variant.
+ *
+ * Hand this DTB to the apple_t6040_stage2 U-Boot build only (m1n1 payload
+ * slot); it is not a Linux boot DT. Differences from the Linux usb-host
+ * variants exist purely because U-Boot's drivers bind different compatibles:
+ *
+ *  - U-Boot's xhci-dwc3 binds "snps,dwc3" and expects reg[0] to be the DWC3
+ *    core, which our split reg layout already provides. It reads dr_mode
+ *    directly, so the gadget-oriented properties are dropped.
+ *  - U-Boot's apple-pmgr driver binds only the generic
+ *    "apple,pmgr-pwrstate" fallback, which the generated t6040-pmgr.dtsi
+ *    nodes do not carry; append it along the exact atc2_usb ancestor chain
+ *    (atc2_usb -> atc2_common/atc2_usb_aon -> fab2_soc -> afi).
+ *
+ * Port choice matches the reviewed Linux host smoke (ticket 063): usb-drd2
+ * is the right Type-C port; DebugUSB stays on left-back usb-drd0, which
+ * remains disabled here so a tethered chainload cannot disturb it.
+ *
+ * KNOWN LIMIT: with the HPM2 host transition unresolved (tickets 096/097
+ * NO-GO), no device will enumerate behind this port. This variant exists so
+ * the U-Boot USB stack itself can be proven inert-safe and ready.
+ */
+
+#include "t6040-j614s-dcuart.dts"
+
+/ {
+	model = "Apple MacBook Pro (M4 Pro) J614s [U-Boot stage-2 USB loader]";
+};
+
+&usb2_dart0 { status = "okay"; };
+&usb2_dart1 { status = "okay"; };
+
+&usb_drd2 {
+	compatible = "apple,t8103-dwc3", "snps,dwc3";
+	/delete-property/ apple,force-device-mode;
+	/delete-property/ snps,usb2-gadget-lpm-disable;
+	dr_mode = "host";
+	status = "okay";
+};
+
+/* U-Boot's pmgr driver only matches the generic fallback compatible. */
+&ps_atc2_usb {
+	compatible = "apple,t6041-pmgr-pwrstate", "apple,t8103-pmgr-pwrstate",
+		     "apple,pmgr-pwrstate";
+};
+
+&ps_atc2_common {
+	compatible = "apple,t6041-pmgr-pwrstate", "apple,t8103-pmgr-pwrstate",
+		     "apple,pmgr-pwrstate";
+};
+
+&ps_atc2_usb_aon {
+	compatible = "apple,t6041-pmgr-pwrstate", "apple,t8103-pmgr-pwrstate",
+		     "apple,pmgr-pwrstate";
+};
+
+&ps_fab2_soc {
+	compatible = "apple,t6041-pmgr-pwrstate", "apple,t8103-pmgr-pwrstate",
+		     "apple,pmgr-pwrstate";
+};
+
+&ps_afi {
+	compatible = "apple,t6041-pmgr-pwrstate", "apple,t8103-pmgr-pwrstate",
+		     "apple,pmgr-pwrstate";
+};

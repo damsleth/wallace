@@ -1,0 +1,208 @@
+From: CJ Damsleth <kim@damsleth.no>
+Date: Sat, 25 Jul 2026 19:16:01 +0200
+Subject: [PATCH] apple: add a T6040 stage-2 USB loader target
+
+The no-IO first-light target proves U-Boot runs on T6040 but loads
+nothing. Add an opt-in stage-2 mode intended to read /boot from a FAT32
+USB stick once a host-capable Type-C link exists.
+
+The mode maps no hardcoded MMIO: build_mem_map() fills a fixed pool of
+device slots at runtime from the m1n1-passed device tree, and only for
+an explicit compatible allowlist (PMGR power-state syscons, USB DARTs,
+DWC3/xHCI cores). Whether any mapped window is touched remains driven
+by the enabled drivers and the DT status properties.
+
+The defconfig enables xHCI-over-DWC3, the Apple DART IOMMU, the PMGR
+power-domain driver, USB mass storage, FAT, and a documented bootcmd
+that loads Image + DTB + initramfs from usb 0:1. Autoboot stays
+disabled (bootdelay -1) and the bootcommand never runs unattended.
+
+U-Boot contains no Type-C PHY or HPM/USB-PD driver (phy-apple-atc.c is
+an explicit dummy), so this target inherits the platform's unresolved
+HPM host transition; until that lands it can only prove the USB stack
+probes safely and finds no devices.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ arch/arm/mach-apple/Kconfig          | 12 ++++
+ arch/arm/mach-apple/board.c          | 91 +++++++++++++++++++++++++++-
+ configs/apple_t6040_stage2_defconfig | 37 +++++++++++
+ 3 files changed, 138 insertions(+), 2 deletions(-)
+ create mode 100644 configs/apple_t6040_stage2_defconfig
+
+diff --git a/arch/arm/mach-apple/Kconfig b/arch/arm/mach-apple/Kconfig
+index 999cfe3c..bfbf0080 100644
+--- a/arch/arm/mach-apple/Kconfig
++++ b/arch/arm/mach-apple/Kconfig
+@@ -8,6 +8,18 @@ config APPLE_NOIO
+ 	  simple framebuffer path. This is intended for first-light bring-up on
+ 	  a new Apple SoC before its MMIO windows and device drivers are safe.
+ 
++config APPLE_T6040_STAGE2
++	bool "T6040 stage-2 USB loader on top of the no-IO core"
++	depends on APPLE_NOIO
++	help
++	  Extend the T6040 no-IO target with runtime, device-tree-derived
++	  MMIO mappings for exactly the reviewed USB boot set: the PMGR
++	  power-state blocks, the USB DARTs, and the DWC3/xHCI cores. No
++	  other MMIO window is mapped; every mapped address is read from
++	  the m1n1-passed device tree, never hardcoded or swept. Which of
++	  those windows is actually accessed is still controlled by the
++	  enabled drivers and the status properties in the supplied DT.
++
+ config TEXT_BASE
+ 	default 0x00000000
+ 
+diff --git a/arch/arm/mach-apple/board.c b/arch/arm/mach-apple/board.c
+index 636abe66..8d8af20c 100644
+--- a/arch/arm/mach-apple/board.c
++++ b/arch/arm/mach-apple/board.c
+@@ -696,6 +696,88 @@ static struct mm_region t6040_noio_mem_map[] = {
+ 	}
+ };
+ 
++#if IS_ENABLED(CONFIG_APPLE_T6040_STAGE2)
++
++#define T6040_STAGE2_DEV_SLOTS	24
++
++/*
++ * T6040 stage-2 map: the no-IO RAM/framebuffer slots plus runtime device
++ * mappings for the reviewed USB boot set only. The device slots are filled
++ * from the m1n1-passed DT by t6040_build_stage2_dev_map(); a slot that stays
++ * empty (size 0) maps nothing.
++ */
++static struct mm_region t6040_stage2_mem_map[T6040_STAGE2_DEV_SLOTS + 3] = {
++	[0 ... T6040_STAGE2_DEV_SLOTS - 1] = {
++		/* Device windows, filled from the allowlisted DT nodes */
++		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
++			 PTE_BLOCK_NON_SHARE |
++			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
++	},
++	[T6040_STAGE2_DEV_SLOTS] = {
++		/* RAM, filled from the m1n1-fixed DT */
++		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
++			 PTE_BLOCK_INNER_SHARE
++	},
++	[T6040_STAGE2_DEV_SLOTS + 1] = {
++		/* Framebuffer, filled from /chosen/framebuffer */
++		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL_NC) |
++			 PTE_BLOCK_INNER_SHARE |
++			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
++	},
++	/* [T6040_STAGE2_DEV_SLOTS + 2] stays zero: list terminator */
++};
++
++/*
++ * Only these compatibles get their registers mapped. Everything else in the
++ * DT stays unmapped, so a stray driver probe faults on translation instead
++ * of reaching the fabric.
++ */
++static const char *const t6040_stage2_compats[] = {
++	"apple,t8103-pmgr",	/* PMGR power-state syscon blocks */
++	"apple,t8110-dart",	/* USB DARTs */
++	"snps,dwc3",		/* DWC3/xHCI core (+ Apple wrapper reg) */
++};
++
++static void t6040_build_stage2_dev_map(void)
++{
++	int slot = 0;
++
++	for (size_t i = 0; i < ARRAY_SIZE(t6040_stage2_compats); i++) {
++		ofnode node = ofnode_null();
++
++		while (slot < T6040_STAGE2_DEV_SLOTS) {
++			fdt_addr_t base;
++			fdt_size_t size;
++			int idx;
++
++			node = ofnode_by_compatible(node,
++						    t6040_stage2_compats[i]);
++			if (!ofnode_valid(node))
++				break;
++			if (!ofnode_is_enabled(node))
++				continue;
++
++			for (idx = 0; slot < T6040_STAGE2_DEV_SLOTS; idx++) {
++				base = ofnode_get_addr_size_index(node, idx,
++								  &size);
++				if (base == FDT_ADDR_T_NONE)
++					break;
++
++				size += (base - ALIGN_DOWN(base, SZ_4K));
++				base = ALIGN_DOWN(base, SZ_4K);
++				size = ALIGN(size, SZ_4K);
++
++				t6040_stage2_mem_map[slot].virt = base;
++				t6040_stage2_mem_map[slot].phys = base;
++				t6040_stage2_mem_map[slot].size = size;
++				slot++;
++			}
++		}
++	}
++}
++
++#endif /* CONFIG_APPLE_T6040_STAGE2 */
++
+ struct mm_region *mem_map;
+ 
+ int board_init(void)
+@@ -743,9 +825,14 @@ void build_mem_map(void)
+ 		mem_map = t6020_mem_map;
+ 	else if (of_machine_is_compatible("apple,t6022"))
+ 		mem_map = t6022_mem_map;
+-	else if (of_machine_is_compatible("apple,t6040"))
++	else if (of_machine_is_compatible("apple,t6040")) {
++#if IS_ENABLED(CONFIG_APPLE_T6040_STAGE2)
++		mem_map = t6040_stage2_mem_map;
++		t6040_build_stage2_dev_map();
++#else
+ 		mem_map = t6040_noio_mem_map;
+-	else
++#endif
++	} else
+ 		panic("Unsupported SoC\n");
+ 
+ 	/* Find list terminator. */
+diff --git a/configs/apple_t6040_stage2_defconfig b/configs/apple_t6040_stage2_defconfig
+new file mode 100644
+index 00000000..396c5155
+--- /dev/null
++++ b/configs/apple_t6040_stage2_defconfig
+@@ -0,0 +1,37 @@
++CONFIG_ARM=y
++CONFIG_ARCH_APPLE=y
++CONFIG_APPLE_NOIO=y
++CONFIG_APPLE_T6040_STAGE2=y
++CONFIG_DEFAULT_DEVICE_TREE="t8103-j274"
++CONFIG_DM_RESET=y
++CONFIG_SYS_BOOTM_LEN=0x800000
++CONFIG_SYS_LOAD_ADDR=0x0
++CONFIG_BOOTDELAY=-1
++CONFIG_BOOTCOMMAND="usb start && load usb 0:1 ${kernel_addr_r} /boot/Image && load usb 0:1 ${fdt_addr_r} /boot/j614s.dtb && load usb 0:1 ${ramdisk_addr_r} /boot/initramfs && booti ${kernel_addr_r} ${ramdisk_addr_r}:${filesize} ${fdt_addr_r}"
++CONFIG_USE_PREBOOT=y
++CONFIG_SYS_CBSIZE=256
++CONFIG_SYS_PBSIZE=276
++# CONFIG_DISPLAY_CPUINFO is not set
++CONFIG_DISPLAY_BOARDINFO_LATE=y
++CONFIG_BOARD_LATE_INIT=y
++CONFIG_CMD_BOOTEFI_HELLO=y
++CONFIG_CMD_USB=y
++CONFIG_CMD_SELECT_FONT=y
++CONFIG_NO_NET=y
++CONFIG_REGMAP=y
++CONFIG_SYSCON=y
++CONFIG_SYS_64BIT_LBA=y
++CONFIG_IOMMU=y
++CONFIG_MISC=y
++# CONFIG_MMC is not set
++CONFIG_POWER_DOMAIN=y
++# CONFIG_S5P_SERIAL is not set
++CONFIG_USB=y
++CONFIG_USB_XHCI_HCD=y
++CONFIG_USB_XHCI_DWC3=y
++CONFIG_USB_DWC3=y
++CONFIG_VIDEO_FONT_16X32=y
++CONFIG_SYS_WHITE_ON_BLACK=y
++CONFIG_NO_FB_CLEAR=y
++CONFIG_VIDEO_SIMPLE=y
++# CONFIG_SMBIOS is not set
