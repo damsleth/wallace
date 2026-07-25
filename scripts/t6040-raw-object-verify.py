@@ -30,7 +30,11 @@ from pathlib import Path
 
 RAW_ENTRY_POINT = 0x800
 M1N1_ALIGNMENT = 0x4000
-MAX_OBJECT_SIZE = 64 * 1024 * 1024
+# Measured 2026-07-25: 64 MiB and 256 MiB graded probes both load in FULL, so no
+# enrolled-object size ceiling was found. This stays a sanity policy (a runaway object
+# is still a bug) but is set to the largest size actually proven good.
+# See done/2026-07-25-t6040-object-size-ceiling.md.
+MAX_OBJECT_SIZE = 256 * 1024 * 1024
 MAX_COMPRESSED_EXPANSION = 1024 * 1024 * 1024
 MAX_KERNEL_RESERVE = 512 * 1024 * 1024
 MAX_INITRAMFS_EXPANDED = 256 * 1024 * 1024
@@ -331,6 +335,20 @@ def verify_object(
         raise VerificationError(
             f"m1n1 prefix size {len(m1n1_data)} is not 16 KiB aligned"
         )
+    # The TOTAL object size must be a whole number of 16 KiB pages. iBoot never
+    # executes a misaligned enrolled object: m1n1 is not entered at all, nothing
+    # appears on the panel, no gadget enumerates, and iBoot resets about every 5 s
+    # five times before showing "needs to be reinstalled". This was the root cause of
+    # every enrolled-boot failure on 2026-07-25 (ticket 129) and took six wrong
+    # hypotheses to find, so it is a hard error here, not a warning.
+    # See done/2026-07-25-t6040-enrolled-payload-rootcause.md.
+    if len(object_data) % M1N1_ALIGNMENT:
+        pad = M1N1_ALIGNMENT - (len(object_data) % M1N1_ALIGNMENT)
+        raise VerificationError(
+            f"object size {len(object_data)} is NOT a multiple of 16 KiB "
+            f"({len(object_data) / M1N1_ALIGNMENT:.3f} pages) — iBoot will never execute "
+            f"it; append {pad} zero bytes"
+        )
     if len(m1n1_data) <= RAW_ENTRY_POINT + 4:
         raise VerificationError("m1n1 prefix does not contain raw entry point 0x800")
     if m1n1_data[RAW_ENTRY_POINT:RAW_ENTRY_POINT + 4] == b"\0\0\0\0":
@@ -415,6 +433,10 @@ def self_test() -> None:
     bootargs = "maxcpus=1 idle=nop"
     variable = f"chosen.bootargs={bootargs}\n".encode()
     good = bytes(m1n1) + variable + kernel_gz + bytes(dtb) + cpio_gz + b"\0" * 4
+    # Real objects must be a whole number of 16 KiB pages (iBoot will not execute
+    # anything else — ticket 129), and verify_object now enforces that, so the
+    # synthetic objects used here are padded the same way the builder pads.
+    good += b"\0" * (-len(good) % M1N1_ALIGNMENT)
     expected = {"kernel": kernel_gz, "dtb": bytes(dtb), "initramfs": cpio_gz}
 
     result = verify_object(
