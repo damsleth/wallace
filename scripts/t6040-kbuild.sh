@@ -995,6 +995,12 @@ if [ "${DIET:-0}" = "1" ]; then
     #     the disk filesystems we do not use stay dropped.
     if [ "${DIET_CAPABLE:-0}" = "1" ]; then
         echo "== DIET_CAPABLE: restoring networking + block/ext4 + PCIe =="
+        # PCIE_APPLE requires 16 KiB pages (depends on PAGE_SIZE_16KB), which is the
+        # native Apple Silicon page size; arm64 defconfig defaults to 4 KiB. Asahi
+        # kernels use 16K as standard. NOTE this changes the kernel's page size versus
+        # the proven 4K B0 diet kernel, so a DIET_CAPABLE image must be re-smoked
+        # before it is trusted for anything but WiFi/PCIe work.
+        ./scripts/config --file .config -e ARM64_16K_PAGES -d ARM64_4K_PAGES || true
         ./scripts/config --file .config \
             -e NET -e INET -e PACKET -e UNIX -e SYSVIPC \
             -e WIRELESS -e CFG80211 -e MAC80211 -e WLAN -e WLAN_VENDOR_BROADCOM \
@@ -1036,7 +1042,8 @@ if [ "${DIET:-0}" = "1" ]; then
     if [ "${DIET_CAPABLE:-0}" = "1" ]; then
         echo "== DIET_CAPABLE: assert the networking/block stacks survived =="
         for sym in NET INET PACKET UNIX CFG80211 MAC80211 BRCMFMAC BRCMFMAC_PCIE \
-                   PCI PCIE_APPLE APPLE_DART BLK_DEV_RAM EXT4_FS FW_LOADER MTD_PHRAM; do
+                   PCI PCIE_APPLE APPLE_DART BLK_DEV_RAM EXT4_FS FW_LOADER MTD_PHRAM \
+                   ARM64_16K_PAGES PAGE_SIZE_16KB; do
             grep -q "^CONFIG_${sym}=y" .config || { echo "  CAPABLE LOST: CONFIG_${sym}"; diet_fail=1; }
         done
     fi
