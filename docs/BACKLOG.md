@@ -1,4 +1,9 @@
 # BACKLOG — strategy & priorities
+> **2026-07-25 — MILESTONE B0 REACHED (ticket 101 done).** B0 is **done**; persistent USB root and the usable-machine items are the open fronts.
+> Enrolled object `f290833c` (578 × 16 KiB). Root cause of every earlier
+> enrolled failure: **an enrolled raw object's total size must be a multiple of
+> 16 KiB**, or m1n1 is never entered. Now enforced by
+> `scripts/t6040-build-raw-object.py`. See `done/2026-07-25-t6040-B0-MILESTONE.md`.
 
 This is the **map**, not the ticket list. The actionable work lives in tickets:
 

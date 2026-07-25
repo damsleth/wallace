@@ -1,4 +1,9 @@
 # T6040 post-B0 "usable machine" experiment ladder
+> **2026-07-25 — MILESTONE B0 REACHED (ticket 101 done).** The U-items can now be developed against a machine that **boots by itself**.
+> Enrolled object `f290833c` (578 × 16 KiB). Root cause of every earlier
+> enrolled failure: **an enrolled raw object's total size must be a multiple of
+> 16 KiB**, or m1n1 is never entered. Now enforced by
+> `scripts/t6040-build-raw-object.py`. See `done/2026-07-25-t6040-B0-MILESTONE.md`.
 
 Date: 2026-07-24. Companion to `BOOTABLE_BUILD_EXPERIMENTS.md` (B0 spine:
 untethered RAM-distro → enrolled cold boot). This ladder covers the **enablement

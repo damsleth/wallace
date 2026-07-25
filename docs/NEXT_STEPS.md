@@ -1,5 +1,15 @@
 # t6040 Linux bring-up — NEXT STEPS
 
+> **2026-07-25 — MILESTONE B0 REACHED.** An enrolled object now cold-boots
+> untethered into Alpine/OpenRC on the internal panel (ticket 101 done; object
+> `f290833c`, 578 × 16 KiB). Root cause of all prior enrolled failures: **the
+> object's total size must be a multiple of 16 KiB** — otherwise m1n1 is never
+> entered. The builder enforces it now. The 2026-07-24 handoff text below is
+> retained for history; where it says B0/101 is blocked, read it as **done**.
+> Open work has shifted to the boot-object size ceiling, persistent USB root
+> (096/097/128), and the usable-machine items.
+
+
 Handoff state (2026-07-24): the exact B0 release object boots tethered into
 Alpine/OpenRC with the internal panel, keyboard, watchdog, and no storage
 probe. The right-side HPM2 has also passed the staged inactive → WAKEUP/state

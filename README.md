@@ -1,10 +1,41 @@
 # Project Wallace
 
 Mainline Linux on a MacBook Pro 14" M4 Pro (t6040 "Brava Chop",
-Mac16,8 / J614s). It boots into Alpine/OpenRC with the internal panel,
-keyboard, watchdog, and a remote DebugUSB development loop.
+Mac16,8 / J614s). It boots **untethered** into Alpine/OpenRC — enrolled boot object, internal
+panel, keyboard (Norwegian), watchdog — with a remote DebugUSB loop for development.
 
 This repo is the umbrella. The code lives in four sibling repos and the knowledge kept getting smeared across them so everything that guides the work now lives here: plans, scripts, kernel patches, post-mortems.
+
+## Status (2026-07-25) — 🐧 MILESTONE B0 REACHED: untethered boot
+
+**A cold boot from the Apple boot picker — no cable, no host — reaches an
+interactive Alpine/OpenRC shell on the internal display.** Ticket 101 passed;
+maintainer-confirmed on the panel with OpenRC at default runlevel, the Norwegian
+`no-mac` keymap loaded, `watchdog0=present`, the internal keyboard on `event0`
+(æ ø å correct), `simpledrmdrmfb`, empty `/proc/partitions`, empty network
+runlevel, and `wallace-b0:~#`.
+
+Enrolled object `m1n1-b0-diet-aligned.bin`
+`f290833c8a9dd7ea4086571b925e6b775c113dd3b4626a7ef2644ebc76fd03fd`
+(9,469,952 B = 578 × 16 KiB), enrolled from 1TR with
+`kmutil configure-boot --raw --entry-point 2048 --lowest-virtual-address 0`.
+
+**The root cause of every earlier enrolled failure: an enrolled raw boot object's
+total size must be a multiple of the 16 KiB page size.** Any other length is never
+executed — m1n1 is not entered at all and iBoot resets ~5 s × 5 before showing the
+"needs to be reinstalled" screen. `scripts/t6040-build-raw-object.py` now pads and
+asserts this. See `done/2026-07-25-t6040-B0-MILESTONE.md` and
+`done/2026-07-25-t6040-enrolled-payload-rootcause.md`.
+
+Also landed 2026-07-25: a **diet kernel** (16.8 MiB raw, −67% vs defconfig, with a
+31-symbol boot-essentials assertion), **XZ payload members** (object 22.2 MB → 9.02
+MiB before padding), the **Norwegian console keymap** (BusyBox provides `loadkmap`
+reading a binary keymap on stdin — there is no `loadkeys` and no applet symlink),
+and a read-only probe showing **m1n1's own NVMe path SErrors on T6040**
+(`nvme_init()` → async L2C SError), so the NVMe boundary is enforced below the OS.
+
+Persistent USB root still depends on the HPM/ATC host link (tickets 096/097, or
+U-Boot via 128) — **B0 no longer depends on any of it.**
 
 ## Status (2026-07-24)
 

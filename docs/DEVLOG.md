@@ -1285,3 +1285,35 @@ dtsi/dts) lived in that session's scratchpad; the method is documented in
   post-enumeration (raw + glue variants). Revisit for gadget-Ethernet+SSH
   after pmgr. `done/2026-07-11-t6040-usb-gadget-plan.md`. Gotchas recorded in
   memory: the ChatGPT desktop app squats USB devices; one enumeration per boot.
+
+## 2026-07-25 — 🐧 MILESTONE B0: untethered Linux boots on the M4 Pro
+
+Enrolled `m1n1-b0-diet-aligned.bin` (`f290833c`, 9,469,952 B = 578 × 16 KiB) from
+1TR; cold boot from the boot picker reaches `wallace-b0:~#` on the internal panel
+with **no cable and no host**. Maintainer-confirmed: OpenRC default runlevel,
+`loaded no-mac.bmap`, `watchdog0=present`, `Apple DockChannel Keyboard 05ac:0359`
+on `event0` with æ ø å correct, `simpledrmdrmfb`, `/proc/partitions` empty,
+network runlevel empty, health report begin→end.
+
+**Root cause of every earlier enrolled failure: the object's total size must be a
+multiple of the 16 KiB page size.** Non-aligned objects are never executed — no
+m1n1 entry, no panel output, no USB gadget, no logbuf — and iBoot resets ~every
+5 s, five times, then shows the reinstall screen. The fix on the failing 9.02 MiB
+object was 14,796 zero bytes of padding; `t6040-build-raw-object.py` now pads and
+asserts the invariant.
+
+This superseded six earlier hypotheses (object size in MiB, compression format,
+kernel size, m1n1 prefix, payload discovery, SEPFW adjacency/load extent, the
+early-proxy window, and payload content/obfuscation). It stayed hidden because
+every control probe was *accidentally* page-aligned — `truncate -s Nm`, whole
+64 KiB blocks, and `m1n1-raw.ld`'s `0x4000` section alignment — so controls
+differed from test cases in an untracked variable and every "content" correlation
+was an artefact of the generator.
+
+Same day: diet kernel (50.8 → 16.8 MiB raw, −67%, 31-symbol essentials assertion);
+XZ members (22.2 MB → 9.02 MiB); Norwegian keymap fixed (`busybox loadkmap` reads a
+binary keymap on **stdin**; BusyBox has no `loadkeys` and ships no applet symlink),
+with the result mirrored into the ttydc0 health report so it is agent-verifiable;
+and ticket 127 proved m1n1's **own** `nvme_init()` raises an async L2C SError on
+T6040, i.e. the NVMe boundary is enforced below the OS (Linux-side work alone
+cannot cross it).

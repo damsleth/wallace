@@ -1,4 +1,9 @@
 # T6040 (M4 Pro, Mac16,8 / J614s) — roadmap: first light → full Linux desktop
+> **2026-07-25 — MILESTONE B0 REACHED (ticket 101 done).** B0 is **complete**: untethered enrolled cold boot into Alpine/OpenRC on the panel.
+> Enrolled object `f290833c` (578 × 16 KiB). Root cause of every earlier
+> enrolled failure: **an enrolled raw object's total size must be a multiple of
+> 16 KiB**, or m1n1 is never entered. Now enforced by
+> `scripts/t6040-build-raw-object.py`. See `done/2026-07-25-t6040-B0-MILESTONE.md`.
 
 End-goal: a bootable Linux distro on this MacBook Pro 14" M4 Pro with GPU accel,
 WiFi, Bluetooth, keyboard/trackpad, audio, webcam, power management — daily-driver
