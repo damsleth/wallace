@@ -360,3 +360,46 @@ Two readings, and they are very different:
   initramfs excluded as a factor.
 - Both boot -> the initramfs member specifically is implicated, and the object is
   only ~1.7 MiB from a configuration that works.
+
+## probe-fdt-only LOOPS — size is irrevocably excluded, content is confirmed causal
+
+`probe-fdt-only.bin` (`b235abae`, **1.10 MiB** = m1n1 + one DTB + terminator) loops
+exactly like the multi-megabyte payload objects, while payload-free fillers of 14, 16
+and 20 MiB all boot. A 1.1 MiB object failing where a 20 MiB object succeeds ends any
+size-based explanation permanently, and confirms the trigger is the **content** of the
+appended region.
+
+Note the expected behaviour had m1n1 run: a DTB with no kernel does not satisfy
+autoboot, so m1n1 should print `Found a devicetree…`, then `No valid payload found`,
+activate the fb console and reach `Running proxy`. It does not.
+
+## Isolating iBoot-side rejection from m1n1-side fault
+
+The free observation is the panel: with the plain `1394c345` prefix the fb console is
+activated on the no-payload path, so if m1n1 executed at all its log would be visible.
+Only the Apple logo -> m1n1 never runs -> iBoot refuses the object by content. Text on
+the panel -> m1n1 runs and faults while handling the DTB payload.
+
+Four matched probes, ~1.11 MiB each, differing **only in the first 4-6 bytes after the
+m1n1 image** — so size, terminator and layout cannot account for any difference:
+
+| Artifact | SHA-256 | Tail begins with |
+|---|---|---|
+| `probe-magic-fdt-invalid.bin` | `20d30cf52b769e80822ad1cdbc62fa4f329cd9e1c0b06be6299119b2ffaf6844` | `d0 0d fe ed` then `0xA5` filler (magic present, **not** a valid tree) |
+| `probe-magic-gz.bin` | `85c40daefcdea4df6f82309ab393a970fbcb7e508685df4202686c06d3308e72` | `1f 8b` then filler |
+| `probe-magic-xz.bin` | `9416fa103c7520ce06082eb09f8fca0dcf84ac7f97ed542aea118a69c8ebd921` | `fd 37 7a 58 5a 00` then filler |
+| `probe-magic-none.bin` | `cbf751e5abdfb6ef07f533ad15c388e6f16a98da9a96cce30108faaf31c51ddd` | `a5 a5 a5 a5` then filler (**control**) |
+
+Readings:
+
+- control boots and any magic probe loops -> **a recognised magic alone is fatal**,
+  which can only be iBoot-side content inspection (m1n1 would merely reject a bogus
+  tree/stream and continue to the proxy). Appended-payload enrollment is then dead for
+  good, and the U-Boot/USB stage-2 route (ticket 128) is the way forward.
+- all four boot while the valid-DTB probe loops -> it is not the magic but a *valid*
+  structure, i.e. m1n1 faults while processing a real payload record — an m1n1 bug,
+  and fixable.
+- control loops too -> something about a terminator/short-tail object rather than
+  content, and the whole framing needs revisiting.
+
+Run the control first so the instrument is validated before it is used.
