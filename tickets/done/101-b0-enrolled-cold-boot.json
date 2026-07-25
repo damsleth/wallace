@@ -1,0 +1,25 @@
+{
+  "seq": "101",
+  "slug": "b0-enrolled-cold-boot",
+  "needs": "rig",
+  "state": "done",
+  "runnable": false,
+  "track": "distro",
+  "priority": "P1",
+  "desc": "PLAN-APPROVED, runnable=false untethered B0 milestone. Ticket 119 conditionally passed preferred dual-mode object 46237ade for bounded hardware validation; every post-prefix byte matches live-proven fallback 2371ee5d, while exact version/Rust pins remain a provenance requirement. Ticket 082 still needs the maintainer's macOS volume UUID, enrolled-object backup/hash, selected manifest, and action split. Then the maintainer enrolls and performs a no-host boot-picker cold boot; the agent only observes/records. B0 pass = panel Alpine/OpenRC default runlevel, watchdog, keyboard echo, no host payload. Separately start the host proxy before a DebugUSB reboot to test the five-second window; misclassification/failure triggers documented fallback and is not called B0 failure or silently accepted. Rig is healthy but requires normal preflight. Agent runs no kmutil/bputil. Procedure: done/2026-07-24-t6040-b0-enrolled-cold-boot-preflight.md. NON-RUNNABLE 2026-07-25 (claude): every payload-carrying enrolled object boot-loops; the appended-payload shape is root-caused unusable (done/2026-07-25-t6040-enrolled-payload-rootcause.md). Maintainer reverted to an m1n1-only enrolled loader (1394c345), which boots to Running proxy. This ticket cannot pass until a loader shape exists that can actually load stage 2 (USB stage-2 route). The verified artifacts are retained and reusable: diet kernel Image-b0-diet (16.8 MiB raw, -67%, chainload-proven), initramfs-alpine-b0-nb2.cpio.xz (Norwegian no-mac keymap, verified 'loaded no-mac.bmap'), m1n1 v2 5e9dcfd3 (unconditional early-proxy window, verified firing at sip0=0), m1n1 v3 c59d5820 (+FB_CONSOLE_ALWAYS). REVIVED 2026-07-25 (claude): runnable again. m1n1-b0-diet-aligned.bin (f290833c) boots when enrolled — the earlier failures were purely 16 KiB size misalignment (ticket 129). Carries the diet kernel, the Norwegian no-mac keymap OpenRC root, and a forced fb console.",
+  "author": "claude",
+  "deps": [
+    "082",
+    "100"
+  ],
+  "hashes": {
+    "live_proven_object": "2371ee5dfbfab591397fc333e7da212fb7582bfb2eaddaa6438005f5bb41759b",
+    "dual_mode_candidate": "46237ade7e314cd752e1482930e21b62319e1b0b707a0f23e86392701555f0c9",
+    "dual_mode_m1n1": "11f6fbf1d9bfd4b5d4ea6308444beffc8063446553d48791c3a34e20c1458b91",
+    "preflight": "b742d8b26e69a86c7a51af4cf6bff228a23748da3746d4fb1f35c53d6ed63bfe"
+  },
+  "created": 1784925235,
+  "approved_by": "maintainer",
+  "approved_at": 1784925801,
+  "done_at": 1785009191
+}
