@@ -2,12 +2,13 @@
   "seq": "130",
   "slug": "kbuild-diet-output-name",
   "needs": "offline",
-  "state": "open",
+  "state": "done",
   "track": "distro",
   "priority": "P2",
   "desc": "Fix a real footgun found on 2026-07-25: scripts/t6040-kbuild.sh names its outputs from the variant flags, so a DIET=1 build reused Image-hid-type-fix and CLOBBERED the live-proven 50.8 MiB ticket-100 kernel (recovered byte-exact from its untouched .gz, df7657c1). Give DIET=1 (and any future config-only variant) its own output basename, or refuse to overwrite an existing Image whose hash is referenced by a done/ writeup or ticket. Also consider a guard that refuses to overwrite any artifact hash pinned in tickets/. Small, offline, no rig.",
   "author": "claude",
   "deps": [],
   "hashes": null,
-  "created": 1784999876
+  "created": 1784999876,
+  "done_at": 1785012692
 }

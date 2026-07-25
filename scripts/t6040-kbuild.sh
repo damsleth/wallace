@@ -987,6 +987,29 @@ if [ "${DIET:-0}" = "1" ]; then
         -d MODULES \
         || true
 
+    # 2b. DIET_CAPABLE: a networking- and block-capable variant of the diet. The
+    #     plain diet drops CONFIG_NET (correct for the B0 RAM root, which has zero
+    #     network services) and all block/disk support, which blocks WiFi (ticket
+    #     139/143) and the root=/dev/ram0 rehearsal (ticket 145). Re-enable just
+    #     those stacks; the ~40 non-Apple platforms, sound, media, KVM, ftrace and
+    #     the disk filesystems we do not use stay dropped.
+    if [ "${DIET_CAPABLE:-0}" = "1" ]; then
+        echo "== DIET_CAPABLE: restoring networking + block/ext4 + PCIe =="
+        ./scripts/config --file .config \
+            -e NET -e INET -e PACKET -e UNIX -e SYSVIPC \
+            -e WIRELESS -e CFG80211 -e MAC80211 -e WLAN -e WLAN_VENDOR_BROADCOM \
+            -e BRCMUTIL -e BRCMFMAC -e BRCMFMAC_PROTO_MSGBUF -e BRCMFMAC_PCIE \
+            -e PCI -e PCIEPORTBUS -e PCI_MSI -e PCIE_APPLE \
+            -e IOMMU_SUPPORT -e APPLE_DART \
+            -e BLK_DEV_RAM -e BLK_DEV_LOOP -e EXT4_FS -e EXT4_USE_FOR_EXT2 \
+            -e FW_LOADER -e FW_LOADER_USER_HELPER -e CRC_CCITT \
+            -e MTD -e MTD_BLOCK -e MTD_PHRAM \
+            || true
+        # brd: one 512 MiB ram disk is plenty for the root rehearsal
+        ./scripts/config --file .config --set-val BLK_DEV_RAM_COUNT 1 || true
+        ./scripts/config --file .config --set-val BLK_DEV_RAM_SIZE 524288 || true
+    fi
+
     # 3. Keep the initramfs/RAM-root essentials explicitly (some may have been
     #    turned off as dependents of the above).
     ./scripts/config --file .config \
@@ -1010,6 +1033,13 @@ make ARCH=arm64 olddefconfig >/dev/null
 if [ "${DIET:-0}" = "1" ]; then
     echo "== DIET: assert every boot-essential symbol survived =="
     diet_fail=0
+    if [ "${DIET_CAPABLE:-0}" = "1" ]; then
+        echo "== DIET_CAPABLE: assert the networking/block stacks survived =="
+        for sym in NET INET PACKET UNIX CFG80211 MAC80211 BRCMFMAC BRCMFMAC_PCIE \
+                   PCI PCIE_APPLE APPLE_DART BLK_DEV_RAM EXT4_FS FW_LOADER MTD_PHRAM; do
+            grep -q "^CONFIG_${sym}=y" .config || { echo "  CAPABLE LOST: CONFIG_${sym}"; diet_fail=1; }
+        done
+    fi
     for sym in ARCH_APPLE BLK_DEV_INITRD RD_GZIP RD_XZ DEVTMPFS DEVTMPFS_MOUNT \
                TMPFS PROC_FS SYSFS BINFMT_ELF UNIX98_PTYS \
                DRM DRM_SIMPLEDRM DRM_FBDEV_EMULATION FB VT VT_CONSOLE \
@@ -1217,6 +1247,29 @@ if [ "${1:-}" = "image" ]; then
         image_name=Image-dcuart-earlycon
         map_name=System.map-dcuart-earlycon
     fi
+    # DIET / DIET_CAPABLE are config-only variants that previously had NO name of
+    # their own, so they inherited another variant's filename and silently clobbered
+    # it — on 2026-07-25 a DIET=1 build overwrote the live-proven 50.8 MiB
+    # Image-hid-type-fix (recovered byte-exact from its untouched .gz). Give them a
+    # distinct suffix. Ticket 130.
+    if [ "${DIET_CAPABLE:-0}" = "1" ]; then
+        image_name="${image_name}-dietcap"
+        map_name="${map_name}-dietcap"
+    elif [ "${DIET:-0}" = "1" ]; then
+        image_name="${image_name}-diet"
+        map_name="${map_name}-diet"
+    fi
+
+    # Refuse to silently replace an existing artifact: any Image already in /out may
+    # be referenced by a done/ write-up or pinned in a ticket. Set KBUILD_OVERWRITE=1
+    # to replace deliberately.
+    if [ -e "/out/$image_name" ] && [ "${KBUILD_OVERWRITE:-0}" != "1" ]; then
+        echo "REFUSING to overwrite existing /out/$image_name" >&2
+        echo "  existing sha256: $(sha256sum "/out/$image_name" 2>/dev/null | cut -d" " -f1)" >&2
+        echo "  set KBUILD_OVERWRITE=1 to replace it deliberately, or pick another variant name" >&2
+        exit 1
+    fi
+
     cp arch/arm64/boot/Image "/out/$image_name" \
         && echo "Image -> /out/$image_name ($(du -h arch/arm64/boot/Image | cut -f1))"
     # System.map lets t6040-ramdump.py locate __log_buf for a post-mortem console
