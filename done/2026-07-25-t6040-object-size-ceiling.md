@@ -56,3 +56,49 @@ enrollment path that produced B0.
 - m1n1's *decompression* capacity is a separate question from iBoot's load ceiling: the
   heap starts at `top_of_kernel_data` and grows into ~23 GB of RAM, so it is unlikely to
   bind, but it has not been measured with a large payload.
+
+## 256 MiB also loads in full — no ceiling found
+
+`probe-graded-256M.bin` (`c7fcfa71015979391c5c9b85243fe9b04f996877e6b78dd5daa1615edad87cc3`,
+exactly **256 MiB = 16384 pages**, 4079 stamps) enrolls, boots (gadget up in ~3 s), and
+reads back intact:
+
+```text
+m1n1 base = 0x10005320000   top_of_kernel_data = 0x10015990000 (base+0x10670000)
+Unknown payload at 0x1000542c000 (magic: 574c4f46)
+HIGHEST LOADED OFFSET SEEN: 0xff0c000 (255.05 MiB)
+```
+
+`top_of_kernel_data` scaled once more — base+`0x10670000` (262.4 MiB) for a 256 MiB
+object, i.e. the same constant ~6.4 MiB of boot data after the object.
+
+### Measured ceilings, in order
+
+| Object size | Loaded in full? |
+|---|---|
+| 1.05 MiB (bare loader) | yes |
+| 14 / 16 / 20.05 MiB fillers | yes |
+| **64.00 MiB** | yes |
+| **256.00 MiB** | **yes** |
+
+**No enrolled-object size ceiling has been found.** Page alignment to 16 KiB (ticket 129)
+remains the only demonstrated constraint.
+
+### Practical consequence
+
+The binding limit is no longer the object — it is **RAM for the unpacked root**. A 256 MiB
+xz payload expands to roughly 0.7-1 GB, against ~23 GiB of usable RAM, so even that is
+far from the wall. For reference the current Alpine B0 object is 9.03 MiB and the Ubuntu
+one 22.59 MiB; both are trivially inside anything demonstrated.
+
+Recommendation: keep a **policy** ceiling in the builder for sanity (a runaway object is
+still a bug worth catching), but raise it from the assumed 64 MiB to 256 MiB
+measured-good, and stop treating object size as a design constraint when choosing a
+distro or userland.
+
+### Consequence for the distro choice
+
+Alpine's main advantage was size, and size no longer constrains anything. The real
+trade-offs are now **iteration speed** (Alpine `apk` in seconds vs Gentoo builds in hours)
+and **musl vs glibc** compatibility. Gentoo + dwl is size-feasible; it is an
+effort/iteration decision, not a space one.
