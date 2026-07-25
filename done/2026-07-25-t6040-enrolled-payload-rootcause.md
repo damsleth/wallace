@@ -295,3 +295,68 @@ object** (`probe-window60-bare.bin` or `rollback-m1n1-1394c345.bin`), boot to
   earlier, which also narrows the 5 s trigger.
 
 Either way this is a reading, not an inference.
+
+## RAM forensics: the failing boot never reached kboot
+
+First attempt was invalid — the read aborted at the top chunk
+(`Device not configured`) and the script still printed "no markers"; the failure also
+crashed m1n1 (base changed `0x10005d14000` -> `0x10004618000`, i.e. it rebooted).
+Two mistakes: `top_of_memory_alloc` *decrements* `mem_size`, so `phys_base+mem_size`
+is the already-reduced top; and the scan must stop at the first read error rather
+than continue past it.
+
+Redone walking upward in 16 KiB reads with a hard stop:
+
+```text
+top(current mem_size) = 0x105ce7a8000 ; m1n1 base = 0x10004618000
+readable ceiling = 0x105ce7a4000 (first failing read)
+markers: NONE
+printable runs found: 0
+```
+
+The scan **completed** (ceiling found one page below top, no mid-region abort) and
+the top 2 MiB contains no log text at all. m1n1 creates that logbuf only during
+`kboot`, so **the failing boot never reached kboot**.
+
+## The discriminator I had been overlooking: magic bytes in the appended region
+
+Reviewing what separates working from failing objects — including a line I printed
+myself when building the probes, `no gz/xz/fdt magic in tail: True`:
+
+| Object | Appended region contains gz/xz/FDT magic? | Result |
+|---|---|---|
+| `probe-m1n1-16M` (zeros) | no | boots |
+| `probe-nz-14M` (`0xA5`) | no | boots |
+| `probe-graded-20M` (`WLOFS` stamps) | no | boots |
+| 22.2 MB gz object | **yes** (gzip + FDT) | 5 s loop |
+| 15.2 MiB xz object | **yes** (xz + FDT) | 5 s loop |
+| 9.02 MiB diet objects (v2/v3/v4) | **yes** (xz + FDT) | 5 s loop |
+
+**Every booting object lacks those magics; every failing object has them.** This
+correlation is perfect across six objects and was never tested, because all my
+filler probes were deliberately built magic-free.
+
+Two readings, and they are very different:
+1. **m1n1-side**: m1n1 recognises the payload and dies acting on it — but the RAM
+   forensics say kboot was never reached, and the loop period is independent of
+   `EARLY_PROXY_TIMEOUT`, which fits m1n1 not getting that far.
+2. **iBoot-side**: iBoot itself inspects the object and refuses/faults on content it
+   recognises (an embedded FDT, a compressed member), never entering m1n1 — which
+   fits the total absence of m1n1 console output, gadget, and logbuf, and a fixed
+   ~5 s retry cadence with a 5-attempt limit.
+
+## Two cheap discriminating probes
+
+| Artifact | SHA-256 | Content | Expected if m1n1 runs |
+|---|---|---|---|
+| `probe-fdt-only.bin` | `b235abae31d42795e2891d9cf2792bbfd2d7568ffda5721fa4067fe4a03624ab` | m1n1 + **DTB only** (1.10 MiB) | devicetree reported, no kernel -> `No valid payload found` -> `Running proxy` |
+| `probe-kernel-dtb.bin` | `18e4332068f7bfe356ef5263ed4acec4c1dc571645f1279d9dcac8091824fce6` | m1n1 + bootargs + xz kernel + DTB (5.78 MiB) | smallest real autoboot payload (kernel+DTB suffices) |
+
+- `probe-fdt-only.bin` **loops** -> the mere presence of an FDT in an enrolled object
+  is fatal, which points squarely at iBoot-side content inspection and makes the
+  appended-payload shape unusable regardless of m1n1.
+- `probe-fdt-only.bin` **boots** but `probe-kernel-dtb.bin` **loops** -> content
+  presence is fine and the failure is in m1n1's decompress/kboot path, with the
+  initramfs excluded as a factor.
+- Both boot -> the initramfs member specifically is implicated, and the object is
+  only ~1.7 MiB from a configuration that works.
