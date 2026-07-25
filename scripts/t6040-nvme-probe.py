@@ -40,26 +40,35 @@ from m1n1.setup import *  # noqa: E402,F403  (provides u, p, iface)
 
 
 EXPECT_CHIP_ID = 0x6040
+EXPECT_BOARD_ID = 4
 EXPECT_TARGET = "J614s"
+EXPECT_MODEL = "Mac16,8"
 
 
 def gate() -> bool:
     """Fail-closed identity + node presence check. No NVMe touch happens here."""
     ok = True
 
-    try:
-        target = u.adt["/"].target_type
-    except Exception:
-        target = None
-    try:
-        chip = u.adt["/chosen"].chip_id
-    except Exception:
-        chip = None
+    # NB: the ADT root node is `u.adt` itself; u.adt["/"] raises KeyError.
+    def get(fn):
+        try:
+            return fn()
+        except Exception:
+            return None
+
+    target = get(lambda: u.adt.target_type)
+    model = get(lambda: u.adt.model)
+    chip = get(lambda: u.adt["/chosen"].chip_id)
+    board = get(lambda: u.adt["/chosen"].board_id)
 
     print(f"  target-type = {target!r} (expect {EXPECT_TARGET!r})")
-    print(f"  chip-id     = {chip:#x}" if isinstance(chip, int) else f"  chip-id     = {chip!r}")
-    if target != EXPECT_TARGET or chip != EXPECT_CHIP_ID:
-        print("  GATE FAIL: not the J614s/T6040 target")
+    print(f"  model       = {model!r} (expect {EXPECT_MODEL!r})")
+    print("  chip-id     = " + (f"{chip:#x}" if isinstance(chip, int) else repr(chip))
+          + f" (expect {EXPECT_CHIP_ID:#x})")
+    print(f"  board-id    = {board!r} (expect {EXPECT_BOARD_ID!r})")
+    if (target != EXPECT_TARGET or model != EXPECT_MODEL
+            or chip != EXPECT_CHIP_ID or board != EXPECT_BOARD_ID):
+        print("  GATE FAIL: not the exact J614s/T6040 target")
         ok = False
 
     for path in ("/arm-io/ans", "/arm-io/sart-ans"):
