@@ -1,0 +1,13 @@
+{
+  "seq": "137",
+  "slug": "object-size-ceiling-256m",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "distro",
+  "priority": "P1",
+  "desc": "Determine the ACTUAL enrolled boot-object size ceiling (currently unknown — only >=64 MiB is proven, and the old '22.2 MB fails' point is confounded by non-page-alignment). Enroll probe-graded-256M.bin (c7fcfa71015979391c5c9b85243fe9b04f996877e6b78dd5daa1615edad87cc3, exactly 256 MiB = 16384 pages, 4079 self-describing 64 KiB WLOFS stamps) and read it back with PROBE_LIMIT_MIB=256 scripts/t6040-probe-load-extent.py. A single boot reveals the answer: if iBoot loads only N MiB the stamps stop at N; if all 256 MiB load, the ceiling is >=256 MiB and no realistic distro payload is size-constrained. If it refuses to boot, bisect (128 MiB). Watch for a DIFFERENT failure mode: kmutil complaining about space on the m1n1 volume's Preboot is not a boot refusal — report which occurs. Read-only measurement; enrollment is 1TR-only and maintainer-executed.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785010596
+}

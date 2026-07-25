@@ -1,0 +1,13 @@
+{
+  "seq": "139",
+  "slug": "wifi-bcm4388-after-usb",
+  "needs": "offline",
+  "state": "open",
+  "track": "pcie",
+  "priority": "P2",
+  "desc": "Bring up WiFi on the M4 (BCM4388 'apple,mriya') once storage/USB work lands. Prerequisites already inventoried: firmware extracted to /private/tmp/t6040-vendorfw (ephemeral — 26.x firmware lives in the AppleBCMWLAN dext; regeneration recipe in done/2026-07-14-t6040-bcm4388-fw-extract.md), and the WiFi chip sits behind PCIe, which needs the ticket-068/124 op-115 PCIe bring-up to complete first (m1n1 e4671e08 adds the _configPciePLLs clkgen sequence). Path: PCIe link up -> brcmfmac + firmware -> wpa_supplicant/iw in the distro image. Note the diet kernel currently disables CONFIG_NET/WLAN entirely, so a networking-capable variant of DIET=1 will be needed (keep NET, WLAN, CFG80211, BRCMFMAC, and PCIe). Deliverable: dependency map and a first PCIe-enabled boot plan.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785010596
+}
