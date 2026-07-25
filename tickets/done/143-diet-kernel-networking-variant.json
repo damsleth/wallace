@@ -2,12 +2,13 @@
   "seq": "143",
   "slug": "diet-kernel-networking-variant",
   "needs": "offline",
-  "state": "open",
+  "state": "done",
   "track": "pcie",
   "priority": "P2",
   "desc": "Add a networking-capable variant of DIET=1 in scripts/t6040-kbuild.sh, required before WiFi (ticket 139) and any networked userland. The current DIET=1 disables CONFIG_NET entirely (plus WLAN/BT, PCI and BPF) because the B0 RAM root has zero network services — that is correct for B0 but blocks WiFi. Deliverable: a DIET_NET=1 (or similar) mode that keeps NET, INET, PACKET, UNIX, CFG80211, MAC80211, BRCMFMAC/BRCMFMAC_PCIE, PCI/PCIE_APPLE and the DART/IOMMU bits, while still dropping the ~40 non-Apple ARM64 platforms, sound, media, SCSI/NVMe/MMC/MTD, disk filesystems, KVM and ftrace. Extend the existing 31-symbol boot-essentials assertion with the networking symbols so a silent dependency drop fails the build. Measure and record the resulting Image size (the B0 diet kernel is 16.8 MiB raw / 4.68 MiB xz vs 50.8 MiB defconfig). Offline; no rig.",
   "author": "claude",
   "deps": [],
   "hashes": null,
-  "created": 1785011068
+  "created": 1785011068,
+  "done_at": 1785013270
 }
