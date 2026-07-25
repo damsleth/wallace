@@ -1,12 +1,6 @@
 # T6040 SPMI safety policy
 
-Approved by the maintainer: 2026-07-24
-
-Revised 2026-07-25 at maintainer request: the Class R2 and Class R3 register
-scope now names each HPM address with its exact operation, adding `0x18` and
-`0x50` (which the class-10 path writes) and withdrawing the claim that it writes
-`0x14`. Evidence: `done/2026-07-25-t6040-hpm2-rollback-evidence.md`. No
-prohibition was relaxed by that revision.
+Approved by the maintainer: 2026-07-25 (supersedes 2026-07-24)
 
 SPMI is a transport, not a single risk class. Transactions are deny-by-default,
 but an exact, ADT-verified non-PMU endpoint may be approved when its controller,
@@ -114,8 +108,8 @@ writes require a complete host-transition and detach/rollback design. They are
 not permanently banned, but each exact sequence is separately gated.
 
 The 2026-07-25 decode (`done/2026-07-25-t6040-hpm2-rollback-evidence.md`)
-established which of these the macOS class-10 path actually touches. It is not
-what the earlier wording implied, so each is now named with its exact operation:
+established which of these the macOS class-10 path actually touches, so each is
+named with its exact operation:
 
 - **`0x50` (data control) — written, and the sharp edge.** `clearDpIRQ()`
   performs a blind 4-byte full-word write of `0x00002000`, with no prior read
