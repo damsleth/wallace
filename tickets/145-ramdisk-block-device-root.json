@@ -1,0 +1,13 @@
+{
+  "seq": "145",
+  "slug": "ramdisk-block-device-root",
+  "needs": "offline",
+  "state": "open",
+  "track": "distro",
+  "priority": "P2",
+  "desc": "Use part of the 23 GiB RAM as a real BLOCK DEVICE, primarily to rehearse the persistent-root flow before USB enumeration exists. IMPORTANT FRAMING: the current root is ALREADY writable RAM (initramfs unpacks into rootfs/tmpfs, CONFIG_TMPFS=y), so 'somewhere to write files' is not the gap and a big scratch area needs nothing more than 'mount -t tmpfs -o size=8G tmpfs /scratch'. The real value is threefold. (1) REHEARSAL: enable CONFIG_BLK_DEV_RAM (brd) plus EXT4 in a kernel variant and boot with root=/dev/ram0 from an ext4 image, which exercises the entire real-root path — root= mechanics, fstab, OpenRC on a genuine block device, e2fsck, partition/PARTUUID handling — so that when USB enumeration lands (tickets 138/096/097/128) the software side is already proven instead of debugging two unknowns at once. This directly de-risks 099/112/113. (2) TOOLING: a RAM block device lets us test mke2fs/GPT/flash flows on the target without touching the real stick. (3) SPECULATIVE PSEUDO-PERSISTENCE: RAM contents demonstrably survive a WARM reboot on this machine (stale m1n1 .rodata was read back from a previous boot during ticket 129), so a high reserved region declared via m1n1's existing reserved-memory/phram mechanism (src/kboot.c dt_get_or_add_reserved_mem, already used for the stage-2 logbuf) plus CONFIG_MTD_PHRAM could give a filesystem that survives reboot-without-power-loss. Treat (3) as an experiment with honest caveats: it is NOT cold-boot safe, iBoot may scrub, and our own boot overwrites the low region — verify retention before relying on it. NOTE the diet kernel currently disables BLK_DEV_RAM, ZRAM, EXT4 and all disk filesystems, so this needs a kernel variant (coordinate with ticket 143's DIET_NET work — likely one combined 'capable' variant). Deliverable: a kernel variant, a root=/dev/ram0 boot object, and a written verdict on warm-reboot retention. Offline build; tethered chainload for testing; enrollment maintainer-only.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785011889
+}
