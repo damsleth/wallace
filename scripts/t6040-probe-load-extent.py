@@ -15,7 +15,8 @@ from m1n1.setup import *  # noqa
 
 BASE_OFF = 0x10C000
 STEP = 0x10000
-LIMIT = 20 * 1024 * 1024
+import os
+LIMIT = int(os.environ.get("PROBE_LIMIT_MIB", "64")) * 1024 * 1024
 
 def classify(data, want_off):
     if data[:5] == b"WLOFS":
@@ -43,7 +44,7 @@ while off < LIMIT:
         # print a couple past the boundary then stop scanning densely
         if last_loaded is not None:
             break
-    off += STEP if off < 0x100000 else 0x40000   # dense early, coarser later
+    off += STEP if off < 0x100000 else 0x100000   # dense early, 1 MiB steps later
 
 print()
 if last_loaded is not None:
