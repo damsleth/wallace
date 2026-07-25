@@ -1,0 +1,30 @@
+{
+  "seq": "131",
+  "slug": "uboot-stage2-tethered-banner",
+  "needs": "rig",
+  "state": "done",
+  "track": "distro",
+  "priority": "P2",
+  "desc": "PROPOSED ONE-SHOT (step 1 of the stage-2 preflight, done/2026-07-25-t6040-uboot-stage2-prep.md §4): tethered m1n1 chainload of the U-Boot stage-2 payload, INERT BANNER ONLY. Compose chainload image = m1n1 v3 c59d5820 (FB_CONSOLE_ALWAYS, live-proven) + canonical kbuild-built t6040-j614s-dcuart-uboot-stage2.dtb + u-boot-nodtb.bin 2da75ecdf1000cea1af158dc8dbe69ee4a380d7674c3a797186e606215fec846 (550,584 B) + exactly 481,136 zero bytes (Image runtime size 1,031,720; raw payload must be LAST, after the DTB). Push over the working KIS/USB-gadget proxy from the enrolled bare loader 1394c345 — the live-proven payload path; no enrollment of any kind. NOTHING plugged into the right port; no USB stick anywhere. PASS = m1n1 panel log shows payload discovery and jump; U-Boot banner + model line 'J614s [U-Boot stage-2 USB loader]' renders on panel; prompt reached with autoboot off and nothing else running; panel alive 60 s; power-cycle returns enrolled loader + quiescent 'Running proxy' (handoff bar). KIS may observe m1n1 but success is panel-evidence only. STOP (record, release --state wedged if link in doubt) = any SError/exception/panic, freeze before banner, ANY storage/NVMe-related output (must be impossible — not compiled), panel dead >60 s, proxy absent after power-cycle (then DebugUSB recovery per COORDINATION). Prohibitions: no SPMI/PMU/charger/NVRAM/firmware writes, no APFS/Boot Policy, no usb start, one boot cycle only. READY gates before scheduling: independent exact-artifact review vs m1n1/AGENTS.md non-negotiables, pin DTB + composed-image SHA-256s (host dtc fixture 759d00ba is compile-check only, NOT a rig artifact), verify stage2 patch 814ffa47/defconfig 846b3178/config efd9ab2a hashes, dep 128 in done/. Expected result is boring by design: U-Boot cannot enumerate anything (Type-C answer NO; R3/096/097 NO-GO); this only proves the stage-2 USB stack is inert-safe as an m1n1 payload. Follow-up usb-probe PREBOOT variant is a separate future ticket, not this one. ARTIFACTS STAGED 2026-07-25 (post-approval, offline): canonical DTB built twice byte-identically via the kbuild container (/build/linux-dt-consolidate, DT sources copied from /src per the standard recipe) and MATCHES the earlier host fixture hash — 759d00ba, 51,727 B, content-verified (snps,dwc3 fallback + dr_mode host on drd2; 5 generic pmgr-pwrstate fallbacks). Composed chainload image staged at ~/Code/linux-build-out/uboot-stage2-banner-chainload.bin = m1n1-t6040-fbvisible-v3.bin (c59d5820, 1,097,728 B) + t6040-j614s-dcuart-uboot-stage2.dtb + uboot-t6040-stage2-nodtb.bin (2da75ecd) + 481,136 zero B; total 2,181,175 B, sha256 a787e38e; structure machine-verified (FDT magic at 0x10c000 = _payload_start, ARM64 magic + image_size 1,031,720 at 0x118a0f, padding all-zero). Remaining gate before scheduling: independent exact review by the other agent (queue ready 131 --reviewed-by sol); author does not self-review. EXACT-REVIEW NOTE 2026-07-25 (author self-review; cross-review WAIVED by maintainer in chat — sol unavailable, CJ ordered live execution): CATCH — wallace m1n1 arms a 20 s watchdog before jumping to any kernel-shaped payload on T6040 (src/kboot.c:2903), and U-Boot deliberately carries no WDT driver, so every U-Boot boot warm-resets back to the enrolled loader + proxy at ~20 s BY DESIGN. PASS CONDITIONS CORRECTED: banner + model line + prompt on panel within ~20 s (attended observation/photo), pty/console log shows m1n1 v3 payload discovery + kboot jump, then wdt warm reset and proxy self-return (no power-cycle needed). 'Panel alive 60 s' is obsolete. Non-negotiables re-checked: no SPMI/PMU/NVRAM/firmware writes anywhere (U-Boot has no SPMI stack; binary audited), MMIO map is DT-allowlist-only (blocks live-proven by ticket 063), hashes pinned, wdt bounds the run. RUN 2026-07-25, RESULT PASS (machine-verifiable criteria): chainload log shows 'Valid payload found' -> 'Vectoring to next stage' at 0x10008400000 with fdt 0x10008600000; WDT armed 20 s; warm reset; enrolled loader + proxy self-returned (NOP + base read OK); released healthy. Panel banner not visually observed this run (nobody at the screen); 30 s rerun documented. First-attempt UartTimeout root-caused: console-log reader steals proxy replies; kill it before manual proxyclient. Evidence: done/2026-07-25-t6040-uboot-stage2-banner-result.md + linux-build-out/t131-chainload.log.",
+  "author": "claude",
+  "deps": [
+    "128"
+  ],
+  "hashes": {
+    "u_boot_nodtb": "2da75ecdf1000cea1af158dc8dbe69ee4a380d7674c3a797186e606215fec846",
+    "stage2_patch": "814ffa47d6ab4b8f050505b879bb21bc730c57c3d89fb75af36a27061b7695c7",
+    "stage2_defconfig": "846b31783951e54d4d6fe0da58f257cd976ff8328d9685ea9b2309474ef9da1d",
+    "stage2_config": "efd9ab2af71ee681761953faca4728f64e02e798a85910119b872e443d5d716b",
+    "uboot_dts_source": "72b58e626170ee84b68f7d0823799559112f3a2061615f25828ded78c3299413",
+    "dtb": "759d00ba8983d856ef621a4bffae8b16e7fa40db90fdad2628ec7a768bcd7656",
+    "chainload_image": "a787e38e0fa4e293e658230ff5e30395d4dec0974449f585285ba3403d65d911",
+    "m1n1_v3": "c59d5820df4ef3d98a41e620a48e14a097cc5bf952c43226f3dac693268b8472"
+  },
+  "created": 1785002586,
+  "runnable": true,
+  "approved_by": "cj",
+  "approved_at": 1785002770,
+  "reviewed_by": "cj-waiver-claude-selfreview",
+  "ready_at": 1785003432,
+  "done_at": 1785003702
+}
