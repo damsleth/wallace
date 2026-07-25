@@ -1317,3 +1317,29 @@ with the result mirrored into the ttydc0 health report so it is agent-verifiable
 and ticket 127 proved m1n1's **own** `nvme_init()` raises an async L2C SError on
 T6040, i.e. the NVMe boundary is enforced below the OS (Linux-side work alone
 cannot cross it).
+
+### 2026-07-25 (later) — untethered Ubuntu, and the dual-mode window proven both ways
+
+**Ubuntu 24.04 boots untethered** (`m1n1-b0-ubuntu-smoke.bin` `4784c29c`, 22.59 MiB):
+glibc shell on the internal panel, no cable. This also settles large-payload
+decompression — a 16.8 MiB XZ member expanding to a 97.3 MiB cpio unpacked into RAM and
+handed off cleanly.
+
+**Dual-mode daily driver proven both ways** (`b409d89e`, m1n1 v6 `c10a502f`, ticket 140):
+with no host attached it waits 10 s, times out and boots Alpine; with a host polling for
+the gadget it prints `Waiting for proxy connection...  Connected!` and stays in
+`uartproxy` without booting the payload — full chainload/debug on an enrolled,
+otherwise-untethered machine. `sip0 = 0` here, so upstream's gate could never have armed;
+the `EARLY_PROXY_UNCONDITIONAL` patch is what creates the door, and this is the first time
+it was observed on an *enrolled* boot (every earlier attempt was 16 KiB-misaligned and
+never ran).
+
+**No object-size ceiling** found: 64 MiB and 256 MiB graded probes both load in full, so
+ticket 080's policy moves from an assumed to a measured 256 MiB. Object size is no longer
+a design constraint — the binding limit is RAM for the unpacked root.
+
+Two harness rules learned: a window-carrying object cannot be tethered-smoke-tested (its
+own window catches `chainload.py`'s handshake), so smoke objects need a window-free m1n1
+(`ecd264a5`); and the USB gadget cannot observe an image whose console is `tty0`+`ttydc0`,
+because gadget and DebugUSB/KIS are mutually exclusive on the DFU port — smoke such
+images over KIS.

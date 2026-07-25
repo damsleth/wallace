@@ -78,3 +78,23 @@ So the agent is blind in that configuration and only the panel shows the result.
 **Rule: smoke-test this image over the KIS path** (`macvdmtool debugusb` + kisd +
 `M1N1DEVICE=/tmp/m1n1`), which is how the original tethered Ubuntu RAM-root test produced
 readable output. Use the gadget for *proxy control*, KIS for *watching a boot*.
+
+## ✅ LIVE PASS — untethered Ubuntu shell on the panel (2026-07-25)
+
+Maintainer confirmed: **the Ubuntu shell came up on the internal display.** Ticket 141
+passes. So both distro targets now boot untethered on the M4 Pro:
+
+| Object | Root | Size | Status |
+|---|---|---|---|
+| `m1n1-b0-alpine-dualmode.bin` `b409d89e` | Alpine 3.24 / OpenRC (musl) | 9.03 MiB | untethered + 10 s debug window |
+| `m1n1-b0-ubuntu-smoke.bin` `4784c29c` | **Ubuntu 24.04 (glibc)** | 22.59 MiB | untethered (window-free build) |
+
+This also settles the open technical question: **large-payload decompression works.** m1n1
+un-XZ'd a 16.8 MiB member and the kernel unpacked a **97.3 MiB** cpio into RAM, then
+handed off successfully. iBoot's load ceiling and m1n1's decompress capacity are separate
+limits and neither binds at this scale.
+
+Corroborating remote evidence, before the panel confirmation: the USB gadget disappeared
+after the jump and never returned. The gadget is m1n1's, so its loss means m1n1 completed
+the handoff rather than failing in its decompressor (which would have kept m1n1 alive and
+printing), and its non-return means there was no reset loop.

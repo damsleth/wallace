@@ -6,7 +6,7 @@ panel, keyboard (Norwegian), watchdog — with a remote DebugUSB loop for develo
 
 This repo is the umbrella. The code lives in four sibling repos and the knowledge kept getting smeared across them so everything that guides the work now lives here: plans, scripts, kernel patches, post-mortems.
 
-## Status (2026-07-25) — 🐧 MILESTONE B0 REACHED: untethered boot
+## Status (2026-07-25) — 🐧 MILESTONE B0 REACHED: untethered boot (Alpine **and** Ubuntu)
 
 **A cold boot from the Apple boot picker — no cable, no host — reaches an
 interactive Alpine/OpenRC shell on the internal display.** Ticket 101 passed;
@@ -33,6 +33,13 @@ MiB before padding), the **Norwegian console keymap** (BusyBox provides `loadkma
 reading a binary keymap on stdin — there is no `loadkeys` and no applet symlink),
 and a read-only probe showing **m1n1's own NVMe path SErrors on T6040**
 (`nvme_init()` → async L2C SError), so the NVMe boundary is enforced below the OS.
+
+**Both distro targets boot untethered:** Alpine 3.24/OpenRC (musl, 9.03 MiB object, with
+a 10-second USB-serial debug window — proven both ways: host attaches and takes control,
+or times out into Alpine) and **Ubuntu 24.04 (glibc, 22.59 MiB object)**, the latter
+proving large-payload decompression works (16.8 MiB XZ member, 97.3 MiB cpio unpacked
+into RAM). No enrolled-object size ceiling was found up to 256 MiB; 16 KiB page alignment
+is the only constraint.
 
 Persistent USB root still depends on the HPM/ATC host link (tickets 096/097, or
 U-Boot via 128) — **B0 no longer depends on any of it.**

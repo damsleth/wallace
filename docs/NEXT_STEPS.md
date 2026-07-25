@@ -6,8 +6,12 @@
 > object's total size must be a multiple of 16 KiB** — otherwise m1n1 is never
 > entered. The builder enforces it now. The 2026-07-24 handoff text below is
 > retained for history; where it says B0/101 is blocked, read it as **done**.
-> Open work has shifted to the boot-object size ceiling, persistent USB root
-> (096/097/128), and the usable-machine items.
+> **Ubuntu 24.04 also boots untethered** (object `4784c29c`), and the dual-mode 10 s
+> debug window is proven both ways (ticket 140). No object-size ceiling was found to
+> 256 MiB (ticket 137). Open work has shifted to **persistent USB read/write**
+> (138, gated on the HPM/ATC link — 096/097 or U-Boot 128), **WiFi** (139, needs PCIe
+> op-115 plus a networking-capable DIET kernel, 143), and a **graphical target**
+> (142, Alpine + Xorg + dwm).
 
 
 Handoff state (2026-07-24): the exact B0 release object boots tethered into
