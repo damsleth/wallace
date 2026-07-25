@@ -169,3 +169,51 @@ treating an absence or an ambiguous reading as proof (missing console output;
 missing USB gadget node; stale RAM read as a scan-address bug). The measurements
 that actually settled things were positive, self-identifying readings — hence a
 probe whose every block states its own offset.
+
+## Load-extent measurement (2026-07-25) — hypothesis #3 also dead
+
+Graded probe `probe-graded-20M.bin` (`3bf31cde`, 20.05 MiB, 304 self-describing
+64 KiB blocks) enrolled and cold-booted, read back over the proxy with
+`scripts/t6040-probe-load-extent.py`:
+
+```text
+m1n1 base = 0x100057d0000   top_of_kernel_data = 0x1000724c000 (base+0x1a7c000)
+Unknown payload at 0x100058dc000 (magic: 574c4f46)      <- "WLOF", our stamp
+HIGHEST LOADED OFFSET SEEN: 0x13cc000 (19.80 MiB)
+```
+
+- **iBoot loads the ENTIRE object** — every stamped block out to 19.80 MiB is
+  present and self-consistent. There is no truncation and no ~7.5 MiB cap.
+- **`top_of_kernel_data` scales with the object**: base+`0x77C000` (7.5 MiB) for the
+  1.05 MiB loader, base+`0x1a7c000` (26.5 MiB) for the 20.05 MiB probe — a constant
+  ~6.45 MiB of other boot data after the object. It was never a limit.
+
+So the truncation hypothesis is disproven. Size, compression, kernel size, m1n1
+prefix, payload discovery, SEPFW adjacency and load extent are now ALL excluded.
+The only remaining difference is that m1n1 *acts* on a real payload.
+
+## Where the code points next
+
+- `src/heapblock.c`: `heapblock_init()` sets `heap_base = top_of_kernel_data`.
+- `src/payload.c`: `decompress_gz`/`decompress_xz` decompress to
+  `heapblock_alloc_aligned(0, KERNEL_ALIGN)` — i.e. into the heap area starting at
+  `top_of_kernel_data`, which the measurements show is past the object.
+
+That destination looks clear, so this is a lead, not a conclusion.
+
+## Next measurement, not another hypothesis
+
+The v3 object (`ad156a4b`) carries the **unconditional 5-second early-proxy
+window**, and a looping boot re-offers that window every cycle. Connecting to the
+USB gadget inside the window yields a **live m1n1 holding the payload before the
+Linux handoff**, which allows directly:
+
+1. dumping m1n1's log buffer to see the last thing it printed (the exact failure
+   point, without depending on the panel);
+2. verifying the payload members in RAM against their known hashes (proving
+   load integrity end to end, not just at offset 0x10C000);
+3. inspecting `top_of_kernel_data`/heap versus the payload extent for this object.
+
+Procedure: enroll `m1n1-b0-diet-fbvisible.bin` (`ad156a4b`), let it loop, and poll
+for `/dev/cu.usbmodem*` while attaching a proxy immediately. No panel observation
+required, and nothing is written.
