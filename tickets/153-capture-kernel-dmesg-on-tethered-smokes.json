@@ -2,13 +2,18 @@
   "seq": "153",
   "slug": "capture-kernel-dmesg-on-tethered-smokes",
   "needs": "rig",
-  "state": "proposed",
+  "state": "staged",
   "track": "harness",
   "priority": "P2",
   "desc": "Make tethered smokes self-verifying so an agent can judge them without the maintainer at the panel. Today every B0-family pass criterion is a panel observation because the proven bootargs use console=tty0 only, so the kernel's own dmesg never reaches the KIS pty \u2014 in the ticket-147 log there is no 'Kernel command line', no page-size line, and no driver output, only what userspace echoed. That is why 147 needed an attended session and why a screenshot was required to disprove a wrong-object run. Task: build a DIAGNOSTIC-ONLY object variant adding ttydc0 as a second console (e.g. console=tty0 console=ttydc0, or earlycon) so dmesg is captured in the chainload log, and confirm the userspace health report still appears. KEEP the proven console=tty0-only bootargs for enrollment and acceptance runs \u2014 this variant is for diagnosis, and its bootargs differ from the proven 3659a0da set, so results from it must be labelled as such. Pairs with 151 (a self-verifying harness needs both a correct verdict and readable evidence).",
   "author": "claude",
-  "deps": [],
+  "deps": [
+    "155"
+  ],
   "hashes": null,
   "created": 1785110000,
-  "runnable": false
+  "runnable": false,
+  "approved_by": "maintainer",
+  "approved_at": 1785069565,
+  "result": "2026-07-26 OBJECT BUILT + strict-verify PASS, awaiting a rig smoke. m1n1-b0-dwm-fat-diag.bin d14df9f3 (83,197,952 B = 5078 x 16 KiB, kernel pages=4K). Byte-identical to the fat graphical object c5438779 in every member; ONLY the bootargs differ, adding console=ttydc0 (hash 68198332, deliberately not the proven 3659a0da). Transport checked, not assumed: the DTB's serial node (compatible apple,dockchannel-serial) has no status property so it defaults to enabled, there is no stdout-path in chosen so console=ttydc0 is what selects it, the parent node has apple,poll-mode (the live-proven conservative path), and KIS can observe ttydc0 \u2014 it is the USB gadget that cannot, and this smoke is over KIS. EXPECT a slow boot from two compounding costs (67 MiB single-threaded xz, then ignore_loglevel pushing full dmesg over a POLLED console); ignore_loglevel was kept on purpose since detail is the point. /dev/console becomes the last console= (ttydc0), but the inittab spawns its getty on tty1 explicitly and X uses startx -- vt1 -keeptty, so the panel session is unaffected. DIAGNOSTIC ONLY: results must be labelled as such and acceptance runs keep m1n1-b0-dwm-fat.bin. Paired with ticket 151's verdict logic this makes a graphical smoke self-verifying. Evidence: done/2026-07-26-t6040-diagnostic-dual-console-object.md."
 }
