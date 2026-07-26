@@ -196,6 +196,31 @@ echo "== apply flokli's t6040 CODE patches (aic locked-sysreg skip + idle=nop) =
 # patches here so they actually land. Patch disables BOTH the
 # SYS_IMP_APL_VM_TMR_FIQ_ENA_EL2 and SYS_ICH_HCR_EL2 writes in aic_init_cpu (they
 # trap on M4 raw-boot) and adds a working arm64 idle=[wfi|nop] param.
+# Ticket 159: the DockChannel TTY driver (/dev/ttydc0) existed ONLY as untracked files
+# inside the /build/linux-* trees — never in ~/Code/linux, never in patches/ — so a rebuild
+# from a clean checkout silently produced a kernel with no ttydc0, losing the DockChannel
+# shell and the transport the B0 health report reaches the host through. It is also why
+# every kernel reported -dirty. Recovered byte-identically (sha256 2880e145, 464 lines) and
+# applied here, BEFORE olddefconfig, so CONFIG_APPLE_DOCKCHANNEL_TTY is a real symbol rather
+# than dead text that the DIET assertion would happily grep and pass.
+if [ -f /out/t6040-dockchannel-tty-driver.patch ]; then
+    if git apply --check /out/t6040-dockchannel-tty-driver.patch 2>/dev/null; then
+        git apply /out/t6040-dockchannel-tty-driver.patch
+        echo "t6040-dockchannel-tty-driver.patch applied OK"
+    elif [ -f drivers/tty/apple_dockchannel_tty.c ]; then
+        echo "t6040-dockchannel-tty-driver.patch already applied"
+    else
+        echo "ERROR: dockchannel TTY patch does not apply and the driver is absent:" >&2
+        git apply --check /out/t6040-dockchannel-tty-driver.patch || true
+        exit 1
+    fi
+elif [ ! -f drivers/tty/apple_dockchannel_tty.c ]; then
+    echo "ERROR: no dockchannel TTY driver and no patch to add it." >&2
+    echo "  /dev/ttydc0 would be absent, so the B0 health report cannot reach the host." >&2
+    echo "  copy patches/t6040-dockchannel-tty-driver.patch into /out (see ticket 159)." >&2
+    exit 1
+fi
+
 if git apply --check /out/flokli-code.patch 2>/dev/null; then
     git apply /out/flokli-code.patch
     echo "flokli-code.patch applied OK"

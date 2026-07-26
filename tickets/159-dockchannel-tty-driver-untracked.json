@@ -1,0 +1,15 @@
+{
+  "seq": "159",
+  "slug": "dockchannel-tty-driver-untracked",
+  "needs": "offline",
+  "state": "done",
+  "track": "kernel",
+  "priority": "P1",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785123000,
+  "runnable": false,
+  "desc": "The DockChannel TTY driver that provides /dev/ttydc0 existed ONLY as untracked files inside the podman build trees (drivers/tty/apple_dockchannel_tty.c untracked, drivers/tty/Kconfig and Makefile modified), present in all three /build/linux-* trees and in NO version control \u2014 not ~/Code/linux, not patches/. A rebuild from a clean checkout therefore silently produced a kernel with no /dev/ttydc0, losing the DockChannel shell and the transport every B0 acceptance run reports through; it is also why every built kernel reported a -dirty version. The two patches that modify this driver (earlycon-debug, nbcon) could never have applied to a fresh clone since their target was untracked. And the DIET assertion 'verified' CONFIG_APPLE_DOCKCHANNEL_TTY=y by grepping .config text, which passed because kbuild's scripts/config -e wrote it, while the capability existed only by virtue of untracked files.",
+  "result": "2026-07-26 RECOVERED into version control. patches/t6040-dockchannel-tty-driver.patch now carries the 464-line driver plus the 10-line Kconfig/Makefile deltas, and scripts/t6040-kbuild.sh applies it BEFORE olddefconfig so CONFIG_APPLE_DOCKCHANNEL_TTY is a real symbol instead of dead text. kbuild now fails loudly when neither the patch nor the driver is present, rather than quietly building a kernel that cannot talk to the host. Verified: applies cleanly to the pristine ~/Code/linux tree, and applied to a throwaway clean tree it reconstructs the driver BYTE-IDENTICALLY (sha256 2880e1452850e6ad0f67e9d6cb08aed2ab2af55e24ef1b892954388bbbdcce7d, 464 lines, matching the container) with both Kconfig and Makefile wired. NOTE the driver is a TTY only \u2014 it registers no struct console, which is the root cause of ticket 153. Evidence: done/2026-07-26-t6040-dockchannel-tty-provenance.md."
+}

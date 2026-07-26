@@ -1,0 +1,520 @@
+From: CJ Damsleth <Carl.Joakim.Damsleth@crayon.no>
+Subject: [PATCH] tty: add Apple DockChannel serial TTY (recovered from build tree)
+
+Expose an Apple DockChannel byte stream as a TTY (/dev/ttydc0). This is the
+transport every Wallace acceptance run depends on: the B0 health report reaches
+the host through a getty on ttydc0 (scripts/t6040-b0-keymap.initd's sibling
+scripts/t6040-b0-ttydc0-console waits for the device, then runs getty on it).
+
+RECOVERED, NOT NEW. This driver existed only as untracked files inside the
+podman build trees (/build/linux-*), never in ~/Code/linux and never in
+patches/, so a rebuild from the repository silently produced a kernel WITHOUT
+/dev/ttydc0 and lost the DockChannel shell and health-report transport. It is
+also why every built kernel reported a -dirty version. Ticket 159.
+
+Note this driver is a TTY only: it does NOT register a struct console, so
+`console=ttydc0` on the kernel command line matches nothing and is silently
+ignored (ticket 153). patches/t6040-dockchannel-nbcon.patch adds that console
+and is a separate, currently unapplied change.
+
+diff --git a/drivers/tty/Kconfig b/drivers/tty/Kconfig
+index 149f3d53b760..05636c238048 100644
+--- a/drivers/tty/Kconfig
++++ b/drivers/tty/Kconfig
+@@ -424,6 +424,15 @@ config RPMSG_TTY
+ 	  To compile this driver as a module, choose M here: the module will be
+ 	  called rpmsg_tty.
+ 
++config APPLE_DOCKCHANNEL_TTY
++	tristate "Apple DockChannel serial TTY"
++	depends on APPLE_DOCKCHANNEL
++	depends on OF
++	help
++	  Say Y here to expose an Apple DockChannel byte stream as a TTY.
++	  This is mainly useful for the DockChannel UART used by DebugUSB and
++	  m1n1 proxy sessions on Apple Silicon machines.
++
+ endif # TTY
+ 
+ source "drivers/tty/serdev/Kconfig"
+diff --git a/drivers/tty/Makefile b/drivers/tty/Makefile
+index 07aca5184a55..87cb53de3887 100644
+--- a/drivers/tty/Makefile
++++ b/drivers/tty/Makefile
+@@ -27,5 +27,6 @@ obj-$(CONFIG_GOLDFISH_TTY)	+= goldfish.o
+ obj-$(CONFIG_MIPS_EJTAG_FDC_TTY) += mips_ejtag_fdc.o
+ obj-$(CONFIG_VCC)		+= vcc.o
+ obj-$(CONFIG_RPMSG_TTY)		+= rpmsg_tty.o
++obj-$(CONFIG_APPLE_DOCKCHANNEL_TTY) += apple_dockchannel_tty.o
+ 
+ obj-y += ipwireless/
+diff --git a/drivers/tty/apple_dockchannel_tty.c b/drivers/tty/apple_dockchannel_tty.c
+new file mode 100644
+index 000000000000..c50cfa8f022c
+--- /dev/null
++++ b/drivers/tty/apple_dockchannel_tty.c
+@@ -0,0 +1,464 @@
++// SPDX-License-Identifier: GPL-2.0-only OR MIT
++/*
++ * Apple DockChannel serial TTY transport
++ *
++ * Copyright The Asahi Linux Contributors
++ */
++
++#include <linux/err.h>
++#include <linux/jiffies.h>
++#include <linux/kfifo.h>
++#include <linux/mailbox/apple-dockchannel.h>
++#include <linux/mailbox_client.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/sizes.h>
++#include <linux/slab.h>
++#include <linux/spinlock.h>
++#include <linux/tty.h>
++#include <linux/tty_driver.h>
++#include <linux/tty_flip.h>
++#include <linux/tty_port.h>
++#include <linux/workqueue.h>
++
++#define APPLE_DCTTY_NAME		"ttydc"
++#define APPLE_DCTTY_DRIVER_NAME		"apple-dockchannel-tty"
++#define APPLE_DCTTY_MAX_PORTS		8
++#define APPLE_DCTTY_FIFO_SIZE		0x800
++#define APPLE_DCTTY_TX_FIFO_SIZE	(SZ_64K)
++
++struct apple_dctty {
++	struct device *dev;
++	struct tty_port port;
++	int id;
++
++	struct mbox_client client;
++	struct mbox_chan *mbox;
++
++	spinlock_t tx_lock; /* protects TX FIFO and in-flight state */
++	DECLARE_KFIFO_PTR(tx_fifo, u8);
++	struct delayed_work tx_work;
++	u8 tx_buf[APPLE_DCTTY_FIFO_SIZE];
++	struct apple_dockchannel_msg tx_msg;
++	unsigned int tx_len;
++	bool tx_active;
++	bool disconnected;
++};
++
++static struct apple_dctty *apple_dctty_ports[APPLE_DCTTY_MAX_PORTS];
++static DEFINE_MUTEX(apple_dctty_ports_lock);
++static struct tty_driver *apple_dctty_driver;
++
++static unsigned int tx_coalesce_us = 1000;
++module_param(tx_coalesce_us, uint, 0644);
++MODULE_PARM_DESC(tx_coalesce_us,
++		 "Delay before sending a partial DockChannel serial TX batch");
++
++static void apple_dctty_queue_tx_locked(struct apple_dctty *dctty,
++					bool immediate)
++{
++	unsigned long delay = 0;
++
++	if (dctty->disconnected || dctty->tx_active ||
++	    kfifo_is_empty(&dctty->tx_fifo))
++		return;
++
++	if (!immediate && tx_coalesce_us &&
++	    kfifo_len(&dctty->tx_fifo) < APPLE_DCTTY_FIFO_SIZE)
++		delay = usecs_to_jiffies(tx_coalesce_us);
++
++	mod_delayed_work(system_wq, &dctty->tx_work, delay);
++}
++
++static void apple_dctty_tx_done(struct mbox_client *client, void *msg, int ret)
++{
++	struct apple_dctty *dctty = container_of(client, struct apple_dctty, client);
++	unsigned long flags;
++
++	if (ret)
++		dev_warn_ratelimited(dctty->dev, "TX completed with error %d\n", ret);
++
++	spin_lock_irqsave(&dctty->tx_lock, flags);
++	dctty->tx_active = false;
++	dctty->tx_len = 0;
++	apple_dctty_queue_tx_locked(dctty, true);
++	spin_unlock_irqrestore(&dctty->tx_lock, flags);
++
++	tty_port_tty_wakeup(&dctty->port);
++}
++
++static void apple_dctty_rx_callback(struct mbox_client *client, void *data)
++{
++	struct apple_dctty *dctty = container_of(client, struct apple_dctty, client);
++	struct apple_dockchannel_msg *msg = data;
++	int copied;
++
++	if (!msg || !msg->data || !msg->len)
++		return;
++
++	copied = tty_insert_flip_string(&dctty->port, msg->data, msg->len);
++	if (copied != msg->len)
++		dev_warn_ratelimited(dctty->dev,
++				     "RX flip buffer dropped %zu bytes\n",
++				     msg->len - copied);
++
++	tty_flip_buffer_push(&dctty->port);
++}
++
++static void apple_dctty_tx_work(struct work_struct *work)
++{
++	struct apple_dctty *dctty =
++		container_of(to_delayed_work(work), struct apple_dctty, tx_work);
++	unsigned int len;
++	unsigned long flags;
++	int ret;
++
++	spin_lock_irqsave(&dctty->tx_lock, flags);
++	if (dctty->disconnected || dctty->tx_active ||
++	    kfifo_is_empty(&dctty->tx_fifo)) {
++		spin_unlock_irqrestore(&dctty->tx_lock, flags);
++		return;
++	}
++
++	len = min(kfifo_len(&dctty->tx_fifo), APPLE_DCTTY_FIFO_SIZE);
++	len = kfifo_out_peek(&dctty->tx_fifo, dctty->tx_buf, len);
++	if (!len) {
++		spin_unlock_irqrestore(&dctty->tx_lock, flags);
++		return;
++	}
++
++	dctty->tx_msg.data = dctty->tx_buf;
++	dctty->tx_msg.len = len;
++	dctty->tx_len = len;
++	dctty->tx_active = true;
++	spin_unlock_irqrestore(&dctty->tx_lock, flags);
++
++	ret = mbox_send_message(dctty->mbox, &dctty->tx_msg);
++
++	spin_lock_irqsave(&dctty->tx_lock, flags);
++	if (ret < 0) {
++		dctty->tx_active = false;
++		dctty->tx_len = 0;
++		if (!dctty->disconnected &&
++		    (ret == -EBUSY || ret == -ENOBUFS)) {
++			apple_dctty_queue_tx_locked(dctty, false);
++		} else if (!dctty->disconnected) {
++			dev_err_ratelimited(dctty->dev,
++					    "failed to send TX batch: %d\n", ret);
++		}
++		spin_unlock_irqrestore(&dctty->tx_lock, flags);
++		return;
++	}
++
++	kfifo_skip_count(&dctty->tx_fifo, len);
++	apple_dctty_queue_tx_locked(dctty, true);
++	spin_unlock_irqrestore(&dctty->tx_lock, flags);
++
++	tty_port_tty_wakeup(&dctty->port);
++}
++
++static int apple_dctty_install(struct tty_driver *driver, struct tty_struct *tty)
++{
++	struct apple_dctty *dctty;
++	struct tty_port *port = NULL;
++
++	mutex_lock(&apple_dctty_ports_lock);
++	dctty = apple_dctty_ports[tty->index];
++	if (dctty)
++		port = tty_port_get(&dctty->port);
++	mutex_unlock(&apple_dctty_ports_lock);
++
++	if (!dctty)
++		return -ENODEV;
++
++	tty->driver_data = dctty;
++
++	return tty_port_install(port, driver, tty);
++}
++
++static void apple_dctty_cleanup(struct tty_struct *tty)
++{
++	tty_port_put(tty->port);
++}
++
++static int apple_dctty_open(struct tty_struct *tty, struct file *filp)
++{
++	struct apple_dctty *dctty = tty->driver_data;
++	unsigned long flags;
++	bool disconnected;
++
++	spin_lock_irqsave(&dctty->tx_lock, flags);
++	disconnected = dctty->disconnected;
++	spin_unlock_irqrestore(&dctty->tx_lock, flags);
++
++	if (disconnected)
++		return -ENODEV;
++
++	return tty_port_open(tty->port, tty, filp);
++}
++
++static void apple_dctty_close(struct tty_struct *tty, struct file *filp)
++{
++	tty_port_close(tty->port, tty, filp);
++}
++
++static ssize_t apple_dctty_write(struct tty_struct *tty, const u8 *buf,
++				 size_t count)
++{
++	struct apple_dctty *dctty = tty->driver_data;
++	unsigned int copied;
++	unsigned long flags;
++
++	if (!count)
++		return 0;
++
++	spin_lock_irqsave(&dctty->tx_lock, flags);
++	if (dctty->disconnected) {
++		spin_unlock_irqrestore(&dctty->tx_lock, flags);
++		return -ENODEV;
++	}
++
++	copied = kfifo_in(&dctty->tx_fifo, buf, count);
++	apple_dctty_queue_tx_locked(dctty, copied >= APPLE_DCTTY_FIFO_SIZE);
++	spin_unlock_irqrestore(&dctty->tx_lock, flags);
++
++	return copied;
++}
++
++static unsigned int apple_dctty_write_room(struct tty_struct *tty)
++{
++	struct apple_dctty *dctty = tty->driver_data;
++	unsigned int room;
++	unsigned long flags;
++
++	spin_lock_irqsave(&dctty->tx_lock, flags);
++	room = dctty->disconnected ? 0 : kfifo_avail(&dctty->tx_fifo);
++	spin_unlock_irqrestore(&dctty->tx_lock, flags);
++
++	return room;
++}
++
++static unsigned int apple_dctty_chars_in_buffer(struct tty_struct *tty)
++{
++	struct apple_dctty *dctty = tty->driver_data;
++	unsigned int chars;
++	unsigned long flags;
++
++	spin_lock_irqsave(&dctty->tx_lock, flags);
++	chars = kfifo_len(&dctty->tx_fifo);
++	if (dctty->tx_active)
++		chars += dctty->tx_len;
++	spin_unlock_irqrestore(&dctty->tx_lock, flags);
++
++	return chars;
++}
++
++static void apple_dctty_flush_buffer(struct tty_struct *tty)
++{
++	struct apple_dctty *dctty = tty->driver_data;
++	unsigned long flags;
++
++	spin_lock_irqsave(&dctty->tx_lock, flags);
++	kfifo_reset_out(&dctty->tx_fifo);
++	spin_unlock_irqrestore(&dctty->tx_lock, flags);
++
++	tty_port_tty_wakeup(&dctty->port);
++}
++
++static void apple_dctty_hangup(struct tty_struct *tty)
++{
++	tty_port_hangup(tty->port);
++}
++
++static const struct tty_operations apple_dctty_ops = {
++	.install = apple_dctty_install,
++	.cleanup = apple_dctty_cleanup,
++	.open = apple_dctty_open,
++	.close = apple_dctty_close,
++	.write = apple_dctty_write,
++	.write_room = apple_dctty_write_room,
++	.chars_in_buffer = apple_dctty_chars_in_buffer,
++	.flush_buffer = apple_dctty_flush_buffer,
++	.hangup = apple_dctty_hangup,
++};
++
++static void apple_dctty_port_destruct(struct tty_port *port)
++{
++	struct apple_dctty *dctty = container_of(port, struct apple_dctty, port);
++
++	mutex_lock(&apple_dctty_ports_lock);
++	if (dctty->id >= 0 && apple_dctty_ports[dctty->id] == dctty)
++		apple_dctty_ports[dctty->id] = NULL;
++	mutex_unlock(&apple_dctty_ports_lock);
++
++	kfifo_free(&dctty->tx_fifo);
++	tty_port_destroy(port);
++	kfree(dctty);
++}
++
++static const struct tty_port_operations apple_dctty_port_ops = {
++	.destruct = apple_dctty_port_destruct,
++};
++
++static int apple_dctty_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct apple_dctty *dctty;
++	struct device *tty_dev;
++	int ret;
++
++	dctty = kzalloc_obj(*dctty);
++	if (!dctty)
++		return -ENOMEM;
++
++	dctty->id = -1;
++
++	ret = kfifo_alloc(&dctty->tx_fifo, APPLE_DCTTY_TX_FIFO_SIZE,
++			  GFP_KERNEL);
++	if (ret)
++		goto err_free;
++
++	dctty->dev = dev;
++	spin_lock_init(&dctty->tx_lock);
++	INIT_DELAYED_WORK(&dctty->tx_work, apple_dctty_tx_work);
++	tty_port_init(&dctty->port);
++	dctty->port.ops = &apple_dctty_port_ops;
++
++	mutex_lock(&apple_dctty_ports_lock);
++	for (ret = 0; ret < APPLE_DCTTY_MAX_PORTS; ret++) {
++		if (!apple_dctty_ports[ret]) {
++			apple_dctty_ports[ret] = dctty;
++			break;
++		}
++	}
++	if (ret == APPLE_DCTTY_MAX_PORTS)
++		ret = -ENOSPC;
++	mutex_unlock(&apple_dctty_ports_lock);
++	if (ret < 0)
++		goto err_port_put;
++	dctty->id = ret;
++
++	dctty->client.dev = dev;
++	dctty->client.tx_block = false;
++	dctty->client.tx_done = apple_dctty_tx_done;
++	dctty->client.rx_callback = apple_dctty_rx_callback;
++
++	dctty->mbox = mbox_request_channel_byname(&dctty->client,
++						  "dockchannel");
++	if (IS_ERR(dctty->mbox)) {
++		ret = dev_err_probe(dev, PTR_ERR(dctty->mbox),
++				    "failed to request DockChannel mailbox\n");
++		goto err_port_put;
++	}
++
++	tty_dev = tty_port_register_device(&dctty->port, apple_dctty_driver,
++					   dctty->id, dev);
++	if (IS_ERR(tty_dev)) {
++		ret = dev_err_probe(dev, PTR_ERR(tty_dev),
++				    "failed to register TTY device\n");
++		goto err_mbox_free;
++	}
++
++	platform_set_drvdata(pdev, dctty);
++	dev_info(dev, "registered %s%d\n", APPLE_DCTTY_NAME, dctty->id);
++
++	return 0;
++
++err_mbox_free:
++	mbox_free_channel(dctty->mbox);
++err_port_put:
++	tty_port_put(&dctty->port);
++	return ret;
++
++err_free:
++	kfree(dctty);
++	return ret;
++}
++
++static void apple_dctty_remove(struct platform_device *pdev)
++{
++	struct apple_dctty *dctty = platform_get_drvdata(pdev);
++	unsigned long flags;
++
++	spin_lock_irqsave(&dctty->tx_lock, flags);
++	dctty->disconnected = true;
++	dctty->tx_active = false;
++	dctty->tx_len = 0;
++	spin_unlock_irqrestore(&dctty->tx_lock, flags);
++
++	cancel_delayed_work_sync(&dctty->tx_work);
++	tty_port_tty_hangup(&dctty->port, false);
++	tty_unregister_device(apple_dctty_driver, dctty->id);
++	mbox_free_channel(dctty->mbox);
++	tty_port_put(&dctty->port);
++}
++
++static const struct of_device_id apple_dctty_of_match[] = {
++	{ .compatible = "apple,dockchannel-serial" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, apple_dctty_of_match);
++
++static struct platform_driver apple_dctty_platform_driver = {
++	.driver = {
++		.name = APPLE_DCTTY_DRIVER_NAME,
++		.of_match_table = apple_dctty_of_match,
++	},
++	.probe = apple_dctty_probe,
++	.remove = apple_dctty_remove,
++};
++
++static int __init apple_dctty_init(void)
++{
++	struct tty_driver *driver;
++	int ret;
++
++	driver = tty_alloc_driver(APPLE_DCTTY_MAX_PORTS,
++				  TTY_DRIVER_REAL_RAW | TTY_DRIVER_DYNAMIC_DEV);
++	if (IS_ERR(driver))
++		return PTR_ERR(driver);
++
++	driver->driver_name = APPLE_DCTTY_DRIVER_NAME;
++	driver->name = APPLE_DCTTY_NAME;
++	driver->type = TTY_DRIVER_TYPE_SERIAL;
++	driver->subtype = SERIAL_TYPE_NORMAL;
++	driver->init_termios = tty_std_termios;
++	driver->init_termios.c_cflag = B115200 | CS8 | CREAD | CLOCAL;
++	tty_set_operations(driver, &apple_dctty_ops);
++
++	ret = tty_register_driver(driver);
++	if (ret)
++		goto err_put_driver;
++
++	apple_dctty_driver = driver;
++
++	ret = platform_driver_register(&apple_dctty_platform_driver);
++	if (ret)
++		goto err_unregister_tty;
++
++	return 0;
++
++err_unregister_tty:
++	tty_unregister_driver(driver);
++	apple_dctty_driver = NULL;
++err_put_driver:
++	tty_driver_kref_put(driver);
++
++	return ret;
++}
++
++static void __exit apple_dctty_exit(void)
++{
++	platform_driver_unregister(&apple_dctty_platform_driver);
++	tty_unregister_driver(apple_dctty_driver);
++	tty_driver_kref_put(apple_dctty_driver);
++}
++
++module_init(apple_dctty_init);
++module_exit(apple_dctty_exit);
++
++MODULE_DESCRIPTION("Apple DockChannel serial TTY transport");
++MODULE_AUTHOR("Michael Reeves <michael.reeves077@gmail.com>");
++MODULE_LICENSE("Dual MIT/GPL");
