@@ -46,7 +46,7 @@ FAT_PKGS=""
 [ "$FAT" = "1" ] && FAT_PKGS="mesa-dri-gallium mesa-gl mesa-gbm kbd xdpyinfo xev"
 podman exec -e FAT_PKGS="$FAT_PKGS" "$CONTAINER" chroot "/out/$TMP_BASE" /bin/sh -ec '
     apk update -q
-    apk add --no-cache openrc busybox-openrc kbd-bkeymaps \
+    apk add --no-cache openrc busybox-openrc kbd-bkeymaps eudev \
         xorg-server xf86-input-libinput xinit setxkbmap xrandr \
         dwm st dmenu font-terminus ttf-dejavu $FAT_PKGS
     rm -rf /var/cache/apk/* /var/log/apk.log /etc/resolv.conf
@@ -92,15 +92,39 @@ EOF
 # compile-time, so the layout is set in X rather than rebuilding dwm).
 cat > "$TMP/usr/local/sbin/t6040-startx" <<'EOF'
 #!/bin/sh
+# dwm loaded on the first full-kernel run (2026-07-26) but NO input worked. Cause:
+# xf86-input-libinput enumerates devices through libudev, and this image had libudev.so
+# (pulled in as a dependency) but no udevd/udevadm at all, so the udev database was empty
+# and Xorg auto-add found zero devices. eudev is now installed and started here, before X,
+# which is the standard Alpine arrangement. Ticket 161.
+LOG=/var/log/xorg-startx.log
 export HOME=/root XAUTHORITY=/tmp/.Xauth
 : > "$XAUTHORITY"
+mkdir -p /run/udev
+
+{
+    echo "== starting udevd =="
+    /sbin/udevd --daemon 2>&1 || /sbin/udevd -d 2>&1 || echo "udevd FAILED to start"
+    /bin/udevadm trigger --type=subsystems --action=add 2>&1
+    /bin/udevadm trigger --type=devices --action=add 2>&1
+    /bin/udevadm settle --timeout=10 2>&1
+    # Diagnostics first: every rig cycle costs a reboot, so make a failure readable in one
+    # pass rather than needing another boot to ask "was the keyboard even there?".
+    echo "== /proc/bus/input/devices =="
+    cat /proc/bus/input/devices 2>&1
+    echo "== /dev/input =="
+    ls -l /dev/input 2>&1
+    echo "== udevadm info for event0 =="
+    /bin/udevadm info --query=property --name=/dev/input/event0 2>&1
+} > "$LOG" 2>&1
+
 cat > /root/.xinitrc <<'XEOF'
 setxkbmap no || true
 xrandr --dpi 192 2>/dev/null || true
 st &
 exec dwm
 XEOF
-exec startx -- vt1 -keeptty > /var/log/xorg-startx.log 2>&1
+exec startx -- vt1 -keeptty >> "$LOG" 2>&1
 EOF
 chmod 0755 "$TMP/usr/local/sbin/t6040-startx"
 

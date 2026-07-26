@@ -1,0 +1,15 @@
+{
+  "seq": "161",
+  "slug": "dwm-input-needs-udev",
+  "needs": "rig",
+  "state": "staged",
+  "track": "distro",
+  "priority": "P1",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785140000,
+  "runnable": false,
+  "desc": "dwm LOADS on the panel (tags 1-9, []= layout, st title, dwm-6.8 status, blue border, shell prompt in st) from object 6738aad9 \u2014 so Xorg started, modesetting drove simpledrm, and every blocker from tickets 148/155 is cleared. But NEITHER KEYBOARD NOR MOUSE RESPONDS. Cause: xf86-input-libinput discovers and classifies input devices through libudev, and the image had libudev.so.1 (a dependency of Xorg/libinput) but NO udevd and NO udevadm binary, so the udev database was never populated and Xorg auto-add enumerated zero devices. The keyboard itself is fine \u2014 event0 works at the console and the B0 health report consistently shows Handlers=sysrq kbd leds event0 for the Apple DockChannel Keyboard. The dead mouse is separate and expected (trackpad unsupported, tickets 004/126), which is why the design sets AllowMouseOpenFail true and uses a keyboard-driven WM.",
+  "result": "2026-07-26 FIX BUILT, awaiting a rig smoke. eudev is installed and t6040-startx starts it before X (udevd --daemon, udevadm trigger subsystems then devices, settle --timeout=10) \u2014 the standard Alpine arrangement. Verified in the built image: /sbin/udevd, /bin/udevadm, /sbin/udevadm and 28 udev rule files including 60-input-id.rules (which sets ID_INPUT_KEYBOARD, the property libinput classifies on), plus 80-libinput-device-groups.rules and 90-libinput-fuzz-override.rules. startx now also writes pre-X diagnostics to /var/log/xorg-startx.log (/proc/bus/input/devices, ls -l /dev/input, udevadm info for event0) so a failure is readable in ONE pass rather than costing another reboot to ask whether the device was even there. OBJECT: m1n1-b0-dwm-udev.bin 3ec81ef3f81d09a8cea0d77017067a07f93d2c6ea1c360464d6c183593ffe875 (28,475,392 B = 1738 x 16 KiB, strict PASS) = m1n1 v7 ecd264a5 + full kernel cbb3e743 (pages=4K) + DTB 2782b922 + initramfs 514302be (15.17 MiB xz -> 62.3 MiB expanded, under the 128 MiB guard) + proven bootargs 3659a0da. Versus 6738aad9 which loaded dwm, exactly one thing changed: eudev. PASS = a keystroke reaches st; dwm binds Alt+Shift+Return for a new terminal and Alt+p for dmenu, and the Norwegian layout comes from setxkbmap no so aeoa are the test. Trackpad still expected dead. Evidence: done/2026-07-26-t6040-dwm-loads-input-dead.md."
+}
