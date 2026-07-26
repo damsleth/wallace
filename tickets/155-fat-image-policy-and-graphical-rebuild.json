@@ -1,0 +1,14 @@
+{
+  "seq": "155",
+  "slug": "fat-image-policy-and-graphical-rebuild",
+  "needs": "offline",
+  "state": "proposed",
+  "track": "distro",
+  "priority": "P1",
+  "desc": "POLICY SHIFT plus the concrete rebuild it implies: stop optimising these boot objects for size, and rebuild the graphical image on a full-featured kernel. The trimming was justified by a size ceiling that was never measured to exist: ticket 137 found NO object-size ceiling up to 256 MiB, and 256 MiB was merely the probe limit and the verifier's policy number, not a hardware limit; RAM is ~23 GiB so the unpacked root is not binding; the only genuine costs are single-threaded xz decompression (minilzlib needs single-stream/single-block, -T1) and boot latency, both modest. Meanwhile trimming has now cost real progress twice in ONE image: libLLVM/llvmpipe was cut (290 -> 65 MiB) purely to fit the assumed ceiling, removing software GL from the only graphical image; and CONFIG_NET was cut from the kernel, which fatally broke Xorg (no CONFIG_UNIX => no AF_UNIX => ENOSYS, ticket 148). TASK: build a graphical object from a FULL kernel (defconfig-scale plus the Apple/t6040 bits) rather than adding stripped symbols back one failure at a time \u2014 at minimum NET/UNIX/SYSVIPC plus the DRM helpers DIET drops (DRM_TTM, DRM_SCHED, DRM_DISPLAY_HELPER) which DIET_CAPABLE does NOT restore, and restore llvmpipe/software GL. Keep the DIET kernel only where a minimal kernel is the point of the experiment. Expect a larger, slower-booting object and treat that as acceptable. Note the 16 KiB page size is already cleared (147). Evidence: done/2026-07-26-t6040-dwm-boot-result.md.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785115000,
+  "runnable": true
+}

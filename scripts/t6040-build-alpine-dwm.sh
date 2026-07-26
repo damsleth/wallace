@@ -89,7 +89,7 @@ cat > "$TMP/etc/inittab" <<'EOF'
 ::sysinit:/bin/mount -t devtmpfs devtmpfs /dev
 ::sysinit:/bin/mkdir -p /dev/pts /tmp /run /var/log
 ::sysinit:/bin/mount -t devpts devpts /dev/pts
-::sysinit:/bin/sh -c 'busybox loadkmap < /usr/share/bkeymaps/no/no-mac.bmap 2>/dev/null || true'
+::sysinit:/bin/sh -c 'for m in /usr/share/bkeymaps/no/no-mac.bmap /usr/share/bkeymaps/no/no.bmap; do [ -f "$m" ] && busybox loadkmap < "$m" && exit 0; [ -f "$m.gz" ] && busybox zcat "$m.gz" | busybox loadkmap && exit 0; done; true'
 ::once:/usr/local/sbin/t6040-startx
 tty1::respawn:/sbin/getty -n -l /bin/sh 38400 tty1 linux
 ::ctrlaltdel:/sbin/reboot

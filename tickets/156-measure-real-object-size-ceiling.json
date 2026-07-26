@@ -1,0 +1,14 @@
+{
+  "seq": "156",
+  "slug": "measure-real-object-size-ceiling",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "distro",
+  "priority": "P2",
+  "desc": "Measure the real enrolled-object size ceiling above 256 MiB so the number is known instead of assumed. Ticket 137 probed to 256 MiB and found NO ceiling, and the verifier's --max-object-size default was raised 64 -> 256 MiB as POLICY, not as a measured hardware limit; the maintainer has since assumed 512 MiB, which is not established either. Since ticket 155 deliberately stops trimming, objects will grow and the true limit becomes decision-relevant. TASK: extend the graded-probe method from 137 (zero-filled, 16 KiB-aligned probe objects whose highest loaded offset is reported) to 512 MiB and 1 GiB, and record where iBoot or m1n1 actually stops loading. Remember the two hard constraints that are NOT about size: an enrolled object's TOTAL size must be a whole multiple of 16 KiB, and m1n1's xz decoder advertises 1 GiB. Also time the boots, since single-block xz decompression is single-threaded and decompression latency may become the practical limit well before any size limit. Cheap: probe objects need no distro build. Evidence: done/2026-07-25-t6040-object-size-ceiling.md.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785115000,
+  "runnable": false
+}
