@@ -148,3 +148,56 @@ precondition candidate.**
 3. Trace `configure()`/`start()` for the authoritative order of `_enableClocks` →
    `_configPciePLLs` → `_initializePhy`.
 4. Only then a bounded, separately reviewed m1n1 candidate. **068 stays un-retried until 1-3 land.**
+
+## ADT reg[] map resolved over the live proxy (2026-07-26)
+
+Read `/arm-io/apcie0` from the running rollback loader (read-only ADT fetch, no MMIO poke).
+**Apple's ADT has no `reg-names` property** — the node maps `reg[]` purely by index, which is
+exactly why the driver caches indices in ivars (`[this+709/710/711/718/719]`) instead of names.
+
+35 entries = **7 header regs + 4 ports × 7 regs** (`#ports`=4). Header:
+
+| reg[] | addr | size | role (inferred) |
+|---|---|---|---|
+| 0 | `0x1cb0000000` | 0x10000000 | ECAM / config space (256 MiB) |
+| 1 | `0x214000000` | 0x4000 | apcie common core — **dtRegMapApcieCommonIndex** candidate |
+| 2 | `0x217000000` | 0x40000 | **shared PHY region — dtRegMapPhyIndex** |
+| 3 | `0x217040000` | 0x28000 | PHY-IP super-region (per-port windows carve from here) |
+| 4 | `0x216000000` | 0x1000000 | (16 MiB window) |
+| 5 | `0x215046200` | 0x4000 | |
+| 6 | `0x215044000` | 0x4000 | |
+
+Per-port block (7 regs; port 0 shown, others add the stride):
+
+| off | port0 addr | size | region |
+|---|---|---|---|
+| +0 | `0x210028000` | 0x8000 | port core (0x21p_0000 per port) |
+| +1 | `0x21003c000` | 0x4000 | port core |
+| +2 | `0x217020000` | 0x4000 | **shared-PHY** — PortPhyGlue candidate (`+port*0x4000`) |
+| +3 | `0x217048000` | 0x8000 | **shared-PHY** — PortPhyIP candidate (`+port*0x8000`) |
+| +4 | `0x210024000` | 0x4000 | port core |
+| +5 | `0x210048000` | 0x4000 | port core |
+| +6 | `0x210044000` | 0x4000 | port core |
+
+Ports use core bases `0x210/0x211/0x212/0x213_xxxxx` and shared-PHY sub-windows at
+`0x217020000+port*0x4000` (glue, 0x4000) and `0x217048000+port*0x8000` (PHY-IP, 0x8000).
+
+### Concrete resolved addresses for `_initializePhy` (port 0)
+
+Combining the disassembly offsets with reg[2] = `0x217000000`:
+
+- **PhyCommon reg 0x0** = reg[2] + 0x4000 = **`0x217004000`** — the first op sets **bit 0** here.
+- **PhyPhy base** = reg[2] + 0x8000 = **`0x217008000`**.
+- **PHY-IP (port 0)** = reg[]+3-of-port = `0x217048000`; the op-115 read that hangs is
+  `0x217048000 + 0x90` = **`0x217048090`** (per port: `+port*0x8000`).
+
+So the missing precondition, in absolute MMIO terms: **before reading `0x217048090`, set bit 0
+of `0x217004000` and run the PhyPhy setup at `0x217008000`** — none of which m1n1 currently does.
+
+### Not done (needs the paired driver / attended session, not autonomous)
+
+- Confirming these are powered before reading: a live read of `0x217004000` risks an SError on an
+  ungated PHY aperture (same class as the NVMe `nvme_init` SError) and could wedge the tether, so
+  it is **not** an autonomous probe — defer to an attended session.
+- Exact PhyPhy register/value pairs and the second PhyCommon write.
+- Mapping `dtRegMapApcieCommonIndex` (reg[1] candidate) definitively via the probe-time ivar fill.
