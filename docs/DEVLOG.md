@@ -1624,3 +1624,40 @@ size and below the known-bad one.
 keymap fix + proven bootargs `3659a0da`. What fixed 148 was the kernel; the restored llvmpipe was the
 nice-to-have that pushed the rootfs over the limit. **Versus the object that booted in 148, exactly one
 variable changed.**
+
+### 2026-07-26 — 🐧🖥️ dwm runs on the panel with a working keyboard
+
+Object `3ec81ef3` is a pass: tags 1–9, `[]=`, `st`, `dwm-6.8`, blue border, `Alt+Shift+Return` spawns a
+terminal, `Alt+p` opens dmenu, æ ø å correct. Trackpad dead as designed (004/126). The full chain works
+end to end — raw object → m1n1 → full kernel → Alpine RAM root → Xorg/modesetting on simpledrm → dwm →
+st → keyboard.
+
+**Two blockers, neither of them the predicted one.** Ticket 148 warned that `modesetting` might fail to
+probe simpledrm because DIET drops `DRM_TTM`/`DRM_SCHED`/`DRM_DISPLAY_HELPER`, and that Xorg might refuse
+without a pointer. Both were wrong:
+
+1. the diet kernel had `# CONFIG_NET is not set`, hence no `CONFIG_UNIX`, hence no **AF_UNIX** socket —
+   `Cannot establish any listening sockets` / `Function not implemented` (ENOSYS);
+2. after the full kernel fixed that, dwm loaded but **no input worked at all**: the image carried
+   `libudev.so.1` as a dependency of Xorg/libinput but no `udevd`/`udevadm`, so the udev database was
+   never populated and `xf86-input-libinput` enumerated zero devices. `eudev`, started before X, fixed it.
+
+`simpledrm` probed cleanly the first time the full kernel ran.
+
+#### HiDPI: one symptom, three independent mechanisms
+
+Text rendered at roughly a quarter size — the panel is 3024×1964 on 14.2″ ≈ **254 DPI** while X assumes
+96. The pre-existing `xrandr --dpi 192` **could not have fixed `st`**: Alpine builds st with a
+**`pixelsize=`** font, which ignores every DPI setting. The fix needs all three, because they consult
+different sources of truth:
+
+- `startx -- -dpi 192` — what the display reports;
+- `Xft.dpi` via `~/.Xresources` + `xrdb -merge` — what Xft uses for **point** sizes, and therefore the
+  only lever for **dwm's bar and dmenu**, whose fonts are compile-time `monospace:size=10` in the
+  suckless config and cannot be changed without rebuilding those binaries;
+- `st -f 'monospace:pixelsize=28'` — explicit, because of the above.
+
+`xrdb` was not installed at all, so `Xft.dpi` could never have been loaded. Tunable at boot by
+`T6040_DPI` (default 192, the 2× convention) and `T6040_ST_PIXELSIZE` (default 28); 254 is the panel's
+true DPI if physical accuracy is preferred. Object `m1n1-b0-dwm-hidpi.bin` `59622e78` — identical to the
+working object except the initramfs, so it cannot regress input or graphics.

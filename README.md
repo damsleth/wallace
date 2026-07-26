@@ -6,6 +6,28 @@ panel, keyboard (Norwegian), watchdog — with a remote DebugUSB loop for develo
 
 This repo is the umbrella. The code lives in four sibling repos and the knowledge kept getting smeared across them so everything that guides the work now lives here: plans, scripts, kernel patches, post-mortems.
 
+## Status (2026-07-26) — 🐧🖥️ GRAPHICAL TARGET REACHED: dwm on the M4 Pro panel
+
+**dwm runs on the internal display with a working keyboard.** Tags 1–9, `[]=` tiled layout, `st`,
+`dwm-6.8`, blue selected-window border; `Alt+Shift+Return` spawns a terminal, `Alt+p` opens dmenu, and
+æ ø å are correct via `setxkbmap no`. The trackpad is still dead, as designed (tickets 004/126). Object
+`m1n1-b0-dwm-udev.bin` `3ec81ef3`.
+
+The full chain now works: enrolled-format raw object → m1n1 → full kernel → Alpine RAM root → Xorg on
+`modesetting`/simpledrm → dwm → `st` → keyboard.
+
+Two blockers had to fall, and **neither was the one predicted**: the diet kernel's
+`# CONFIG_NET is not set` left no `CONFIG_UNIX`, so Xorg could not create its AF_UNIX listening socket
+(148); then the image had `libudev.so.1` as a dependency but **no `udevd`**, so `xf86-input-libinput`
+enumerated zero devices and nothing responded (161). The `simpledrm` probe that ticket 148 actually
+worried about worked first time.
+
+Text rendered tiny at first — the panel is ~254 DPI while X assumes 96 — and the fix needed three
+separate mechanisms, because they share no source of truth: the server's `-dpi`, `Xft.dpi` via
+`xrdb` (the only lever for dwm's bar and dmenu, whose fonts are compile-time in the suckless config),
+and an explicit `pixelsize` for `st`, whose Alpine build ignores DPI entirely. `m1n1-b0-dwm-hidpi.bin`
+`59622e78` carries that, and is otherwise byte-identical in kernel, loader, DTB and bootargs.
+
 ## Status (2026-07-26, night) — the kernel is reproducible again
 
 **The DockChannel TTY driver was never in version control.** `drivers/tty/apple_dockchannel_tty.c` —
