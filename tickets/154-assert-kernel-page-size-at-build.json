@@ -2,7 +2,7 @@
   "seq": "154",
   "slug": "assert-kernel-page-size-at-build",
   "needs": "offline",
-  "state": "proposed",
+  "state": "done",
   "track": "kernel",
   "priority": "P2",
   "desc": "Add a build-time page-size assertion to scripts/t6040-kbuild.sh so a 4 KiB/16 KiB mix-up can never again be discovered only at boot. Ticket 147 existed because DIET_CAPABLE silently became a 16 KiB-page kernel (PCIE_APPLE depends on PAGE_SIZE_16KB) while every proven boot used 4 KiB \u2014 an ABI-level change that the existing symbol assertion does not cover. The page size is cheaply checkable from the built arm64 Image header: flags at offset 24 (u64 LE), bits 1-2 encode 0=unspecified 1=4K 2=16K 3=64K, with magic 0x644d5241 at offset 56 (verified 2026-07-26: Image-b0-diet flags=0xa => 4K, Image-b0-dietcap flags=0xc => 16K). Task: assert DIET => 4K and DIET_CAPABLE => 16K after each build and fail loudly on mismatch; also print the page size in the build summary, and consider having t6040-raw-object-verify.py report the kernel member's page size so an object's ABI is visible without unpacking. DO NOT use 'strings' for this \u2014 Image-b0-dietcap contains a literal '4K pages' message string and would give the wrong answer. Host-only, no rig.",
@@ -10,5 +10,6 @@
   "deps": [],
   "hashes": null,
   "created": 1785110000,
-  "runnable": true
+  "runnable": false,
+  "result": "2026-07-26 DONE, both halves. (1) scripts/t6040-kbuild.sh now derives the page size from the built arm64 Image header (magic 0x644d5241 at +56, flags u64 LE at +24, bits 1-2) via `od`, prints it in the build output, and asserts DIET => 4K / DIET_CAPABLE => 16K, refusing to publish the artifact on mismatch \u2014 the check runs BEFORE the cp into /out, so a wrong-ABI Image is never published. It also cross-checks the header against CONFIG_ARM64_{4K,16K,64K}_PAGES so a stale or hand-edited .config is caught. Non-DIET builds are reported, not asserted, so other variants are unaffected. (2) scripts/t6040-raw-object-verify.py now reports the kernel member's page size ('pages=4K'/'pages=16K') on the kernel record and in --json, so an object's ABI is visible without unpacking it by hand, which is how 147 had to establish it. Verified: the bash header decoder matches an independent python decode on all four real Images (Image-b0-diet 4K, Image-b0-dietcap 16K, Image-hid-type-fix 4K, Image-hid-type-fix-dietcap 16K); the verifier reports pages=4K for the fat object and the proven B0 milestone object f290833c, and pages=16K for the dietcap smoke object; --self-test still PASSES. Deliberately does NOT use `strings`, which reports a literal '4K pages' message string inside the 16 KiB dietcap Image and would give the wrong answer. NOTE this codifies and surfaces the expectation rather than retroactively catching 147 \u2014 147's 16 KiB was a correct consequence of PCIE_APPLE; the defect was that it was silent. The value is preventing drift in either direction and making the ABI visible."
 }

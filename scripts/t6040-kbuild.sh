@@ -1267,6 +1267,46 @@ if [ "${1:-}" = "image" ]; then
         map_name="${map_name}-diet"
     fi
 
+    # Ticket 154: assert the PAGE SIZE from the built arm64 Image header, before the
+    # artifact is published. Ticket 147 existed only because DIET_CAPABLE silently became
+    # a 16 KiB-page kernel (PCIE_APPLE depends on PAGE_SIZE_16KB) while every proven boot
+    # had used 4 KiB — an ABI-level change the symbol assertions above cannot catch, and
+    # which was discoverable afterwards only by decoding the header by hand.
+    #
+    # Header: magic "ARM\x64" = 0x644d5241 at +56; flags u64 LE at +24, bits 1-2 encode
+    # 0=unspecified 1=4K 2=16K 3=64K. NEVER use `strings` for this — Image-b0-dietcap is a
+    # 16 KiB kernel yet contains a literal "4K pages" message string, so strings lies.
+    image_page_size() {
+        local img="$1" magic flags ps
+        magic=$(od -An -tx4 -j56 -N4 "$img" 2>/dev/null | tr -d ' \n')
+        [ "$magic" = "644d5241" ] || { echo "BADMAGIC:$magic"; return; }
+        flags=$(od -An -tu8 -j24 -N8 "$img" 2>/dev/null | tr -d ' \n')
+        ps=$(( (flags >> 1) & 3 ))
+        case "$ps" in 1) echo 4K ;; 2) echo 16K ;; 3) echo 64K ;; *) echo unspecified ;; esac
+    }
+    actual_ps=$(image_page_size arch/arm64/boot/Image)
+    expect_ps=""
+    if [ "${DIET_CAPABLE:-0}" = "1" ]; then
+        expect_ps=16K   # PCIE_APPLE requires PAGE_SIZE_16KB
+    elif [ "${DIET:-0}" = "1" ]; then
+        expect_ps=4K    # the proven B0 page size
+    fi
+    echo "== Image page size: $actual_ps (header-derived)${expect_ps:+, expected $expect_ps} =="
+    if [ -n "$expect_ps" ] && [ "$actual_ps" != "$expect_ps" ]; then
+        echo "PAGE SIZE MISMATCH: built $actual_ps but this variant requires $expect_ps" >&2
+        echo "  a page-size change is an ABI-level change: it must be re-smoked, not assumed" >&2
+        echo "  refusing to publish the artifact" >&2
+        exit 1
+    fi
+    # Cross-check the config agrees with the header, so a stale/edited .config is caught.
+    for pair in "4K:ARM64_4K_PAGES" "16K:ARM64_16K_PAGES" "64K:ARM64_64K_PAGES"; do
+        want_ps=${pair%%:*}; sym=${pair#*:}
+        if [ "$actual_ps" = "$want_ps" ] && ! grep -q "^CONFIG_${sym}=y" .config; then
+            echo "PAGE SIZE INCONSISTENT: header says $actual_ps but CONFIG_${sym} is not set" >&2
+            exit 1
+        fi
+    done
+
     # Refuse to silently replace an existing artifact: any Image already in /out may
     # be referenced by a done/ write-up or pinned in a ticket. Set KBUILD_OVERWRITE=1
     # to replace deliberately.

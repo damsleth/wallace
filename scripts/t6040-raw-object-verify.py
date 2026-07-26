@@ -81,6 +81,23 @@ class Record:
     expanded_size: int | None = None
     expanded_sha256: str | None = None
     runtime_reserve: int = 0
+    page_size: str | None = None
+
+
+PAGE_SIZE_NAMES = {0: "unspecified", 1: "4K", 2: "16K", 3: "64K"}
+
+
+def kernel_page_size(data: bytes) -> str:
+    """Page size from the arm64 Image header: flags u64 LE at +24, bits 1-2.
+
+    Ticket 154. Reported so an object's kernel ABI is visible without unpacking it —
+    the 4 KiB/16 KiB difference is what ticket 147 had to establish by hand. Never infer
+    this from `strings`: a 16 KiB Image can contain a literal "4K pages" message string.
+    """
+    if len(data) < 0x3C or data[0x38:0x3C] != KERNEL_MAGIC:
+        return "unknown"
+    flags = struct.unpack_from("<Q", data, 24)[0]
+    return PAGE_SIZE_NAMES.get((flags >> 1) & 3, "unspecified")
 
 
 def classify_expanded(data: bytes) -> tuple[str, int]:
@@ -208,6 +225,7 @@ def parse_payload_stream(data: bytes, start: int, allow_fs_image: bool = False) 
                     len(expanded),
                     sha256(expanded),
                     runtime_reserve,
+                    kernel_page_size(expanded) if role == "kernel" else None,
                 )
             )
             offset += consumed
@@ -585,10 +603,16 @@ def main() -> int:
             f"size={result['object']['size']} entry=0x{RAW_ENTRY_POINT:x}"
         )
         for record in result["records"]:
+            # Surface the kernel's page size (ticket 154): the 4 KiB/16 KiB ABI is not
+            # otherwise visible without unpacking the object by hand, which is how
+            # ticket 147 had to establish it.
+            suffix = ""
+            if record.get("page_size"):
+                suffix = f"  pages={record['page_size']}"
             print(
                 f"{record['offset']:#010x} {record['size']:9d} "
                 f"{record['role']:10s} {record['encoding']:16s} "
-                f"{record['sha256']}"
+                f"{record['sha256']}{suffix}"
             )
         print(f"runtime payload reserve: {result['runtime_reserve']['payload_bytes']} bytes")
     return 0
