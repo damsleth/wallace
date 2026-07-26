@@ -45,7 +45,7 @@ CONFIRM="${2:-}"
 if [ -z "$OBJ" ]; then
     echo "usage: TARGET=/Volumes/m1n1 $0 <object.bin> [--confirm-enroll]" >&2
     echo "  validates identity + object hash, prints the exact kmutil command;" >&2
-    echo "  add --confirm-enroll to actually run it (prompts for sudo)." >&2
+    echo "  add --confirm-enroll to actually run it." >&2
     exit 2
 fi
 [ -f "$OBJ" ] || { echo "GUARD FAIL: object not found: $OBJ" >&2; exit 1; }
@@ -88,10 +88,13 @@ echo
 # The exact enrollment command (raw m1n1 contract from ticket 080).
 set -- kmutil configure-boot -c "$OBJ" --raw --entry-point 2048 --lowest-virtual-address 0 -v "$TARGET"
 echo "Exact enroll command:"
-printf '  sudo'; printf ' %q' "$@"; echo; echo
+# No sudo: enrollment happens in 1TR, where the shell is already root and sudo is not
+# available at all (maintainer, 2026-07-26). Printing `sudo kmutil ...` sent someone to 1TR
+# with a command that cannot run as written.
+printf ' '; printf ' %q' "$@"; echo; echo
 
 if [ "$CONFIRM" = "--confirm-enroll" ]; then
-    echo ">>> --confirm-enroll set — running now (sudo will prompt) <<<"
-    exec sudo "$@"
+    echo ">>> --confirm-enroll set — running now <<<"
+    exec "$@"
 fi
 echo "(validation only. Re-run with --confirm-enroll to execute, or run the command above.)"
