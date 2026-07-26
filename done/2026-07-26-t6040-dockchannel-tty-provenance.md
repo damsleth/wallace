@@ -78,3 +78,35 @@ routes to actually capturing kernel dmesg on the host, in increasing cost:
 
 Until one lands, **the panel is the only source of kernel dmesg**, and a screenshot remains necessary
 evidence for any graphical smoke.
+
+## Sweep: is anything else only in the container? (2026-07-26)
+
+Because one driver had gone untracked, all three build trees were swept. Each carries an identical
+set of 14 modified/untracked paths, so they come from one shared application flow. Mapping every path
+against `patches/` (plus `flokli-code.patch`):
+
+| Path | Covered by |
+|---|---|
+| `Documentation/.../apple,pmgr.yaml` | `t6040-pmgr-t6041-bindings.patch` |
+| `Documentation/.../apple,sart.yaml` | `t8140-ans-bindings`, `t8140-sart-power-bindings` |
+| `Documentation/.../apple,mailbox.yaml` | `t8140-ans-bindings.patch` |
+| `Documentation/.../apple,nvme-ans.yaml` | `t8140-ans-bindings.patch` |
+| `Documentation/.../apple,pmgr-pwrstate.yaml` | `t6040-pmgr-t6041-bindings.patch` |
+| `drivers/hid/.../apple_dockchannel_hid.c` | `hid-type`, `hid-state-trace`, `fixes`, `trackpad-fw` |
+| `drivers/mailbox/apple-dockchannel.c` | `poll`, `rx-rearm`, `atomic-tx`, telemetry/debug patches |
+| `drivers/pmdomain/apple/pmgr-pwrstate.c` | `pmgr-functional`, `pmgr-t6041-quirks`, others |
+| `drivers/soc/apple/sart.c` | five `t8140-sart-*` patches |
+| **`Documentation/.../apple,dockchannel-serial.yaml`** | **nothing — recovered here** |
+| **`MAINTAINERS`** | **nothing — recovered here** |
+
+So **9 of 11 were already reproducible**; the two that were not are both part of the same
+dockchannel-serial feature as the driver, and are now folded into
+`patches/t6040-dockchannel-tty-driver.patch`. Neither is compiled, so they never affected the build —
+but the binding documents the exact `apple,dockchannel-serial` compatible that
+`t6040-j614s-dcuart.dts` uses, so losing it would have made the DT unexplainable to a newcomer.
+
+Full reconstruction re-verified on a clean scratch tree: driver byte-identical (`2880e145…`), binding
+present, both MAINTAINERS entries applied.
+
+**Conclusion: the kernel is now reproducible from the repository.** The remaining `-dirty` version
+string is expected, since the build legitimately applies patches on top of a tagged tree.

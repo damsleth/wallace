@@ -12,6 +12,10 @@ patches/, so a rebuild from the repository silently produced a kernel WITHOUT
 /dev/ttydc0 and lost the DockChannel shell and health-report transport. It is
 also why every built kernel reported a -dirty version. Ticket 159.
 
+Also carries the devicetree binding for the apple,dockchannel-serial compatible that
+t6040-j614s-dcuart.dts actually uses, and the two MAINTAINERS file entries. Neither is
+compiled, so they do not affect the build, but they were likewise untracked.
+
 Note this driver is a TTY only: it does NOT register a struct console, so
 `console=ttydc0` on the kernel command line matches nothing and is silently
 ignored (ticket 153). patches/t6040-dockchannel-nbcon.patch adds that console
@@ -518,3 +522,71 @@ index 000000000000..c50cfa8f022c
 +MODULE_DESCRIPTION("Apple DockChannel serial TTY transport");
 +MODULE_AUTHOR("Michael Reeves <michael.reeves077@gmail.com>");
 +MODULE_LICENSE("Dual MIT/GPL");
+diff --git a/MAINTAINERS b/MAINTAINERS
+index a1f008a74c1c..0e177dab96a7 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2552,6 +2552,7 @@ F:	Documentation/devicetree/bindings/power/apple*
+ F:	Documentation/devicetree/bindings/power/reset/apple,smc-reboot.yaml
+ F:	Documentation/devicetree/bindings/pwm/apple,s5l-fpwm.yaml
+ F:	Documentation/devicetree/bindings/rtc/apple,smc-rtc.yaml
++F:	Documentation/devicetree/bindings/serial/apple,dockchannel-serial.yaml
+ F:	Documentation/devicetree/bindings/spi/apple,spi.yaml
+ F:	Documentation/devicetree/bindings/spmi/apple,spmi.yaml
+ F:	Documentation/devicetree/bindings/usb/apple,dwc3.yaml
+@@ -2587,6 +2588,7 @@ F:	drivers/rtc/rtc-macsmc.c
+ F:	drivers/soc/apple/*
+ F:	drivers/spi/spi-apple.c
+ F:	drivers/spmi/spmi-apple-controller.c
++F:	drivers/tty/apple_dockchannel_tty.c
+ F:	drivers/usb/dwc3/dwc3-apple.c
+ F:	drivers/video/backlight/apple_dwi_bl.c
+ F:	drivers/watchdog/apple_wdt.c
+diff --git a/Documentation/devicetree/bindings/serial/apple,dockchannel-serial.yaml b/Documentation/devicetree/bindings/serial/apple,dockchannel-serial.yaml
+new file mode 100644
+index 000000000000..a1c2013611c9
+--- /dev/null
++++ b/Documentation/devicetree/bindings/serial/apple,dockchannel-serial.yaml
+@@ -0,0 +1,42 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/serial/apple,dockchannel-serial.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Apple DockChannel Serial Transport
++
++maintainers:
++  - Michael Reeves <michael.reeves077@gmail.com>
++
++description:
++  Byte-stream serial transport carried over an Apple DockChannel FIFO mailbox.
++  This is used by debug and m1n1 proxy transports where the line speed and
++  modem control signals are not meaningful, but the endpoint behaves like a
++  raw serial byte stream.
++
++properties:
++  compatible:
++    const: apple,dockchannel-serial
++
++  mboxes:
++    maxItems: 1
++
++  mbox-names:
++    items:
++      - const: dockchannel
++
++required:
++  - compatible
++  - mboxes
++  - mbox-names
++
++additionalProperties: false
++
++examples:
++  - |
++    serial {
++        compatible = "apple,dockchannel-serial";
++        mboxes = <&dockchannel_uart>;
++        mbox-names = "dockchannel";
++    };
