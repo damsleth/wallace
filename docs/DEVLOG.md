@@ -1343,3 +1343,32 @@ own window catches `chainload.py`'s handshake), so smoke objects need a window-f
 (`ecd264a5`); and the USB gadget cannot observe an image whose console is `tty0`+`ttydc0`,
 because gadget and DebugUSB/KIS are mutually exclusive on the DFU port — smoke such
 images over KIS.
+
+### 2026-07-26 — PCIe `_initializePhy` decoded to absolute addresses (ticket 124)
+
+Decoded `ApplePCIEBaseT8132::_initializePhy()` from the paired kernelcache, then resolved
+its apertures against the live `/arm-io/apcie0` ADT read over the rollback-loader proxy
+(read-only fetch, no MMIO poke).
+
+- **First PHY-init hardware op** = read-modify-write of **PhyCommon register `0x0`, set bit 0**
+  (`mov w1,#0; _readPhyCommonReg; orr w8,w8,#1; _writePhyCommonReg`). A PhyPhy read follows;
+  a second PhyCommon write comes later.
+- The accessors reveal a **shared PHY aperture**: `_readPhyCommonReg(N)` adds `+0x4000`,
+  `_readPhyPhyReg(N)` adds `+0x8000`, both dispatching the same vtable slot `+0xb28`.
+  `_readPhyIPReg` instead dereferences a cached per-port base at **`this+0x240`** and panics if
+  null — so 068's op-115 hang is a *non-responding aperture*, not a null pointer.
+- The `dtRegMap*Index()` accessors are **not constants**: they read consecutive per-instance
+  ivars (`[this+709]` ApcieCommon, `[710/711]` Phy, `[718]` PortPhyGlue, `[719]` PortPhyIP)
+  filled at probe from the ADT. Apple's ADT has **no `reg-names`** — `apcie0` is index-mapped
+  (35 regs = 7 header + 4 ports × 7), which is exactly why the driver caches indices.
+- Resolved absolutes: `reg[2]=0x217000000` is the shared PHY region, so **PhyCommon[0] =
+  `0x217004000`**, **PhyPhy = `0x217008000`**, and the op-115 read that hangs is
+  **`0x217048090`** (port0 PHY-IP `0x217048000 + 0x90`; `+port*0x8000`).
+- **Grounded missing precondition:** before reading `0x217048090`, set bit 0 of `0x217004000`
+  and run PhyPhy setup at `0x217008000` — m1n1 does neither today.
+
+Not done autonomously: a live read of the PHY aperture risks an ungated-aperture SError that
+would wedge the tether (same class as the NVMe `nvme_init` SError), so the exact PhyPhy
+register/value pairs and the second PhyCommon write are deferred to an attended session, along
+with one separately-gated m1n1 candidate. **068 stays un-retried.** Full trace in
+`done/2026-07-26-t6040-pcie-initializephy-trace.md`.

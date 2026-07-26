@@ -2,10 +2,11 @@
   "seq": "124",
   "slug": "pcie-op115-next-precondition",
   "needs": "offline",
-  "state": "open",
+  "state": "decoded-attended-next",
   "track": "pcie",
   "priority": "P1",
   "desc": "Continue paired AppleT6040PCIe static tracing after ticket 068 proved clkgen PLL lock but reg[3]+0x90 still hangs. Resolve every remaining operation before the first _readPhyIPReg, especially PHY-IP power/reset/domain ownership, against ADT indices and exact accessors. Produce a proof/no-go or one separately gated candidate; no rig, no guessed offsets, and never retry 068 unchanged.",
+  "progress": "2026-07-26 (done/2026-07-26-t6040-pcie-initializephy-trace.md): decoded _initializePhy's first hardware op = PhyCommon reg 0x0 bit-0 RMW; accessors show shared PHY aperture with PhyCommon at +0x4000, PhyPhy at +0x8000, PHY-IP base cached at this+0x240 (068 hang is a non-responding aperture, not a null ptr). Read /arm-io/apcie0 over the live proxy: no reg-names (index-mapped), 35 entries = 7 header + 4 ports x 7. Resolved absolute addrs: reg[2]=0x217000000 shared PHY => PhyCommon[0]=0x217004000, PhyPhy=0x217008000, op-115 PHY-IP read=0x217048090 (port0, +port*0x8000). Grounded missing precondition: set bit0 of 0x217004000 + PhyPhy setup at 0x217008000 before reading 0x217048090; m1n1 does neither. REMAINING (needs attended session, not autonomous): live PHY-aperture read risks ungated-SError wedge (NVMe class); exact PhyPhy reg/val pairs + second PhyCommon write; definitive dtRegMapApcieCommonIndex(reg[1]) via probe-time ivar fill; then one separately-gated m1n1 candidate. 068 stays un-retried.",
   "author": "sol",
   "deps": [
     "068"
