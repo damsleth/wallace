@@ -10,8 +10,6 @@ source "$(dirname "$0")/rig-guard.sh"
 M1=${M1N1DEVICE:-/tmp/m1n1}
 M1N1_DIR=${M1N1_DIR:-/Users/damsleth/Code/m1n1}
 OUT=${OUT:-/Users/damsleth/Code/linux-build-out}
-DEFAULT_OBJECT=$OUT/m1n1-b0-alpine-hid-restored.bin
-DEFAULT_OBJECT_SHA=b50f52ab1fac473db2e9257c5363ef7905e4d1da5c8535fbf417209b09319172
 CONLOG=${CONLOG:-$OUT/raw-object-console.log}
 CHAINLOAD_LOG=${CHAINLOAD_LOG:-$OUT/raw-object-chainload.log}
 # m1n1 proxyclient needs the venv (construct, etc.); match t6040-boot-dcuart.sh.
@@ -19,45 +17,70 @@ PY=${PYTHON:-/Users/damsleth/Code/m1n1/venv/bin/python}
 
 usage() {
     cat >&2 <<USAGE
-usage: $(basename "$0") [OBJECT_PATH]
+usage: $(basename "$0") <OBJECT_PATH> <SHA256>
 
 Chainload exactly one self-contained raw m1n1 object over the KIS pty.
 
-The object may be given as the first argument OR via OBJECT=; both are accepted
-and unknown/extra arguments are a hard error. Whenever the object is not the
-pinned default, OBJECT_SHA= must be given explicitly, so a run can only ever
-boot the exact bytes that were reviewed.
+There is deliberately NO default object. Both the object and its expected
+sha256 must be named on every run, so this script can never boot bytes the
+caller did not ask for. Prefer the positional form: it survives being pasted
+with semicolons between the values, which env-var assignments do not.
 
-  OBJECT=<path> OBJECT_SHA=<sha256> M1N1DEVICE=/tmp/m1n1 $(basename "$0")
-  OBJECT_SHA=<sha256> M1N1DEVICE=/tmp/m1n1 $(basename "$0") <path>
+  $(basename "$0") <path> <sha256>            # recommended
+  OBJECT=<path> OBJECT_SHA=<sha256> $(basename "$0")   # env form (spaces only!)
 
-default object: $DEFAULT_OBJECT
-env: M1N1DEVICE OBJECT OBJECT_SHA OUT M1N1_DIR PYTHON CONLOG CHAINLOAD_LOG T6040_KEEPALIVE
+env: M1N1DEVICE (default /tmp/m1n1) OBJECT OBJECT_SHA OUT M1N1_DIR PYTHON
+     CONLOG CHAINLOAD_LOG T6040_KEEPALIVE
 USAGE
 }
 
-# Was OBJECT_SHA set by the caller (as opposed to defaulted below)?
-sha_explicit=${OBJECT_SHA+yes}
-
-if [ "$#" -gt 1 ]; then
+if [ "$#" -gt 2 ]; then
     echo "unexpected extra arguments: $*" >&2
     usage
     exit 2
 fi
-arg=${1:-}
-case "$arg" in
+arg_obj=${1:-}
+arg_sha=${2:-}
+case "$arg_obj" in
     -h|--help) usage; exit 0 ;;
-    -*)        echo "unknown option: $arg" >&2; usage; exit 2 ;;
+    -*)        echo "unknown option: $arg_obj" >&2; usage; exit 2 ;;
 esac
 
-# A positional path and OBJECT= must not disagree; silently preferring one of
-# them is exactly how a run boots something other than what was intended.
-if [ -n "$arg" ] && [ -n "${OBJECT:-}" ] && [ "$arg" != "${OBJECT:-}" ]; then
-    echo "conflicting object: argument '$arg' != OBJECT '$OBJECT'" >&2
+# A positional value and its env twin must not disagree; silently preferring one
+# is exactly how a run boots something other than what was intended.
+if [ -n "$arg_obj" ] && [ -n "${OBJECT:-}" ] && [ "$arg_obj" != "${OBJECT:-}" ]; then
+    echo "conflicting object: argument '$arg_obj' != OBJECT '$OBJECT'" >&2
     echo "pass it one way only" >&2
     exit 2
 fi
-OBJECT=${arg:-${OBJECT:-$DEFAULT_OBJECT}}
+if [ -n "$arg_sha" ] && [ -n "${OBJECT_SHA:-}" ] && [ "$arg_sha" != "${OBJECT_SHA:-}" ]; then
+    echo "conflicting sha: argument '$arg_sha' != OBJECT_SHA '$OBJECT_SHA'" >&2
+    echo "pass it one way only" >&2
+    exit 2
+fi
+
+OBJECT=${arg_obj:-${OBJECT:-}}
+OBJECT_SHA=${arg_sha:-${OBJECT_SHA:-}}
+
+# No default object, by design. Two rig cycles were burned booting a hardcoded
+# default: once because a positional path was ignored, and once because
+# `VAR=x; VAR=y; cmd` sets shell-local variables that never reach the child, so
+# the script saw an empty environment and its default looked perfectly valid.
+# A missing value must stop the run, not select something historical.
+if [ -z "$OBJECT" ]; then
+    echo "no object given: name the object explicitly (there is no default)" >&2
+    usage
+    exit 2
+fi
+if [ -z "$OBJECT_SHA" ]; then
+    echo "no OBJECT_SHA given: the exact bytes must be pinned on every run" >&2
+    if [ -f "$OBJECT" ]; then
+        echo "  object: $OBJECT" >&2
+        echo "  sha256: $(shasum -a 256 "$OBJECT" | awk '{print $1}')" >&2
+    fi
+    usage
+    exit 2
+fi
 
 [ -e "$M1" ] || {
     echo "missing KIS pty: $M1" >&2
@@ -69,19 +92,6 @@ OBJECT=${arg:-${OBJECT:-$DEFAULT_OBJECT}}
 }
 
 actual_sha=$(shasum -a 256 "$OBJECT" | awk '{print $1}')
-
-# Overriding the object without pinning its hash would otherwise fall through to
-# the DEFAULT hash and report a confusing "mismatch" against a file you did not
-# name. Fail with the hash you need instead.
-if [ "$OBJECT" != "$DEFAULT_OBJECT" ] && [ -z "$sha_explicit" ]; then
-    echo "refusing to boot a non-default object without an explicit OBJECT_SHA" >&2
-    echo "  object: $OBJECT" >&2
-    echo "  sha256: $actual_sha" >&2
-    echo "re-run with OBJECT_SHA=$actual_sha" >&2
-    exit 2
-fi
-OBJECT_SHA=${OBJECT_SHA:-$DEFAULT_OBJECT_SHA}
-
 [ "$actual_sha" = "$OBJECT_SHA" ] || {
     echo "raw-object SHA mismatch for $OBJECT" >&2
     echo "  actual:   $actual_sha" >&2

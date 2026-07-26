@@ -78,10 +78,13 @@ observe a `console=tty0` image. **Needs the maintainer at the panel.**
 
 ```sh
 bash scripts/t6040-debugusb-console.sh reboot     # into m1n1, attach kisd -> /tmp/m1n1
-OBJECT=~/Code/linux-build-out/m1n1-b0-dietcap-smoke.bin \
-OBJECT_SHA=ac24d4bfb562f9de7a138a4a3f37b95fb8526e89ab22cc5ffdbc314db23b6546 \
-M1N1DEVICE=/tmp/m1n1 bash scripts/t6040-boot-raw-object.sh
+bash scripts/t6040-boot-raw-object.sh \
+    ~/Code/linux-build-out/m1n1-b0-dietcap-smoke.bin \
+    ac24d4bfb562f9de7a138a4a3f37b95fb8526e89ab22cc5ffdbc314db23b6546
 ```
+
+Positional form is preferred: it survives being pasted with `;` between values, which env-var
+assignments do not.
 
 If it fails, the 16 KiB page change is the cause — and 149 must not then be attributed to its own
 payload.
@@ -120,3 +123,42 @@ non-zero.
 **Lesson (same shape as the 16 KiB root cause):** a guard that validates a value the script chose
 for itself proves nothing about the value the caller intended. The hash gate must be pinned to the
 *named* input, and an ignored argument must fail rather than defaulting.
+
+## Incident 2: the default object struck again (2026-07-26, attempt 2)
+
+Attempt 2 also booted `m1n1-b0-alpine-hid-restored.bin`. **147 is still untested.**
+
+The invocation was `OBJECT=...; OBJECT_SHA=...; M1N1DEVICE=...; bash script.sh` — with
+**semicolons**. That is four separate commands: each `VAR=value` sets a *shell-local* variable that
+is never exported, so the script ran with none of them in its environment. Prefix assignments only
+reach a child process when they are space-separated on the same command.
+
+Incident 1's hardening did not catch it: that guard only fired when `OBJECT` *was* overridden. With
+an empty environment the script took its default path, which looked entirely valid — same silent
+wrong-object outcome by a different route.
+
+Confirmed three independent ways, including the panel itself:
+
+| Source | Evidence |
+|---|---|
+| script stdout | `one-object chainload: …/m1n1-b0-alpine-hid-restored.bin` |
+| chainload log | `0x14b8f13` = 21,729,039 + 4 = hid-restored, not 14,893,056 |
+| **on-screen `uname`** | `7.1.3-g96ac043df12f-dirty`, built **Jul 24** — dietcap is `7.1.3-g246843ff67a8-dirty` |
+
+### Real fix: the hardcoded default object is gone
+
+Both wasted cycles ended in "silently booted the default", so the default itself was the hazard. The
+script now has **no default object**; the object **and** its sha256 must be named on every run, and
+a positional two-argument form is preferred because it survives semicolon-pasting:
+
+```sh
+bash scripts/t6040-boot-raw-object.sh <path> <sha256>
+```
+
+A bare run with an empty environment — the exact shape of incident 2 — now exits 2 with
+`no object given: name the object explicitly (there is no default)` instead of booting a July 24
+object. Env form still works, spaces only.
+
+**Lesson, sharper than incident 1's:** a convenience default is a silent-wrong-answer generator on a
+rig where each run costs a reboot cycle. For an operation whose whole purpose is *which bytes ran*,
+there should be no value the script can supply on the caller's behalf.
