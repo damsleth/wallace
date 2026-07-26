@@ -1,0 +1,17 @@
+{
+  "seq": "158",
+  "slug": "chainload-orphans-progress-and-timeout",
+  "needs": "offline",
+  "state": "done",
+  "track": "harness",
+  "priority": "P1",
+  "author": "claude",
+  "deps": [
+    "157"
+  ],
+  "hashes": null,
+  "created": 1785122000,
+  "runnable": false,
+  "desc": "Three defects in how t6040-boot-raw-object.sh invoked chainload.py, all of which cost rig time on 2026-07-26. (1) ORPHANS: the `timeout` wrapper was reparented to init when the script's parent was killed and its python child kept running; one such orphan had pushed ~41 MiB into the KIS pty and then sat holding it, silently corrupting the maintainer's next TWO runs \u2014 the target stayed at 'Running proxy' because two writers interleaved on one transport, and the symptom was misread as the machine being stuck. (2) NO PROGRESS: python block-buffers stdout to a file, so the log stayed 0 bytes until exit and a healthy upload was indistinguishable from a hang. (3) FIXED 300s TIMEOUT: measured KIS rate is ~0.7 MB/s, and the capability-first policy (155) makes objects larger, not smaller.",
+  "result": "2026-07-26 FIXED, orphan prevention proven by test. (1) `set -m` puts the chainload job in its own process group and an EXIT/INT/TERM trap kills the WHOLE group, so no wrapper or child survives the script. Verified offline with a sleep-based stand-in: before SIGTERM both 'timeout 300' and its child were alive; after SIGTERM of the parent, both were gone. NOTE this covers SIGTERM/SIGINT (what a tool timeout or Ctrl-C sends) but cannot cover SIGKILL, where no trap can run. (2) PYTHONUNBUFFERED=1 makes the log fill live, and the script now prints the object size plus a 'tail -f <log>' hint, so progress is observable instead of inferred from CPU time. (3) Timeout is now 120s + 5s/MiB, overridable with T6040_CHAINLOAD_TIMEOUT. Accuracy note: the old fixed 300s was MARGINAL BUT SUFFICIENT for the 79 MiB fat object (measured ~120s), so it was not the cause of any failure today; it would however genuinely fail the 512 MiB probe of ticket 156, which needs ~730s at the measured rate. Scaled values: 9 MiB->165s, 79 MiB->515s, 512 MiB->2680s."
+}

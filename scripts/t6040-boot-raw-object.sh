@@ -119,13 +119,47 @@ fi
 
 echo "== one-object chainload: $OBJECT =="
 echo "== sha256: $OBJECT_SHA =="
+
+# Ticket 158. Three defects in the old one-liner, all of which cost real rig time on
+# 2026-07-26:
+#
+#  1. ORPHANS. `timeout` was reparented to init when this script's parent was killed, and
+#     its python child kept running — one such orphan had pushed ~41 MiB into the pty and
+#     then sat holding it, silently corrupting the maintainer's next two runs (the target
+#     stayed at `Running proxy` because two writers interleaved on one transport). `set -m`
+#     puts the job in its own process group so the EXIT trap can kill the WHOLE group.
+#  2. NO PROGRESS. Python block-buffers stdout to a file, so the log stayed 0 bytes until
+#     exit and a healthy upload was indistinguishable from a hang. PYTHONUNBUFFERED=1 makes
+#     the log fill live, so `tail -f` shows the progress dots.
+#  3. FIXED 300 s TIMEOUT. Measured rate over KIS is ~0.7 MB/s (83 MB took ~2 min), so 300 s
+#     was already marginal for the fat object and hopeless for anything larger — and the
+#     capability-first policy (ticket 155) makes objects bigger, not smaller. Scale it.
+object_mib=$(( $(wc -c < "$OBJECT") / 1048576 ))
+CHAINLOAD_TIMEOUT=${T6040_CHAINLOAD_TIMEOUT:-$(( 120 + object_mib * 5 ))}
+echo "== ${object_mib} MiB, timeout ${CHAINLOAD_TIMEOUT}s; live progress: tail -f $CHAINLOAD_LOG =="
+
+chainload_pgid=""
+kill_chainload() {
+    [ -n "$chainload_pgid" ] || return 0
+    kill -TERM "-$chainload_pgid" 2>/dev/null || true
+    sleep 1
+    kill -KILL "-$chainload_pgid" 2>/dev/null || true
+}
+trap kill_chainload EXIT INT TERM
+
 set +e
+set -m   # own process group per job, so the trap can kill the group, not just the wrapper
 (
     cd "$M1N1_DIR"
-    M1N1DEVICE="$M1" timeout 300 "$PY" proxyclient/tools/chainload.py \
-        -r "$OBJECT"
-) >"$CHAINLOAD_LOG" 2>&1
+    exec env PYTHONUNBUFFERED=1 M1N1DEVICE="$M1" \
+        timeout "$CHAINLOAD_TIMEOUT" "$PY" proxyclient/tools/chainload.py -r "$OBJECT"
+) >"$CHAINLOAD_LOG" 2>&1 &
+chainload_pgid=$!
+set +m
+wait "$chainload_pgid"
 chainload_rc=$?
+chainload_pgid=""   # completed normally; nothing left to kill
+trap - EXIT INT TERM
 set -e
 
 # Judge the run from the LOG, never from chainload.py's exit status (ticket 151).
