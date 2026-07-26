@@ -2,7 +2,7 @@
   "seq": "163",
   "slug": "dualmode-graphical-daily-driver",
   "needs": "offline",
-  "state": "proposed",
+  "state": "staged",
   "track": "distro",
   "priority": "P1",
   "desc": "Build the object that should actually become the daily driver: the 10-second USB-serial debug window (EARLY_PROXY_TIMEOUT + EARLY_PROXY_UNCONDITIONAL + FB_CONSOLE_ALWAYS, m1n1 window10 v6 c10a502f, live-proven both ways in ticket 140) combined with the now-working graphical payload. Rationale: an enrolled graphical-ONLY object has no debug door, so every subsequent change costs a 1TR enrollment cycle; the dual-mode object lets a host take control within 10 s and otherwise falls through to dwm. Recipe: m1n1 window10 v6 (NOT the window-free v7 ecd264a5 used for tethered smokes) + full kernel Image-hid-type-fix.xz cbb3e743 + DTB 2782b922 + initramfs-alpine-dwm-hidpi.cpio.xz 47d1e8ce + the proven bootargs 3659a0da. WATCH: a window-carrying object cannot be tethered-smoke-tested, because its own window catches chainload.py's handshake (learned 2026-07-25) \u2014 so smoke the payload with v7 first, then build the v6 variant and enroll it directly. Verify with t6040-raw-object-verify.py --strict.",
@@ -10,5 +10,6 @@
   "deps": [],
   "hashes": null,
   "created": 1785150000,
-  "runnable": true
+  "runnable": false,
+  "result": "2026-07-26 BUILT + strict-verify PASS, ready to ENROLL (maintainer, 1TR-only). m1n1-b0-dwm-dualmode.bin 3aabde2d4639639f5f0603d9eac9e3c05ee1f8b3c27c2aa53901e9a471b2efa8 (28,459,008 B = 1737 x 16 KiB, entry 0x800, kernel pages=4K) = m1n1 window10 v6 c10a502f + full kernel cbb3e743 + DTB 2782b922 + initramfs-alpine-dwm-hidpi.cpio.xz 47d1e8ce + proven bootargs 3659a0da. CANNOT BE TETHERED-SMOKED (its own 10 s window catches chainload.py's handshake), so confidence comes from a byte comparison instead: both m1n1 builds are exactly 0x10c000 bytes so the payload lands at an identical offset, and the payload region [0x10c000,end) is BYTE-IDENTICAL to the live-proven graphical object 59622e78 (both sha256 3b1ac51f69d1b5d9a102fe71b3bf953c3c3d9433dfe193e723ec679641e1a6c7). All 97 differing 4 KiB pages lie inside the loader (0x0-0x69000) and there is not one differing byte at or beyond 0x10c000 \u2014 the ONLY variable is the loader, which was live-proven both ways in ticket 140. The loader is confirmed correct by strings it uniquely has versus window-free v7: 'Bringing up USB for early debug...' and 'Waiting for proxy connection... '; both retain 'Checking for payloads'. PASS has two parts: (1) with a host polling the gadget in the first 10 s it prints 'Waiting for proxy connection...  Connected!' and stays in uartproxy; (2) with no host it times out into dwm with a working keyboard, dmenu and ae/oe/aa. The window uses m1n1's USB GADGET on the DFU port, mutually exclusive with DebugUSB/KIS \u2014 attach with M1N1DEVICE=/dev/cu.usbmodem*, not /tmp/m1n1. Rollback stays rollback-m1n1-1394c345.bin. Evidence: done/2026-07-26-t6040-dualmode-graphical-object.md."
 }

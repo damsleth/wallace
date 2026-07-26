@@ -2,7 +2,7 @@
   "seq": "162",
   "slug": "enroll-dwm-untethered-graphical",
   "needs": "rig",
-  "state": "proposed",
+  "state": "superseded-by-163",
   "track": "distro",
   "priority": "P1",
   "desc": "MILESTONE B1: enroll the graphical object so the machine cold-boots to dwm with no host and no cable. Everything needed is proven: object m1n1-b0-dwm-hidpi.bin 59622e78 (59622e78685961a322308643b03eae6db0dd3ee985b5674e0b3e6831d605a270, 28,459,008 B = 1737 x 16 KiB, strict verify PASS, kernel pages=4K) is the HiDPI build of 3ec81ef3, which was live-proven tethered as dwm with a working keyboard, dmenu and the Norwegian layout. It is already in enrolled format and 16 KiB-aligned, so no rebuild is needed. MAINTAINER-EXECUTED, 1TR-only: kmutil configure-boot --raw --entry-point 2048 --lowest-virtual-address 0 -v /Volumes/m1n1, with scripts/t6040-enroll-guard.sh pinning the m1n1 System volume UUID first. PASS = cold boot from the Apple picker reaches dwm on the internal panel, a keystroke reaches st, Alt+p opens dmenu, and ae/oe/aa are correct. KEEP A ROLLBACK: rollback-m1n1-1394c345.bin is the payload-free proxy loader and restores tethered development; the previous daily driver was the dual-mode object b409d89e. STRONGLY CONSIDER 163 INSTEAD/NEXT \u2014 a dual-mode graphical object keeps a 10 s debug door, which an enrolled graphical-only object does not, and losing the door means every future change needs a 1TR enrollment cycle.",
@@ -10,5 +10,8 @@
   "deps": [],
   "hashes": null,
   "created": 1785150000,
-  "runnable": false
+  "runnable": false,
+  "approved_by": "maintainer",
+  "approved_at": 1785097634,
+  "note": "2026-07-26: prefer 163. Its object 3aabde2d has a payload region BYTE-IDENTICAL to this ticket's 59622e78 (verified: both sha256 3b1ac51f...), differing only in the m1n1 loader, and it keeps a 10 s debug door. Enrolling a graphical-ONLY object means every later change costs a 1TR enrollment cycle. Keep this ticket only as the fallback if the windowed loader misbehaves on an enrolled boot."
 }
