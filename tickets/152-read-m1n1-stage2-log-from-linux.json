@@ -2,7 +2,7 @@
   "seq": "152",
   "slug": "read-m1n1-stage2-log-from-linux",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "distro",
   "priority": "P3",
   "desc": "Exploit a capability discovered while closing ticket 150: with MTD enabled (DIET_CAPABLE), m1n1 exposes its own runtime state to Linux as MTD devices \u2014 mtd0 'm1n1_stage2.log' (16 KiB) and mtd1 'adt' (0x94000 = 592 KiB, exactly the ADT size the proxy reports). That means m1n1's stage2 log and the full Apple Device Tree are readable from Linux userspace with no tether, no KIS and no proxy. Useful for post-mortem on an UNTETHERED boot, which is currently a blind spot: the kernel console goes to tty0 on the panel and there is no host attached. Task: read /dev/mtd0 (and mtd1) from the booted image, confirm the log content is m1n1's stage2 output, and add a small OpenRC/health-report step that dumps or preserves it. Consider also dumping mtd1 as an on-device ADT source for RE work (compare against the proxy-fetched ADT for equality). Read-only; no writes to either device. Evidence: done/2026-07-26-t6040-dietcap-kernel-smoke-result.md.",
@@ -10,5 +10,8 @@
   "deps": [],
   "hashes": null,
   "created": 1785110000,
-  "runnable": false
+  "runnable": false,
+  "approved_by": "maintainer",
+  "approved_at": 1785069565,
+  "note": "2026-07-26: NEEDS NO NEW OBJECT \u2014 piggyback it on any staged rig run that uses a kernel with MTD. The fat graphical objects (155 c5438779 / 153 d14df9f3) use the FULL kernel, so check 'grep MTD /Users/damsleth/Code/linux-build-out/config-hid-type-fix' first; the dietcap kernel definitely has MTD/MTD_BLOCK/MTD_PHRAM (that is how 150 found these nodes), so 149's object ec111c6d is the guaranteed vehicle. On the booted machine, read-only, two commands: 'cat /proc/mtd' then 'dd if=/dev/mtd0 bs=1k count=16 2>/dev/null | strings | head -40' for the m1n1 stage2 log, and 'dd if=/dev/mtd1 of=/tmp/adt.bin bs=1k count=592' for the ADT (0x94000 = 592 KiB; compare against a proxy-fetched ADT for equality). NEVER write to either device. The staged objects deliberately do NOT carry an automated dump step: adding one would change their hashes, which are already recorded across done/ and the tickets, and today's lessons are all about hash discipline. Add the automated health-report step to the builders when the next image is built for another reason."
 }
