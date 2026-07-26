@@ -11,5 +11,6 @@
     "095"
   ],
   "hashes": null,
-  "created": 1784909164
+  "created": 1784909164,
+  "note": "2026-07-26 DECODE GAP CONFIRMED, and this ticket's central claim needs re-sourcing. This ticket states AppleHPMInterface::roleSwap() issues SWDF (DFP/host) / SWUF (UFP/device) 4CCs. That is NOT corroborated by t6040-applehpm-text.dis (4.9 MB of AppleHPM __TEXT_EXEC): SWDF as a LE u32 is 0x46445753, so an immediate build needs 'mov #0x5753' + 'movk #0x4644'; there are ZERO 'mov #0x5753' sites, so neither SWDF nor SWUF is constructed as an immediate anywhere in this kext's text. The only two 0x4644 sites are 'mov #0x4644' + 'movk #0x6655' = 0x66554644, LE bytes 44 46 55 66 = 'DFUf' \u2014 a DFU-class command. NEXT: search __DATA/__const for the 4CC bytes, locate the AppleHPMInterface vtable and its roleSwap slot, and check AppleHPMARMI2C/AppleHPMBusController; the constants may not be immediates, may live in another binary, or the original note may have come from the PUBLIC TPS6598x driver rather than Apple's code. RISK QUALIFICATION: the 2026-07-25 calibration remains correct that our R0-R2 candidates contain no flash/OTP/patch writes, but a DFU-class 4CC DOES exist in AppleHPM's vocabulary, so an R3 candidate must be reviewed at the byte level of the 4CC itself \u2014 a role swap and a DFU command differ by a few bytes in one immediate. Evidence: done/2026-07-26-t6040-usb-vbus-blocker-and-roleswap-decode-gap.md."
 }
