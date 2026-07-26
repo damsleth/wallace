@@ -6,6 +6,34 @@ panel, keyboard (Norwegian), watchdog — with a remote DebugUSB loop for develo
 
 This repo is the umbrella. The code lives in four sibling repos and the knowledge kept getting smeared across them so everything that guides the work now lives here: plans, scripts, kernel patches, post-mortems.
 
+## Status (2026-07-26) — daily-driver object + graphical/ramroot targets, PCIe PHY-init decoded
+
+Built on the B0 milestone. The **dual-mode daily-driver object** is the standing boot
+target: a cold boot waits 10 s for a USB-serial host to take control, then falls through to
+the Alpine shell on the internal panel — maintainer-confirmed both ways (host attaches; or
+times out into Alpine). Two further untethered targets are built and strict-verified, awaiting
+KIS observation: an **Xorg + dwm graphical** object (`m1n1-b0-alpine-dwm.bin`, trimmed
+290→65 MiB by dropping the llvmpipe/gallium JIT stack) and a **`root=/dev/ram0` ext4** object
+(`m1n1-b0-ramroot-ext4.bin`) rehearsing a RAM-backed root. A **DIET_CAPABLE kernel**
+(`Image-b0-dietcap`, 33.7 MiB) re-adds NET/WLAN/BRCMFMAC/PCIE_APPLE/BLK_DEV_RAM/EXT4/PHRAM and
+is built with `ARM64_16K_PAGES` (PCIE_APPLE requires 16 KiB pages — an ABI change from the
+proven 4 KiB B0 kernel, so it needs its own live smoke).
+
+PCIe RE advanced: ticket 124 decoded `ApplePCIEBaseT8132::_initializePhy()`. The first PHY-init
+hardware op is a read-modify-write of **PhyCommon register `0x0`, setting bit 0**, in a shared
+PHY aperture where PhyCommon lives at `+0x4000` and PhyPhy at `+0x8000`; PHY-IP reads dereference
+a cached per-port base at `this+0x240` (so 068's hang is a non-responding aperture, not a null
+pointer). The reg indices are ADT `reg-names`-derived per-instance ivars, not constants — so any
+m1n1 change must resolve these from the ADT. The grounded candidate for the missing precondition:
+m1n1 skips the shared-PHY-aperture init entirely before reading PHY-IP. 068 stays un-retried until
+the remaining PhyPhy pairs and ADT reg-names are pinned. See
+`done/2026-07-26-t6040-pcie-initializephy-trace.md`.
+
+Also settled: **096** — `AppleHPMInterface::roleSwap()` issues SWDF/SWUF 4CCs with no VBUS-off
+and no flash/OTP command in the vocabulary (no persistent-brick vector); **128** — U-Boot's
+atcphy answer is NO for this path. Rig smokes (146–149) are queued against the proxy tether now
+that the rollback loader is enrolled.
+
 ## Status (2026-07-25) — 🐧 MILESTONE B0 REACHED: untethered boot (Alpine **and** Ubuntu)
 
 **A cold boot from the Apple boot picker — no cable, no host — reaches an
