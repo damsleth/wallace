@@ -78,9 +78,45 @@ observe a `console=tty0` image. **Needs the maintainer at the panel.**
 
 ```sh
 bash scripts/t6040-debugusb-console.sh reboot     # into m1n1, attach kisd -> /tmp/m1n1
-M1N1DEVICE=/tmp/m1n1 bash scripts/t6040-boot-raw-object.sh \
-    ~/Code/linux-build-out/m1n1-b0-dietcap-smoke.bin
+OBJECT=~/Code/linux-build-out/m1n1-b0-dietcap-smoke.bin \
+OBJECT_SHA=ac24d4bfb562f9de7a138a4a3f37b95fb8526e89ab22cc5ffdbc314db23b6546 \
+M1N1DEVICE=/tmp/m1n1 bash scripts/t6040-boot-raw-object.sh
 ```
 
 If it fails, the 16 KiB page change is the cause — and 149 must not then be attributed to its own
 payload.
+
+## Incident: first attempt booted the wrong object (agent error)
+
+**The 2026-07-26 12:07 run did NOT test this object, and 147 remains untested.**
+
+`scripts/t6040-boot-raw-object.sh` took its object from the `OBJECT` **environment variable** and
+**ignored positional arguments**. The run used a positional path, so the argument was dropped and
+the script booted its hardcoded default `m1n1-b0-alpine-hid-restored.bin` instead. The failure was
+silent in the worst way: the script's SHA guard *passed*, because it validated the default object
+(`b50f52ab`) that it had actually selected.
+
+Identified from `raw-object-chainload.log`, which reported `Loading kernel image (0x14b8f13 bytes)`
+= 21,729,043 B. `chainload.py` does `image = read_bytes() + b"\x00\x00\x00\x00"`, so the file was
+21,729,039 B — exactly `m1n1-b0-alpine-hid-restored.bin`, not this object's 14,893,056 B. That run
+reached a shell with `event0` and empty `/proc/partitions` (the trailing `?U??…` garbage and closing
+`UartTimeout` are the known console-contention artifact, not a boot failure), but it re-proved an
+already-proven July 24 object and produced no new information.
+
+**Fix applied to the script** so this cannot recur:
+
+- a positional `OBJECT_PATH` is now accepted;
+- **extra/unknown arguments are a hard error** (exit 2) instead of being ignored;
+- a positional path that disagrees with `OBJECT=` is a hard error, rather than silently preferring one;
+- overriding the object **without** an explicit `OBJECT_SHA` is refused, and the error prints the
+  computed hash to paste back — previously this fell through to the *default* hash and could only
+  ever produce a confusing "mismatch" against a file the caller never named;
+- `--help` documents both forms.
+
+Verified: the old broken command now exits 2 with `refusing to boot a non-default object without an
+explicit OBJECT_SHA`; extra args, conflicting args, unknown options and a wrong hash all exit
+non-zero.
+
+**Lesson (same shape as the 16 KiB root cause):** a guard that validates a value the script chose
+for itself proves nothing about the value the caller intended. The hash gate must be pinned to the
+*named* input, and an ignored argument must fail rather than defaulting.
