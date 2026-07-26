@@ -187,6 +187,34 @@ A→D are sequential. E/F/G parallelize after D. H wraps it all.
 **Exit:** ✅ proxy stable across reboots, 14/14 cores. (chainload dev loop + upstream
 carry forward as small residuals; neither blocks Stage B.)
 
+## Stage progress note (2026-07-26)
+
+**B and C are effectively complete, and D is partially delivered.** An enrolled raw boot object cold-boots
+the machine untethered into Alpine (milestone B0, 2026-07-25), and as of 2026-07-26 a tethered object
+reaches a **graphical desktop** — Xorg on `modesetting`/simpledrm with dwm, `st`, dmenu and a working
+Norwegian keyboard on the internal panel. So of Stage D's four pillars: **HID and display console are
+done**, **storage and USB are not**.
+
+That makes Stage D's remaining scope precise rather than open-ended:
+
+| Stage D pillar | State |
+|---|---|
+| display console | **done** — simpledrm + fbcon, and now Xorg/dwm on top |
+| HID (internal keyboard) | **done** — DockChannel HID, `event0`, Norwegian layout |
+| USB | blocked on the HPM/ATC host link (096/097, or U-Boot 132) |
+| storage | blocked — NVMe behind SPTM/CoastGuard; USB storage kernel-ready but needs the USB link |
+
+Two Stage D adjacencies are worth noting as *cheap*, because they were measured absent from the kernel
+config rather than assumed hard: **backlight** (`APPLE_DWI_BL`, ticket 164) and **battery/thermals**
+(`MACSMC_POWER`/`HWMON`, ticket 165). And **Stage E (WiFi) needs no kernel work at all** — `BRCMFMAC`
+and `CFG80211` are already enabled — so it is gated purely on PCIe reaching link-up (op-115, ticket 124)
+plus firmware staging (168).
+
+The machine's remaining daily-driver gaps are therefore: persistence, networking, **more than one core**
+(it still runs `maxcpus=1`, ticket 169), backlight, and battery/thermal telemetry.
+
+---
+
 ## Stage B — m1n1 grows Linux-boot support for T6040
 
 *What `kboot` needs before it can hand a kernel a usable machine. This is the

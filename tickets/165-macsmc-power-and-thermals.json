@@ -1,0 +1,14 @@
+{
+  "seq": "165",
+  "slug": "macsmc-power-and-thermals",
+  "needs": "offline",
+  "state": "proposed",
+  "track": "kernel",
+  "priority": "P2",
+  "desc": "Enable battery, charge state and temperatures \u2014 needed both for daily use and to know whether the machine is thermally safe under load. MEASURED ABSENCES in config-hid-type-fix: MACSMC is absent, CONFIG_MACSMC_POWER is explicitly not set, CONFIG_HWMON is not set. CONFIG_POWER_SUPPLY=y already. So there is currently no battery percentage, no charging state and no temperature reading anywhere. TASK: enable MACSMC (+ MACSMC_POWER, MACSMC_HWMON, HWMON) in the full kernel, confirm the SMC node in the J614s DT, and verify /sys/class/power_supply/* and /sys/class/hwmon/* populate. POLICY: this is READ-ONLY telemetry and stays inside the standing rules \u2014 smc_reboot and smc_rtc nvram writes are permitted, but charger and PMU-voltage writes remain FORBIDDEN, so do not enable or exercise any charge-control interface. Feeds the status bar in 166.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785150000,
+  "runnable": true
+}

@@ -1,0 +1,14 @@
+{
+  "seq": "164",
+  "slug": "enable-panel-backlight",
+  "needs": "offline",
+  "state": "proposed",
+  "track": "kernel",
+  "priority": "P2",
+  "desc": "Enable panel backlight control, which a daily driver needs and which is currently absent. MEASURED: the full kernel has CONFIG_BACKLIGHT_CLASS_DEVICE=y but CONFIG_APPLE_DWI_BL is ABSENT from config-hid-type-fix, so there is no backlight device at all \u2014 brightness is stuck wherever iBoot left it. The driver exists in-tree (drivers/video/backlight/apple_dwi_bl.c appears in the MAINTAINERS Apple section). TASK: enable APPLE_DWI_BL in the kernel config, confirm the J614s DT actually describes the DWI backlight node (check t6040-j614s-dcuart.dts and the ADT for a dwi/backlight node \u2014 if absent, the DT work is the real task and the kernel symbol alone will do nothing), then verify /sys/class/backlight/*/brightness responds. Read/write of a backlight is not a PMU or charger write, so it is inside policy. Pair with 165 so dwm can bind brightness keys.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785150000,
+  "runnable": true
+}

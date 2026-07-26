@@ -1,8 +1,9 @@
 # Project Wallace
 
-Mainline Linux on a MacBook Pro 14" M4 Pro (t6040 "Brava Chop",
-Mac16,8 / J614s). It boots **untethered** into Alpine/OpenRC — enrolled boot object, internal
-panel, keyboard (Norwegian), watchdog — with a remote DebugUSB loop for development.
+Mainline Linux on a MacBook Pro 14" M4 Pro (t6040 "Brava Chop", Mac16,8 / J614s). It boots
+**untethered** into Alpine from an enrolled boot object — internal panel, Norwegian keyboard,
+watchdog — and now reaches a **graphical desktop (Xorg + dwm)** with a working keyboard, with a
+remote DebugUSB loop for development.
 
 This repo is the umbrella. The code lives in four sibling repos and the knowledge kept getting smeared across them so everything that guides the work now lives here: plans, scripts, kernel patches, post-mortems.
 
@@ -10,144 +11,60 @@ This repo is the umbrella. The code lives in four sibling repos and the knowledg
 
 **dwm runs on the internal display with a working keyboard.** Tags 1–9, `[]=` tiled layout, `st`,
 `dwm-6.8`, blue selected-window border; `Alt+Shift+Return` spawns a terminal, `Alt+p` opens dmenu, and
-æ ø å are correct via `setxkbmap no`. The trackpad is still dead, as designed (tickets 004/126). Object
-`m1n1-b0-dwm-udev.bin` `3ec81ef3`.
+æ ø å are correct. The trackpad is still dead, as designed (tickets 004/126).
 
-The full chain now works: enrolled-format raw object → m1n1 → full kernel → Alpine RAM root → Xorg on
-`modesetting`/simpledrm → dwm → `st` → keyboard.
+The whole chain works: **enrolled-format raw object → m1n1 → full kernel → Alpine RAM root → Xorg on
+`modesetting`/simpledrm → dwm → `st` → keystrokes.**
 
-Two blockers had to fall, and **neither was the one predicted**: the diet kernel's
-`# CONFIG_NET is not set` left no `CONFIG_UNIX`, so Xorg could not create its AF_UNIX listening socket
-(148); then the image had `libudev.so.1` as a dependency but **no `udevd`**, so `xf86-input-libinput`
-enumerated zero devices and nothing responded (161). The `simpledrm` probe that ticket 148 actually
-worried about worked first time.
+| Object | Hash | State |
+|---|---|---|
+| `m1n1-b0-dwm-udev.bin` | `3ec81ef3` | live-proven tethered: dwm + keyboard |
+| `m1n1-b0-dwm-hidpi.bin` | `59622e78` | same, with the HiDPI font fix — **next to enroll** (ticket 162) |
+| `m1n1-b0-diet-aligned.bin` | `f290833c` | the B0 milestone object (Alpine, untethered) |
+| `rollback-m1n1-1394c345.bin` | `1394c345` | payload-free proxy loader; restores tethered development |
 
-Text rendered tiny at first — the panel is ~254 DPI while X assumes 96 — and the fix needed three
-separate mechanisms, because they share no source of truth: the server's `-dpi`, `Xft.dpi` via
-`xrdb` (the only lever for dwm's bar and dmenu, whose fonts are compile-time in the suckless config),
-and an explicit `pixelsize` for `st`, whose Alpine build ignores DPI entirely. `m1n1-b0-dwm-hidpi.bin`
-`59622e78` carries that, and is otherwise byte-identical in kernel, loader, DTB and bootargs.
+Two blockers had to fall, and **neither was the one predicted.** Ticket 148 expected the simpledrm probe
+to fail or Xorg to refuse without a pointer. Instead: the diet kernel's `# CONFIG_NET is not set` left no
+`CONFIG_UNIX`, so Xorg could not create its AF_UNIX listening socket; then the image carried
+`libudev.so.1` as a dependency but no `udevd`, so `xf86-input-libinput` enumerated zero devices and
+nothing responded. `simpledrm` probed cleanly the first time the full kernel ran.
 
-## Status (2026-07-26, night) — the kernel is reproducible again
+Text rendered at about a quarter size, because the panel is ~254 DPI while X assumes 96. The fix needs
+**three** mechanisms that share no source of truth: the server's `-dpi`, `Xft.dpi` via `xrdb` (the only
+lever for dwm's bar and dmenu, whose fonts are compile-time in the suckless config), and an explicit
+`pixelsize` for `st`, whose Alpine build ignores DPI entirely.
 
-**The DockChannel TTY driver was never in version control.** `drivers/tty/apple_dockchannel_tty.c` —
-464 lines providing `/dev/ttydc0` — existed only as an *untracked* file inside the podman build trees.
-A rebuild from a clean checkout therefore produced a kernel with **no `ttydc0`**, silently losing the
-DockChannel shell and the transport every acceptance run reports through, and that is why every kernel
-reported `-dirty`. It is now recovered into `patches/t6040-dockchannel-tty-driver.patch`, applied
-before `olddefconfig` so the Kconfig symbol is real, and verified by byte-identical reconstruction on
-a clean tree. A sweep found 9 of 11 other container-only edits already covered by `patches/`; the two
-that weren't belong to the same feature and are folded in (ticket 159).
+### Also settled today
 
-That also explains why the diagnostic object captured nothing: the shipping driver is a **TTY only**
-and registers no console, so `console=ttydc0` matched nothing and was silently ignored. `/dev/ttydc0`
-does exist, which is why a *userspace* getty works and how the B0 health report reaches the host. The
-patch that adds a real console is orphaned but **applies cleanly**, so ticket 153 is one rebuild away.
+- **16 KiB pages are not a boot blocker** (147). The DIET_CAPABLE kernel boots the proven Alpine root,
+  which unblocks the `root=/dev/ram0` ext4 rehearsal (149). Keep this distinct from the *other* 16 KiB
+  rule: an **enrolled object's total size** must still be a whole multiple of 16 KiB, and a tethered
+  chainload bypasses iBoot so it cannot test that at all.
+- **The kernel is reproducible again** (159). `drivers/tty/apple_dockchannel_tty.c` — 464 lines providing
+  `/dev/ttydc0` — existed only as an *untracked* file inside the build containers, so a clean checkout
+  silently built a kernel with no DockChannel shell and no transport for the health report. Recovered as
+  a patch, verified by byte-identical reconstruction; a sweep found 9 of 11 other container-only edits
+  already covered.
+- **`console=ttydc0` is inert** (153): the shipping driver is a TTY only and registers no console, so
+  kernel dmesg never leaves the machine. The panel is still the only source of dmesg, which is why
+  screenshots remain necessary evidence. The patch that adds a real console applies cleanly — one rebuild.
+- **Three harness defects fixed**: uploads into a dead proxy (157 — and note **every successful chainload
+  destroys the proxy**, so a `debugusb-console.sh reboot` is required before *each* run); an orphaned
+  uploader that corrupted two later runs (158); and a `chainload failed` verdict printed on *successful*
+  boots (151).
+- **An initramfs decode limit exists** (160). 13.1/50.8/60.5/97.3 MiB expanded all decode; **278.9 MiB
+  fails** — m1n1 prints `XZ decode failed`, passes no initrd, and the kernel dies with
+  `rdinit=/sbin/init failed: -2`. The verifier had caught this and the guard was wrongly raised; it is
+  restored at 128 MiB. Capability-first still holds as a policy — but capability is what mattered
+  (the *kernel*), not size.
 
-**Good news from the fat kernel's first boot:** `simpledrm` probed cleanly
-(`[drm] Initialized simpledrm 1.0.0`, `fb0: simpledrmdrmfb`). That was 148's stated risk. With
-`CONFIG_UNIX` present too, **both known blockers to the graphical target are gone** — whether
-`modesetting` drives it is the one remaining question. The fat kernel also carries `usb-storage`/`uas`,
-which the diet kernel lacked.
+### What the machine still lacks
 
-Three harness defects fixed, each of which had cost rig time that day: uploads into a **dead proxy**
-(the pty-exists check passed three times against nothing — every successful chainload destroys the
-proxy, so a `debugusb-console.sh reboot` is mandatory before *each* one, ticket 157); an **orphaned
-uploader** that had pushed ~41 MiB into the pty and then corrupted two subsequent runs (now killed as
-a process group, ticket 158); and **invisible progress** plus a fixed timeout that the
-capability-first policy had outgrown (158).
-
-## Status (2026-07-26, evening) — capability over size
-
-**The graphical target failed for a config reason, and it changed the build policy.** Ticket 148's
-Xorg died with `Cannot establish any listening sockets` / `Function not implemented` — ENOSYS,
-because the diet kernel has `# CONFIG_NET is not set` and therefore no `CONFIG_UNIX`. X11 needs an
-AF_UNIX socket, so the server never reached the display. Networking had been stripped to save a few
-MiB of a 33 MiB kernel.
-
-That trimming was justified by a ceiling **nobody measured**: no object-size limit was found to
-256 MiB, and that figure was the probe limit and a policy number, not hardware. RAM is 23.8 GiB. In
-one image, trimming cost both software GL and X itself. **Policy inverted (155): build for
-capability, shrink only if something overflows.**
-
-`m1n1-b0-dwm-fat.bin` `c5438779` (83 MB, strict PASS) is the result, and needed **no kernel
-rebuild** — the existing full kernel already has `UNIX`/`SYSVIPC`/`DRM_SIMPLEDRM` and the DRM helpers
-DIET drops, is **4 KiB pages** (so a graphical change doesn't ride on an ABI change), carries the
-DockChannel HID keyboard fix, and is already live-proven on this machine. Software GL is restored.
-The **Norwegian layout was broken by *both* paths in the thin image** (`kbd-bkeymaps` ships
-`no-mac.bmap.gz` while the inittab read `no-mac.bmap`, and `setxkbmap` never ran because X never
-started); now fixed and tested against the real file.
-
-Three harness defects — each surfaced by today's own failures — are fixed: the smoke script reported
-`chainload failed` on a **successful** boot (**151**, since `chainload.py`'s closing `iface.nop()`
-must time out once Linux owns the UART); the kernel page size is now asserted from the Image header
-before an artifact is published and reported by the object verifier (**154**); and a diagnostic
-dual-console object `d14df9f3` makes a smoke report its own dmesg over KIS (**153**), because twice
-today a run could not be judged from the host at all. A new graded-probe builder is validated by
-byte-exactly reproducing the proven 256 MiB probe, with 512 MiB and 1 GiB probes built (**156**) —
-noting that **512 MiB was never actually established**.
-
-## Status (2026-07-26, later) — 16 KiB-page kernel cleared, PCIe PHY-init decoded
-
-**Ticket 147 passed: the 16 KiB-page DIET_CAPABLE kernel boots on T6040.** Alpine 3.24 came up with
-the health report begin→end, `simpledrmdrmfb`, the internal keyboard on `event0`, `watchdog0=present`,
-an empty network runlevel, the Norwegian `no-mac` keymap loaded, and a shell prompt — no panic, no
-NVMe/xHCI/usb-storage, nothing mounted. `PAGE_SIZE_16KB` (forced by `PCIE_APPLE`) is therefore **not**
-a boot blocker, which unblocks the `root=/dev/ram0` ext4 rehearsal (149). Both 148 (dwm) and 149 are
-now built, hash-verified and staged.
-
-One acceptance criterion needed interpreting rather than a literal reading: `/proc/partitions` is not
-empty on this kernel. That criterion came from the 4 KiB diet kernel, which has no block layer at
-all, whereas DIET_CAPABLE exists precisely to re-add `BLK_DEV_RAM`/`MTD`. `ram0` matches the config
-exactly, and `mtdblock0/1` turned out to be **m1n1's own debug nodes** — `m1n1_stage2.log` (16 KiB)
-and `adt` (`0x94000`, exactly the ADT size the proxy reports), RAM-backed and read-only, patched into
-the live devicetree by m1n1 and thus absent from the on-disk DTB. Not storage; the storage-free
-premise holds (ticket 150, closed). It also hands us a new capability: m1n1's stage2 log and the full
-ADT are readable from Linux userspace with no tether (ticket 152).
-
-**Two independent 16 KiB facts, easy to conflate and worth keeping apart.** An *enrolled* object's
-**total size** must still be a whole multiple of 16 KiB or iBoot never enters m1n1 (yesterday's root
-cause, unchanged). That is separate from the kernel's **page size**, which is what 147 cleared. Both
-are 16 KiB only because that is the Apple Silicon native page size. 147 could not have tested
-alignment at all: a tethered chainload hands the object to `chainload.py` and bypasses iBoot.
-
-Three attempts were needed, and the first two booted the wrong object — a positional argument the
-script ignored, then `VAR=…; VAR=…; cmd` semicolons that kept the assignments shell-local. Both times
-it silently fell back to a hardcoded default and its SHA guard *passed*, because it validated the
-default it had chosen for itself. `scripts/t6040-boot-raw-object.sh` now has **no default object**:
-the object and its sha256 must be named on every run, with a positional two-argument form that
-survives semicolon-pasting. Filed 151 for the related hazard that the harness prints
-`chainload failed` on a *successful* boot (`chainload.py`'s closing `iface.nop()` must time out once
-Linux takes the UART), plus 153 (capture kernel dmesg so smokes self-verify) and 154 (assert kernel
-page size at build time).
-
-## Status (2026-07-26) — daily-driver object + graphical/ramroot targets, PCIe PHY-init decoded
-
-Built on the B0 milestone. The **dual-mode daily-driver object** is the standing boot
-target: a cold boot waits 10 s for a USB-serial host to take control, then falls through to
-the Alpine shell on the internal panel — maintainer-confirmed both ways (host attaches; or
-times out into Alpine). Two further untethered targets are built and strict-verified, awaiting
-KIS observation: an **Xorg + dwm graphical** object (`m1n1-b0-alpine-dwm.bin`, trimmed
-290→65 MiB by dropping the llvmpipe/gallium JIT stack) and a **`root=/dev/ram0` ext4** object
-(`m1n1-b0-ramroot-ext4.bin`) rehearsing a RAM-backed root. A **DIET_CAPABLE kernel**
-(`Image-b0-dietcap`, 33.7 MiB) re-adds NET/WLAN/BRCMFMAC/PCIE_APPLE/BLK_DEV_RAM/EXT4/PHRAM and
-is built with `ARM64_16K_PAGES` (PCIE_APPLE requires 16 KiB pages — an ABI change from the
-proven 4 KiB B0 kernel, so it needs its own live smoke).
-
-PCIe RE advanced: ticket 124 decoded `ApplePCIEBaseT8132::_initializePhy()`. The first PHY-init
-hardware op is a read-modify-write of **PhyCommon register `0x0`, setting bit 0**, in a shared
-PHY aperture where PhyCommon lives at `+0x4000` and PhyPhy at `+0x8000`; PHY-IP reads dereference
-a cached per-port base at `this+0x240` (so 068's hang is a non-responding aperture, not a null
-pointer). The reg indices are ADT `reg-names`-derived per-instance ivars, not constants — so any
-m1n1 change must resolve these from the ADT. The grounded candidate for the missing precondition:
-m1n1 skips the shared-PHY-aperture init entirely before reading PHY-IP. 068 stays un-retried until
-the remaining PhyPhy pairs and ADT reg-names are pinned. See
-`done/2026-07-26-t6040-pcie-initializephy-trace.md`.
-
-Also settled: **096** — `AppleHPMInterface::roleSwap()` issues SWDF/SWUF 4CCs with no VBUS-off
-and no flash/OTP command in the vocabulary (no persistent-brick vector); **128** — U-Boot's
-atcphy answer is NO for this path. Rig smokes (146–149) are queued against the proxy tether now
-that the rollback loader is enrolled.
+No persistence (RAM root only, gated on USB/NVMe), no networking, **one core** (`maxcpus=1`), no
+backlight control, no battery or temperature reading. Measured from the config rather than assumed:
+`BRCMFMAC`/`CFG80211` are **already present**, so WiFi needs no kernel work and is gated purely on PCIe
+op-115 (124); `APPLE_DWI_BL`, `MACSMC_POWER`, `HWMON` and `USB_USBNET` are **all absent** and are
+therefore cheap, concrete wins (tickets 164–169).
 
 ## Status (2026-07-25) — 🐧 MILESTONE B0 REACHED: untethered boot (Alpine **and** Ubuntu)
 

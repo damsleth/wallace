@@ -1,0 +1,14 @@
+{
+  "seq": "167",
+  "slug": "usb-ethernet-cheap-networking",
+  "needs": "offline",
+  "state": "proposed",
+  "track": "kernel",
+  "priority": "P2",
+  "desc": "Prepare the CHEAPEST networking path, so the machine is not waiting on PCIe. MEASURED: the full kernel already has CONFIG_BRCMFMAC=y and CONFIG_CFG80211=y, so WiFi needs no kernel work \u2014 it is gated entirely on PCIe op-115 (tickets 068/124) plus firmware. But USB networking is NOT enabled at all: CONFIG_USB_NET_DRIVERS, CONFIG_USB_USBNET and CONFIG_USB_RTL8152 are all absent. A USB ethernet dongle would give the machine an IP address as soon as the USB host link works (096/097/132), well before PCIe is understood. TASK: enable USB_NET_DRIVERS, USB_USBNET plus the common dongle drivers (RTL8152/8153, ASIX AX88179, CDC_ETHER, CDC_NCM), and add a minimal DHCP client and busybox networking to the image. Cheap, offline, and it converts the USB milestone directly into networking.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785150000,
+  "runnable": true
+}

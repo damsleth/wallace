@@ -1,0 +1,14 @@
+{
+  "seq": "168",
+  "slug": "wifi-bcm4388-gated-on-pcie",
+  "needs": "offline",
+  "state": "proposed",
+  "track": "wifi",
+  "priority": "P2",
+  "desc": "Restate WiFi accurately now that the kernel side is known, superseding the dependency map in archived ticket 139. MEASURED: the full kernel already has CONFIG_BRCMFMAC=y and CONFIG_CFG80211=y, so NO kernel config work is required. WiFi is gated on exactly two things: (1) PCIe reaching link-up, which is stuck at operation 115, the first PHY-IP PLL read \u2014 ticket 124 has decoded the missing precondition to absolute addresses (set bit 0 of PhyCommon 0x217004000 and run PhyPhy setup at 0x217008000 before reading 0x217048090) but a live read of that aperture risks an ungated SError and needs an attended session; and (2) the BCM4388 apple,mriya firmware, which is staged at /private/tmp/t6040-vendorfw (EPHEMERAL \u2014 regenerate with the recipe in done/2026-07-14-t6040-bcm4388-fw-extract.md) and must be placed in the image under /lib/firmware. TASK: stage the firmware into the graphical image now so it is ready, and keep this ticket as the WiFi tracking item; do not attempt PCIe work here \u2014 that is 124.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785150000,
+  "runnable": true
+}

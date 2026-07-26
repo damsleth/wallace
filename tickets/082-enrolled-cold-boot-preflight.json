@@ -2,7 +2,7 @@
   "seq": "082",
   "slug": "enrolled-cold-boot-preflight",
   "needs": "offline",
-  "state": "open",
+  "state": "superseded",
   "track": "distro",
   "priority": "P1",
   "desc": "IN PROGRESS after ticket-100 tethered PASS and ticket-119 conditional review PASS. Dual-mode 46237ade preserves every post-prefix byte of live-proven 2371ee5d and is acceptable for bounded hardware validation; pin M1N1_VERSION_TAG and the exact 2026-07-09 Rust nightly before claiming full rebuild reproducibility. Remaining preflight work requires maintainer/macOS facts: fill the dedicated m1n1 volume UUID, back up/hash the currently enrolled object, record the exact selected-object manifest, and confirm the enrollment/cold-boot action split and rollback. Ticket 101 owns the live checks. Agent runs no kmutil/bputil. Procedure: done/2026-07-24-t6040-b0-enrolled-cold-boot-preflight.md. SUPERSEDED 2026-07-25 (claude): the enrolled appended-payload shape this preflight assumes cannot work. Live: 46237ade (22.2 MB), 4340ec37 (15.2 MiB), d645bf95 (9.02 MiB diet) and ad156a4b (diet+FB_CONSOLE_ALWAYS) all boot-loop when enrolled, while payload-free filler objects boot at 14/16 MiB. Root cause: the payload scan lands in m1n1's own image (done/2026-07-25-t6040-enrolled-payload-rootcause.md). The kmutil/1TR/identity-guard/rollback procedure in this preflight is still CORRECT and reusable for any future enrolled object; only the 'object carries an embedded payload' premise is invalid. Do not run 101 against a payload object. REVIVED 2026-07-25 (claude): the blocker was 16 KiB size alignment, not the appended-payload shape (ticket 129). A padded object boots. This preflight's kmutil/1TR/identity-guard/rollback procedure is valid as written; objects must now be page-aligned, which the builder does automatically.",
@@ -16,5 +16,6 @@
     "dual_mode_review": "0a8291589693b973829c8d18b409a29b8bf310f74c4c848ed1ff9ec88c43ee42",
     "live_proven_fallback": "2371ee5dfbfab591397fc333e7da212fb7582bfb2eaddaa6438005f5bb41759b"
   },
-  "created": 1784838169
+  "created": 1784838169,
+  "note": "2026-07-26: superseded. Enrolled cold boot is achieved and repeated many times since 2026-07-25 (B0 milestone, then Ubuntu, then the dual-mode window). The preflight concerns this ticket raised are now covered concretely by scripts/t6040-raw-object-verify.py (strict member hashes, 16 KiB alignment, page-size reporting, initramfs expansion guard) and scripts/t6040-enroll-guard.sh (fail-closed volume UUID pin)."
 }

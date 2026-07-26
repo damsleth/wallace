@@ -1,0 +1,14 @@
+{
+  "seq": "166",
+  "slug": "dwm-from-source-fonts-and-bar",
+  "needs": "offline",
+  "state": "proposed",
+  "track": "distro",
+  "priority": "P3",
+  "desc": "Build dwm, st and dmenu from source with our configuration baked in, replacing the packaged binaries and the Xft.dpi workaround. WHY: suckless configs are compile-time. Alpine's dwm bar and dmenu use monospace:size=10 and its st uses a pixelsize font, so on this ~254 DPI panel the only levers available today are Xft.dpi (points only) and an explicit st -f (ticket 161) \u2014 st's pixelsize is immune to DPI entirely. Building from source lets the font, the bar and the keybinds be set properly instead of worked around. TASK: add a build step compiling dwm/st/dmenu with a HiDPI font size, a status-bar text source (clock, plus battery and temperature once 165 lands, written to the root window name via xsetroot), and sane binds including brightness keys once 164 lands. Keep the packaged binaries as the fallback until the source build is proven.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785150000,
+  "runnable": true
+}

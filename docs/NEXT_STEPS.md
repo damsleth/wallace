@@ -1,93 +1,40 @@
 # t6040 Linux bring-up — NEXT STEPS
 
-> **2026-07-26 (night) — read this before the next rig run.**
+> **2026-07-26 — dwm runs on the panel with a working keyboard.** The graphical target is reached
+> (`3ec81ef3`), and `m1n1-b0-dwm-hidpi.bin` `59622e78` is the same thing with the HiDPI font fix.
 >
-> **Every successful chainload destroys the proxy it needed** (it boots Linux). So
-> `bash scripts/t6040-debugusb-console.sh reboot` is required before **every**
-> `t6040-boot-raw-object.sh`, not just after a failure. The script now refuses to upload into a dead
-> proxy instead of hanging for five minutes (157), kills its uploader as a process group so no orphan
-> can corrupt a later run (158), and writes its log unbuffered — `tail -f
-> ~/Code/linux-build-out/raw-object-chainload.log` shows live progress. Diagnostic tell: CPU must climb
-> past ~5 s within the first 10 s; pinned at `0:00.09` means nothing is behind the pty.
+> **Rig etiquette, learned the hard way today.** Every *successful* chainload boots Linux and destroys
+> the proxy it needed, so `bash scripts/t6040-debugusb-console.sh reboot` is required before **every**
+> `t6040-boot-raw-object.sh`. The script now refuses to upload into a dead proxy (157), kills its
+> uploader as a process group so no orphan can corrupt a later run (158), and logs unbuffered — so
+> `tail -f ~/Code/linux-build-out/raw-object-chainload.log` shows live progress. Diagnostic tell: CPU
+> must climb past ~5 s within the first 10 s; pinned at `0:00.09` means nothing is behind the pty.
 >
-> **Next rig action: `m1n1-b0-dwm-fullkernel.bin` `6738aad9`.** The fat objects (`c5438779`,
-> `d14df9f3`) **do not boot** — their 278.9 MiB initramfs is beyond what m1n1's XZ decoder handles, so
-> m1n1 printed `XZ decode failed`, passed no initrd, and the kernel died with
-> `rdinit=/sbin/init failed: -2` → `VFS: Cannot open root device`. Do not run either again.
+> **The panel is still the only source of kernel dmesg** — `console=ttydc0` is inert because the
+> shipping DockChannel driver registers no console (153/159). Screenshots remain necessary evidence for
+> any graphical result. Applying `patches/t6040-dockchannel-nbcon.patch` is one rebuild away
+> and would make smokes self-verifying.
 >
-> The replacement pairs the **full kernel** (the actual fix for 148 — `CONFIG_UNIX` plus the DRM
-> helpers DIET drops) with the **thin dwm rootfs that is proven to unpack** (60.5 MiB expanded),
-> rebuilt with the keymap fix. Versus the object that booted in 148, exactly one variable changed: the
-> kernel. Then `cat /var/log/xorg-startx.log; pgrep -a Xorg; pgrep -a dwm`.
+> **Immediate next steps, in order:**
 >
-> Expect duplicated dmesg and some ghosted glyphs on the panel: that is the normal fbcon handover
-> replay, not a fault.
+> 1. **162 / 163 — untethered graphical boot.** 162 enrolls `59622e78` directly (maintainer, 1TR). But
+>    prefer **163** first: a dual-mode graphical object keeps the 10-second debug door, and an enrolled
+>    graphical-only object does not — losing the door makes every later change cost a 1TR cycle.
+> 2. **169 — get off one core.** The graphical target runs `maxcpus=1`: one P-core of 14. Land 123 (or
+>    121) first, then rebuild the graphical object with the working SMP bootargs, changing one variable.
+>    SMP at fixed frequency *before* cpufreq (006), or a failure is unattributable.
+> 3. **164 / 165 — backlight and battery.** Both measured absent from the kernel config
+>    (`APPLE_DWI_BL`, `MACSMC_POWER`, `HWMON`), so both are cheap offline wins. 165 is read-only
+>    telemetry; charger and PMU-voltage writes stay forbidden.
+> 4. **167 — USB ethernet.** `USB_USBNET` is absent; enabling it converts the USB milestone straight
+>    into networking, well before PCIe is understood. WiFi needs **no** kernel work (`BRCMFMAC` and
+>    `CFG80211` are already present) and is gated purely on PCIe op-115 (124/168).
+> 5. **149 — `root=/dev/ram0` ext4**, unblocked by 147, object `ec111c6d` staged.
+> 6. **160 — the initramfs decode limit** in (97.3, 278.9] MiB. A host harness around m1n1's portable
+>    minilzlib can find it with no rig time.
 >
-> **Do not bother re-running the diagnostic object `d14df9f3` — it is inert.** The shipping DockChannel
-> driver registers no console, so `console=ttydc0` is silently ignored (153/159). To make smokes
-> self-verifying, apply `patches/t6040-dockchannel-nbcon.patch` (now applies cleanly, since 159 made its
-> target file tracked), rebuild, and re-cut the object. Until then **the panel is the only source of
-> kernel dmesg**, so a screenshot is necessary evidence.
->
-> **Kernel reproducibility was restored (159)** — the driver providing `/dev/ttydc0` had never been in
-> version control. Anything built before this may have come from an unreproducible tree.
-
-> **2026-07-26 (evening) — three objects are staged and waiting on the maintainer.** All need
-> `kmutil`/rig time; everything offline is done.
->
-> 1. **155 fat graphical** — `m1n1-b0-dwm-fat.bin` `c5438779`. The capability-first rebuild after
->    148 died on a missing `CONFIG_UNIX`. Run this one first.
-> 2. **153 diagnostic twin** — `m1n1-b0-dwm-fat-diag.bin` `d14df9f3`, identical but with
->    `console=ttydc0`, so the machine reports its own dmesg over KIS. Use it if 155 fails, or run it
->    *instead* of 155 if you want maximum evidence from one cycle.
-> 3. **149 ram0 ext4** — `ec111c6d`, unblocked by 147.
-> 4. **156 ceiling** — `probe-graded-512M.bin` `59eb0a1a` then `1024M` `91e4d692`, only if you want
->    the real limit measured. Restore the daily-driver object afterwards.
->
-> Run them with the two-argument form, which is now the only accepted way (no default object):
-> `bash scripts/t6040-boot-raw-object.sh <path> <sha256>`.
->
-> **Policy change (155): stop optimising these images for size.** Trimming cost 148 both its software
-> GL and, via `# CONFIG_NET is not set`, AF_UNIX and therefore X. The ceiling that justified it was
-> never measured. Build for capability; shrink only on real overflow. Note **512 MiB is still not
-> established** — 256 MiB is the largest measured size.
->
-> **Prefer the diagnostic object for any graphical run.** Twice on 2026-07-26 a rig result could not
-> be judged from the host: the proven bootargs are `console=tty0` only, so dmesg never reaches KIS,
-> and the 148 run left a **0-byte** console log with a screenshot as the sole evidence.
->
-> Still rig-only and not started: **152** (read m1n1's stage2 log and the ADT from Linux via
-> `/dev/mtd0`, a post-mortem path that works untethered) and **124**'s attended PCIe follow-up (live
-> read of `0x217004000`/`0x217008000`; an ungated-aperture SError could wedge the tether, so it is
-> not an autonomous probe).
-
-> **2026-07-26 — the 16 KiB-page kernel is cleared (147 PASSED).** DIET_CAPABLE
-> (16 KiB pages, forced by `PCIE_APPLE`) boots the proven Alpine RAM root with every
-> acceptance criterion met, so the page-size ABI unknown is closed and **149 is
-> unblocked**. Enabler 146 is done (rollback proxy loader enrolled), 150 is closed
-> (`mtdblock0/1` are m1n1's own stage2-log/ADT debug nodes, not storage), and both
-> **148 (dwm)** and **149 (ram0 ext4)** are built, hash-verified and staged with exact
-> run commands on their tickets.
->
-> **Keep the two 16 KiB rules apart:** an *enrolled* object's **total size** must still be
-> a multiple of 16 KiB (iBoot load path, 2026-07-25 root cause) — that is unrelated to the
-> kernel **page size** cleared by 147, and a tethered chainload bypasses iBoot so it cannot
-> test alignment at all.
->
-> **Harness first, next time.** 147 took three attempts; the first two silently booted a
-> hardcoded default object while the SHA guard reported OK, because it validated the default
-> the script had chosen for itself. `t6040-boot-raw-object.sh` now has **no default object**.
-> Newly filed and worth doing before more rig time: **151** (P1 — the harness prints
-> `chainload failed` on a *successful* boot, the same misattribution class), **153** (capture
-> kernel dmesg over KIS so smokes self-verify instead of needing the panel), **154** (assert
-> kernel page size at build time from the Image header, never from `strings`), **152**
-> (read m1n1's stage2 log + ADT from Linux via `/dev/mtd0`, a post-mortem path that works on
-> an *untethered* boot).
->
-> Next PCIe step is ticket **124**'s attended follow-up: the decode is done — `_initializePhy`
-> starts with a bit-0 RMW of PhyCommon `0x0` (absolute `0x217004000`), PhyPhy at `0x217008000`,
-> and the op-115 read that hangs is `0x217048090` — but a live read of that aperture risks an
-> ungated SError, so it needs an attended session, not an autonomous probe.
+> Still attended-only: **124**'s live PCIe read (an ungated-aperture SError could wedge the tether) and
+> anything touching HPM/ATC (096/097).
 
 > **2026-07-25 — MILESTONE B0 REACHED.** An enrolled object now cold-boots
 > untethered into Alpine/OpenRC on the internal panel (ticket 101 done; object

@@ -5,9 +5,10 @@
   "state": "open",
   "track": "usb",
   "priority": "P1",
-  "desc": "Get the USB stick readable AND writable from the booted M4 — the next capability after B0. Blocked on the Type-C host link: the port has full hardware (usb-drd2 -> atc-phy2 -> acio2 -> hpm2 SN201202x on SPMI) but Linux has no atc-phy,t6040 driver and no HPM/Type-C path, so DWC3 brings up xHCI with no PHY provider and nothing enumerates (tickets 063/064). Routes: (a) reviewed HPM/ATC host-transition in m1n1 — currently NO-GO pending new primary evidence for the rollback path (tickets 096/097); (b) upstream atc-phy + tipd drivers (ticket 023); (c) U-Boot as stage 2 with its own USB stack (ticket 128), which may or may not include an ATC PHY driver — that is 128's pivotal question. Once a device enumerates, read and write are symmetric at the SCSI/block layer, so this single unlock delivers both. Deliverable: a decision on which route to pursue, with evidence.",
+  "desc": "Get the USB stick readable AND writable from the booted M4 \u2014 the next capability after B0. Blocked on the Type-C host link: the port has full hardware (usb-drd2 -> atc-phy2 -> acio2 -> hpm2 SN201202x on SPMI) but Linux has no atc-phy,t6040 driver and no HPM/Type-C path, so DWC3 brings up xHCI with no PHY provider and nothing enumerates (tickets 063/064). Routes: (a) reviewed HPM/ATC host-transition in m1n1 \u2014 currently NO-GO pending new primary evidence for the rollback path (tickets 096/097); (b) upstream atc-phy + tipd drivers (ticket 023); (c) U-Boot as stage 2 with its own USB stack (ticket 128), which may or may not include an ATC PHY driver \u2014 that is 128's pivotal question. Once a device enumerates, read and write are symmetric at the SCSI/block layer, so this single unlock delivers both. Deliverable: a decision on which route to pursue, with evidence.",
   "author": "claude",
   "deps": [],
   "hashes": null,
-  "created": 1785010596
+  "created": 1785010596,
+  "note": "2026-07-26: the KERNEL side is no longer a blocker. The full kernel (Image-hid-type-fix, config-hid-type-fix) already registers usb-storage and uas \u2014 both were observed in the live dmesg ('usbcore: registered new interface driver uas' / 'usb-storage') \u2014 whereas the diet kernel lacked them entirely. So this ticket is gated purely on the HPM/ATC host link (096/097 or U-Boot 132), not on any kernel work. Note the graphical daily-driver image is now a RAM root with no persistence at all, which makes this the single most valuable remaining capability."
 }

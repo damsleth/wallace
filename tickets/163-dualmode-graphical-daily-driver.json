@@ -1,0 +1,14 @@
+{
+  "seq": "163",
+  "slug": "dualmode-graphical-daily-driver",
+  "needs": "offline",
+  "state": "proposed",
+  "track": "distro",
+  "priority": "P1",
+  "desc": "Build the object that should actually become the daily driver: the 10-second USB-serial debug window (EARLY_PROXY_TIMEOUT + EARLY_PROXY_UNCONDITIONAL + FB_CONSOLE_ALWAYS, m1n1 window10 v6 c10a502f, live-proven both ways in ticket 140) combined with the now-working graphical payload. Rationale: an enrolled graphical-ONLY object has no debug door, so every subsequent change costs a 1TR enrollment cycle; the dual-mode object lets a host take control within 10 s and otherwise falls through to dwm. Recipe: m1n1 window10 v6 (NOT the window-free v7 ecd264a5 used for tethered smokes) + full kernel Image-hid-type-fix.xz cbb3e743 + DTB 2782b922 + initramfs-alpine-dwm-hidpi.cpio.xz 47d1e8ce + the proven bootargs 3659a0da. WATCH: a window-carrying object cannot be tethered-smoke-tested, because its own window catches chainload.py's handshake (learned 2026-07-25) \u2014 so smoke the payload with v7 first, then build the v6 variant and enroll it directly. Verify with t6040-raw-object-verify.py --strict.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785150000,
+  "runnable": true
+}

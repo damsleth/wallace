@@ -1,0 +1,14 @@
+{
+  "seq": "169",
+  "slug": "all-core-graphical-integration",
+  "needs": "offline",
+  "state": "proposed",
+  "track": "kernel",
+  "priority": "P1",
+  "desc": "The graphical target currently runs at maxcpus=1 idle=nop, which is a severe daily-driver limitation: one P-core out of 14. The pieces exist separately \u2014 ticket 120/121 own the maxcpus=14 candidate and smoke, 123 owns the revised maxcpus=2 proof, and 006 owns cpufreq, with the full kernel already carrying CONFIG_SMP=y, CONFIG_HOTPLUG_CPU=y, CONFIG_CPU_FREQ=y and CONFIG_ARM_APPLE_SOC_CPUFREQ=y. What is missing is an INTEGRATION object: dwm plus more than one core. TASK: once 123 (or 121) establishes a working SMP bootarg set, build the graphical object with it \u2014 one variable changed from the proven 59622e78 \u2014 and only then consider cpufreq. Sequence deliberately: SMP first at fixed frequency, then cpufreq, since the 2026-07-24 maxcpus=2 attempt reached kernel vectoring with no output and mixing the two would make a failure unattributable. WATCH thermals with no fan control and no temperature reading until 165 lands.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785150000,
+  "runnable": true
+}
