@@ -37,7 +37,17 @@ M1N1_ALIGNMENT = 0x4000
 MAX_OBJECT_SIZE = 256 * 1024 * 1024
 MAX_COMPRESSED_EXPANSION = 1024 * 1024 * 1024
 MAX_KERNEL_RESERVE = 512 * 1024 * 1024
-MAX_INITRAMFS_EXPANDED = 256 * 1024 * 1024
+# Raised 256 MiB -> 1 GiB on 2026-07-26 (ticket 155). The expanded initramfs becomes the
+# RAM root, so this is a RAM guard, not a load-path limit — and RAM here is 23.8 GiB
+# (mem_size 0x5cb500000), against which even a 300 MiB root is ~1%. The old 256 MiB was an
+# arbitrary policy number that blocked the first capability-first graphical image (which
+# expands to 279 MiB) for no physical reason, exactly the assumed-ceiling problem that
+# ticket 155 exists to correct. It is now pinned to the REAL binding constraint instead:
+# m1n1's xz decoder advertises 1 GiB (MAX_COMPRESSED_EXPANSION), so an xz member cannot
+# expand beyond that anyway. Still a runaway guard — a multi-GiB root is a bug — but no
+# longer a limit that is tighter than the hardware. Re-examine if the RAM assumption
+# changes. Ticket 156 measures the separate enrolled-object size ceiling.
+MAX_INITRAMFS_EXPANDED = MAX_COMPRESSED_EXPANSION
 MAX_DTB_SIZE = 2 * 1024 * 1024
 DTB_GROWTH_RESERVE = 6 * M1N1_ALIGNMENT
 

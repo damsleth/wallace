@@ -12,7 +12,18 @@ ALPINE_VERSION=3.24.0
 ALPINE_ARCH=aarch64
 ALPINE_FILE="alpine-minirootfs-${ALPINE_VERSION}-${ALPINE_ARCH}.tar.gz"
 ARCHIVE="$OUT/$ALPINE_FILE"
-DEST=${DEST:-"$OUT/initramfs-alpine-dwm.cpio.xz"}
+# FAT=1 (ticket 155): build for capability, not size. Keeps llvmpipe/gallium/DRI and
+# the full font set, and adds software GL. The trimming below was justified by an
+# object-size ceiling that was never measured to exist (ticket 137 found none to
+# 256 MiB, which was the probe limit and a policy number, not hardware) — and it cost
+# the only graphical image its software GL, while the matching kernel diet cost it
+# CONFIG_NET and therefore AF_UNIX, which killed Xorg outright (ticket 148).
+FAT=${FAT:-0}
+if [ "$FAT" = "1" ]; then
+    DEST=${DEST:-"$OUT/initramfs-alpine-dwm-fat.cpio.xz"}
+else
+    DEST=${DEST:-"$OUT/initramfs-alpine-dwm.cpio.xz"}
+fi
 
 [ -f "$ARCHIVE" ] || { echo "missing $ARCHIVE" >&2; exit 1; }
 
@@ -29,11 +40,15 @@ EOF
 cp /etc/resolv.conf "$TMP/etc/resolv.conf" 2>/dev/null || echo "nameserver 1.1.1.1" > "$TMP/etc/resolv.conf"
 
 echo "== installing Xorg + dwm inside the container chroot =="
-podman exec "$CONTAINER" chroot "/out/$TMP_BASE" /bin/sh -ec '
+# FAT adds software GL (llvmpipe via mesa-dri-gallium) plus kbd for real loadkeys, and
+# xdpyinfo/xev so a graphical failure can be diagnosed on the machine itself.
+FAT_PKGS=""
+[ "$FAT" = "1" ] && FAT_PKGS="mesa-dri-gallium mesa-gl mesa-gbm kbd xdpyinfo xev"
+podman exec -e FAT_PKGS="$FAT_PKGS" "$CONTAINER" chroot "/out/$TMP_BASE" /bin/sh -ec '
     apk update -q
     apk add --no-cache openrc busybox-openrc kbd-bkeymaps \
         xorg-server xf86-input-libinput xinit setxkbmap xrandr \
-        dwm st dmenu font-terminus ttf-dejavu
+        dwm st dmenu font-terminus ttf-dejavu $FAT_PKGS
     rm -rf /var/cache/apk/* /var/log/apk.log /etc/resolv.conf
 '
 
@@ -41,6 +56,14 @@ podman exec "$CONTAINER" chroot "/out/$TMP_BASE" /bin/sh -ec '
 # links nothing from LLVM/gallium, modesetting_drv.so needs only libgbm, and dwm/st
 # need no GL — LLVM/gallium exist solely for DRI/llvmpipe rendering, which
 # AccelMethod "none" never invokes. libLLVM alone is 181 MiB of a 293 MiB image.
+if [ "$FAT" = "1" ]; then
+    echo "== FAT: keeping GL/JIT, DRI and fonts (no trimming) =="
+    du -sm "$TMP" | awk '{print "  image: "$1" MiB"}'
+    # Only docs/man go: they cannot affect behaviour, and keeping them buys nothing.
+    rm -rf "$TMP"/usr/share/doc "$TMP"/usr/share/man "$TMP"/usr/share/info \
+           "$TMP"/usr/share/licenses "$TMP"/usr/share/gtk-doc
+    du -sm "$TMP" | awk '{print "  after docs/man drop: "$1" MiB"}'
+else
 echo "== trimming GL/JIT and surplus fonts =="
 du -sm "$TMP" | awk '{print "  before: "$1" MiB"}'
 rm -f  "$TMP"/usr/lib/libLLVM.so* "$TMP"/usr/lib/libgallium*.so*        "$TMP"/usr/lib/libSPIRV-Tools*.so* "$TMP"/usr/lib/libLLVMSPIRVLib*.so*
@@ -49,6 +72,7 @@ rm -rf "$TMP"/usr/lib/dri "$TMP"/usr/lib/xorg/modules/dri
 rm -rf "$TMP"/usr/share/fonts/ttf-dejavu "$TMP"/usr/share/fonts/misc        "$TMP"/usr/share/fonts/font-misc-misc
 rm -rf "$TMP"/usr/share/doc "$TMP"/usr/share/man "$TMP"/usr/share/info        "$TMP"/usr/share/licenses "$TMP"/usr/share/gtk-doc
 du -sm "$TMP" | awk '{print "  after:  "$1" MiB"}'
+fi
 
 # Xorg on simpledrm: modesetting with no acceleration, and do not require a pointer.
 cat > "$TMP/etc/X11/xorg.conf" <<'EOF'
