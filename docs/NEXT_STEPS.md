@@ -10,11 +10,18 @@
 > ~/Code/linux-build-out/raw-object-chainload.log` shows live progress. Diagnostic tell: CPU must climb
 > past ~5 s within the first 10 s; pinned at `0:00.09` means nothing is behind the pty.
 >
-> **Next rig action is unchanged: the plain fat object.** `m1n1-b0-dwm-fat.bin` `c5438779`, then
-> `cat /var/log/xorg-startx.log; pgrep -a Xorg; pgrep -a dwm`. Both known blockers are gone — AF_UNIX is
-> present and `simpledrm` was seen probing cleanly — so the only open question is whether `modesetting`
-> drives it. Expect duplicated dmesg and some ghosted glyphs on the panel regardless: that is the normal
-> fbcon handover replay, not a fault, and not caused by the diagnostic bootargs.
+> **Next rig action: `m1n1-b0-dwm-fullkernel.bin` `6738aad9`.** The fat objects (`c5438779`,
+> `d14df9f3`) **do not boot** — their 278.9 MiB initramfs is beyond what m1n1's XZ decoder handles, so
+> m1n1 printed `XZ decode failed`, passed no initrd, and the kernel died with
+> `rdinit=/sbin/init failed: -2` → `VFS: Cannot open root device`. Do not run either again.
+>
+> The replacement pairs the **full kernel** (the actual fix for 148 — `CONFIG_UNIX` plus the DRM
+> helpers DIET drops) with the **thin dwm rootfs that is proven to unpack** (60.5 MiB expanded),
+> rebuilt with the keymap fix. Versus the object that booted in 148, exactly one variable changed: the
+> kernel. Then `cat /var/log/xorg-startx.log; pgrep -a Xorg; pgrep -a dwm`.
+>
+> Expect duplicated dmesg and some ghosted glyphs on the panel: that is the normal fbcon handover
+> replay, not a fault.
 >
 > **Do not bother re-running the diagnostic object `d14df9f3` — it is inert.** The shipping DockChannel
 > driver registers no console, so `console=ttydc0` is silently ignored (153/159). To make smokes

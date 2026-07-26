@@ -1576,3 +1576,51 @@ Three defects, each having cost real rig time the same day:
 
 > **Diagnostic tell for any future upload:** CPU time must climb past ~5 s within the first 10 s
 > (connect + ADT fetch + transfer start). Pinned at `0:00.09` / 0.0% means nothing is behind the pty.
+
+### 2026-07-26 (late) — the fat object never unpacked, and the guard I removed had been right
+
+`m1n1-b0-dwm-fat.bin` reboots without reaching a shell:
+
+```
+check access for rdinit=/sbin/init failed: -2, ignoring
+VFS: Cannot open root device "" or unknown-block(0,0): error -6
+```
+
+`/sbin/init` **is** in the image (entry 426 of 4217), so the file was never the issue — **the
+initramfs was never unpacked.** Host-side console log, first line: **`XZ decode failed`**, and no
+`FDT: initrd at ...` line, which `kboot.c` prints whenever it passes an initrd. m1n1 decoded nothing,
+set no initrd, and the kernel booted an empty rootfs. Timestamps corroborate: everything under 0.16 s,
+whereas unpacking 279 MiB takes seconds.
+
+Both fat objects share initramfs `ad1fe88b`, so **both are broken** — the earlier "reached userspace"
+reading of the diag run was wrong, its screenshot having stopped at 0.131 s, just above the failure
+lines. The `simpledrm` probe seen there still stands, since DRM initialises before a rootfs is needed.
+
+**Measured boundary:** 13.1, 50.8, 60.5 and 97.3 MiB expanded all decode; **278.9 MiB fails**. True
+limit in **(97.3, 278.9] MiB**, unmeasured — ticket 160. Two mechanisms were checked and *ruled out*
+rather than assumed: XZ block-header size metadata (byte-13 flags `0x0000` on every member, working and
+failing alike, so minilzlib's documented restriction is not it) and dictionary/filter differences
+(`xz -lvv` identical across all: 1 stream, 1 block, CRC32, 65 MiB). Suspect is `payload.c` decoding
+into `heapblock_alloc_aligned(0, …)` — the uncommitted heap top — with `dest_len = 1 << 30` and no
+bound check in `heapblock_alloc_aligned`.
+
+#### The self-inflicted part
+
+The verifier **had rejected this object**: `initramfs expands to 292422732 bytes, over B0 limit
+268435456`. I raised `MAX_INITRAMFS_EXPANDED` 256 MiB → 1 GiB, arguing it was "an arbitrary policy
+number", "a RAM guard, not a load-path limit", against 23.8 GiB of RAM — and wrote that I was
+deliberately *not* fitting the guard to my build, while raising it four-fold so my build would pass.
+The binding constraint is m1n1's decoder, not RAM. Restored at **128 MiB**, above every proven-good
+size and below the known-bad one.
+
+> Today's earlier lesson was that guards often validate the wrong thing. The inverse is just as real:
+> **a guard whose rationale I cannot reconstruct is not thereby arbitrary.** "I don't see why this
+> limit exists" is a reason to find out, not a licence to raise it.
+
+#### Replacement
+
+`m1n1-b0-dwm-fullkernel.bin` `6738aad9` (28,213,248 B = 1722 × 16 KiB, strict PASS): full kernel
+`cbb3e743` + the **thin** dwm rootfs `dcc5555a` (60.5 MiB expanded, proven to unpack) rebuilt with the
+keymap fix + proven bootargs `3659a0da`. What fixed 148 was the kernel; the restored llvmpipe was the
+nice-to-have that pushed the rootfs over the limit. **Versus the object that booted in 148, exactly one
+variable changed.**
