@@ -1372,3 +1372,81 @@ would wedge the tether (same class as the NVMe `nvme_init` SError), so the exact
 register/value pairs and the second PhyCommon write are deferred to an attended session, along
 with one separately-gated m1n1 candidate. **068 stays un-retried.** Full trace in
 `done/2026-07-26-t6040-pcie-initializephy-trace.md`.
+
+### 2026-07-26 (later) — the 16 KiB-page kernel boots (147), and two wrong-object runs
+
+**Ticket 147 PASSED.** The DIET_CAPABLE kernel — 16 KiB pages, forced by `PCIE_APPLE`'s
+`PAGE_SIZE_16KB` dependency — boots cleanly on T6040 with the proven Alpine RAM root:
+health report begin→end, `fb0=simpledrmdrmfb`, `Apple DockChannel Keyboard` on `event0`,
+`watchdog0=present`, empty network runlevel, `loaded no-mac.bmap`, `wallace-b0:~#`, no
+panic/Oops, no NVMe/xHCI/usb-storage, nothing mounted. Every proven boot before this used
+4 KiB pages, so this was an ABI-level unknown; it is now cleared and **149 is unblocked**.
+
+Object `m1n1-b0-dietcap-smoke.bin` `ac24d4bf` (14,893,056 B = 909 × 16 KiB). Confirmed as the
+object that actually ran via `Loading kernel image (0xe34004 bytes)` = filesize + the 4 zero
+bytes `chainload.py` appends.
+
+#### `/proc/partitions` is not empty, and that is correct
+
+```
+1  0  524288 ram0        <- BLK_DEV_RAM_COUNT=1, BLK_DEV_RAM_SIZE=524288 (exact match)
+31 0      16 mtdblock0   <- m1n1_stage2.log
+31 1     592 mtdblock1   <- adt
+```
+
+The "empty `/proc/partitions`" criterion was inherited from the 4 KiB diet kernel, which has no
+block layer; DIET_CAPABLE re-adds `BLK_DEV_RAM`/`MTD`/`MTD_BLOCK`/`MTD_PHRAM` by design.
+
+`cat /proc/mtd` settled the mtd devices: `mtd0 00004000 00004000 "m1n1_stage2.log"` and
+`mtd1 00094000 00004000 "adt"`. **These are m1n1's own debug nodes**, not flash — its stage2 log
+buffer and a copy of the ADT (`0x94000` is exactly the size the proxy reports when fetching the
+ADT). `erasesize` is `0x4000`, the native page size. m1n1 patches these into the *live* devicetree,
+which is why the on-disk DTB `2782b922` has no mtd/spi-nor/nvram node at all — and why they were
+invisible on the 4 KiB kernel, which simply lacks MTD to expose them. Storage-free premise intact;
+ticket 150 closed benign. Bonus capability: **m1n1's stage2 log and the full ADT are readable from
+Linux userspace with no tether** (ticket 152) — useful for post-mortem on an *untethered* boot,
+currently a blind spot.
+
+#### Do not conflate the two 16 KiB rules
+
+| | Constrains | Status |
+|---|---|---|
+| enrolled-object alignment (2026-07-25) | an **enrolled object's total byte length** must be a multiple of `0x4000` or iBoot never enters m1n1 | **still required** |
+| kernel page size (147) | `ARM64_4K_PAGES` vs `ARM64_16K_PAGES` (MMU granule) | 16 KiB proven to boot |
+
+Both are 16 KiB only because that is the Apple Silicon native page size. **147 could not have tested
+alignment**: a tethered chainload bypasses iBoot entirely, and alignment is an iBoot load-path
+constraint on *enrolled* objects only.
+
+#### Harness lesson: two runs booted the wrong object, and the guard said OK
+
+Attempts 1 and 2 both booted `m1n1-b0-alpine-hid-restored.bin` instead of the staged object:
+
+1. the object was passed **positionally**, but `t6040-boot-raw-object.sh` read `OBJECT` from the
+   environment and ignored `$1`;
+2. the retry used **semicolons** — `OBJECT=…; OBJECT_SHA=…; bash script` is four separate commands
+   whose assignments are shell-local and never reach the child, so the script saw an empty
+   environment.
+
+Both times it fell back to a hardcoded default **and its SHA guard passed**, because it validated
+the default it had selected for itself. Detected from `Loading kernel image (0x14b8f13)` =
+21,729,039 + 4 ≠ the staged 14,893,056, and independently from the panel's `uname`
+(`7.1.3-g96ac043df12f-dirty`, built Jul 24; dietcap is `7.1.3-g246843ff67a8-dirty`).
+
+**Fix: the script now has no default object.** The object *and* its sha256 must be named on every
+run; a positional two-argument form is preferred because it survives semicolon-pasting; extra,
+unknown or conflicting arguments are hard errors. A bare run with an empty environment now exits 2
+instead of booting something historical.
+
+> **A guard that validates a value the script chose for itself proves nothing about the value the
+> caller intended.** On a rig where every run costs a reboot, a convenience default is a
+> silent-wrong-answer generator: for an operation whose whole purpose is *which bytes ran*, there
+> should be no value the script can supply on the caller's behalf.
+
+Two further hazards found and ticketed rather than papered over: the harness prints
+`chainload failed` on a **successful** boot, because `chainload.py` ends with an `iface.nop()` that
+must time out once Linux owns the UART (**151**, P1 — this is exactly the pass/fail misattribution
+class above); and the kernel's dmesg never reaches KIS since the proven bootargs use `console=tty0`
+only, which is why 147 needed an attended session and a screenshot (**153**). **154** adds a
+build-time page-size assertion, checked from the arm64 Image header (`flags` @ +24, bits 1-2) —
+**not** from `strings`, which reports a literal `4K pages` message inside the 16 KiB dietcap Image.

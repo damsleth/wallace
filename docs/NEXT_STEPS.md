@@ -1,5 +1,33 @@
 # t6040 Linux bring-up — NEXT STEPS
 
+> **2026-07-26 — the 16 KiB-page kernel is cleared (147 PASSED).** DIET_CAPABLE
+> (16 KiB pages, forced by `PCIE_APPLE`) boots the proven Alpine RAM root with every
+> acceptance criterion met, so the page-size ABI unknown is closed and **149 is
+> unblocked**. Enabler 146 is done (rollback proxy loader enrolled), 150 is closed
+> (`mtdblock0/1` are m1n1's own stage2-log/ADT debug nodes, not storage), and both
+> **148 (dwm)** and **149 (ram0 ext4)** are built, hash-verified and staged with exact
+> run commands on their tickets.
+>
+> **Keep the two 16 KiB rules apart:** an *enrolled* object's **total size** must still be
+> a multiple of 16 KiB (iBoot load path, 2026-07-25 root cause) — that is unrelated to the
+> kernel **page size** cleared by 147, and a tethered chainload bypasses iBoot so it cannot
+> test alignment at all.
+>
+> **Harness first, next time.** 147 took three attempts; the first two silently booted a
+> hardcoded default object while the SHA guard reported OK, because it validated the default
+> the script had chosen for itself. `t6040-boot-raw-object.sh` now has **no default object**.
+> Newly filed and worth doing before more rig time: **151** (P1 — the harness prints
+> `chainload failed` on a *successful* boot, the same misattribution class), **153** (capture
+> kernel dmesg over KIS so smokes self-verify instead of needing the panel), **154** (assert
+> kernel page size at build time from the Image header, never from `strings`), **152**
+> (read m1n1's stage2 log + ADT from Linux via `/dev/mtd0`, a post-mortem path that works on
+> an *untethered* boot).
+>
+> Next PCIe step is ticket **124**'s attended follow-up: the decode is done — `_initializePhy`
+> starts with a bit-0 RMW of PhyCommon `0x0` (absolute `0x217004000`), PhyPhy at `0x217008000`,
+> and the op-115 read that hangs is `0x217048090` — but a live read of that aperture risks an
+> ungated SError, so it needs an attended session, not an autonomous probe.
+
 > **2026-07-25 — MILESTONE B0 REACHED.** An enrolled object now cold-boots
 > untethered into Alpine/OpenRC on the internal panel (ticket 101 done; object
 > `f290833c`, 578 × 16 KiB). Root cause of all prior enrolled failures: **the

@@ -1,0 +1,14 @@
+{
+  "seq": "154",
+  "slug": "assert-kernel-page-size-at-build",
+  "needs": "offline",
+  "state": "proposed",
+  "track": "kernel",
+  "priority": "P2",
+  "desc": "Add a build-time page-size assertion to scripts/t6040-kbuild.sh so a 4 KiB/16 KiB mix-up can never again be discovered only at boot. Ticket 147 existed because DIET_CAPABLE silently became a 16 KiB-page kernel (PCIE_APPLE depends on PAGE_SIZE_16KB) while every proven boot used 4 KiB \u2014 an ABI-level change that the existing symbol assertion does not cover. The page size is cheaply checkable from the built arm64 Image header: flags at offset 24 (u64 LE), bits 1-2 encode 0=unspecified 1=4K 2=16K 3=64K, with magic 0x644d5241 at offset 56 (verified 2026-07-26: Image-b0-diet flags=0xa => 4K, Image-b0-dietcap flags=0xc => 16K). Task: assert DIET => 4K and DIET_CAPABLE => 16K after each build and fail loudly on mismatch; also print the page size in the build summary, and consider having t6040-raw-object-verify.py report the kernel member's page size so an object's ABI is visible without unpacking. DO NOT use 'strings' for this \u2014 Image-b0-dietcap contains a literal '4K pages' message string and would give the wrong answer. Host-only, no rig.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785110000,
+  "runnable": true
+}

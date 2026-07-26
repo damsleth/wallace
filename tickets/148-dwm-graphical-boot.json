@@ -15,5 +15,6 @@
   "runnable": true,
   "approved_by": "maintainer",
   "approved_at": 1785054722,
-  "note": "2026-07-26: NOT gated by 147 \u2014 this object uses the PROVEN 4 KiB diet kernel efba5999, not the 16 KiB DIET_CAPABLE one. Only enabler 146 was required and it is now done."
+  "note": "2026-07-26: NOT gated by 147 \u2014 this object uses the PROVEN 4 KiB diet kernel efba5999, not the 16 KiB DIET_CAPABLE one. Only enabler 146 was required and it is now done.",
+  "staged": "2026-07-26: object VERIFIED and ready to chainload. m1n1-b0-alpine-dwm.bin c40b6ed9 (21,725,184 B = 1326 x 16 KiB, aligned), strict verify PASS: m1n1 v7 ecd264a5 + PROVEN 4 KiB diet kernel efba5999 + DTB 2782b922 + initramfs-alpine-dwm.cpio.xz 40073ac9 (14.93 MiB) + bootargs 3659a0da (the proven B0 set, rdinit=/sbin/init). NOT gated by 147 (that cleared the 16 KiB kernel; this uses the 4 KiB one). RUN: bash scripts/t6040-boot-raw-object.sh ~/Code/linux-build-out/m1n1-b0-alpine-dwm.bin c40b6ed9c439fc4aec804cc2c3e6657add49a7a0fcaa5813b4b87d0fb9fbc0b0 then read /var/log/xorg-startx.log on failure."
 }

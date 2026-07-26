@@ -6,6 +6,40 @@ panel, keyboard (Norwegian), watchdog — with a remote DebugUSB loop for develo
 
 This repo is the umbrella. The code lives in four sibling repos and the knowledge kept getting smeared across them so everything that guides the work now lives here: plans, scripts, kernel patches, post-mortems.
 
+## Status (2026-07-26, later) — 16 KiB-page kernel cleared, PCIe PHY-init decoded
+
+**Ticket 147 passed: the 16 KiB-page DIET_CAPABLE kernel boots on T6040.** Alpine 3.24 came up with
+the health report begin→end, `simpledrmdrmfb`, the internal keyboard on `event0`, `watchdog0=present`,
+an empty network runlevel, the Norwegian `no-mac` keymap loaded, and a shell prompt — no panic, no
+NVMe/xHCI/usb-storage, nothing mounted. `PAGE_SIZE_16KB` (forced by `PCIE_APPLE`) is therefore **not**
+a boot blocker, which unblocks the `root=/dev/ram0` ext4 rehearsal (149). Both 148 (dwm) and 149 are
+now built, hash-verified and staged.
+
+One acceptance criterion needed interpreting rather than a literal reading: `/proc/partitions` is not
+empty on this kernel. That criterion came from the 4 KiB diet kernel, which has no block layer at
+all, whereas DIET_CAPABLE exists precisely to re-add `BLK_DEV_RAM`/`MTD`. `ram0` matches the config
+exactly, and `mtdblock0/1` turned out to be **m1n1's own debug nodes** — `m1n1_stage2.log` (16 KiB)
+and `adt` (`0x94000`, exactly the ADT size the proxy reports), RAM-backed and read-only, patched into
+the live devicetree by m1n1 and thus absent from the on-disk DTB. Not storage; the storage-free
+premise holds (ticket 150, closed). It also hands us a new capability: m1n1's stage2 log and the full
+ADT are readable from Linux userspace with no tether (ticket 152).
+
+**Two independent 16 KiB facts, easy to conflate and worth keeping apart.** An *enrolled* object's
+**total size** must still be a whole multiple of 16 KiB or iBoot never enters m1n1 (yesterday's root
+cause, unchanged). That is separate from the kernel's **page size**, which is what 147 cleared. Both
+are 16 KiB only because that is the Apple Silicon native page size. 147 could not have tested
+alignment at all: a tethered chainload hands the object to `chainload.py` and bypasses iBoot.
+
+Three attempts were needed, and the first two booted the wrong object — a positional argument the
+script ignored, then `VAR=…; VAR=…; cmd` semicolons that kept the assignments shell-local. Both times
+it silently fell back to a hardcoded default and its SHA guard *passed*, because it validated the
+default it had chosen for itself. `scripts/t6040-boot-raw-object.sh` now has **no default object**:
+the object and its sha256 must be named on every run, with a positional two-argument form that
+survives semicolon-pasting. Filed 151 for the related hazard that the harness prints
+`chainload failed` on a *successful* boot (`chainload.py`'s closing `iface.nop()` must time out once
+Linux takes the UART), plus 153 (capture kernel dmesg so smokes self-verify) and 154 (assert kernel
+page size at build time).
+
 ## Status (2026-07-26) — daily-driver object + graphical/ramroot targets, PCIe PHY-init decoded
 
 Built on the B0 milestone. The **dual-mode daily-driver object** is the standing boot

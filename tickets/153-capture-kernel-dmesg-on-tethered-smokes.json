@@ -1,0 +1,14 @@
+{
+  "seq": "153",
+  "slug": "capture-kernel-dmesg-on-tethered-smokes",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "harness",
+  "priority": "P2",
+  "desc": "Make tethered smokes self-verifying so an agent can judge them without the maintainer at the panel. Today every B0-family pass criterion is a panel observation because the proven bootargs use console=tty0 only, so the kernel's own dmesg never reaches the KIS pty \u2014 in the ticket-147 log there is no 'Kernel command line', no page-size line, and no driver output, only what userspace echoed. That is why 147 needed an attended session and why a screenshot was required to disprove a wrong-object run. Task: build a DIAGNOSTIC-ONLY object variant adding ttydc0 as a second console (e.g. console=tty0 console=ttydc0, or earlycon) so dmesg is captured in the chainload log, and confirm the userspace health report still appears. KEEP the proven console=tty0-only bootargs for enrollment and acceptance runs \u2014 this variant is for diagnosis, and its bootargs differ from the proven 3659a0da set, so results from it must be labelled as such. Pairs with 151 (a self-verifying harness needs both a correct verdict and readable evidence).",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785110000,
+  "runnable": false
+}

@@ -1,0 +1,14 @@
+{
+  "seq": "152",
+  "slug": "read-m1n1-stage2-log-from-linux",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "distro",
+  "priority": "P3",
+  "desc": "Exploit a capability discovered while closing ticket 150: with MTD enabled (DIET_CAPABLE), m1n1 exposes its own runtime state to Linux as MTD devices \u2014 mtd0 'm1n1_stage2.log' (16 KiB) and mtd1 'adt' (0x94000 = 592 KiB, exactly the ADT size the proxy reports). That means m1n1's stage2 log and the full Apple Device Tree are readable from Linux userspace with no tether, no KIS and no proxy. Useful for post-mortem on an UNTETHERED boot, which is currently a blind spot: the kernel console goes to tty0 on the panel and there is no host attached. Task: read /dev/mtd0 (and mtd1) from the booted image, confirm the log content is m1n1's stage2 output, and add a small OpenRC/health-report step that dumps or preserves it. Consider also dumping mtd1 as an on-device ADT source for RE work (compare against the proxy-fetched ADT for equality). Read-only; no writes to either device. Evidence: done/2026-07-26-t6040-dietcap-kernel-smoke-result.md.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785110000,
+  "runnable": false
+}
