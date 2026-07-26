@@ -46,7 +46,7 @@ FAT_PKGS=""
 [ "$FAT" = "1" ] && FAT_PKGS="mesa-dri-gallium mesa-gl mesa-gbm kbd xdpyinfo xev"
 podman exec -e FAT_PKGS="$FAT_PKGS" "$CONTAINER" chroot "/out/$TMP_BASE" /bin/sh -ec '
     apk update -q
-    apk add --no-cache openrc busybox-openrc kbd-bkeymaps eudev \
+    apk add --no-cache openrc busybox-openrc kbd-bkeymaps eudev xrdb \
         xorg-server xf86-input-libinput xinit setxkbmap xrandr \
         dwm st dmenu font-terminus ttf-dejavu $FAT_PKGS
     rm -rf /var/cache/apk/* /var/log/apk.log /etc/resolv.conf
@@ -118,13 +118,35 @@ mkdir -p /run/udev
     /bin/udevadm info --query=property --name=/dev/input/event0 2>&1
 } > "$LOG" 2>&1
 
-cat > /root/.xinitrc <<'XEOF'
+# HiDPI. The panel is 3024x1964 on 14.2in = ~254 DPI, but X assumes 96, so everything
+# renders about a quarter of its intended physical size (2026-07-26: "text size is
+# extremely small"). Three separate mechanisms are needed, because they do not share a
+# source of truth:
+#   * the X server's own DPI (-dpi), which sets what the display reports;
+#   * Xft.dpi, which is what Xft actually consults for POINT sizes — this is what scales
+#     dwm's bar and dmenu, whose fonts are compile-time "monospace:size=10" (suckless
+#     configs are baked in, so they cannot be changed without rebuilding those binaries);
+#   * an explicit font for st, because Alpine's st is built with a PIXELSIZE font, and a
+#     pixelsize is immune to any DPI setting. This is why the earlier `xrandr --dpi 192`
+#     could never have fixed st.
+# 192 = 2x the 96 baseline, the usual HiDPI convention; T6040_DPI overrides it.
+DPI=${T6040_DPI:-192}
+ST_PX=${T6040_ST_PIXELSIZE:-28}
+cat > /root/.Xresources <<XRES
+Xft.dpi: $DPI
+Xft.antialias: true
+Xft.hinting: true
+Xft.rgba: rgb
+Xcursor.size: 48
+XRES
+cat > /root/.xinitrc <<XEOF
+xrdb -merge /root/.Xresources || true
 setxkbmap no || true
-xrandr --dpi 192 2>/dev/null || true
-st &
+xrandr --dpi $DPI 2>/dev/null || true
+st -f 'monospace:pixelsize=$ST_PX' &
 exec dwm
 XEOF
-exec startx -- vt1 -keeptty >> "$LOG" 2>&1
+exec startx -- vt1 -keeptty -dpi "$DPI" >> "$LOG" 2>&1
 EOF
 chmod 0755 "$TMP/usr/local/sbin/t6040-startx"
 
