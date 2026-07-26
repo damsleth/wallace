@@ -1,0 +1,17 @@
+{
+  "seq": "157",
+  "slug": "preflight-proxy-liveness-check",
+  "needs": "offline",
+  "state": "done",
+  "track": "harness",
+  "priority": "P1",
+  "author": "claude",
+  "deps": [
+    "151"
+  ],
+  "hashes": null,
+  "created": 1785120000,
+  "runnable": false,
+  "desc": "The smoke harness checked only that the KIS pty EXISTS ([ -e /tmp/m1n1 ]), not that a live m1n1 proxy was behind it. On 2026-07-26 that check passed three separate times against a dead pty and each time cost a silent 5-minute timeout with a 0-byte log (Python block-buffers stdout to a file, so not even the banner appeared): once a stale kisd symlink left over from an earlier session, and twice because a previous chainload had already booted Linux and thereby CONSUMED the proxy it needed.",
+  "result": "2026-07-26 FIXED and confirmed working in production. New scripts/t6040-proxy-alive.py asks the proxy to prove it is there with a single read-only REQ_NOP and a short timeout, exiting 0/1; on failure it names the real cause and prints the fix (bash scripts/t6040-debugusb-console.sh reboot). Wired into t6040-boot-raw-object.sh before the upload, skippable with T6040_SKIP_PREFLIGHT=1. Verified both ways on the real rig: 'proxy-alive: NO' in 0.04s for a nonexistent device, and 'proxy-alive: YES \u2014 /tmp/m1n1 answered a NOP' in the maintainer's live run immediately before a healthy upload. KEY OPERATIONAL RULE this exposed, now documented: every SUCCESSFUL chainload boots Linux and destroys the proxy it needed, so t6040-debugusb-console.sh reboot is mandatory before EVERY chainload, not just after a failure. Diagnostic tell for any future hang: CPU time must climb past ~5s within the first 10s (connect + ADT fetch + transfer start); pinned at 0:00.09 with 0.0%% means nothing is behind the pty."
+}

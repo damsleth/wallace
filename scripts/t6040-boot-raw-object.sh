@@ -102,6 +102,21 @@ actual_sha=$(shasum -a 256 "$OBJECT" | awk '{print $1}')
 stty -f "$M1" raw -echo
 pkill -f "^cat $M1$" 2>/dev/null || true
 
+# Ticket 157: prove a LIVE proxy is behind the pty before uploading. `[ -e "$M1" ]` above
+# only proves a symlink exists — on 2026-07-26 that passed three times against a dead pty
+# (once a stale kisd, twice because a previous chainload had booted Linux and CONSUMED the
+# proxy), each costing a silent 5-minute timeout with a 0-byte log. Skip with
+# T6040_SKIP_PREFLIGHT=1.
+if [ "${T6040_SKIP_PREFLIGHT:-0}" != "1" ]; then
+    if ! "$PY" "$(dirname "$0")/t6040-proxy-alive.py" --device "$M1" --timeout 5; then
+        echo "refusing to upload $(basename "$OBJECT") into a dead proxy" >&2
+        stty -f "$M1" raw -echo 2>/dev/null || true
+        nohup cat "$M1" >>"$CONLOG" 2>/dev/null < /dev/null &
+        echo "console reader pid $! -> $CONLOG" >&2
+        exit 1
+    fi
+fi
+
 echo "== one-object chainload: $OBJECT =="
 echo "== sha256: $OBJECT_SHA =="
 set +e
