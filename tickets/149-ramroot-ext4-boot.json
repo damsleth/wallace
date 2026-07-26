@@ -13,8 +13,8 @@
   ],
   "hashes": null,
   "created": 1785046183,
-  "runnable": false,
+  "runnable": true,
   "approved_by": "maintainer",
   "approved_at": 1785054722,
-  "note": "2026-07-26: enabler 146 done, but this stays not-runnable until 147 PASSES \u2014 it uses the 16 KiB-page DIET_CAPABLE kernel, so a failure here could not be attributed to the ext4/ram0 root path until the kernel itself is cleared."
+  "note": "2026-07-26: UNBLOCKED \u2014 147 PASSED, so the 16 KiB-page DIET_CAPABLE kernel is cleared and a failure here can be attributed to the ext4/ram0 root path rather than the kernel. Note from 147's boot: ram0 is present at 524288 KiB (512 MiB) per BLK_DEV_RAM_COUNT=1/BLK_DEV_RAM_SIZE=524288, while this object's bootargs request ramdisk_size=65536 (64 MiB) against a 64 MiB image \u2014 check that the smaller ramdisk_size does not conflict with the compiled-in 512 MiB default. Also expect mtdblock0/1 in /proc/partitions (ticket 150, origin unexplained but harmless)."
 }
