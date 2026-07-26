@@ -2,12 +2,19 @@
   "seq": "149",
   "slug": "ramroot-ext4-boot",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "distro",
   "priority": "P2",
-  "desc": "Rehearse the REAL root path before USB storage exists: boot root=/dev/ram0 from an ext4 image. Object m1n1-b0-ramroot-ext4.bin ec111c6dffff6928645157f9cda95238d4cd71b9370d6064f32c55d53da869cc (78,594,048 B, 4797 pages) = window-free m1n1 v7 ecd264a5 + DIET_CAPABLE kernel (for BLK_DEV_RAM/EXT4) + DTB 2782b922 + ramroot-alpine-b0.ext4 4e589df0 (64 MiB, label t6040root, UUID e442113d-9bc9-499c-a85f-195209544298, e2fsck clean) carried via m1n1's m1n1_initramfs wrapper, bootargs root=/dev/ram0 rw ramdisk_size=65536. Verify with scripts/t6040-raw-object-verify.py --initrd-fs-image (the default correctly rejects a non-cpio wrapped payload). Pass = the t6040-root-report OpenRC service prints '/dev/ram0 ext4' as the root device, ram0 present in /proc/partitions (a real block device, not tmpfs), 'root is WRITABLE', and the Norwegian keymap status. That proves root=, fstab, OpenRC-on-a-mounted-filesystem and e2fsck all work, so when USB enumeration lands (096/097/128) only the hardware is unknown — de-risks 099/112/113. DEPENDS ON 147 (dietcap-kernel-smoke): this object uses the 16 KiB-page capable kernel, so run that first or a failure cannot be attributed. Tethered KIS smoke preferred (needs 146). Evidence: done/2026-07-25-t6040-ramroot-ext4-object.md.",
+  "desc": "Rehearse the REAL root path before USB storage exists: boot root=/dev/ram0 from an ext4 image. Object m1n1-b0-ramroot-ext4.bin ec111c6dffff6928645157f9cda95238d4cd71b9370d6064f32c55d53da869cc (78,594,048 B, 4797 pages) = window-free m1n1 v7 ecd264a5 + DIET_CAPABLE kernel (for BLK_DEV_RAM/EXT4) + DTB 2782b922 + ramroot-alpine-b0.ext4 4e589df0 (64 MiB, label t6040root, UUID e442113d-9bc9-499c-a85f-195209544298, e2fsck clean) carried via m1n1's m1n1_initramfs wrapper, bootargs root=/dev/ram0 rw ramdisk_size=65536. Verify with scripts/t6040-raw-object-verify.py --initrd-fs-image (the default correctly rejects a non-cpio wrapped payload). Pass = the t6040-root-report OpenRC service prints '/dev/ram0 ext4' as the root device, ram0 present in /proc/partitions (a real block device, not tmpfs), 'root is WRITABLE', and the Norwegian keymap status. That proves root=, fstab, OpenRC-on-a-mounted-filesystem and e2fsck all work, so when USB enumeration lands (096/097/128) only the hardware is unknown \u2014 de-risks 099/112/113. DEPENDS ON 147 (dietcap-kernel-smoke): this object uses the 16 KiB-page capable kernel, so run that first or a failure cannot be attributed. Tethered KIS smoke preferred (needs 146). Evidence: done/2026-07-25-t6040-ramroot-ext4-object.md.",
   "author": "claude",
-  "deps": [],
+  "deps": [
+    "146",
+    "147"
+  ],
   "hashes": null,
-  "created": 1785046183
+  "created": 1785046183,
+  "runnable": false,
+  "approved_by": "maintainer",
+  "approved_at": 1785054722,
+  "note": "2026-07-26: enabler 146 done, but this stays not-runnable until 147 PASSES \u2014 it uses the 16 KiB-page DIET_CAPABLE kernel, so a failure here could not be attributed to the ext4/ram0 root path until the kernel itself is cleared."
 }

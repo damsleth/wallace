@@ -2,12 +2,18 @@
   "seq": "147",
   "slug": "dietcap-kernel-smoke",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "pcie",
   "priority": "P1",
-  "desc": "Validate the DIET_CAPABLE kernel BY ITSELF before it is used to judge anything else. Image-b0-dietcap (33.7 MiB raw / 9.85 MiB xz) enables NET/WLAN/BRCMFMAC/PCIE_APPLE/BLK_DEV_RAM/EXT4/MTD_PHRAM — but it is also 16 KiB pages, where every proven boot on this machine used 4 KiB (PCIE_APPLE depends on PAGE_SIZE_16KB, which forced the change). That is an ABI-level difference, so it must be tested with a KNOWN-GOOD payload, not simultaneously with a new root path. Build an object = window-free m1n1 v7 ecd264a5 + Image-b0-dietcap.xz + storage-disabled DTB 2782b922 + the PROVEN Alpine OpenRC RAM root initramfs-alpine-b0-nb2.cpio.xz d7fcc795, bootargs identical to the proven B0 set (rdinit=/sbin/init). Pass = the same B0 acceptance state as milestone B0: OpenRC default runlevel, health report begin->end, event0 keyboard, watchdog0=present, empty /proc/partitions, Norwegian keymap loaded. If this fails, the 16 KiB page change is the cause and tickets 147/148 results must not be attributed to their own payloads. Tethered chainload over KIS (needs 146 first); no enrollment required. Evidence: done/2026-07-25-t6040-dietcap-kernel.md.",
+  "desc": "Validate the DIET_CAPABLE kernel BY ITSELF before it is used to judge anything else. Image-b0-dietcap (33.7 MiB raw / 9.85 MiB xz) enables NET/WLAN/BRCMFMAC/PCIE_APPLE/BLK_DEV_RAM/EXT4/MTD_PHRAM \u2014 but it is also 16 KiB pages, where every proven boot on this machine used 4 KiB (PCIE_APPLE depends on PAGE_SIZE_16KB, which forced the change). That is an ABI-level difference, so it must be tested with a KNOWN-GOOD payload, not simultaneously with a new root path. Build an object = window-free m1n1 v7 ecd264a5 + Image-b0-dietcap.xz + storage-disabled DTB 2782b922 + the PROVEN Alpine OpenRC RAM root initramfs-alpine-b0-nb2.cpio.xz d7fcc795, bootargs identical to the proven B0 set (rdinit=/sbin/init). Pass = the same B0 acceptance state as milestone B0: OpenRC default runlevel, health report begin->end, event0 keyboard, watchdog0=present, empty /proc/partitions, Norwegian keymap loaded. If this fails, the 16 KiB page change is the cause and ticket 149's result must not be attributed to its own payload (149 uses this same 16 KiB kernel; 148 uses the PROVEN 4 KiB diet kernel efba5999 and is NOT affected). Tethered chainload over KIS (needs 146 first); no enrollment required. Evidence: done/2026-07-25-t6040-dietcap-kernel.md.",
   "author": "claude",
-  "deps": [],
+  "deps": [
+    "146"
+  ],
   "hashes": null,
-  "created": 1785046182
+  "created": 1785046182,
+  "runnable": true,
+  "approved_by": "maintainer",
+  "approved_at": 1785054722,
+  "staged": "2026-07-26: object BUILT + strict-verify PASS, ready to chainload. m1n1-b0-dietcap-smoke.bin ac24d4bfb562f9de7a138a4a3f37b95fb8526e89ab22cc5ffdbc314db23b6546 (14,893,056 B = 909 x 16 KiB) in ~/Code/linux-build-out. Inputs all hash-matched to this ticket: m1n1 v7 ecd264a5, kernel Image-b0-dietcap.xz 9b4aa351 (raw e11296cd, 33.75 MiB), DTB 2782b922 (t6040-j614s-dcuart.dtb), initrd d7fcc795. Embedded bootargs hash 3659a0da253c7059 == the proven B0 bootargs byte-for-byte ('maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel rdinit=/sbin/init'). XZ member is minilzlib-safe (1 stream, 1 block, CRC32, no BCJ). PAGE-SIZE PREMISE CONFIRMED from the arm64 Image header: dietcap flags=0xc => 16K pages vs proven Image-b0-diet flags=0xa => 4K pages, so this smoke does isolate a real ABI change. Needs maintainer at the panel: every pass criterion (event0 echo, Norwegian keymap, health report, watchdog0) is a panel/keyboard observation and KIS is mutually exclusive with the USB gadget on the DFU port."
 }

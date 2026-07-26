@@ -2,12 +2,18 @@
   "seq": "148",
   "slug": "dwm-graphical-boot",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "distro",
   "priority": "P2",
-  "desc": "First graphical boot: Alpine + Xorg + dwm on the internal panel. Object m1n1-b0-alpine-dwm.bin c40b6ed9c439fc4aec804cc2c3e6657add49a7a0fcaa5813b4b87d0fb9fbc0b0 (21,725,184 B, 1326 pages, strict verify PASS) = window-free m1n1 v7 ecd264a5 + diet kernel efba5999 (4 KiB pages, the PROVEN one) + DTB 2782b922 + initramfs-alpine-dwm.cpio.xz 40073ac9 (14.93 MiB, expands to 65 MiB), bootargs rdinit=/sbin/init. Ships Xorg modesetting with AccelMethod none + ShadowFB + AutoAddGPU false + AllowMouseOpenFail true (the trackpad is unsupported, tickets 004/126, and dwm is keyboard-driven so a missing pointer is not a loss), setxkbmap no for the Norwegian layout, st spawned then exec dwm, and a getty on tty1 as an escape hatch. Prefer a TETHERED KIS smoke (needs 146) since /var/log/xorg-startx.log is the first thing to read on failure; then enroll for an untethered graphical boot. Pass = dwm visible on the panel with a usable st terminal driven by the internal keyboard. WATCH FOR: modesetting failing to probe simpledrm (the diet kernel drops DRM_TTM/DRM_SCHED/DRM_DISPLAY_HELPER — if that is the cause, a graphical-capable DIET variant is the fix, not a config tweak), and Xorg refusing to start without a pointer. NOTE llvmpipe was deliberately trimmed, so there is NO software GL — GL clients will fail by design. Evidence: done/2026-07-25-t6040-dwm-image-design.md.",
+  "desc": "First graphical boot: Alpine + Xorg + dwm on the internal panel. Object m1n1-b0-alpine-dwm.bin c40b6ed9c439fc4aec804cc2c3e6657add49a7a0fcaa5813b4b87d0fb9fbc0b0 (21,725,184 B, 1326 pages, strict verify PASS) = window-free m1n1 v7 ecd264a5 + diet kernel efba5999 (4 KiB pages, the PROVEN one) + DTB 2782b922 + initramfs-alpine-dwm.cpio.xz 40073ac9 (14.93 MiB, expands to 65 MiB), bootargs rdinit=/sbin/init. Ships Xorg modesetting with AccelMethod none + ShadowFB + AutoAddGPU false + AllowMouseOpenFail true (the trackpad is unsupported, tickets 004/126, and dwm is keyboard-driven so a missing pointer is not a loss), setxkbmap no for the Norwegian layout, st spawned then exec dwm, and a getty on tty1 as an escape hatch. Prefer a TETHERED KIS smoke (needs 146) since /var/log/xorg-startx.log is the first thing to read on failure; then enroll for an untethered graphical boot. Pass = dwm visible on the panel with a usable st terminal driven by the internal keyboard. WATCH FOR: modesetting failing to probe simpledrm (the diet kernel drops DRM_TTM/DRM_SCHED/DRM_DISPLAY_HELPER \u2014 if that is the cause, a graphical-capable DIET variant is the fix, not a config tweak), and Xorg refusing to start without a pointer. NOTE llvmpipe was deliberately trimmed, so there is NO software GL \u2014 GL clients will fail by design. Evidence: done/2026-07-25-t6040-dwm-image-design.md.",
   "author": "claude",
-  "deps": [],
+  "deps": [
+    "146"
+  ],
   "hashes": null,
-  "created": 1785046182
+  "created": 1785046182,
+  "runnable": true,
+  "approved_by": "maintainer",
+  "approved_at": 1785054722,
+  "note": "2026-07-26: NOT gated by 147 \u2014 this object uses the PROVEN 4 KiB diet kernel efba5999, not the 16 KiB DIET_CAPABLE one. Only enabler 146 was required and it is now done."
 }
