@@ -2,7 +2,7 @@
   "seq": "150",
   "slug": "mtdblock-origin-on-storage-disabled-image",
   "needs": "rig",
-  "state": "proposed",
+  "state": "resolved",
   "track": "distro",
   "priority": "P3",
   "desc": "Identify the origin of mtdblock0 (16 KiB) and mtdblock1 (592 KiB), which appeared in /proc/partitions during the ticket-147 DIET_CAPABLE smoke on an image whose premise is storage-disabled. Neither is explained: the storage-disabled DTB 2782b922 contains NO mtd, spi-nor, nvram, flash or partition node, and MTD_PHRAM creates devices only from an explicit phram= parameter which the bootargs do not set. MTD_BLOCK (enabled by DIET_CAPABLE) merely wraps whatever MTD devices exist, so something is registering two MTD devices. Nothing was mounted or written, so this is not urgent \u2014 but an unexplained block device on a storage-disabled image should be identified rather than assumed benign, especially before USB/NVMe work makes real block devices expected. CHEAP: one command on the running machine settles it, no new object needed \u2014 'cat /proc/mtd; dmesg | grep -i mtd' (the kernel dmesg goes to tty0 on the panel, so it is not in the pty log). If they turn out to be Apple SPI-NOR/nvram, confirm they are read-only and never written, and consider disabling MTD_BLOCK in DIET_CAPABLE since nothing needs it. Evidence: done/2026-07-26-t6040-dietcap-kernel-smoke-result.md.",
@@ -12,5 +12,6 @@
   ],
   "hashes": null,
   "created": 1785110000,
-  "runnable": true
+  "runnable": false,
+  "result": "2026-07-26 RESOLVED, benign, no action needed. 'cat /proc/mtd' on the running machine: mtd0 00004000 00004000 'm1n1_stage2.log', mtd1 00094000 00004000 'adt'. These are m1n1's own runtime-injected debug nodes \u2014 its stage2 log buffer (16 KiB) and a copy of the Apple Device Tree (0x94000 = 592 KiB) \u2014 not flash and not storage. Sizes match /proc/partitions exactly (16 and 592 1-KiB blocks), and 0x94000 is precisely the ADT size the proxy reports ('Fetching ADT (0x00094000 bytes)'). This is why the on-disk DTB has no mtd/spi-nor/nvram node: m1n1 patches these into the DTB at boot, so they appear only in a booted kernel that has MTD enabled \u2014 i.e. DIET_CAPABLE surfaces them and the proven 4 KiB diet kernel simply lacked the MTD subsystem to expose them. RAM-backed and read-only; the storage-disabled premise is intact and no persistent storage is touched. erasesize 0x4000 = the 16 KiB native page size. Keeping MTD_BLOCK is harmless; these nodes are in fact useful (the m1n1 stage2 log becomes readable from Linux userspace)."
 }
