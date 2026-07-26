@@ -6,6 +6,35 @@ panel, keyboard (Norwegian), watchdog — with a remote DebugUSB loop for develo
 
 This repo is the umbrella. The code lives in four sibling repos and the knowledge kept getting smeared across them so everything that guides the work now lives here: plans, scripts, kernel patches, post-mortems.
 
+## Status (2026-07-26, night) — the kernel is reproducible again
+
+**The DockChannel TTY driver was never in version control.** `drivers/tty/apple_dockchannel_tty.c` —
+464 lines providing `/dev/ttydc0` — existed only as an *untracked* file inside the podman build trees.
+A rebuild from a clean checkout therefore produced a kernel with **no `ttydc0`**, silently losing the
+DockChannel shell and the transport every acceptance run reports through, and that is why every kernel
+reported `-dirty`. It is now recovered into `patches/t6040-dockchannel-tty-driver.patch`, applied
+before `olddefconfig` so the Kconfig symbol is real, and verified by byte-identical reconstruction on
+a clean tree. A sweep found 9 of 11 other container-only edits already covered by `patches/`; the two
+that weren't belong to the same feature and are folded in (ticket 159).
+
+That also explains why the diagnostic object captured nothing: the shipping driver is a **TTY only**
+and registers no console, so `console=ttydc0` matched nothing and was silently ignored. `/dev/ttydc0`
+does exist, which is why a *userspace* getty works and how the B0 health report reaches the host. The
+patch that adds a real console is orphaned but **applies cleanly**, so ticket 153 is one rebuild away.
+
+**Good news from the fat kernel's first boot:** `simpledrm` probed cleanly
+(`[drm] Initialized simpledrm 1.0.0`, `fb0: simpledrmdrmfb`). That was 148's stated risk. With
+`CONFIG_UNIX` present too, **both known blockers to the graphical target are gone** — whether
+`modesetting` drives it is the one remaining question. The fat kernel also carries `usb-storage`/`uas`,
+which the diet kernel lacked.
+
+Three harness defects fixed, each of which had cost rig time that day: uploads into a **dead proxy**
+(the pty-exists check passed three times against nothing — every successful chainload destroys the
+proxy, so a `debugusb-console.sh reboot` is mandatory before *each* one, ticket 157); an **orphaned
+uploader** that had pushed ~41 MiB into the pty and then corrupted two subsequent runs (now killed as
+a process group, ticket 158); and **invisible progress** plus a fixed timeout that the
+capability-first policy had outgrown (158).
+
 ## Status (2026-07-26, evening) — capability over size
 
 **The graphical target failed for a config reason, and it changed the build policy.** Ticket 148's

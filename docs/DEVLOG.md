@@ -1516,3 +1516,63 @@ established** — 256 MiB remains the largest measured size.
 > what was intended** — a default object instead of the named one, `chainload.py`'s exit status
 > instead of the boot, an assumed size ceiling instead of a measured one, a stripped config instead
 > of a working one.
+
+### 2026-07-26 (night) — the kernel was not reproducible, and three harness fixes
+
+**The DockChannel TTY driver was never in version control (159).**
+`drivers/tty/apple_dockchannel_tty.c` — 464 lines providing `/dev/ttydc0` — existed only as an
+**untracked** file inside the podman build trees, with `drivers/tty/Kconfig` and `Makefile` modified
+alongside it. Present in all three `/build/linux-*` trees, absent from `~/Code/linux` and from
+`patches/`. So **a rebuild from a clean checkout silently produced a kernel with no `ttydc0`**, losing
+the DockChannel shell and the transport every B0 acceptance run reports through — and it is why every
+built kernel reported `-dirty`.
+
+It also meant the two patches that *modify* that driver (`earlycon-debug`, `nbcon`) could never have
+applied to a fresh clone, and that the DIET assertion "verified" `CONFIG_APPLE_DOCKCHANNEL_TTY=y` by
+grepping `.config` text — which passed because `scripts/config -e` had written it, while the capability
+existed only by virtue of untracked files. **Another guard validating a string, not a capability.**
+
+Recovered into `patches/t6040-dockchannel-tty-driver.patch`, applied from kbuild **before
+`olddefconfig`** so the symbol is real; kbuild now fails loudly if neither patch nor driver is present.
+Verified by byte-identical reconstruction on a clean tree (`2880e145…`, 464 lines). A sweep of all
+three trees found **9 of 11** other modified paths already covered by `patches/`; the two that were
+not — the `apple,dockchannel-serial` binding and its MAINTAINERS entries — belong to the same feature
+and are folded in. **The kernel is now reproducible from the repository.**
+
+#### Why 153's diagnostic object is inert
+
+The shipping driver is a **TTY only**: no `register_console`, no `struct console`, no `CON_*`. So
+`/dev/ttydc0` exists (hence a userspace getty works, and that is how the 147 health report reached the
+host) but **`console=ttydc0` matches nothing and is silently ignored** — no kernel dmesg ever leaves
+the machine. `patches/t6040-dockchannel-nbcon.patch` adds the real console and, verified, **applies
+cleanly** on top of the recovered driver, so 153 is one rebuild away. Not built yet, so the pending
+`c5438779` test changes one variable.
+
+**Correction:** the duplicated dmesg and ghosted glyphs on the panel were attributed to two
+`CON_PRINTBUFFER` registrations. Impossible — `ttydc0` never registers. It is the **single** fbcon
+handover replay plus fbcon written from replay and live-printk contexts, so it appears on the plain
+object too and is cosmetic.
+
+#### Harness (151/157/158)
+
+Three defects, each having cost real rig time the same day:
+
+- **Dead-proxy uploads (157).** `[ -e /tmp/m1n1 ]` proved only that a symlink existed. That passed
+  three times against a pty with nothing behind it — once a stale `kisd`, twice because a previous
+  chainload **had already booted Linux and thereby consumed the proxy it needed**. Each cost a silent
+  5-minute timeout with a 0-byte log. `t6040-proxy-alive.py` now makes the proxy prove itself with one
+  read-only `REQ_NOP`. **Operational rule this exposed: every successful chainload destroys the proxy,
+  so `t6040-debugusb-console.sh reboot` is mandatory before *every* chainload.**
+- **Orphaned uploaders (158).** The `timeout` wrapper was reparented to init when the script's parent
+  was killed, and its python child kept running. One such orphan had pushed **~41 MiB into the pty**
+  and then sat holding it, silently corrupting the next two runs — two writers on one transport, the
+  target stuck at `Running proxy`. `set -m` plus an EXIT/INT/TERM trap now kills the whole process
+  group; proven with a stand-in (both wrapper and child gone after SIGTERM). SIGKILL remains
+  uncoverable.
+- **Invisible progress and a fixed timeout (158).** Python block-buffers stdout to a file, so a healthy
+  upload looked identical to a hang. `PYTHONUNBUFFERED=1` plus a `tail -f` hint fixes that; the timeout
+  is now `120s + 5s/MiB`. The old fixed 300 s was marginal-but-sufficient for the 79 MiB object
+  (measured ~120 s at ~0.7 MB/s) but would genuinely fail 156's 512 MiB probe (~730 s).
+
+> **Diagnostic tell for any future upload:** CPU time must climb past ~5 s within the first 10 s
+> (connect + ADT fetch + transfer start). Pinned at `0:00.09` / 0.0% means nothing is behind the pty.

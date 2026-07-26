@@ -1,5 +1,30 @@
 # t6040 Linux bring-up — NEXT STEPS
 
+> **2026-07-26 (night) — read this before the next rig run.**
+>
+> **Every successful chainload destroys the proxy it needed** (it boots Linux). So
+> `bash scripts/t6040-debugusb-console.sh reboot` is required before **every**
+> `t6040-boot-raw-object.sh`, not just after a failure. The script now refuses to upload into a dead
+> proxy instead of hanging for five minutes (157), kills its uploader as a process group so no orphan
+> can corrupt a later run (158), and writes its log unbuffered — `tail -f
+> ~/Code/linux-build-out/raw-object-chainload.log` shows live progress. Diagnostic tell: CPU must climb
+> past ~5 s within the first 10 s; pinned at `0:00.09` means nothing is behind the pty.
+>
+> **Next rig action is unchanged: the plain fat object.** `m1n1-b0-dwm-fat.bin` `c5438779`, then
+> `cat /var/log/xorg-startx.log; pgrep -a Xorg; pgrep -a dwm`. Both known blockers are gone — AF_UNIX is
+> present and `simpledrm` was seen probing cleanly — so the only open question is whether `modesetting`
+> drives it. Expect duplicated dmesg and some ghosted glyphs on the panel regardless: that is the normal
+> fbcon handover replay, not a fault, and not caused by the diagnostic bootargs.
+>
+> **Do not bother re-running the diagnostic object `d14df9f3` — it is inert.** The shipping DockChannel
+> driver registers no console, so `console=ttydc0` is silently ignored (153/159). To make smokes
+> self-verifying, apply `patches/t6040-dockchannel-nbcon.patch` (now applies cleanly, since 159 made its
+> target file tracked), rebuild, and re-cut the object. Until then **the panel is the only source of
+> kernel dmesg**, so a screenshot is necessary evidence.
+>
+> **Kernel reproducibility was restored (159)** — the driver providing `/dev/ttydc0` had never been in
+> version control. Anything built before this may have come from an unreproducible tree.
+
 > **2026-07-26 (evening) — three objects are staged and waiting on the maintainer.** All need
 > `kmutil`/rig time; everything offline is done.
 >
