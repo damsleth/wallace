@@ -104,27 +104,64 @@ pkill -f "^cat $M1$" 2>/dev/null || true
 
 echo "== one-object chainload: $OBJECT =="
 echo "== sha256: $OBJECT_SHA =="
-if ! (
+set +e
+(
     cd "$M1N1_DIR"
     M1N1DEVICE="$M1" timeout 300 "$PY" proxyclient/tools/chainload.py \
         -r "$OBJECT"
-) >"$CHAINLOAD_LOG" 2>&1; then
-    echo "chainload failed; last output:" >&2
-    tail -20 "$CHAINLOAD_LOG" >&2
-    stty -f "$M1" raw -echo 2>/dev/null || true
-    nohup cat "$M1" >>"$CONLOG" 2>/dev/null < /dev/null &
-    echo "console reader pid $! -> $CONLOG"
-    exit 1
+) >"$CHAINLOAD_LOG" 2>&1
+chainload_rc=$?
+set -e
+
+# Judge the run from the LOG, never from chainload.py's exit status (ticket 151).
+# chainload.py ends with `iface.nop(); print("Proxy is alive again")`. For a one-object
+# smoke the payload boots Linux, Linux takes the UART, and that nop() therefore MUST time
+# out — so a non-zero exit is the NORMAL outcome of a SUCCESSFUL boot. Reporting it as
+# "chainload failed" made a passing ticket-147 run look failed and cost real time.
+# Markers below are the ones actually observed in the 2026-07-26 logs.
+m1n1_handoffs=$(grep -c "Vectoring to next stage" "$CHAINLOAD_LOG" || true)
+verdict=""
+rc=0
+if grep -q "No valid payload found" "$CHAINLOAD_LOG"; then
+    verdict="FAIL — m1n1 rejected the payload (\"No valid payload found\")"; rc=1
+elif grep -qE "Kernel panic|Oops:|Unable to handle kernel" "$CHAINLOAD_LOG"; then
+    verdict="FAIL — kernel fault during boot"; rc=1
+elif grep -q "SHA mismatch\|Traceback" "$CHAINLOAD_LOG" && [ "$m1n1_handoffs" -eq 0 ]; then
+    verdict="FAIL — chainload never reached handoff (rc=$chainload_rc)"; rc=1
+elif grep -q "Valid payload found" "$CHAINLOAD_LOG" && [ "$m1n1_handoffs" -ge 2 ]; then
+    verdict="OK — payload accepted and kernel entered (proxy loss after handoff is expected)"
+elif grep -q "Proxy is alive again" "$CHAINLOAD_LOG"; then
+    verdict="OK — chainloaded stage returned a live proxy (payload-free loader, no boot)"
+elif [ "$m1n1_handoffs" -ge 1 ]; then
+    verdict="INCONCLUSIVE — handed off but no payload-accepted marker; read the log"
+else
+    verdict="FAIL — no handoff marker in log (rc=$chainload_rc)"; rc=1
 fi
 
 : >"$CONLOG"
 stty -f "$M1" raw -echo 2>/dev/null || true
 nohup cat "$M1" >>"$CONLOG" 2>/dev/null < /dev/null &
 reader_pid=$!
-echo "single upload complete; console reader pid $reader_pid -> $CONLOG"
+
+echo "== verdict: $verdict =="
+echo "   chainload.py rc=$chainload_rc (not a verdict), handoffs=$m1n1_handoffs, log=$CHAINLOAD_LOG"
+if grep -q "health report end" "$CHAINLOAD_LOG"; then
+    echo "   userspace: B0 health report reached its END marker"
+elif grep -qE ":~#|/ #|~ #" "$CHAINLOAD_LOG"; then
+    echo "   userspace: a shell prompt appeared"
+else
+    echo "   userspace: nothing echoed to this pty — normal for a console=tty0-only image;"
+    echo "             read the panel, or see ticket 153 (capture dmesg over KIS)"
+fi
+if [ "$rc" -ne 0 ]; then
+    echo "   last output:" >&2
+    tail -20 "$CHAINLOAD_LOG" >&2
+fi
+echo "console reader pid $reader_pid -> $CONLOG"
 echo "No linux.py or second payload was invoked."
-echo "Observe ttydc0 TX for the automatic Alpine report; send no target input."
 
 if [ "${T6040_KEEPALIVE:-0}" = "1" ]; then
     wait "$reader_pid"
 fi
+
+exit "$rc"

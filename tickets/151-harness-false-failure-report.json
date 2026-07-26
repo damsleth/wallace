@@ -2,7 +2,7 @@
   "seq": "151",
   "slug": "harness-false-failure-report",
   "needs": "rig",
-  "state": "proposed",
+  "state": "done",
   "track": "harness",
   "priority": "P1",
   "desc": "The tethered smoke harness reports FAILURE on a SUCCESSFUL boot, which is a misattribution hazard proven live. In the passing ticket-147 run (2026-07-26 13:58) scripts/t6040-boot-raw-object.sh printed 'chainload failed; last output:' and exited non-zero even though the object booted perfectly (full health report, shell prompt, all criteria met). Root cause: chainload.py ends with iface.nop(), which necessarily times out (UartTimeout: Expected 1 bytes, got 0) once Linux takes over the UART and the m1n1 proxy is gone \u2014 i.e. proxy loss after a successful handoff is the EXPECTED outcome of a one-object smoke, not an error. Today three people-hours went into distinguishing real wrong-object failures from this cosmetic one; a future reader will mistake a pass for a fail or vice versa. FIX: have the wrapper treat post-handoff proxy loss as success when the boot markers are present (e.g. 'health report end' / a shell prompt in the log), and reserve non-zero exit for real failures (SHA mismatch, no handoff, panic, no markers). Report a clear verdict line instead of leaking a Python traceback. Offline scriptable; verify against the 2026-07-26 logs (one passing, two wrong-object) with no rig time. Evidence: done/2026-07-26-t6040-dietcap-kernel-smoke-result.md.",
@@ -10,5 +10,8 @@
   "deps": [],
   "hashes": null,
   "created": 1785110000,
-  "runnable": false
+  "runnable": false,
+  "approved_by": "maintainer",
+  "approved_at": 1785069565,
+  "result": "2026-07-26 FIXED. scripts/t6040-boot-raw-object.sh now judges a run from the LOG, never from chainload.py's exit status. Confirmed from the source that chainload.py ends with 'iface.nop(); print(\"Proxy is alive again\")', so for a one-object smoke the payload boots Linux, Linux takes the UART, and that nop() MUST time out \u2014 a non-zero exit is the NORMAL outcome of a SUCCESSFUL boot. Verdict markers were derived empirically from the 2026-07-26 logs, not guessed: 'Valid payload found' (the object's embedded payload was accepted) plus >=2 'Vectoring to next stage' (chainloaded m1n1, then the kernel). Classification: FAIL on 'No valid payload found', on kernel panic/Oops/unable-to-handle, and on Traceback with zero handoffs; OK on payload-accepted+kernel-entered; OK on 'Proxy is alive again' (payload-free loader, no boot); INCONCLUSIVE if handed off without the accepted marker. Prints a single verdict line plus a userspace note (health-report END / shell prompt / nothing echoed, the last pointing at ticket 153) and only dumps the tail on a real failure, instead of leaking a Python traceback. Exits with the verdict, not chainload.py's rc. Verified against all three of today's real logs and four synthetic ones: the passing dwm run that previously printed 'chainload failed' now reports 'OK \u2014 payload accepted and kernel entered' (rc=0), while reject/panic/no-handoff cases still fail. Also fixed two bugs introduced while editing: a 'set -e' trap where [ rc -ne 0 ] && {...} would have exited the script on SUCCESS, and a duplicated unreachable T6040_KEEPALIVE block after exit."
 }
