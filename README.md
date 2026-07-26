@@ -6,6 +6,36 @@ panel, keyboard (Norwegian), watchdog — with a remote DebugUSB loop for develo
 
 This repo is the umbrella. The code lives in four sibling repos and the knowledge kept getting smeared across them so everything that guides the work now lives here: plans, scripts, kernel patches, post-mortems.
 
+## Status (2026-07-26, evening) — capability over size
+
+**The graphical target failed for a config reason, and it changed the build policy.** Ticket 148's
+Xorg died with `Cannot establish any listening sockets` / `Function not implemented` — ENOSYS,
+because the diet kernel has `# CONFIG_NET is not set` and therefore no `CONFIG_UNIX`. X11 needs an
+AF_UNIX socket, so the server never reached the display. Networking had been stripped to save a few
+MiB of a 33 MiB kernel.
+
+That trimming was justified by a ceiling **nobody measured**: no object-size limit was found to
+256 MiB, and that figure was the probe limit and a policy number, not hardware. RAM is 23.8 GiB. In
+one image, trimming cost both software GL and X itself. **Policy inverted (155): build for
+capability, shrink only if something overflows.**
+
+`m1n1-b0-dwm-fat.bin` `c5438779` (83 MB, strict PASS) is the result, and needed **no kernel
+rebuild** — the existing full kernel already has `UNIX`/`SYSVIPC`/`DRM_SIMPLEDRM` and the DRM helpers
+DIET drops, is **4 KiB pages** (so a graphical change doesn't ride on an ABI change), carries the
+DockChannel HID keyboard fix, and is already live-proven on this machine. Software GL is restored.
+The **Norwegian layout was broken by *both* paths in the thin image** (`kbd-bkeymaps` ships
+`no-mac.bmap.gz` while the inittab read `no-mac.bmap`, and `setxkbmap` never ran because X never
+started); now fixed and tested against the real file.
+
+Three harness defects — each surfaced by today's own failures — are fixed: the smoke script reported
+`chainload failed` on a **successful** boot (**151**, since `chainload.py`'s closing `iface.nop()`
+must time out once Linux owns the UART); the kernel page size is now asserted from the Image header
+before an artifact is published and reported by the object verifier (**154**); and a diagnostic
+dual-console object `d14df9f3` makes a smoke report its own dmesg over KIS (**153**), because twice
+today a run could not be judged from the host at all. A new graded-probe builder is validated by
+byte-exactly reproducing the proven 256 MiB probe, with 512 MiB and 1 GiB probes built (**156**) —
+noting that **512 MiB was never actually established**.
+
 ## Status (2026-07-26, later) — 16 KiB-page kernel cleared, PCIe PHY-init decoded
 
 **Ticket 147 passed: the 16 KiB-page DIET_CAPABLE kernel boots on T6040.** Alpine 3.24 came up with

@@ -1,5 +1,34 @@
 # t6040 Linux bring-up — NEXT STEPS
 
+> **2026-07-26 (evening) — three objects are staged and waiting on the maintainer.** All need
+> `kmutil`/rig time; everything offline is done.
+>
+> 1. **155 fat graphical** — `m1n1-b0-dwm-fat.bin` `c5438779`. The capability-first rebuild after
+>    148 died on a missing `CONFIG_UNIX`. Run this one first.
+> 2. **153 diagnostic twin** — `m1n1-b0-dwm-fat-diag.bin` `d14df9f3`, identical but with
+>    `console=ttydc0`, so the machine reports its own dmesg over KIS. Use it if 155 fails, or run it
+>    *instead* of 155 if you want maximum evidence from one cycle.
+> 3. **149 ram0 ext4** — `ec111c6d`, unblocked by 147.
+> 4. **156 ceiling** — `probe-graded-512M.bin` `59eb0a1a` then `1024M` `91e4d692`, only if you want
+>    the real limit measured. Restore the daily-driver object afterwards.
+>
+> Run them with the two-argument form, which is now the only accepted way (no default object):
+> `bash scripts/t6040-boot-raw-object.sh <path> <sha256>`.
+>
+> **Policy change (155): stop optimising these images for size.** Trimming cost 148 both its software
+> GL and, via `# CONFIG_NET is not set`, AF_UNIX and therefore X. The ceiling that justified it was
+> never measured. Build for capability; shrink only on real overflow. Note **512 MiB is still not
+> established** — 256 MiB is the largest measured size.
+>
+> **Prefer the diagnostic object for any graphical run.** Twice on 2026-07-26 a rig result could not
+> be judged from the host: the proven bootargs are `console=tty0` only, so dmesg never reaches KIS,
+> and the 148 run left a **0-byte** console log with a screenshot as the sole evidence.
+>
+> Still rig-only and not started: **152** (read m1n1's stage2 log and the ADT from Linux via
+> `/dev/mtd0`, a post-mortem path that works untethered) and **124**'s attended PCIe follow-up (live
+> read of `0x217004000`/`0x217008000`; an ungated-aperture SError could wedge the tether, so it is
+> not an autonomous probe).
+
 > **2026-07-26 — the 16 KiB-page kernel is cleared (147 PASSED).** DIET_CAPABLE
 > (16 KiB pages, forced by `PCIE_APPLE`) boots the proven Alpine RAM root with every
 > acceptance criterion met, so the page-size ABI unknown is closed and **149 is

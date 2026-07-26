@@ -1450,3 +1450,69 @@ class above); and the kernel's dmesg never reaches KIS since the proven bootargs
 only, which is why 147 needed an attended session and a screenshot (**153**). **154** adds a
 build-time page-size assertion, checked from the arm64 Image header (`flags` @ +24, bits 1-2) —
 **not** from `strings`, which reports a literal `4K pages` message inside the 16 KiB dietcap Image.
+
+### 2026-07-26 (evening) — capability over size: the fat image, and three harness fixes
+
+**148's failure changed the build policy.** Xorg died with
+`Cannot establish any listening sockets` / `Function not implemented` — ENOSYS, because the diet
+kernel carries `# CONFIG_NET is not set` and therefore has no `CONFIG_UNIX`. X11 needs an **AF_UNIX**
+listening socket, so the server never touched the display. Neither failure mode the ticket predicted
+(simpledrm probe, missing pointer) was involved. We stripped networking to save a few MiB of a 33 MiB
+kernel and lost X entirely.
+
+That trimming was justified by a ceiling **nobody ever measured**: ticket 137 found no object-size
+limit to 256 MiB, and 256 MiB was the *probe* limit and a *policy* number, not hardware. RAM is
+23.8 GiB. In one image the trimming cost software GL (llvmpipe cut to fit the assumed ceiling) *and*
+X itself (`CONFIG_NET`). **Policy inverted (ticket 155): build for capability, shrink only if
+something actually overflows.**
+
+#### The fat graphical object
+
+`m1n1-b0-dwm-fat.bin` `c5438779` (83,197,952 B = 5078 × 16 KiB), strict PASS, bootargs
+byte-identical to the proven set. **No kernel rebuild was needed** — the existing full
+`Image-hid-type-fix` already has `NET`, `UNIX`, `SYSVIPC`, `INPUT_EVDEV`, `DRM_SIMPLEDRM`,
+`DRM_KMS_HELPER`, `DRM_GEM_SHMEM_HELPER` and the `TTM`/`SCHED`/`DISPLAY_HELPER` helpers DIET drops.
+It also beats DIET_CAPABLE here: **4 KiB pages**, so a graphical change does not ride on an ABI
+change; it carries the DockChannel HID keyboard fix; and it is **already live-proven**, being the
+kernel inside `hid-restored`, which reached a shell with `event0` three times today via the
+wrong-object incidents. `FAT=1` keeps libLLVM/libgallium/57 DRI drivers and adds
+`mesa-dri-gallium`/`kbd`/`xdpyinfo`/`xev`.
+
+**Norwegian layout was broken in the thin image and is now fixed and tested.** `kbd-bkeymaps` ships
+`no-mac.bmap.gz`, while the inittab read `no-mac.bmap` — so the console keymap silently failed, and
+`setxkbmap no` never ran either because X never started: *no* Norwegian layout by either path. The
+inittab now tries `.bmap` then `zcat`s `.bmap.gz`; verified by running the exact inittab logic against
+the real file from the built image (falls to the `.gz` branch, pipes 33,031 bytes, exit 0).
+
+#### Three harness fixes, all from today's own failures
+
+- **151** — the harness reported `chainload failed` on a **successful** boot. `chainload.py` ends
+  `iface.nop(); print("Proxy is alive again")`, and that nop() *must* time out once Linux owns the
+  UART, so a non-zero exit is the normal outcome of a good one-object smoke. The verdict now comes
+  from log markers derived empirically from today's logs (`Valid payload found` + ≥2
+  `Vectoring to next stage`), with FAIL reserved for rejected payloads, kernel faults and
+  no-handoff. Verified against three real logs and four synthetic ones.
+- **154** — `t6040-kbuild.sh` now derives the page size from the arm64 Image header (`flags` @ +24,
+  bits 1-2) with `od`, prints it, and asserts DIET ⇒ 4K / DIET_CAPABLE ⇒ 16K **before** publishing
+  the artifact, cross-checked against `CONFIG_ARM64_*_PAGES`. The object verifier now reports
+  `pages=4K`/`pages=16K` too. **Never `strings`** — the 16 KiB dietcap Image contains a literal
+  `4K pages` message string.
+- **153** — `m1n1-b0-dwm-fat-diag.bin` `d14df9f3`, identical to the fat object except
+  `console=ttydc0` added, so the machine reports its own dmesg over KIS. Twice today a run could not
+  be judged from the host (the 148 pty went silent at handoff with a **0-byte** console log, leaving
+  a screenshot as the only evidence). Checked rather than assumed: the DTB's
+  `apple,dockchannel-serial` node has no `status` so it defaults enabled, there is no `stdout-path`,
+  and KIS *can* observe `ttydc0` — it is the gadget that cannot.
+
+#### Probe builder (156)
+
+`scripts/t6040-build-graded-probe.py` is new, and **validated by byte-exact reproduction**: it
+regenerates the enrolled-and-proven `probe-graded-256M.bin` with hash `c7fcfa71`, the value in the
+2026-07-25 writeup. Built `probe-graded-512M.bin` (`59eb0a1a`) and `probe-graded-1024M.bin`
+(`91e4d692`) on the currently-enrolled loader, so size is the only variable. **512 MiB was never
+established** — 256 MiB remains the largest measured size.
+
+> The through-line for all of today: **every guard that failed us was validating something other than
+> what was intended** — a default object instead of the named one, `chainload.py`'s exit status
+> instead of the boot, an assumed size ceiling instead of a measured one, a stripped config instead
+> of a working one.
