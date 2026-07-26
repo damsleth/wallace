@@ -197,8 +197,9 @@ Before touching any of this, read the pty-discipline rules in [DEVLOG.md](docs/D
 ## Reading order
 
 1. [AGENTS.md](AGENTS.md), the map (repos, roles, hard rules)
-2. [NEXT_STEPS.md](docs/NEXT_STEPS.md), the work queue
-3. [DEVLOG.md](docs/DEVLOG.md), recipes, solved blockers, dead ends
-4. [ROADMAP.md](docs/ROADMAP.md), stages A through H, from first light to daily driver
+2. [RUNBOOK.md](docs/RUNBOOK.md), every operational command in one place
+3. [NEXT_STEPS.md](docs/NEXT_STEPS.md), the work queue
+4. [DEVLOG.md](docs/DEVLOG.md), recipes, solved blockers, dead ends
+5. [ROADMAP.md](docs/ROADMAP.md), stages A through H, from first light to daily driver
 
 `done/` holds the finished per-topic plans and session write-ups. They're kept because the dead ends are half the value: SBU serial, RAM-dump post-mortems, and per-domain pmgr bisection are all documented graves, so nobody digs them up twice.
