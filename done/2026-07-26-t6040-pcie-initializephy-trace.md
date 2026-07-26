@@ -77,3 +77,74 @@ Method note: the kernelcache's `__TEXT_EXEC` segment is not disassembled by `llv
 (it reports only `__text`/`__info`), and `-b binary` is unsupported. Working recipe: compute
 `file_offset = VA - 0xfffffe0008954000 + 26542080`, `dd` the bytes, then
 `llvm-mc --disassemble --triple=aarch64` over a hex dump.
+
+## Register offsets decoded (2026-07-26)
+
+Continued the trace to exact offsets.
+
+### The first PHY-init hardware op
+
+```asm
+mov  w1, #0                  ; register = 0x0
+bl   _readPhyCommonReg       ; x0=this, w1=0  -> read PhyCommon[0]
+orr  w8, w8, #0x1            ; set bit 0
+mov  w2, w8
+bl   _writePhyCommonReg      ; x0=this, w1=0, w2=val|1 -> write PhyCommon[0]
+```
+
+**First operation of `_initializePhy()` = read-modify-write of PhyCommon register `0x0`,
+setting bit 0.** A PhyPhy read follows, then (after global-flag checks and delays) a second
+PhyCommon write later in the function.
+
+### Aperture sub-window layout (from the accessors themselves)
+
+Both `_readPhyCommonReg` and `_readPhyPhyReg` add a fixed offset to the caller's register
+number and dispatch through the same vtable slot (`+0xb28`), i.e. they are sub-windows of one
+shared PHY register region:
+
+| Accessor | Addend | So register N lands at |
+|---|---|---|
+| `_readPhyCommonReg(N)` | `+0x4000` | shared-PHY `+0x4000 + N` |
+| `_readPhyPhyReg(N)` | `+0x8000` | shared-PHY `+0x8000 + N` |
+
+So `_initializePhy`'s first op writes shared-PHY aperture offset **`0x4000`**, bit 0.
+
+`_readPhyIPReg` is different: it dereferences a **cached per-port base pointer at `this+0x240`**
+and panics (loads a format string + calls the log/abort path) if it is null. So the PHY-IP
+aperture must be mapped into `this+0x240` before any PHY-IP read; ticket 068's hang is
+downstream of a valid pointer (a non-responding aperture), not a null one.
+
+### The reg indices are ADT-derived, not constants
+
+The `dtRegMap*Index()` accessors do **not** return literals — they compute from consecutive
+per-instance byte fields populated at `start()`/`configure()` from the ADT `reg-names`:
+
+| Accessor | ivar (byte offset in `this`) |
+|---|---|
+| `dtRegMapApcieCommonIndex()` | `[this+709]` |
+| `dtRegMapPhyIndex()` (shared PhyCommon/PhyPhy) | `[this+710]`, `[this+711]` |
+| `dtRegMapPortPhyGlueIndex(port)` | `[this+718]` |
+| `dtRegMapPortPhyIPIndex(port)` | `[this+719]` |
+
+`PortPhyGlue` (718) and `PortPhyIP` (719) are **adjacent** reg-map entries. So a candidate m1n1
+change must resolve these apertures from the ADT `reg-names` of the `/arm-io/apcie*` node, never
+from hardcoded addresses — matching Wallace's standing "ADT-derived, never swept" rule.
+
+## Grounded candidate for the missing precondition
+
+Before m1n1 reads PHY-IP `reg[3]+0x90`, the driver does — in the **shared PHY aperture** —
+a bit-0 RMW at offset `0x4000` (PhyCommon[0]) plus PhyPhy setup at `+0x8000`. m1n1 currently
+does the `_configPciePLLs` clkgen work and jumps straight to PHY-IP with nothing on the shared
+PHY aperture in between. **That shared-PHY-aperture initialization is the concrete missing
+precondition candidate.**
+
+### Still required before any m1n1 change (do not build yet)
+
+1. Extract the exact PhyPhy register/value pairs and the second PhyCommon write (this pass
+   confirmed offset `0x4000`/bit 0 for the first op; the rest are still symbolic).
+2. Identify the shared-PHY ADT `reg-name` (the entry `dtRegMapPhyIndex` selects) from the
+   captured J614s ADT, and confirm `PortPhyGlue`/`PortPhyIP` reg-names + that `this+0x240` maps
+   the PhyIP window.
+3. Trace `configure()`/`start()` for the authoritative order of `_enableClocks` →
+   `_configPciePLLs` → `_initializePhy`.
+4. Only then a bounded, separately reviewed m1n1 candidate. **068 stays un-retried until 1-3 land.**
