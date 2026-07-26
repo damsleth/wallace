@@ -1,0 +1,13 @@
+{
+  "seq": "147",
+  "slug": "dietcap-kernel-smoke",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "pcie",
+  "priority": "P1",
+  "desc": "Validate the DIET_CAPABLE kernel BY ITSELF before it is used to judge anything else. Image-b0-dietcap (33.7 MiB raw / 9.85 MiB xz) enables NET/WLAN/BRCMFMAC/PCIE_APPLE/BLK_DEV_RAM/EXT4/MTD_PHRAM — but it is also 16 KiB pages, where every proven boot on this machine used 4 KiB (PCIE_APPLE depends on PAGE_SIZE_16KB, which forced the change). That is an ABI-level difference, so it must be tested with a KNOWN-GOOD payload, not simultaneously with a new root path. Build an object = window-free m1n1 v7 ecd264a5 + Image-b0-dietcap.xz + storage-disabled DTB 2782b922 + the PROVEN Alpine OpenRC RAM root initramfs-alpine-b0-nb2.cpio.xz d7fcc795, bootargs identical to the proven B0 set (rdinit=/sbin/init). Pass = the same B0 acceptance state as milestone B0: OpenRC default runlevel, health report begin->end, event0 keyboard, watchdog0=present, empty /proc/partitions, Norwegian keymap loaded. If this fails, the 16 KiB page change is the cause and tickets 147/148 results must not be attributed to their own payloads. Tethered chainload over KIS (needs 146 first); no enrollment required. Evidence: done/2026-07-25-t6040-dietcap-kernel.md.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785046182
+}
