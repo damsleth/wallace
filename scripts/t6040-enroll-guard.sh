@@ -19,10 +19,23 @@ EXPECT_NAME="m1n1"
 TARGET="${TARGET:-/Volumes/m1n1}"
 
 # --- approved objects (SHA-256 -> label). Anything else is refused. ---
+#  3aabde2d… dual-mode GRAPHICAL (dwm, 10 s window) — ticket 163, the intended daily driver
+#  59622e78… graphical, window-free               — ticket 161 fallback if the window misbehaves
+#  f290833c… B0 milestone (Alpine, untethered)    — ticket 101 live-proven
 #  46237ade… dual-mode (EARLY_PROXY_TIMEOUT=5) — conditionally reviewed preferred object
 #  2371ee5d… pure auto-boot                    — ticket-100 live-proven fallback
 #  1394c345… bare proxy-m1n1                    — ROLLBACK object (restores dev loop)
+#
+# 3aabde2d added 2026-07-26. It was NOT tethered-smoke-tested, because a window-carrying
+# object's own 10 s window catches chainload.py's handshake. It is approved on different
+# evidence: its payload region [0x10c000,end) is BYTE-IDENTICAL to 59622e78, which WAS
+# live-proven as dwm with a working keyboard (both sha256
+# 3b1ac51f69d1b5d9a102fe71b3bf953c3c3d9433dfe193e723ec679641e1a6c7), and the only differing
+# bytes lie inside the m1n1 loader, which was itself live-proven both ways in ticket 140.
 APPROVED_HASHES="\
+3aabde2d4639639f5f0603d9eac9e3c05ee1f8b3c27c2aa53901e9a471b2efa8 dualmode-graphical-dwm
+59622e78685961a322308643b03eae6db0dd3ee985b5674e0b3e6831d605a270 graphical-dwm-window-free
+f290833c8a9dd7ea4086571b925e6b775c113dd3b4626a7ef2644ebc76fd03fd b0-milestone-alpine
 46237ade7e314cd752e1482930e21b62319e1b0b707a0f23e86392701555f0c9 dual-mode-EARLY_PROXY_TIMEOUT
 2371ee5dfbfab591397fc333e7da212fb7582bfb2eaddaa6438005f5bb41759b pure-autoboot-fallback
 1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b rollback-bare-proxy-m1n1"
