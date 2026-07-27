@@ -1,0 +1,28 @@
+From: CJ Damsleth <Carl.Joakim.Damsleth@crayon.no>
+Subject: [PATCH] minilzlib: fix VLI_BYTES_MAX truncation (256 MiB decode cap)
+
+VLI_BYTES_MAX is `sizeof(vli_type) * 8 / 7`. With vli_type = uint32_t that is
+32 / 7 = 4 (integer truncation), but a full 32-bit value needs ceil(32/7) = 5
+base-128 bytes. The Xz index encodes UncompressedBlockSize as a VLI, so
+XzDecodeVli() rejects any block whose uncompressed size needs the 5th byte,
+i.e. >= 2^28 = 256 MiB, with `bitPos == 7 * VLI_BYTES_MAX`. XzDecode then
+returns false ("XZ decode failed") and m1n1 boots with no initramfs.
+
+Measured on the host minilzlib harness (Wallace ticket 171): an xz member whose
+uncompressed size is < 256 MiB decodes; >= 256 MiB fails at xzstream.c:117.
+With this ceil-division fix a 278 MiB member decodes and smaller members are
+unchanged.
+
+Signed-off-by: CJ Damsleth <Carl.Joakim.Damsleth@crayon.no>
+---
+--- a/src/minilzlib/xzstream.h
++++ b/src/minilzlib/xzstream.h
+@@ -30,7 +30,7 @@
+ // for the data, and a high bit to encode that another byte must be consumed.
+ //
+ typedef uint32_t vli_type;
+-#define VLI_BYTES_MAX (sizeof(vli_type) * 8 / 7)
++#define VLI_BYTES_MAX ((sizeof(vli_type) * 8 + 6) / 7)
+ 
+ //
+ // These are the possible supported types for integrity checking in an XZ file
