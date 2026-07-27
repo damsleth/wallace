@@ -1,0 +1,129 @@
+# t6040 J614s Type-C ADT extraction (from j614s-usb-port-map-20260721.adt)
+# regenerate: M1N1DEVICE=none ~/Code/m1n1/venv/bin/python <the adt-usb*.py scripts>
+
+## Right-port stack (atc-phy2 / usb-drd2 / dart-usb2)
+=== atc-phy2  compat=atc-phy,t6040
+  reg-names: None
+  reg[0] 0x00192a90000 sz 0x4000
+  reg[1] 0x00192800000 sz 0x4000
+  reg[2] 0x00193000000 sz 0x4000
+  reg[3] 0x00193000400 sz 0x4000
+  reg[4] 0x00193000800 sz 0x4000
+  reg[5] 0x00193000a00 sz 0x4000
+  reg[6] 0x00193001000 sz 0x4000
+  reg[7] 0x00193003000 sz 0x4000
+  reg[8] 0x00193003200 sz 0x4000
+  reg[9] 0x00193003800 sz 0x4000
+  reg[10] 0x00193003a00 sz 0x4000
+  reg[11] 0x00193004000 sz 0x4000
+  reg[12] 0x00193005000 sz 0x4000
+  reg[13] 0x00193006000 sz 0x4000
+  reg[14] 0x00193007000 sz 0x4000
+  reg[15] 0x00193008000 sz 0x4000
+  reg[16] 0x00193009000 sz 0x4000
+  reg[17] 0x0019300a000 sz 0x4000
+  reg[18] 0x0019300b000 sz 0x4000
+  reg[19] 0x0019300c000 sz 0x4000
+  reg[20] 0x0019300d000 sz 0x4000
+  reg[21] 0x0019300e000 sz 0x4000
+  reg[22] 0x0019300f000 sz 0x4000
+  reg[23] 0x00193010000 sz 0x4000
+  reg[24] 0x00193018000 sz 0x4000
+  reg[25] 0x00193019000 sz 0x4000
+  reg[26] 0x0019301a000 sz 0x4000
+  reg[27] 0x0019301b000 sz 0x4000
+  reg[28] 0x0019301c000 sz 0x4000
+  reg[29] 0x0019301d000 sz 0x4000
+  reg[30] 0x0019301e000 sz 0x4000
+  reg[31] 0x0019301f000 sz 0x4000
+  reg[32] 0x00193020000 sz 0x4000
+  reg[33] 0x00193028000 sz 0x4000
+  reg[34] 0x00193028400 sz 0x4000
+  reg[35] 0x00193029000 sz 0x4000
+  reg[36] 0x00193040000 sz 0x20000
+  reg[37] 0x001930c0000 sz 0x10000
+  reg[38] 0x00193140000 sz 0x1c000
+  reg[39] 0x00193200000 sz 0x4000
+  reg[40] 0x00193244000 sz 0x4000
+  reg[41] 0x00190000000 sz 0x8000
+  reg[42] 0x00190020000 sz 0x4000
+  reg[43] 0x00193250000 sz 0x4000
+  device_type: 'atc-phy'
+  function-power: None
+  port-type: 2
+  cio-port: None
+  AAPL,phandle: 325
+  atc-phy-index: None
+
+=== usb-drd2  compat=usb-drd,t6040,usb-drd,t8132
+  reg-names: None
+  reg[0] 0x00192280000 sz 0x11800
+  reg[1] 0x00192200000 sz 0x4000
+  reg[2] 0x0019228c000 sz 0x5800
+  reg[3] 0x00192a84000 sz 0x4000
+  reg[4] 0x00192800000 sz 0x4000
+  reg[5] 0x00192a80000 sz 0x4000
+  reg[6] 0x00192080000 sz 0x4000
+  reg[7] 0x0019228d000 sz 0x4000
+  reg[8] 0x00192980000 sz 0x4000
+  device_type: 'usb-drd'
+  function-power: None
+  port-type: 2
+  cio-port: None
+  AAPL,phandle: 328
+  atc-phy-index: None
+
+=== dart-usb2  compat=dart,t8110
+  reg-names: None
+  reg[0] 0x00192f00000 sz 0xc000
+  reg[1] 0x00192f80000 sz 0xc000
+  reg[2] 0x00300578000 sz 0x4000
+  reg[3] 0x00308afc000 sz 0x4000
+  device_type: 'dart'
+  function-power: None
+  port-type: None
+  cio-port: None
+  AAPL,phandle: 326
+  atc-phy-index: None
+
+=== atc2-dpxbar  compat=atc-dpxbar,t604x
+  reg-names: None
+  reg[0] 0x0019324c000 sz 0x4000
+  device_type: 'AAPL,atc-dpxbar'
+  function-power: None
+  port-type: None
+  cio-port: None
+  AAPL,phandle: 235
+  atc-phy-index: None
+
+typec2: MISSING ("Child node 'typec2' not found")
+
+hpm2: MISSING ("Child node 'hpm2' not found")
+
+cd321x2: MISSING ("Child node 'cd321x2' not found")
+
+=== all nodes matching hpm/typec/cd321/pd ===
+
+## I2C children + SPMI nubs
+=== all i2c children with addresses ===
+  i2c1/audio-speaker            addr=0x38  audio-control,sn012776
+  i2c1/audio-speaker-left-woofer-2 addr=0x39  audio-control,sn012776
+  i2c1/audio-speaker-left-tweeter addr=0x3a  audio-control,sn012776
+  i2c2/audio-codec-output       addr=0x4b  audio-control,cs42l84
+  i2c3/audio-speaker-right-woofer-1 addr=0x3b  audio-control,sn012776
+  i2c3/audio-speaker-right-woofer-2 addr=0x3c  audio-control,sn012776
+  i2c3/audio-speaker-right-tweeter addr=0x3d  audio-control,sn012776
+  i2c4/sd-card                  addr=0x20  ?
+  i2c6/uatcrt0                  addr=0x18  atcrt
+  i2c6/uatcrt1                  addr=0x19  atcrt
+  i2c6/uatcrt2                  addr=0x1a  atcrt
+  i2c8/pcon0                    addr=0x08  ?
+=== spmi / nub / hpm anywhere ===
+  nub-spmi0  aapl,spmi
+  nub-spmi1  aapl,spmi
+  nub-spmi2  aapl,spmi
+  nub-spmi3  aapl,spmi
+  nub-spmi4  aapl,spmi
+  nub-spmi-a0  aapl,spmi
+  nub-spmi-a1  aapl,spmi
+  aop-spmi0  aapl,spmi
