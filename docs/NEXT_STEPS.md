@@ -1,5 +1,26 @@
 # t6040 Linux bring-up — NEXT STEPS
 
+> **2026-07-27 (offline session) — USB and initramfs threads advanced; one address bug fixed.**
+>
+> - **Initramfs decode limit (160):** built `scripts/t6040-minilzlib-harness.sh` — a host binary around
+>   m1n1's own minilzlib that reproduces the machine's XzDecode pass/fail exactly, so any initramfs is
+>   clearable with **zero rig time**. The limit is **content/level dependent**, not a size (200 MiB zeros
+>   and 200 MiB `-6` decode; 278 MiB `-9e` fails). Keep the 128 MiB verifier guard as a backstop; use the
+>   harness as the real check. Mechanism -> ticket 171.
+> - **Type-C / USB (170):** mapped the t6040 Type-C stack from the live ADT. The PHY/dwc3/DART half is
+>   DT-describable now -- `atc-phy,t6040` @ `0x393000000`, `usb-drd,t6040`/`t8132` @ `0x392280000`, two
+>   DARTs -- adaptable from `t602x-dieX.dtsi`. **But the PD controller is on SPMI, not I2C**, so the merged
+>   upstream `cd321x` I2C driver won't source VBUS; that half is still the 096 SPMI wall. New: **ATC
+>   retimers** `uatcrt0/1/2` (i2c6) are in the data path and our force-host DT never touched them.
+> - **Address correction (affects 124 + 170):** `adt.py` `.reg` returns *untranslated* bus addresses;
+>   the `/arm-io` `ranges` delta is **+0x200000000** in the low window. So the PCIe op-115 poll is
+>   **`0x417040090`** (PhyCommon[0] `0x417004000`, PhyPhy `0x417008000`) -- the trace was right -- and last
+>   night's "die alias" guess was wrong. The working `t6040.dtsi` addresses already bake in the delta.
+>
+> **Next offline step:** author the atcphy/dwc3/dart/retimer DT nodes for the right port using the
+> **`0x3xx`** CPU-physical addresses (not the raw `0x1xx` ADT reads). That readies the USB3 *data* path;
+> VBUS stays blocked on either the 096 SPMI decode or a self-powered-device discriminator (maintainer).
+
 > **2026-07-26 — dwm runs on the panel with a working keyboard.** The graphical target is reached
 > (`3ec81ef3`), and `m1n1-b0-dwm-hidpi.bin` `59622e78` is the same thing with the HiDPI font fix.
 >
