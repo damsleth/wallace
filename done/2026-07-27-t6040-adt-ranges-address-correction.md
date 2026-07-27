@@ -47,3 +47,28 @@ Twice now a `0x200000000` discrepancy cost analysis time (the PCIe "die alias" d
 a near-miss on the USB DT addresses tonight). The rule going forward: **`adt.py` `.reg` values in the
 arm-io low window are bus addresses; add the `ranges` delta (0x200000000 here) for CPU-physical.** The
 working `t6040.dtsi` addresses are the cross-check — they already bake in the translation.
+
+## Update: rule confirmed on four nodes, and feature addresses extracted
+
+The `+0x200000000` translation is now cross-checked against our DT **and** m1n1's own boot log:
+
+| node | adt.py bus | +0x200000000 | cross-check |
+|---|---|---|---|
+| `usb-drd2` | `0x192280000` | `0x392280000` | = `t6040.dtsi` usb_drd2 |
+| `uart0` | `0x229200000` | `0x429200000` | = `t6040.dtsi` serial0 |
+| `aic` | `0x302400000` | `0x502400000` | = m1n1 log "AIC Version 3 @ 0x502400000" |
+| `dockchannel-uart` | `0x308828000` | `0x508828000` | = m1n1 log "dockchannel UART at 0x508828000" |
+
+So it is a plain `ranges` translation, solid. Feature-kernel node addresses (CPU-physical), for
+tickets 164/165:
+
+| node | compatible (ADT) | CPU-physical |
+|---|---|---|
+| `smc` (RTKit mailbox) | `iop,ascwrap-v6` | `0x50c600000` (+ sram `0x50c050000`) |
+| `dwi` (backlight) | `dwi,t8101` | `0x5029b0000` (irq 273) |
+| `smc-gpio0` | `gpio,t8101` | `0x50c824000` |
+
+Template the Linux `smc@50c600000` node on `t602x-die0.dtsi`'s `smc@2a2400000`
+(`apple,tXXXX-smc`, `apple,t8103-smc`, `apple,smc` + gpio/hwmon/reboot/rtc children + an RTKit
+mailbox), substituting these addresses. `t6040` genuinely differs from t6030's `smc@36c400000` —
+that is a real per-SoC difference, not a translation error.

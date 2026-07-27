@@ -2,7 +2,7 @@
   "seq": "165",
   "slug": "macsmc-power-and-thermals",
   "needs": "offline",
-  "state": "proposed",
+  "state": "in-tree-needs-dt",
   "track": "kernel",
   "priority": "P2",
   "desc": "Enable battery, charge state and temperatures \u2014 needed both for daily use and to know whether the machine is thermally safe under load. MEASURED ABSENCES in config-hid-type-fix: MACSMC is absent, CONFIG_MACSMC_POWER is explicitly not set, CONFIG_HWMON is not set. CONFIG_POWER_SUPPLY=y already. So there is currently no battery percentage, no charging state and no temperature reading anywhere. TASK: enable MACSMC (+ MACSMC_POWER, MACSMC_HWMON, HWMON) in the full kernel, confirm the SMC node in the J614s DT, and verify /sys/class/power_supply/* and /sys/class/hwmon/* populate. POLICY: this is READ-ONLY telemetry and stays inside the standing rules \u2014 smc_reboot and smc_rtc nvram writes are permitted, but charger and PMU-voltage writes remain FORBIDDEN, so do not enable or exercise any charge-control interface. Feeds the status bar in 166.",
@@ -10,5 +10,6 @@
   "deps": [],
   "hashes": null,
   "created": 1785150000,
-  "runnable": true
+  "runnable": true,
+  "note": "2026-07-27 SCOPING CORRECTED: macsmc IS in-tree (I looked for wrong filenames first). Kconfig: MFD_MACSMC + SENSORS_MACSMC_HWMON + RTC_DRV_MACSMC + GPIO_MACSMC + macsmc-reboot.c. So this is config + a DT node, NOT a driver port. The SMC RTKit node is in the ADT: 'smc' compatible iop,ascwrap-v6 at CPU-physical 0x50c600000 (mailbox) + 0x50c050000 (sram); smc-gpio0 at 0x50c824000. Template on t602x-die0.dtsi smc@2a2400000 (compatible apple,t6040-smc/apple,t8103-smc/apple,smc, reg-names smc/sram, mboxes=<&smc_mbox>, children gpio/hwmon/reboot/rtc), substituting the t6040 addresses. Enable MFD_MACSMC + SENSORS_MACSMC_HWMON (+HWMON) + RTC_DRV_MACSMC; POWER_SUPPLY is already y but confirm the macsmc battery/power-supply child exists. READ-ONLY telemetry only \u2014 smc_reboot/smc_rtc are the permitted writes; charger/PMU-voltage stay forbidden. Offline-buildable. NOTE t6040 smc (0x50c600000) differs from t6030's smc@36c400000 \u2014 a real per-SoC difference, addresses ADT-verified via the +0x200000000 rule confirmed on 4 nodes."
 }
