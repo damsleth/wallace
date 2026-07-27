@@ -2,7 +2,7 @@
   "seq": "167",
   "slug": "usb-ethernet-cheap-networking",
   "needs": "offline",
-  "state": "pure-config-buildable",
+  "state": "config-ready-batch-with-dt",
   "track": "kernel",
   "priority": "P2",
   "desc": "Prepare the CHEAPEST networking path, so the machine is not waiting on PCIe. MEASURED: the full kernel already has CONFIG_BRCMFMAC=y and CONFIG_CFG80211=y, so WiFi needs no kernel work \u2014 it is gated entirely on PCIe op-115 (tickets 068/124) plus firmware. But USB networking is NOT enabled at all: CONFIG_USB_NET_DRIVERS, CONFIG_USB_USBNET and CONFIG_USB_RTL8152 are all absent. A USB ethernet dongle would give the machine an IP address as soon as the USB host link works (096/097/132), well before PCIe is understood. TASK: enable USB_NET_DRIVERS, USB_USBNET plus the common dongle drivers (RTL8152/8153, ASIX AX88179, CDC_ETHER, CDC_NCM), and add a minimal DHCP client and busybox networking to the image. Cheap, offline, and it converts the USB milestone directly into networking.",
@@ -11,5 +11,5 @@
   "hashes": null,
   "created": 1785150000,
   "runnable": true,
-  "note": "2026-07-27: BUILDABLE, pure config, NO DT node needed (USB devices enumerate on the bus). All target drivers present in-tree: drivers/net/usb/{r8152,asix_devices,ax88179_178a,cdc_ether,cdc_ncm}.c. Enable USB_NET_DRIVERS, USB_USBNET, USB_NET_CDCETHER, USB_NET_CDC_NCM, USB_RTL8152, USB_NET_AX8817X, USB_NET_AX88179_178A, plus a DHCP client (busybox udhcpc) in the image. Gated only on the USB HOST link working (096/170), not on any kernel work here. This is the cheapest networking path and folds into the same feature-kernel build as 164/165."
+  "note": "2026-07-27 usbnet is ABSENT from config-hid-type-fix (confirmed) \u2014 a real config-add, pure config, no DT. Enable USB_NET_DRIVERS/USB_USBNET/USB_NET_CDCETHER/USB_NET_CDC_NCM/USB_RTL8152/USB_NET_AX8817X/USB_NET_AX88179_178A + busybox udhcpc. Safe and autonomous to add, but it has NO independent value until the USB host link works (blocked on 096/170), and a whole kernel build for one config group that can't be rig-tested tonight is low marginal value. RIGHT MOVE: batch this config into the next real kernel build \u2014 ideally the one that also lands the SMC/backlight DT nodes once 164/165's remaining unknowns are resolved \u2014 rather than building in isolation now."
 }

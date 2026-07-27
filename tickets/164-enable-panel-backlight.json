@@ -2,7 +2,7 @@
   "seq": "164",
   "slug": "enable-panel-backlight",
   "needs": "offline",
-  "state": "addresses-extracted",
+  "state": "blocked-dwi-vs-dcp-unverified",
   "track": "kernel",
   "priority": "P2",
   "desc": "Enable panel backlight control, which a daily driver needs and which is currently absent. MEASURED: the full kernel has CONFIG_BACKLIGHT_CLASS_DEVICE=y but CONFIG_APPLE_DWI_BL is ABSENT from config-hid-type-fix, so there is no backlight device at all \u2014 brightness is stuck wherever iBoot left it. The driver exists in-tree (drivers/video/backlight/apple_dwi_bl.c appears in the MAINTAINERS Apple section). TASK: enable APPLE_DWI_BL in the kernel config, confirm the J614s DT actually describes the DWI backlight node (check t6040-j614s-dcuart.dts and the ADT for a dwi/backlight node \u2014 if absent, the DT work is the real task and the kernel symbol alone will do nothing), then verify /sys/class/backlight/*/brightness responds. Read/write of a backlight is not a PMU or charger write, so it is inside policy. Pair with 165 so dwm can bind brightness keys.",
@@ -11,5 +11,5 @@
   "hashes": null,
   "created": 1785150000,
   "runnable": true,
-  "note": "2026-07-27: BUILDABLE. Driver drivers/video/backlight/apple_dwi_bl.c EXISTS in-tree. The DWI backlight node is in the ADT: 'dwi' compatible dwi,t8101 at CPU-physical 0x5029b0000 (irq 273; raw ADT bus 0x3029b0000 + the arm-io ranges delta 0x200000000). NEXT: enable BACKLIGHT_CLASS_DEVICE (already y) + the apple-dwi-bl driver, add a dwi backlight DT node at 0x5029b0000 templated on how t8103/t600x wire apple,dwi-bl, then /sys/class/backlight should appear. Offline-buildable; a rig smoke confirms brightness control. Not a PMU/charger write, so inside policy."
+  "note": "2026-07-27 NOT the simple win I scoped. apple_dwi_bl.c binds 'apple,dwi-bl', but that binding is only used on iPhone/iPad-era SoCs (s5l8960x, s8001, t7000, t8010, t8015). On Apple Silicon MACBOOKS the panel backlight is generally tied to the internal display via the DCP, not DWI. The t6040 ADT DOES have a 'dwi' node (dwi,t8101 at cpu 0x5029b0000, irq 273), but whether it drives the J614s panel backlight vs the DCP path is UNVERIFIED. Authoring a dwi-bl DT node blind risks a non-functional or wrong backlight. NEEDS: confirm the J614s backlight path (check how Asahi wires MacBook backlight \u2014 likely dcp/dcpext + a backlight child, or apple,smc) before authoring. Not safely autonomous without that."
 }
