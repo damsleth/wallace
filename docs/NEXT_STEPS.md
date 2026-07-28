@@ -1,5 +1,32 @@
 # t6040 Linux bring-up — NEXT STEPS
 
+> **2026-07-28 (state of play) — battery/thermals DONE; USB + WiFi are the frontier.**
+>
+> Daily driver (`5931f9c3`, enrolled): dwm + Norwegian keyboard + working SMC battery/charger/temp
+> (ticket 165 done). USB device mode proven on the M4 (`udc=configured`, all CDC flavors enumerate),
+> but macOS binds no Linux CDC gadget — tether-ethernet to this Mac is a macOS wall (173), not an M4
+> problem. **The two priorities now are USB read/write and WiFi, both decoded and both needing an
+> attended rig session:**
+>
+> 1. **USB host + VBUS (096 → 097 → 108/109/112/113).** Fully decoded:
+>    `AppleHPMInterface::roleSwap()` issues the `SWDF` 4CC (Swap-to-DFP = host/source, enables VBUS) to
+>    CMD1 `0x08`, confirmed via `execute4Cc`. An **R3 candidate = the proven R2 SSPS path** in
+>    `m1n1-hpm2/src/t6040_hpm2.c` with `command[4]={'S','W','D','F'}` instead of `{'S','S','P','S'}`.
+>    Gate: byte-level review of the 4CC constant (a DFU-class 4CC exists in the vocab), then an attended
+>    run on the 096/097 SPMI framework (right-HPM identity gate + recovery). Worst case is odd port
+>    state until a power cycle. If VBUS comes up, the bus-powered stick on the right port enumerates and
+>    167's built-in usb-storage/usbnet drivers light up read/write + a dongle NIC.
+> 2. **WiFi via PCIe (124 → 068 → 168).** `BRCMFMAC`/`CFG80211` are already built in — WiFi needs no
+>    kernel work, only PCIe link-up. m1n1 runs T6040 PCIe in **trace** mode (logs tunables, writes
+>    nothing); op-115 is a PLL-lock poll at `0x417040090`. The missing precondition is *applying* the
+>    `apcie-phy-tunables` (5 RMWs at `0x417004000`/`0x417008000`, all clearing bits). That is a
+>    **hardware write to the PCIe PHY** — beyond the live-read authorization — so it needs a supervised
+>    session, a bounded reviewed m1n1 change (apply, don't trace, just those tunables), then re-check
+>    the op-115 poll. Then stage the BCM4388 `apple,mriya` firmware (168) into the image.
+>
+> Everything else (feature kernel, DT, harness, minilzlib fix, address decodes) is landed. The USB and
+> WiFi frontiers are the same shape: decode complete, one bounded hardware action left, maintainer-gated.
+
 > **2026-07-28 (network campaign) — dwc3 gadget works on M4; macOS binds no interface; needs M4 dmesg.**
 >
 > The macsmc feature object (dwm + battery/thermals + usbnet + USB-tether gadget) is enrolled and

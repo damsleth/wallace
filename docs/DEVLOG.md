@@ -1661,3 +1661,26 @@ different sources of truth:
 `T6040_DPI` (default 192, the 2× convention) and `T6040_ST_PIXELSIZE` (default 28); 254 is the panel's
 true DPI if physical accuracy is preferred. Object `m1n1-b0-dwm-hidpi.bin` `59622e78` — identical to the
 working object except the initramfs, so it cannot regress input or graphics.
+
+### 2026-07-28 — 🔋 battery/thermals working; USB device mode proven; USB-host + WiFi decoded
+
+**macsmc (battery/thermals) works** on the enrolled daily driver `5931f9c3`. `macsmc-battery`
+(CAPACITY=100, CYCLE_COUNT=404, CHARGE_FULL=5186000, `bq40z651`), `macsmc-ac` (15 W charger), hwmon
+`temp1_input=30300` (30.3 °C). The first probe failed with `RTKit buffer request outside SRAM region:
+[0x50de70000, ...]` / `Failed to initialize shared memory (-14)` — the SMC SRAM address. My cross-SoC
+`smc_base + 0x1a00000` guess (`0x50e000000`) was wrong; the coprocessor's error named the real region,
+so `reg[1] = 0x50de70000/0x100000` fixed it first try. **Lesson: an RTKit "shared memory" failure
+prints the true SRAM base — read it, don't pattern-guess.** Node addresses came from the live ADT
+capture `j614s-full-20260728.adt` (SMC mailbox `0x50c600000`, IRQs 996-999).
+
+**USB device mode works on the M4.** `udc state = configured`; Linux `dwc3-apple` runs the DFU port as
+a gadget and every CDC flavor (RNDIS/ECM/NCM/ACM) fully enumerates on the host. But macOS binds no
+Linux CDC gadget (it binds m1n1's own ACM), so tether-ethernet to this Mac is a macOS host wall, not an
+M4 problem — it would bind on a Linux host. Four chainload iterations settled this; the M4 half is
+proven healthy.
+
+**Both USB-host and WiFi are now fully decoded, one bounded hardware action from a test:**
+- USB-host/VBUS: `roleSwap()` → `SWDF` 4CC to CMD1 `0x08` (R3 = R2's SSPS path with the 4CC swapped).
+- WiFi/PCIe: op-115 is a PLL poll at `0x417040090`; the missing step is *applying* the phy-tunables
+  (m1n1 currently only traces them). Both need an attended/supervised run (the R3 is an SPMI write, the
+  PCIe step is a PHY write).

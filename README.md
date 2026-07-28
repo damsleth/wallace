@@ -2,10 +2,34 @@
 
 Mainline Linux on a MacBook Pro 14" M4 Pro (t6040 "Brava Chop", Mac16,8 / J614s). It boots
 **untethered** into Alpine from an enrolled boot object — internal panel, Norwegian keyboard,
-watchdog — and now reaches a **graphical desktop (Xorg + dwm)** with a working keyboard, with a
-remote DebugUSB loop for development.
+watchdog — reaches a **graphical desktop (Xorg + dwm)** with a working keyboard, and reads
+**battery, charger, and temperature** from the SMC. Remote DebugUSB loop for development.
 
 This repo is the umbrella. The code lives in four sibling repos and the knowledge kept getting smeared across them so everything that guides the work now lives here: plans, scripts, kernel patches, post-mortems.
+
+## Status (2026-07-28) — 🔋 battery + thermals working; USB device mode proven
+
+The enrolled daily driver (`m1n1-b0-macsmc-dualmode.bin` `5931f9c3`) is dwm + Norwegian keyboard +
+**live SMC telemetry**: `macsmc-battery` (capacity, cycle count, charge/voltage/energy, `bq40z651`
+pack), `macsmc-ac` (charger, 15 W), and hwmon temperature (30.3 °C). Ticket 165 done. The root cause
+of the first failed probe was the SMC SRAM address — the coprocessor's own RTKit error named the real
+region (`0x50de70000`), and the fix from it worked first try.
+
+**USB device mode works on the M4** — a big result for networking. Linux `dwc3-apple` runs the DFU
+port as a gadget: `udc state = configured`, and every CDC flavor (RNDIS/ECM/NCM/ACM) fully enumerates
+on the host. But **macOS binds no Linux CDC gadget** (it does bind m1n1's own ACM), so tether-ethernet
+to *this* Mac is a macOS host-side wall — it would work into a Linux host. The M4 side is proven
+healthy; the networking paths that remain are the **USB host + real dongle** route (ticket 167 kernel
+side is built-in, gated on VBUS) and **WiFi** (gated on PCIe).
+
+The two frontier blockers are now precisely characterised and both decoded, awaiting attended rig work:
+
+- **USB host / VBUS (096/097):** `AppleHPMInterface::roleSwap()` issues the `SWDF` 4CC (Swap to DFP =
+  host/source) to CMD1 `0x08` — fully decoded and confirmed. An R3 candidate is the proven R2 `SSPS`
+  path with the 4CC changed to `SWDF`. Needs byte-level review + an attended run.
+- **WiFi / PCIe (124/168):** m1n1 runs T6040 PCIe in *trace* mode (no writes); op-115 is a PLL-lock
+  poll at `0x417040090`, and the missing precondition is *applying* the PHY tunables
+  (`0x417004000`/`0x417008000`). That is a hardware write, so it needs a supervised session.
 
 ## Status (2026-07-26) — 🐧🖥️ GRAPHICAL TARGET REACHED: dwm on the M4 Pro panel
 
