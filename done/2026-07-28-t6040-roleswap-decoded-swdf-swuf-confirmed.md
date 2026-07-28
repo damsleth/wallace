@@ -62,3 +62,22 @@ right-port HPM to swap to DFP/host and (per the decode) source VBUS.
 The VBUS blocker for USB read/write now has a concrete, decoded command (`SWDF` to CMD1), correcting my
 earlier claim that it was undecodable. It needs step 1 (a short offline register-trace) plus a
 maintainer-attended run — it is no longer knowledge-blocked, only review/rig-gated.
+
+## Addendum: command register confirmed CMD1 (0x08) — R3 fully specified
+
+Traced roleSwap's call target: `AppleHPMInterface::execute4Cc(uint16_t, uint8_t* cmd, uint8_t* data,
+uint8_t)` at `0xfffffe0009519774`. Its first argument is a **command-register selector**: execute4Cc
+compares it against `#8` and `#16` (`cmp w23, #16` / `cmp w23, #8` repeatedly) — i.e. `0x08` (CMD1) and
+`0x10` (CMD2), the TPS6598x 4CC command registers.
+
+This confirms two things at once:
+1. The 4CC command register is **CMD1 = 0x08** (the same register the proven R2 SSPS path writes).
+2. R2's direct-SPMI approach (`write_logical_reg(0x08, "SSPS")`) is the correct concrete instance of
+   the AppleHPM `execute4Cc` operation — it bypasses the vtable machinery and writes the logical
+   register directly, which R2 proved reaches S0.
+
+So **R3 is fully specified with no further RE needed**: it is the R2 `t6040_hpm2.c` path with one change —
+`static const u8 command[4] = {'S','W','D','F'};` written to `TPS_REG_CMD1` (0x08), poll for completion.
+(SWUF, role→device, is the inverse for a clean rollback.) Step-1 gate from above is now satisfied; what
+remains is only the byte-level review of the 4CC const and a maintainer-attended run on the 096/097
+framework — no knowledge gap left.
