@@ -2,7 +2,7 @@
   "seq": "173",
   "slug": "usb-tether-ethernet-ecm-gadget",
   "needs": "rig",
-  "state": "staged",
+  "state": "built-staged",
   "track": "usb",
   "priority": "P1",
   "author": "claude",
