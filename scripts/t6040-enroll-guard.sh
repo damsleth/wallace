@@ -32,9 +32,9 @@ TARGET="${TARGET:-/Volumes/m1n1}"
 # live-proven as dwm with a working keyboard (both sha256
 # 3b1ac51f69d1b5d9a102fe71b3bf953c3c3d9433dfe193e723ec679641e1a6c7), and the only differing
 # bytes lie inside the m1n1 loader, which was itself live-proven both ways in ticket 140.
-#  3cfdaf24… macsmc dual-mode (dwm + battery/thermals + USB-tether ECM) — ticket 165/167/173
+#  9800f4d8… macsmc dual-mode v2 (dwm + KEYBOARD-fixed + battery/thermals + tether ECM) — 165/167/173
 APPROVED_HASHES="\
-3cfdaf247827ca765026ab2a8419e43d43af19c1f22f34b1b2eeb30e6e07ef62 macsmc-dualmode-dwm-ecm
+9800f4d8291f86fca577616c8dc9f4328249acb77184a2d0c5cb91e7565a315e macsmc-dualmode-dwm-ecm-v2
 3aabde2d4639639f5f0603d9eac9e3c05ee1f8b3c27c2aa53901e9a471b2efa8 dualmode-graphical-dwm
 59622e78685961a322308643b03eae6db0dd3ee985b5674e0b3e6831d605a270 graphical-dwm-window-free
 f290833c8a9dd7ea4086571b925e6b775c113dd3b4626a7ef2644ebc76fd03fd b0-milestone-alpine
