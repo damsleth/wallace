@@ -34,8 +34,12 @@
 >    and an attended slot. Do not queue it ready from ticket 124 alone. Evidence:
 >    `done/2026-07-28-t6040-pcie-d1d2-exact-artifact-crossreview.md`. After the aperture responds:
 >    apply PLL/AUSPMA tunables + D6/D7/D8. WiFi firmware staging (168) is now complete
->    offline: `Image-macsmc-wifi-fw` (`28f71703…`) embeds the exact paired C0/C2
->    `apple,mriya` set while retaining SMC + USB storage/usbnet. The persistent corpus is
+>    offline: corrected `Image-macsmc-hid-type-fix-wifi-fw` (`eae54e62…`) embeds the
+>    exact paired C0/C2 `apple,mriya` set while retaining the live keyboard fix, SMC,
+>    USB storage/UAS, and usbnet. Strict-verified dual-mode graphical object
+>    `m1n1-b0-dwm-dualmode-wifi-usb-candidate.bin` is `b512b9fd…`; it is not
+>    enrollment-ready until a controlled 16 KiB-kernel smoke and the hardware link gates.
+>    The persistent corpus is
 >    `/Users/damsleth/Code/linux-build-out/t6040-paired-fw-25F84/vendorfw`; the initramfs
 >    fallback still takes `T6040_WIFI_FW=1`. Evidence:
 >    `done/2026-07-29-t6040-paired-wifi-firmware-builtin.md`.

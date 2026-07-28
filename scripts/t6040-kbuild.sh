@@ -910,8 +910,12 @@ if [ "${MACSMC:-0}" = "1" ]; then
     ./scripts/config --file .config \
         -e MFD_MACSMC -e MACSMC_POWER -e SENSORS_MACSMC_HWMON \
         -e HWMON -e POWER_SUPPLY -e RTC_DRV_MACSMC -e RTC_CLASS
-    # USB ethernet dongles on a host port (cheap networking once USB host works).
+    # USB storage and ethernet dongles on a host port (read/write and cheap
+    # networking once the right-port Type-C/VBUS path works).  Defconfig
+    # supplies USB_STORAGE but not UAS, so name both explicitly: ticket 167's
+    # feature promise must survive config drift.
     ./scripts/config --file .config \
+        -e SCSI -e BLK_DEV_SD -e USB_STORAGE -e USB_UAS \
         -e USB_NET_DRIVERS -e USB_USBNET -e USB_NET_CDCETHER \
         -e USB_NET_CDC_NCM -e USB_NET_CDC_SUBSET \
         -e USB_NET_AX8817X -e USB_NET_AX88179_178A -e USB_RTL8152
@@ -926,8 +930,9 @@ if [ "${MACSMC:-0}" = "1" ]; then
         -d USB_ETH -d USB_ETH_RNDIS -d USB_G_NCM
     # No legacy g_ether/RNDIS: macOS does not support RNDIS, so g_ether's
     # RNDIS-first composite enumerated ('RNDIS/Ethernet Gadget') but macOS made
-    # no interface. The ECM service builds a PURE CDC-ECM gadget via configfs,
-    # which macOS binds as an ethernet device (ticket 173, 2026-07-28 smoke).
+    # no interface. The ECM service builds a PURE CDC-ECM gadget via configfs.
+    # It reaches UDC "configured" on T6040, but this macOS host still binds no
+    # network interface (ticket 173); retain it for Linux-host diagnostics.
 fi
 if [ "${HID_RX_REARM:-0}" = "1" ] ||
    [ "${HID_STATE_TRACE:-0}" = "1" ]; then
@@ -1152,6 +1157,12 @@ if [ "${T6040_WIFI_FW_BUILTIN:-0}" = "1" ]; then
         --set-str EXTRA_FIRMWARE_DIR "$wifi_fw_root"
 fi
 make ARCH=arm64 olddefconfig >/dev/null
+if [ "${MACSMC:-0}" = "1" ]; then
+    echo "== assert feature-kernel USB storage path =="
+    grep -q '^CONFIG_USB_STORAGE=y$' .config
+    grep -q '^CONFIG_USB_UAS=y$' .config
+    grep -q '^CONFIG_BLK_DEV_SD=y$' .config
+fi
 if [ "${T6040_WIFI_FW_BUILTIN:-0}" = "1" ]; then
     echo "== assert built-in BCM4388 WiFi firmware config =="
     grep -q '^CONFIG_FW_LOADER=y$' .config
@@ -1377,8 +1388,13 @@ if [ "${1:-}" = "image" ]; then
         map_name=System.map-hid-state-trace
     fi
     if [ "${HID_TYPE_FIX:-0}" = "1" ]; then
-        image_name=Image-hid-type-fix
-        map_name=System.map-hid-type-fix
+        if [ "${MACSMC:-0}" = "1" ]; then
+            image_name=Image-macsmc-hid-type-fix
+            map_name=System.map-macsmc-hid-type-fix
+        else
+            image_name=Image-hid-type-fix
+            map_name=System.map-hid-type-fix
+        fi
     fi
     if [ "${TRACKPAD_MOTION:-0}" = "1" ]; then
         image_name=Image-trackpad-motion

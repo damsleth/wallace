@@ -7,12 +7,13 @@ external post.
 
 The paired 25F84 firmware corpus is no longer dependent on `/private/tmp`, and the
 BCM4388 WiFi payload is now built into a feature kernel which also retains the proven
-SMC and USB-storage/usbnet stacks.
+SMC, keyboard, USB-storage/UAS, and usbnet stacks.
 
-This is **not yet a runnable boot object**. PCIe link-up still needs an attended,
+This is **not yet a live-proven boot object**. PCIe link-up still needs an attended,
 separately reviewed candidate, and right-port USB still needs a safe VBUS solution plus
-native T6040 ATC/DWC3 enablement. Any later combined m1n1 object must also retain the
-10-second proxy window and clear `t6040-minilzlib-harness.sh` for its initramfs.
+native T6040 ATC/DWC3 enablement. The corrected combined object below retains the
+10-second proxy window and clears `t6040-minilzlib-harness.sh`, but still needs a
+controlled kernel smoke before it can be proposed for enrollment.
 
 ## Why the corpus moved
 
@@ -97,7 +98,7 @@ c9b0e4ac56e513b8a41cada317be2d37d52fcb0fa59d8516b5aeb1fb64be20a5  Image-macsmc-w
 The raw Image is 59,066,880 bytes; the xz is 13,082,892 bytes. The arm64 Image header
 and `.config` both say 16 KiB pages.
 
-The final config has all of these built in:
+This first config has all of these built in:
 
 - `CFG80211`, `RFKILL`, `PCIE_APPLE`, `BRCMFMAC`, `BRCMFMAC_PCIE`;
 - `MFD_MACSMC`, `MACSMC_POWER`;
@@ -108,6 +109,10 @@ The final config has all of these built in:
 set. Do not claim UAS from this artifact; ordinary `usb-storage` read/write remains
 built in. If UAS is required in the final object, make it an explicit assertion before
 that object is named ready.
+
+This first artifact also omitted `HID_TYPE_FIX=1`, which the live graphical object
+requires for the internal keyboard. It remains a reproducible firmware-integration
+diagnostic, but is superseded as a daily-driver candidate by the corrected build below.
 
 ## Post-link verification
 
@@ -154,3 +159,103 @@ byte_identical=yes
 Thus the published raw Image is byte-for-byte reproducible from a clean checkout
 under the recorded build environment. This verifies artifact construction only;
 it does not clear the remaining attended PCIe or USB hardware gates.
+
+## Corrected graphical integration candidate
+
+The packaging review caught both missing requirements before enrollment:
+
+- `MACSMC=1` relied on defconfig for `USB_STORAGE` and did not explicitly enable
+  `USB_UAS`;
+- the first combined build omitted `HID_TYPE_FIX=1`, so its internal keyboard
+  behavior did not match the live daily driver.
+
+The build path now enables and asserts `USB_STORAGE=y`, `USB_UAS=y`, and
+`BLK_DEV_SD=y` for every MACSMC feature kernel. It also gives the
+MACSMC + HID-fix combination an unambiguous artifact name instead of letting the
+generic HID name hide the feature profile.
+
+Corrected build command:
+
+```sh
+podman exec \
+  -e DOCKCHANNEL=1 \
+  -e MACSMC=1 \
+  -e HID_TYPE_FIX=1 \
+  -e T6040_WIFI_FW_BUILTIN=1 \
+  -e BUILD_DIR=/build/linux-wifi-fw-hid-uas \
+  kbuild bash /out/t6040-kbuild.sh image
+```
+
+The corrected build used Linux commit
+`ea5c9c1f7c934d2a84b9bf0a25e80c5a72254954`; its only change after the
+first build's source commit is the fail-closed, unreferenced USB3 staging DT.
+
+Corrected kernel artifacts:
+
+```text
+eae54e62d8733a925b68f75d32a6bd7a1e38379574f94a70f8247f5cfcbe0165  Image-macsmc-hid-type-fix-wifi-fw
+12d6f4712873db053105cc9ca00d80bb729a5b1987490a72817b7edb30f05338  Image-macsmc-hid-type-fix-wifi-fw.xz
+c91da28653b83be51238b6f69c7b16daeeb4abcd1b1c0437943584993e06a60a  System.map-macsmc-hid-type-fix-wifi-fw
+b49a459e3e45135b9545771977cc371b2950cd21c68b5d76babcddc6eca6ce44  config-macsmc-hid-type-fix-wifi-fw
+```
+
+An independent clean checkout at `/build/linux-wifi-fw-hid-uas-repro`, with
+the same committed source and pinned inputs, produced:
+
+```text
+eae54e62d8733a925b68f75d32a6bd7a1e38379574f94a70f8247f5cfcbe0165  arch/arm64/boot/Image
+eae54e62d8733a925b68f75d32a6bd7a1e38379574f94a70f8247f5cfcbe0165  /out/Image-macsmc-hid-type-fix-wifi-fw
+byte_identical=yes
+```
+
+The four disposable container worktrees used for the initial and corrected
+reproducibility checks were then removed. `/out` and all published artifacts
+were preserved; container-overlay free space recovered from 2.6 GiB to 17 GiB.
+
+The corrected config explicitly verifies all of:
+
+```text
+CONFIG_ARM64_16K_PAGES=y
+CONFIG_MFD_MACSMC=y
+CONFIG_MACSMC_POWER=y
+CONFIG_USB_DWC3=y
+CONFIG_USB_STORAGE=y
+CONFIG_USB_UAS=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_USB_USBNET=y
+CONFIG_USB_RTL8152=y
+CONFIG_USB_NET_AX88179_178A=y
+CONFIG_CFG80211=y
+CONFIG_RFKILL=y
+CONFIG_BRCMFMAC=y
+CONFIG_BRCMFMAC_PCIE=y
+```
+
+The compressed kernel is one stream, one block, CRC32, no BCJ, and passes m1n1's
+host `XzDecode` harness (59,066,880 bytes expanded). The unchanged proven graphical
+initramfs also passes the same harness (65,307,376 bytes expanded).
+
+The resulting exact object is:
+
+```text
+b512b9fd52631ec4a8837a971601520d7af509e244e43fef9f30e84aa5a63420
+  m1n1-b0-dwm-dualmode-wifi-usb-candidate.bin
+```
+
+It is 30,130,176 bytes = 1,839 × 16 KiB and passes the strict verifier. Its
+members are:
+
+```text
+c10a502f28750f34c7bd6daedcd312cc4f89e228256d892f0746fe54839f2227  m1n1 window10 v6
+12d6f4712873db053105cc9ca00d80bb729a5b1987490a72817b7edb30f05338  kernel xz
+11abca72b212362e1651a24f5dd07143b3b89956f8c00aaccec83d32b15df787  fixed MACSMC DTB
+47d1e8ce938774eb570edd8e4151e2340a3f46e1fa29f7686b208721c5eb1058  proven dwm/keyboard initramfs
+3659a0da253c70590f30fb39a3455e2aa78213dda634acfa9e9d8eff916ebc27  proven bootargs record
+```
+
+This preserves the 10-second proxy door, dwm, Norwegian keyboard userspace,
+battery/thermal support, USB storage/UAS/usbnet consumers, and paired WiFi
+firmware in one object. It does **not** enable the fail-closed right-port ATC
+staging DT or make PCIe probe: USB VBUS/ATC and PCIe link-up remain separate,
+attended hardware gates. Do not add this hash to the enrollment allowlist until
+the corrected 16 KiB feature kernel has a controlled smoke.
