@@ -1,0 +1,27 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * T6040 J614s: dcuart base + SMC (macsmc) for battery/charge/temperatures/RTC.
+ *
+ * Enables the smc + smc_mbox nodes added to t6040.dtsi. macsmc's MFD driver
+ * auto-creates the power (battery) and hwmon (temperature) subdevices, so no
+ * DT children are needed here. Read-only telemetry: charge-control and
+ * PMU-voltage writes are out of scope and stay forbidden.
+ *
+ * SMC addresses/IRQs are ADT-derived; the SMC "sram" reg is cross-SoC
+ * pattern-inferred (0x50e000000). If wrong, macsmc fails to probe (no
+ * battery/thermals) and boot is unaffected — see the comment on the smc node.
+ */
+
+#include "t6040-j614s-dcuart.dts"
+
+/ {
+	model = "Apple MacBook Pro (M4 Pro) J614s [dcuart + macsmc]";
+};
+
+&smc_mbox {
+	status = "okay";
+};
+
+&smc {
+	status = "okay";
+};

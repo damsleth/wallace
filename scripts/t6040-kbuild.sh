@@ -71,6 +71,9 @@ fi
 if [ -f /src/$APPLE/t6040-j614s-dcuart.dts ]; then
     cp /src/$APPLE/t6040-j614s-dcuart.dts $APPLE/
 fi
+if [ -f /src/$APPLE/t6040-j614s-dcuart-macsmc.dts ]; then
+    cp /src/$APPLE/t6040-j614s-dcuart-macsmc.dts $APPLE/
+fi
 if [ "${USB_HOST:-0}" = "1" ]; then
     case "${USB_HOST_PORT:-all}" in
         all)
@@ -898,6 +901,29 @@ if [ "${TRACKPAD_MOTION:-0}" = "1" ]; then
     # upload path; ticket 004's first exact candidate incorrectly left this m.
     ./scripts/config --file .config -e HID_MULTITOUCH
 fi
+if [ "${MACSMC:-0}" = "1" ]; then
+    # Feature kernel (tickets 165/167 + USB-tether ethernet). The base .config
+    # already carries MFD_MACSMC=m and USB_USBNET=m, but the bounded RAM image
+    # has no module loader, so everything must be BUILTIN (=y).
+    echo "== MACSMC: battery/thermals + usbnet + USB-gadget ethernet (builtin) =="
+    # SMC: battery, charge state, temperatures (read-only telemetry).
+    ./scripts/config --file .config \
+        -e MFD_MACSMC -e MACSMC_POWER -e SENSORS_MACSMC_HWMON \
+        -e HWMON -e POWER_SUPPLY -e RTC_DRV_MACSMC -e RTC_CLASS
+    # USB ethernet dongles on a host port (cheap networking once USB host works).
+    ./scripts/config --file .config \
+        -e USB_NET_DRIVERS -e USB_USBNET -e USB_NET_CDCETHER \
+        -e USB_NET_CDC_NCM -e USB_NET_CDC_SUBSET \
+        -e USB_NET_AX8817X -e USB_NET_AX88179_178A -e USB_RTL8152
+    # USB-tether ethernet: run a CDC-ECM GADGET on the device-mode DFU port
+    # (usb_drd0, apple,force-device-mode) so the M4 appears as a NIC to the host
+    # Mac over the same cable — no VBUS/host-mode needed. g_ether (USB_ETH) is
+    # the builtin, auto-binding legacy gadget; ConfigFS/ECM kept for flexibility.
+    ./scripts/config --file .config \
+        -e USB_GADGET -e USB_LIBCOMPOSITE -e USB_U_ETHER -e USB_ETH \
+        -e USB_CONFIGFS -e USB_CONFIGFS_ECM -e USB_CONFIGFS_NCM \
+        -e USB_DWC3 -e USB_DWC3_DUAL_ROLE
+fi
 if [ "${HID_RX_REARM:-0}" = "1" ] ||
    [ "${HID_STATE_TRACE:-0}" = "1" ]; then
     # Match the ticket-067 kernel config exactly so the live A/B changes only
@@ -1154,6 +1180,11 @@ if [ "${PCIE:-0}" = "1" ]; then
     cp $APPLE/t6040-j614s-dcuart-pcie.dtb /out/ \
         && echo "DTB -> /out/t6040-j614s-dcuart-pcie.dtb"
 fi
+if [ "${MACSMC:-0}" = "1" ]; then
+    make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-macsmc.dtb
+    cp $APPLE/t6040-j614s-dcuart-macsmc.dtb /out/ \
+        && echo "DTB -> /out/t6040-j614s-dcuart-macsmc.dtb"
+fi
 if [ "${USB_HOST:-0}" = "1" ]; then
     USB_HOST_DTB="${USB_HOST_DTS%.dts}.dtb"
     make ARCH=arm64 -j"$NPROC" "apple/$USB_HOST_DTB"
@@ -1166,6 +1197,10 @@ if [ "${1:-}" = "image" ]; then
     make ARCH=arm64 -j"$NPROC" Image
     image_name=Image
     map_name=System.map
+    if [ "${MACSMC:-0}" = "1" ]; then
+        image_name=Image-macsmc
+        map_name=System.map-macsmc
+    fi
     if [ "${USB_HOST:-0}" = "1" ]; then
         image_name=Image-usb-host
         map_name=System.map-usb-host
