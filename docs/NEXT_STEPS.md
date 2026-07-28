@@ -33,8 +33,12 @@
 >    command plus exact Image/DTB/initramfs hashes, CJ plan approval, KIS-observable console,
 >    and an attended slot. Do not queue it ready from ticket 124 alone. Evidence:
 >    `done/2026-07-28-t6040-pcie-d1d2-exact-artifact-crossreview.md`. After the aperture responds:
->    apply PLL/AUSPMA tunables + D6/D7/D8, then WiFi fw staging (168) — the dwm image build
->    now takes `T6040_WIFI_FW=1` (corpus at `/private/tmp/t6040-paired-fw-25F84/vendorfw/brcm`).
+>    apply PLL/AUSPMA tunables + D6/D7/D8. WiFi firmware staging (168) is now complete
+>    offline: `Image-macsmc-wifi-fw` (`28f71703…`) embeds the exact paired C0/C2
+>    `apple,mriya` set while retaining SMC + USB storage/usbnet. The persistent corpus is
+>    `/Users/damsleth/Code/linux-build-out/t6040-paired-fw-25F84/vendorfw`; the initramfs
+>    fallback still takes `T6040_WIFI_FW=1`. Evidence:
+>    `done/2026-07-29-t6040-paired-wifi-firmware-builtin.md`.
 > 3. **NVMe REOPENED (174) — probably not SPTM-blocked after all.** Verified locally against our own
 >    ADT and fault log: `/arm-io/ans` has 10 reg entries; `reg[9]` = `0x44dcc0000` is the **NVMe
 >    controller** aperture (the window we read on 2026-07-13 and *never wrote to*) while `reg[3]` is

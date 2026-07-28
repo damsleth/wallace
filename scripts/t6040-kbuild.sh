@@ -1091,7 +1091,76 @@ if [ "${DIET:-0}" = "1" ]; then
         echo "CONFIG_FONT_TER16x32=y" >> .config
     fi
 fi
+if [ "${T6040_WIFI_FW_BUILTIN:-0}" = "1" ]; then
+    # Ticket 168: keep BCM4388 firmware out of the already size-constrained
+    # initramfs.  CONFIG_EXTRA_FIRMWARE paths are relative to this root and do
+    # not accept globs, so enumerate the exact apple,mriya WiFi set.  The corpus
+    # is pinned to the paired 25F84 restore and lives in persistent /out storage;
+    # /private/tmp was purged at midnight on 2026-07-29.
+    # The flag must also make the firmware's in-kernel consumer available.
+    # This lets it augment either DIET_CAPABLE or the proven MACSMC feature
+    # profile; relying on an ambient defconfig module would leave no loader in
+    # the bounded RAM image.
+    ./scripts/config --file .config \
+        -e ARM64_16K_PAGES -d ARM64_4K_PAGES \
+        -e NET -e INET -e PACKET -e UNIX \
+        -e WIRELESS -e RFKILL -e CFG80211 -e WLAN -e WLAN_VENDOR_BROADCOM \
+        -e BRCMUTIL -e BRCMFMAC -e BRCMFMAC_PROTO_MSGBUF -e BRCMFMAC_PCIE \
+        -e PCI -e PCIEPORTBUS -e PCI_MSI -e PCIE_APPLE \
+        -e IOMMU_SUPPORT -e APPLE_DART \
+        -e FW_LOADER \
+        || true
+    wifi_fw_root="${T6040_WIFI_FW_ROOT:-/out/t6040-paired-fw-25F84/vendorfw}"
+    wifi_fw_files=(
+        brcmfmac4388c0-pcie.apple,mriya-WLMT-a.txt
+        brcmfmac4388c0-pcie.apple,mriya-WLMT-u.txt
+        brcmfmac4388c0-pcie.apple,mriya.bin
+        brcmfmac4388c0-pcie.apple,mriya.clm_blob
+        brcmfmac4388c0-pcie.apple,mriya.sig
+        brcmfmac4388c0-pcie.apple,mriya.txcap_blob
+        brcmfmac4388c2-pcie.apple,mriya-WLMT-a.txt
+        brcmfmac4388c2-pcie.apple,mriya-WLMT-u.txt
+        brcmfmac4388c2-pcie.apple,mriya.bin
+        brcmfmac4388c2-pcie.apple,mriya.clm_blob
+        brcmfmac4388c2-pcie.apple,mriya.sig
+        brcmfmac4388c2-pcie.apple,mriya.txcap_blob
+    )
+    echo "== verify paired 25F84 BCM4388 WiFi firmware =="
+    (
+        cd "$wifi_fw_root"
+        printf '%s\n' \
+            "02137cf6fec8e437206f23b6542a9a7cdc8ca39a2ea9b2e07ce2d4bc5409913b  brcm/brcmfmac4388c0-pcie.apple,mriya-WLMT-a.txt" \
+            "4d0f3187f2e0dd708f5271bffdc43cc63e4d68a3c3449d8c8ff580286eb75bf0  brcm/brcmfmac4388c0-pcie.apple,mriya-WLMT-u.txt" \
+            "cd49096c0b0f95caf5e0fd53e1460b8b6ed21f4aba9c314bc0602d6bec77f4bb  brcm/brcmfmac4388c0-pcie.apple,mriya.bin" \
+            "822fd43c5502d77d1e7c910e44255bc878b0fa5b046b5133450f6f928098f26b  brcm/brcmfmac4388c0-pcie.apple,mriya.clm_blob" \
+            "97ce17756689483a468e52bab27978023727cb7e8b3e372f23a36d410366cae6  brcm/brcmfmac4388c0-pcie.apple,mriya.sig" \
+            "7a588168ee5ab1c891e0fadaef56592e84b6c766f91e92b9f08820b822f243fb  brcm/brcmfmac4388c0-pcie.apple,mriya.txcap_blob" \
+            "a30428331a385392a04d535d5c106bd2517de0bfb244c58e4e2464c937ff013c  brcm/brcmfmac4388c2-pcie.apple,mriya-WLMT-a.txt" \
+            "203251922cfcf95f2233290d75def5ae88e41dfda77af36d8426d9d6db1db3d9  brcm/brcmfmac4388c2-pcie.apple,mriya-WLMT-u.txt" \
+            "7cfae8622feeb119c756ae707d26f3a94f1cde44becefacf27ecf1fdc586d93b  brcm/brcmfmac4388c2-pcie.apple,mriya.bin" \
+            "af8df65b766a6e2c450892819ecf8422289463e342aa748532c110032140f309  brcm/brcmfmac4388c2-pcie.apple,mriya.clm_blob" \
+            "9abb8c1afe0413339f5eca7706150c507a7bca5d244b0a4c6f79e4c28d2ce7cf  brcm/brcmfmac4388c2-pcie.apple,mriya.sig" \
+            "2ee489bb7b59b74bad259969344d513b7a6803e83f3563b2ce090df18f53a013  brcm/brcmfmac4388c2-pcie.apple,mriya.txcap_blob" \
+            | sha256sum -c -
+    )
+    wifi_fw_list=""
+    for fw in "${wifi_fw_files[@]}"; do
+        wifi_fw_list="${wifi_fw_list}${wifi_fw_list:+ }brcm/$fw"
+    done
+    ./scripts/config --file .config \
+        --set-str EXTRA_FIRMWARE "$wifi_fw_list" \
+        --set-str EXTRA_FIRMWARE_DIR "$wifi_fw_root"
+fi
 make ARCH=arm64 olddefconfig >/dev/null
+if [ "${T6040_WIFI_FW_BUILTIN:-0}" = "1" ]; then
+    echo "== assert built-in BCM4388 WiFi firmware config =="
+    grep -q '^CONFIG_FW_LOADER=y$' .config
+    grep -q '^CONFIG_BRCMFMAC=y$' .config
+    grep -q '^CONFIG_BRCMFMAC_PCIE=y$' .config
+    grep -Fq "CONFIG_EXTRA_FIRMWARE=\"$wifi_fw_list\"" .config
+    grep -Fq "CONFIG_EXTRA_FIRMWARE_DIR=\"$wifi_fw_root\"" .config
+    echo "  12 paired apple,mriya files selected"
+fi
 if [ "${DIET:-0}" = "1" ]; then
     echo "== DIET: assert every boot-essential symbol survived =="
     diet_fail=0
@@ -1331,6 +1400,10 @@ if [ "${1:-}" = "image" ]; then
         image_name="${image_name}-diet"
         map_name="${map_name}-diet"
     fi
+    if [ "${T6040_WIFI_FW_BUILTIN:-0}" = "1" ]; then
+        image_name="${image_name}-wifi-fw"
+        map_name="${map_name}-wifi-fw"
+    fi
 
     # Ticket 154: assert the PAGE SIZE from the built arm64 Image header, before the
     # artifact is published. Ticket 147 existed only because DIET_CAPABLE silently became
@@ -1351,7 +1424,9 @@ if [ "${1:-}" = "image" ]; then
     }
     actual_ps=$(image_page_size arch/arm64/boot/Image)
     expect_ps=""
-    if [ "${DIET_CAPABLE:-0}" = "1" ]; then
+    if [ "${T6040_WIFI_FW_BUILTIN:-0}" = "1" ]; then
+        expect_ps=16K   # PCIE_APPLE requires PAGE_SIZE_16KB
+    elif [ "${DIET_CAPABLE:-0}" = "1" ]; then
         expect_ps=16K   # PCIE_APPLE requires PAGE_SIZE_16KB
     elif [ "${DIET:-0}" = "1" ]; then
         expect_ps=4K    # the proven B0 page size
@@ -1372,6 +1447,17 @@ if [ "${1:-}" = "image" ]; then
         fi
     done
 
+    if [ "${T6040_WIFI_FW_BUILTIN:-0}" = "1" ]; then
+        for fw in "${wifi_fw_files[@]}"; do
+            fw_symbol="_fw_brcm_${fw//[^a-zA-Z0-9_]/_}_bin"
+            grep -q " ${fw_symbol}$" System.map || {
+                echo "MISSING BUILT-IN FIRMWARE SYMBOL: $fw_symbol" >&2
+                exit 1
+            }
+        done
+        echo "  all 12 built-in firmware symbols present in System.map"
+    fi
+
     # Refuse to silently replace an existing artifact: any Image already in /out may
     # be referenced by a done/ write-up or pinned in a ticket. Set KBUILD_OVERWRITE=1
     # to replace deliberately.
@@ -1387,6 +1473,11 @@ if [ "${1:-}" = "image" ]; then
     # System.map lets t6040-ramdump.py locate __log_buf for a post-mortem console
     # dump when the framebuffer stays blank (hang before simpledrm probes).
     cp System.map "/out/$map_name" && echo "System.map -> /out/$map_name"
+    if [ "${T6040_WIFI_FW_BUILTIN:-0}" = "1" ]; then
+        config_name="config-${image_name#Image-}"
+        cp .config "/out/$config_name" \
+            && echo "config -> /out/$config_name"
+    fi
     if [ "${USB_HOST:-0}" = "1" ]; then
         cp .config /out/config-usb-host \
             && echo "config -> /out/config-usb-host"
