@@ -77,3 +77,32 @@ approved; `3cfdaf24` retired. One re-enroll now tests keyboard + battery/thermal
 Build note: with both `MACSMC=1` and `HID_TYPE_FIX=1`, the HID_TYPE_FIX image name (`Image-hid-type-fix`)
 wins over `Image-macsmc` and hits the overwrite guard — the fresh Image was taken from the build tree
 and copied as `Image-macsmc` by hand.
+
+## First network smoke (9800f4d8): dwc3 gadget WORKS on M4; RNDIS is the wrong flavor
+
+The v2 object booted, keyboard works. Battery/thermals: maintainer to read on the panel. **Network,
+tested from the host Mac:**
+
+`system_profiler SPUSBDataType` shows the M4 enumerated:
+
+```
+RNDIS/Ethernet Gadget:
+  Manufacturer: Linux 7.1.3-g96ac043df12f-dirty with dwc3-gadget
+```
+
+**This is a major result: Linux dwc3 gadget mode works on the M4.** The hardest unknown for
+tether-ethernet — whether Linux dwc3-apple can run the DFU port as a USB device — is resolved YES. The
+UDC came up and g_ether presented a gadget that macOS enumerated over the tether cable.
+
+But **no `en` interface was created on the Mac**, because the gadget enumerated as **RNDIS**.
+`g_ether` (legacy `USB_ETH`) auto-binds a RNDIS-first composite ("RNDIS/Ethernet Gadget"), and **macOS
+has never supported RNDIS**, so it enumerates the USB device but binds no network driver. My configfs
+pure-ECM fallback never ran because g_ether had already grabbed the UDC.
+
+### Fix (v3, building)
+
+Drop `USB_ETH`/RNDIS from the kernel entirely and present a **pure CDC-ECM gadget via configfs**, which
+macOS binds as an ethernet device. Kernel: `-d USB_ETH -d USB_ETH_RNDIS`, keep
+`USB_CONFIGFS_ECM`/`NCM` + `USB_DWC3_DUAL_ROLE`. Service rewritten to build `functions/ecm.usb0`
+directly and bind the tether UDC (no g_ether-detect path). Testing by **chainload over the caught
+window** — no re-enroll needed.

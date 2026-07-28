@@ -920,9 +920,14 @@ if [ "${MACSMC:-0}" = "1" ]; then
     # Mac over the same cable — no VBUS/host-mode needed. g_ether (USB_ETH) is
     # the builtin, auto-binding legacy gadget; ConfigFS/ECM kept for flexibility.
     ./scripts/config --file .config \
-        -e USB_GADGET -e USB_LIBCOMPOSITE -e USB_U_ETHER -e USB_ETH \
+        -e USB_GADGET -e USB_LIBCOMPOSITE -e USB_U_ETHER \
         -e USB_CONFIGFS -e USB_CONFIGFS_ECM -e USB_CONFIGFS_NCM \
-        -e USB_DWC3 -e USB_DWC3_DUAL_ROLE
+        -e USB_DWC3 -e USB_DWC3_DUAL_ROLE \
+        -d USB_ETH -d USB_ETH_RNDIS -d USB_G_NCM
+    # No legacy g_ether/RNDIS: macOS does not support RNDIS, so g_ether's
+    # RNDIS-first composite enumerated ('RNDIS/Ethernet Gadget') but macOS made
+    # no interface. The ECM service builds a PURE CDC-ECM gadget via configfs,
+    # which macOS binds as an ethernet device (ticket 173, 2026-07-28 smoke).
 fi
 if [ "${HID_RX_REARM:-0}" = "1" ] ||
    [ "${HID_STATE_TRACE:-0}" = "1" ]; then
