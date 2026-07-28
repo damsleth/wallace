@@ -74,6 +74,23 @@ rm -rf "$TMP"/usr/share/doc "$TMP"/usr/share/man "$TMP"/usr/share/info        "$
 du -sm "$TMP" | awk '{print "  after:  "$1" MiB"}'
 fi
 
+# Ticket 168: optionally stage the paired BCM4388 apple,mriya WiFi/BT firmware so the
+# built-in brcmfmac finds it the moment PCIe link-up lands (regen recipe for the corpus:
+# done/2026-07-14-t6040-bcm4388-fw-extract.md). Off by default until PCIe works — 4.7 MiB
+# raw counts against the 128 MiB expanded-initramfs limit for no benefit before then.
+if [ "${T6040_WIFI_FW:-0}" = "1" ]; then
+    FW_SRC=${T6040_WIFI_FW_SRC:-/private/tmp/t6040-paired-fw-25F84/vendorfw/brcm}
+    [ -f "$FW_SRC/brcmfmac4388c2-pcie.apple,mriya.bin" ] || {
+        echo "T6040_WIFI_FW=1 but no BCM4388 firmware at $FW_SRC" >&2
+        echo "regenerate the corpus first: done/2026-07-14-t6040-bcm4388-fw-extract.md" >&2
+        exit 1
+    }
+    echo "== staging BCM4388 apple,mriya firmware from $FW_SRC =="
+    mkdir -p "$TMP/lib/firmware/brcm"
+    cp "$FW_SRC"/* "$TMP/lib/firmware/brcm/"
+    du -sm "$TMP/lib/firmware" | awk '{print "  firmware: "$1" MiB"}'
+fi
+
 # Xorg on simpledrm: modesetting with no acceleration, and do not require a pointer.
 cat > "$TMP/etc/X11/xorg.conf" <<'EOF'
 Section "ServerFlags"

@@ -10,5 +10,6 @@
   "deps": [],
   "hashes": null,
   "created": 1785150000,
-  "runnable": true
+  "runnable": true,
+  "progress": "2026-07-28: dwm image build now supports flag-gated firmware staging \u2014 T6040_WIFI_FW=1 copies the paired corpus brcm/ (4.7 MiB, brcmfmac4388c0/c2-pcie.apple,mriya.* + BT) from /private/tmp/t6040-paired-fw-25F84/vendorfw/brcm into /lib/firmware/brcm (t6040-build-alpine-dwm.sh). Default off until PCIe link-up lands. NOTE: /private/tmp/t6040-vendorfw is now an EMPTY shell \u2014 use the paired corpus or regen (done/2026-07-14-t6040-bcm4388-fw-extract.md)."
 }

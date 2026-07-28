@@ -1,5 +1,13 @@
 # PCIe/WiFi: m1n1 runs T6040 in TRACE mode, op-115 is a PLL-lock poll, and my addresses were wrong
 
+> **2026-07-28 CORRECTION — finding 1 below is WRONG.** `tunables_apply_local_trace()` traces
+> **and writes** (`_internal(…, trace=true, write=true)`); the five `apcie-phy-tunables` RMWs were
+> applied in both the 2026-07-14 and ticket-068 live runs, and op-115 still hung. "Apply the
+> tunables, re-poll op-115" is therefore a retry of negative ticket 068 — do not stage it. The
+> quoted "dry run" log line came from the 07-14 zero-write log-buffer control binary, not the
+> current path. Full evidence: `done/2026-07-28-t6040-pcie-trace-mode-claim-refuted.md`.
+> Finding 2 (op-115 is a PLL-lock poll) and the section-3 address correction still stand.
+
 Offline session, no rig run, no hardware writes. Three findings, one of which corrects something I
 published earlier today.
 
