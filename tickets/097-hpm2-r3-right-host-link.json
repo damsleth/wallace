@@ -14,5 +14,6 @@
   "hashes": null,
   "created": 1784909164,
   "approved_by": "maintainer",
-  "approved_at": 1784909431
+  "approved_at": 1784909431,
+  "note": "2026-07-28: R3 command decoded (096) \u2014 SWDF 4CC to CMD1, one const different from the proven R2 SSPS path. An R3 candidate is now specifiable pending the register-trace confirmation + byte-level review + attended run noted in 096."
 }
