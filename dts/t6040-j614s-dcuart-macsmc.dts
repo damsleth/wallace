@@ -25,3 +25,23 @@
 &smc {
 	status = "okay";
 };
+
+/*
+ * USB-tether ethernet (ticket 173): enable the device-mode DFU port usb_drd0 so
+ * Linux dwc3 registers a UDC that g_ether/CDC-ECM binds. Without this the port
+ * stays disabled, there is no UDC, and no gadget interface appears on the host.
+ * usb_drd0 is already apple,force-device-mode + dr_mode="peripheral" in the SoC
+ * dtsi. Its two DARTs must come up with it. This is post-m1n1 (the proxy/window
+ * has already released the port), so it does not disturb the debug window.
+ */
+&usb0_dart0 {
+	status = "okay";
+};
+
+&usb0_dart1 {
+	status = "okay";
+};
+
+&usb_drd0 {
+	status = "okay";
+};
