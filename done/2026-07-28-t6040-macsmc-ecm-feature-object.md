@@ -155,3 +155,37 @@ guessing is not productive.
 - rootfs variants: `-ecm` (pure ECM), `-ncm` (NCM), `-dbg` (ACM+NCM console)
 - The **enrolled** object remains the v2 `9800f4d8` (dwm + keyboard, macsmc/gadget builtin). Machine
   restored to it.
+
+## Panel reads (2026-07-28 pm): M4 gadget side healthy; macsmc empty; macOS binds nothing
+
+Maintainer ran the panel diagnostic. Two decisive results:
+
+**M4 gadget side is HEALTHY** (corrects my earlier "functions not binding" guess). On the enrolled v2
+(g_ether):
+```
+UDCs: 382280000.usb
+g_ether interface: usb0   (10.42.0.2/24, state DOWN, NO-CARRIER)
+dmesg: g_ether gadget.0: Ethernet Gadget ... g_ether ready
+```
+So the UDC comes up, g_ether binds, usb0 is created — the M4 does its half. `NO-CARRIER` = the host
+never completed the link. The blocker is macOS host-side.
+
+**macOS binds NO Linux gadget flavor** — RNDIS, CDC-ECM, CDC-NCM, and now pure CDC-ACM all enumerate
+(product strings visible) but macOS creates no interface / no `/dev/cu.usbmodem`, even though macOS
+binds m1n1's own CDC-ACM gadget (`usbmodemJ22GYCN4YG1/3`). The uniformity across all flavors, incl. the
+one macOS is known to support, points at the **M4 dwc3-apple gadget not completing enumeration**
+(config descriptor / SetConfiguration), not a per-flavor descriptor issue: the device descriptor gets
+through, the configuration/interfaces do not.
+
+**macsmc produced nothing:** `/sys/class/power_supply/` and `/sys/class/hwmon/` are EMPTY on the
+enrolled v2. So the SMC driver did not create its power/hwmon subdevices — it either did not probe or
+the RTKit handshake failed. Prime suspect: the pattern-inferred SMC SRAM `0x50e000000` (flagged at
+build time as a safe-failure inference) or the RTKit mailbox.
+
+### The one command that pinpoints both (M4 panel)
+```
+cat /sys/class/udc/*/state; echo ---UDC-FUNC---; cat /sys/class/udc/*/function 2>/dev/null
+echo ---; dmesg | grep -iE 'dwc3|gadget|configfs|smc|macsmc|rtkit|mbox|ep0|set.?config' | tail -40
+```
+- UDC `state`: if not `configured`, the host never set the config → M4 dwc3-gadget enumeration bug.
+- `dmesg smc/macsmc/rtkit`: whether the SMC RTKit came up and why macsmc made no devices.
