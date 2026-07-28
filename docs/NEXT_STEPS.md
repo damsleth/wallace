@@ -1,5 +1,30 @@
 # t6040 Linux bring-up — NEXT STEPS
 
+> **2026-07-28 (network campaign) — dwc3 gadget works on M4; macOS binds no interface; needs M4 dmesg.**
+>
+> The macsmc feature object (dwm + battery/thermals + usbnet + USB-tether gadget) is enrolled and
+> working: keyboard fixed (`HID_TYPE_FIX`), dwm up. Tether-ethernet was chainload-tested in four gadget
+> flavors (RNDIS, CDC-ECM, CDC-NCM, ACM+NCM). **All enumerate on this Mac over the tether — Linux dwc3
+> gadget mode works on the M4, the biggest unknown, confirmed YES.** But macOS creates no interface for
+> any flavor (not even CDC-ACM, which it binds fine from m1n1's own proxy gadget), which points at the
+> M4-side configfs functions not fully binding. **I have no M4 dmesg**, and the ACM console built to get
+> it failed the same way, so blind descriptor iteration stopped.
+>
+> **Two ways to unblock, both needing the maintainer:**
+> 1. **Fastest — read the panel.** On the enrolled dwm (getty on tty1), run:
+>    `cat /var/log/ecm-gadget.log; ls /sys/class/udc; ls /sys/class/net; dmesg | grep -iE 'dwc3|gadget|configfs|ncm|ecm|udc'`
+>    and also `cat /sys/class/power_supply/*/uevent; cat /sys/class/hwmon/*/temp*_input` (the macsmc
+>    battery/thermals test, which was never network-observable). That says exactly what the M4 did.
+> 2. **Autonomous once enrolled — a dmesg-over-KIS diagnostic kernel** (ticket 153 `nbcon` patch, applies
+>    cleanly): `console=ttydc0`, no gadget, booted via DebugUSB → login + dmesg over KIS. KIS and the
+>    gadget are mutually exclusive on the DFU port, so this is a separate diagnostic boot, and
+>    KIS-chainload needs the bare proxy loader (`rollback-m1n1-1394c345`) enrolled, or the diagnostic
+>    object enrolled directly.
+>
+> **WiFi:** still gated on PCIe op-115, which needs *applying* the PHY tunables (writes to PCIe PHY at
+> `0x417004000`/`0x417008000` — m1n1 currently only traces them, ticket 124). That is a hardware WRITE,
+> beyond the live-read authorization, and risky to do blind — left for a supervised session.
+
 > **2026-07-27 (offline session) — USB and initramfs threads advanced; one address bug fixed.**
 >
 > - **Initramfs decode limit (160):** built `scripts/t6040-minilzlib-harness.sh` — a host binary around
