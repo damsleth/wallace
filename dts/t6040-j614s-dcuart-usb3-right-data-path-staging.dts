@@ -1,0 +1,15 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Compile-only staging board for the native T6040 right-port USB3 data path.
+ *
+ * This deliberately enables neither the PHY nor DWC3.  It exists so the
+ * fail-closed hardware description can be compiled and reviewed before a
+ * native T6040 ATC PHY and retimer ownership sequence are available.
+ */
+
+#include "t6040-j614s-dcuart.dts"
+#include "t6040-usb3-right-data-path.dtsi"
+
+/ {
+	model = "Apple MacBook Pro (M4 Pro) J614s [USB3 data-path staging]";
+};

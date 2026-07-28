@@ -1,0 +1,137 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * T6040 right-port USB3 data-path staging description.
+ *
+ * This file is deliberately not included by a board DTS yet.  The native
+ * T6040 ATC PHY has 44 ADT register banks and generation-specific tunables;
+ * the current apple,t8103-atcphy driver uses a different resource layout and
+ * must not bind this node.  In particular, do not add an
+ * "apple,t8103-atcphy" fallback compatible.
+ *
+ * The DWC3 and DART portions are already live-proven on J614s.  This fragment
+ * adds the exact ATC PHY resources and the provider/consumer wiring that a
+ * future native T6040 PHY driver will use.  Both the PHY and its I2C retimer
+ * bus remain disabled, so including this file cannot by itself cause PHY or
+ * retimer writes.
+ *
+ * The three ADT "atcrt" children are an inventory, not functional retimer
+ * support.  There is no Linux binding or driver for them, and the paired
+ * AppleHPM driver owns their mode transitions.  They must not be substituted
+ * with a guessed PS883x compatible.
+ */
+
+#include <dt-bindings/phy/phy.h>
+
+/ {
+	soc {
+		atcphy2_t6040: phy@392a90000 {
+			compatible = "apple,t6040-atcphy";
+			reg = <0x3 0x92a90000 0x0 0x4000>,
+			      <0x3 0x92800000 0x0 0x4000>,
+			      <0x3 0x93000000 0x0 0x4000>,
+			      <0x3 0x93000400 0x0 0x4000>,
+			      <0x3 0x93000800 0x0 0x4000>,
+			      <0x3 0x93000a00 0x0 0x4000>,
+			      <0x3 0x93001000 0x0 0x4000>,
+			      <0x3 0x93003000 0x0 0x4000>,
+			      <0x3 0x93003200 0x0 0x4000>,
+			      <0x3 0x93003800 0x0 0x4000>,
+			      <0x3 0x93003a00 0x0 0x4000>,
+			      <0x3 0x93004000 0x0 0x4000>,
+			      <0x3 0x93005000 0x0 0x4000>,
+			      <0x3 0x93006000 0x0 0x4000>,
+			      <0x3 0x93007000 0x0 0x4000>,
+			      <0x3 0x93008000 0x0 0x4000>,
+			      <0x3 0x93009000 0x0 0x4000>,
+			      <0x3 0x9300a000 0x0 0x4000>,
+			      <0x3 0x9300b000 0x0 0x4000>,
+			      <0x3 0x9300c000 0x0 0x4000>,
+			      <0x3 0x9300d000 0x0 0x4000>,
+			      <0x3 0x9300e000 0x0 0x4000>,
+			      <0x3 0x9300f000 0x0 0x4000>,
+			      <0x3 0x93010000 0x0 0x4000>,
+			      <0x3 0x93018000 0x0 0x4000>,
+			      <0x3 0x93019000 0x0 0x4000>,
+			      <0x3 0x9301a000 0x0 0x4000>,
+			      <0x3 0x9301b000 0x0 0x4000>,
+			      <0x3 0x9301c000 0x0 0x4000>,
+			      <0x3 0x9301d000 0x0 0x4000>,
+			      <0x3 0x9301e000 0x0 0x4000>,
+			      <0x3 0x9301f000 0x0 0x4000>,
+			      <0x3 0x93020000 0x0 0x4000>,
+			      <0x3 0x93028000 0x0 0x4000>,
+			      <0x3 0x93028400 0x0 0x4000>,
+			      <0x3 0x93029000 0x0 0x4000>,
+			      <0x3 0x93040000 0x0 0x20000>,
+			      <0x3 0x930c0000 0x0 0x10000>,
+			      <0x3 0x93140000 0x0 0x1c000>,
+			      <0x3 0x93200000 0x0 0x4000>,
+			      <0x3 0x93244000 0x0 0x4000>,
+			      <0x3 0x90000000 0x0 0x8000>,
+			      <0x3 0x90020000 0x0 0x4000>,
+			      <0x3 0x93250000 0x0 0x4000>;
+			reg-names = "bank0", "bank1", "bank2", "bank3",
+				    "bank4", "bank5", "bank6", "bank7",
+				    "bank8", "bank9", "bank10", "bank11",
+				    "bank12", "bank13", "bank14", "bank15",
+				    "bank16", "bank17", "bank18", "bank19",
+				    "bank20", "bank21", "bank22", "bank23",
+				    "bank24", "bank25", "bank26", "bank27",
+				    "bank28", "bank29", "bank30", "bank31",
+				    "bank32", "bank33", "bank34", "bank35",
+				    "bank36", "bank37", "bank38", "bank39",
+				    "bank40", "bank41", "bank42", "bank43";
+
+			#phy-cells = <1>;
+			#reset-cells = <0>;
+			orientation-switch;
+			mode-switch;
+			power-domains = <&ps_atc2_usb>;
+			status = "disabled";
+		};
+
+		i2c6_atcrt: i2c@429028000 {
+			compatible = "apple,t8103-i2c";
+			reg = <0x4 0x29028000 0x0 0x4000>;
+			clocks = <&clkref>;
+			interrupt-parent = <&aic>;
+			interrupts = <AIC_IRQ 1581 IRQ_TYPE_LEVEL_HIGH>;
+			power-domains = <&ps_i2c6>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+
+			atc_retimer0: retimer@18 {
+				compatible = "atcrt";
+				reg = <0x18>;
+				status = "disabled";
+			};
+
+			atc_retimer1: retimer@19 {
+				compatible = "atcrt";
+				reg = <0x19>;
+				status = "disabled";
+			};
+
+			atc_retimer2: retimer@1a {
+				compatible = "atcrt";
+				reg = <0x1a>;
+				status = "disabled";
+			};
+		};
+	};
+};
+
+/*
+ * The existing node already carries the live-proven DWC3 registers, IRQ,
+ * dual DART streams and ATC2 power domain.  Add only the missing PHY/reset
+ * relationship here.  usb_drd2 remains disabled in the base DT.
+ */
+&usb_drd2 {
+	resets = <&atcphy2_t6040>;
+	phys = <&atcphy2_t6040 PHY_TYPE_USB2>,
+	       <&atcphy2_t6040 PHY_TYPE_USB3>;
+	phy-names = "usb2-phy", "usb3-phy";
+	usb-role-switch;
+	role-switch-default-mode = "host";
+};
