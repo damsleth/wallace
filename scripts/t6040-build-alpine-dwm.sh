@@ -152,6 +152,8 @@ chmod 0755 "$TMP/usr/local/sbin/t6040-startx"
 
 # USB-tether ethernet: CDC-ECM gadget on the device-mode port (ticket 173).
 cp "$(dirname "$0")/t6040-usb-ecm-gadget.sh" "$TMP/usr/local/sbin/t6040-usb-ecm-gadget"
+cp "$(dirname "$0")/t6040-usb-debug-gadget.sh" "$TMP/usr/local/sbin/t6040-usb-debug-gadget"
+chmod 0755 "$TMP/usr/local/sbin/t6040-usb-debug-gadget"
 chmod 0755 "$TMP/usr/local/sbin/t6040-usb-ecm-gadget"
 
 printf 'wallace-dwm\n' > "$TMP/etc/hostname"
@@ -164,7 +166,7 @@ cat > "$TMP/etc/inittab" <<'EOF'
 ::sysinit:/bin/mkdir -p /dev/pts /tmp /run /var/log
 ::sysinit:/bin/mount -t devpts devpts /dev/pts
 ::sysinit:/bin/sh -c 'for m in /usr/share/bkeymaps/no/no-mac.bmap /usr/share/bkeymaps/no/no.bmap; do [ -f "$m" ] && busybox loadkmap < "$m" && exit 0; [ -f "$m.gz" ] && busybox zcat "$m.gz" | busybox loadkmap && exit 0; done; true'
-::sysinit:/usr/local/sbin/t6040-usb-ecm-gadget
+::sysinit:/usr/local/sbin/t6040-usb-debug-gadget
 ::once:/usr/local/sbin/t6040-startx
 tty1::respawn:/sbin/getty -n -l /bin/sh 38400 tty1 linux
 ::ctrlaltdel:/sbin/reboot

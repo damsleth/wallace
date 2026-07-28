@@ -106,3 +106,52 @@ macOS binds as an ethernet device. Kernel: `-d USB_ETH -d USB_ETH_RNDIS`, keep
 `USB_CONFIGFS_ECM`/`NCM` + `USB_DWC3_DUAL_ROLE`. Service rewritten to build `functions/ecm.usb0`
 directly and bind the tether UDC (no g_ether-detect path). Testing by **chainload over the caught
 window** — no re-enroll needed.
+
+## Network smoke campaign (chainload, 2026-07-28): dwc3 gadget works; macOS binds no interface
+
+Tested four gadget flavors by chainloading window-free objects over the caught dual-mode window (no
+re-enroll each time). Result table (all from `system_profiler SPUSBDataType` / `ioreg` on the host Mac):
+
+| Gadget (M4 side) | macOS enumerates? | macOS binds an interface? |
+|---|---|---|
+| g_ether (RNDIS+ECM composite) | yes — "RNDIS/Ethernet Gadget ... dwc3-gadget" | no (RNDIS unsupported by macOS) |
+| configfs pure CDC-ECM | yes — "t6040-ecm", `AppleUSBCDCCompositeDevice` | **no** — device `!matched` |
+| configfs CDC-NCM | yes — "t6040-ecm" | no new `en` |
+| configfs ACM+NCM composite (IAD) | yes — "t6040-debug" | **no** — no `/dev/cu.usbmodem`, no `en` |
+
+**The milestone stands: Linux dwc3 gadget mode works on the M4.** Every flavor enumerates over the
+tether cable — the UDC comes up and macOS sees the device. That was the biggest unknown and it is YES.
+
+**The wall: macOS creates no interface for any flavor**, including CDC-ACM — even though macOS binds
+CDC-ACM fine from m1n1's own proxy gadget (`/dev/cu.usbmodemJ22GYCN4YG1/3`). That inconsistency means
+the problem is almost certainly on the **M4 side**: the configfs functions likely are not fully
+binding (UDC/function link failing, or malformed descriptors), so only the device descriptor
+enumerates while the interfaces are absent/broken. I cannot confirm which, because **I have no M4-side
+visibility** — and the ACM console I built to get it failed the same way (circular).
+
+### Why I stopped iterating
+
+Four rebuilds of gadget descriptors, all black-box, all "enumerates but no interface." Without the M4's
+`dmesg` and `/var/log/ecm-gadget.log` (does the UDC bind? which function? errors?), further descriptor
+guessing is not productive.
+
+### Two ways to get M4-side visibility (either unblocks this cleanly)
+
+1. **Maintainer reads the panel/shell** on a normal boot: `cat /var/log/ecm-gadget.log`, `ls
+   /sys/class/udc`, `ls /sys/class/net`, `dmesg | grep -iE 'dwc3|gadget|configfs|ncm|ecm'`. This says
+   exactly what the M4 gadget did.
+2. **A dmesg-over-KIS diagnostic kernel** (ticket 153 / `t6040-dockchannel-nbcon.patch`, verified to
+   apply): boot `console=ttydc0` via DebugUSB with **no** gadget (KIS and the gadget are mutually
+   exclusive on the DFU port), giving a login + dmesg over KIS. That is the autonomous route, but it
+   is a separate diagnostic boot from the gadget test (they cannot share the port).
+
+**Battery/thermals (macsmc) was NOT network-testable** and remains for the panel: `cat
+/sys/class/power_supply/*/uevent`, `/sys/class/hwmon/*/temp*_input`.
+
+### Artifacts from this campaign (all window-free, chainload-tested)
+
+- `Image-macsmc` (`53709312`, hid-fix + macsmc + usbnet + gadget, no g_ether) / `Image-macsmc.xz` `316c3c50`
+- `t6040-j614s-dcuart-macsmc.dtb` `e05dc7fa` (smc + usb_drd0 enabled)
+- rootfs variants: `-ecm` (pure ECM), `-ncm` (NCM), `-dbg` (ACM+NCM console)
+- The **enrolled** object remains the v2 `9800f4d8` (dwm + keyboard, macsmc/gadget builtin). Machine
+  restored to it.

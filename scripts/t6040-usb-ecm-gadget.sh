@@ -24,11 +24,18 @@ echo wallace   > strings/0x409/manufacturer
 echo t6040-ecm > strings/0x409/product
 echo J22GYCN4YG > strings/0x409/serialnumber
 mkdir -p configs/c.1/strings/0x409
-echo "CDC ECM" > configs/c.1/strings/0x409/configuration
+echo "CDC NCM" > configs/c.1/strings/0x409/configuration
 echo 250 > configs/c.1/MaxPower
-# single pure ECM function (macOS-friendly). host/dev MAC auto-assigned.
-mkdir -p functions/ecm.usb0
-ln -sf functions/ecm.usb0 configs/c.1/ 2>/dev/null
+# macOS binds CDC-NCM (AppleUSBDeviceNCM*), NOT CDC-ECM (AppleUSBCDCCompositeDevice
+# stayed !matched in the 2026-07-28 smoke). Present a pure NCM function; fall back
+# to ECM if the kernel lacks the ncm function. host/dev MAC auto-assigned.
+if mkdir -p functions/ncm.usb0 2>/dev/null; then
+    FN=ncm.usb0
+else
+    mkdir -p functions/ecm.usb0; FN=ecm.usb0
+fi
+echo "gadget function: $FN"
+ln -sf functions/$FN configs/c.1/ 2>/dev/null
 # bind the tether UDC (usb_drd0 @ 382280000); else first UDC
 UDC=$(ls /sys/class/udc 2>/dev/null | grep 382280000 | head -1)
 [ -z "$UDC" ] && UDC=$(ls /sys/class/udc 2>/dev/null | head -1)
