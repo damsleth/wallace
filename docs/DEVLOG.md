@@ -174,6 +174,16 @@ code-only series lives on branch `t6040-bringup` (worktree `~/Code/m1n1-clean`).
    Upstream testing on 2026-07-21 still classified T6040/T6041 as locked even
    on macOS 26.6 RC / 27 beta 4; do not remove this patch. Cluster-power-off
    sysregs remain unresolved as well.
+   **CONTRADICTING EVIDENCE 2026-07-28 (#asahi-dev, flokli, measured on real
+   t6040): `msr((3,5,15,1,3), mrs(...))` — i.e. exactly
+   `SYS_IMP_APL_VM_TMR_FIQ_ENA_EL2` — WORKS on macOS 26.6**, and yuka reads it
+   as "26.6 has it unlocked on all M4*". **Still do not remove the patch on this
+   board**, for three reasons: only that one register was tested (we also skip
+   `SYS_ICH_HCR_EL2`); it was tested from the m1n1 proxy, not from Linux
+   `aic_init_cpu` in hyp mode; and **our board is paired to 25F84 = macOS 26.5.2,
+   not 26.6**, so the unlock may be a 26.6-iBoot property we do not have.
+   Removing it is a separate experiment, downstream of a firmware-pairing
+   decision. Trawl: `done/2026-07-28-asahi-dev-irc-review-0726-0728.md`.
 3. **WFI state-loss** — M4 loses CPU state on WFI/WFE; flokli patch adds arm64
    `idle=[wfi|nop]`; boot with `idle=nop` (plain mainline ignores `idle=`).
 4. **No fbcon in defconfig** — DRM_SIMPLEDRM + DRM_FBDEV_EMULATION +

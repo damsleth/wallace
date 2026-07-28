@@ -2,7 +2,7 @@
   "seq": "124",
   "slug": "pcie-op115-next-precondition",
   "needs": "offline",
-  "state": "d1d2-candidate-built-awaiting-review-and-attended-run",
+  "state": "d1d2-artifact-reviewed-awaiting-cj-and-rig-manifest",
   "track": "pcie",
   "priority": "P1",
   "desc": "Continue paired AppleT6040PCIe static tracing after ticket 068 proved clkgen PLL lock but reg[3]+0x90 still hangs. Resolve every remaining operation before the first _readPhyIPReg, especially PHY-IP power/reset/domain ownership, against ADT indices and exact accessors. Produce a proof/no-go or one separately gated candidate; no rig, no guessed offsets, and never retry 068 unchanged.",
@@ -11,6 +11,11 @@
   "deps": [
     "068"
   ],
-  "hashes": null,
-  "created": 1784929344
+  "hashes": {
+    "m1n1": "0e065589c08a6c3186c0bc3eddeae9078a3d878597db60965b88511eb881daad"
+  },
+  "created": 1784929344,
+  "runnable": false,
+  "reviewed_by": "sol",
+  "review_note": "2026-07-28 exact-artifact PASS: D1 clkgen[0]|=BIT(5), D5 udelay(1), and D2 PhyPhy[0]&=~BIT(4) independently re-derived from the paired AppleT6040PCIe kernelcache; targets are ADT-derived reg[6] and reg[2]+0x8000; lane-cfg is independently 0; non-T6040 paths are unchanged; the first PhyIP probe remains read-only with a hard return before all later writes/ports. Shipped binary hash and embedded tag match the committed in-tree build; curated patch hunks match. NOT LIVE-READY: create/amend a rig ticket with CJ approval, exact Image/DTB/initramfs hashes, and the literal chainload command. No queue-ready action taken. Evidence: done/2026-07-28-t6040-pcie-d1d2-exact-artifact-crossreview.md."
 }

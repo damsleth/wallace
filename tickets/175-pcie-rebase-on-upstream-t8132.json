@@ -1,0 +1,15 @@
+{
+  "seq": "175",
+  "slug": "pcie-rebase-on-upstream-t8132",
+  "needs": "offline",
+  "state": "open",
+  "track": "pcie",
+  "priority": "P1",
+  "desc": "Base the next PCIe candidate on UPSTREAM's merged t8132/t6040 support instead of our diverged fork. Verified in upstream/main src/pcie.c: APCIE_PHY_CTRL_RESET_T8132=BIT(4), 'apcie,t6040' matches regs_t8132 (PR 633, merged) — INDEPENDENT CONFIRMATION of today's delta D2, which our own NEXT_STEPS ticket-046 audit had ALREADY recorded upstream and we never applied (our fork cleared BIT(7) through every op-115 run). Our fork is 13 behind / 94 ahead. Upstream LACKS: our ticket-058 clkgen PLL enable+lock (proven to lock) and delta D1 clkgen[0]|=BIT(5). Upstream HAS: GXF guarded-stack fix 2ea75b66 (relevant to our GENTER hang — our GXF experiments predate it), ATC LN0/LN1_RX_TOP_USB_EQA offsets 639e0506, and no diagnostic early-returns. PLAN: candidate = upstream t8132 path + our clkgen sequence + D1, scaffolding dropped. HYPOTHESIS THIS TESTS: upstream reportedly reaches link-up on plain M4 with NO clkgen work, so op-115 may have been the reset-bit error alone and our clkgen sequence may not be a precondition. CAVEATS: upstream validated on t8132 (M4, J773g) not t6040 (M4 Pro, more CIO3/PCIe blocks); no early return means a boot runs the full PHY+port sequence, so ATTENDED either way. Supersedes the approach of patching our fork (19edc72b stays as the decode record).",
+  "author": "claude",
+  "deps": [
+    "124"
+  ],
+  "hashes": null,
+  "created": 1785275904
+}
