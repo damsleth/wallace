@@ -1,5 +1,5 @@
 #!/bin/sh
-# Build and audit the ticket-092 R0/R1/R2 m1n1 candidates twice.
+# Build and audit the ticket-092 R0/R1/R2 and ticket-105 R3 (SWDF) / R4 (SWUF) m1n1 candidates twice.
 set -eu
 
 M1N1_TREE=${M1N1_TREE:-/Users/damsleth/Code/m1n1-hpm2}
@@ -98,7 +98,7 @@ build_one()
     fi
 }
 
-for class in 0 1 2; do
+for class in 0 1 2 3 4; do
     build_one "$class" 1
     build_one "$class" 2
 
@@ -123,11 +123,11 @@ done
     echo "captured_adt=$CAPTURED_ADT"
     echo "captured_adt_sha256=$actual_adt_sha"
     echo "builds=two byte-identical clean builds per class"
-    echo "classes=R0 R1 R2"
+    echo "classes=R0 R1 R2 R3(SWDF) R4(SWUF)"
 } >"$temporary/final/MANIFEST"
 
 mv "$temporary/final" "$output"
-echo "ticket-092 candidates: $output"
-for class in 0 1 2; do
+echo "ticket-092/105 candidates: $output"
+for class in 0 1 2 3 4; do
     sed "s|  |  r$class/|" "$output/r$class/SHA256SUMS"
 done

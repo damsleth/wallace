@@ -2,7 +2,7 @@
   "seq": "105",
   "slug": "right-hpm-host-transition-candidate",
   "needs": "offline",
-  "state": "open",
+  "state": "candidate-built-awaiting-attended-run",
   "track": "usb",
   "priority": "P1",
   "desc": "Build the exact HPM-only right-port host transition after 096/103/104 resolve forward and inverse semantics. Passive-sink detection must precede source/VBUS; target only nub-spmi-a1/hpm2 SID 0x0c. Include byte-exact rollback of every cache/config/role/VBUS change and bounded failure handling. Do not link eUSB2, ATC, DWC3/xHCI, Linux, block, or filesystem code. Produce source/disassembly/hash/reproducibility evidence and stop before live execution.",
@@ -13,5 +13,6 @@
     "104"
   ],
   "hashes": null,
-  "created": 1784927435
+  "created": 1784927435,
+  "progress": "2026-07-28: R3/R4 candidates BUILT, REVIEWED, AUDITED \u2014 ready for the attended run (done/2026-07-28-t6040-r3-swdf-preflight.md). m1n1-hpm2 commit e41cf6e4 adds classes 3 (SWDF forward/host) and 4 (SWUF inverse) on the unmodified proven R2 reach-S0 ladder; command shape = DATA1<-0x00 then CMD1<-4CC, mirroring the independently re-derived AppleHPM::atomic4CC path (roleSwap does NOT go via execute4Cc; two byte reversals cancel to forward ASCII 53 57 44 46 on CMD1; no DFU/flash 4CC exists in the kernelcache; polarity roleSwap(0)=SWDF=host CONFIRMED). Build: two byte-identical clean builds per class + symbol deny-list audit passed; r3/m1n1.bin a106f8cd36a6068fc9586924028b9a64aca986a8e635e1bb0964422ec7345c4e, r4/m1n1.bin 61d5f18ca19ca961162d3cae63a2352912a0683b44bca0ae4ef774c24e5a0716 in linux-build-out/t6040-hpm2-e41cf6e4ee8f/. Deviation from this ticket's original spec, for CJ to accept or reject: no passive-sink pre-detection step (the 2026-07-25 fixture calibration covers it: only the passive stick is on the right port, VBUS cannot reach another host) and rollback is the R4 SWUF artifact + power cycle rather than byte-exact cache restoration (the SWDF decode reduced the transition to one documented 4CC with a documented inverse). Live slot is ticket 106 (approved, was blocked by 096/103/104/105)."
 }

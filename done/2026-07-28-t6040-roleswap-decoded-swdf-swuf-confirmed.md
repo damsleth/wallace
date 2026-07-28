@@ -81,3 +81,28 @@ So **R3 is fully specified with no further RE needed**: it is the R2 `t6040_hpm2
 (SWUF, role→device, is the inverse for a clean rollback.) Step-1 gate from above is now satisfied; what
 remains is only the byte-level review of the 4CC const and a maintainer-attended run on the 096/097
 framework — no knowledge gap left.
+
+## Addendum 2: independent byte-level review PASSED, with three refinements (2026-07-28)
+
+A second, fully independent re-derivation from the raw kernelcache
+(`t6040-kernelcache-25F84.raw`, capstone + scripted VA math) confirmed the substance and
+corrected the mechanism:
+
+1. **Identity/polarity CONFIRMED.** `roleSwap(0)` → UTF-16 "SWDF" (host/DFP), `roleSwap(1)` →
+   "SWUF" (device); `roleSwap(≥2)` issues nothing. Constants verified at file bytes
+   `53 00 57 00 44 00 46 00` / `53 00 57 00 55 00 46 00`.
+2. **No DFU/flash 4CC exists to confuse with.** A full-image scan (ASCII + UTF-16) for
+   `DFUs/DFUd/DFUc/DFUi/DFUe/FLrd/FLwr/FLem/FLad/FLvy/FLbd/FLip/FLsr` found zero occurrences.
+   The only 1-byte-adjacent 4CC to SWDF is SWUF itself (byte 2, 'D'↔'U' = host↔device) —
+   the one slip that matters is polarity, not a firmware command.
+3. **Byte order CONFIRMED, mechanism corrected.** roleSwap does **not** call `execute4Cc`; both
+   are siblings calling `AppleHPM::atomic4CC` (vtable slot 0x9a8). roleSwap does
+   `rev64`+`uzp1` (producing "FDWS"), and atomic4CC's write site does a second `rev` — the two
+   **cancel**, so CMD1 receives forward ASCII `53 57 44 46` = 'S','W','D','F' at bytes 0..3,
+   exactly the R2-proven convention (`!CMD` = LE u32 `0x444d4321`). atomic4CC's p1==1 selects
+   register 0x08 (CMD1) explicitly.
+4. **One real spec change: DATA1 is written.** The strict "SWDF takes no input data" reading is
+   refuted — atomic4CC as called by roleSwap writes exactly **one 0x00 byte to DATA1 (0x09)
+   before CMD1** (p7=1, payload byte zeroed by roleSwap). The R3 candidate was updated to match:
+   DATA1 ← `0x00` (1 byte), then CMD1 ← "SWDF" — which is byte-for-byte the R2 SSPS shape
+   (whose `target_s0` was also 0x00) with only the 4CC changed.
