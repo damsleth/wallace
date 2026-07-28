@@ -1,0 +1,629 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Apple T6040 "M4 Pro" SoC
+ *
+ * The M4-generation Pro die: fills the gap between t8132 (M4) and t6050
+ * (M5 Pro/Max). M4-generation IP (apple,sawtooth E / apple,everest P cores,
+ * t8122-aic3) in a Pro-die multi-cluster layout (4E + 5P + 5P).
+ *
+ * All reg/irq values verified against the live j614s ADT (2026-07-10); see
+ * m1n1 .plans/2026-07-10-t6040-kboot-fdt-plan.md and t6040-dt-checklist.md.
+ *
+ * Copyright The Asahi Linux Contributors
+ */
+
+#include <dt-bindings/interrupt-controller/apple-aic.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+/ {
+	compatible = "apple,t6040", "apple,arm-platform";
+
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	cpus {
+		#address-cells = <2>;
+		#size-cells = <0>;
+
+		cpu-map {
+			cluster0 {
+				core0 {
+					cpu = <&cpu_e0>;
+				};
+				core1 {
+					cpu = <&cpu_e1>;
+				};
+				core2 {
+					cpu = <&cpu_e2>;
+				};
+				core3 {
+					cpu = <&cpu_e3>;
+				};
+			};
+
+			cluster1 {
+				core0 {
+					cpu = <&cpu_p00>;
+				};
+				core1 {
+					cpu = <&cpu_p01>;
+				};
+				core2 {
+					cpu = <&cpu_p02>;
+				};
+				core3 {
+					cpu = <&cpu_p03>;
+				};
+				core4 {
+					cpu = <&cpu_p04>;
+				};
+			};
+
+			cluster2 {
+				core0 {
+					cpu = <&cpu_p10>;
+				};
+				core1 {
+					cpu = <&cpu_p11>;
+				};
+				core2 {
+					cpu = <&cpu_p12>;
+				};
+				core3 {
+					cpu = <&cpu_p13>;
+				};
+				core4 {
+					cpu = <&cpu_p14>;
+				};
+			};
+		};
+
+		cpu_e0: cpu@0 {
+			compatible = "apple,sawtooth";
+			device_type = "cpu";
+			reg = <0x0 0x0>;
+			enable-method = "spin-table";
+			cpu-release-addr = <0 0>;
+			next-level-cache = <&l2_cache_0>;
+		};
+
+		cpu_e1: cpu@1 {
+			compatible = "apple,sawtooth";
+			device_type = "cpu";
+			reg = <0x0 0x1>;
+			enable-method = "spin-table";
+			cpu-release-addr = <0 0>;
+			next-level-cache = <&l2_cache_0>;
+		};
+
+		cpu_e2: cpu@2 {
+			compatible = "apple,sawtooth";
+			device_type = "cpu";
+			reg = <0x0 0x2>;
+			enable-method = "spin-table";
+			cpu-release-addr = <0 0>;
+			next-level-cache = <&l2_cache_0>;
+		};
+
+		cpu_e3: cpu@3 {
+			compatible = "apple,sawtooth";
+			device_type = "cpu";
+			reg = <0x0 0x3>;
+			enable-method = "spin-table";
+			cpu-release-addr = <0 0>;
+			next-level-cache = <&l2_cache_0>;
+		};
+
+		cpu_p00: cpu@10100 {
+			compatible = "apple,everest";
+			device_type = "cpu";
+			reg = <0x0 0x10100>;
+			enable-method = "spin-table";
+			cpu-release-addr = <0 0>;
+			next-level-cache = <&l2_cache_1>;
+		};
+
+		cpu_p01: cpu@10101 {
+			compatible = "apple,everest";
+			device_type = "cpu";
+			reg = <0x0 0x10101>;
+			enable-method = "spin-table";
+			cpu-release-addr = <0 0>;
+			next-level-cache = <&l2_cache_1>;
+		};
+
+		cpu_p02: cpu@10102 {
+			compatible = "apple,everest";
+			device_type = "cpu";
+			reg = <0x0 0x10102>;
+			enable-method = "spin-table";
+			cpu-release-addr = <0 0>;
+			next-level-cache = <&l2_cache_1>;
+		};
+
+		cpu_p03: cpu@10103 {
+			compatible = "apple,everest";
+			device_type = "cpu";
+			reg = <0x0 0x10103>;
+			enable-method = "spin-table";
+			cpu-release-addr = <0 0>;
+			next-level-cache = <&l2_cache_1>;
+		};
+
+		cpu_p04: cpu@10104 {
+			compatible = "apple,everest";
+			device_type = "cpu";
+			reg = <0x0 0x10104>;
+			enable-method = "spin-table";
+			cpu-release-addr = <0 0>;
+			next-level-cache = <&l2_cache_1>;
+		};
+
+		/*
+		 * t6040 is a chopped t6041 (M4 Max): the full P-cluster0 has 6 cores
+		 * (MPIDR 0x10100..0x10105) but the 6th is fused off here. m1n1 still
+		 * enumerates it as smp_id 9 (Apple's non-contiguous ADT numbering) and
+		 * expects a DT cpu node at that positional slot to prune — dt_set_cpus
+		 * uses a positional counter, so without this the P-cl1 nodes shift by one
+		 * and fail MPIDR matching. NOT in cpu-map (m1n1 nops the node but does not
+		 * clean cpu-map references), so it never reaches Linux.
+		 */
+		cpu_p05_disabled: cpu@10105 {
+			compatible = "apple,everest";
+			device_type = "cpu";
+			reg = <0x0 0x10105>;
+			enable-method = "spin-table";
+			cpu-release-addr = <0 0>;
+			next-level-cache = <&l2_cache_1>;
+			status = "disabled";
+		};
+
+		cpu_p10: cpu@10200 {
+			compatible = "apple,everest";
+			device_type = "cpu";
+			reg = <0x0 0x10200>;
+			enable-method = "spin-table";
+			cpu-release-addr = <0 0>;
+			next-level-cache = <&l2_cache_2>;
+		};
+
+		cpu_p11: cpu@10201 {
+			compatible = "apple,everest";
+			device_type = "cpu";
+			reg = <0x0 0x10201>;
+			enable-method = "spin-table";
+			cpu-release-addr = <0 0>;
+			next-level-cache = <&l2_cache_2>;
+		};
+
+		cpu_p12: cpu@10202 {
+			compatible = "apple,everest";
+			device_type = "cpu";
+			reg = <0x0 0x10202>;
+			enable-method = "spin-table";
+			cpu-release-addr = <0 0>;
+			next-level-cache = <&l2_cache_2>;
+		};
+
+		cpu_p13: cpu@10203 {
+			compatible = "apple,everest";
+			device_type = "cpu";
+			reg = <0x0 0x10203>;
+			enable-method = "spin-table";
+			cpu-release-addr = <0 0>;
+			next-level-cache = <&l2_cache_2>;
+		};
+
+		cpu_p14: cpu@10204 {
+			compatible = "apple,everest";
+			device_type = "cpu";
+			reg = <0x0 0x10204>;
+			enable-method = "spin-table";
+			cpu-release-addr = <0 0>;
+			next-level-cache = <&l2_cache_2>;
+		};
+
+		l2_cache_0: l2-cache-0 {
+			compatible = "cache";
+			cache-level = <2>;
+			cache-unified;
+			cache-size = <0x400000>;
+		};
+
+		l2_cache_1: l2-cache-1 {
+			compatible = "cache";
+			cache-level = <2>;
+			cache-unified;
+			cache-size = <0x1000000>;
+		};
+
+		l2_cache_2: l2-cache-2 {
+			compatible = "cache";
+			cache-level = <2>;
+			cache-unified;
+			cache-size = <0x1000000>;
+		};
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+		interrupt-parent = <&aic>;
+		interrupt-names = "phys", "virt", "hyp-phys", "hyp-virt";
+		interrupts = <AIC_FIQ AIC_TMR_GUEST_PHYS IRQ_TYPE_LEVEL_HIGH>,
+			     <AIC_FIQ AIC_TMR_GUEST_VIRT IRQ_TYPE_LEVEL_HIGH>,
+			     <AIC_FIQ AIC_TMR_HV_PHYS IRQ_TYPE_LEVEL_HIGH>,
+			     <AIC_FIQ AIC_TMR_HV_VIRT IRQ_TYPE_LEVEL_HIGH>;
+	};
+
+	clkref: clock-ref {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <24000000>;
+		clock-output-names = "clkref";
+	};
+
+	soc: soc {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+
+		ranges;
+		nonposted-mmio;
+
+		/* pmgr nodes; child power-controllers added in t6040-pmgr.dtsi */
+		pmgr0: power-management@288e80000 {
+			compatible = "apple,t6041-pmgr", "apple,t8103-pmgr", "syscon", "simple-mfd";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			reg = <0x2 0x88e80000 0 0x4000>;
+		};
+
+		pmgr1: power-management@502280000 {
+			compatible = "apple,t6041-pmgr", "apple,t8103-pmgr", "syscon", "simple-mfd";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			reg = <0x5 0x02280000 0 0x14000>;
+		};
+
+		pmgr2: power-management@502800000 {
+			compatible = "apple,t6041-pmgr", "apple,t8103-pmgr", "syscon", "simple-mfd";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			reg = <0x5 0x02800000 0 0xc000>;
+		};
+
+		pmgr3: power-management@508300000 {
+			compatible = "apple,t6041-pmgr", "apple,t8103-pmgr", "syscon", "simple-mfd";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			reg = <0x5 0x08300000 0 0x4000>;
+		};
+
+		aic: interrupt-controller@502400000 {
+			compatible = "apple,t6040-aic3", "apple,t8122-aic3";
+			#interrupt-cells = <3>;
+			interrupt-controller;
+
+			/*
+			 * reg[0]: Main MMIO range
+			 * reg[1]: CPU Event/IACK register page (Base + aic-iack-offset 0x40000)
+			 */
+			reg = <0x5 0x02400000 0x0 0x1cc000>,
+			      <0x5 0x02440000 0x0 0x4000>;
+
+			config-offset = <0x10000>;
+			cap0-offset = <0x4>;
+			maxnumirq-offset = <0xc>;
+			power-domains = <&ps_aic>;
+		};
+
+		wdt: watchdog@50836c000 {
+			compatible = "apple,t6040-wdt", "apple,wdt";
+			reg = <0x5 0x0836c000 0x0 0x4000>;
+			clocks = <&clkref>;
+			interrupt-parent = <&aic>;
+			interrupts = <AIC_IRQ 827 IRQ_TYPE_LEVEL_HIGH>;
+		};
+
+		/*
+		 * ANS2/NVMe layout from the live J614s ADT. T6040 uses the same
+		 * ASC, SARTv3 and 0x60000-byte NVMe/NVMMU layout as T8140, but at
+		 * Pro-die addresses. Keep the complete path disabled until its
+		 * first controlled probe.
+		 */
+		ans_mbox: mailbox@409608000 {
+			compatible = "apple,t8140-asc-mailbox", "apple,asc-mailbox-v4";
+			reg = <0x4 0x09608000 0x0 0x4000>;
+			interrupt-parent = <&aic>;
+			/* ADT order is [1531 1530 1533 1532], not-empty first. */
+			interrupts = <AIC_IRQ 1530 IRQ_TYPE_LEVEL_HIGH>,
+				     <AIC_IRQ 1531 IRQ_TYPE_LEVEL_HIGH>,
+				     <AIC_IRQ 1532 IRQ_TYPE_LEVEL_HIGH>,
+				     <AIC_IRQ 1533 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "send-empty", "send-not-empty",
+					  "recv-empty", "recv-not-empty";
+			power-domains = <&ps_ans>;
+			#mbox-cells = <0>;
+			status = "disabled";
+		};
+
+		ans_sart: iommu@40dc50000 {
+			compatible = "apple,t8140-sart";
+			reg = <0x4 0x0dc50000 0x0 0xc000>,
+			      <0x4 0x0dcc13e8 0x0 0x4>;
+			reg-names = "sart", "power";
+			power-domains = <&ps_ans>;
+			status = "disabled";
+		};
+
+		ans_nvme: nvme@40dcc0000 {
+			compatible = "apple,t8140-nvme-ans2",
+				     "apple,t8103-nvme-ans2";
+			reg = <0x4 0x0dcc0000 0x0 0x60000>,
+			      <0x4 0x09600000 0x0 0x4000>;
+			reg-names = "nvme", "ans";
+			interrupt-parent = <&aic>;
+			interrupts = <AIC_IRQ 2583 IRQ_TYPE_LEVEL_HIGH>;
+			mboxes = <&ans_mbox>;
+			apple,sart = <&ans_sart>;
+			power-domains = <&ps_ans>, <&ps_apcie_phy_sw>;
+			power-domain-names = "ans", "apcie0";
+			resets = <&ps_ans>;
+			status = "disabled";
+		};
+
+		/*
+		 * MTP carries the internal keyboard and trackpad over DockChannel.
+		 * All addresses and IRQs below are from the J614s ADT. Keep the
+		 * complete path disabled in the SoC description; the board-level
+		 * bring-up DT enables it as one deliberately gated unit.
+		 */
+		mtp_mbox: mailbox@514608000 {
+			compatible = "apple,t8140-asc-mailbox", "apple,asc-mailbox-v4";
+			reg = <0x5 0x14608000 0x0 0x4000>;
+			interrupt-parent = <&aic>;
+			/*
+			 * The ADT lists these as [793 792 795 794]: Apple's ADT
+			 * convention is not-empty first in each pair. The
+			 * binding (and the actual lines, ascending) are
+			 * empty/not-empty — verified against every other ASC
+			 * node in the J614s ADT (all follow [n+1 n n+3 n+2]).
+			 */
+			interrupts = <AIC_IRQ 792 IRQ_TYPE_LEVEL_HIGH>,
+				     <AIC_IRQ 793 IRQ_TYPE_LEVEL_HIGH>,
+				     <AIC_IRQ 794 IRQ_TYPE_LEVEL_HIGH>,
+				     <AIC_IRQ 795 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "send-empty", "send-not-empty",
+					  "recv-empty", "recv-not-empty";
+			#mbox-cells = <0>;
+			status = "disabled";
+		};
+
+		mtp_dart: iommu@514800000 {
+			compatible = "apple,t8110-dart";
+			reg = <0x5 0x14800000 0x0 0xc000>;
+			interrupt-parent = <&aic>;
+			interrupts = <AIC_IRQ 775 IRQ_TYPE_LEVEL_HIGH>;
+			#iommu-cells = <1>;
+			status = "disabled";
+		};
+
+		mtp_dockchannel: mailbox@514b14000 {
+			compatible = "apple,t8122-dockchannel",
+				     "apple,t8112-dockchannel";
+			reg = <0x5 0x14b14000 0x0 0x1000>,
+			      <0x5 0x14b30000 0x0 0x1000>,
+			      <0x5 0x14b34000 0x0 0x1000>;
+			reg-names = "irq", "config", "data";
+			interrupt-parent = <&aic>;
+			interrupts = <AIC_IRQ 776 IRQ_TYPE_LEVEL_HIGH>;
+			#mbox-cells = <0>;
+			status = "disabled";
+		};
+
+		mtp_hid: hid@514600000 {
+			compatible = "apple,t8122-dockchannel-hid";
+			reg = <0x5 0x14600000 0x0 0x4000>,
+			      <0x5 0x14c00000 0x0 0xac000>;
+			reg-names = "coproc-asc", "coproc-sram";
+			mboxes = <&mtp_mbox>, <&mtp_dockchannel>;
+			mbox-names = "asc", "dockchannel";
+			iommus = <&mtp_dart 0>;
+			status = "disabled";
+
+			mtp_keyboard: keyboard {
+			};
+		};
+
+		/*
+		 * SMC (System Management Controller): battery, charge state,
+		 * temperatures, RTC. RTKit coprocessor on an ASC mailbox.
+		 * Addresses from the live J614s ADT (j614s-full-20260728.adt):
+		 * ADT /arm-io/smc iop,ascwrap-v6 bus 0x30c600000 -> CPU-physical
+		 * 0x50c600000 (arm-io ranges +0x200000000). Mailbox IRQs
+		 * ADT [997 996 999 998] -> ascending [996 997 998 999] per the
+		 * Apple ASC convention (not-empty first in each pair) documented
+		 * on ans_mbox/mtp_mbox above.
+		 *
+		 * The "sram" region (reg[1]) is NOT in the ADT and the memory-map
+		 * was zeroed at capture. GROUND TRUTH from the failing probe
+		 * (2026-07-28): the SMC RTKit reported its shared-memory buffers at
+		 * 0x50de70000+ ("buffer request outside SRAM region: [0x50de70000,
+		 * 0x50de73fff]"), so the SRAM base is 0x50de70000 (the first buffer
+		 * sits at offset 0), NOT smc_base + 0x1a00000. An earlier
+		 * cross-SoC-pattern guess of 0x50e000000 was wrong and macsmc
+		 * failed with "Failed to initialize shared memory (-14)".
+		 */
+		smc_mbox: mailbox@50c608000 {
+			compatible = "apple,t8140-asc-mailbox", "apple,asc-mailbox-v4";
+			reg = <0x5 0x0c608000 0x0 0x4000>;
+			interrupt-parent = <&aic>;
+			interrupts = <AIC_IRQ 996 IRQ_TYPE_LEVEL_HIGH>,
+				     <AIC_IRQ 997 IRQ_TYPE_LEVEL_HIGH>,
+				     <AIC_IRQ 998 IRQ_TYPE_LEVEL_HIGH>,
+				     <AIC_IRQ 999 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "send-empty", "send-not-empty",
+					  "recv-empty", "recv-not-empty";
+			#mbox-cells = <0>;
+			status = "disabled";
+		};
+
+		smc: smc@50c600000 {
+			compatible = "apple,t8140-smc", "apple,t8103-smc",
+				     "apple,smc";
+			reg = <0x5 0x0c600000 0x0 0x4000>,
+			      <0x5 0x0de70000 0x0 0x100000>;
+			reg-names = "smc", "sram";
+			mboxes = <&smc_mbox>;
+			status = "disabled";
+		};
+
+		/*
+		 * USB gadget path (ADT usb-drd0..2 / dart-usb0..2). Phase-1
+		 * bring-up: plain snps,dwc3 core in peripheral mode, reusing
+		 * the PHY configuration m1n1 leaves behind on the tether port
+		 * (no atcphy driver exists for atc-phy,t6040 yet, and M4 has
+		 * no AP-visible HPM/PD controller for the dwc3-apple glue's
+		 * cable-event flow). Core/wrapper split of the first ADT reg
+		 * block follows the t8103.dtsi precedent (core = +0..0xcd00).
+		 * IRQ = first ADT entry per port (untested assumption; try
+		 * the next entry if the UDC stays silent).
+		 */
+		usb0_dart0: iommu@382f00000 {
+			compatible = "apple,t8110-dart";
+			reg = <0x3 0x82f00000 0x0 0xc000>;
+			interrupt-parent = <&aic>;
+			interrupts = <AIC_IRQ 1623 IRQ_TYPE_LEVEL_HIGH>;
+			#iommu-cells = <1>;
+			power-domains = <&ps_atc0_usb>;
+			status = "disabled";
+		};
+
+		usb0_dart1: iommu@382f80000 {
+			compatible = "apple,t8110-dart";
+			reg = <0x3 0x82f80000 0x0 0xc000>;
+			interrupt-parent = <&aic>;
+			interrupts = <AIC_IRQ 1623 IRQ_TYPE_LEVEL_HIGH>;
+			#iommu-cells = <1>;
+			power-domains = <&ps_atc0_usb>;
+			status = "disabled";
+		};
+
+		usb_drd0: usb@382280000 {
+			compatible = "apple,t8103-dwc3";
+			reg = <0x3 0x82280000 0x0 0xcd00>,
+			      <0x3 0x8228cd00 0x0 0x3200>;
+			reg-names = "dwc3-core", "dwc3-apple";
+			apple,force-device-mode;
+			interrupt-parent = <&aic>;
+			interrupts = <AIC_IRQ 1619 IRQ_TYPE_LEVEL_HIGH>;
+			dr_mode = "peripheral";
+			/*
+			 * Keep bcdUSB at 2.00: with LPM capable, composite.c
+			 * forces bcdUSB 2.10 (+BOS), which macOS's CDC stack
+			 * mishandles for gadgets (m1n1's working ACM is 2.00).
+			 */
+			snps,usb2-gadget-lpm-disable;
+			maximum-speed = "high-speed";
+			iommus = <&usb0_dart0 0>, <&usb0_dart1 1>;
+			power-domains = <&ps_atc0_usb>;
+			status = "disabled";
+		};
+
+		usb1_dart0: iommu@38af00000 {
+			compatible = "apple,t8110-dart";
+			reg = <0x3 0x8af00000 0x0 0xc000>;
+			interrupt-parent = <&aic>;
+			interrupts = <AIC_IRQ 1655 IRQ_TYPE_LEVEL_HIGH>;
+			#iommu-cells = <1>;
+			power-domains = <&ps_atc1_usb>;
+			status = "disabled";
+		};
+
+		usb1_dart1: iommu@38af80000 {
+			compatible = "apple,t8110-dart";
+			reg = <0x3 0x8af80000 0x0 0xc000>;
+			interrupt-parent = <&aic>;
+			interrupts = <AIC_IRQ 1655 IRQ_TYPE_LEVEL_HIGH>;
+			#iommu-cells = <1>;
+			power-domains = <&ps_atc1_usb>;
+			status = "disabled";
+		};
+
+		usb_drd1: usb@38a280000 {
+			compatible = "apple,t8103-dwc3";
+			reg = <0x3 0x8a280000 0x0 0xcd00>,
+			      <0x3 0x8a28cd00 0x0 0x3200>;
+			reg-names = "dwc3-core", "dwc3-apple";
+			apple,force-device-mode;
+			interrupt-parent = <&aic>;
+			interrupts = <AIC_IRQ 1651 IRQ_TYPE_LEVEL_HIGH>;
+			dr_mode = "peripheral";
+			/*
+			 * Keep bcdUSB at 2.00: with LPM capable, composite.c
+			 * forces bcdUSB 2.10 (+BOS), which macOS's CDC stack
+			 * mishandles for gadgets (m1n1's working ACM is 2.00).
+			 */
+			snps,usb2-gadget-lpm-disable;
+			maximum-speed = "high-speed";
+			iommus = <&usb1_dart0 0>, <&usb1_dart1 1>;
+			power-domains = <&ps_atc1_usb>;
+			status = "disabled";
+		};
+
+		usb2_dart0: iommu@392f00000 {
+			compatible = "apple,t8110-dart";
+			reg = <0x3 0x92f00000 0x0 0xc000>;
+			interrupt-parent = <&aic>;
+			interrupts = <AIC_IRQ 1687 IRQ_TYPE_LEVEL_HIGH>;
+			#iommu-cells = <1>;
+			power-domains = <&ps_atc2_usb>;
+			status = "disabled";
+		};
+
+		usb2_dart1: iommu@392f80000 {
+			compatible = "apple,t8110-dart";
+			reg = <0x3 0x92f80000 0x0 0xc000>;
+			interrupt-parent = <&aic>;
+			interrupts = <AIC_IRQ 1687 IRQ_TYPE_LEVEL_HIGH>;
+			#iommu-cells = <1>;
+			power-domains = <&ps_atc2_usb>;
+			status = "disabled";
+		};
+
+		usb_drd2: usb@392280000 {
+			compatible = "apple,t8103-dwc3";
+			reg = <0x3 0x92280000 0x0 0xcd00>,
+			      <0x3 0x9228cd00 0x0 0x3200>;
+			reg-names = "dwc3-core", "dwc3-apple";
+			apple,force-device-mode;
+			interrupt-parent = <&aic>;
+			interrupts = <AIC_IRQ 1683 IRQ_TYPE_LEVEL_HIGH>;
+			dr_mode = "peripheral";
+			/*
+			 * Keep bcdUSB at 2.00: with LPM capable, composite.c
+			 * forces bcdUSB 2.10 (+BOS), which macOS's CDC stack
+			 * mishandles for gadgets (m1n1's working ACM is 2.00).
+			 */
+			snps,usb2-gadget-lpm-disable;
+			maximum-speed = "high-speed";
+			iommus = <&usb2_dart0 0>, <&usb2_dart1 1>;
+			power-domains = <&ps_atc2_usb>;
+			status = "disabled";
+		};
+
+		serial0: serial@429200000 {
+			compatible = "apple,s5l-uart";
+			reg = <0x4 0x29200000 0x0 0x1000>;
+			reg-io-width = <4>;
+			interrupt-parent = <&aic>;
+			interrupts = <AIC_IRQ 1559 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clkref>, <&clkref>;
+			clock-names = "uart", "clk_uart_baud0";
+			power-domains = <&ps_uart0>;
+			status = "disabled";
+		};
+	};
+};
+
+#include "t6040-pmgr.dtsi"

@@ -189,3 +189,39 @@ echo ---; dmesg | grep -iE 'dwc3|gadget|configfs|smc|macsmc|rtkit|mbox|ep0|set.?
 ```
 - UDC `state`: if not `configured`, the host never set the config → M4 dwc3-gadget enumeration bug.
 - `dmesg smc/macsmc/rtkit`: whether the SMC RTKit came up and why macsmc made no devices.
+
+## Root causes found from the dmesg (2026-07-28 pm) — macsmc FIXED, network is a macOS wall
+
+The panel dmesg was decisive on both.
+
+### macsmc: SRAM address wrong → FIXED (high confidence, ground truth)
+```
+macsmc 50c600000.smc: RTKit: Initializing (protocol version 12)
+macsmc 50c600000.smc: RTKit buffer request outside SRAM region: [0x50de70000, 0x50de73fff]
+macsmc 50c600000.smc: Failed to initialize shared memory (-14)
+macsmc 50c600000.smc: probe with driver macsmc failed with error -5
+```
+The SMC RTKit came up (protocol 12) but its shared-memory buffers are at **`0x50de70000+`**, outside my
+declared SRAM `0x50e000000`. My `smc_base + 0x1a00000` cross-SoC inference was wrong for t6040. The
+coprocessor's own buffer addresses are ground truth: SRAM base = **`0x50de70000`** (first buffer at
+offset 0). Fixed `reg[1]` to `<0x5 0x0de70000 0x0 0x100000>`; new DTB `11abca72`. This is derived from
+observed hardware, not a pattern — high confidence it lets macsmc initialize shared memory and create
+the battery/hwmon devices.
+
+### Network: udc `configured`, but macOS binds no Linux CDC gadget — a macOS host wall
+`cat /sys/class/udc/*/state` = **`configured`**. So the M4 dwc3 gadget *fully enumerates* — the host
+completes SetConfiguration — for every flavor. Combined with the earlier "usb0 up, NO-CARRIER" and the
+absence of any `en`/`cu.usbmodem` on macOS, the conclusion is firm: **the M4 side is 100% healthy; macOS
+does not attach a class driver to a Linux dwc3 CDC gadget** (RNDIS, ECM, NCM, or ACM), even though it
+binds m1n1's own CDC-ACM. `AppleUSBDeviceNCM*` is macOS's *device*-side NCM, not a host driver for an
+arbitrary gadget; macOS Apple-Silicon host-side CDC-ethernet for a generic gadget appears absent.
+
+**Verdict:** tether-ethernet to *this Mac* is blocked by macOS, not by the M4. The gadget works and
+would bind on a **Linux host** (which has CDC-ECM/NCM/ACM host drivers). Options if tether networking is
+still wanted: (a) plug the M4 into a Linux box, or (b) go the original USB-*host* route (real dongle,
+gated on VBUS/HPM). Not worth more macOS gadget-descriptor iteration.
+
+## Shipped: macsmc daily driver v3 (SRAM-fixed)
+`m1n1-b0-macsmc-dualmode.bin` `5931f9c3d1f785f2a25cd40754fec1f38078efbc3ceaa952288c529bbc7527f8`
+(dual-mode + Image-macsmc + fixed DTB `11abca72` + clean hidpi dwm rootfs, no gadget). Strict PASS.
+Enroll-guard approved; `9800f4d8` retired. Expected after enroll: dwm + keyboard + **battery + temps**.
