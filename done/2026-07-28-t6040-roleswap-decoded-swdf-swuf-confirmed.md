@@ -1,5 +1,16 @@
 # roleSwap decoded: SWDF/SWUF confirmed (correcting my 2026-07-26 error) — R3 is now specifiable
 
+> **2026-07-28 CORRECTION — the VBUS conclusion in this document is WRONG.** `SWDF`/`SWUF` are the
+> TPS6598x **data-role** commands (swap to DFP / UFP). The **power-role** commands are separate:
+> **`SWSr`** (swap to source) and **`SWSk`** (swap to sink). Data role and power role are independent
+> in USB-C — a DFP can be a sink — so **`SWDF` does not establish VBUS sourcing** and `SWUF` does not
+> reverse a source transition. Every statement below equating DFP with "host/source … enables VBUS"
+> is an unverified inference I propagated from the original 096 note, not something the disassembly
+> shows. The 4CC identity, byte order, CMD1 target, and the one-byte-`0x00` DATA1 payload all remain
+> correct. A replacement source/VBUS plan must decode and review `SWSr`, a source-state verification
+> read, and its power-role inverse separately — and must not infer VBUS from a successful `SWDF`.
+> Cross-review: `done/2026-07-28-t6040-r3-r4-crossreview-no-go.md` (reviewer `sol`).
+
 ## I was wrong on 2026-07-26; the original 096 claim was right
 
 On 2026-07-26 I wrote that `AppleHPMInterface::roleSwap()` does NOT issue SWDF/SWUF, because I could

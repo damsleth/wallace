@@ -1,5 +1,23 @@
 # Ticket 105 preflight — R3 (SWDF host role swap) and R4 (SWUF inverse) candidates
 
+> **2026-07-28 — THIS PREFLIGHT IS WITHDRAWN. NO-GO.** Cross-review by `sol`
+> (`done/2026-07-28-t6040-r3-r4-crossreview-no-go.md`) found three defects in it:
+> 1. **`SWDF` is a data-role swap (DFP), not a power-role swap.** The source/sink commands are
+>    `SWSr`/`SWSk`. So this artifact **cannot establish VBUS sourcing** and R4 cannot roll back a
+>    source transition. The premise of the whole document — "swap to DFP ⇒ sources VBUS" — is an
+>    unverified inference, and VBUS must not be inferred from a successful `SWDF`.
+> 2. **It reads no role/orientation/VBUS state** — only the 4CC task result and HPM system power
+>    state `0x20` — so tickets 105/106's required role/power transcript and byte-exact rollback are
+>    absent, and the omission of passive-sink pre-detection had no approved replacement.
+> 3. **My symbol-audit claim below was false.** I wrote that the binaries link no DWC3 code and that
+>    the deny-list proves it. **Verified: 14 `usb_dwc3_*` symbols are linked**; the deny-list simply
+>    never tested for them. (The experiment reboots before `usb_init()`, so that code does not
+>    *execute* — but the assertion was wrong regardless, and the deny-list needs the pattern added.)
+>
+> The run that did happen was also unobservable — see
+> `done/2026-07-28-t6040-r3-swdf-blind-run-no-transcript.md`. Keep this file only as the record of
+> what was built and why it was rejected.
+
 Status: **DRAFT — build pending the independent 4CC review.** Hashes and review verdicts are
 filled in below when they exist; this document is not a run authorization until every
 `PENDING` is resolved and CJ approves the attended session.

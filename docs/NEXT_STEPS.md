@@ -1,18 +1,21 @@
 # t6040 Linux bring-up — NEXT STEPS
 
-> **2026-07-28 LATE (offline session) — both frontiers now have built, hashed candidates; two
-> attended runs are all that stands between here and USB VBUS + a PCIe answer.**
+> **2026-07-28 LATE (two-agent reconciliation) — no hardware action is currently ready.**
 >
-> 1. **USB VBUS (105/106) — R3/R4 BUILT AND REVIEWED, awaiting CJ's attended run.** The SWDF
->    decode passed a fully independent byte-level re-derivation (polarity, byte order, no
->    DFU/flash 4CC anywhere in the kernelcache), with one refinement folded into the candidate:
->    macOS writes one `0x00` byte to DATA1 before the 4CC (via `AppleHPM::atomic4CC`, not
->    `execute4Cc`), which makes R3 exactly the proven R2 shape with only the 4CC changed.
->    Candidates: `m1n1-hpm2` `e41cf6e4`, classes R3 (`SWDF`, forward/host) and R4 (`SWUF`,
->    inverse); artifacts + audit in `linux-build-out/t6040-hpm2-e41cf6e4ee8f/`; run recipe,
->    hashes, and safety framing in `done/2026-07-28-t6040-r3-swdf-preflight.md`. Remaining
->    gate: sol's cross-review (`queue ready 106`), then the attended chainload.
-> 2. **WiFi/PCIe (124) — the morning premise was WRONG; the real fix is decoded and built.**
+> 1. **USB VBUS (105/106) — R3 ran blind and is inconclusive; do not repeat yet.** Sol's exact
+>    artifact review found that `SWDF`/`SWUF` are the TPS6598x **data-role** DFP/UFP commands;
+>    the separate source/sink power-role commands are `SWSr`/`SWSk`. R3 therefore cannot
+>    establish VBUS sourcing, R4 cannot roll back a source transition, and neither artifact
+>    reads role/orientation/VBUS state. Nevertheless CJ attended one R3 run while the enrolled
+>    dual-mode object's USB gadget was active. The experiment executes before `usb_init()` and
+>    warm-reboots, so no transcript could reach the host; command acceptance, rejection, and
+>    the identity-gate failure are indistinguishable. The right HPM pre-state is now unknown.
+>    Before any repeat: restore the KIS-capable loader through CJ's 1TR flow, perform a reviewed
+>    read-only state capture, and replace the inferred-VBUS plan with separately decoded
+>    power-role/status/rollback gates. Evidence:
+>    `done/2026-07-28-t6040-r3-r4-crossreview-no-go.md` and
+>    `done/2026-07-28-t6040-r3-swdf-blind-run-no-transcript.md`.
+> 2. **WiFi/PCIe (124) — D1/D2 artifact REVIEWED, but no live rig manifest/approval yet.**
 >    The "m1n1 only traces the tunables" claim is refuted
 >    (`done/2026-07-28-t6040-pcie-trace-mode-claim-refuted.md`): `tunables_apply_local_trace`
 >    traces AND writes, the five phy tunables were applied live twice, and op-115 still hung —
@@ -25,13 +28,42 @@
 >    J614s `lane-cfg`=0 so m1n1's rc+0x4 write is already right.) Candidate: m1n1 `19edc72b`
 >    (clean series `9c35cd2c`), binary `m1n1-t6040-pcie-d1d2-19edc72b.bin` `0e065589…`, two
 >    byte-identical builds, PHY-IP probe still read-only with a hard stop before any PHY-IP
->    write. Gates: sol review + CJ attended run
->    (`done/2026-07-28-t6040-pcie-d1d2-candidate-preflight.md`). After the aperture responds:
+>    write. Sol independently re-derived D1/D2/D5, checked ADT addresses and hard-stop scope,
+>    and passed the exact artifact. Remaining gates: a separate rig ticket pinning the literal
+>    command plus exact Image/DTB/initramfs hashes, CJ plan approval, KIS-observable console,
+>    and an attended slot. Do not queue it ready from ticket 124 alone. Evidence:
+>    `done/2026-07-28-t6040-pcie-d1d2-exact-artifact-crossreview.md`. After the aperture responds:
 >    apply PLL/AUSPMA tunables + D6/D7/D8, then WiFi fw staging (168) — the dwm image build
 >    now takes `T6040_WIFI_FW=1` (corpus at `/private/tmp/t6040-paired-fw-25F84/vendorfw/brcm`).
-> 3. Coordination: `sol` was onboarded with a handoff prompt whose first job is the R3/R4
->    exact-artifact review; ticket 105 records two deliberate deviations from its original spec
->    (no sink pre-detection — fixture-covered; rollback = R4 + power cycle) for CJ to rule on.
+> 3. **NVMe REOPENED (174) — probably not SPTM-blocked after all.** Verified locally against our own
+>    ADT and fault log: `/arm-io/ans` has 10 reg entries; `reg[9]` = `0x44dcc0000` is the **NVMe
+>    controller** aperture (the window we read on 2026-07-13 and *never wrote to*) while `reg[3]` is
+>    the **NVMMU** window; and our m1n1 SError was at `reg[3]+0x24908` = `LINEAR_SQ_CTRL`, exactly the
+>    register upstream now **skips on firmware ≥ 15.0**. So `asc`/`sart`/`rtkit`/`BOOT_STATUS` all
+>    succeeded from raw m1n1 and only that one legacy write faulted; the "protection enforced below the
+>    OS" conclusion is not supported by that address. Caveat: `reg[3]` is not cleanly NVMMU-only (its
+>    `+0x1300` boot-status poll succeeded while `+0x1210` faulted) — no strict two-window model.
+>    **Needs a fresh approval**: the probe cycles `CC.EN` on the controller holding macOS and error
+>    paths call `pmgr_reset(ANS)`. Also: upstream's `reg_len >= 10` guard is a byte-vs-count bug worth
+>    a drafted upstream note. `done/2026-07-28-upstream-review-nvme-reopened-pcie-d2-confirmed.md`.
+> 4. **PCIe candidates V1/V2 now staged on UPSTREAM's t6040 path (175)** — offered as an alternative
+>    to the reviewed fork candidate in item 2, because upstream already carries D2: `apcie,t6040` →
+>    `regs_t8132` with `APCIE_PHY_CTRL_RESET = BIT(4)` (PR 633, merged; our own ticket-046 audit had
+>    recorded this and our fork kept clearing BIT(7) through every op-115 run). **V1** `28a4e0cf…` =
+>    upstream `pcie.c` wholesale on our t6040 line (keeps our stage-2 log-buffer guard; inherits
+>    upstream's GXF stack fix and ATC EQA offsets) and tests whether the wrong reset bit was the
+>    *entire* cause. **V2** `3916bf15…` = V1 + the proven ticket-058 clkgen PLL sequence + delta D1,
+>    gated to `apcie,t6040`. Run V1 first — a negative promotes V2, the reverse makes a success
+>    unattributable. Both attended-only (upstream has no early return), both need the same exact-artifact
+>    review and rig ticket as item 2. `done/2026-07-28-t6040-pcie-upstream-v1-v2-candidates.md`.
+> 5. **USB3 DT (170) — exact data path staged fail-closed, not runnable.** The Linux tree and
+>    Wallace mirror now carry all 44 translated right-port ATC banks, DWC3 PHY/reset/role
+>    wiring, and disabled I2C6 `atcrt0/1/2` inventory. Do not add the old
+>    `apple,t8103-atcphy` fallback: its probe resets/writes a different five-window layout.
+>    AppleHPM coordinates the `atcrt%u` services and Linux has no binding for them, so guessed
+>    PS883x compatibles are forbidden. The compile-only DTB passes and all functional nodes
+>    remain disabled. Evidence:
+>    `done/2026-07-28-t6040-usb3-right-data-path-dt-staging.md`.
 
 > **2026-07-28 (state of play) — battery/thermals DONE; USB + WiFi are the frontier.**
 >
