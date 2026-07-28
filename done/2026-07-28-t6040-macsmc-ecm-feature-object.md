@@ -225,3 +225,26 @@ gated on VBUS/HPM). Not worth more macOS gadget-descriptor iteration.
 `m1n1-b0-macsmc-dualmode.bin` `5931f9c3d1f785f2a25cd40754fec1f38078efbc3ceaa952288c529bbc7527f8`
 (dual-mode + Image-macsmc + fixed DTB `11abca72` + clean hidpi dwm rootfs, no gadget). Strict PASS.
 Enroll-guard approved; `9800f4d8` retired. Expected after enroll: dwm + keyboard + **battery + temps**.
+
+## macsmc CONFIRMED WORKING (2026-07-28) — battery + thermals live on the M4 Pro
+
+The SRAM fix (`0x50de70000`) was correct. On the fixed object (`5931f9c3`):
+
+```
+POWER_SUPPLY_NAME=macsmc-ac        ONLINE=1  INPUT_POWER_LIMIT=15000000
+POWER_SUPPLY_NAME=macsmc-battery   STATUS=Full  HEALTH=Good  CAPACITY=100
+  CYCLE_COUNT=404  CHARGE_FULL=5186000  CHARGE_FULL_DESIGN=6249000
+  VOLTAGE_NOW=12911000  ENERGY_NOW=59006400  MODEL_NAME=bq40z651
+  MANUFACTURE 2024-08-24  CHARGE_BEHAVIOUR=auto
+/sys/class/hwmon/*/temp1_input = 30300   (30.3 C)
+```
+
+Battery gauge, AC/charger state, and a temperature sensor all read correctly. The SMC RTKit shared
+memory initialised once `reg[1]` matched the coprocessor's reported buffer base — the error message
+`RTKit buffer request outside SRAM region: [0x50de70000, ...]` was ground truth and the fix from it
+worked first try. Note `CHARGE_BEHAVIOUR` is exposed but stays read-only per policy (no charge-control
+writes).
+
+**Tickets 165 (macsmc) done — battery/thermals is a real, working daily-driver feature.** 167 (usbnet
+host dongles) is built-in and waits on a USB host port. 173 (tether ethernet) is a macOS host wall
+(the M4 gadget works; documented above).
