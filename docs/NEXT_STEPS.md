@@ -1,5 +1,38 @@
 # t6040 Linux bring-up — NEXT STEPS
 
+> **2026-07-28 LATE (offline session) — both frontiers now have built, hashed candidates; two
+> attended runs are all that stands between here and USB VBUS + a PCIe answer.**
+>
+> 1. **USB VBUS (105/106) — R3/R4 BUILT AND REVIEWED, awaiting CJ's attended run.** The SWDF
+>    decode passed a fully independent byte-level re-derivation (polarity, byte order, no
+>    DFU/flash 4CC anywhere in the kernelcache), with one refinement folded into the candidate:
+>    macOS writes one `0x00` byte to DATA1 before the 4CC (via `AppleHPM::atomic4CC`, not
+>    `execute4Cc`), which makes R3 exactly the proven R2 shape with only the 4CC changed.
+>    Candidates: `m1n1-hpm2` `e41cf6e4`, classes R3 (`SWDF`, forward/host) and R4 (`SWUF`,
+>    inverse); artifacts + audit in `linux-build-out/t6040-hpm2-e41cf6e4ee8f/`; run recipe,
+>    hashes, and safety framing in `done/2026-07-28-t6040-r3-swdf-preflight.md`. Remaining
+>    gate: sol's cross-review (`queue ready 106`), then the attended chainload.
+> 2. **WiFi/PCIe (124) — the morning premise was WRONG; the real fix is decoded and built.**
+>    The "m1n1 only traces the tunables" claim is refuted
+>    (`done/2026-07-28-t6040-pcie-trace-mode-claim-refuted.md`): `tunables_apply_local_trace`
+>    traces AND writes, the five phy tunables were applied live twice, and op-115 still hung —
+>    so "apply the tunables" is a retry of negative ticket 068; do not stage it. Instead the
+>    full `ApplePCIEBaseT8132::_initializePhy()`/`_enableRootComplex()` decode
+>    (`done/2026-07-28-t6040-initializephy-full-decode.md`) found **exactly two Apple ops
+>    m1n1 omits before the first PHY-IP access**: D1 `clkgen[0]|=BIT(5)` post-PLL-lock,
+>    pre-gate-7; D2 the PHY release clears BIT(4), not t602x's BIT(7). (Also: "op-115" is the
+>    read half of a plain RMW on a dead aperture — there is no PLL-lock poll in the driver;
+>    J614s `lane-cfg`=0 so m1n1's rc+0x4 write is already right.) Candidate: m1n1 `19edc72b`
+>    (clean series `9c35cd2c`), binary `m1n1-t6040-pcie-d1d2-19edc72b.bin` `0e065589…`, two
+>    byte-identical builds, PHY-IP probe still read-only with a hard stop before any PHY-IP
+>    write. Gates: sol review + CJ attended run
+>    (`done/2026-07-28-t6040-pcie-d1d2-candidate-preflight.md`). After the aperture responds:
+>    apply PLL/AUSPMA tunables + D6/D7/D8, then WiFi fw staging (168) — the dwm image build
+>    now takes `T6040_WIFI_FW=1` (corpus at `/private/tmp/t6040-paired-fw-25F84/vendorfw/brcm`).
+> 3. Coordination: `sol` was onboarded with a handoff prompt whose first job is the R3/R4
+>    exact-artifact review; ticket 105 records two deliberate deviations from its original spec
+>    (no sink pre-detection — fixture-covered; rollback = R4 + power cycle) for CJ to rule on.
+
 > **2026-07-28 (state of play) — battery/thermals DONE; USB + WiFi are the frontier.**
 >
 > Daily driver (`5931f9c3`, enrolled): dwm + Norwegian keyboard + working SMC battery/charger/temp
