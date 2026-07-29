@@ -150,6 +150,97 @@
 			opp-level = <19>;
 		};
 	};
+	/*
+	 * P1 needs its OWN operating-points-v2 node even though its frequencies are
+	 * identical to P0's. `opp-shared` declares that every CPU referencing the
+	 * table is in one clock/voltage domain, so pointing both P clusters at a
+	 * single node contradicts their separate `performance-domains` and no P
+	 * policy registers at all: measured 2026-07-29 with maxcpus=5, where only
+	 * the E cluster's policy1 appeared and cpu0 (a P0 core) had no cpufreq
+	 * directory, with no error in dmesg. Duplicating the node scopes opp-shared
+	 * to one cluster each.
+	 */
+	everest_opp2: opp-table-2 {
+		compatible = "operating-points-v2";
+		opp-shared;
+
+		opp01 {
+			opp-hz = /bits/ 64 <1260000000>;
+			opp-level = <1>;
+		};
+		opp02 {
+			opp-hz = /bits/ 64 <1512000000>;
+			opp-level = <2>;
+		};
+		opp03 {
+			opp-hz = /bits/ 64 <1800000000>;
+			opp-level = <3>;
+		};
+		opp04 {
+			opp-hz = /bits/ 64 <2088000000>;
+			opp-level = <4>;
+		};
+		opp05 {
+			opp-hz = /bits/ 64 <2352000000>;
+			opp-level = <5>;
+		};
+		opp06 {
+			opp-hz = /bits/ 64 <2616000000>;
+			opp-level = <6>;
+		};
+		opp07 {
+			opp-hz = /bits/ 64 <2868000000>;
+			opp-level = <7>;
+		};
+		opp08 {
+			opp-hz = /bits/ 64 <3096000000>;
+			opp-level = <8>;
+		};
+		opp09 {
+			opp-hz = /bits/ 64 <3300000000>;
+			opp-level = <9>;
+		};
+		opp10 {
+			opp-hz = /bits/ 64 <3468000000>;
+			opp-level = <10>;
+		};
+		opp11 {
+			opp-hz = /bits/ 64 <3624000000>;
+			opp-level = <11>;
+		};
+		opp12 {
+			opp-hz = /bits/ 64 <3756000000>;
+			opp-level = <12>;
+		};
+		opp13 {
+			opp-hz = /bits/ 64 <3852000000>;
+			opp-level = <13>;
+		};
+		opp14 {
+			opp-hz = /bits/ 64 <3924000000>;
+			opp-level = <14>;
+		};
+		opp15 {
+			opp-hz = /bits/ 64 <3996000000>;
+			opp-level = <15>;
+		};
+		opp16 {
+			opp-hz = /bits/ 64 <4044000000>;
+			opp-level = <16>;
+		};
+		opp17 {
+			opp-hz = /bits/ 64 <4104000000>;
+			opp-level = <17>;
+		};
+		opp18 {
+			opp-hz = /bits/ 64 <4416000000>;
+			opp-level = <18>;
+		};
+		opp19 {
+			opp-hz = /bits/ 64 <4512000000>;
+			opp-level = <19>;
+		};
+	};
 };
 
 &cpu_e0 { operating-points-v2 = <&sawtooth_opp>; performance-domains = <&cpufreq_e>; };
@@ -161,8 +252,8 @@
 &cpu_p02 { operating-points-v2 = <&everest_opp>; performance-domains = <&cpufreq_p0>; };
 &cpu_p03 { operating-points-v2 = <&everest_opp>; performance-domains = <&cpufreq_p0>; };
 &cpu_p04 { operating-points-v2 = <&everest_opp>; performance-domains = <&cpufreq_p0>; };
-&cpu_p10 { operating-points-v2 = <&everest_opp>; performance-domains = <&cpufreq_p1>; };
-&cpu_p11 { operating-points-v2 = <&everest_opp>; performance-domains = <&cpufreq_p1>; };
-&cpu_p12 { operating-points-v2 = <&everest_opp>; performance-domains = <&cpufreq_p1>; };
-&cpu_p13 { operating-points-v2 = <&everest_opp>; performance-domains = <&cpufreq_p1>; };
-&cpu_p14 { operating-points-v2 = <&everest_opp>; performance-domains = <&cpufreq_p1>; };
+&cpu_p10 { operating-points-v2 = <&everest_opp2>; performance-domains = <&cpufreq_p1>; };
+&cpu_p11 { operating-points-v2 = <&everest_opp2>; performance-domains = <&cpufreq_p1>; };
+&cpu_p12 { operating-points-v2 = <&everest_opp2>; performance-domains = <&cpufreq_p1>; };
+&cpu_p13 { operating-points-v2 = <&everest_opp2>; performance-domains = <&cpufreq_p1>; };
+&cpu_p14 { operating-points-v2 = <&everest_opp2>; performance-domains = <&cpufreq_p1>; };

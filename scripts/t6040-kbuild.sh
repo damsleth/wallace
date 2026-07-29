@@ -233,6 +233,11 @@ if [ "${DOCKCHANNEL_NBCON:-0}" = "1" ]; then
         exit 1
     }
 fi
+if [ "${CPUFREQ:-0}" = "1" ]; then
+    for f in /out/t6040-j614s-dcuart-cpufreq.dts /src/$APPLE/t6040-j614s-dcuart-cpufreq.dts; do
+        [ -f "$f" ] && cp "$f" $APPLE/ && break
+    done
+fi
 if [ "${PCIE:-0}" = "1" ]; then
     if [ ! -f /out/t6040-j614s-dcuart-pcie.dts ]; then
         echo "ERROR: PCIE=1 requires /out/t6040-j614s-dcuart-pcie.dts"
@@ -1071,6 +1076,20 @@ if [ "${MACSMC:-0}" = "1" ]; then
     # It reaches UDC "configured" on T6040, but this macOS host still binds no
     # network interface (ticket 173); retain it for Linux-host diagnostics.
 fi
+if [ "${CPUFREQ:-0}" = "1" ]; then
+    # Ticket 006. The Apple cluster cpufreq driver ships as =m in the base config
+    # and the RAM image has no module loader, so it must be builtin or the three
+    # apple,cluster-cpufreq nodes bind nothing. Governors: performance and
+    # powersave are the two that let a bounded test force a transition in each
+    # direction without depending on load, plus schedutil as the sane default.
+    echo "== CPUFREQ: Apple cluster cpufreq builtin (ticket 006) =="
+    ./scripts/config --file .config \
+        -e CPU_FREQ -e ARM_APPLE_SOC_CPUFREQ -e PM_OPP \
+        -e CPU_FREQ_STAT \
+        -e CPU_FREQ_GOV_PERFORMANCE -e CPU_FREQ_GOV_POWERSAVE \
+        -e CPU_FREQ_GOV_SCHEDUTIL -e CPU_FREQ_GOV_USERSPACE
+    CPUFREQ_ASSERT_AFTER_OLDDEFCONFIG=1
+fi
 if [ "${WIFI:-0}" = "1" ]; then
     # Ticket 179: WiFi/BT over PCIe. Everything BUILTIN — the RAM image has no
     # module loader, and GPIO_MACSMC in particular ships as =m in the base
@@ -1332,6 +1351,16 @@ if [ "${T6040_WIFI_FW_BUILTIN:-0}" = "1" ]; then
         --set-str EXTRA_FIRMWARE_DIR "$wifi_fw_root"
 fi
 make ARCH=arm64 olddefconfig >/dev/null
+if [ "${CPUFREQ_ASSERT_AFTER_OLDDEFCONFIG:-0}" = "1" ]; then
+    ./scripts/config --file .config \
+        -e CPU_FREQ -e ARM_APPLE_SOC_CPUFREQ -e PM_OPP \
+        -e CPU_FREQ_GOV_PERFORMANCE -e CPU_FREQ_GOV_POWERSAVE -e CPU_FREQ_GOV_USERSPACE
+    make ARCH=arm64 olddefconfig >/dev/null
+    echo "== assert Apple cpufreq is BUILTIN =="
+    grep -q '^CONFIG_ARM_APPLE_SOC_CPUFREQ=y$' .config
+    grep -q '^CONFIG_CPU_FREQ_GOV_PERFORMANCE=y$' .config
+    grep -q '^CONFIG_CPU_FREQ_GOV_POWERSAVE=y$' .config
+fi
 if [ "${WIFI_ASSERT_AFTER_OLDDEFCONFIG:-0}" = "1" ]; then
     # Re-apply and re-settle: olddefconfig may demote a tristate we set to =y.
     # Loop until stable, then hard-assert. A silent =m here costs a rig cycle.
@@ -1477,6 +1506,11 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
         cp $APPLE/t6040-j614s-dcuart-irq-txpoll.dtb /out/ \
             && echo "DTB -> /out/t6040-j614s-dcuart-irq-txpoll.dtb"
     fi
+fi
+if [ "${CPUFREQ:-0}" = "1" ] && [ -f $APPLE/t6040-j614s-dcuart-cpufreq.dts ]; then
+    make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-cpufreq.dtb
+    cp $APPLE/t6040-j614s-dcuart-cpufreq.dtb /out/ \
+        && echo "DTB -> /out/t6040-j614s-dcuart-cpufreq.dtb"
 fi
 if [ "${PCIE:-0}" = "1" ]; then
     make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-pcie.dtb
