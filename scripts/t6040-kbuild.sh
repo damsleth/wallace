@@ -17,6 +17,9 @@
 #   podman exec -e DOCKCHANNEL=1 -e DOCKCHANNEL_EARLYCON=1 \
 #       -e BUILD_DIR=/build/linux-dcuart-earlycon kbuild \
 #       bash /out/t6040-kbuild.sh image
+#   podman exec -e DOCKCHANNEL=1 -e DOCKCHANNEL_NBCON=1 \
+#       -e BUILD_DIR=/build/linux-dcuart-nbcon kbuild \
+#       bash /out/t6040-kbuild.sh image
 # (The old /kbuild.sh bind mount predates the .plans refactor and is stale;
 # exec via /out instead.)
 # The mac host FS is case-insensitive, which corrupts kernel files (xt_CONNMARK.h
@@ -179,6 +182,16 @@ if [ "${DOCKCHANNEL_EARLYCON:-0}" = "1" ]; then
     }
     [ "${USB_HOST:-0}" = "0" ] || {
         echo "ERROR: DOCKCHANNEL_EARLYCON=1 is a storage-disabled diagnostic"
+        exit 1
+    }
+fi
+if [ "${DOCKCHANNEL_NBCON:-0}" = "1" ]; then
+    [ "${DOCKCHANNEL:-0}" = "1" ] || {
+        echo "ERROR: DOCKCHANNEL_NBCON=1 requires DOCKCHANNEL=1"
+        exit 1
+    }
+    [ "${DOCKCHANNEL_EARLYCON:-0}" = "0" ] || {
+        echo "ERROR: choose DOCKCHANNEL_NBCON or DOCKCHANNEL_EARLYCON, not both"
         exit 1
     }
 fi
@@ -703,6 +716,62 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
             b8dcbdcb9cbf1d18be7cf30c1f839a204b0aec33 | git apply
         echo "DockChannel serial TTY applied OK"
     fi
+    # Local fallback plus per-instance IRQ masks. MTP uses RX BIT(3), while the
+    # UART FIFO uses RX BIT(1). The atomic transmit patch is based on this
+    # version, so the fallback must be explicit before the nbcon pair.
+    if grep -q 'apple,poll-mode' drivers/mailbox/apple-dockchannel.c; then
+        echo "t6040-dockchannel-poll.patch already applied"
+    elif git apply --check /out/t6040-dockchannel-poll.patch 2>/dev/null; then
+        git apply /out/t6040-dockchannel-poll.patch
+        echo "t6040-dockchannel-poll.patch applied OK"
+    else
+        echo "ERROR: t6040-dockchannel-poll.patch does not apply cleanly:"
+        git apply --check /out/t6040-dockchannel-poll.patch || true
+        exit 1
+    fi
+    if [ "${DOCKCHANNEL_NBCON:-0}" = "1" ]; then
+        echo "== apply bounded atomic DockChannel transmit =="
+        if grep -q 'apple_dockchannel_send_atomic' \
+                drivers/mailbox/apple-dockchannel.c; then
+            echo "t6040-dockchannel-atomic-tx.patch already applied"
+        elif git apply --check \
+                /out/t6040-dockchannel-atomic-tx.patch 2>/dev/null; then
+            git apply /out/t6040-dockchannel-atomic-tx.patch
+            echo "t6040-dockchannel-atomic-tx.patch applied OK"
+        else
+            echo "ERROR: t6040-dockchannel-atomic-tx.patch does not apply:"
+            git apply --check /out/t6040-dockchannel-atomic-tx.patch || true
+            exit 1
+        fi
+        echo "== apply DockChannel nbcon diagnostic =="
+        if grep -q 'CON_PRINTBUFFER | CON_NBCON' \
+                drivers/tty/apple_dockchannel_tty.c; then
+            echo "t6040-dockchannel-nbcon.patch already applied"
+        elif git apply --check \
+                /out/t6040-dockchannel-nbcon.patch 2>/dev/null; then
+            git apply /out/t6040-dockchannel-nbcon.patch
+            echo "t6040-dockchannel-nbcon.patch applied OK"
+        else
+            echo "ERROR: t6040-dockchannel-nbcon.patch does not apply:"
+            git apply --check /out/t6040-dockchannel-nbcon.patch || true
+            exit 1
+        fi
+    else
+        if grep -q 'CON_PRINTBUFFER | CON_NBCON' \
+                drivers/tty/apple_dockchannel_tty.c &&
+                git apply -R --check \
+                    /out/t6040-dockchannel-nbcon.patch 2>/dev/null; then
+            git apply -R /out/t6040-dockchannel-nbcon.patch
+            echo "t6040-dockchannel-nbcon.patch removed"
+        fi
+        if grep -q 'apple_dockchannel_send_atomic' \
+                drivers/mailbox/apple-dockchannel.c &&
+                git apply -R --check \
+                    /out/t6040-dockchannel-atomic-tx.patch 2>/dev/null; then
+            git apply -R /out/t6040-dockchannel-atomic-tx.patch
+            echo "t6040-dockchannel-atomic-tx.patch removed"
+        fi
+    fi
     if [ "${DOCKCHANNEL_EARLYCON:-0}" = "1" ]; then
         echo "== apply bounded DockChannel early console diagnostic =="
         if grep -q 'apple_dctty_early_setup' \
@@ -724,19 +793,6 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
                 /out/t6040-dockchannel-earlycon-debug.patch 2>/dev/null; then
         git apply -R /out/t6040-dockchannel-earlycon-debug.patch
         echo "t6040-dockchannel-earlycon-debug.patch removed"
-    fi
-    # Local fallback plus per-instance IRQ masks. MTP uses RX BIT(3), while the
-    # UART FIFO uses RX BIT(1). The base DT retains apple,poll-mode; bounded M4
-    # Pro measurement corrected the ADT's false IRQ 360 to AIC input 816.
-    if grep -q 'apple,poll-mode' drivers/mailbox/apple-dockchannel.c; then
-        echo "t6040-dockchannel-poll.patch already applied"
-    elif git apply --check /out/t6040-dockchannel-poll.patch 2>/dev/null; then
-        git apply /out/t6040-dockchannel-poll.patch
-        echo "t6040-dockchannel-poll.patch applied OK"
-    else
-        echo "ERROR: t6040-dockchannel-poll.patch does not apply cleanly:"
-        git apply --check /out/t6040-dockchannel-poll.patch || true
-        exit 1
     fi
     if [ "${HID_RX_REARM:-0}" = "1" ]; then
         if git apply --check /out/t6040-dockchannel-rx-rearm.patch 2>/dev/null; then
@@ -1404,6 +1460,10 @@ if [ "${1:-}" = "image" ]; then
         image_name=Image-dcuart-earlycon
         map_name=System.map-dcuart-earlycon
     fi
+    if [ "${DOCKCHANNEL_NBCON:-0}" = "1" ]; then
+        image_name="${image_name}-nbcon"
+        map_name="${map_name}-nbcon"
+    fi
     # DIET / DIET_CAPABLE are config-only variants that previously had NO name of
     # their own, so they inherited another variant's filename and silently clobbered
     # it — on 2026-07-25 a DIET=1 build overwrote the live-proven 50.8 MiB
@@ -1473,6 +1533,22 @@ if [ "${1:-}" = "image" ]; then
         done
         echo "  all 12 built-in firmware symbols present in System.map"
     fi
+    if [ "${DOCKCHANNEL_NBCON:-0}" = "1" ]; then
+        echo "== assert DockChannel nbcon linked =="
+        grep -q ' apple_dctty_console_write$' System.map || {
+            echo "MISSING NBCON SYMBOL: apple_dctty_console_write" >&2
+            exit 1
+        }
+        grep -q ' apple_dockchannel_send_atomic$' System.map || {
+            echo "MISSING NBCON DEPENDENCY: apple_dockchannel_send_atomic" >&2
+            exit 1
+        }
+        grep -q ' CON_PRINTBUFFER | CON_NBCON' \
+            drivers/tty/apple_dockchannel_tty.c || {
+            echo "MISSING NBCON SOURCE MARKER" >&2
+            exit 1
+        }
+    fi
 
     # Refuse to silently replace an existing artifact: any Image already in /out may
     # be referenced by a done/ write-up or pinned in a ticket. Set KBUILD_OVERWRITE=1
@@ -1489,7 +1565,8 @@ if [ "${1:-}" = "image" ]; then
     # System.map lets t6040-ramdump.py locate __log_buf for a post-mortem console
     # dump when the framebuffer stays blank (hang before simpledrm probes).
     cp System.map "/out/$map_name" && echo "System.map -> /out/$map_name"
-    if [ "${T6040_WIFI_FW_BUILTIN:-0}" = "1" ]; then
+    if [ "${T6040_WIFI_FW_BUILTIN:-0}" = "1" ] ||
+       [ "${DOCKCHANNEL_NBCON:-0}" = "1" ]; then
         config_name="config-${image_name#Image-}"
         cp .config "/out/$config_name" \
             && echo "config -> /out/$config_name"
@@ -1506,7 +1583,9 @@ if [ "${1:-}" = "image" ]; then
         cp .config /out/config-hid-state-trace \
             && echo "config -> /out/config-hid-state-trace"
     fi
-    if [ "${HID_TYPE_FIX:-0}" = "1" ]; then
+    if [ "${HID_TYPE_FIX:-0}" = "1" ] &&
+       [ "${T6040_WIFI_FW_BUILTIN:-0}" = "0" ] &&
+       [ "${DOCKCHANNEL_NBCON:-0}" = "0" ]; then
         cp .config /out/config-hid-type-fix \
             && echo "config -> /out/config-hid-type-fix"
     fi
