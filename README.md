@@ -8,6 +8,29 @@ watchdog — reaches a **graphical desktop (Xorg + dwm)** with a working keyboar
 
 This repo is the umbrella. The code lives in four sibling repos and the knowledge kept getting smeared across them so everything that guides the work now lives here: plans, scripts, kernel patches, post-mortems.
 
+## Status (2026-07-30) — 💾 NVMe reads + 🚀 4.5 GHz cpufreq + 🖥 i3 daily driver
+
+**The internal SSD is readable from raw m1n1** — GPT `EFI PART` read via the M4's split ANS layout
+(reg[3] = NVMMU, reg[9] = controller aperture; yuka's t8132 series + two local fixes, the critical
+one being that our `mBoot-18000.121.3` firmware reads as `V_UNKNOWN` and must gate as ≥ 15.0 or the
+fatal `LINEAR_SQ_CTRL` write re-fires). No SPTM involvement. This reopens `chainload=` stage-2 boot
+and makes the Linux `nvme-apple` port the credible route to NVMe read/write.
+`done/2026-07-30-t6040-NVME-READ-WORKS.md`.
+
+**cpufreq works on both online clusters — the P cores hit 4.512 GHz.** The missing P-cluster
+policies were an *upstream* bug: `apple-soc-cpufreq` computes `frequency * 1000` in 32-bit, and the
+M4 P clusters are the first Apple clusters above 4.294 GHz, so their policies failed through the
+driver's only print-free error path. One-line patch
+(`patches/t6040-apple-cpufreq-freq-mult-overflow.patch`), verified transitioning 1.26↔4.512 GHz.
+`done/2026-07-30-t6040-006-SOLVED-cpufreq-32bit-overflow.md`.
+
+**Daily-driver object `c1529d4c` is built, verified and allowlisted**: i3 (dwm fallback), cpufreq,
+WiFi (19-BSS scan), Bluetooth, 7 GiB `/data` + SD/USB automount, ttydc0 getty, 5 cores. Two more
+root causes fell on the way: the long-standing "Asahi logo, no text" dwm hang (a configfs UDC bind
+blocking sequential sysinit) and the trackpad driver gap (`hid-magicmouse`, not `hid-multitouch`).
+The trackpad HIDF upload itself crashes the machine (A/B/A-bisected) and needs an attended panel
+watch — the object ships without the blob. `done/2026-07-30-t6040-daily-driver-object-c1529d4c.md`.
+
 ## Status (2026-07-29) — 📶 PCIe UP: WiFi and Bluetooth working
 
 **PCIe works, and with it WiFi and Bluetooth.** WiFi is **fully working**: it associates with WPA,

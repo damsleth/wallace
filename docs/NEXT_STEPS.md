@@ -1,6 +1,34 @@
 # t6040 Linux bring-up — NEXT STEPS
 
-> **2026-07-29 (latest) — WiFi CONFIRMED END TO END. Next: SMP.**
+> **2026-07-30 (latest) — TWO BREAKTHROUGHS + THE DAILY DRIVER. ENROLL `c1529d4c`.**
+>
+> ```bash
+> kmutil configure-boot -c /Volumes/S128/m1n1-dwm-i3-everything-cpufreq-5core.bin --raw --entry-point 2048 --lowest-virtual-address 0 -v /Volumes/m1n1
+> ```
+>
+> 1. **NVMe READS WORK** (`done/2026-07-30-t6040-NVME-READ-WORKS.md`): the internal SSD's GPT
+>    (`EFI PART`) read from raw m1n1 via the reg[9] controller aperture. No SPTM needed for reads.
+>    Two local fixes were load-bearing, incl. treating `V_UNKNOWN` fw (our `mBoot-18000.121.3`) as
+>    ≥15.0 — without it the 07-25 SError re-fires. Unlocks `chainload=` stage-2 and the Linux
+>    nvme-apple port (the read/WRITE route).
+> 2. **cpufreq SOLVED** (`done/2026-07-30-t6040-006-SOLVED-cpufreq-32bit-overflow.md`): upstream
+>    apple-soc-cpufreq computes `freq*1000` in 32 bits; M4 P clusters (4416/4512 MHz) are the first
+>    Apple clusters past 4.294 GHz, so every P policy silently failed. One-line patch; P0 verified
+>    transitioning 1.26↔4.512 GHz. **Draft upstream** (with the two NVMe items above).
+> 3. **Daily driver `c1529d4c`** (`done/2026-07-30-t6040-daily-driver-object-c1529d4c.md`): i3 +
+>    cpufreq + WiFi (19-BSS scan) + BT + 7 GiB /data + SD/USB automount + getty, maxcpus=5. Also
+>    fixed tonight: the "asahi logo, no text" dwm hang (blocking configfs UDC bind in sequential
+>    sysinit) and the trackpad driver gap (hid-magicmouse, not hid-multitouch).
+> 4. **Trackpad HIDF upload CRASHES the machine** (126): A/B/A-bisected; blob withdrawn from the
+>    object. Needs an attended tethered boot with CJ photographing the tty0 panic on the panel —
+>    warm-reboot ramdumps are impossible (DRAM scrubbed/re-keyed, verified all-zeros readback).
+>
+> **Recommended order:** (1) enroll `c1529d4c`, daily-drive it; (2) attended HIDF panic capture;
+> (3) NVMe: bounded read-only dump ticket + start the Linux nvme-apple reg[9] port; (4) SMP
+> maxcpus>=6 fault (121 discriminating DTB); (5) kbd backlight via the ADT `kbd-backlight` node
+> (HID route ruled out); panel backlight is DCP-gated.
+
+> **2026-07-29 — WiFi CONFIRMED END TO END. Next: SMP.**
 > On the enrolled object, from dwm on the panel: WPA association, DHCP lease, and
 > `ping -c3 1.1.1.1` = 3/3, 0% loss, RTT 3.656/6.504/11.934 ms. The full chain works — PCIe link-up →
 > BCM4388 firmware → association → DHCP → routed internet. Ticket 168 is **done**. The

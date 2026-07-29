@@ -47,6 +47,15 @@ TARGET="${TARGET:-/Volumes/m1n1}"
 #  sol's reviewed object. Contains NO apple/tpmtfw-j614s.bin, so it needs no ticket-126
 #  firmware-upload exception. Strict verify PASS, 2158×16 KiB, both xz members PASS the
 #  minilzlib harness.
+#  c1529d4c… THE DAILY DRIVER (2026-07-30): i3 + dwm fallback, cpufreq (P cores to 4.512 GHz
+#  via the freq-mult-overflow patch), WiFi (19-BSS scan verified), BT, 7 GiB /data +
+#  SD/USB automount, ttydc0 getty, maxcpus=5. NO HIDF (the live tpmtfw upload kills the
+#  machine — A/B/A-bisected 2026-07-30, needs an attended panel-watch to diagnose; magicmouse
+#  binds and fails -ENOENT harmlessly). Boot hang fixed: acm-console UDC bind moved out of
+#  sequential sysinit. Exact payload combo live-verified by chainload same night: both
+#  cpufreq policies + verified 4512000 transition, wlan0 scan 19 BSS, hci0, /data mounted,
+#  Xorg+i3+i3bar running. Strict verify PASS, 2609×16 KiB, initramfs decodes to 99.5 MiB
+#  in the minilzlib harness (kernel member is gzip — m1n1 payload.c native).
 #  5931f9c3… macsmc dual-mode v3 (dwm + keyboard + battery/thermals SRAM-fixed) — 165
 APPROVED_HASHES="\
 5931f9c3d1f785f2a25cd40754fec1f38078efbc3ceaa952288c529bbc7527f8 macsmc-dualmode-dwm-v3-sramfix
@@ -57,7 +66,8 @@ f290833c8a9dd7ea4086571b925e6b775c113dd3b4626a7ef2644ebc76fd03fd b0-milestone-al
 2371ee5dfbfab591397fc333e7da212fb7582bfb2eaddaa6438005f5bb41759b pure-autoboot-fallback
 1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b rollback-bare-proxy-m1n1
 679fe1335876c14b51e30de8c615addf5e171b7f53f92eec8e489173a79f5d76 dualmode-wifi-bt-ppp-no-hidf-v116
-74e78ad848af95c1fa26e8cf610ceedc801176adbc43413e674cb0075ecbb9e0 dualmode-everything-5core"
+74e78ad848af95c1fa26e8cf610ceedc801176adbc43413e674cb0075ecbb9e0 dualmode-everything-5core
+c1529d4c8007e251606f14a86e6d307aad04b3472f2527c41f01b85c58072773 dwm-i3-everything-cpufreq-5core"
 
 OBJ="${1:-}"
 CONFIRM="${2:-}"
