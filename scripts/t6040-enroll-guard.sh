@@ -32,6 +32,12 @@ TARGET="${TARGET:-/Volumes/m1n1}"
 # live-proven as dwm with a working keyboard (both sha256
 # 3b1ac51f69d1b5d9a102fe71b3bf953c3c3d9433dfe193e723ec679641e1a6c7), and the only differing
 # bytes lie inside the m1n1 loader, which was itself live-proven both ways in ticket 140.
+#  74e78ad8… same as 679fe133 but maxcpus=5 and a ttydc0 getty — 5 cores instead of 1.
+#  Proven on the window-free twin c48080b9: shell reached, nproc 5, and all five CPUs
+#  accumulating user AND system time in /proc/stat (so the scheduler really uses them),
+#  with wlan0 + hci0 up and zero oops. maxcpus>=6 is blocked by a kernel fault in
+#  unpack_to_rootfs, bisected 2026-07-29 — do not raise it past 5 yet. The getty means
+#  this payload can finally be driven from the host over KIS instead of read at the panel.
 #  679fe133… dual-mode WiFi/BT/PPP, no HIDF, v116 scan fix — ticket 187 (reviewed 2026-07-29).
 #  Sol's 969ba852 with one member replaced: the kernel is rebuilt with
 #  patches/t6040-brcmfmac-bss-info-v116.patch, without which brcmfmac discards every scan
@@ -50,7 +56,8 @@ f290833c8a9dd7ea4086571b925e6b775c113dd3b4626a7ef2644ebc76fd03fd b0-milestone-al
 46237ade7e314cd752e1482930e21b62319e1b0b707a0f23e86392701555f0c9 dual-mode-EARLY_PROXY_TIMEOUT
 2371ee5dfbfab591397fc333e7da212fb7582bfb2eaddaa6438005f5bb41759b pure-autoboot-fallback
 1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b rollback-bare-proxy-m1n1
-679fe1335876c14b51e30de8c615addf5e171b7f53f92eec8e489173a79f5d76 dualmode-wifi-bt-ppp-no-hidf-v116"
+679fe1335876c14b51e30de8c615addf5e171b7f53f92eec8e489173a79f5d76 dualmode-wifi-bt-ppp-no-hidf-v116
+74e78ad848af95c1fa26e8cf610ceedc801176adbc43413e674cb0075ecbb9e0 dualmode-everything-5core"
 
 OBJ="${1:-}"
 CONFIRM="${2:-}"
