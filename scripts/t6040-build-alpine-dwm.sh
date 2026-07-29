@@ -318,6 +318,18 @@ GADGET_SCRIPT=${T6040_USB_GADGET_SCRIPT:-"$(dirname "$0")/t6040-usb-acm-console.
 }
 cp "$GADGET_SCRIPT" "$TMP/usr/local/sbin/t6040-usb-acm-console"
 chmod 0755 "$TMP/usr/local/sbin/t6040-usb-acm-console"
+
+# A getty on the DockChannel UART. Without this the dwm image can only be read
+# at the panel: `console=ttydc0` alone produces nothing over KIS even with the
+# nbcon patch linked (unresolved, 2026-07-29), and the USB-ACM console above is
+# inert because macOS binds no Linux CDC gadget (ticket 173). Reuse the B0
+# helpers verbatim -- they wait for the asynchronous tty to register, then run a
+# passwordless getty on it, which is what makes this payload drivable from the
+# host with `printf 'cmd\n' > /tmp/m1n1`.
+install -m 0755 "$(dirname "$0")/t6040-b0-ttydc0-console" \
+    "$TMP/usr/local/sbin/t6040-b0-ttydc0-console"
+install -m 0755 "$(dirname "$0")/t6040-b0-autologin" \
+    "$TMP/usr/local/sbin/t6040-b0-autologin"
 chmod 0755 "$TMP/usr/local/sbin/t6040-usb-ecm-gadget"
 
 printf 'wallace-dwm\n' > "$TMP/etc/hostname"
@@ -333,6 +345,7 @@ cat > "$TMP/etc/inittab" <<'EOF'
 ::sysinit:/usr/local/sbin/t6040-usb-acm-console
 ::once:/usr/local/sbin/t6040-startx
 tty1::respawn:/sbin/getty -n -l /bin/sh 38400 tty1 linux
+::respawn:/usr/local/sbin/t6040-b0-ttydc0-console
 ::ctrlaltdel:/sbin/reboot
 EOF
 ln -sf /bin/busybox "$TMP/sbin/init" 2>/dev/null || true
