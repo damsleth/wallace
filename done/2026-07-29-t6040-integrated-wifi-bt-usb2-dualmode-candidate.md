@@ -11,8 +11,8 @@ USB2-only path now coexist in one strict-verified dual-mode object:
 
 ```text
 /Users/damsleth/Code/linux-build-out/m1n1-dwm-wifi-bt-ppp-usb2-native-dualmode-no-hidf.bin
-size   35,340,288 bytes = 2,157 * 16 KiB
-sha256 4bb22bb96e430c90011fd5668bf4bf1c9711cc792450cfbe932c69555fab7cf1
+size   35,356,672 bytes = 2,158 * 16 KiB
+sha256 d867bcda50279c4671361c87080537de0970cd5035503c4afd88e02d2c56707b
 ```
 
 This is the closest current offline candidate to the near-term combined
@@ -20,17 +20,21 @@ artifact. It is not runnable or enrollable yet. Its USB2 PHY callback performs
 volatile ATC/eUSB2 writes, and the separate HPM status/VBUS path is still
 unresolved. Ticket 189 is an exact-review request, not live authorization.
 
-The object deliberately uses the no-HIDF RAM root. It can bring up the already
-proven WiFi and Bluetooth paths but cannot upload trackpad firmware. Combining
-the unreviewed USB2 PHY transition with ticket 126's separately gated HIDF
-upload would put two new write boundaries in one first boot; the build harness
-refused that composition as intended.
+The corrected kernel retains the already-proven DockChannel HID type fix, so
+the internal keyboard path is not regressed. The object deliberately uses the
+no-HIDF RAM root. The generic bounded DockChannel firmware-request code is
+compiled, but neither the RAM root nor the kernel contains
+`apple/tpmtfw-j614s.bin`; therefore the request fails before any upload and a
+successful trackpad HIDF write is impossible. Combining the unreviewed USB2
+PHY transition with ticket 126's separately gated HIDF payload would put two
+new write boundaries in one first boot; the build harness refuses that
+composition.
 
 ## Exact object members
 
 ```text
 ee58fa400298ad605993e0aa07289354af06da27ff7668345f2527b9b08b767c  m1n1-t6040-pcie-dualmode-window10-04e8829c.bin
-cac447f87916932c6ef93f64101353c0429c9a09134542b499ccc174e68f4571  Image-pcie-nbcon-ppp-usb2-native-right.xz
+c89aa203a245db52e0d19b2b4410817ca3ea2b56048cf7219508eec1b91ab93b  Image-macsmc-hid-type-fix-nbcon-ppp-usb2-native-right.xz
 934dd7b2cdced35650ef3afa0545ee4b5ad34c2e6707629c2e8ad9eca88e3cfb  t6040-j614s-dcuart-wifi-usb2-native-right.dtb
 0ff9415f931d30587852044112f31e5e65d69c32de928a950706269412e3ca7a  initramfs-alpine-dwm-wifi-bt-ppp.cpio.xz
 7ce05abd2da1a13e6c89209a9c5dba1279d0860b3951d7995c838ef30ded0ca0  chosen.bootargs record
@@ -56,9 +60,9 @@ Two builds from distinct empty container build directories produced identical
 raw outputs:
 
 ```text
-e168c2138604645ab28aaafa968139cb2e133a0cbf2e2b39e11230efe52410a0  Image-pcie-nbcon-ppp-usb2-native-right
-bd39f746ec2e59e7eeb36228bcc8471f34cef74109d4213e413c4964ac20983a  System.map-pcie-nbcon-ppp-usb2-native-right
-221666c6d31eefe44c7d15e83400e04f37567a32d617b0b795ccb5eed809e543  config-pcie-nbcon-ppp-usb2-native-right
+3caa0f781c646e4161b3f3b8f805072fff7663c8dcf7cfab576daf9f46e28e9e  Image-macsmc-hid-type-fix-nbcon-ppp-usb2-native-right
+1ea47f23c397c8219b42f741fe6e4122c9b79d7b070ab74ce68c9e41b43413cf  System.map-macsmc-hid-type-fix-nbcon-ppp-usb2-native-right
+221666c6d31eefe44c7d15e83400e04f37567a32d617b0b795ccb5eed809e543  config-macsmc-hid-type-fix-nbcon-ppp-usb2-native-right
 934dd7b2cdced35650ef3afa0545ee4b5ad34c2e6707629c2e8ad9eca88e3cfb  t6040-j614s-dcuart-wifi-usb2-native-right.dtb
 ```
 
@@ -67,6 +71,8 @@ Build flags:
 ```text
 DOCKCHANNEL=1
 DOCKCHANNEL_NBCON=1
+HID_TYPE_FIX=1
+T6040_INTEGRATED=1
 T6040_PPP=1
 MACSMC=1
 WIFI=1
@@ -83,7 +89,7 @@ DockChannel atomic TX, and PPP async.
 The kernel XZ member is a single-stream, single-block CRC32 member:
 
 ```text
-compressed    12,222,144 bytes
+compressed    12,227,380 bytes
 uncompressed  56,068,608 bytes
 dictionary    64 MiB
 ```
@@ -118,8 +124,9 @@ That sequence has no byte-preserving inverse; a power cycle is the recovery
 boundary.
 
 There is no HPM/SPMI transaction, USB3/retimer path, PMU/charger/NVRAM/flash
-write, persistent firmware operation, blind offset scan, or trackpad HIDF in
-the object.
+write, persistent firmware operation, blind offset scan, or trackpad HIDF
+payload in the object. Although the generic bounded request code is present,
+the exact board firmware file is absent, so it cannot reach its upload.
 
 Before any live use:
 
@@ -133,4 +140,3 @@ Before any live use:
 
 Only after USB2 enumeration succeeds should the separately reviewed trackpad
 HIDF path be folded into the final daily-driver artifact.
-

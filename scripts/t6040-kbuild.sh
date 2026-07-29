@@ -173,10 +173,13 @@ if [ "${HID_TYPE_FIX:-0}" = "1" ]; then
         echo "ERROR: HID_TYPE_FIX=1 requires DOCKCHANNEL=1"
         exit 1
     }
-    [ "${USB_HOST:-0}" = "0" ] || {
-        echo "ERROR: HID_TYPE_FIX=1 is a storage-disabled candidate"
-        exit 1
-    }
+    if [ "${USB_HOST:-0}" != "0" ]; then
+        [ "${T6040_USB2_NATIVE:-0}" = "1" ] &&
+        [ "${T6040_INTEGRATED:-0}" = "1" ] || {
+            echo "ERROR: HID_TYPE_FIX=1 with USB host is allowed only by the explicit native integration profile"
+            exit 1
+        }
+    fi
 fi
 if [ "${TRACKPAD_MOTION:-0}" = "1" ]; then
     [ "${DOCKCHANNEL:-0}" = "1" ] || {
@@ -203,6 +206,10 @@ if [ "${TRACKPAD_FW:-0}" = "1" ]; then
     }
     [ "${TRACKPAD_MOTION:-0}" = "0" ] || {
         echo "ERROR: TRACKPAD_FW and TRACKPAD_MOTION are separate profiles"
+        exit 1
+    }
+    [ "${USB_HOST:-0}" = "0" ] || {
+        echo "ERROR: keep the trackpad HIDF upload out of the first native USB2 boot"
         exit 1
     }
 fi

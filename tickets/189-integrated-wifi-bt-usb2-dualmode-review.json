@@ -5,11 +5,11 @@
   "state": "open",
   "track": "integration",
   "priority": "P1",
-  "desc": "Offline exact-artifact review of the integrated dual-mode WiFi/BT/PPP + native right-port USB2 candidate /Users/damsleth/Code/linux-build-out/m1n1-dwm-wifi-bt-ppp-usb2-native-dualmode-no-hidf.bin SHA256 4bb22bb96e430c90011fd5668bf4bf1c9711cc792450cfbe932c69555fab7cf1, size 35340288=2157*16KiB. Exact members: reproducible 10-second DTR-gated live-proven PCIe prefix ee58fa40; two-clean-build 16K kernel XZ cac447f8 with PCIe/WiFi/BT/SMC endpoint power/PPP/storage/UAS/DockChannel nbcon plus native T6040 USB2-only PHY; integrated DTB 934dd7b2 enabling proven WiFi/BT and only right-port DART/DWC3/eUSB2 banks; no-HIDF root 0ff9415f. Strict verifier and both XzDecode gates PASS. No HPM/SPMI, USB3, retimer, role-switch, PMU/charger/NVRAM/flash or persistent write; no tpmtfw payload. Not runnable: USB2 power_on performs volatile ATC MMIO with no inverse, HPM status/VBUS sourcing is unresolved, and the combined artifact needs independent source/address/hash review plus a separately approved attended rig manifest. Review only; do not run or enroll.",
+  "desc": "Offline exact-artifact review of the corrected integrated dual-mode WiFi/BT/PPP + native right-port USB2 candidate /Users/damsleth/Code/linux-build-out/m1n1-dwm-wifi-bt-ppp-usb2-native-dualmode-no-hidf.bin SHA256 d867bcda50279c4671361c87080537de0970cd5035503c4afd88e02d2c56707b, size 35356672=2158*16KiB. Exact members: reproducible 10-second DTR-gated live-proven PCIe prefix ee58fa40; two-clean-build 16K kernel XZ c89aa203 with the live-proven HID type fix plus PCIe/WiFi/BT/SMC endpoint power/PPP/storage/UAS/DockChannel nbcon and native T6040 USB2-only PHY; integrated DTB 934dd7b2 enabling proven WiFi/BT and only right-port DART/DWC3/eUSB2 banks; no-HIDF root 0ff9415f. Strict verifier and both XzDecode gates PASS. No HPM/SPMI, USB3, retimer, role-switch, PMU/charger/NVRAM/flash or persistent write; the generic bounded DockChannel request path is compiled but no tpmtfw payload exists, so a successful trackpad HIDF upload is impossible. Not runnable: USB2 power_on performs volatile ATC MMIO with no inverse, HPM status/VBUS sourcing is unresolved, and the combined artifact needs independent source/address/hash review plus a separately approved attended rig manifest. Review only; do not run or enroll.",
   "author": "sol",
   "deps": [],
   "hashes": {
-    "image": "4bb22bb96e430c90011fd5668bf4bf1c9711cc792450cfbe932c69555fab7cf1",
+    "image": "d867bcda50279c4671361c87080537de0970cd5035503c4afd88e02d2c56707b",
     "dtb": "934dd7b2cdced35650ef3afa0545ee4b5ad34c2e6707629c2e8ad9eca88e3cfb",
     "initramfs": "0ff9415f931d30587852044112f31e5e65d69c32de928a950706269412e3ca7a"
   },

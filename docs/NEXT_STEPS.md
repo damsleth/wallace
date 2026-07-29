@@ -87,7 +87,8 @@
 > reproducible native right-port USB2 kernel/DT with the proven 10-second
 > PCIe/WiFi/Bluetooth prefix and the no-HIDF graphical WiFi/BlueZ/PPP root.
 > Object `m1n1-dwm-wifi-bt-ppp-usb2-native-dualmode-no-hidf.bin` is
-> `4bb22bb9...`, 2,157 × 16 KiB; kernel/DT are two-clean-build identical and
+> `d867bcda...`, 2,158 × 16 KiB; its corrected kernel retains the proven
+> internal-keyboard HID type fix, kernel/DT are two-clean-build identical, and
 > both XZ members plus strict layout pass. This is review-only, not runnable:
 > it adds volatile ATC/eUSB2 writes with no exact inverse, and HPM
 > status/VBUS remains a separate prerequisite. Trackpad HIDF is deliberately
