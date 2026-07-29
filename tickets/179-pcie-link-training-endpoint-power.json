@@ -1,0 +1,15 @@
+{
+  "seq": "179",
+  "slug": "pcie-link-training-endpoint-power",
+  "needs": "offline",
+  "state": "open",
+  "track": "pcie",
+  "priority": "P1",
+  "desc": "PCIe link training: both root ports enumerate but DLL_LINK_ACTIVE=0 and pcie-apple reports 'link didn't come up' on pci@0,0 (BCM4388 WiFi) and pci@1,0 (SD reader). op-115 is SOLVED (done/2026-07-29-t6040-pcie-op115-SOLVED-links-dont-train.md); this is the sole remaining WiFi blocker. ALREADY RULED OUT: PERST pins (ADT function-perst GPIO 4/5 == our DT), CLKREQ pinmux (ADT function-clkreq GPIO(0,2)/(1,2) == our pcie-pins, referenced via pinctrl-0), pinctrl driver bound, DT reg layout, and double-init. PRIORITY 1 = ENDPOINT POWER: ADT pci-bridge1 carries function-sd_pwr_en = 294:pKW4('gP19', 0x0), i.e. the SD reader's power-enable is an SMC KEY WRITE we never perform — so port 1 likely cannot train by design. pci-bridge0 (WiFi) has NO pwren property, so find how its rail is enabled (check the ADT for a WiFi/BT power function, a PMU rail, or an always-on domain; check whether macOS leaves it on and whether our boot path turns it off). Any SMC key write is NEW surface beyond the permitted smc_reboot/smc_rtc and needs decode plus explicit CJ approval. PRIORITY 2: ADT per-bridge t-refclk-to-perst=100 and perst-to-config=100 — verify pcie-apple honours equivalent delays on t602x/t6040. PRIORITY 3: 'no iommu-map translation for id 0x0/0x8' in dmesg. PRIORITY 4: diff yuka's t8140-pcie branch (a7857af8) and upstream t8132 port bring-up for M4-specific steps after LTSSM start. RIG NOTE: pcie_init must run ONCE PER POWER CYCLE (a second run in the same cycle data-aborted at port 2's PHY-IP window).",
+  "author": "claude",
+  "deps": [
+    "124"
+  ],
+  "hashes": null,
+  "created": 1785309901
+}

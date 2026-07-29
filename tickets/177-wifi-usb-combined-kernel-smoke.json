@@ -1,0 +1,13 @@
+{
+  "seq": "177",
+  "slug": "wifi-usb-combined-kernel-smoke",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "integration",
+  "priority": "P1",
+  "desc": "Controlled tethered smoke of /Users/damsleth/Code/linux-build-out/m1n1-b0-dwm-smoke-wifi-usb.bin SHA256 b376cd564b3778c11175b7b34bcf8a746faec835ee0234280ee3e727f5120efa, size 30130176 = 1839*16KiB. Exact members: proven window-free m1n1 v7 ecd264a51f83673a2d0ff00bd7dd882a0c582f982c7a940f4a63b564f55b4796; corrected 16K kernel xz 12d6f4712873db053105cc9ca00d80bb729a5b1987490a72817b7edb30f05338 with SMC, HID fix, USB storage/UAS/usbnet and pinned BCM4388 firmware; fixed MACSMC DTB 11abca72b212362e1651a24f5dd07143b3b89956f8c00aaccec83d32b15df787; proven graphical initramfs 47d1e8ce938774eb570edd8e4151e2340a3f46e1fa29f7686b208721c5eb1058; bootargs record 3659a0da. Strict verifier PASS; payload [0x10c000,end) byte-identical to dual-mode candidate b512b9fd. No SPMI/PCIe-PHY writes and no right-port ATC DT enablement. PASS at panel: Linux reaches dwm, keyboard/Norwegian layout works, battery/hwmon populate; collect dmesg for 16K/config/firmware probe. This validates integration only; WiFi link and USB VBUS remain gated.",
+  "author": "sol",
+  "deps": [],
+  "hashes": null,
+  "created": 1785309118
+}

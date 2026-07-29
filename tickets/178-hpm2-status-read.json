@@ -1,0 +1,13 @@
+{
+  "seq": "178",
+  "slug": "hpm2-status-read",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "R0-status capture on exact allowlisted /arm-io/nub-spmi-a1/hpm2 only. Build a fail-closed m1n1 artifact from the reviewed HPM2 framework that performs the selector protocol for logical Status register 0x1a and reads exactly four bytes, then stops and warm-reboots. Primary basis: paired 25F84 AppleHPMDeviceHAL::getStatus at 0xfffffe000954b7fc passes reg 0x1a to the logical-read vtable and AppleHPMDeviceHAL::setStatus rejects lengths >=5; generic TPS6598x definitions decode plug bit0, orientation bit4, power-role bit5, data-role bit6 and VBUS status bits21:20. No WAKEUP, SSPS, CMD/DATA writes, W1C/event/mask access, role/VBUS transition, retries beyond the bounded selector poll, PHY, USB or Linux. ADT identity gate must retain zero-SPMI failure. Passive stick right, DebugUSB left. Exact artifact hash and independent review required before live use.",
+  "author": "sol",
+  "deps": [],
+  "hashes": null,
+  "created": 1785309412
+}
