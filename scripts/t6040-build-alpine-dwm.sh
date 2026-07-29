@@ -48,17 +48,22 @@ PPP_PKGS=""
 [ "${T6040_PPP:-0}" = "1" ] && PPP_PKGS="ppp"
 WIFI_PKGS=""
 [ "${T6040_WIFI_USERLAND:-0}" = "1" ] && WIFI_PKGS="iw wpa_supplicant"
+BT_PKGS=""
+[ "${T6040_BT_USERLAND:-0}" = "1" ] && BT_PKGS="bluez dbus"
 podman exec -e FAT_PKGS="$FAT_PKGS" -e PPP_PKGS="$PPP_PKGS" \
-    -e WIFI_PKGS="$WIFI_PKGS" \
+    -e WIFI_PKGS="$WIFI_PKGS" -e BT_PKGS="$BT_PKGS" \
     "$CONTAINER" chroot "/out/$TMP_BASE" /bin/sh -ec '
     apk update -q
     apk add --no-cache openrc busybox-openrc kbd-bkeymaps eudev xrdb \
         xorg-server xf86-input-libinput xinit setxkbmap xrandr \
         dwm st dmenu font-terminus ttf-dejavu \
-        $FAT_PKGS $PPP_PKGS $WIFI_PKGS
+        $FAT_PKGS $PPP_PKGS $WIFI_PKGS $BT_PKGS
     if [ -n "$PPP_PKGS" ]; then
         : > /etc/ppp/options
     fi
+    # dbus post-install generates a random machine-id. Keep the image
+    # byte-reproducible; t6040-bluetooth-start creates the volatile runtime ID.
+    : > /etc/machine-id
     rm -rf /var/cache/apk/* /var/log/apk.log /etc/resolv.conf
 '
 
@@ -127,6 +132,24 @@ if [ "${T6040_WIFI_FW:-0}" = "1" ]; then
     du -sm "$TMP/lib/firmware" | awk '{print "  firmware: "$1" MiB"}'
 fi
 
+# The paired trackpad HIDF is a volatile runtime payload, not flash/NVM. Staging
+# it is harmless offline, but booting an image that can upload it still requires
+# the explicit policy exception recorded by ticket 126.
+if [ "${T6040_TRACKPAD_FW:-0}" = "1" ]; then
+    TRACKPAD_FW_SRC=${T6040_TRACKPAD_FW_SRC:-/Users/damsleth/Code/linux-build-out/t6040-paired-fw-25F84/vendorfw/apple/tpmtfw-j614s.bin}
+    [ -f "$TRACKPAD_FW_SRC" ] || {
+        echo "T6040_TRACKPAD_FW=1 but no paired HIDF at $TRACKPAD_FW_SRC" >&2
+        exit 1
+    }
+    echo "== staging exact paired J614s trackpad HIDF =="
+    printf '%s  %s\n' \
+        "a1f4131d0cb7caf6fa15b19f47725458a6d7b0e3a34f15169339d5541663d9e2" \
+        "$TRACKPAD_FW_SRC" | sha256sum -c -
+    install -d "$TMP/lib/firmware/apple"
+    install -m 0644 "$TRACKPAD_FW_SRC" \
+        "$TMP/lib/firmware/apple/tpmtfw-j614s.bin"
+fi
+
 if [ "${T6040_WIFI_USERLAND:-0}" = "1" ]; then
 cat > "$TMP/usr/local/sbin/t6040-wifi-connect" <<'EOF'
 #!/bin/sh
@@ -181,6 +204,31 @@ ip address show dev wlan0
 ip route show
 EOF
 chmod 0755 "$TMP/usr/local/sbin/t6040-wifi-connect"
+fi
+
+if [ "${T6040_BT_USERLAND:-0}" = "1" ]; then
+cat > "$TMP/usr/local/sbin/t6040-bluetooth-start" <<'EOF'
+#!/bin/sh
+# Bring up BlueZ in the RAM root and print the controller state. Pairing remains
+# an explicit interactive bluetoothctl action; no keys survive a reboot.
+set -eu
+
+mkdir -p /run/dbus /var/lib/bluetooth
+if [ ! -s /etc/machine-id ]; then
+    dbus-uuidgen --ensure=/etc/machine-id
+fi
+if ! pidof dbus-daemon >/dev/null 2>&1; then
+    dbus-daemon --system --fork
+fi
+if ! pidof bluetoothd >/dev/null 2>&1; then
+    bluetoothd
+fi
+
+rfkill unblock bluetooth 2>/dev/null || true
+bluetoothctl list
+bluetoothctl show
+EOF
+chmod 0755 "$TMP/usr/local/sbin/t6040-bluetooth-start"
 fi
 
 # Xorg on simpledrm: modesetting with no acceleration, and do not require a pointer.

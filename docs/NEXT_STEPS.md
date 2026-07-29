@@ -27,11 +27,12 @@
 >    so c2 content is staged under the c0 `-WLMT-u` names. **Preserve that mapping** when
 >    regenerating the firmware corpus; it deserves an upstream question.
 >
-> **Next, in order:** association needs `wpa_supplicant`/`iw` → dwm image with `T6040_WIFI_FW=1`
-> plus those packages (168 follow-up); `hci0` needs `bluetoothctl` in the same image; the SD reader
-> now has `MMC_SDHCI_PCI=y` in kbuild and just needs a rebuild; **trackpad** is untouched by all
-> this and still needs `tpmtfw-j614s.bin` plus the firmware-upload exception (126). USB VBUS remains
-> blocked on the `SWSr` power-role decode (176) — `SWDF` was data-role only.
+> **Next, in order:** cross-review and approve ticket 185, which now combines association,
+> BlueZ, SDHCI, trackpad firmware/multitouch, and the PPP tether fallback in one
+> byte-reproduced graphical object. Its live boot still needs the exact volatile-HIDF exception
+> from ticket 126 plus CJ attendance. USB VBUS remains blocked on the `SWSr` power-role decode
+> (176) — `SWDF` was data-role only. The final enrolled object must then fold the proven PCIe
+> delta into the 10-second dual-mode source shape; ticket 185's diagnostic m1n1 is chainload-only.
 >
 > **2026-07-29 sol follow-up:** ticket 184 stages the first graphical association-capable object:
 > exact live-proven PCIe m1n1 + WiFi DTB, reproducible feature kernel with built-in async PPP, and a
@@ -40,6 +41,15 @@
 > `done/2026-07-29-t6040-wifi-ppp-network-candidate.md`. It is proposed, not runnable: Claude review
 > and CJ approval/attendance remain required because the boot repeats the proven PCIe-PHY and
 > `gP13`/`gP19` endpoint-power writes. It is chainload-only, not the final dual-mode enrolled shape.
+>
+> **2026-07-29 sol integrated follow-up:** ticket 185 supersedes 184 for the next combined boot.
+> Object `m1n1-dwm-wifi-bt-trackpad-ppp.bin` SHA-256 `19690506…` adds built-in multitouch,
+> the exact paired J614s HIDF, BlueZ userspace, and SDHCI while retaining graphical WiFi
+> association and dual-ACM PPP. Kernel and initramfs each reproduce byte-for-byte; both pass
+> m1n1's XZ decoder and the object passes strict verification at 2161 × 16 KiB. It remains
+> proposed/unrunnable pending the other agent's exact review, CJ approval/attendance, and the
+> explicit exception for only the non-persistent `a1f4131d…` HIDF upload/interface reset.
+> Evidence: `done/2026-07-29-t6040-wifi-bt-trackpad-ppp-candidate.md`.
 >
 > **⚠ For CJ:** `pwren-gpios` makes the kernel's `gpio-macsmc` perform two SMC key writes
 > (`gP13`/`gP19`). PMU **GPIO outputs**, exactly what macOS and upstream Asahi do — but outside the

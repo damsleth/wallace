@@ -175,6 +175,20 @@ if [ "${TRACKPAD_MOTION:-0}" = "1" ]; then
         exit 1
     }
 fi
+if [ "${TRACKPAD_FW:-0}" = "1" ]; then
+    [ "${DOCKCHANNEL:-0}" = "1" ] || {
+        echo "ERROR: TRACKPAD_FW=1 requires DOCKCHANNEL=1"
+        exit 1
+    }
+    [ "${HID_TYPE_FIX:-0}" = "1" ] || {
+        echo "ERROR: TRACKPAD_FW=1 requires HID_TYPE_FIX=1"
+        exit 1
+    }
+    [ "${TRACKPAD_MOTION:-0}" = "0" ] || {
+        echo "ERROR: TRACKPAD_FW and TRACKPAD_MOTION are separate profiles"
+        exit 1
+    }
+fi
 if [ "${DOCKCHANNEL_EARLYCON:-0}" = "1" ]; then
     [ "${DOCKCHANNEL:-0}" = "1" ] || {
         echo "ERROR: DOCKCHANNEL_EARLYCON=1 requires DOCKCHANNEL=1"
@@ -958,11 +972,17 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
         -e HID -e HID_APPLE -e APPLE_DOCKCHANNEL \
         -e APPLE_DOCKCHANNEL_HID -e APPLE_DOCKCHANNEL_TTY
 fi
-if [ "${TRACKPAD_MOTION:-0}" = "1" ]; then
+if [ "${TRACKPAD_MOTION:-0}" = "1" ] ||
+   [ "${TRACKPAD_FW:-0}" = "1" ]; then
     # The bounded RAM image has no module-loading path. Multi-touch must be
     # built in so opening the event node can invoke the paired volatile HIDF
     # upload path; ticket 004's first exact candidate incorrectly left this m.
     ./scripts/config --file .config -e HID_MULTITOUCH
+fi
+if [ "${T6040_PPP:-0}" = "1" ]; then
+    echo "== PPP: dual-ACM tether fallback (builtin) =="
+    ./scripts/config --file .config \
+        -e NET -e INET -e TTY -e PPP -e PPP_ASYNC
 fi
 if [ "${MACSMC:-0}" = "1" ]; then
     # Feature kernel (tickets 165/167 + USB-tether ethernet). The base .config
@@ -1283,6 +1303,17 @@ if [ "${MACSMC:-0}" = "1" ]; then
     grep -q '^CONFIG_USB_UAS=y$' .config
     grep -q '^CONFIG_BLK_DEV_SD=y$' .config
 fi
+if [ "${TRACKPAD_FW:-0}" = "1" ]; then
+    echo "== assert integrated trackpad firmware path =="
+    grep -q '^CONFIG_HID_MULTITOUCH=y$' .config
+    grep -q 'DCHID_FW_MAGIC' \
+        drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c
+fi
+if [ "${T6040_PPP:-0}" = "1" ]; then
+    echo "== assert PPP fallback is builtin =="
+    grep -q '^CONFIG_PPP=y$' .config
+    grep -q '^CONFIG_PPP_ASYNC=y$' .config
+fi
 if [ "${T6040_WIFI_FW_BUILTIN:-0}" = "1" ]; then
     echo "== assert built-in BCM4388 WiFi firmware config =="
     grep -q '^CONFIG_FW_LOADER=y$' .config
@@ -1526,6 +1557,10 @@ if [ "${1:-}" = "image" ]; then
         image_name=Image-trackpad-motion
         map_name=System.map-trackpad-motion
     fi
+    if [ "${TRACKPAD_FW:-0}" = "1" ]; then
+        image_name="${image_name}-trackpad"
+        map_name="${map_name}-trackpad"
+    fi
     if [ "${DOCKCHANNEL_EARLYCON:-0}" = "1" ]; then
         image_name=Image-dcuart-earlycon
         map_name=System.map-dcuart-earlycon
@@ -1533,6 +1568,10 @@ if [ "${1:-}" = "image" ]; then
     if [ "${DOCKCHANNEL_NBCON:-0}" = "1" ]; then
         image_name="${image_name}-nbcon"
         map_name="${map_name}-nbcon"
+    fi
+    if [ "${T6040_PPP:-0}" = "1" ]; then
+        image_name="${image_name}-ppp"
+        map_name="${map_name}-ppp"
     fi
     # DIET / DIET_CAPABLE are config-only variants that previously had NO name of
     # their own, so they inherited another variant's filename and silently clobbered

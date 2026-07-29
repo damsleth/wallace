@@ -1,0 +1,22 @@
+{
+  "seq": "185",
+  "slug": "wifi-bt-trackpad-ppp-integrated",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "integration",
+  "priority": "P1",
+  "desc": "Attended tethered chainload of /Users/damsleth/Code/linux-build-out/m1n1-dwm-wifi-bt-trackpad-ppp.bin SHA256 19690506050552ea73e67a4932a91e05773b64b86a40df753e68e3d6aa3f8fb4, size 35405824=2161*16KiB. Exact live-proven PCIe m1n1 28a4e0cf and WiFi DTB 0afb98ae; byte-reproduced 16K kernel 5d913da6 with PCIe/WiFi/BT/SDHCI, USB storage/UAS/usbnet, DockChannel nbcon, built-in multitouch and PPP async; byte-reproduced Alpine+dwm initramfs d11e5c41 with Norwegian keyboard, exact BCM4388 aliases, iw/wpa_supplicant, BlueZ helper, exact paired tpmtfw a1f4131d, and dual-ACM PPP. Kernel/initramfs pass m1n1 XzDecode; strict raw verifier PASS. Not an enrollment candidate: diagnostic m1n1 lacks 10-second dual-mode door. Live boot performs PCIe PHY writes, Linux SMC gP13/gP19 endpoint power, and may upload the exact non-persistent paired HIDF into volatile trackpad DMA when X/libinput opens it. Requires independent exact review, CJ attended, and explicit exception for only that exact a1f4131d volatile HIDF/interface reset; no flash/NVM, arbitrary firmware, PMU reset, SPMI or persistent write. PASS: wlan0 associates/DHCP, BlueZ sees hci0, multitouch event produces motion, PPP fallback enumerates; collect dmesg/health. Recover fresh Running proxy after chainload.",
+  "author": "sol",
+  "deps": [],
+  "hashes": {
+    "image": "19690506050552ea73e67a4932a91e05773b64b86a40df753e68e3d6aa3f8fb4",
+    "m1n1": "28a4e0cf812d48ab40337be9578381d66c61b5ac91730bb0b950930f77a93299",
+    "kernel_xz": "2584e37a8ed1cf560b7332d73e0469ffebed8e3d4f44a4f44ba16f95c4ac5997",
+    "dtb": "0afb98ae31760309f1d28f0b84f313991f8460856685905bd52a0a6919d2fc7e",
+    "initramfs": "d11e5c416e95262ea48347def8f9be08f1c5a08b4bcf3f6a48f1803e194e7547",
+    "trackpad_firmware": "a1f4131d0cb7caf6fa15b19f47725458a6d7b0e3a34f15169339d5541663d9e2"
+  },
+  "created": 1785322842,
+  "artifact": "/Users/damsleth/Code/linux-build-out/m1n1-dwm-wifi-bt-trackpad-ppp.bin",
+  "runnable": false
+}
