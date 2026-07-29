@@ -32,6 +32,15 @@ TARGET="${TARGET:-/Volumes/m1n1}"
 # live-proven as dwm with a working keyboard (both sha256
 # 3b1ac51f69d1b5d9a102fe71b3bf953c3c3d9433dfe193e723ec679641e1a6c7), and the only differing
 # bytes lie inside the m1n1 loader, which was itself live-proven both ways in ticket 140.
+#  679fe133… dual-mode WiFi/BT/PPP, no HIDF, v116 scan fix — ticket 187 (reviewed 2026-07-29).
+#  Sol's 969ba852 with one member replaced: the kernel is rebuilt with
+#  patches/t6040-brcmfmac-bss-info-v116.patch, without which brcmfmac discards every scan
+#  result ("BSS info version 116 unsupported") and WiFi can associate with nothing. m1n1
+#  prefix ee58fa40 (from PCIe source 04e8829c, BIT(4) reset fix + 10 s DTR window), DTB
+#  0afb98ae (pwren-gpios + antenna-sku), initramfs 0ff9415f — the last two byte-identical to
+#  sol's reviewed object. Contains NO apple/tpmtfw-j614s.bin, so it needs no ticket-126
+#  firmware-upload exception. Strict verify PASS, 2158×16 KiB, both xz members PASS the
+#  minilzlib harness.
 #  5931f9c3… macsmc dual-mode v3 (dwm + keyboard + battery/thermals SRAM-fixed) — 165
 APPROVED_HASHES="\
 5931f9c3d1f785f2a25cd40754fec1f38078efbc3ceaa952288c529bbc7527f8 macsmc-dualmode-dwm-v3-sramfix
@@ -40,7 +49,8 @@ APPROVED_HASHES="\
 f290833c8a9dd7ea4086571b925e6b775c113dd3b4626a7ef2644ebc76fd03fd b0-milestone-alpine
 46237ade7e314cd752e1482930e21b62319e1b0b707a0f23e86392701555f0c9 dual-mode-EARLY_PROXY_TIMEOUT
 2371ee5dfbfab591397fc333e7da212fb7582bfb2eaddaa6438005f5bb41759b pure-autoboot-fallback
-1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b rollback-bare-proxy-m1n1"
+1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b rollback-bare-proxy-m1n1
+679fe1335876c14b51e30de8c615addf5e171b7f53f92eec8e489173a79f5d76 dualmode-wifi-bt-ppp-no-hidf-v116"
 
 OBJ="${1:-}"
 CONFIRM="${2:-}"

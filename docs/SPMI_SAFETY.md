@@ -1,6 +1,6 @@
 # T6040 SPMI safety policy
 
-Approved by the maintainer: 2026-07-25 (supersedes 2026-07-24)
+Approved by the maintainer: 2026-07-29 (supersedes 2026-07-25, which superseded 2026-07-24)
 
 SPMI is a transport, not a single risk class. Transactions are deny-by-default,
 but an exact, ADT-verified non-PMU endpoint may be approved when its controller,
@@ -53,25 +53,55 @@ test.
 
 ## Operation classes
 
-### Class R0: read-equivalent, lowest physical risk
+### Class R0: reads — ANY logical register on the allowlisted endpoint
 
-An exact logical-register read may use the SN201202x selector protocol:
+**Reads are broadly permitted.** Any logical register of the allowlisted
+right-port HPM may be read, at its natural length, using the SN201202x selector
+protocol:
 
-1. SPMI Register-0 Write to select one named logical register.
+1. SPMI Register-0 Write to select the logical register.
 2. Bounded polling of selector register `0x00`.
 3. Bounded extended read from data window `0x20`.
 
-This is not literally write-free: the selector is transient HPM state and the
-controller command FIFO is written. It is eligible because it neither changes
-PMU state nor requests a USB-C power/role transition. The first candidate may
-read only logical system-power-state register `0x20`, one byte, with no
-automatic wake or retry escalation.
+Revised 2026-07-29: the previous text permitted *only* logical `0x20`, one byte.
+That was too narrow — it forced a policy amendment for every new observation and
+left us proposing experiments (e.g. reading Status `0x1a`) that the document did
+not cover. Reading cannot change PMU state, cannot request a USB-C power/role
+transition, and cannot alter persistent state, so the register number is not the
+thing worth gating. Useful examples now explicitly in scope: Mode `0x03`,
+CMD1 `0x08` (reading it returns command status; reading never executes a
+command), DATA1 `0x09`, `IntEvent1` `0x14`, `IntMask1` `0x16`, Status `0x1a`,
+system power state `0x20`, and port/role status registers.
+
+A read is still not literally write-free — the selector is transient HPM state
+and the controller command FIFO is written — so R0 keeps these bounds:
+
+- The allowlisted endpoint only (`/arm-io/nub-spmi-a1/hpm2`, SID `0x0c`), with
+  the full fail-closed ADT identity gate. Reads do not license SID scanning or
+  a second endpoint.
+- **Never write the data window `0x20`.** Selecting a register is permitted;
+  writing its contents is R1 or higher.
+- **Never W1C.** Reading `0x14`/`0x18` is fine; writing them destroys event
+  state and is explicitly not R0.
+- Bounded polls with an explicit timeout, and no escalation: an R0 failure must
+  not retry into a write, a command, or a different register.
+
+**The `WAKEUP` preamble is part of R0.** A bare read of most registers returns
+`0x00` while the HPM is inactive (live evidence, ticket 093), so an R0 candidate
+may send one SPMI `WAKEUP` to the allowlisted SID, wait a bounded delay, and then
+read. `WAKEUP` is live-proven twice (tickets 094 and 095), changes no persistent
+state, and a reboot restores the prior condition. Without this, a read-only
+experiment is likely to return nothing and burn a rig cycle for no information.
 
 ### Class R1: HPM operating-state changes
 
-SPMI `WAKEUP` and the HPM `SSPS` command targeting S0 are low physical-risk but
-state-changing. They require their own exact ticket and artifact review. They
-must not be silently added as fallback behavior to an R0 test.
+The HPM `SSPS` command targeting S0 is low physical-risk but state-changing, and
+requires its own exact ticket and artifact review. It must not be silently added
+as fallback behaviour to an R0 test.
+
+(`WAKEUP` moved to R0 on 2026-07-29: it is live-proven, non-persistent, and
+without it most reads return `0x00`. It remains a deliberate, logged step, not an
+implicit retry.)
 
 SPMI `SLEEP` and `SHUTDOWN` remain prohibited until a test proves the prior
 state and an exact restoration contract. A reboot is recovery, not proof of an
@@ -161,7 +191,8 @@ powered source during an unproven source-role/VBUS experiment.
   any unexpected reply, value, timeout, or leftover FIFO entry.
 - Log the exact SPMI opcode, SID, logical register, length, data (for writes),
   response, and stop boundary.
-- Change one operation class per experiment. An R0 failure must not fall
+- Change one operation class per experiment. Reading several registers in one
+  R0 candidate is fine — that is one class. An R0 failure must not fall
   through to WAKEUP, SSPS, IRQ, VBUS, or PHY actions.
 - Keep DebugUSB on left-back/HPM0 and the test device on right/HPM2.
 - Stop on SError, timeout, unexpected reset, loss of recovery transport, or any

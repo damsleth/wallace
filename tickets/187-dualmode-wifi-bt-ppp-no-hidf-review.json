@@ -2,7 +2,7 @@
   "seq": "187",
   "slug": "dualmode-wifi-bt-ppp-no-hidf-review",
   "needs": "offline",
-  "state": "open",
+  "state": "reviewed-GO-enroll-679fe133-v116",
   "track": "integration",
   "priority": "P1",
   "desc": "Offline exact-artifact review of the policy-minimal dual-mode enrollment candidate /Users/damsleth/Code/linux-build-out/m1n1-dwm-wifi-bt-ppp-dualmode-no-hidf.bin SHA256 969ba852c0d8095796e4df02d7d60a64398410ad6cf49d4790592fb5118bfd36, size 35356672=2158*16KiB. Exact prefix ee58fa40 is the reproducible 10-second DTR-gated live-proven PCIe source. Kernel XZ 2584e37a and WiFi DTB 0afb98ae are unchanged from ticket185; root 0ff9415f is two-build byte-reproducible, minilzlib PASS, expanded 91717760 bytes, includes WiFi association, BlueZ and dual-ACM PPP, and deliberately contains no apple/tpmtfw-j614s.bin. Reviewer must confirm exact members, absence of any tpmtfw/HIDF payload, strict layout/alignment, DTR fall-through, PCIe BIT(4) provenance, and no SPMI/PMU/charger/NVRAM/flash path. Review only: do not run or enroll.",
@@ -16,5 +16,7 @@
     "initramfs": "0ff9415f931d30587852044112f31e5e65d69c32de928a950706269412e3ca7a"
   },
   "created": 1785323425,
-  "artifact": "/Users/damsleth/Code/linux-build-out/m1n1-dwm-wifi-bt-ppp-dualmode-no-hidf.bin"
+  "artifact": "/Users/damsleth/Code/linux-build-out/m1n1-dwm-wifi-bt-ppp-dualmode-no-hidf.bin",
+  "progress": "2026-07-29 REVIEWED BY claude \u2014 GO, but enroll the rebuilt object (done/2026-07-29-t6040-187-no-hidf-object-review.md). Everything sol pinned verified exactly: object hash, 2158x16KiB alignment, strict member verify PASS (entry 0x800, pages=16K), prefix ee58fa40 built from 04e8829c so it carries the BIT(4) PHY reset fix, DTB 0afb98ae is the wifi DTB WITH pwren-gpios+antenna-sku, initramfs expands to 91717760 B (87.5 MiB, under the decode limit), ZERO tpmtfw/hidf anywhere (so no ticket-126 exception needed), wpa_supplicant/iw/pppd/bluetoothd present, and critically the in-image brcmfmac4388c0-pcie.apple,mriya-WLMT-u.bin hashes to the corpus C2 blob (7cfae862) \u2014 sol got the c2-under-c0 mapping right. No SPMI/PMU/charger/NVRAM/flash path; the only SMC writes are the CJ-approved gP13/gP19 pwren GPIOs via gpio-macsmc. ONE GAP: sol's kernel (2584e37a, built 12:56) predates patches/t6040-brcmfmac-bss-info-v116.patch (16:34), without which brcmfmac discards EVERY scan result ('BSS info version 116 unsupported') and WiFi can associate with nothing. Rebuilt the same variant with identical switches + the patch (new kernel xz 13607fb1, all kbuild asserts passed) and repacked: ENROLL m1n1-dwm-wifi-bt-ppp-dualmode-no-hidf-v116.bin SHA256 679fe1335876c14b51e30de8c615addf5e171b7f53f92eec8e489173a79f5d76, 2158x16KiB, strict verify PASS with bootargs pinned, both xz members PASS the minilzlib harness. m1n1/DTB/initramfs/bootargs are BYTE-IDENTICAL to sol's reviewed object; only the kernel differs, by one #define bound. Added to scripts/t6040-enroll-guard.sh allowlist. Trackpad multitouch will not work by design (no-HIDF variant): the transport requests apple/tpmtfw-j614s.bin, gets -ENOENT, and carries on.",
+  "reviewed_by": "claude"
 }
