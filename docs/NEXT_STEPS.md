@@ -71,6 +71,18 @@
 > independently before any allowlist or CJ-only enrollment work. Evidence:
 > `done/2026-07-29-t6040-dualmode-wifi-bt-ppp-no-hidf-candidate.md`.
 >
+> **2026-07-29 native right-port USB2 build:** ticket 188 stages the first
+> native T6040 USB2-only kernel/DT pair. Two clean builds are byte-identical:
+> kernel `40670d81...`, DTB `0c39cf06...`; the minilzlib-safe kernel member is
+> `50d23449...`. The compiled DT enables only right-port DARTs
+> `0x392f00000/0x392f80000`, DWC3 `0x392280000`, and native eUSB2 banks
+> `0x392a90000/0x392800000` in high-speed host mode. It adds no USB3,
+> retimer/I2C6, role-switch, left-port, or HPM path. This is offline review
+> material, not a runnable artifact: `power_on` makes volatile ATC/eUSB2 MMIO
+> writes, has no inverse, and still depends on the separately reviewed HPM
+> status/VBUS work. Evidence:
+> `done/2026-07-29-t6040-native-usb2-right-build.md`.
+>
 > **⚠ For CJ:** `pwren-gpios` makes the kernel's `gpio-macsmc` perform two SMC key writes
 > (`gP13`/`gP19`). PMU **GPIO outputs**, exactly what macOS and upstream Asahi do — but outside the
 > literal `smc_reboot`/`smc_rtc` permitted surface. Revert by deleting the two `pwren-gpios` lines.

@@ -1,0 +1,17 @@
+{
+  "seq": "188",
+  "slug": "usb2-native-right-review",
+  "needs": "offline",
+  "state": "open",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "Offline exact-source/artifact review of the native T6040 right-port USB2-only candidate. Wallace script selects t6040-j614s-dcuart-usb2-native-right.dts and applies the fail-closed apple,t6040-atcphy patch. Two clean builds are byte-identical: Image 40670d81, System.map f4ffb3ee, config 3d337e18, DTB 0c39cf06; minilzlib-safe kernel XZ 50d23449. Compiled DT enables only right DARTs 0x392f00000/0x392f80000, DWC3 0x392280000 in host/high-speed mode, and native bank0 0x392a90000 + bank1 0x392800000. No USB3 PHY, ATC reset, retimer/I2C6, role switch, left-port, HPM, SPMI, PMU, charger, NVRAM or persistent write. power_on performs the reviewed decoded volatile eUSB2 MMIO sequence; no inverse/power_off, so live use requires CJ attendance and power-cycle recovery. Review only: independently verify exact decoded offsets/order, DT address translation/scope, build gating and artifacts; do not run. HPM status/source-role/VBUS remains a separate prerequisite.",
+  "author": "sol",
+  "deps": [],
+  "hashes": {
+    "image": "50d234497cec0a9f69708182bfa1aea92cdc83977903d090cca01ac2a6c05df8",
+    "dtb": "0c39cf06139dcc3828e5cd730d4e1871544e20d9a87a9bc67f8f569e7edd9ceb",
+    "initramfs": ""
+  },
+  "created": 1785324517
+}

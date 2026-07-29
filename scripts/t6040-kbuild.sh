@@ -78,21 +78,29 @@ if [ -f /src/$APPLE/t6040-j614s-dcuart-macsmc.dts ]; then
     cp /src/$APPLE/t6040-j614s-dcuart-macsmc.dts $APPLE/
 fi
 if [ "${USB_HOST:-0}" = "1" ]; then
-    case "${USB_HOST_PORT:-all}" in
-        all)
-            USB_HOST_DTS=t6040-j614s-dcuart-usb-host.dts
-            ;;
-        left-front)
-            USB_HOST_DTS=t6040-j614s-dcuart-usb-host-left-front.dts
-            ;;
-        right)
-            USB_HOST_DTS=t6040-j614s-dcuart-usb-host-right.dts
-            ;;
-        *)
-            echo "ERROR: USB_HOST_PORT must be all, left-front, or right"
+    if [ "${T6040_USB2_NATIVE:-0}" = "1" ]; then
+        [ "${USB_HOST_PORT:-right}" = "right" ] || {
+            echo "ERROR: T6040_USB2_NATIVE=1 is scoped to USB_HOST_PORT=right"
             exit 1
-            ;;
-    esac
+        }
+        USB_HOST_DTS=t6040-j614s-dcuart-usb2-native-right.dts
+    else
+        case "${USB_HOST_PORT:-all}" in
+            all)
+                USB_HOST_DTS=t6040-j614s-dcuart-usb-host.dts
+                ;;
+            left-front)
+                USB_HOST_DTS=t6040-j614s-dcuart-usb-host-left-front.dts
+                ;;
+            right)
+                USB_HOST_DTS=t6040-j614s-dcuart-usb-host-right.dts
+                ;;
+            *)
+                echo "ERROR: USB_HOST_PORT must be all, left-front, or right"
+                exit 1
+                ;;
+        esac
+    fi
     if [ -f "/out/$USB_HOST_DTS" ]; then
         cp "/out/$USB_HOST_DTS" "$APPLE/"
     elif [ -f "/src/$APPLE/$USB_HOST_DTS" ]; then
@@ -101,6 +109,11 @@ if [ "${USB_HOST:-0}" = "1" ]; then
         echo "ERROR: USB_HOST=1 USB_HOST_PORT=${USB_HOST_PORT:-all} requires /out/$USB_HOST_DTS"
         exit 1
     fi
+fi
+if [ "${T6040_USB2_NATIVE:-0}" = "1" ] &&
+   [ "${USB_HOST:-0}" != "1" ]; then
+    echo "ERROR: T6040_USB2_NATIVE=1 requires USB_HOST=1"
+    exit 1
 fi
 if [ "${DOCKCHANNEL_IRQ_TEST:-0}" = "1" ]; then
     [ "${DOCKCHANNEL:-0}" = "1" ] || {
@@ -302,6 +315,21 @@ if [ "${USB_HOST:-0}" = "1" ]; then
     else
         echo "ERROR: t6040-dwc3-apple-force-host.patch does not apply cleanly:"
         git apply --check /out/t6040-dwc3-apple-force-host.patch || true
+        exit 1
+    fi
+fi
+
+if [ "${T6040_USB2_NATIVE:-0}" = "1" ]; then
+    echo "== apply native T6040 USB2-only PHY slice =="
+    native_usb2_patch=/out/0001-phy-apple-add-experimental-T6040-USB2-only-slice.patch
+    if git apply --check "$native_usb2_patch" 2>/dev/null; then
+        git apply "$native_usb2_patch"
+        echo "native T6040 USB2-only PHY patch applied OK"
+    elif git apply -R --check "$native_usb2_patch" 2>/dev/null; then
+        echo "native T6040 USB2-only PHY patch already applied"
+    else
+        echo "ERROR: native T6040 USB2-only PHY patch does not apply cleanly:"
+        git apply --check "$native_usb2_patch" || true
         exit 1
     fi
 fi
@@ -1120,6 +1148,9 @@ if [ "${USB_HOST:-0}" = "1" ]; then
         -e SCSI -e BLK_DEV_SD \
         -e EXT4_FS
 fi
+if [ "${T6040_USB2_NATIVE:-0}" = "1" ]; then
+    ./scripts/config --file .config -e PHY_APPLE_T6040_USB2
+fi
 if [ "${DIET:-0}" = "1" ]; then
     echo "== DIET: strip everything the B0 RAM-root does not need =="
     # Why: arm64 defconfig builds a ~50 MiB Image (10.9 MiB XZ). The enrolled
@@ -1367,6 +1398,16 @@ if [ "${PCIE:-0}" = "1" ]; then
     echo "-- resulting PCIe/WLAN/BT/SD config --"
     grep -E "CONFIG_(PCIE_APPLE|PINCTRL_APPLE_GPIO|APPLE_DART|BRCMFMAC|BRCMFMAC_PCIE|BT_HCIBCM4377|MMC_SDHCI_PCI)=" .config || true
 fi
+if [ "${T6040_USB2_NATIVE:-0}" = "1" ]; then
+    echo "-- resulting native T6040 USB2 config --"
+    grep -E "CONFIG_(PHY_APPLE_T6040_USB2|USB_DWC3_APPLE|USB_XHCI_PLATFORM|USB_STORAGE|USB_UAS)=" .config
+    for sym in PHY_APPLE_T6040_USB2 USB_DWC3_APPLE USB_XHCI_PLATFORM USB_STORAGE USB_UAS; do
+        grep -q "^CONFIG_${sym}=y" .config || {
+            echo "MISSING NATIVE USB2 SYMBOL: CONFIG_${sym}=y" >&2
+            exit 1
+        }
+    done
+fi
 grep -qE "CONFIG_ARM64_SME=y" .config && echo "WARN: SME still enabled!" || echo "SME disabled OK"
 
 NPROC="${NPROC:-$(nproc)}"
@@ -1446,6 +1487,10 @@ if [ "${1:-}" = "image" ]; then
     if [ "${USB_HOST:-0}" = "1" ]; then
         image_name=Image-usb-host
         map_name=System.map-usb-host
+    fi
+    if [ "${T6040_USB2_NATIVE:-0}" = "1" ]; then
+        image_name=Image-usb2-native-right
+        map_name=System.map-usb2-native-right
     fi
     if [ "${NVME:-0}" = "1" ]; then
         case "${NVME_MODE:-builtin}" in
@@ -1681,8 +1726,13 @@ if [ "${1:-}" = "image" ]; then
             && echo "config -> /out/$config_name"
     fi
     if [ "${USB_HOST:-0}" = "1" ]; then
-        cp .config /out/config-usb-host \
-            && echo "config -> /out/config-usb-host"
+        if [ "${T6040_USB2_NATIVE:-0}" = "1" ]; then
+            cp .config /out/config-usb2-native-right \
+                && echo "config -> /out/config-usb2-native-right"
+        else
+            cp .config /out/config-usb-host \
+                && echo "config -> /out/config-usb-host"
+        fi
     fi
     if [ "${HID_RX_REARM:-0}" = "1" ]; then
         cp .config /out/config-hid-rx-rearm \

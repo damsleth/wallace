@@ -1,0 +1,50 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * T6040 J614s native USB2 host candidate: right Type-C port only.
+ *
+ * This is the functional consumer for the experimental host-only
+ * apple,t6040-atcphy provider. It deliberately describes only the two
+ * ADT-derived eUSB2 banks used by the paired host sequence. There is no USB3
+ * PHY, ATC reset-controller relationship, I2C6/retimer node, role switch, or
+ * left-port enablement.
+ *
+ * Enabling this board causes volatile ATC/eUSB2 MMIO writes when DWC3 powers
+ * on its generic USB2 PHY. It is a review/build artifact, not a release board.
+ */
+
+#include <dt-bindings/phy/phy.h>
+
+#include "t6040-j614s-dcuart.dts"
+
+/ {
+	model = "Apple MacBook Pro (M4 Pro) J614s [native USB2 host: right]";
+
+	soc {
+		atcphy2_t6040_usb2: phy@392a90000 {
+			compatible = "apple,t6040-atcphy";
+			reg = <0x3 0x92a90000 0x0 0x4000>,
+			      <0x3 0x92800000 0x0 0x4000>;
+			reg-names = "bank0", "bank1";
+			#phy-cells = <1>;
+			power-domains = <&ps_atc2_usb>;
+			status = "okay";
+		};
+	};
+};
+
+&usb2_dart0 {
+	status = "okay";
+};
+
+&usb2_dart1 {
+	status = "okay";
+};
+
+&usb_drd2 {
+	/delete-property/ apple,force-device-mode;
+	dr_mode = "host";
+	apple,force-host-mode;
+	phys = <&atcphy2_t6040_usb2 PHY_TYPE_USB2>;
+	phy-names = "usb2-phy";
+	status = "okay";
+};
