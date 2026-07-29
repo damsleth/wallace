@@ -71,6 +71,24 @@ does not overwrite either mismatch. The paired routine also clears 256 MSI-map e
 m1n1 clears 512; that difference was deliberately left unchanged because it is unrelated to
 pre-enumeration physical link training and is not needed to test the two fixed values.
 
+The surrounding enable path was checked as a second isolation pass:
+
+- `AppleT6040PCIePort` has one relevant override,
+  `_setExpectedLinkWidth()` at `0xfffffe0009b41b0c`; it does not override port enable,
+  reset, or LTSSM control.
+- For J614s' one-lane APCIE ports that override sets the same three DesignWare width fields
+  m1n1 already sets: `0x710[21:16]=1`, `0x80c[12:8]=1`, and PCIe Link Capabilities
+  `0x7c[9:4]=1`.
+- Paired `ApplePCIEBaseT8132Port::setLtssmEnable(true)` is an RMW setting bit 0 at
+  `port + 0x80`. Linux performs the same start operation only after its refclk/PERST setup
+  and interrupt registration. Therefore m1n1's width programming still precedes Linux's
+  LTSSM start, matching the paired ordering.
+- Linux subsequently redoes the safe refclk/PERST portion, but does not rewrite
+  `port + 0x130` or `port + 0x13c`.
+
+This confirms the two fixed reset values remain live inputs at the point Linux starts training;
+the candidate is not compensating for a missing T6040 width or LTSSM operation.
+
 ## Bounded candidate
 
 Source:
