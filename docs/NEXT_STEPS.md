@@ -1,5 +1,43 @@
 # t6040 Linux bring-up — NEXT STEPS
 
+> **2026-07-29 — *** WiFi AND BLUETOOTH WORK ON THE M4 PRO. *** PCIe is fully solved.**
+>
+> `wlan0` + `phy0` with running firmware and the module's own OTP MAC (`84:2f:57:33:9e:d7`), and
+> `hci0` with Bluetooth firmware loaded. The SD reader enumerates too. Full write-up:
+> `done/2026-07-29-t6040-WIFI-AND-BLUETOOTH-WORKING.md`.
+>
+> **Boot it** (fresh proxy first — `scripts/t6040-debugusb-console.sh reboot`):
+> ```bash
+> RIG_AGENT=claude M1N1_BIN=~/Code/linux-build-out/m1n1-t6040-pcie-V1-upstream-04e8829c.bin IMAGE=Image-macsmc-hid-type-fix bash scripts/t6040-boot-dcuart.sh t6040-j614s-dcuart-wifi.dtb initramfs-dcuart-pcie-fw3.cpio.gz
+> ```
+>
+> The chain of four fixes, in the order they mattered:
+> 1. **PCIe PHY reset bit** — upstream's `apcie,t6040` path clears `BIT(4)`, not t602x's `BIT(7)`.
+>    That alone ended the op-115 hang; `pcie_init()` completes and Linux enumerates the root ports.
+>    Our clkgen/D1 work was never a precondition (V2 is unnecessary; do not run it).
+> 2. **Endpoint power — the real link blocker.** WL_REG_ON and the SD power enable are **SMC key
+>    writes**, not AP GPIOs (`/amfm function-reg_on = pKW4('gP13')`,
+>    `pcie-sdreader function-sd_pwr_en = pKW4('gP19')`). `gpio-macsmc` maps a line to `gP%02x` by
+>    hex → `smc_gpio` **19** and **25**, exactly what upstream's M3 Pro MBP
+>    (`t603x-j514-j516.dtsi`) uses. Added the `smc_gpio` child + `pwren-gpios` → both links up in
+>    4 ms / 8 ms.
+> 3. **`apple,antenna-sku = "X3"`** (from ADT `wifi-antenna-sku-info = 0x3358`) — without it
+>    brcmfmac never tries the per-module NVRAM name our corpus ships (`apple,mriya-WLMT-u`).
+> 4. **BCM4388 rev 6 wants the c2 blobs** even though upstream maps rev ≥ 4 to the **c0 filename**,
+>    so c2 content is staged under the c0 `-WLMT-u` names. **Preserve that mapping** when
+>    regenerating the firmware corpus; it deserves an upstream question.
+>
+> **Next, in order:** association needs `wpa_supplicant`/`iw` → dwm image with `T6040_WIFI_FW=1`
+> plus those packages (168 follow-up); `hci0` needs `bluetoothctl` in the same image; the SD reader
+> now has `MMC_SDHCI_PCI=y` in kbuild and just needs a rebuild; **trackpad** is untouched by all
+> this and still needs `tpmtfw-j614s.bin` plus the firmware-upload exception (126). USB VBUS remains
+> blocked on the `SWSr` power-role decode (176) — `SWDF` was data-role only.
+>
+> **⚠ For CJ:** `pwren-gpios` makes the kernel's `gpio-macsmc` perform two SMC key writes
+> (`gP13`/`gP19`). PMU **GPIO outputs**, exactly what macOS and upstream Asahi do — but outside the
+> literal `smc_reboot`/`smc_rtc` permitted surface. Revert by deleting the two `pwren-gpios` lines.
+
+
 > **2026-07-29 — RAM-root read/write path proven; indefinite proxy restored; exact
 > candidates remain behind independent review + CJ approval.**
 >

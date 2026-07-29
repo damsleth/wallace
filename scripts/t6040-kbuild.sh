@@ -1084,7 +1084,7 @@ if [ "${PCIE:-0}" = "1" ]; then
         -e CFG80211 -e WLAN_VENDOR_BROADCOM \
         -e BRCMUTIL -e BRCMFMAC -e BRCMFMAC_PCIE \
         -e BT -e BT_HCIBCM4377 \
-        -e MMC -e MMC_SDHCI -m MMC_SDHCI_PCI
+        -e MMC -e MMC_SDHCI -e MMC_SDHCI_PCI -e MMC_BLOCK
 fi
 if [ "${USB_HOST:-0}" = "1" ]; then
     # USB2 host image for an external root disk (ticket 009/031/032). Internal
