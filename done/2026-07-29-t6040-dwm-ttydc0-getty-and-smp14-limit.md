@@ -60,9 +60,10 @@ than driver probe. This is not the initramfs-unpack oops from the earlier sessio
 archive, and that one still printed plenty first).
 
 **Note the contrast with the SMP smoke:** on `Image-dcuart-earlycon` with the storage/PCIe-free DTB,
-`maxcpus=14` reached `SMP: Total of 14 processors activated` and the full 4E+5P+5P mapping. So 14-core
-bringup itself works; what fails is 14 cores *plus* the full driver set (PCIe, WiFi, BT, SD, trackpad
-HID, SMC).
+`maxcpus=14` reached `SMP: Total of 14 processors activated` and the full 4E+5P+5P mapping. So all 14 cores can
+*enter the kernel* on a thin config; what fails is 14 cores *plus* the full driver set (PCIe, WiFi,
+BT, SD, trackpad HID, SMC). Note the careful wording: no boot has ever reached a shell with 14 cores
+online, so schedulability on cores 2-13 remains unproven either way.
 
 Secondary observation from CJ at the panel: with `maxcpus=14` the **fan spins up and the underside
 warms**. That is consistent with the cores being online and is a direct consequence of `idle=nop` —
