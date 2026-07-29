@@ -27,6 +27,10 @@ There are two load-bearing results.
 
 No new unattended rig experiment follows from either result.
 
+**2026-07-29 recheck:** `git ls-remote` still reports branch head
+`11158bbb2de15377ab26956020aabf74765e41fa`; no fifth commit has landed since
+this four-commit review. The conclusions and ticket-174 scope are unchanged.
+
 ## 1. Exact review of yuka's last four NVMe commits
 
 The branch head and four commits, oldest first:
