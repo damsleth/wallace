@@ -47,7 +47,7 @@
 >    exact-artifact review, CJ approval, then an attended capture with the passive stick
 >    right and DebugUSB left. Evidence:
 >    `done/2026-07-29-t6040-hpm2-status-r0-preflight.md`.
-> 5. **WiFi / PCIe (175 → 179 → 180) — op-115 SOLVED; root ports enumerate; endpoint links do
+> 5. **WiFi / PCIe (175 → 179 → 182/180) — op-115 SOLVED; root ports enumerate; endpoint links do
 >    not train.** In an attended run, V1 (upstream's T6040 PCIe path with the correct
 >    BIT(4) PHY reset) completed `pcie_init()` for the first time. Linux then brought up
 >    `pcie-apple`, ECAM, and both root ports. The old BIT(7) reset was the entire op-115
@@ -56,15 +56,19 @@
 >    Static follow-up ruled out the remaining timing and RID leads: Linux already implements
 >    the ADT's 100-us/100-ms refclk/PERST shape, and the IOMMU warnings occur after both link
 >    timeouts. The `gP19` callback belongs specifically to the port-1 SD-reader child; neither
->    the WiFi child nor its bridge exposes a paired power-enable operation. A stronger paired
->    difference is now ticket 180: Apple's T8132 port-reset routine writes `port+0x13c=0` and
->    `port+0x130=0x03020000`, while V1 writes `0x10` and `0x03000000`. The bounded candidate
->    `afd13c03` / `43165007…` changes exactly those two values on the proven V1 baseline.
->    It is **proposed only**: Claude exact-artifact review plus CJ approval/presence are required.
+>    the WiFi child nor its bridge exposes a paired power-enable operation. A complete paired
+>    port-enable audit found a more semantic first delta: J614s lacks `appclk-auto-dis`, so
+>    Apple clears bit 8 at each ADT-derived `port+0x800`; V1 leaves that named automatic
+>    clock-disable bit set. Ticket 182 (`f62ed133` / `482839cd…`) is a one-policy candidate
+>    on the proven V1 baseline and should run before the opaque fixed reset-value ticket 180
+>    (`afd13c03` / `43165007…`). The same audit also found a missing one-microsecond port-PHY
+>    settle delay and `Intr2AXI+0x80=1`, but those remain isolated later deltas instead of
+>    being mixed into 182. Both candidates are **proposed only**: Claude exact-artifact review
+>    plus CJ approval/presence are required.
 >    `pcie_init()` must run only once per power cycle. The feature kernel already embeds the
 >    paired BCM4388 firmware. Evidence:
 >    `done/2026-07-29-t6040-pcie-op115-SOLVED-links-dont-train.md` and
->    `done/2026-07-29-t6040-pcie-link-training-static-review.md`.
+>    `done/2026-07-29-t6040-pcie-port-enable-full-audit.md`.
 
 > **2026-07-28 LATE (two-agent reconciliation) — no hardware action is currently ready.**
 >
