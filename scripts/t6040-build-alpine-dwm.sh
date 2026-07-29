@@ -74,6 +74,11 @@ rm -rf "$TMP"/usr/share/doc "$TMP"/usr/share/man "$TMP"/usr/share/info        "$
 du -sm "$TMP" | awk '{print "  after:  "$1" MiB"}'
 fi
 
+# fontconfig's package trigger writes cache files containing build-root-specific
+# state. They are optional and regenerated on the target; dropping them makes
+# otherwise identical network-root builds byte-reproducible.
+rm -rf "$TMP"/var/cache/fontconfig
+
 # Ticket 168: optionally stage the paired BCM4388 apple,mriya WiFi/BT firmware so the
 # built-in brcmfmac finds it the moment PCIe link-up lands (regen recipe for the corpus:
 # done/2026-07-14-t6040-bcm4388-fw-extract.md). Off by default until PCIe works — 4.7 MiB
@@ -171,7 +176,12 @@ chmod 0755 "$TMP/usr/local/sbin/t6040-startx"
 cp "$(dirname "$0")/t6040-usb-ecm-gadget.sh" "$TMP/usr/local/sbin/t6040-usb-ecm-gadget"
 cp "$(dirname "$0")/t6040-usb-debug-gadget.sh" "$TMP/usr/local/sbin/t6040-usb-debug-gadget"
 chmod 0755 "$TMP/usr/local/sbin/t6040-usb-debug-gadget"
-cp "$(dirname "$0")/t6040-usb-acm-console.sh" "$TMP/usr/local/sbin/t6040-usb-acm-console"
+GADGET_SCRIPT=${T6040_USB_GADGET_SCRIPT:-"$(dirname "$0")/t6040-usb-acm-console.sh"}
+[ -f "$GADGET_SCRIPT" ] || {
+    echo "missing T6040_USB_GADGET_SCRIPT: $GADGET_SCRIPT" >&2
+    exit 1
+}
+cp "$GADGET_SCRIPT" "$TMP/usr/local/sbin/t6040-usb-acm-console"
 chmod 0755 "$TMP/usr/local/sbin/t6040-usb-acm-console"
 chmod 0755 "$TMP/usr/local/sbin/t6040-usb-ecm-gadget"
 

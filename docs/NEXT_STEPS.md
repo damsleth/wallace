@@ -25,6 +25,16 @@
 >    train the WiFi link. Ticket 181 is proposed; Claude exact-artifact review and CJ approval
 >    are required before chainload. Evidence:
 >    `done/2026-07-29-t6040-dockchannel-nbcon-wifi-usb-diagnostic.md`.
+> 2a. **Tethered-network fallback (183).** Linux DWC3 device mode already reaches
+>    UDC `configured`, while this macOS host rejected the generic Linux CDC profiles but
+>    accepts m1n1's two ACM functions. A final bounded ConfigFS discriminator now matches
+>    the controllable m1n1 shape: `1209:316d`, CDC device class, self-powered 500 mA
+>    configuration, and two ACM functions. Exact graphical/WiFi/USB-feature object
+>    `m1n1-b0-dwm-m1n1-acm-wifi-usb-diag.bin` is `8ef1da54…`, 1942 × 16 KiB,
+>    strict-verifier and minilzlib PASS. If macOS publishes a modem tty, PPP/SLIP becomes
+>    a PCIe/VBUS-independent network path; if not, ConfigFS descriptor iteration ends.
+>    Ticket 183 is proposed pending Claude review and CJ approval. Evidence:
+>    `done/2026-07-29-t6040-m1n1-shaped-linux-acm-network-candidate.md`.
 > 3. **Proxy / integration smoke (177).** CJ enrolled
 >    `rollback-m1n1-1394c345.bin`; the rig is at a stable `Running proxy`, so reviewed
 >    chainloads are no longer constrained by the enrolled daily driver's 10 s fall-through.

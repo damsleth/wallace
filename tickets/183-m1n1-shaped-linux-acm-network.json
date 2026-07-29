@@ -1,0 +1,17 @@
+{
+  "seq": "183",
+  "slug": "m1n1-shaped-linux-acm-network",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "Diagnostic-only tethered networking discriminator. Chainload exact window-free object /Users/damsleth/Code/linux-build-out/m1n1-b0-dwm-m1n1-acm-wifi-usb-diag.bin SHA256 8ef1da54546334f82783f1522c41a3eb51e1eedfe9ff50f8b7610bc73a049c56 size 31817728 (1942x16KiB). It retains the pinned graphical/MACSMC DTB 11abca72, observable feature kernel 217b4bd7 with USB storage/usbnet + BCM4388 firmware, and reproducible minilzlib-safe initramfs bd47a366. Only experimental delta is Linux configfs device-mode gadget shaped like m1n1, which this macOS host already binds: 1209:316d, CDC device class, self-powered 500mA config, two ACM functions; no SPMI/PCIe-PHY/PMU/SMC/NVRAM/firmware write. PASS = macOS creates one or two new /dev/cu.usbmodem* and opening ttyGS0 reaches the target shell; then PPP/SLIP is a viable follow-up. NEGATIVE = device reaches configured but no tty, closing descriptor mimic path. Requires Claude exact-artifact review and CJ approval; one chainload, then restore quiescent proxy.",
+  "author": "sol",
+  "deps": [],
+  "hashes": {
+    "image": "8ef1da54546334f82783f1522c41a3eb51e1eedfe9ff50f8b7610bc73a049c56",
+    "dtb": "11abca72b212362e1651a24f5dd07143b3b89956f8c00aaccec83d32b15df787",
+    "initramfs": "bd47a366271af60077acb2938d5c6aed73a33338803cbf0bcf80433bc74da788"
+  },
+  "created": 1785315501
+}
