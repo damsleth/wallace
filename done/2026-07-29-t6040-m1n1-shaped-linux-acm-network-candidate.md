@@ -31,6 +31,28 @@ the already-proven m1n1 device. It is not claimed byte-identical: Linux emits
 the standard ACM header/call-management/ACM functional descriptors that
 m1n1's minimal descriptor omits.
 
+### Host-driver premise correction
+
+The earlier ticket-173 verdict said generic host-side CDC support appeared
+absent on Apple Silicon macOS. That is false. Direct inspection on the tether
+host (macOS 15.3.2, Darwin 24.3.0) found these loaded:
+
+```text
+com.apple.driver.usb.cdc       5.0.0
+com.apple.driver.usb.cdc.acm   5.0.0
+com.apple.driver.usb.cdc.ecm   5.0.0
+com.apple.driver.usb.cdc.ncm   5.0.0
+```
+
+Their installed Info.plists match generic CDC interface class/subclass
+tuples—ACM `02/02/{00,01}`, data `0a/00`, ECM `02/06`, and NCM `02/0d`—with
+no VID/PID whitelist. `AppleUSBCDC` also matches top-level device class
+`0x02`. The failure is therefore specific to how macOS's composite parser
+attached (or failed to attach) the tested Linux descriptors; it is not
+evidence that the host lacks CDC drivers. The borrowed `1209:316d` identity
+alone is not expected to fix it. The meaningful remaining delta is m1n1's
+device-class/two-ACM topology.
+
 If macOS publishes one or two modem nodes, a tty shell proves the data path and
 PPP or SLIP can provide networking without PCIe, VBUS, or a USB host port. If
 the UDC reaches `configured` but macOS still publishes no tty, this

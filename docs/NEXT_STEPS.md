@@ -158,8 +158,10 @@
 >
 > Daily driver (`5931f9c3`, enrolled): dwm + Norwegian keyboard + working SMC battery/charger/temp
 > (ticket 165 done). USB device mode proven on the M4 (`udc=configured`, all CDC flavors enumerate),
-> but macOS binds no Linux CDC gadget — tether-ethernet to this Mac is a macOS wall (173), not an M4
-> problem. **The two priorities now are USB read/write and WiFi, both decoded and both needing an
+> but macOS attached no interface to the tested Linux CDC descriptors. The old claim that generic
+> host CDC drivers are absent is refuted: ACM/ECM/NCM host kexts are loaded and class-match
+> generically. Ticket 183 owns the final m1n1-topology discriminator. **The two priorities remain
+> USB read/write and WiFi, both decoded and both needing an
 > attended rig session:**
 >
 > 1. **USB host + VBUS (096 → 097 → 108/109/112/113).** Fully decoded:
@@ -181,17 +183,18 @@
 > Everything else (feature kernel, DT, harness, minilzlib fix, address decodes) is landed. The USB and
 > WiFi frontiers are the same shape: decode complete, one bounded hardware action left, maintainer-gated.
 
-> **2026-07-28 (network campaign) — dwc3 gadget works on M4; macOS binds no interface; needs M4 dmesg.**
+> **2026-07-28 network campaign (amended 2026-07-29) — DWC3 gadget works; attachment gap narrowed.**
 >
 > The macsmc feature object (dwm + battery/thermals + usbnet + USB-tether gadget) is enrolled and
 > working: keyboard fixed (`HID_TYPE_FIX`), dwm up. Tether-ethernet was chainload-tested in four gadget
 > flavors (RNDIS, CDC-ECM, CDC-NCM, ACM+NCM). **All enumerate on this Mac over the tether — Linux dwc3
 > gadget mode works on the M4, the biggest unknown, confirmed YES.** But macOS creates no interface for
-> any flavor (not even CDC-ACM, which it binds fine from m1n1's own proxy gadget), which points at the
-> M4-side configfs functions not fully binding. **I have no M4 dmesg**, and the ACM console built to get
-> it failed the same way, so blind descriptor iteration stopped.
+> any flavor (not even CDC-ACM, which it binds fine from m1n1's own proxy gadget). Later panel evidence
+> proved UDC state `configured`, so the M4 completed enumeration. Host inspection then proved generic
+> ACM/ECM/NCM drivers are installed, loaded, and class-matched. The remaining gap is macOS composite
+> attachment to the tested Linux descriptor shapes; ticket 183 stages one final m1n1-topology test.
 >
-> **Two ways to unblock, both needing the maintainer:**
+> **Historical diagnostics (both completed):**
 > 1. **Fastest — read the panel.** On the enrolled dwm (getty on tty1), run:
 >    `cat /var/log/ecm-gadget.log; ls /sys/class/udc; ls /sys/class/net; dmesg | grep -iE 'dwc3|gadget|configfs|ncm|ecm|udc'`
 >    and also `cat /sys/class/power_supply/*/uevent; cat /sys/class/hwmon/*/temp*_input` (the macsmc

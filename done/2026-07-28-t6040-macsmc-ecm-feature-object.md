@@ -208,18 +208,23 @@ offset 0). Fixed `reg[1]` to `<0x5 0x0de70000 0x0 0x100000>`; new DTB `11abca72`
 observed hardware, not a pattern — high confidence it lets macsmc initialize shared memory and create
 the battery/hwmon devices.
 
-### Network: udc `configured`, but macOS binds no Linux CDC gadget — a macOS host wall
+### Network: UDC `configured`, but tested Linux CDC descriptors did not attach
 `cat /sys/class/udc/*/state` = **`configured`**. So the M4 dwc3 gadget *fully enumerates* — the host
 completes SetConfiguration — for every flavor. Combined with the earlier "usb0 up, NO-CARRIER" and the
-absence of any `en`/`cu.usbmodem` on macOS, the conclusion is firm: **the M4 side is 100% healthy; macOS
-does not attach a class driver to a Linux dwc3 CDC gadget** (RNDIS, ECM, NCM, or ACM), even though it
-binds m1n1's own CDC-ACM. `AppleUSBDeviceNCM*` is macOS's *device*-side NCM, not a host driver for an
-arbitrary gadget; macOS Apple-Silicon host-side CDC-ethernet for a generic gadget appears absent.
+absence of any `en`/`cu.usbmodem` on macOS, the conclusion is firm only at this
+boundary: **the M4 completes USB configuration, while macOS did not attach an
+interface to any tested Linux descriptor set.** It still binds m1n1's two-ACM
+gadget on the same cable.
 
-**Verdict:** tether-ethernet to *this Mac* is blocked by macOS, not by the M4. The gadget works and
-would bind on a **Linux host** (which has CDC-ECM/NCM/ACM host drivers). Options if tether networking is
-still wanted: (a) plug the M4 into a Linux box, or (b) go the original USB-*host* route (real dongle,
-gated on VBUS/HPM). Not worth more macOS gadget-descriptor iteration.
+**2026-07-29 correction:** the inference that Apple-Silicon macOS lacks generic
+host-side CDC drivers was wrong. This host has the ACM, ECM, and NCM host kexts
+loaded, and their Info.plists match generic CDC classes/subclasses without a
+VID/PID whitelist. `AppleUSBDeviceNCM*` is device-side, but
+`com.apple.driver.usb.cdc.{acm,ecm,ncm}` are the relevant loaded host drivers.
+The observed failure is a descriptor/composite attachment problem for the
+tested shapes, not driver absence. Ticket 183 stages one final bounded
+ConfigFS comparison using m1n1's CDC device class, self-powered flags, and
+two-ACM topology. USB-host+dongle remains the other path, gated on VBUS/HPM.
 
 ## Shipped: macsmc daily driver v3 (SRAM-fixed)
 `m1n1-b0-macsmc-dualmode.bin` `5931f9c3d1f785f2a25cd40754fec1f38078efbc3ceaa952288c529bbc7527f8`
