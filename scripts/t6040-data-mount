@@ -1,0 +1,44 @@
+#!/bin/sh
+# T6040 persistent-storage milestone: RAM-backed /data plus best-effort external
+# media, so the RAM-rooted daily driver has somewhere durable for configs,
+# downloads and data files.
+#
+#   /data      7 GiB tmpfs (the machine has 24/48 GiB; a cold tmpfs costs ~0)
+#   /mnt/sd    first partition of the SD reader (mmcblk*) when a card appears
+#   /mnt/usb   first partition of a USB stick (sd[a-z]) when one appears
+#
+# If the mounted medium carries a t6040-data/ directory, it is restored into
+# /data at attach; `t6040-data-sync` copies /data back. Restore-then-sync keeps
+# the medium authoritative across power cycles while /data stays fast.
+# Everything is best-effort: no medium, no error, the ramdisk still works.
+
+mkdir -p /data /mnt/sd /mnt/usb
+mountpoint -q /data 2>/dev/null || mount -t tmpfs -o size=7g,mode=0755 data /data
+
+try_mount()
+{
+    dev=$1 dir=$2
+    [ -b "$dev" ] || return 1
+    mountpoint -q "$dir" && return 0
+    for fs in vfat exfat ext4; do
+        mount -t $fs -o noatime "$dev" "$dir" 2>/dev/null && break
+    done
+    mountpoint -q "$dir" || return 1
+    if [ -d "$dir/t6040-data" ]; then
+        cp -a "$dir/t6040-data/." /data/ 2>/dev/null
+        echo "t6040-data: restored /data from $dev" > /dev/console
+    fi
+    echo "t6040-data: $dev mounted at $dir" > /dev/console
+}
+
+# The media can appear at any time (SD insert, future USB); poll gently
+# instead of depending on mdev hotplug config.
+while :; do
+    for d in /dev/mmcblk0p1 /dev/mmcblk0; do
+        try_mount "$d" /mnt/sd && break
+    done
+    for d in /dev/sda1 /dev/sda; do
+        try_mount "$d" /mnt/usb && break
+    done
+    sleep 5
+done

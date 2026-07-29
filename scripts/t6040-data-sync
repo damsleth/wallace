@@ -1,0 +1,16 @@
+#!/bin/sh
+# Persist the /data ramdisk to whichever external medium is mounted.
+# Companion to t6040-data-mount; run before poweroff (RAM root = nothing else
+# survives). cp -a not rsync: busybox always has it.
+set -e
+for dir in /mnt/sd /mnt/usb; do
+    if mountpoint -q "$dir" 2>/dev/null; then
+        mkdir -p "$dir/t6040-data"
+        cp -a /data/. "$dir/t6040-data/"
+        sync
+        echo "synced /data -> $dir/t6040-data"
+        exit 0
+    fi
+done
+echo "no external medium mounted (looked at /mnt/sd, /mnt/usb)" >&2
+exit 1

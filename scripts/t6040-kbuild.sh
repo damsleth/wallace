@@ -1127,6 +1127,14 @@ if [ "${WIFI:-0}" = "1" ]; then
     # switch implies the MACSMC block above (set MACSMC=1 as well).
     ./scripts/config --file .config \
         -e MFD_MACSMC -e GPIO_MACSMC -e GPIOLIB -e OF_GPIO
+    # Storage milestone (2026-07-30): mount SD cards / USB sticks from the RAM
+    # root. SDHCI is already builtin; add the filesystems and the USB mass-
+    # storage path (SCSI disk) so a stick works the day VBUS does.
+    ./scripts/config --file .config \
+        -e SCSI -e BLK_DEV_SD -e USB_STORAGE \
+        -e VFAT_FS -e MSDOS_FS -e EXFAT_FS -e EXT4_FS \
+        -e NLS_CODEPAGE_437 -e NLS_ISO8859_1 -e NLS_UTF8 \
+        -e MSDOS_PARTITION -e EFI_PARTITION
     # PCIe host controller and the pinctrl that owns PERST#/CLKREQ.
     # PCIE_APPLE is "depends on PAGE_SIZE_16KB" (drivers/pci/controller/Kconfig),
     # so 16 KiB pages must be selected FIRST or the symbol is invisible and the

@@ -332,6 +332,13 @@ install -m 0755 "$(dirname "$0")/t6040-b0-autologin" \
     "$TMP/usr/local/sbin/t6040-b0-autologin"
 chmod 0755 "$TMP/usr/local/sbin/t6040-usb-ecm-gadget"
 
+# Persistent-storage milestone (2026-07-30): 7 GiB /data tmpfs + best-effort
+# SD/USB automount with restore/sync of a t6040-data/ directory.
+install -m 0755 "$(dirname "$0")/t6040-data-mount" \
+    "$TMP/usr/local/sbin/t6040-data-mount"
+install -m 0755 "$(dirname "$0")/t6040-data-sync" \
+    "$TMP/usr/local/sbin/t6040-data-sync"
+
 printf 'wallace-dwm\n' > "$TMP/etc/hostname"
 : > "$TMP/etc/fstab"
 sed -i.bak 's|^root:[^:]*:|root::|' "$TMP/etc/shadow" && rm -f "$TMP/etc/shadow.bak"
@@ -343,6 +350,7 @@ cat > "$TMP/etc/inittab" <<'EOF'
 ::sysinit:/bin/mount -t devpts devpts /dev/pts
 ::sysinit:/bin/sh -c 'for m in /usr/share/bkeymaps/no/no-mac.bmap /usr/share/bkeymaps/no/no.bmap; do [ -f "$m" ] && busybox loadkmap < "$m" && exit 0; [ -f "$m.gz" ] && busybox zcat "$m.gz" | busybox loadkmap && exit 0; done; true'
 ::sysinit:/usr/local/sbin/t6040-usb-acm-console
+::once:/usr/local/sbin/t6040-data-mount
 ::once:/usr/local/sbin/t6040-startx
 tty1::respawn:/sbin/getty -n -l /bin/sh 38400 tty1 linux
 ::respawn:/usr/local/sbin/t6040-b0-ttydc0-console
