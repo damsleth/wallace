@@ -1,0 +1,36 @@
+From: CJ Damsleth <Carl.Joakim.Damsleth@crayon.no>
+Subject: [PATCH] cpufreq: apple-soc: fix 32-bit overflow mapping OPP levels above 4.294 GHz
+
+freq_table[i].frequency is an unsigned int in kHz, so the
+`frequency * 1000` in the driver_data mapping loop is evaluated in
+32-bit arithmetic before being widened to unsigned long. Any pstate
+above 4294967 kHz wraps (4416000 kHz becomes ~121 MHz), the
+dev_pm_opp_find_freq_floor() lookup lands below the table's lowest OPP
+and returns -ERANGE, and apple_soc_cpufreq_init() fails through its one
+print-free error path -- the whole policy silently never registers.
+
+No cluster on T8103..T6031 exceeds 4.294 GHz, which is why this has
+never fired before. The T6040/T6041 (M4 Pro/Max) P-cluster tables carry
+4416000 and 4512000 kHz entries, so every M4 P-cluster policy fails
+while the E-cluster (max 2592000 kHz) works, with nothing in dmesg.
+Found on a T6040 J614s with dyndbg after the E cluster registered fine.
+
+Widen before multiplying.
+
+Signed-off-by: CJ Damsleth <Carl.Joakim.Damsleth@crayon.no>
+---
+ drivers/cpufreq/apple-soc-cpufreq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/cpufreq/apple-soc-cpufreq.c b/drivers/cpufreq/apple-soc-cpufreq.c
+--- a/drivers/cpufreq/apple-soc-cpufreq.c
++++ b/drivers/cpufreq/apple-soc-cpufreq.c
+@@ -290,7 +290,7 @@ static int apple_soc_cpufreq_init(struct cpufreq_policy *policy)
+
+ 	/* Get OPP levels (p-state indexes) and stash them in driver_data */
+ 	for (i = 0; freq_table[i].frequency != CPUFREQ_TABLE_END; i++) {
+-		unsigned long rate = freq_table[i].frequency * 1000 + 999;
++		unsigned long rate = (unsigned long)freq_table[i].frequency * 1000 + 999;
+ 		struct dev_pm_opp *opp = dev_pm_opp_find_freq_floor(cpu_dev, &rate);
+
+ 		if (IS_ERR(opp)) {

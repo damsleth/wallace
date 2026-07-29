@@ -2,11 +2,11 @@
   "seq": "006",
   "slug": "cpufreq-dt-verify",
   "needs": "rig",
-  "state": "PARTIAL-E-cluster-verified-P-policies-absent",
+  "state": "SOLVED-E-and-P0-verified-P1-needs-smp",
   "runnable": false,
   "track": "cpufreq",
   "priority": "P2",
-  "desc": "Prepared DT boundary from completed preflight 035: board-derived E 7-pstate and P 19-pstate OPP tables, three apple,cluster-cpufreq nodes, exact DTB a42bb096.... NOT RUNNABLE: replacement ticket 123 and then ticket 121 must first prove the first secondary and all 14 CPUs online so both P policies exist; then confirm/build CONFIG_ARM_APPLE_SOC_CPUFREQ=y, create and host-test the bounded sysfs/governor reporter, pin safe hashes, and obtain independent review. One plan-approved boot verifies E/P policy transitions. No speculative voltages or other MMIO. Rig is healthy; dependencies, not recovery, are the blocker.",
+  "desc": "Prepared DT boundary from completed preflight 035: board-derived E 7-pstate and P 19-pstate OPP tables, three apple,cluster-cpufreq nodes, exact DTB a42bb096.... NOT RUNNABLE: replacement ticket 123 and then ticket 121 must first prove the first secondary and all 14 CPUs online so both P policies exist; then confirm/build CONFIG_ARM_APPLE_SOC_CPUFREQ=y, create and host-test the bounded sysfs/governor reporter, pin safe hashes, and obtain independent review. One plan-approved boot verifies E/P policy transitions. No speculative voltages or other MMIO. Rig is healthy; dependencies, not recovery, are the blocker. RESULT 2026-07-30: root cause of missing P policies was a 32-bit frequency*1000 overflow in apple-soc-cpufreq (upstream bug, first triggerable on M4 whose P clusters exceed 4.294 GHz). Fixed via patches/t6040-apple-cpufreq-freq-mult-overflow.patch; P0 verified transitioning 1.26-4.512 GHz both directions at maxcpus=5. P1 validation needs an online cluster-2 CPU (ticket 121). See done/2026-07-30-t6040-006-SOLVED-cpufreq-32bit-overflow.md.",
   "author": "claude",
   "deps": [
     "035",

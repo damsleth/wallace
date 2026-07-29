@@ -234,8 +234,11 @@ if [ "${DOCKCHANNEL_NBCON:-0}" = "1" ]; then
     }
 fi
 if [ "${CPUFREQ:-0}" = "1" ]; then
-    for f in /out/t6040-j614s-dcuart-cpufreq.dts /src/$APPLE/t6040-j614s-dcuart-cpufreq.dts; do
-        [ -f "$f" ] && cp "$f" $APPLE/ && break
+    for base in t6040-j614s-dcuart-cpufreq.dts t6040-cpufreq.dtsi \
+                t6040-j614s-dcuart-wifi-cpufreq.dts; do
+        for f in "/out/$base" "/src/$APPLE/$base"; do
+            [ -f "$f" ] && cp "$f" $APPLE/ && break
+        done
     done
 fi
 if [ "${PCIE:-0}" = "1" ]; then
@@ -299,6 +302,19 @@ if [ -f /out/t6040-brcmfmac-bss-info-v116.patch ]; then
         echo "t6040-brcmfmac-bss-info-v116.patch already applied"
     else
         echo "ERROR: t6040-brcmfmac-bss-info-v116.patch does not apply" >&2
+        exit 1
+    fi
+fi
+if [ -f /out/t6040-apple-cpufreq-freq-mult-overflow.patch ]; then
+    # M4 P-clusters exceed 4.294 GHz; the driver's 32-bit `frequency * 1000`
+    # wraps and every P policy silently fails init. Found live 2026-07-30.
+    if git apply --check /out/t6040-apple-cpufreq-freq-mult-overflow.patch 2>/dev/null; then
+        git apply /out/t6040-apple-cpufreq-freq-mult-overflow.patch
+        echo "t6040-apple-cpufreq-freq-mult-overflow.patch applied OK"
+    elif git apply -R --check /out/t6040-apple-cpufreq-freq-mult-overflow.patch 2>/dev/null; then
+        echo "t6040-apple-cpufreq-freq-mult-overflow.patch already applied"
+    else
+        echo "ERROR: t6040-apple-cpufreq-freq-mult-overflow.patch does not apply" >&2
         exit 1
     fi
 fi
@@ -1521,6 +1537,13 @@ if [ "${CPUFREQ:-0}" = "1" ] && [ -f $APPLE/t6040-j614s-dcuart-cpufreq.dts ]; th
     make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-cpufreq.dtb
     cp $APPLE/t6040-j614s-dcuart-cpufreq.dtb /out/ \
         && echo "DTB -> /out/t6040-j614s-dcuart-cpufreq.dtb"
+    # Combined daily-driver DT: wifi endpoint power + cpufreq in one DTB.
+    if [ -f $APPLE/t6040-j614s-dcuart-wifi-cpufreq.dts ] && \
+       [ -f $APPLE/t6040-j614s-dcuart-wifi.dts ]; then
+        make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-wifi-cpufreq.dtb
+        cp $APPLE/t6040-j614s-dcuart-wifi-cpufreq.dtb /out/ \
+            && echo "DTB -> /out/t6040-j614s-dcuart-wifi-cpufreq.dtb"
+    fi
 fi
 if [ "${PCIE:-0}" = "1" ]; then
     make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-pcie.dtb
@@ -1687,6 +1710,10 @@ if [ "${1:-}" = "image" ]; then
     if [ "${T6040_PPP:-0}" = "1" ]; then
         image_name="${image_name}-ppp"
         map_name="${map_name}-ppp"
+    fi
+    if [ "${CPUFREQ:-0}" = "1" ]; then
+        image_name="${image_name}-cpufreq"
+        map_name="${map_name}-cpufreq"
     fi
     if [ "${DIAG:-0}" = "1" ]; then
         image_name="${image_name}-diag"

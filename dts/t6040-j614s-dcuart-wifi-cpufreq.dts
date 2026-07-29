@@ -1,0 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * J614s daily-driver DT: DockChannel console + PCIe + WiFi/BT endpoint power
+ * + antenna SKU (via the wifi DTS) + cluster cpufreq. One DTB for the
+ * everything object.
+ */
+#include "t6040-j614s-dcuart-wifi.dts"
+#include "t6040-cpufreq.dtsi"
