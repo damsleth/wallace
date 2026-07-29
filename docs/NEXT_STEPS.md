@@ -1,5 +1,28 @@
 # t6040 Linux bring-up — NEXT STEPS
 
+> **2026-07-29 (latest) — WiFi CONFIRMED END TO END. Next: SMP.**
+> On the enrolled object, from dwm on the panel: WPA association, DHCP lease, and
+> `ping -c3 1.1.1.1` = 3/3, 0% loss, RTT 3.656/6.504/11.934 ms. The full chain works — PCIe link-up →
+> BCM4388 firmware → association → DHCP → routed internet. Ticket 168 is **done**. The
+> `p2p-dev-wlan0: -52` warnings are cosmetic (brcmfmac has no nl80211 P2P *device* support on this
+> chip); add `p2p_disabled=1` to silence.
+>
+> **This changes the dev loop:** userspace iteration no longer needs the rig. Worth adding `openssh`
+> (or dropbear) and `p2p_disabled=1` to the WiFi image so the machine can be driven without the panel
+> or the tether — credentials stay out of the committed image.
+>
+> **Recommended order from here:** (1) **SMP — get off one core.** Every bootarg we use says
+> `maxcpus=1`: one P-core of fourteen, the largest untapped win in the project. 122 is done; I review
+> **123**, then 123 → 120 → 121, and only then cpufreq (**006**) — frequency before SMP makes a
+> failure unattributable. (2) **NVMe (174)** — the `ans` reg[9] finding may make internal storage
+> reachable without SPTM, which would end the RAM-root and the ~128 MiB initramfs ceiling; needs CJ
+> approval because the probe cycles `CC.EN` on the controller holding macOS. (3) Cheap peripherals:
+> SD reader is one rebuild away (`MMC_SDHCI_PCI` is already `=y`), trackpad needs the ticket-126 HIDF
+> exception then **186** with the v116 kernel swap. (4) Draft the brcmfmac v116 patch for upstream.
+> **Deprioritised: USB VBUS** — 178 is runnable but may return `0x00`; `SWDF` is data-role only and
+> `SWSr`/`SWSk` do not exist, so the credible path is the upstream SPMI Type-C transport.
+
+
 > **2026-07-29 (later) — ENROLL THIS: `679fe133` (dual-mode WiFi/BT/PPP, no HIDF).**
 > Ticket 187 reviewed GO (`done/2026-07-29-t6040-187-no-hidf-object-review.md`). Everything sol
 > pinned verified exactly — including the easy-to-miss detail that the `c0`-named firmware in the

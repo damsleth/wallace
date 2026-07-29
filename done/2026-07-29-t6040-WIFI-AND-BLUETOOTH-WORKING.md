@@ -177,3 +177,40 @@ ip addr show wlan0; ping -c3 1.1.1.1
 
 Artifacts: `initramfs-alpine-wifi.cpio.gz` (`755cbdac…`, 17,794,970 B, 1040 entries) and
 `Image-macsmc-hid-type-fix` rebuilt with the v116 patch (`f94ad7d4…`).
+
+## CONFIRMED END TO END: associated, DHCP, routed traffic (2026-07-29, CJ at the panel)
+
+On the enrolled dual-mode object, from a terminal under dwm:
+
+```text
+wpa_passphrase 'Bilbo Laggins' <PSK> > /tmp/wpa.conf && wpa_supplicant -B -i wlan0 -c /tmp/wpa.conf \
+    && udhcpc -i wlan0 && ping -c3 1.1.1.1
+Successfully initialized wpa_supplicant
+udhcpc: lease of <addr> obtained from <router>, lease time 54000
+PING 1.1.1.1: 64 bytes ... seq=0 ttl=59 time=11.934 ms / seq=1 time=3.656 ms / seq=2 time=3.922 ms
+3 packets transmitted, 3 packets received, 0% packet loss
+round-trip min/avg/max = 3.656/6.504/11.934 ms
+```
+
+So the full chain works: PCIe link-up → BCM4388 firmware → WPA association → DHCP → routed
+internet traffic, with normal latency. **WiFi is done**, not merely probing.
+
+Two benign warnings, worth recording so nobody chases them:
+
+```text
+Failed to create interface p2p-dev-wlan0: -52 (No error information)
+nl80211: Failed to create a P2P Device interface p2p-dev-wlan0
+P2P: Failed to enable P2P Device interface
+```
+
+brcmfmac does not implement the nl80211 **P2P device** interface on this chip, so wpa_supplicant's
+optional P2P setup fails and it proceeds on the normal station path — association and DHCP are
+unaffected. Add `p2p_disabled=1` to the wpa_supplicant config to silence them.
+
+### What this changes about the workflow
+
+Until now every experiment went through the DebugUSB pty one command at a time, with a reboot per
+iteration and no way to install anything on the machine. With the M4 on the network, userspace
+iteration no longer needs the rig at all. The obvious next image improvement is an SSH daemon
+(`openssh` or `dropbear`) plus `p2p_disabled=1`, so the machine can be driven without the panel or
+the tether; credentials stay out of the committed image.
