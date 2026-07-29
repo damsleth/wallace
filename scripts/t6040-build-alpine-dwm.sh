@@ -390,7 +390,7 @@ cat > "$TMP/etc/inittab" <<'EOF'
 ::sysinit:/bin/mkdir -p /dev/pts /tmp /run /var/log
 ::sysinit:/bin/mount -t devpts devpts /dev/pts
 ::sysinit:/bin/sh -c 'for m in /usr/share/bkeymaps/no/no-mac.bmap /usr/share/bkeymaps/no/no.bmap; do [ -f "$m" ] && busybox loadkmap < "$m" && exit 0; [ -f "$m.gz" ] && busybox zcat "$m.gz" | busybox loadkmap && exit 0; done; true'
-::sysinit:/usr/local/sbin/t6040-usb-acm-console
+::once:/usr/local/sbin/t6040-usb-acm-console
 ::once:/usr/local/sbin/t6040-data-mount
 ::once:/usr/local/sbin/t6040-startx
 tty1::respawn:/sbin/getty -n -l /bin/sh 38400 tty1 linux

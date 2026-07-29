@@ -23,7 +23,12 @@ echo 250 > configs/c.1/MaxPower
 mkdir -p functions/acm.GS0
 ln -sf functions/acm.GS0 configs/c.1/ 2>/dev/null
 UDC=$(ls /sys/class/udc 2>/dev/null | grep 382280000 | head -1); [ -z "$UDC" ] && UDC=$(ls /sys/class/udc 2>/dev/null | head -1)
-echo "$UDC" > UDC 2>/dev/null
+[ -z "$UDC" ] && exit 0
+# The configfs UDC bind can block IN-KERNEL indefinitely when dwc3 is wedged
+# (observed after chainload handoff from m1n1's live gadget). This script used
+# to run as a sequential ::sysinit: entry, so a wedged bind froze the whole
+# boot at the Asahi logo -- no getty, no X. Bound the write.
+timeout 10 sh -c "echo '$UDC' > '$G/UDC'" 2>/dev/null || exit 0
 sleep 1
 # interactive root shell on the ACM console
 setsid sh -c 'exec /sbin/getty -n -l /bin/sh 115200 ttyGS0 vt100' >/dev/null 2>&1 &

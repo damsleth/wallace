@@ -1052,7 +1052,12 @@ if [ "${TRACKPAD_MOTION:-0}" = "1" ] ||
     # The bounded RAM image has no module-loading path. Multi-touch must be
     # built in so opening the event node can invoke the paired volatile HIDF
     # upload path; ticket 004's first exact candidate incorrectly left this m.
-    ./scripts/config --file .config -e HID_MULTITOUCH
+    # hid-magicmouse, not hid-multitouch, owns the internal MTP trackpad: it
+    # carries the HID_DEVICE(BUS_HOST, ..., HOST_VENDOR_ID_APPLE) entry and the
+    # J314-family dimension tables. Found 2026-07-30: with only MULTITOUCH the
+    # Multi-touch HID device sits unbound, dchid never opens the interface, and
+    # the tpmtfw request never happens. Keep MULTITOUCH too (harmless).
+    ./scripts/config --file .config -e HID_MULTITOUCH -e HID_MAGICMOUSE
 fi
 if [ "${T6040_PPP:-0}" = "1" ]; then
     echo "== PPP: dual-ACM tether fallback (builtin) =="
@@ -1426,6 +1431,7 @@ fi
 if [ "${TRACKPAD_FW:-0}" = "1" ]; then
     echo "== assert integrated trackpad firmware path =="
     grep -q '^CONFIG_HID_MULTITOUCH=y$' .config
+    grep -q '^CONFIG_HID_MAGICMOUSE=y$' .config
     grep -q 'DCHID_FW_MAGIC' \
         drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c
 fi
