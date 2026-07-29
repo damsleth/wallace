@@ -1,0 +1,54 @@
+#!/bin/sh
+# /init for the WiFi/BT test root (ticket 168).
+#
+# Deliberately does NOT use openrc. When this Alpine tree is used as an
+# initramfs root via rdinit, openrc's sysinit does not populate /dev, so the
+# inittab gettys fail with "can't open /dev/tty0: no such file or directory"
+# and the ttydc0 helper reports "ttydc0 absent after 30s" -- observed on the
+# panel, 2026-07-29. Mount the three pseudo-filesystems ourselves, then put a
+# shell on the DockChannel UART exactly the way the proven minimal dcuart root
+# does, so the whole WiFi sequence can be driven from the host over KIS.
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export PATH HOME=/root TERM=vt100
+
+mount -t proc none /proc 2>/dev/null
+mount -t sysfs none /sys 2>/dev/null
+mount -t devtmpfs none /dev 2>/dev/null
+mount -t tmpfs none /tmp 2>/dev/null
+mkdir -p /run /var/run 2>/dev/null
+mount -t tmpfs none /run 2>/dev/null
+
+echo ""
+echo "=== t6040 WiFi/BT test root ==="
+uname -a
+
+# Keep the watchdog fed so a wedged shell does not strand the machine.
+[ -c /dev/watchdog0 ] && { watchdog -T 30 -t 10 /dev/watchdog0 & }
+
+# The DockChannel tty registers asynchronously.
+n=0
+while [ ! -c /dev/ttydc0 ] && [ "$n" -lt 20 ]; do sleep 1; n=$((n + 1)); done
+
+if [ ! -c /dev/ttydc0 ]; then
+    echo "FATAL: /dev/ttydc0 absent after ${n}s; /dev contents:" >/dev/console
+    ls /dev >/dev/console 2>&1
+    exec sh
+fi
+
+# Hold the port open for the life of init: the driver has shown close/reopen
+# fragility, and a final close kills output dead.
+exec 9<>/dev/ttydc0
+
+{
+    echo ""
+    echo "*** t6040 WiFi/BT test root — shell on ttydc0 ***"
+    echo "run: t6040-wifi-report     (pci, iw scan, mac, bluetooth)"
+    echo "then: wpa_passphrase SSID PSK > /tmp/wpa.conf"
+    echo "      wpa_supplicant -B -i wlan0 -c /tmp/wpa.conf && udhcpc -i wlan0"
+    echo ""
+} >&9
+
+while :; do
+    setsid sh -c 'exec sh -i <>/dev/ttydc0 >&0 2>&1' || sleep 2
+    sleep 1
+done

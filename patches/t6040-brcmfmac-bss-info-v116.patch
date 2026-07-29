@@ -1,0 +1,35 @@
+brcmfmac: accept BSS info version 116 (Apple BCM4388 / T6040)
+
+The BCM4388 in the M4 Pro (J614s) runs Apple firmware
+"BCM4388/6 wl0: Feb  2 2026 ... version 23.50.20.0.41.51.208", which reports
+scan results with wl_bss_info version 116. brcmfmac accepts only 109..112, so
+brcmf_inform_bss() rejects every result:
+
+    ieee80211 phy0: brcmf_inform_bss: BSS info version 116 unsupported
+
+The radio is fine -- the scan runs and beacons arrive -- but every BSS is
+dropped, so `iw dev wlan0 scan` returns nothing and association can never
+start. brcmf_bss_info_le is length-delimited (each entry carries its own
+`length`, and the IEs are located via ie_offset/ie_length), and the fields
+brcmfmac reads (BSSID, beacon_period, capability, SSID, RSSI, chanspec) sit in
+the fixed head of the record, so a later revision remains readable.
+
+Raise the upper bound to 116. Deliberately a bound change only: if v116 had in
+fact moved one of those head fields, the failure mode is implausible scan
+results rather than a crash, which is directly observable in the scan output.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h
+index 7b8f809cdc41..b37f59ca75f8 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h
+@@ -19,7 +19,7 @@
+ #define BRCMF_ARP_OL_PEER_AUTO_REPLY	0x00000008
+ 
+ #define	BRCMF_BSS_INFO_MIN_VERSION	109 /* min ver of brcmf_bss_info_le struct */
+-#define	BRCMF_BSS_INFO_MAX_VERSION	112 /* max ver of brcmf_bss_info_le struct */
++#define	BRCMF_BSS_INFO_MAX_VERSION	116 /* max ver of brcmf_bss_info_le struct */
+ #define BRCMF_BSS_RSSI_ON_CHANNEL	0x0004
+ 
+ #define BRCMF_STA_BRCM			0x00000001	/* Running a Broadcom driver */

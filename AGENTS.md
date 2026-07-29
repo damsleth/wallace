@@ -5,6 +5,11 @@ M4 Pro (T6040 "Brava Chop", Mac16,8 / J614s)** — a real, tethered daily-driver
 machine. This repo holds all plans, documentation, host-side scripts, and
 kernel patches. The code lives in sibling repos under `~/Code/` (below).
 
+**Working today (2026-07-29):** untethered enrolled boot → Alpine + dwm on the internal panel,
+Norwegian keyboard, watchdog, SMC battery/charger/temperatures, and **PCIe → WiFi (BCM4388) +
+Bluetooth**. Not yet: USB host/VBUS (no known power-role 4CC — see ticket 176's negative result),
+internal NVMe, trackpad multitouch.
+
 **Start here, in this order:**
 1. This file (the map).
 2. `docs/NEXT_STEPS.md` — what to do next, nothing else.
@@ -30,6 +35,13 @@ kernel patches. The code lives in sibling repos under `~/Code/` (below).
 - Never write PMU/charger/NVRAM/firmware or unknown SPMI endpoints. SPMI is
   deny-by-default, not transport-wide forbidden: only an exact, reviewed
   non-PMU endpoint transaction permitted by `docs/SPMI_SAFETY.md` may run.
+- **SMC writes:** `smc_reboot`/`smc_rtc` remain the only *ad-hoc* permitted ones.
+  Since 2026-07-29 CJ has additionally approved the **PCIe endpoint power-enable
+  GPIOs** driven by the kernel's `gpio-macsmc` via `pwren-gpios` — SMC keys
+  `gP13` (WiFi/BT `WL_REG_ON`) and `gP19` (SD reader). These are PMU *GPIO
+  outputs* reached through the standard upstream API, not charger or
+  voltage-rail writes. Any *other* SMC key is still forbidden without a fresh,
+  recorded exception.
   The sole current candidate is right-port
   `/arm-io/nub-spmi-a1/hpm2` (Gen3, controller `0x309198000`, SID `0x0c`);
   generic HPM iteration is not allowed. MMIO writes outside known-safe paths

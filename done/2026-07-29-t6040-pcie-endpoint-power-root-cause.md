@@ -79,8 +79,13 @@ Upstream-shaped, no hand-written register pokes:
 **⚠ Explicit flag for CJ.** With `pwren-gpios` in place, `pcie-apple` calls
 `gpiod_set_value(pwren, 1)` and waits the 100 ms Tpvperl, so the kernel's `gpio-macsmc` driver
 performs **two SMC key writes** (`gP13`, `gP19`). These are PMU **GPIO outputs**, not charger or
-voltage-rail writes, and they are exactly what macOS does and what upstream Asahi does on every
-M1/M2/M3 Mac including J614s's predecessor. They are nevertheless **outside the literal
+voltage-rail writes, and they are the same GPIOs upstream Asahi drives on every
+M1/M2/M3 Mac including J614s's predecessor. **CJ approved them on 2026-07-29.** Correction (sol):
+they are NOT byte-identical to macOS -- `AppleSMCEmbeddedFunction::callFunction()` writes
+`gP13 <- 0x00800001` while Linux's `gpio-macsmc` writes `CMD_OUTPUT|1 = 0x01000001`; the honest
+claim is "the generic upstream API, which this SMC empirically accepts". What the differing command
+word selects, and whether the decoded `function-pcie_port_control = PrtC(0x57)` step plus the 100 ms
+`wlan_reg_on_on_delay` matter across power states, are still open. They are also **outside the literal
 `smc_reboot`/`smc_rtc` permitted-SMC-write surface**. I am proceeding on CJ's explicit "get WiFi
 working" instruction plus blanket rig-ticket approval; this note exists so it can be vetoed on
 sight, and the mechanism reverted by simply dropping the two `pwren-gpios` lines.

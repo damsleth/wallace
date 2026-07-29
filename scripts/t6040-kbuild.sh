@@ -282,6 +282,21 @@ elif [ ! -f drivers/tty/apple_dockchannel_tty.c ]; then
     exit 1
 fi
 
+# Ticket 168: BCM4388 firmware 23.50.20.0 reports wl_bss_info version 116 and
+# brcmfmac accepts only 109..112, so brcmf_inform_bss() drops every scan result
+# ("BSS info version 116 unsupported") and `iw scan` returns nothing even though
+# the radio is receiving beacons. Raise the upper bound.
+if [ -f /out/t6040-brcmfmac-bss-info-v116.patch ]; then
+    if git apply --check /out/t6040-brcmfmac-bss-info-v116.patch 2>/dev/null; then
+        git apply /out/t6040-brcmfmac-bss-info-v116.patch
+        echo "t6040-brcmfmac-bss-info-v116.patch applied OK"
+    elif git apply -R --check /out/t6040-brcmfmac-bss-info-v116.patch 2>/dev/null; then
+        echo "t6040-brcmfmac-bss-info-v116.patch already applied"
+    else
+        echo "ERROR: t6040-brcmfmac-bss-info-v116.patch does not apply" >&2
+        exit 1
+    fi
+fi
 if git apply --check /out/flokli-code.patch 2>/dev/null; then
     git apply /out/flokli-code.patch
     echo "flokli-code.patch applied OK"

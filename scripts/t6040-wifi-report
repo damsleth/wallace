@@ -1,0 +1,26 @@
+#!/bin/sh
+# One-shot WiFi/BT evidence dump: everything needed to judge the radio state
+# without a second boot. Read-only; performs a scan but joins nothing.
+echo "=== pci ==="
+lspci -nn 2>/dev/null | grep -iE '14e4|17a0' || echo "(no lspci)"
+echo "=== interfaces ==="
+ip -br link 2>/dev/null || ip link
+echo "=== wiphy ==="
+ls /sys/class/ieee80211 2>/dev/null
+iw list 2>/dev/null | grep -E "^Wiphy|Band [0-9]:|\* 2[45][0-9][0-9] MHz" | head -12
+echo "=== firmware/driver ==="
+dmesg | grep -iE "brcmfmac|hci_bcm4377|Bluetooth: hci0" | tail -8
+echo "=== bring wlan0 up ==="
+ip link set wlan0 up 2>&1
+sleep 2
+echo "mac: $(cat /sys/class/net/wlan0/address 2>/dev/null)"
+echo "=== scan ==="
+iw dev wlan0 scan 2>&1 | awk '
+  /^BSS /   {bss=$2}
+  /SSID: /  {sub(/^[ \t]*SSID: /,""); print "  " bss "  " $0}
+' | head -25
+echo "=== bluetooth ==="
+ls /sys/class/bluetooth 2>/dev/null
+hciconfig hci0 up 2>&1
+hciconfig -a hci0 2>&1 | head -6
+echo "=== end ==="

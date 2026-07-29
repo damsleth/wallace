@@ -2,10 +2,53 @@
 
 Mainline Linux on a MacBook Pro 14" M4 Pro (t6040 "Brava Chop", Mac16,8 / J614s). It boots
 **untethered** into Alpine from an enrolled boot object — internal panel, Norwegian keyboard,
-watchdog — reaches a **graphical desktop (Xorg + dwm)** with a working keyboard, and reads
-**battery, charger, and temperature** from the SMC. Remote DebugUSB loop for development.
+watchdog — reaches a **graphical desktop (Xorg + dwm)** with a working keyboard, reads
+**battery, charger, and temperature** from the SMC, and as of 2026-07-29 brings up **PCIe**, with
+**WiFi (BCM4388) and Bluetooth** both alive. Remote DebugUSB loop for development.
 
 This repo is the umbrella. The code lives in four sibling repos and the knowledge kept getting smeared across them so everything that guides the work now lives here: plans, scripts, kernel patches, post-mortems.
+
+## Status (2026-07-29) — 📶 PCIe UP: WiFi and Bluetooth working
+
+**PCIe works, and with it WiFi and Bluetooth.** `wlan0` + `phy0` come up with running firmware and
+the module's own OTP MAC; `hci0` reaches `UP RUNNING` with a real BD address and 187 commands
+exchanged, zero errors. The GL9755 SD reader enumerates on the second port.
+
+| device | PCI ID | driver | state |
+|---|---|---|---|
+| BCM4388 802.11ax WiFi | `14e4:4434` | `brcmfmac` | `wlan0` + `phy0`, bands 2.4/5/6 GHz |
+| BCM4388 Bluetooth | `14e4:5f72` | `hci_bcm4377` | `hci0` UP RUNNING |
+| GL9755 SD reader | `17a0:9755` | `sdhci-pci` | enumerated |
+
+Four things had to be right, and each was wrong for a different reason:
+
+1. **The PHY reset bit.** Upstream's `apcie,t6040` path clears `BIT(4)`; our fork still cleared
+   t602x's `BIT(7)`. That single bit was the entire cause of the two-week "op-115" hang — the
+   clkgen/PLL work we built to explain it was never a precondition at all.
+2. **Endpoint power — the real link blocker.** The WiFi module's `WL_REG_ON` and the SD reader's
+   power enable are **SMC key writes**, not AP GPIOs (ADT: `/amfm function-reg_on = pKW4('gP13')`,
+   `pcie-sdreader function-sd_pwr_en = pKW4('gP19')`). `gpio-macsmc` maps a line to key `gP%02x` by
+   hex, so they are `smc_gpio` **19** and **25** — exactly the numbers upstream's M3 Pro MacBook Pro
+   DT uses. Both links came up within 8 ms of adding `pwren-gpios`.
+3. **`apple,antenna-sku = "X3"`** (from the ADT's `wifi-antenna-sku-info = 0x3358`). Without it
+   brcmfmac never takes its Apple firmware path and never looks for the per-module NVRAM our
+   corpus ships.
+4. **BCM4388 rev 6 wants the c2 firmware blobs** even though brcmfmac maps rev ≥ 4 to the **c0
+   filename** — so the c2 content is published under the c0 names. Preserve that when regenerating
+   the firmware corpus.
+
+**Scanning needs one more kernel change.** The radio receives beacons, but Apple's firmware reports
+scan results as `wl_bss_info` **version 116** while brcmfmac accepts only 109–112, so every BSS is
+discarded (`brcmf_inform_bss: BSS info version 116 unsupported`) and `iw scan` returns nothing.
+`patches/t6040-brcmfmac-bss-info-v116.patch` raises the bound.
+
+Details: `done/2026-07-29-t6040-WIFI-AND-BLUETOOTH-WORKING.md`,
+`done/2026-07-29-t6040-pcie-endpoint-power-root-cause.md`,
+`done/2026-07-29-t6040-pcie-op115-SOLVED-links-dont-train.md`.
+
+⚠ `pwren-gpios` means the kernel's `gpio-macsmc` performs two SMC key writes (`gP13`/`gP19`). They
+are PMU **GPIO outputs** — not charger or voltage-rail writes — and the maintainer has approved
+them; note they are the generic upstream API rather than a byte-exact replay of what macOS sends.
 
 ## Status (2026-07-28) — 🔋 battery + thermals working; USB device mode proven
 

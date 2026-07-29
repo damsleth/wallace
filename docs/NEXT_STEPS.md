@@ -97,8 +97,9 @@
 > `done/2026-07-29-t6040-integrated-wifi-bt-usb2-dualmode-candidate.md`.
 >
 > **⚠ For CJ:** `pwren-gpios` makes the kernel's `gpio-macsmc` perform two SMC key writes
-> (`gP13`/`gP19`). PMU **GPIO outputs**, exactly what macOS and upstream Asahi do — but outside the
-> literal `smc_reboot`/`smc_rtc` permitted surface. Revert by deleting the two `pwren-gpios` lines.
+> (`gP13`/`gP19`). PMU **GPIO outputs**, the same ones upstream Asahi drives — **approved by CJ
+> 2026-07-29**. Not byte-identical to macOS though (macOS writes `0x00800001`, `gpio-macsmc` writes
+> `0x01000001`); the honest claim is "the generic upstream API, which the SMC accepts".
 
 
 > **2026-07-29 — RAM-root read/write path proven; indefinite proxy restored; exact

@@ -1,0 +1,12 @@
+#!/bin/sh
+# Passwordless local console for the WiFi/BT test image (ticket 168).
+export HOME=/root
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export TERM=${TERM:-linux}
+
+printf '\nT6040 WiFi/BT test root — wlan0 diagnostics (no persistence)\n'
+printf 'Run: t6040-wifi-report        (scan + interface + firmware state)\n'
+printf 'Then: wpa_passphrase SSID PSK > /tmp/wpa.conf\n'
+printf '      wpa_supplicant -B -i wlan0 -c /tmp/wpa.conf && udhcpc -i wlan0\n\n'
+cd /root || exit 1
+exec /bin/sh -l

@@ -121,7 +121,59 @@ RIG_AGENT=claude M1N1_BIN=~/Code/linux-build-out/m1n1-t6040-pcie-V1-upstream-04e
 ## ⚠ Standing flag for CJ (unchanged from the root-cause note)
 
 With `pwren-gpios` in place the kernel's `gpio-macsmc` driver performs **two SMC key writes**
-(`gP13`, `gP19`). They are PMU **GPIO outputs**, not charger or voltage-rail writes, and they are
-exactly what macOS and upstream Asahi do on every M1/M2/M3 Mac — but they are outside the literal
+(`gP13`, `gP19`). They are PMU **GPIO outputs**, not charger or voltage-rail writes, and they are the
+same GPIOs upstream Asahi drives on every M1/M2/M3 Mac. **CJ approved these on 2026-07-29.**
+**Correction (sol):** they are *not* byte-identical to macOS — macOS writes `gP13 <- 0x00800001`,
+Linux's `gpio-macsmc` writes `0x01000001`; the honest claim is "the generic upstream API, which the
+SMC empirically accepts". Also note sol's standing review had advised testing `gP13` **alone** first
+to preserve attribution; the artifact that booted carried both keys — but they are outside the literal
 `smc_reboot`/`smc_rtc` permitted-SMC-write surface. Proceeding on the explicit "get WiFi working"
 instruction; revert by deleting the two `pwren-gpios` lines.
+
+## Addendum (same day): scanning works, and Bluetooth is fully UP
+
+Two further results after a headless Alpine test root (`scripts/t6040-build-alpine-wifi.sh`) gave a
+shell over the tether with `iw`/`wpa_supplicant`/`bluez`:
+
+**Bluetooth is completely functional**, not merely present:
+
+```text
+hci0:  Type: Primary  Bus: PCI
+       BD Address: 84:2F:57:2E:B1:88   ACL MTU: 2586:8  SCO MTU: 254:1
+       UP RUNNING
+       TX bytes:23306 commands:187 errors:0
+       Features: 0xbf 0xfe 0x8f 0xfe 0xdb 0xff 0x7b 0x87
+```
+
+**WiFi scanning needed one kernel change.** The radio was receiving beacons all along, but every
+result was thrown away:
+
+```text
+ieee80211 phy0: brcmf_inform_bss: BSS info version 116 unsupported
+```
+
+Apple's firmware (23.50.20.0.41.51.208) reports `wl_bss_info` **version 116**; brcmfmac accepts only
+`BRCMF_BSS_INFO_MIN_VERSION 109 .. MAX 112`. `patches/t6040-brcmfmac-bss-info-v116.patch` raises the
+upper bound to 116 — a bound change only, justified because the record is length-delimited and the
+fields brcmfmac reads live in its fixed head. With it applied:
+
+```text
+$ iw dev wlan0 scan | grep -c ^BSS
+13
+  Bilbo Laggins / CM3003 / Lunder 2020 / Telenor8217lad / Telenor9659ram …
+```
+
+13 BSSes, sane SSIDs, no version errors — so the parse is correct, not merely accepted. This looks
+like a genuine upstream contribution: any BCM4388 on current Apple firmware will hit it.
+
+**To associate** (the PSK stays with the maintainer — nothing here needs an agent to see it):
+
+```sh
+wpa_passphrase 'SSID' 'PSK' > /tmp/wpa.conf
+wpa_supplicant -B -i wlan0 -c /tmp/wpa.conf
+udhcpc -i wlan0            # or: dhcpcd wlan0
+ip addr show wlan0; ping -c3 1.1.1.1
+```
+
+Artifacts: `initramfs-alpine-wifi.cpio.gz` (`755cbdac…`, 17,794,970 B, 1040 entries) and
+`Image-macsmc-hid-type-fix` rebuilt with the v116 patch (`f94ad7d4…`).
