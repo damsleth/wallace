@@ -210,6 +210,13 @@
 >    has fewer tunables, and the paired T6040 USB2 event bank does not match the
 >    fallback's core-relative access. Do not import it unchanged. Evidence:
 >    `done/2026-07-29-t6040-yuka-usb-branch-review.md`.
+>    A native compile-only USB2 slice is now staged as
+>    `patches/0001-phy-apple-add-experimental-T6040-USB2-only-slice.patch`: separate
+>    bank-0/bank-1 resources, exact paired host ordering, no probe-time ATC writes, no USB3,
+>    and no guessed inverse. It builds cleanly but is deliberately not in kbuild and has no
+>    runnable DT/object. HPM VBUS, independent review, a USB2-only DT override, attendance,
+>    and power-cycle recovery remain gates. Evidence:
+>    `done/2026-07-29-t6040-usb2-only-driver-slice.md`.
 
 > **2026-07-28 (state of play) — battery/thermals DONE; USB + WiFi are the frontier.**
 >
