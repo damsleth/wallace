@@ -1,5 +1,30 @@
 # t6040 Linux bring-up — NEXT STEPS
 
+> **2026-07-29 (later) — ENROLL THIS: `679fe133` (dual-mode WiFi/BT/PPP, no HIDF).**
+> Ticket 187 reviewed GO (`done/2026-07-29-t6040-187-no-hidf-object-review.md`). Everything sol
+> pinned verified exactly — including the easy-to-miss detail that the `c0`-named firmware in the
+> image really contains the **c2** blob. One member was replaced: sol's kernel predated
+> `patches/t6040-brcmfmac-bss-info-v116.patch`, without which brcmfmac discards every scan result,
+> so WiFi could associate with nothing. Rebuilt with identical switches + the patch; m1n1, DTB,
+> initramfs and bootargs are byte-identical to the reviewed object.
+>
+> ```bash
+> kmutil configure-boot -c /Volumes/S128/m1n1-dwm-wifi-bt-ppp-dualmode-no-hidf-v116.bin --raw --entry-point 2048 --lowest-virtual-address 0 -v /Volumes/m1n1
+> ```
+> `679fe1335876c14b51e30de8c615addf5e171b7f53f92eec8e489173a79f5d76`, 2158 × 16 KiB, strict verify
+> PASS, both xz members PASS the minilzlib harness, allowlisted in the enroll guard. Expect: 10 s
+> DTR window else dwm + Norwegian keyboard + battery/thermals + PCIe + `wlan0` scanning + `hci0` +
+> dual-ACM PPP. Trackpad multitouch is absent **by design** (no-HIDF variant, so no ticket-126
+> exception needed). Ticket **186** is the HIDF variant and needs the same v116 kernel swap before
+> it is worth enrolling.
+>
+> **`docs/SPMI_SAFETY.md` rewritten:** class R0 now permits reading **any** logical register on the
+> allowlisted endpoint at its natural length, and folds in the live-proven `WAKEUP` preamble. The old
+> one-register/one-byte wording forced an amendment per observation. **Ticket 178 is now reviewed and
+> runnable** — its artifact links no write/wakeup/reset/sleep/shutdown symbols at all, and it is the
+> only forward path left on USB VBUS.
+
+
 > **2026-07-29 — *** WiFi AND BLUETOOTH WORK ON THE M4 PRO. *** PCIe is fully solved.**
 >
 > `wlan0` + `phy0` with running firmware and the module's own OTP MAC (`84:2f:57:33:9e:d7`), and
