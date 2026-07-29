@@ -2,7 +2,7 @@
   "seq": "178",
   "slug": "hpm2-status-read",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "usb",
   "priority": "P1",
   "desc": "Exact R0-status candidate: /Users/damsleth/Code/linux-build-out/t6040-hpm2-status-baf2c20dd761/r0-status/m1n1.bin SHA256 d012adcf524c18600c749ba41409639a1b990e4065f5d95f3a14d79b6414307f, source baf2c20dd7614c1e9ecc7923b5cab6aa9dd69b0e, two clean byte-identical builds. Exact allowlisted /arm-io/nub-spmi-a1/hpm2 only. After the full fail-closed ADT identity gate, performs one selector write of logical Status register 0x1a, bounded selector reads, then exactly one four-byte data-window read at 0x20; prints raw bytes plus attach, connection, orientation, power role, data role, VCONN, PP5V, power source and VBUS fields; stops and warm-reboots. Paired basis: 25F84 AppleHPMDeviceHAL::getStatus at 0xfffffe000954b7fc passes 0x1a to the logical-read vtable and setStatus rejects lengths >=5. No WAKEUP, SSPS, CMD/DATA writes, extended writes, W1C/event/mask access, role/VBUS transition, reset/sleep/shutdown, long SPMI transfers, PHY, USB or Linux. The selector is an SPMI write, so this remains attended and review-gated. Passive stick right, DebugUSB left. Independent exact-artifact review and CJ approval required before live use.",
@@ -14,5 +14,8 @@
     "adt": "7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84"
   },
   "created": 1785309412,
-  "artifact": "/Users/damsleth/Code/linux-build-out/t6040-hpm2-status-baf2c20dd761/r0-status/m1n1.bin"
+  "artifact": "/Users/damsleth/Code/linux-build-out/t6040-hpm2-status-baf2c20dd761/r0-status/m1n1.bin",
+  "runnable": false,
+  "approved_by": "maintainer",
+  "approved_at": 1785313718
 }

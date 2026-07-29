@@ -2,7 +2,7 @@
   "seq": "180",
   "slug": "pcie-t8132-port-reset-delta",
   "needs": "rig",
-  "state": "proposed",
+  "state": "stale-superseded-by-179",
   "track": "pcie",
   "priority": "P1",
   "desc": "Attended-only T6040 PCIe link-training candidate on proven V1 baseline 04e8829c. Source afd13c037597c0659cf4d0e37b75f0e3c4ad78ef changes exactly the two fixed port-core reset values where paired ApplePCIEBaseT8132Port::_resetPortHardware differs from m1n1: type APCIE_T8132 writes port+0x13c=0 instead of 0x10 and port+0x130=0x03020000 instead of 0x03000000. Both are ADT-derived port apertures; both ports receive the same delta. Captured ADT apcie-config-tunables touches only +0x140, so neither delta is overwritten. Artifact /Users/damsleth/Code/linux-build-out/t6040-pcie-port-reset-afd13c03/m1n1.bin SHA256 4316500701e247dd07a07ec799464499cc769cce32ab58e806bb8e7981860c6d size 1097728; two clean byte-identical builds. No SPMI, SMC, PMU, NVRAM, charger, firmware or new address. This is still an invasive PCIe/PHY boot path: exact-artifact review by claude, CJ approval, attended run, one pcie_init per power cycle. PASS = port0 DLL_LINK_ACTIVE and BCM4388 endpoint enumeration; collect both port link states. STOP/recover on abort/hang; never run V2.",
@@ -15,5 +15,9 @@
     "dtb": "",
     "initramfs": ""
   },
-  "created": 1785311273
+  "created": 1785311273,
+  "runnable": false,
+  "approved_by": "maintainer",
+  "approved_at": 1785313718,
+  "progress": "2026-07-29 CLOSED AS STALE (claude, after sol-ticket review). Its PASS criterion was verbatim 'port0 DLL_LINK_ACTIVE and BCM4388 endpoint enumeration' \u2014 achieved on 2026-07-29 with the UNMODIFIED V1 baseline plus pwren-gpios (done/2026-07-29-t6040-WIFI-AND-BLUETOOTH-WORKING.md). The port+0x130/0x13c decode itself is accurate and is retained here as an offline note, but the problem it was built to solve is solved; do not spend rig time on 4316500701e2."
 }
