@@ -83,6 +83,18 @@
 > status/VBUS work. Evidence:
 > `done/2026-07-29-t6040-native-usb2-right-build.md`.
 >
+> **2026-07-29 combined wireless + USB2 object:** ticket 189 packages the
+> reproducible native right-port USB2 kernel/DT with the proven 10-second
+> PCIe/WiFi/Bluetooth prefix and the no-HIDF graphical WiFi/BlueZ/PPP root.
+> Object `m1n1-dwm-wifi-bt-ppp-usb2-native-dualmode-no-hidf.bin` is
+> `4bb22bb9...`, 2,157 × 16 KiB; kernel/DT are two-clean-build identical and
+> both XZ members plus strict layout pass. This is review-only, not runnable:
+> it adds volatile ATC/eUSB2 writes with no exact inverse, and HPM
+> status/VBUS remains a separate prerequisite. Trackpad HIDF is deliberately
+> excluded so the first USB2 boot does not combine two new write boundaries.
+> Evidence:
+> `done/2026-07-29-t6040-integrated-wifi-bt-usb2-dualmode-candidate.md`.
+>
 > **⚠ For CJ:** `pwren-gpios` makes the kernel's `gpio-macsmc` perform two SMC key writes
 > (`gP13`/`gP19`). PMU **GPIO outputs**, exactly what macOS and upstream Asahi do — but outside the
 > literal `smc_reboot`/`smc_rtc` permitted surface. Revert by deleting the two `pwren-gpios` lines.

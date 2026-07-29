@@ -83,7 +83,11 @@ if [ "${USB_HOST:-0}" = "1" ]; then
             echo "ERROR: T6040_USB2_NATIVE=1 is scoped to USB_HOST_PORT=right"
             exit 1
         }
-        USB_HOST_DTS=t6040-j614s-dcuart-usb2-native-right.dts
+        if [ "${PCIE:-0}" = "1" ]; then
+            USB_HOST_DTS=t6040-j614s-dcuart-wifi-usb2-native-right.dts
+        else
+            USB_HOST_DTS=t6040-j614s-dcuart-usb2-native-right.dts
+        fi
     else
         case "${USB_HOST_PORT:-all}" in
             all)
@@ -1618,6 +1622,16 @@ if [ "${1:-}" = "image" ]; then
         image_name="${image_name}-ppp"
         map_name="${map_name}-ppp"
     fi
+    if [ "${T6040_USB2_NATIVE:-0}" = "1" ]; then
+        case "$image_name" in
+            *usb2-native-right*) ;;
+            *) image_name="${image_name}-usb2-native-right" ;;
+        esac
+        case "$map_name" in
+            *usb2-native-right*) ;;
+            *) map_name="${map_name}-usb2-native-right" ;;
+        esac
+    fi
     # DIET / DIET_CAPABLE are config-only variants that previously had NO name of
     # their own, so they inherited another variant's filename and silently clobbered
     # it — on 2026-07-25 a DIET=1 build overwrote the live-proven 50.8 MiB
@@ -1727,8 +1741,9 @@ if [ "${1:-}" = "image" ]; then
     fi
     if [ "${USB_HOST:-0}" = "1" ]; then
         if [ "${T6040_USB2_NATIVE:-0}" = "1" ]; then
-            cp .config /out/config-usb2-native-right \
-                && echo "config -> /out/config-usb2-native-right"
+            native_usb2_config_name="config-${image_name#Image-}"
+            cp .config "/out/$native_usb2_config_name" \
+                && echo "config -> /out/$native_usb2_config_name"
         else
             cp .config /out/config-usb-host \
                 && echo "config -> /out/config-usb-host"
