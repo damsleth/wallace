@@ -44,11 +44,21 @@ echo "== installing Xorg + dwm inside the container chroot =="
 # xdpyinfo/xev so a graphical failure can be diagnosed on the machine itself.
 FAT_PKGS=""
 [ "$FAT" = "1" ] && FAT_PKGS="mesa-dri-gallium mesa-gl mesa-gbm kbd xdpyinfo xev"
-podman exec -e FAT_PKGS="$FAT_PKGS" "$CONTAINER" chroot "/out/$TMP_BASE" /bin/sh -ec '
+PPP_PKGS=""
+[ "${T6040_PPP:-0}" = "1" ] && PPP_PKGS="ppp"
+WIFI_PKGS=""
+[ "${T6040_WIFI_USERLAND:-0}" = "1" ] && WIFI_PKGS="iw wpa_supplicant"
+podman exec -e FAT_PKGS="$FAT_PKGS" -e PPP_PKGS="$PPP_PKGS" \
+    -e WIFI_PKGS="$WIFI_PKGS" \
+    "$CONTAINER" chroot "/out/$TMP_BASE" /bin/sh -ec '
     apk update -q
     apk add --no-cache openrc busybox-openrc kbd-bkeymaps eudev xrdb \
         xorg-server xf86-input-libinput xinit setxkbmap xrandr \
-        dwm st dmenu font-terminus ttf-dejavu $FAT_PKGS
+        dwm st dmenu font-terminus ttf-dejavu \
+        $FAT_PKGS $PPP_PKGS $WIFI_PKGS
+    if [ -n "$PPP_PKGS" ]; then
+        : > /etc/ppp/options
+    fi
     rm -rf /var/cache/apk/* /var/log/apk.log /etc/resolv.conf
 '
 
@@ -93,7 +103,84 @@ if [ "${T6040_WIFI_FW:-0}" = "1" ]; then
     echo "== staging BCM4388 apple,mriya firmware from $FW_SRC =="
     mkdir -p "$TMP/lib/firmware/brcm"
     cp "$FW_SRC"/* "$TMP/lib/firmware/brcm/"
+
+    # Live result 2026-07-29: this BCM4388 rev-6 device is selected through
+    # brcmfmac's c0 filename table, but only the paired c2 contents initialise.
+    # Preserve the exact working alias rather than falling back to the broken c0
+    # contents.  The NVRAM filename is also module-specific (WLMT-u).
+    for suffix in bin clm_blob sig txcap_blob; do
+        cp "$FW_SRC/brcmfmac4388c2-pcie.apple,mriya.$suffix" \
+           "$TMP/lib/firmware/brcm/brcmfmac4388c0-pcie.apple,mriya-WLMT-u.$suffix"
+    done
+    cp "$FW_SRC/brcmfmac4388c2-pcie.apple,mriya-WLMT-u.txt" \
+       "$TMP/lib/firmware/brcm/brcmfmac4388c0-pcie.apple,mriya-WLMT-u.txt"
+    (
+        cd "$TMP/lib/firmware/brcm"
+        printf '%s\n' \
+            "7cfae8622feeb119c756ae707d26f3a94f1cde44becefacf27ecf1fdc586d93b  brcmfmac4388c0-pcie.apple,mriya-WLMT-u.bin" \
+            "af8df65b766a6e2c450892819ecf8422289463e342aa748532c110032140f309  brcmfmac4388c0-pcie.apple,mriya-WLMT-u.clm_blob" \
+            "9abb8c1afe0413339f5eca7706150c507a7bca5d244b0a4c6f79e4c28d2ce7cf  brcmfmac4388c0-pcie.apple,mriya-WLMT-u.sig" \
+            "2ee489bb7b59b74bad259969344d513b7a6803e83f3563b2ce090df18f53a013  brcmfmac4388c0-pcie.apple,mriya-WLMT-u.txcap_blob" \
+            "203251922cfcf95f2233290d75def5ae88e41dfda77af36d8426d9d6db1db3d9  brcmfmac4388c0-pcie.apple,mriya-WLMT-u.txt" |
+            sha256sum -c -
+    )
     du -sm "$TMP/lib/firmware" | awk '{print "  firmware: "$1" MiB"}'
+fi
+
+if [ "${T6040_WIFI_USERLAND:-0}" = "1" ]; then
+cat > "$TMP/usr/local/sbin/t6040-wifi-connect" <<'EOF'
+#!/bin/sh
+# Associate wlan0 and acquire an address without persisting credentials.  The
+# root filesystem and /run are RAM-backed, and the generated config is mode 600.
+set -eu
+
+usage()
+{
+    echo "usage: t6040-wifi-connect SSID | t6040-wifi-connect --open SSID" >&2
+    exit 2
+}
+
+[ "$#" -ge 1 ] || usage
+OPEN=0
+if [ "$1" = "--open" ]; then
+    [ "$#" -eq 2 ] || usage
+    OPEN=1
+    SSID=$2
+else
+    [ "$#" -eq 1 ] || usage
+    SSID=$1
+fi
+
+ip link set wlan0 up
+if [ "$OPEN" = "1" ]; then
+    iw dev wlan0 connect "$SSID"
+else
+    printf 'WPA passphrase for %s: ' "$SSID" >&2
+    stty -echo
+    trap 'stty echo' EXIT HUP INT TERM
+    IFS= read -r PASS
+    stty echo
+    trap - EXIT HUP INT TERM
+    printf '\n' >&2
+    umask 077
+    wpa_passphrase "$SSID" "$PASS" |
+        sed '/^[[:space:]]*#psk=/d' > /run/wpa_supplicant.conf
+    PASS=
+    wpa_supplicant -B -D nl80211 -i wlan0 -c /run/wpa_supplicant.conf
+fi
+
+i=0
+while [ "$i" -lt 30 ]; do
+    iw dev wlan0 link | grep -q '^Connected to ' && break
+    i=$((i + 1))
+    sleep 1
+done
+iw dev wlan0 link
+udhcpc -i wlan0 -q -t 10 -T 2
+ip address show dev wlan0
+ip route show
+EOF
+chmod 0755 "$TMP/usr/local/sbin/t6040-wifi-connect"
 fi
 
 # Xorg on simpledrm: modesetting with no acceleration, and do not require a pointer.

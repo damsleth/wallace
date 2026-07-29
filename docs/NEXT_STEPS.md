@@ -33,6 +33,14 @@
 > this and still needs `tpmtfw-j614s.bin` plus the firmware-upload exception (126). USB VBUS remains
 > blocked on the `SWSr` power-role decode (176) — `SWDF` was data-role only.
 >
+> **2026-07-29 sol follow-up:** ticket 184 stages the first graphical association-capable object:
+> exact live-proven PCIe m1n1 + WiFi DTB, reproducible feature kernel with built-in async PPP, and a
+> minilzlib-cleared Alpine/dwm root with `iw`, `wpa_supplicant`, the required c2-under-c0-WLMT-u
+> firmware mapping, and dual-ACM PPP tether fallback. Object `32a4afe1…`; exact report:
+> `done/2026-07-29-t6040-wifi-ppp-network-candidate.md`. It is proposed, not runnable: Claude review
+> and CJ approval/attendance remain required because the boot repeats the proven PCIe-PHY and
+> `gP13`/`gP19` endpoint-power writes. It is chainload-only, not the final dual-mode enrolled shape.
+>
 > **⚠ For CJ:** `pwren-gpios` makes the kernel's `gpio-macsmc` perform two SMC key writes
 > (`gP13`/`gP19`). PMU **GPIO outputs**, exactly what macOS and upstream Asahi do — but outside the
 > literal `smc_reboot`/`smc_rtc` permitted surface. Revert by deleting the two `pwren-gpios` lines.

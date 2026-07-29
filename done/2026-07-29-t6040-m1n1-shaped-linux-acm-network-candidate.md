@@ -156,9 +156,12 @@ the paired firmware built in. This gadget test uses `console=tty0`, not
 `console=ttydc0`, because DebugUSB/KIS and the Linux gadget are mutually
 exclusive on the DFU port.
 
-The strict raw-object verifier passes and reports runtime payload reserve
-130,243,183 bytes, below the project's approximately 128 MiB expanded-content
-guard (134,217,728 bytes).
+The strict raw-object verifier passes. Its 130,243,183-byte runtime-payload
+reserve is an informational sum of the expanded kernel, expanded initramfs,
+DTB, and DT growth reserve; it is **not** the field constrained by the 128 MiB
+policy. The guarded component is the initramfs alone: 69,996,240 expanded
+bytes, below `MAX_INITRAMFS_EXPANDED=134,217,728`, and it independently passes
+the minilzlib harness.
 
 ## Shared-path rejection caught during packaging
 
