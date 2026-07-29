@@ -1,4 +1,4 @@
-# T6040 PCIe port-enable audit: app-clock policy is missing from m1n1
+# T6040 PCIe port-enable audit: real m1n1 deltas, app-clock live claim refuted
 
 No rig action was performed. This is a paired-driver decode, ADT check, and
 offline build following the V1 result where both T6040 root ports enumerate
@@ -40,7 +40,7 @@ The earlier ticket-180 review covered item 1 and found the two fixed reset
 value differences at port `+0x13c` and `+0x130`. Extending the comparison
 through the whole port-enable method found three additional differences.
 
-### 1. App-clock auto-disable — strongest new link-training lead
+### 1. App-clock auto-disable — real m1n1 delta, not a Linux link-training lead
 
 `[this+0xc35]` is initialized from the presence of the bridge ADT property
 `appclk-auto-dis`. Paired `_setAppclkAutoDis(bool)` at
@@ -58,9 +58,25 @@ Therefore paired macOS clears bit 8 on both ports. m1n1 writes the reset
 constant `0x00100100`, sets bit 0 to enable the port, and never performs the
 property policy; its final value retains auto-disable as `0x00100101`.
 
-This is a direct semantic clock-retention difference immediately before root
-complex setup. It is a stronger physical-link hypothesis than the opaque
-reset constants, and it can be tested with one ADT-gated RMW.
+This is a direct semantic clock-retention difference in m1n1. It initially
+looked like a stronger physical-link hypothesis than the opaque reset
+constants, so a bounded artifact was built before the downstream consumer was
+checked.
+
+That causal premise is refuted by Linux
+`drivers/pci/controller/pcie-apple.c`. On the path used when the endpoint link
+is still down, `apple_pcie_setup_port()` calls `apple_pcie_setup_link()` for
+refclock, PERST and the port-ready poll, then unconditionally executes:
+
+```c
+rmw_clear(PORT_APPCLK_CGDIS, port->base + PORT_APPCLK);
+```
+
+Only after that clear does Linux install the port plumbing and write
+`PORT_LTSSMCTL_START` to begin endpoint link training. Thus the tested Linux
+path already reaches the same bit-8 state before the exact operation whose
+timeout we are diagnosing. Changing the inherited m1n1 state cannot explain
+that timeout and must not consume a rig run.
 
 ### 2. Port-PHY settle delay — real but lower confidence
 
@@ -94,7 +110,7 @@ T602x/T6031 and skips T8132/T6040. This is paired behavior that should
 eventually be fixed. Its placement and name make it interrupt plumbing,
 though, so it is not the next physical-link experiment.
 
-## Bounded app-clock candidate
+## Rejected live candidate (offline artifact retained)
 
 Source:
 
@@ -125,13 +141,12 @@ sha256  482839cdbeb920ff2ed26c1478924288b16606056d853f65ffea6aeaf3a09388
 tag     f62ed133
 ```
 
-Ticket 182 pins that artifact. It is proposed only. Because this is still a
-PCIe-port MMIO write, it requires Claude's exact-artifact review, CJ's
-approval and presence, a fresh power cycle, and exactly one `pcie_init()`.
+Ticket 182 retains the exact source and artifact provenance but is marked
+superseded/NO-GO. It must not be reviewed, approved, queued ready, or run.
+The branch and binary are retained only as an audit trail of a real paired
+difference whose live relevance was disproved.
 
-Run-order recommendation: ticket 182 before ticket 180. The app-clock
-candidate changes one named, property-controlled policy with a direct
-clock-retention interpretation. If it is negative, ticket 180 remains the
-separate fixed-reset-value hypothesis; the one-microsecond delay and
-Intr2AXI enable remain later isolated deltas. Do not combine them into an
-unattributable first retry.
+Ticket 180 remains the separate fixed-reset-value hypothesis because Linux
+does not rewrite paired port `+0x130`/`+0x13c` before training. The
+one-microsecond delay and Intr2AXI enable remain isolated observations, not
+live candidates. Do not combine them into an unattributable retry.

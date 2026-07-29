@@ -1,7 +1,7 @@
 # t6040 Linux bring-up — NEXT STEPS
 
-> **2026-07-29 — RAM-root read/write path proven; indefinite proxy restored; three exact
-> candidates await independent review + CJ approval.**
+> **2026-07-29 — RAM-root read/write path proven; indefinite proxy restored; exact
+> candidates remain behind independent review + CJ approval.**
 >
 > 1. **USB-root software path (149) — PASS.** The approved
 >    `m1n1-b0-ramroot-ext4.bin` (`ec111c6d…`) booted Alpine/OpenRC with `/` on ext4 device
@@ -47,7 +47,7 @@
 >    exact-artifact review, CJ approval, then an attended capture with the passive stick
 >    right and DebugUSB left. Evidence:
 >    `done/2026-07-29-t6040-hpm2-status-r0-preflight.md`.
-> 5. **WiFi / PCIe (175 → 179 → 182/180) — op-115 SOLVED; root ports enumerate; endpoint links do
+> 5. **WiFi / PCIe (175 → 179 → 180) — op-115 SOLVED; root ports enumerate; endpoint links do
 >    not train.** In an attended run, V1 (upstream's T6040 PCIe path with the correct
 >    BIT(4) PHY reset) completed `pcie_init()` for the first time. Linux then brought up
 >    `pcie-apple`, ECAM, and both root ports. The old BIT(7) reset was the entire op-115
@@ -57,14 +57,15 @@
 >    the ADT's 100-us/100-ms refclk/PERST shape, and the IOMMU warnings occur after both link
 >    timeouts. The `gP19` callback belongs specifically to the port-1 SD-reader child; neither
 >    the WiFi child nor its bridge exposes a paired power-enable operation. A complete paired
->    port-enable audit found a more semantic first delta: J614s lacks `appclk-auto-dis`, so
->    Apple clears bit 8 at each ADT-derived `port+0x800`; V1 leaves that named automatic
->    clock-disable bit set. Ticket 182 (`f62ed133` / `482839cd…`) is a one-policy candidate
->    on the proven V1 baseline and should run before the opaque fixed reset-value ticket 180
->    (`afd13c03` / `43165007…`). The same audit also found a missing one-microsecond port-PHY
->    settle delay and `Intr2AXI+0x80=1`, but those remain isolated later deltas instead of
->    being mixed into 182. Both candidates are **proposed only**: Claude exact-artifact review
->    plus CJ approval/presence are required.
+>    port-enable audit found that J614s lacks `appclk-auto-dis`, so paired Apple clears bit 8
+>    at each ADT-derived `port+0x800`; V1 leaves it set. Follow-through into the actual Linux
+>    consumer refuted that as a live candidate: `apple_pcie_setup_port()` clears the same bit
+>    after refclock/PERST setup and **before** writing `PORT_LTSSMCTL_START`. Ticket 182 is
+>    therefore superseded/NO-GO without a rig run. The next isolated candidate remains the
+>    paired reset-value delta in ticket 180 (`afd13c03` / `43165007…`), proposed only pending
+>    Claude exact-artifact review and CJ approval/presence. The audit also found a paired
+>    one-microsecond port-PHY settle delay and `Intr2AXI+0x80=1`; neither is yet a justified
+>    live experiment.
 >    `pcie_init()` must run only once per power cycle. The feature kernel already embeds the
 >    paired BCM4388 firmware. Evidence:
 >    `done/2026-07-29-t6040-pcie-op115-SOLVED-links-dont-train.md` and

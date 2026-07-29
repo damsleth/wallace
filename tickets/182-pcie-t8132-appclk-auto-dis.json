@@ -2,10 +2,10 @@
   "seq": "182",
   "slug": "pcie-t8132-appclk-auto-dis",
   "needs": "rig",
-  "state": "proposed",
+  "state": "superseded",
   "track": "pcie",
   "priority": "P1",
-  "desc": "Attended-only T6040 PCIe link-training candidate on proven V1 baseline 04e8829c. Source f62ed1338b6bce0d2faac18ac505594454aebef3 adds exactly the paired T8132 appclk-auto-dis policy after port RUN: read the existing bridge ADT property and RMW only bit 8 at the existing ADT-derived port+0x800 register. J614s bridge0/1 both lack the property, so this clears bit 8; current V1 leaves reset value 0x100100 bit 8 set. Artifact /Users/damsleth/Code/linux-build-out/t6040-pcie-appclk-f62ed133/m1n1.bin SHA256 482839cdbeb920ff2ed26c1478924288b16606056d853f65ffea6aeaf3a09388 size 1097728; two clean byte-identical builds. No new address and no SPMI/SMC/PMU/NVRAM/charger/firmware access. Run before opaque reset-value ticket 180 because this is one semantic clock-retention RMW; if PASS, supersede 180. Still an invasive PCIe-port write: Claude exact-artifact review, CJ approval/presence, fresh power cycle, exactly one pcie_init. PASS = port0 DLL_LINK_ACTIVE and BCM4388 endpoint enumeration; collect both ports; stop/recover on abort/hang.",
+  "desc": "SUPERSEDED / NO-GO WITHOUT A RIG RUN. The offline artifact is valid but its live-causal premise is refuted. Source f62ed1338b6bce0d2faac18ac505594454aebef3 adds the paired T8132 appclk-auto-dis policy: J614s lacks the property, so it clears bit 8 at ADT-derived port+0x800 where V1 leaves the reset default set. However, Linux apple_pcie_setup_port() already unconditionally clears PORT_APPCLK_CGDIS at the same port+0x800 after refclock/PERST setup and before it writes PORT_LTSSMCTL_START. The observed endpoint link timeout therefore already occurs with bit 8 clear. Artifact /Users/damsleth/Code/linux-build-out/t6040-pcie-appclk-f62ed133/m1n1.bin SHA256 482839cdbeb920ff2ed26c1478924288b16606056d853f65ffea6aeaf3a09388 size 1097728 is retained only for provenance. Do not review, approve, queue ready, or run ticket 182. See done/2026-07-29-t6040-pcie-port-enable-full-audit.md.",
   "author": "sol",
   "deps": [
     "179"
