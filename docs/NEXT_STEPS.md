@@ -51,6 +51,15 @@
 > explicit exception for only the non-persistent `a1f4131d…` HIDF upload/interface reset.
 > Evidence: `done/2026-07-29-t6040-wifi-bt-trackpad-ppp-candidate.md`.
 >
+> **2026-07-29 dual-mode completion:** the same payload is now packaged behind a
+> two-build-reproducible PCIe+10-second-window prefix. Enrollment candidate
+> `m1n1-dwm-wifi-bt-trackpad-ppp-dualmode.bin` is `db8ab4e4…`, 2161 × 16 KiB,
+> strict-verifier PASS; every byte after `0x10c000` is identical to ticket 185.
+> Ticket 186 is the independent exact review. The hash is intentionally not
+> allowlisted for enrollment until that review and the exact volatile-HIDF policy
+> exception pass. Evidence:
+> `done/2026-07-29-t6040-dualmode-wifi-bt-trackpad-ppp-candidate.md`.
+>
 > **⚠ For CJ:** `pwren-gpios` makes the kernel's `gpio-macsmc` perform two SMC key writes
 > (`gP13`/`gP19`). PMU **GPIO outputs**, exactly what macOS and upstream Asahi do — but outside the
 > literal `smc_reboot`/`smc_rtc` permitted surface. Revert by deleting the two `pwren-gpios` lines.
