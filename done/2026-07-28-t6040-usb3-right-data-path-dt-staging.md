@@ -62,26 +62,29 @@ This means ticket 170 is **not DT-only to functionality**: a native T6040
 ATC PHY driver/binding, or an independently reviewed m1n1 handoff, remains a
 runtime prerequisite.
 
-## Retimer decision
+## Retimer decision (corrected 2026-07-29)
 
-The retimers do need ownership as part of a complete connector transition,
-but no existing Linux retimer binding can be assigned from current evidence.
 The ADT says only `atcrt`; it does not identify a Parade PS8830/PS8833 or any
 other supported part, so binding a guessed upstream driver would be wrong.
+The ADT also provides no graph phandle from `usb-drd2` to an `atcrt` child.
 
-The paired AppleHPM binary resolves the ownership boundary:
+A complete follow-up decode of both paired drivers refutes the earlier claim
+that `AppleHPMInterface::enableOptions()` calls the `atcrt%u` service for a
+retimer-mode transition:
 
-- `AppleHPMInterface::getRetimerNode()` formats `atcrt%u` and locates that
-  service by port index;
-- `AppleHPMInterface::enableOptions()` calls into that service for the
-  accessory/retimer mode transition;
-- the ADT does not provide a graph phandle from `usb-drd2` to an `atcrt`
-  child.
+- AppleHPM's cached `atcrt%u` pointer is used only to publish/increment a panic
+  counter and deliver notification `0xe0000130`;
+- `enableOptions()` never accesses that pointer and performs no I2C transfer;
+- the paired `AppleTypeCRetimer` normal start/message/state/power paths monitor
+  health and crash state rather than program USB lane mode.
 
-Therefore the three exact children are retained as disabled inventory only.
-A future functional patch needs the part/protocol binding and must coordinate
-retimer mode with the SPMI HPM attach/role/orientation state. It must not
-pretend that merely enabling I2C6 initializes the link.
+Exact functions, cross-references, hashes, and the bounded conclusion are in
+`done/2026-07-29-t6040-atcrt-owner-correction.md`.
+
+The three exact children remain disabled inventory because their physical
+power, clock, reset, and firmware ownership is still unknown. However, lack
+of an `AppleTypeCRetimer` Linux clone is not a demonstrated prerequisite for
+an independently reviewed USB2 data-path attempt.
 
 ## Validation
 
@@ -113,10 +116,11 @@ passes in both repositories.
 Do not build this into the daily-driver object and do not schedule rig time
 for it. The next functional step is one of:
 
-1. implement and independently review a native 44-bank T6040 ATC PHY driver
-   plus the `atcrt`/SPMI-HPM ownership path; or
+1. implement and independently review a native 44-bank T6040 ATC PHY driver,
+   starting with the decoded bank-0/bank-1 eUSB2 host sequence, while leaving
+   the unidentified `atcrt` children disabled; or
 2. have an attended, separately reviewed m1n1 transition establish HPM role,
-   VBUS, retimer, and ATC host state before Linux, with rollback.
+   VBUS, and ATC host state before Linux, with rollback.
 
 The R3/R4 artifacts reviewed today do not satisfy option 2: `SWDF` changes
 data role, not source/VBUS role.

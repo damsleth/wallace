@@ -197,10 +197,14 @@
 >    Wallace mirror now carry all 44 translated right-port ATC banks, DWC3 PHY/reset/role
 >    wiring, and disabled I2C6 `atcrt0/1/2` inventory. Do not add the old
 >    `apple,t8103-atcphy` fallback: its probe resets/writes a different five-window layout.
->    AppleHPM coordinates the `atcrt%u` services and Linux has no binding for them, so guessed
->    PS883x compatibles are forbidden. The compile-only DTB passes and all functional nodes
->    remain disabled. Evidence:
->    `done/2026-07-28-t6040-usb3-right-data-path-dt-staging.md`.
+>    Paired-driver analysis corrects the earlier retimer premise:
+>    `AppleTypeCRetimer` monitors health/crash state; neither it nor AppleHPM's
+>    `enableOptions()` programs normal lane mode. A Linux `atcrt` mode-control clone is therefore
+>    not a demonstrated USB2 prerequisite, but guessed PS883x compatibles remain forbidden and
+>    the children stay disabled until physical power/clock/reset ownership is known. The
+>    compile-only DTB passes and all functional nodes remain disabled. Evidence:
+>    `done/2026-07-28-t6040-usb3-right-data-path-dt-staging.md`,
+>    `done/2026-07-29-t6040-atcrt-owner-correction.md`.
 
 > **2026-07-28 (state of play) — battery/thermals DONE; USB + WiFi are the frontier.**
 >
@@ -268,15 +272,19 @@
 >   DT-describable now -- `atc-phy,t6040` @ `0x393000000`, `usb-drd,t6040`/`t8132` @ `0x392280000`, two
 >   DARTs -- adaptable from `t602x-dieX.dtsi`. **But the PD controller is on SPMI, not I2C**, so the merged
 >   upstream `cd321x` I2C driver won't source VBUS; that half is still the 096 SPMI wall. New: **ATC
->   retimers** `uatcrt0/1/2` (i2c6) are in the data path and our force-host DT never touched them.
+>   retimers** `uatcrt0/1/2` (i2c6) are physically in the data path and our force-host DT never
+>   touched them. A 2026-07-29 paired-driver correction shows the macOS `AppleTypeCRetimer`
+>   normal paths are health monitoring, not lane-mode programming; keep their DT inventory
+>   disabled, but do not treat a Linux mode-control clone as a proven USB2 prerequisite.
 > - **Address correction (affects 124 + 170):** `adt.py` `.reg` returns *untranslated* bus addresses;
 >   the `/arm-io` `ranges` delta is **+0x200000000** in the low window. So the PCIe op-115 poll is
 >   **`0x417040090`** (PhyCommon[0] `0x417004000`, PhyPhy `0x417008000`) -- the trace was right -- and last
 >   night's "die alias" guess was wrong. The working `t6040.dtsi` addresses already bake in the delta.
 >
-> **Next offline step:** author the atcphy/dwc3/dart/retimer DT nodes for the right port using the
-> **`0x3xx`** CPU-physical addresses (not the raw `0x1xx` ADT reads). That readies the USB3 *data* path;
-> VBUS stays blocked on either the 096 SPMI decode or a self-powered-device discriminator (maintainer).
+> **Next offline step:** the fail-closed atcphy/dwc3/dart/retimer inventory now exists using the
+> **`0x3xx`** CPU-physical addresses (not the raw `0x1xx` ADT reads). The next functional step is a
+> native or reviewed handoff implementation of the decoded T6040 eUSB2/ATC host sequence; VBUS
+> remains an independently reviewed SPMI-HPM prerequisite.
 
 > **2026-07-26 — dwm runs on the panel with a working keyboard.** The graphical target is reached
 > (`3ec81ef3`), and `m1n1-b0-dwm-hidpi.bin` `59622e78` is the same thing with the HiDPI font fix.
