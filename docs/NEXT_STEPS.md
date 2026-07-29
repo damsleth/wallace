@@ -31,8 +31,10 @@
 >    the controllable m1n1 shape: `1209:316d`, CDC device class, self-powered 500 mA
 >    configuration, and two ACM functions. Exact graphical/WiFi/USB-feature object
 >    `m1n1-b0-dwm-m1n1-acm-wifi-usb-diag.bin` is `8ef1da54…`, 1942 × 16 KiB,
->    strict-verifier and minilzlib PASS. If macOS publishes a modem tty, PPP/SLIP becomes
->    a PCIe/VBUS-independent network path; if not, ConfigFS descriptor iteration ends.
+>    strict-verifier and minilzlib PASS. A product-gated host libusb helper (`e4131b13…`)
+>    can bridge the ACM bulk endpoints to a PTY if macOS still publishes no modem node,
+>    while refusing m1n1's proxy gadget. Native tty or fallback bulk success makes PPP a
+>    PCIe/VBUS-independent network path; failure of both closes this gadget route.
 >    Ticket 183 is proposed pending Claude review and CJ approval. Evidence:
 >    `done/2026-07-29-t6040-m1n1-shaped-linux-acm-network-candidate.md`.
 > 3. **Proxy / integration smoke (177).** CJ enrolled

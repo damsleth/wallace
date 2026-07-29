@@ -55,8 +55,10 @@ device-class/two-ACM topology.
 
 If macOS publishes one or two modem nodes, a tty shell proves the data path and
 PPP or SLIP can provide networking without PCIe, VBUS, or a USB host port. If
-the UDC reaches `configured` but macOS still publishes no tty, this
-ConfigFS-level mimic is negative and descriptor iteration should stop.
+the UDC reaches `configured` but macOS still publishes no tty, a host libusb
+bridge can claim the same bulk endpoints without relying on a class driver.
+Only if both native attachment and the libusb bridge fail should this gadget
+path close.
 
 ## Implementation
 
@@ -76,6 +78,42 @@ Its SHA-256 is:
 ```text
 f4dc1fe66fb30a86528e5571c552ad17a6692a34da0e745bf714a3be8d7eb07b
 ```
+
+## Host libusb fallback
+
+`scripts/t6040-usb-bulk-pty.c` is a compile-checked host bridge for the exact
+diagnostic product. It:
+
+- enumerates `1209:316d` but requires product string
+  `m1n1-shaped Linux ACM diagnostic` before claiming anything;
+- therefore refuses m1n1's own proxy gadget despite the shared VID/PID;
+- discovers the requested CDC data interface and its bulk endpoints from the
+  active descriptor rather than hardcoding endpoint numbers;
+- claims the paired control/data interfaces, sends standard 115200 8N1 line
+  coding and DTR/RTS, and bridges USB bulk traffic to a new host PTY; and
+- clears DTR and releases both interfaces on exit.
+
+The source compiles on this host with `-Wall -Wextra -Werror`, and `--help`
+plus the no-device refusal path run successfully:
+
+```text
+e4131b13b8bfa460b08e23638874b2d1f1c797ada255b8c5596a0a795f01beda
+  scripts/t6040-usb-bulk-pty.c
+```
+
+Build command:
+
+```sh
+clang -std=c11 -D_DARWIN_C_SOURCE -Wall -Wextra -Werror \
+  $(pkg-config --cflags libusb-1.0) \
+  scripts/t6040-usb-bulk-pty.c -o /private/tmp/t6040-usb-bulk-pty \
+  $(pkg-config --libs libusb-1.0) -lpthread
+```
+
+This bridge does not itself create a network interface. Its first proof is the
+existing `ttyGS0` shell. A positive byte-stream result permits a separate
+artifact adding target `pppd`; macOS already ships `/usr/sbin/pppd`, so PPP
+over the bridge is then a concrete tether-network route.
 
 `scripts/t6040-build-alpine-dwm.sh` now accepts an explicit
 `T6040_USB_GADGET_SCRIPT` input while retaining the old script as the default.
@@ -138,10 +176,13 @@ Ticket 183 pins the final object and is proposed only. Claude must independently
 review the ConfigFS-vs-m1n1 comparison, exact initramfs, immutable member
 hashes, and strict verifier result. CJ must approve before any chainload.
 
-One run is decisive:
+One run is decisive for the native-driver shape and the bulk fallback:
 
 - PASS: macOS creates one or two new `/dev/cu.usbmodem*` nodes and opening the
   first reaches the target shell;
-- NEGATIVE: the Linux UDC is configured but macOS creates no tty;
+- FALLBACK PASS: if no modem node appears, the product-gated libusb bridge
+  reaches the same `ttyGS0` shell through its host PTY;
+- NEGATIVE: the Linux UDC is configured but neither native tty nor libusb
+  bulk traffic reaches `ttyGS0`;
 - stop/recover on upload failure, reset, lost panel, or missing gadget; and
 - restore a quiescent `Running proxy` before releasing the rig.
