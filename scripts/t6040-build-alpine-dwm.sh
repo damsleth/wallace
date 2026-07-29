@@ -50,14 +50,18 @@ WIFI_PKGS=""
 [ "${T6040_WIFI_USERLAND:-0}" = "1" ] && WIFI_PKGS="iw wpa_supplicant"
 BT_PKGS=""
 [ "${T6040_BT_USERLAND:-0}" = "1" ] && BT_PKGS="bluez dbus"
+# i3: a real config-file WM on top of the same Xorg/fbdev stack (CJ asked for a
+# desktop beyond dwm). dwm stays in the image as fallback.
+I3_PKGS=""
+[ "${T6040_I3:-0}" = "1" ] && I3_PKGS="i3wm i3status"
 podman exec -e FAT_PKGS="$FAT_PKGS" -e PPP_PKGS="$PPP_PKGS" \
-    -e WIFI_PKGS="$WIFI_PKGS" -e BT_PKGS="$BT_PKGS" \
+    -e WIFI_PKGS="$WIFI_PKGS" -e BT_PKGS="$BT_PKGS" -e I3_PKGS="$I3_PKGS" \
     "$CONTAINER" chroot "/out/$TMP_BASE" /bin/sh -ec '
     apk update -q
     apk add --no-cache openrc busybox-openrc kbd-bkeymaps eudev xrdb \
         xorg-server xf86-input-libinput xinit setxkbmap xrandr \
         dwm st dmenu font-terminus ttf-dejavu \
-        $FAT_PKGS $PPP_PKGS $WIFI_PKGS $BT_PKGS
+        $FAT_PKGS $PPP_PKGS $WIFI_PKGS $BT_PKGS $I3_PKGS
     if [ -n "$PPP_PKGS" ]; then
         : > /etc/ppp/options
     fi
@@ -301,11 +305,48 @@ xrdb -merge /root/.Xresources || true
 setxkbmap no || true
 xrandr --dpi $DPI 2>/dev/null || true
 st -f 'monospace:pixelsize=$ST_PX' &
+# i3 when present (T6040_I3=1 image), dwm as the proven fallback.
+command -v i3 >/dev/null 2>&1 && exec i3
 exec dwm
 XEOF
 exec startx -- vt1 -keeptty -dpi "$DPI" >> "$LOG" 2>&1
 EOF
 chmod 0755 "$TMP/usr/local/sbin/t6040-startx"
+
+# i3 must find a config or it blocks on the interactive first-run wizard,
+# which is useless on a machine whose keyboard layout question it asks.
+if [ "${T6040_I3:-0}" = "1" ]; then
+    install -d "$TMP/root/.config/i3"
+    cat > "$TMP/root/.config/i3/config" <<'I3EOF'
+# T6040 minimal i3: cmd (Super/Mod4) as modifier, Norwegian layout set by xinitrc.
+set $mod Mod4
+font pango:DejaVu Sans Mono 11
+bindsym $mod+Return exec st -f 'monospace:pixelsize=28'
+bindsym $mod+d exec dmenu_run
+bindsym $mod+Shift+q kill
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
+bindsym $mod+f fullscreen toggle
+bindsym $mod+Shift+space floating toggle
+bindsym $mod+1 workspace number 1
+bindsym $mod+2 workspace number 2
+bindsym $mod+3 workspace number 3
+bindsym $mod+4 workspace number 4
+bindsym $mod+Shift+1 move container to workspace number 1
+bindsym $mod+Shift+2 move container to workspace number 2
+bindsym $mod+Shift+3 move container to workspace number 3
+bindsym $mod+Shift+4 move container to workspace number 4
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+r restart
+bindsym $mod+Shift+e exec i3-msg exit
+bar {
+    status_command i3status 2>/dev/null || while :; do date; sleep 5; done
+    position top
+}
+I3EOF
+fi
 
 # USB-tether ethernet: CDC-ECM gadget on the device-mode port (ticket 173).
 cp "$(dirname "$0")/t6040-usb-ecm-gadget.sh" "$TMP/usr/local/sbin/t6040-usb-ecm-gadget"
@@ -357,6 +398,10 @@ tty1::respawn:/sbin/getty -n -l /bin/sh 38400 tty1 linux
 ::ctrlaltdel:/sbin/reboot
 EOF
 ln -sf /bin/busybox "$TMP/sbin/init" 2>/dev/null || true
+# /init too: the rig's boot-dcuart.sh hardcodes rdinit=/init (last on the
+# cmdline, so EXTRA_BOOTARGS cannot override it). busybox is happy to be PID 1
+# under either name, and the enrolled objects' rdinit=/sbin/init still works.
+ln -sf /bin/busybox "$TMP/init" 2>/dev/null || true
 
 python3 "$(dirname "$0")/reproducible-newc.py" "$TMP" | xz -9e --check=crc32 -T1 > "$DEST"
 echo "built $DEST"
