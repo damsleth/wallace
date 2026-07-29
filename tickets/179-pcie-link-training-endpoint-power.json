@@ -11,5 +11,6 @@
     "124"
   ],
   "hashes": null,
-  "created": 1785309901
+  "created": 1785309901,
+  "progress": "2026-07-29 SOL STATIC REVIEW (done/2026-07-29-t6040-pcie-link-training-static-review.md): corrected the endpoint-power attribution: gP19 is on /arm-io/apcie0/pci-bridge1/pcie-sdreader, not the bridge itself, and is port-1-only. The exact WiFi child /arm-io/apcie0/pci-bridge0/wlan, its bridge, top-level /arm-io/wlan, and PMGR inventory expose no paired WiFi pwren operation, so do not invent one. Linux apple_pcie_setup_link already supplies the ADT timing shape (100-200 us refclk-to-PERST, then 100 ms before config); the iommu-map warnings occur after both link timeouts and cannot cause physical training failure; yuka t8140-pcie a7857af8 has no extra endpoint-power or post-LTSSM step. Stronger paired lead: ApplePCIEBaseT8132Port::_resetPortHardware writes port+0x13c=0 and port+0x130=0x03020000 where proven V1 writes 0x10 and 0x03000000; ADT apcie-config-tunables touches only +0x140. Bounded candidate afd13c037597c0659cf4d0e37b75f0e3c4ad78ef, exact artifact SHA256 4316500701e247dd07a07ec799464499cc769cce32ab58e806bb8e7981860c6d, is ticket 180 proposed pending claude review and CJ attended approval."
 }

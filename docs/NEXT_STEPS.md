@@ -25,11 +25,24 @@
 >    exact-artifact review, CJ approval, then an attended capture with the passive stick
 >    right and DebugUSB left. Evidence:
 >    `done/2026-07-29-t6040-hpm2-status-r0-preflight.md`.
-> 3. **WiFi / PCIe (175).** Do not retry ticket 068's already-applied tunables. The staged
->    V1/V2 candidates remain attended PHY writes and await exact review plus a dedicated,
->    hash-pinned rig ticket. Run V1 before V2. The combined kernel already has the paired
->    BCM4388 firmware built in, so a responding PCIe aperture/link is the remaining WiFi
->    hardware gate.
+> 3. **WiFi / PCIe (175 → 179 → 180) — op-115 SOLVED; root ports enumerate; endpoint links do
+>    not train.** In an attended run, V1 (upstream's T6040 PCIe path with the correct
+>    BIT(4) PHY reset) completed `pcie_init()` for the first time. Linux then brought up
+>    `pcie-apple`, ECAM, and both root ports. The old BIT(7) reset was the entire op-115
+>    cause: ticket-058's clkgen sequence and D1 are not preconditions, so **do not run V2**.
+>    Both ports still have `DLL_LINK_ACTIVE=0`, so there is no BCM4388 endpoint yet.
+>    Static follow-up ruled out the remaining timing and RID leads: Linux already implements
+>    the ADT's 100-us/100-ms refclk/PERST shape, and the IOMMU warnings occur after both link
+>    timeouts. The `gP19` callback belongs specifically to the port-1 SD-reader child; neither
+>    the WiFi child nor its bridge exposes a paired power-enable operation. A stronger paired
+>    difference is now ticket 180: Apple's T8132 port-reset routine writes `port+0x13c=0` and
+>    `port+0x130=0x03020000`, while V1 writes `0x10` and `0x03000000`. The bounded candidate
+>    `afd13c03` / `43165007…` changes exactly those two values on the proven V1 baseline.
+>    It is **proposed only**: Claude exact-artifact review plus CJ approval/presence are required.
+>    `pcie_init()` must run only once per power cycle. The feature kernel already embeds the
+>    paired BCM4388 firmware. Evidence:
+>    `done/2026-07-29-t6040-pcie-op115-SOLVED-links-dont-train.md` and
+>    `done/2026-07-29-t6040-pcie-link-training-static-review.md`.
 
 > **2026-07-28 LATE (two-agent reconciliation) — no hardware action is currently ready.**
 >
