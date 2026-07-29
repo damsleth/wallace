@@ -2,7 +2,7 @@
   "seq": "121",
   "slug": "maxcpus14-smoke",
   "needs": "rig",
-  "state": "approved",
+  "state": "PARTIAL-14-cores-activated-userspace-pending",
   "track": "smp",
   "priority": "P2",
   "desc": "PLAN-APPROVED but blocked: ticket 005 failed at the no-Linux-output boundary, so replacement maxcpus=2 ticket 123 must pass before reviewed ticket-120 all-core artifacts can exist. Then run one all-14-core bring-up with idle=nop and the proven polling console. Pass = 0-13 online with correct 4E+5P+5P mapping, task liveness on each cluster, watchdog and shell stable. No cpufreq, IRQ-console, USB/storage, PCIe, or new hardware operation. Requires exact hashes, independent review, healthy rig, and lease.",
@@ -16,5 +16,6 @@
   "created": 1784927435,
   "runnable": false,
   "approved_by": "maintainer",
-  "approved_at": 1784928482
+  "approved_at": 1784928482,
+  "progress": "2026-07-29 RUN: kernel side PASSES \u2014 'smp: Brought up 1 node, 14 CPUs' and 'SMP: Total of 14 processors activated', with per-CPU MPIDR+part IDs giving the measured topology 4E (cluster0, cpus1-4, part 0x054) + 5P (cluster1, cpu0+5-8, 0x055) + 5P (cluster2, cpus9-13, 0x055) = exactly the expected 4E+5P+5P. m1n1's FDT pass agrees and correctly disables the dead cpu@10105. USERSPACE HALF STILL UNPROVEN: that boot oopsed in 'Unpacking initramfs' because I repacked the initramfs from a NON-ROOT extraction (device nodes silently dropped) - self-inflicted, not an SMP fault. One boot with the untouched initramfs-smp-kmsg-report.cpio.gz at maxcpus=14 completes it. Also recorded: fbcon fails on this kernel/DTB with fb_set_par -16, so console=tty0 shows nothing on the panel and KIS is the only channel."
 }

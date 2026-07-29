@@ -2,7 +2,7 @@
   "seq": "120",
   "slug": "maxcpus14-candidate",
   "needs": "offline",
-  "state": "open",
+  "state": "reporter-needs-root-preserving-rebuild",
   "track": "smp",
   "priority": "P2",
   "desc": "BLOCKED after ticket 005 reached kernel vectoring but produced no Linux output. After replacement ticket 123 proves the first secondary E core, prepare the separate all-14-core J614s candidate. Reuse the board-correct topology and idle=nop; build a bounded reporter for possible/present/online masks, per-cluster CPU identities, pinned task liveness on E/P0/P1, watchdog and console stability. No cpufreq, IRQ-console, storage, PCIe, or new MMIO. Pin artifacts and obtain independent review before 121.",
@@ -12,5 +12,6 @@
     "123"
   ],
   "hashes": null,
-  "created": 1784927435
+  "created": 1784927435,
+  "progress": "2026-07-29: my extended all-cluster reporter (scripts/t6040-init-smp14-report) is written and reviewed-by-inspection, but the initramfs I packed it into OOPSES the kernel during unpack because I extracted the base archive as a non-root user and lost its device nodes. The script itself is fine; it needs packing into a tree built root-preserving (sudo / bsdtar -p) or added to the original builder. Until then ticket 121's kernel-side result stands on the kernel's own SMP messages."
 }
