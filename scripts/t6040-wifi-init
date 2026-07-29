@@ -35,14 +35,46 @@ if [ ! -c /dev/ttydc0 ]; then
     exec sh
 fi
 
+
 # Hold the port open for the life of init: the driver has shown close/reopen
 # fragility, and a final close kills output dead.
 exec 9<>/dev/ttydc0
+
+# --- bring up networking and sshd in the background -----------------------
+# Point of this image: iterate userspace over the network instead of one command
+# at a time through the DebugUSB pty. Everything here is best-effort -- a failure
+# must still leave the ttydc0 shell usable, because that is the fallback.
+(
+    ip link set lo up 2>/dev/null
+    if grep -q '^[[:space:]]*ssid=' /etc/wpa_supplicant/wpa_supplicant.conf 2>/dev/null; then
+        ip link set wlan0 up 2>/dev/null
+        wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf 2>&1
+        # Give association a moment before asking for a lease.
+        n=0
+        while [ "$n" -lt 15 ]; do
+            iw dev wlan0 link 2>/dev/null | grep -q '^Connected' && break
+            sleep 1; n=$((n + 1))
+        done
+        udhcpc -i wlan0 -t 6 -T 2 -b 2>&1
+    fi
+    # Host keys are generated here, not shipped: no private key in a build
+    # artifact. ssh-keygen -A is a no-op once they exist.
+    ssh-keygen -A >/dev/null 2>&1
+    mkdir -p /var/empty /run
+    if [ -s /root/.ssh/authorized_keys ]; then
+        /usr/sbin/sshd -e 2>&1
+        addr=$(ip -4 -br addr show wlan0 2>/dev/null)
+        echo "sshd up; wlan0: ${addr:-no address}" >&9 2>/dev/null
+    else
+        echo "sshd NOT started: /root/.ssh/authorized_keys is missing/empty" >&9 2>/dev/null
+    fi
+) &
 
 {
     echo ""
     echo "*** t6040 WiFi/BT test root — shell on ttydc0 ***"
     echo "run: t6040-wifi-report     (pci, iw scan, mac, bluetooth)"
+    echo "ssh: root@<wlan0 addr>, key-only (host keys generated at boot)"
     echo "then: wpa_passphrase SSID PSK > /tmp/wpa.conf"
     echo "      wpa_supplicant -B -i wlan0 -c /tmp/wpa.conf && udhcpc -i wlan0"
     echo ""

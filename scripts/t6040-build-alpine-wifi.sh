@@ -46,7 +46,8 @@ podman exec "$CONTAINER" chroot "/out/$TMP_BASE" /bin/sh -ec '
     apk update -q
     apk add --no-cache openrc busybox-openrc \
         iw wpa_supplicant wireless-tools dhcpcd \
-        bluez bluez-deprecated pciutils iproute2
+        bluez bluez-deprecated pciutils iproute2 \
+        openssh-server openssh-keygen
     rm -rf /var/cache/apk/* /var/log/apk.log /etc/resolv.conf
 '
 
@@ -88,6 +89,51 @@ ln -sf t6040-wifi-autologin "$TMP/usr/local/sbin/t6040-b0-autologin"
 # via EXTRA_BOOTARGS. Alpine's init is /sbin/init, so without this shim the
 # kernel finds no init and produces NO console output at all -- which is exactly
 # how the first boot of this image failed.
+# --- SSH (headless access once WiFi is up) -------------------------------
+# Only the PUBLIC key is baked in; public keys are not secrets. Host keys are
+# generated on first boot instead of shipped, so no private key ever lands in a
+# build artifact or in git. Password auth is off entirely.
+SSH_PUBKEY=${SSH_PUBKEY:-$HOME/.ssh/id_ed25519.pub}
+if [ -f "$SSH_PUBKEY" ]; then
+    install -d -m 0700 "$TMP/root/.ssh"
+    install -m 0600 "$SSH_PUBKEY" "$TMP/root/.ssh/authorized_keys"
+    echo "== ssh: authorized_keys from $SSH_PUBKEY =="
+else
+    echo "WARNING: no SSH_PUBKEY at $SSH_PUBKEY — sshd will accept no logins" >&2
+fi
+install -d -m 0755 "$TMP/etc/ssh" "$TMP/var/empty"
+cat >"$TMP/etc/ssh/sshd_config" <<'EOF'
+# Headless T6040 test root: key-only root login, nothing else.
+Port 22
+PermitRootLogin prohibit-password
+PubkeyAuthentication yes
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+ChallengeResponseAuthentication no
+UsePAM no
+PrintMotd no
+Subsystem sftp /usr/lib/ssh/sftp-server
+EOF
+
+# --- WiFi auto-association (optional, PSK never enters the repo) ----------
+# Supply a config built on the machine or on the host with:
+#   wpa_passphrase 'SSID' 'PSK' > /tmp/wpa.conf
+# then rebuild with WPA_CONF=/tmp/wpa.conf. Without it the image still has all
+# the tools and can be associated by hand at the panel.
+install -d -m 0755 "$TMP/etc/wpa_supplicant"
+if [ -n "${WPA_CONF:-}" ] && [ -f "$WPA_CONF" ]; then
+    { echo "p2p_disabled=1"; cat "$WPA_CONF"; } \
+        > "$TMP/etc/wpa_supplicant/wpa_supplicant.conf"
+    chmod 0600 "$TMP/etc/wpa_supplicant/wpa_supplicant.conf"
+    echo "== wifi: auto-association baked in from $WPA_CONF (PSK not logged) =="
+else
+    # p2p_disabled=1 silences the harmless "Failed to create interface
+    # p2p-dev-wlan0: -52" that brcmfmac produces (no nl80211 P2P *device*
+    # support on this chip); association is unaffected either way.
+    printf 'p2p_disabled=1\n' > "$TMP/etc/wpa_supplicant/wpa_supplicant.conf"
+    echo "== wifi: no WPA_CONF given; associate by hand (tools are present) =="
+fi
+
 install -m 0755 "$ROOT/scripts/t6040-wifi-init" "$TMP/init"
 
 # No inittab/openrc: /init above is the whole userspace bring-up. openrc's
@@ -104,6 +150,7 @@ printf 'built %s (%d bytes)\n' "$DEST" "$(wc -c <"$DEST")"
 gzip -dc "$DEST" | cpio -it 2>/dev/null | grep -cE '.' | \
     xargs printf 'entries: %s\n'
 for want in ./sbin/wpa_supplicant ./usr/sbin/iw ./sbin/dhcpcd ./sbin/udhcpc \
+            ./usr/sbin/sshd ./usr/bin/ssh-keygen ./etc/ssh/sshd_config \
             ./usr/bin/hciconfig ./usr/bin/bluetoothctl ./usr/bin/lspci \
             ./init ./usr/local/sbin/t6040-wifi-report \
             './lib/firmware/brcm/brcmfmac4388c0-pcie.apple,mriya-WLMT-u.bin' \
