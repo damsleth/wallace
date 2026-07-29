@@ -205,6 +205,11 @@
 >    compile-only DTB passes and all functional nodes remain disabled. Evidence:
 >    `done/2026-07-28-t6040-usb3-right-data-path-dt-staging.md`,
 >    `done/2026-07-29-t6040-atcrt-owner-correction.md`.
+>    Yuka independently tried the five-window `apple,t8122-atcphy` fallback and
+>    retains it only as `feature/t604x-usb-broken` (`2849873b`): T604x is CIO4/TB5,
+>    has fewer tunables, and the paired T6040 USB2 event bank does not match the
+>    fallback's core-relative access. Do not import it unchanged. Evidence:
+>    `done/2026-07-29-t6040-yuka-usb-branch-review.md`.
 
 > **2026-07-28 (state of play) — battery/thermals DONE; USB + WiFi are the frontier.**
 >

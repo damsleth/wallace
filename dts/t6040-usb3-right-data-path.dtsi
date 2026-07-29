@@ -15,9 +15,10 @@
  * retimer writes.
  *
  * The three ADT "atcrt" children are an inventory, not functional retimer
- * support.  There is no Linux binding or driver for them, and the paired
- * AppleHPM driver owns their mode transitions.  They must not be substituted
- * with a guessed PS883x compatible.
+ * support.  There is no Linux binding or driver for them.  Paired-driver
+ * analysis shows AppleTypeCRetimer monitors health rather than programs normal
+ * lane mode, but physical power/clock/reset ownership is still unknown.  They
+ * must not be substituted with a guessed PS883x compatible.
  */
 
 #include <dt-bindings/phy/phy.h>
