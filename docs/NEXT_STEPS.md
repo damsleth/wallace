@@ -60,6 +60,17 @@
 > exception pass. Evidence:
 > `done/2026-07-29-t6040-dualmode-wifi-bt-trackpad-ppp-candidate.md`.
 >
+> **2026-07-29 policy-minimal dual-mode alternative:** ticket 187 removes only
+> the trackpad HIDF from the RAM root while retaining the same reproducible
+> 10-second PCIe prefix, kernel, WiFi DTB, WiFi/BlueZ userspace, and dual-ACM
+> PPP fallback. Object `m1n1-dwm-wifi-bt-ppp-dualmode-no-hidf.bin` is
+> `969ba852...`, 2,158 × 16 KiB; its two-build root is `0ff9415f...`, expanded
+> 91,717,760 bytes, and both XZ members plus strict layout pass. This variant
+> cannot upload the trackpad HIDF and therefore does not need ticket 126's
+> narrow firmware exception. It is still review-only: ticket 187 must pass
+> independently before any allowlist or CJ-only enrollment work. Evidence:
+> `done/2026-07-29-t6040-dualmode-wifi-bt-ppp-no-hidf-candidate.md`.
+>
 > **⚠ For CJ:** `pwren-gpios` makes the kernel's `gpio-macsmc` perform two SMC key writes
 > (`gP13`/`gP19`). PMU **GPIO outputs**, exactly what macOS and upstream Asahi do — but outside the
 > literal `smc_reboot`/`smc_rtc` permitted surface. Revert by deleting the two `pwren-gpios` lines.

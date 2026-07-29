@@ -1,0 +1,20 @@
+{
+  "seq": "187",
+  "slug": "dualmode-wifi-bt-ppp-no-hidf-review",
+  "needs": "offline",
+  "state": "open",
+  "track": "integration",
+  "priority": "P1",
+  "desc": "Offline exact-artifact review of the policy-minimal dual-mode enrollment candidate /Users/damsleth/Code/linux-build-out/m1n1-dwm-wifi-bt-ppp-dualmode-no-hidf.bin SHA256 969ba852c0d8095796e4df02d7d60a64398410ad6cf49d4790592fb5118bfd36, size 35356672=2158*16KiB. Exact prefix ee58fa40 is the reproducible 10-second DTR-gated live-proven PCIe source. Kernel XZ 2584e37a and WiFi DTB 0afb98ae are unchanged from ticket185; root 0ff9415f is two-build byte-reproducible, minilzlib PASS, expanded 91717760 bytes, includes WiFi association, BlueZ and dual-ACM PPP, and deliberately contains no apple/tpmtfw-j614s.bin. Reviewer must confirm exact members, absence of any tpmtfw/HIDF payload, strict layout/alignment, DTR fall-through, PCIe BIT(4) provenance, and no SPMI/PMU/charger/NVRAM/flash path. Review only: do not run or enroll.",
+  "author": "sol",
+  "deps": [],
+  "hashes": {
+    "image": "969ba852c0d8095796e4df02d7d60a64398410ad6cf49d4790592fb5118bfd36",
+    "m1n1": "ee58fa400298ad605993e0aa07289354af06da27ff7668345f2527b9b08b767c",
+    "kernel_xz": "2584e37a8ed1cf560b7332d73e0469ffebed8e3d4f44a4f44ba16f95c4ac5997",
+    "dtb": "0afb98ae31760309f1d28f0b84f313991f8460856685905bd52a0a6919d2fc7e",
+    "initramfs": "0ff9415f931d30587852044112f31e5e65d69c32de928a950706269412e3ca7a"
+  },
+  "created": 1785323425,
+  "artifact": "/Users/damsleth/Code/linux-build-out/m1n1-dwm-wifi-bt-ppp-dualmode-no-hidf.bin"
+}
