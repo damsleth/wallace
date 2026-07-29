@@ -5,9 +5,14 @@
   "state": "proposed",
   "track": "usb",
   "priority": "P1",
-  "desc": "R0-status capture on exact allowlisted /arm-io/nub-spmi-a1/hpm2 only. Build a fail-closed m1n1 artifact from the reviewed HPM2 framework that performs the selector protocol for logical Status register 0x1a and reads exactly four bytes, then stops and warm-reboots. Primary basis: paired 25F84 AppleHPMDeviceHAL::getStatus at 0xfffffe000954b7fc passes reg 0x1a to the logical-read vtable and AppleHPMDeviceHAL::setStatus rejects lengths >=5; generic TPS6598x definitions decode plug bit0, orientation bit4, power-role bit5, data-role bit6 and VBUS status bits21:20. No WAKEUP, SSPS, CMD/DATA writes, W1C/event/mask access, role/VBUS transition, retries beyond the bounded selector poll, PHY, USB or Linux. ADT identity gate must retain zero-SPMI failure. Passive stick right, DebugUSB left. Exact artifact hash and independent review required before live use.",
+  "desc": "Exact R0-status candidate: /Users/damsleth/Code/linux-build-out/t6040-hpm2-status-baf2c20dd761/r0-status/m1n1.bin SHA256 d012adcf524c18600c749ba41409639a1b990e4065f5d95f3a14d79b6414307f, source baf2c20dd7614c1e9ecc7923b5cab6aa9dd69b0e, two clean byte-identical builds. Exact allowlisted /arm-io/nub-spmi-a1/hpm2 only. After the full fail-closed ADT identity gate, performs one selector write of logical Status register 0x1a, bounded selector reads, then exactly one four-byte data-window read at 0x20; prints raw bytes plus attach, connection, orientation, power role, data role, VCONN, PP5V, power source and VBUS fields; stops and warm-reboots. Paired basis: 25F84 AppleHPMDeviceHAL::getStatus at 0xfffffe000954b7fc passes 0x1a to the logical-read vtable and setStatus rejects lengths >=5. No WAKEUP, SSPS, CMD/DATA writes, extended writes, W1C/event/mask access, role/VBUS transition, reset/sleep/shutdown, long SPMI transfers, PHY, USB or Linux. The selector is an SPMI write, so this remains attended and review-gated. Passive stick right, DebugUSB left. Independent exact-artifact review and CJ approval required before live use.",
   "author": "sol",
   "deps": [],
-  "hashes": null,
-  "created": 1785309412
+  "hashes": {
+    "image": "d012adcf524c18600c749ba41409639a1b990e4065f5d95f3a14d79b6414307f",
+    "source": "baf2c20dd7614c1e9ecc7923b5cab6aa9dd69b0e",
+    "adt": "7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84"
+  },
+  "created": 1785309412,
+  "artifact": "/Users/damsleth/Code/linux-build-out/t6040-hpm2-status-baf2c20dd761/r0-status/m1n1.bin"
 }

@@ -1,5 +1,36 @@
 # t6040 Linux bring-up — NEXT STEPS
 
+> **2026-07-29 — indefinite proxy restored; two exact candidates await independent review + CJ
+> approval.**
+>
+> 1. **Proxy / integration smoke (177).** CJ enrolled
+>    `rollback-m1n1-1394c345.bin`; the rig is at a stable `Running proxy`, so reviewed
+>    chainloads are no longer constrained by the enrolled daily driver's 10 s fall-through.
+>    The corrected WiFi/USB feature payload has a window-free smoke object:
+>    `m1n1-b0-dwm-smoke-wifi-usb.bin` SHA-256 `b376cd56…`, 1839 × 16 KiB, strict verifier
+>    PASS, with payload bytes identical to the dual-mode enrollment candidate `b512b9fd…`.
+>    It validates the 16 KiB kernel, graphical integration, SMC/HID, and firmware probe; it
+>    does not claim PCIe link-up, right-port VBUS, or ATC functionality. Ticket 177 is
+>    proposed with exact hashes; Claude review and CJ approval are still required.
+> 2. **USB state capture (176 → 178).** Exhaustive scans of the paired 25F84 raw kernelcache
+>    and extracted AppleHPM executable find **no** ASCII or UTF-16LE `SWSr`/`SWSk`.
+>    Therefore the generic TPS6598x power-role commands are not paired-Apple evidence and no
+>    such write candidate may be invented. Paired
+>    `AppleHPMDeviceHAL::getStatus(HPMType1Status *)` instead establishes a four-byte read of
+>    logical status register `0x1a`. Exact R0-status artifact:
+>    `t6040-hpm2-status-baf2c20dd761/r0-status/m1n1.bin` SHA-256 `d012adcf…`;
+>    two byte-identical builds; one selector write, bounded selector reads, one four-byte
+>    data read; no wake, extended write, command, role transition, or PHY/USB action.
+>    Ticket 178 remains proposed because even the selector is an SPMI write. Next: Claude
+>    exact-artifact review, CJ approval, then an attended capture with the passive stick
+>    right and DebugUSB left. Evidence:
+>    `done/2026-07-29-t6040-hpm2-status-r0-preflight.md`.
+> 3. **WiFi / PCIe (175).** Do not retry ticket 068's already-applied tunables. The staged
+>    V1/V2 candidates remain attended PHY writes and await exact review plus a dedicated,
+>    hash-pinned rig ticket. Run V1 before V2. The combined kernel already has the paired
+>    BCM4388 firmware built in, so a responding PCIe aperture/link is the remaining WiFi
+>    hardware gate.
+
 > **2026-07-28 LATE (two-agent reconciliation) — no hardware action is currently ready.**
 >
 > 1. **USB VBUS (105/106) — R3 ran blind and is inconclusive; do not repeat yet.** Sol's exact
