@@ -1,9 +1,20 @@
 # t6040 Linux bring-up — NEXT STEPS
 
-> **2026-07-29 — indefinite proxy restored; three exact candidates await independent review + CJ
-> approval.**
+> **2026-07-29 — RAM-root read/write path proven; indefinite proxy restored; three exact
+> candidates await independent review + CJ approval.**
 >
-> 1. **Observable WiFi/USB integration smoke (181; supersedes inert 153).** A real
+> 1. **USB-root software path (149) — PASS.** The approved
+>    `m1n1-b0-ramroot-ext4.bin` (`ec111c6d…`) booted Alpine/OpenRC with `/` on ext4 device
+>    `1:0`, which sysfs resolves exactly to `ram0`. A bounded create/`sync`/delete test on
+>    `/root` passed, the installed root reporter ran, and Norwegian keymap status survived.
+>    `/proc/mounts` spells the device `/dev/root`, but mountinfo plus sysfs prove that it is
+>    the bootarg's `/dev/ram0`, not tmpfs or another device. This removes root mounting,
+>    ext4, OpenRC, and filesystem writes from the USB-storage unknowns; VBUS and right-port
+>    enumeration/data path remain. The old rehearsal image's watchdog service showed
+>    `crashed` despite `watchdog0=present`; that is recorded but outside ticket 149.
+>    The rig was restored to a quiescent `Running proxy` and released healthy. Evidence:
+>    `done/2026-07-29-t6040-ramroot-ext4-live-result.md`.
+> 2. **Observable WiFi/USB integration smoke (181; supersedes inert 153).** A real
 >    DockChannel nbcon diagnostic is now clean-build reproducible:
 >    `m1n1-b0-dwm-nbcon-wifi-usb-diag.bin` SHA-256 `8baf5f65…`, 1840 × 16 KiB.
 >    Its 16 KiB kernel includes the bounded atomic DockChannel transport and registered
@@ -14,7 +25,7 @@
 >    train the WiFi link. Ticket 181 is proposed; Claude exact-artifact review and CJ approval
 >    are required before chainload. Evidence:
 >    `done/2026-07-29-t6040-dockchannel-nbcon-wifi-usb-diagnostic.md`.
-> 2. **Proxy / integration smoke (177).** CJ enrolled
+> 3. **Proxy / integration smoke (177).** CJ enrolled
 >    `rollback-m1n1-1394c345.bin`; the rig is at a stable `Running proxy`, so reviewed
 >    chainloads are no longer constrained by the enrolled daily driver's 10 s fall-through.
 >    The corrected WiFi/USB feature payload has a window-free smoke object:
@@ -23,7 +34,7 @@
 >    It validates the 16 KiB kernel, graphical integration, SMC/HID, and firmware probe; it
 >    does not claim PCIe link-up, right-port VBUS, or ATC functionality. Ticket 177 is
 >    proposed with exact hashes; Claude review and CJ approval are still required.
-> 3. **USB state capture (176 → 178).** Exhaustive scans of the paired 25F84 raw kernelcache
+> 4. **USB state capture (176 → 178).** Exhaustive scans of the paired 25F84 raw kernelcache
 >    and extracted AppleHPM executable find **no** ASCII or UTF-16LE `SWSr`/`SWSk`.
 >    Therefore the generic TPS6598x power-role commands are not paired-Apple evidence and no
 >    such write candidate may be invented. Paired
@@ -36,7 +47,7 @@
 >    exact-artifact review, CJ approval, then an attended capture with the passive stick
 >    right and DebugUSB left. Evidence:
 >    `done/2026-07-29-t6040-hpm2-status-r0-preflight.md`.
-> 4. **WiFi / PCIe (175 → 179 → 180) — op-115 SOLVED; root ports enumerate; endpoint links do
+> 5. **WiFi / PCIe (175 → 179 → 180) — op-115 SOLVED; root ports enumerate; endpoint links do
 >    not train.** In an attended run, V1 (upstream's T6040 PCIe path with the correct
 >    BIT(4) PHY reset) completed `pcie_init()` for the first time. Linux then brought up
 >    `pcie-apple`, ECAM, and both root ports. The old BIT(7) reset was the entire op-115
