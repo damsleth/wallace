@@ -48,10 +48,20 @@
 			     <AIC_IRQ 483 IRQ_TYPE_LEVEL_HIGH>,
 			     <AIC_IRQ 484 IRQ_TYPE_LEVEL_HIGH>;
 
-		/* ADT function-clkreq: GPIO0/1, function 2. */
+		/*
+		 * CLKREQ for ports 0/1 is GPIO 0/1 (ADT function-clkreq), pin
+		 * function 1 -- NOT 2.  The earlier "function 2" here misread the
+		 * ADT's GPIO(pin, flags) second word as a function select; it is a
+		 * flags field.  Two independent sources say 1: upstream
+		 * t602x-gpio-pins.dtsi uses APPLE_PINMUX(0..3, 1) for the same pins,
+		 * and the live pins read back periph=1 as left by iBoot
+		 * (0x51c000000 + 4*pin = 0x00076a21).  Muxing them to 2 takes CLKREQ
+		 * away from the PCIe block, so the endpoint can never request the
+		 * reference clock and the link cannot train.
+		 */
 		pcie_pins: pcie-pins {
-			pinmux = <APPLE_PINMUX(0, 2)>,
-				 <APPLE_PINMUX(1, 2)>;
+			pinmux = <APPLE_PINMUX(0, 1)>,
+				 <APPLE_PINMUX(1, 1)>;
 		};
 	};
 

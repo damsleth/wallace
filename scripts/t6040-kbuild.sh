@@ -201,6 +201,13 @@ if [ "${PCIE:-0}" = "1" ]; then
         exit 1
     fi
     cp /out/t6040-j614s-dcuart-pcie.dts $APPLE/
+    # Ticket 179: the endpoint-power variant (adds pwren-gpios via smc_gpio and
+    # enables the SMC). It #includes the pcie DTS above, so both must be present.
+    if [ -f /out/t6040-j614s-dcuart-wifi.dts ]; then
+        cp /out/t6040-j614s-dcuart-wifi.dts $APPLE/
+    elif [ -f /src/$APPLE/t6040-j614s-dcuart-wifi.dts ]; then
+        cp /src/$APPLE/t6040-j614s-dcuart-wifi.dts $APPLE/
+    fi
 fi
 cp /src/$APPLE/t6040-pmgr.dtsi   $APPLE/
 cp /src/$APPLE/Makefile          $APPLE/
@@ -990,6 +997,41 @@ if [ "${MACSMC:-0}" = "1" ]; then
     # It reaches UDC "configured" on T6040, but this macOS host still binds no
     # network interface (ticket 173); retain it for Linux-host diagnostics.
 fi
+if [ "${WIFI:-0}" = "1" ]; then
+    # Ticket 179: WiFi/BT over PCIe. Everything BUILTIN — the RAM image has no
+    # module loader, and GPIO_MACSMC in particular ships as =m in the base
+    # config, which would silently leave the endpoint power-enable GPIOs absent.
+    echo "== WIFI: PCIe + SMC GPIO endpoint power + brcmfmac (builtin) =="
+    # SMC GPIO chip: the WiFi module's WL_REG_ON and the SD reader's power
+    # enable are SMC key writes ('gP13'/'gP19'), reached through gpio-macsmc and
+    # referenced as pwren-gpios by pcie-apple. Requires the SMC MFD, so this
+    # switch implies the MACSMC block above (set MACSMC=1 as well).
+    ./scripts/config --file .config \
+        -e MFD_MACSMC -e GPIO_MACSMC -e GPIOLIB -e OF_GPIO
+    # PCIe host controller and the pinctrl that owns PERST#/CLKREQ.
+    # PCIE_APPLE is "depends on PAGE_SIZE_16KB" (drivers/pci/controller/Kconfig),
+    # so 16 KiB pages must be selected FIRST or the symbol is invisible and the
+    # -e below silently does nothing -- which is exactly how a first attempt
+    # produced a kernel with no PCIe host driver at all.
+    ./scripts/config --file .config -e ARM64_16K_PAGES -d ARM64_4K_PAGES
+    ./scripts/config --file .config \
+        -e PCI -e PCI_MSI -e PCIE_APPLE -e PCI_HOST_COMMON -e PINCTRL_APPLE_GPIO
+    # BCM4388 WiFi. brcmfmac needs the PCIe transport plus cfg80211; firmware is
+    # staged in the initramfs under /lib/firmware/brcm (T6040_WIFI_FW=1 in
+    # t6040-build-alpine-dwm.sh) or built in via EXTRA_FIRMWARE.
+    ./scripts/config --file .config \
+        -e RFKILL -e CFG80211 -e MAC80211 -e BRCMUTIL -e BRCMFMAC \
+        -e BRCMFMAC_PCIE -e BRCMFMAC_PROTO_MSGBUF -e FW_LOADER \
+        -e WLAN -e WLAN_VENDOR_BROADCOM -e NET -e INET
+    # Bluetooth rides the same BCM4388 behind port 0, function 1.
+    ./scripts/config --file .config \
+        -e BT -e BT_BREDR -e BT_LE -e BT_HCIBTBCM -e BT_HCIUART \
+        -e BT_HCIBCM4377 || true
+    # olddefconfig (further down) can demote a tristate whose dependency is =m,
+    # and the RAM image has no module loader, so assert the ones that matter
+    # rather than discovering a silent =m on the rig.
+    WIFI_ASSERT_AFTER_OLDDEFCONFIG=1
+fi
 if [ "${HID_RX_REARM:-0}" = "1" ] ||
    [ "${HID_STATE_TRACE:-0}" = "1" ]; then
     # Match the ticket-067 kernel config exactly so the live A/B changes only
@@ -1213,6 +1255,28 @@ if [ "${T6040_WIFI_FW_BUILTIN:-0}" = "1" ]; then
         --set-str EXTRA_FIRMWARE_DIR "$wifi_fw_root"
 fi
 make ARCH=arm64 olddefconfig >/dev/null
+if [ "${WIFI_ASSERT_AFTER_OLDDEFCONFIG:-0}" = "1" ]; then
+    # Re-apply and re-settle: olddefconfig may demote a tristate we set to =y.
+    # Loop until stable, then hard-assert. A silent =m here costs a rig cycle.
+    # RFKILL must be =y first: CFG80211 is "depends on RFKILL || !RFKILL", so a
+    # modular RFKILL pins cfg80211 (and therefore brcmfmac) to =m.
+    ./scripts/config --file .config \
+        -e RFKILL -e CFG80211 -e MAC80211 -e BRCMUTIL -e BRCMFMAC -e BRCMFMAC_PCIE \
+        -e BRCMFMAC_PROTO_MSGBUF -e BT -e BT_HCIBCM4377 -e PCIE_APPLE
+    make ARCH=arm64 olddefconfig >/dev/null
+    echo "== assert WiFi/PCIe symbols are BUILTIN (no module loader in the RAM image) =="
+    wifi_fail=0
+    for sym in PCIE_APPLE PINCTRL_APPLE_GPIO GPIO_MACSMC MFD_MACSMC \
+               PAGE_SIZE_16KB ARM64_16K_PAGES; do
+        grep -q "^CONFIG_${sym}=y$" .config || { echo "  WIFI LOST: CONFIG_${sym}"; wifi_fail=1; }
+    done
+    # brcmfmac/BT are wanted builtin but are not fatal for a link-training test:
+    # a trained link shows the endpoint in sysfs with no driver bound at all.
+    for sym in CFG80211 BRCMFMAC BRCMFMAC_PCIE BT_HCIBCM4377; do
+        grep -q "^CONFIG_${sym}=y$" .config || echo "  WIFI WARN (not builtin): CONFIG_${sym}"
+    done
+    test "$wifi_fail" = 0
+fi
 if [ "${MACSMC:-0}" = "1" ]; then
     echo "== assert feature-kernel USB storage path =="
     grep -q '^CONFIG_USB_STORAGE=y$' .config
@@ -1320,6 +1384,12 @@ if [ "${PCIE:-0}" = "1" ]; then
     make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-pcie.dtb
     cp $APPLE/t6040-j614s-dcuart-pcie.dtb /out/ \
         && echo "DTB -> /out/t6040-j614s-dcuart-pcie.dtb"
+    # Ticket 179 endpoint-power variant (pwren-gpios via smc_gpio + SMC on).
+    if [ -f $APPLE/t6040-j614s-dcuart-wifi.dts ]; then
+        make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-wifi.dtb
+        cp $APPLE/t6040-j614s-dcuart-wifi.dtb /out/ \
+            && echo "DTB -> /out/t6040-j614s-dcuart-wifi.dtb"
+    fi
 fi
 if [ "${MACSMC:-0}" = "1" ]; then
     make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-macsmc.dtb

@@ -1,0 +1,71 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * T6040 J614s: PCIe + SMC, with the PCIe endpoint power-enable lines wired.
+ *
+ * Why this file exists (2026-07-29, ticket 179). With the PCIe reset-bit fix in
+ * m1n1, `pcie_init()` completes and Linux's pcie-apple driver enumerates both
+ * root ports -- but neither link trains, and both fail identically. The reason
+ * is that nothing in our boot path powers the endpoints:
+ *
+ *   /amfm                       function-reg_on   = pKW4('gP13', 0x800000)
+ *   apcie0/pci-bridge1/pcie-sdreader
+ *                               function-sd_pwr_en = pKW4('gP19', 0x0)
+ *
+ * i.e. the WiFi/BT module's WL_REG_ON and the SD reader's power enable are SMC
+ * key writes, not AP GPIOs. macOS performs them; iBoot leaves the module off.
+ * `gpio-macsmc` maps a gpiochip line to key "gP%02x" by hex (macsmc_gpio_nr()
+ * uses hex_to_bin on the last two characters), so 'gP13' is line 0x13 = 19 and
+ * 'gP19' is line 0x19 = 25. pcie-apple then drives `pwren-gpios` and waits the
+ * 100 ms Tpvperl before deasserting PERST#, exactly as it does on every M1/M2
+ * Mac -- upstream t600x-j314-j316.dtsi (the M1 Pro MacBook Pro 14", this
+ * machine's direct analogue) uses the same `pwren-gpios = <&smc_gpio N ...>`
+ * on port00 (WLAN) and port01 (SD reader).
+ *
+ * This needs the SMC to be up, hence the smc/smc_mbox enables, and a kernel
+ * with GPIO_MACSMC builtin (the RAM image has no module loader).
+ */
+
+/dts-v1/;
+
+#include "t6040-j614s-dcuart-pcie.dts"
+
+/ {
+	model = "Apple MacBook Pro (M4 Pro) J614s [dcuart + pcie + smc pwren]";
+};
+
+/* SMC, for the endpoint power-enable GPIOs below. */
+&smc_mbox {
+	status = "okay";
+};
+
+&smc {
+	status = "okay";
+};
+
+/* WiFi + Bluetooth (BCM4388 / ADT 'wlan-pcie,bcm4387'): WL_REG_ON = SMC 'gP13'. */
+&port00 {
+	pwren-gpios = <&smc_gpio 0x13 GPIO_ACTIVE_HIGH>;
+};
+
+/*
+ * brcmfmac only takes its "Apple platforms with fancy firmware/NVRAM selection"
+ * path when board-type AND antenna-sku AND valid OTP are all present
+ * (brcmfmac/pcie.c ~2630). With the SKU absent it collapses to the bare
+ * "apple,mriya" board type and never tries the per-module NVRAM our corpus
+ * actually ships, which is named for OTP module+vendor:
+ * brcmfmac4388c0-pcie.apple,mriya-WLMT-u.txt == board_types[2]
+ * "<board>-<otp.module>-<otp.vendor>".
+ *
+ * The SKU comes from the ADT: /arm-io/apcie0/.../wlan has
+ * wifi-antenna-sku-info = [0x1, 0x3358], and 0x3358 is the two characters
+ * "X3" (0x58 'X', 0x33 '3') -- the same shape as the driver's own example,
+ * "apple,shikoku-RASP-m-6.11-X3".
+ */
+&wifi0 {
+	apple,antenna-sku = "X3";
+};
+
+/* SD card reader: power enable = SMC 'gP19'. */
+&port01 {
+	pwren-gpios = <&smc_gpio 0x19 GPIO_ACTIVE_HIGH>;
+};
