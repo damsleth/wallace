@@ -1090,6 +1090,16 @@ if [ "${CPUFREQ:-0}" = "1" ]; then
         -e CPU_FREQ_GOV_SCHEDUTIL -e CPU_FREQ_GOV_USERSPACE
     CPUFREQ_ASSERT_AFTER_OLDDEFCONFIG=1
 fi
+if [ "${DIAG:-0}" = "1" ]; then
+    # Dynamic debug: the cpufreq core and the OPP layer hide their most
+    # informative failure paths behind pr_debug/dev_dbg (e.g. cpufreq_online's
+    # "initialization failed" and apple-soc-cpufreq's EPROBE_DEFER on an empty
+    # OPP table print NOTHING at default build settings, even with
+    # ignore_loglevel). DIAG=1 compiles those sites in; enable at boot with
+    #   dyndbg="file drivers/cpufreq/* +p; file drivers/opp/* +p"
+    echo "== DIAG: dynamic debug (dyndbg= on cmdline to activate) =="
+    ./scripts/config --file .config -e DYNAMIC_DEBUG -e DYNAMIC_DEBUG_CORE
+fi
 if [ "${WIFI:-0}" = "1" ]; then
     # Ticket 179: WiFi/BT over PCIe. Everything BUILTIN — the RAM image has no
     # module loader, and GPIO_MACSMC in particular ships as =m in the base
@@ -1677,6 +1687,10 @@ if [ "${1:-}" = "image" ]; then
     if [ "${T6040_PPP:-0}" = "1" ]; then
         image_name="${image_name}-ppp"
         map_name="${map_name}-ppp"
+    fi
+    if [ "${DIAG:-0}" = "1" ]; then
+        image_name="${image_name}-diag"
+        map_name="${map_name}-diag"
     fi
     if [ "${T6040_USB2_NATIVE:-0}" = "1" ]; then
         case "$image_name" in
