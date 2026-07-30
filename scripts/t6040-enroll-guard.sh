@@ -47,6 +47,17 @@ TARGET="${TARGET:-/Volumes/m1n1}"
 #  sol's reviewed object. Contains NO apple/tpmtfw-j614s.bin, so it needs no ticket-126
 #  firmware-upload exception. Strict verify PASS, 2158×16 KiB, both xz members PASS the
 #  minilzlib harness.
+#  2abc4901… daily driver v6 (2026-07-30): the REAL ANS fix — quiesce in the m1n1 PREFIX. v5's
+#  kernel-side cold-yank also failed (ANS never reached BOOT_STATUS_OK; dead-ctrl removal);
+#  the only proven live-ANS adopter is m1n1's own RTKit (174, twice). New prefix 165cf405
+#  (branch wallace/t6040-pcie-nvme-dualmode = pcie-upstream 04e8829c + nvme-two-base 1f747e34 +
+#  nvme_ensure_shutdown: on handoff without prior init, full init THEN shutdown, leaving ANS
+#  stopped exactly as every Asahi m1n1 does; dualmode window10/payload-unmask/vli patches
+#  applied, fb/early-proxy already committed on branch). Kernel+dtb+image identical to v5;
+#  kernel keeps the clean-boot patch as belt. Binary asserts: t8132 driver + kernel fix in the
+#  packed member, ensure-shutdown string in the prefix. Adds ~1-2 s to every boot (ANS
+#  init+shutdown). Expect: m1n1 prints "ensure-shutdown: adopting live ANS", Linux then boots
+#  ANS cold and cleanly -> /dev/nvme0n1 + /mnt/nvme (CJ's 128 GiB exFAT).
 #  16a4c594… daily driver v5 (2026-07-30): the ANS-crash fix + Oslo time + battery bar. v4's
 #  first boot proved the driver+DT correct THROUGH identify/namespace-enumeration, then the ANS
 #  FIRMWARE crashed: our loader never touches NVMe, so Linux inherited iBoot's LIVE ANS and the
@@ -104,7 +115,8 @@ c1529d4c8007e251606f14a86e6d307aad04b3472f2527c41f01b85c58072773 dwm-i3-everythi
 beb293340965d53f1ed3a1f14cde748bd1326d8fa6f1f6f158dc3e39bd2cb6cc dwm-i3-v2-rtc-wifi-5core
 65f6fbe339d6749f724fc763adafaefd0951374b7decbe755640b84c42d6bc1e dwm-i3-v3-nvme-rtc-5core
 53264755c8b086292815a28143c801edc7e38e74dde9552fa88cdab4634ca930 dwm-i3-v4-nvme-kbl-5core
-16a4c5946fa1e0ed9a3810ed6bc4aab5cc19a2daf21006523271f9290360fa83 dwm-i3-v5-ansfix-tz-5core"
+16a4c5946fa1e0ed9a3810ed6bc4aab5cc19a2daf21006523271f9290360fa83 dwm-i3-v5-ansfix-tz-5core
+2abc49018f6a8186debef0f3852df694c16ea6fa9127683bc3950b8e4260237b dwm-i3-v6-ansquiesce-5core"
 
 OBJ="${1:-}"
 CONFIRM="${2:-}"
