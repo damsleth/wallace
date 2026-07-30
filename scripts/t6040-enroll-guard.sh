@@ -47,6 +47,11 @@ TARGET="${TARGET:-/Volumes/m1n1}"
 #  sol's reviewed object. Contains NO apple/tpmtfw-j614s.bin, so it needs no ticket-126
 #  firmware-upload exception. Strict verify PASS, 2158×16 KiB, both xz members PASS the
 #  minilzlib harness.
+#  76083c54… daily driver v7 (2026-07-30): v6 + the depth-16 CQ discriminator. v6 proved the
+#  whole chain except sustained I/O (fw assert "CQ (Host I/O) DB error, head: 61" mid partition
+#  scan at depth 64). t8132 max_queue_depth 64->16 (kernel 76da12a3): if the fw's IOCQ is just
+#  smaller than 64 this WORKS outright (reduced parallelism); if wrap semantics are broken it
+#  crashes faster (~head 13-15) and tells us so. m1n1 prefix/dtb/image identical to v6.
 #  2abc4901… daily driver v6 (2026-07-30): the REAL ANS fix — quiesce in the m1n1 PREFIX. v5's
 #  kernel-side cold-yank also failed (ANS never reached BOOT_STATUS_OK; dead-ctrl removal);
 #  the only proven live-ANS adopter is m1n1's own RTKit (174, twice). New prefix 165cf405
@@ -116,7 +121,8 @@ beb293340965d53f1ed3a1f14cde748bd1326d8fa6f1f6f158dc3e39bd2cb6cc dwm-i3-v2-rtc-w
 65f6fbe339d6749f724fc763adafaefd0951374b7decbe755640b84c42d6bc1e dwm-i3-v3-nvme-rtc-5core
 53264755c8b086292815a28143c801edc7e38e74dde9552fa88cdab4634ca930 dwm-i3-v4-nvme-kbl-5core
 16a4c5946fa1e0ed9a3810ed6bc4aab5cc19a2daf21006523271f9290360fa83 dwm-i3-v5-ansfix-tz-5core
-2abc49018f6a8186debef0f3852df694c16ea6fa9127683bc3950b8e4260237b dwm-i3-v6-ansquiesce-5core"
+2abc49018f6a8186debef0f3852df694c16ea6fa9127683bc3950b8e4260237b dwm-i3-v6-ansquiesce-5core
+76083c544712c0d406f923d2092a64eb1ea0c319e6a5abc568876d8cbaa466f6 dwm-i3-v7-nvme-depth16-5core"
 
 OBJ="${1:-}"
 CONFIRM="${2:-}"
