@@ -164,13 +164,19 @@ Three verified facts that do not yet fit one story:
    same driver writing `reg[3]+0x24910` reaches partition enumeration and then hits the CQ-wrap
    assert (E1–E5 baseline).
 
-The difference between (1) and (3) is the access *context*, not the address: m1n1 runs with the
-MMU configured its own way and no other agent touching ANS, Linux runs with `nonposted-mmio`,
-DART/IOMMU active, and interrupts live. A plausible next hypothesis is that the linear-SQ block
-requires **posted** writes (or a specific access size/ordering) that m1n1 happens to satisfy and
-Linux's `nonposted-mmio` mapping does not — testable by dumping how m1n1's MMU maps that page
-versus what `devm_platform_ioremap_resource` produces, and by trying a `reg` entry outside the
-`nonposted-mmio` parent (or an explicit `ioremap_np`/`ioremap` choice) for just that window.
+The difference between (1) and (3) is the access *context*, not the address: m1n1 runs with no
+other agent touching ANS, Linux runs with DART/IOMMU active and interrupts live.
+
+**The posted-vs-nonposted hypothesis is already dead** (refuted by code reading, no boot spent):
+m1n1's `mmu_map_mmio()` maps every `/arm-io` range as `MAIR_IDX_DEVICE_nGnRnE` — non-posted, the
+same semantics Linux derives from `nonposted-mmio`. Both sides use identical access attributes,
+so the mapping type is not the difference.
+
+Remaining candidates, cheapest first: (a) the E8 hang was never bisected — one boot, one changed
+DTB, and the hang was *assumed* to come from the doorbell write; re-run E8 with the widened window
+but the driver still writing `mmio_nvmmu`, which isolates "widening the window" from "writing the
+register"; (b) whether the ADT declares a *separate* reg entry covering `0x44dce000`-ish that
+should be mapped instead of widening reg[9]; (c) CoastGuard fw RE for the linear-SQ contract.
 
 **Tree state: both experiments reverted.** `drivers/nvme/host/apple.c` is back to stock upstream
 (`sq_db = mmio_nvmmu`) and the DT window is back to the ADT-declared `0x10000`, with the finding
