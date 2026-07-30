@@ -50,7 +50,23 @@ if [ ! -d "$BUILD_DIR/.git" ]; then
     git clone --local --shared /src "$BUILD_DIR"
 fi
 cd "$BUILD_DIR"
+# The clone is made ONCE; without a fetch, host-side commits made after it
+# are invisible and the checkout silently builds a stale branch head — on
+# 2026-07-30 this shipped a "v3 NVMe" kernel whose nvme-apple cherry-picks
+# never entered the binary (DT files are copied fresh, so the DTB was right
+# and only the driver was missing). Fetch + hard-reset to the host branch;
+# patches re-apply onto the then-pristine tree right below.
+git fetch -q origin "$BRANCH"
 git checkout -q "$BRANCH"
+git reset --hard -q "origin/$BRANCH"
+# reset --hard reverts tracked files but leaves patch-CREATED (untracked)
+# sources behind, which fools the patches' "already applied" greps while
+# their tracked Makefile/Kconfig hunks are gone — the nbcon assert caught
+# exactly that on the first synced build. clean -fd (no -x) removes those
+# untracked sources so every patch re-applies whole, while gitignored build
+# objects survive and the build stays incremental.
+git clean -qfd
+echo "== building $BRANCH at $(git rev-parse --short HEAD) (host-synced, patches fresh) =="
 
 # Make independently cloned builds byte-reproducible. The kernel otherwise
 # embeds the wall-clock compile time (and ambient container identity) in the
