@@ -182,3 +182,31 @@ should be mapped instead of widening reg[9]; (c) CoastGuard fw RE for the linear
 (`sq_db = mmio_nvmmu`) and the DT window is back to the ADT-declared `0x10000`, with the finding
 recorded in a comment so nobody "fixes" it blindly. The rebuilt kernel in `/out` is the known-good
 baseline again.
+
+## CORRECTION to E6: the "wrong window" claim is weaker than I stated
+
+Full ADT reg map for `/arm-io/ans` (CPU addresses):
+
+```
+reg[0] 0x409600000..0x409688000   reg[3] 0x40dcc0000..0x40dd20010 (0x60010)
+reg[1] 0x409050000..0x409054000   reg[4] 0x40b000000..0x40b018000
+reg[5] 0x40db90000..0x40db9c000   reg[6] 0x40dd47c00..0x40dd4bc00
+reg[9] 0x44dcc0000..0x44dcd0000 (0x10000)
+```
+
+**No declared window covers `0x44dce4910`** (= reg[9]+0x24910, where m1n1 rings and E6 read
+`LINEAR_SQ_CTRL == 1`). m1n1 reaches it only because `mmu_map_mmio()` maps whole `/arm-io`
+*ranges*, not per-device regs, so undeclared space inside a range is still mapped.
+
+Meanwhile `reg[3]+0x249xx` **is** inside a declared window, and stock Linux — which rings there —
+successfully submits admin and I/O commands and enumerates all four partitions. So:
+
+- the SQ doorbells are **not** simply "in the wrong window" in Linux; that path demonstrably works;
+- the 2026-07-25 SError at `reg[3]+0x24908` was most likely a *state/timing* fault during early
+  m1n1 init (old single-base code), not proof that the address is invalid;
+- both `reg[3]+0x249xx` and `reg[9]+0x249xx` appear to alias the same block.
+
+**Therefore E7/E8 were chasing a non-bug**, and the CQ-wrap assert (E1–E5) remains the real
+target. Time cost: two boots plus a hang. The lesson worth keeping: an address that *reads
+plausibly* from m1n1 is not evidence that the other path is wrong — check whether the suspect
+path already works before "fixing" it.
