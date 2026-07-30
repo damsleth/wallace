@@ -47,6 +47,15 @@ TARGET="${TARGET:-/Volumes/m1n1}"
 #  sol's reviewed object. Contains NO apple/tpmtfw-j614s.bin, so it needs no ticket-126
 #  firmware-upload exception. Strict verify PASS, 2158×16 KiB, both xz members PASS the
 #  minilzlib harness.
+#  65f6fbe3… daily driver v3 (2026-07-30): v2 + INTERNAL NVMe. apple,t8132-nvme-ans2 two-base
+#  layout (yuka ad890806 + the two 26.x gates: no LINEAR_SQ/UNKNOWN_CTRL, no Set Features/NoQ
+#  which crashes ANS), t6040 node re-verified against OUR ADT (irqs 1530-33+2583 = t6041's,
+#  sart 0xc000). Every boot cycles CC.EN on the controller holding macOS — CJ requested this as
+#  the daily storage path 2026-07-30. /mnt/nvme automounts only a CJ-created exFAT/FAT32
+#  partition (Linux cannot mount APFS, so macOS volumes are untouchable by construction);
+#  t6040-data-sync prefers it. ⚠ NOT chainload-verified (CJ on the machine): the nvme-apple
+#  probe on T6040 is first-run — dual-mode window + rollback is the net. If it wedges at boot,
+#  the window still opens BEFORE the kernel runs.
 #  beb29334… daily driver v2 (2026-07-30): v1 + wall-clock RTC (SPMI abbey PMU rtc_offset@0x2100
 #  + smc-rtc + HCTOSYS), i3status config (battery all / macsmc-ac / wlan0 / /data / local time),
 #  PATH fix (t6040-* helpers visible in st + dmenu), WiFi auto-associate from CJ's wpa.conf
@@ -74,7 +83,8 @@ f290833c8a9dd7ea4086571b925e6b775c113dd3b4626a7ef2644ebc76fd03fd b0-milestone-al
 679fe1335876c14b51e30de8c615addf5e171b7f53f92eec8e489173a79f5d76 dualmode-wifi-bt-ppp-no-hidf-v116
 74e78ad848af95c1fa26e8cf610ceedc801176adbc43413e674cb0075ecbb9e0 dualmode-everything-5core
 c1529d4c8007e251606f14a86e6d307aad04b3472f2527c41f01b85c58072773 dwm-i3-everything-cpufreq-5core
-beb293340965d53f1ed3a1f14cde748bd1326d8fa6f1f6f158dc3e39bd2cb6cc dwm-i3-v2-rtc-wifi-5core"
+beb293340965d53f1ed3a1f14cde748bd1326d8fa6f1f6f158dc3e39bd2cb6cc dwm-i3-v2-rtc-wifi-5core
+65f6fbe339d6749f724fc763adafaefd0951374b7decbe755640b84c42d6bc1e dwm-i3-v3-nvme-rtc-5core"
 
 OBJ="${1:-}"
 CONFIRM="${2:-}"

@@ -31,6 +31,23 @@ try_mount()
     echo "t6040-data: $dev mounted at $dir" > /dev/console
 }
 
+# Internal NVMe: Apple Silicon's internal partitions are APFS (which Linux
+# cannot mount natively), so this only ever succeeds on a partition CJ
+# deliberately created for Linux from macOS Disk Utility (exFAT/FAT32 — the
+# semi-permanent storage milestone). APFS partitions simply fail the mount
+# attempts and are never touched. First match wins.
+try_nvme()
+{
+    [ -d /sys/class/nvme ] || return 1
+    for d in /dev/nvme0n1p*; do
+        [ -b "$d" ] || continue
+        try_mount "$d" /mnt/nvme && return 0
+    done
+    return 1
+}
+
+mkdir -p /mnt/nvme
+
 # The media can appear at any time (SD insert, future USB); poll gently
 # instead of depending on mdev hotplug config.
 while :; do
@@ -40,5 +57,6 @@ while :; do
     for d in /dev/sda1 /dev/sda; do
         try_mount "$d" /mnt/usb && break
     done
+    try_nvme
     sleep 5
 done

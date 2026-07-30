@@ -1139,6 +1139,15 @@ if [ "${WIFI:-0}" = "1" ]; then
     ./scripts/config --file .config \
         -e SPMI -e SPMI_APPLE -e NVMEM -e NVMEM_APPLE_SPMI \
         -e RTC_CLASS -e RTC_DRV_MACSMC -e RTC_HCTOSYS
+    # Internal NVMe (ticket 192, after 174 proved the read path from raw
+    # m1n1): apple,t8132-nvme-ans2 with the two-base M4 layout + the two 26.x
+    # gates (no LINEAR_SQ/UNKNOWN_CTRL writes, no Set Features/NoQ — crashes
+    # ANS). Every Linux boot now cycles CC.EN on the controller holding macOS;
+    # CJ requested this as the daily-driver storage path 2026-07-30.
+    # APPLE_SART ships =m and `NVME_APPLE depends on APPLE_SART`, which pins
+    # NVME_APPLE to =m (useless in the RAM image) — SART first, then NVMe.
+    ./scripts/config --file .config -e APPLE_RTKIT -e APPLE_SART
+    ./scripts/config --file .config -e NVME_CORE -e BLK_DEV_NVME -e NVME_APPLE
     # Storage milestone (2026-07-30): mount SD cards / USB sticks from the RAM
     # root. SDHCI is already builtin; add the filesystems and the USB mass-
     # storage path (SCSI disk) so a stick works the day VBUS does.
@@ -1414,12 +1423,14 @@ if [ "${WIFI_ASSERT_AFTER_OLDDEFCONFIG:-0}" = "1" ]; then
     # modular RFKILL pins cfg80211 (and therefore brcmfmac) to =m.
     ./scripts/config --file .config \
         -e RFKILL -e CFG80211 -e MAC80211 -e BRCMUTIL -e BRCMFMAC -e BRCMFMAC_PCIE \
-        -e BRCMFMAC_PROTO_MSGBUF -e BT -e BT_HCIBCM4377 -e PCIE_APPLE
+        -e BRCMFMAC_PROTO_MSGBUF -e BT -e BT_HCIBCM4377 -e PCIE_APPLE \
+        -e APPLE_SART -e NVME_APPLE -e SPMI_APPLE -e NVMEM_APPLE_SPMI
     make ARCH=arm64 olddefconfig >/dev/null
     echo "== assert WiFi/PCIe symbols are BUILTIN (no module loader in the RAM image) =="
     wifi_fail=0
     for sym in PCIE_APPLE PINCTRL_APPLE_GPIO GPIO_MACSMC MFD_MACSMC \
-               PAGE_SIZE_16KB ARM64_16K_PAGES; do
+               PAGE_SIZE_16KB ARM64_16K_PAGES \
+               APPLE_SART NVME_APPLE SPMI_APPLE NVMEM_APPLE_SPMI RTC_DRV_MACSMC; do
         grep -q "^CONFIG_${sym}=y$" .config || { echo "  WIFI LOST: CONFIG_${sym}"; wifi_fail=1; }
     done
     # brcmfmac/BT are wanted builtin but are not fatal for a link-training test:

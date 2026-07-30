@@ -348,27 +348,43 @@
 			status = "disabled";
 		};
 
+		/*
+		 * SART + NVMe, TWO-BASE M4 layout (ticket 174, PROVEN via raw
+		 * m1n1 on 2026-07-30: EFI PART read from LBA 1). ADT reg[9]
+		 * (0x44dcc0000) is the NVMe controller aperture; reg[3]
+		 * (0x40dcc0000) is the NVMMU window. The previous node here
+		 * pointed "nvme" at reg[3] with the t8103 single-base layout —
+		 * that is the exact shape whose LINEAR_SQ_CTRL write raised
+		 * the 07-25 L2C SError. Shape mirrors yuka's t6041 node
+		 * (1b87d7b8, feature/m4-m5-nvme); every address and IRQ
+		 * re-verified against OUR J614s ADT (ans interrupts
+		 * [1531 1530 1533 1532 2583], identical to t6041; sart-ans
+		 * reg[0] size 0xc000). Driver: apple,t8132-nvme-ans2
+		 * (ad890806 cherry-picked) + the two 26.x gates (no
+		 * LINEAR_SQ/UNKNOWN_CTRL; no Set Features/Number-of-Queues —
+		 * the latter CRASHES ANS on fw 26.5 per yuka 9a6a6bd1).
+		 */
 		ans_sart: iommu@40dc50000 {
-			compatible = "apple,t8140-sart";
-			reg = <0x4 0x0dc50000 0x0 0xc000>,
-			      <0x4 0x0dcc13e8 0x0 0x4>;
-			reg-names = "sart", "power";
+			compatible = "apple,t6040-sart", "apple,t6000-sart";
+			reg = <0x4 0x0dc50000 0x0 0xc000>;
 			power-domains = <&ps_ans>;
 			status = "disabled";
 		};
 
-		ans_nvme: nvme@40dcc0000 {
-			compatible = "apple,t8140-nvme-ans2",
-				     "apple,t8103-nvme-ans2";
-			reg = <0x4 0x0dcc0000 0x0 0x60000>,
-			      <0x4 0x09600000 0x0 0x4000>;
-			reg-names = "nvme", "ans";
+		ans_nvme: nvme@44dcc0000 {
+			compatible = "apple,t6040-nvme-ans2",
+				     "apple,t8132-nvme-ans2";
+			reg = <0x4 0x4dcc0000 0x0 0x10000>,
+			      <0x4 0x09600000 0x0 0x4000>,
+			      <0x4 0x0dcc0000 0x0 0x60000>;
+			reg-names = "nvme", "ans", "nvmmu";
 			interrupt-parent = <&aic>;
 			interrupts = <AIC_IRQ 2583 IRQ_TYPE_LEVEL_HIGH>;
 			mboxes = <&ans_mbox>;
 			apple,sart = <&ans_sart>;
-			power-domains = <&ps_ans>, <&ps_apcie_phy_sw>;
-			power-domain-names = "ans", "apcie0";
+			power-domains = <&ps_ans>, <&ps_apcie_sys_st0>,
+					<&ps_apcie_sys_st1>;
+			power-domain-names = "ans", "apcie0", "apcie1";
 			resets = <&ps_ans>;
 			status = "disabled";
 		};

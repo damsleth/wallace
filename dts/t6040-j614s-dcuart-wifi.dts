@@ -44,6 +44,20 @@
 	status = "okay";
 };
 
+/* Internal NVMe (two-base M4 layout, read path proven from raw m1n1
+ * 2026-07-30). Kernel gates the 26.x-fatal legacy writes. */
+&ans_mbox {
+	status = "okay";
+};
+
+&ans_sart {
+	status = "okay";
+};
+
+&ans_nvme {
+	status = "okay";
+};
+
 &smc {
 	status = "okay";
 };
