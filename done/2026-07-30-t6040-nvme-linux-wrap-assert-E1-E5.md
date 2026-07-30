@@ -133,3 +133,46 @@ hypothesis is untested**, not refuted.
 **Next step is to watch the panel**, which carries `console=tty0` and is the one channel
 independent of this failure mode — CJ can read the E7 boot directly. Until then E6 stands on its
 own as a measured, reproducible discrepancy worth reporting upstream regardless of E7's outcome.
+
+## E7/E8 resolved — and the "no console output" scare was a false alarm
+
+**The earlier no-output boots were a host-side console problem, not hangs.** Re-run with a fresh
+kisd attach, the *same* E7 kernel booted all the way to 12.5 s (486 lines captured). Every
+"hang" claim about E5/E5b/E7 in the section above should be read as *unverified*; only E8 below
+is a confirmed hang. Lesson: re-attach the reader and prove the console works (`wc -c` on the log)
+*before* interpreting silence as a hang.
+
+**E7 (sq_db → `mmio_nvme`, stock 0x10000 window): boots fine, NVMe silent.**
+`nvme-apple … RTKit: Initializing (protocol version 12)` and then nothing — no assert, no crash,
+no namespaces. Explanation: `APPLE_ANS_LINEAR_IOSQ_DB` is at **+0x24910**, far outside the
+**0x10000** `nvme` resource, so the write never reaches the register. This also explains yuka's
+choice: she pointed the SQ doorbells at `mmio_nvmmu` because that window is **0x60000** — she
+needed the *size*, not the base.
+
+**E8 (same, plus `nvme` window widened to 0x60000): HANGS the machine.** Confirmed hang — console
+dead, no response, recovered by reboot to proxy. So making the write actually land at
+`reg[9]+0x24910` from Linux is *fatal*, even though m1n1 writes the identical address happily.
+
+### What that leaves
+
+Three verified facts that do not yet fit one story:
+
+1. `reg[9]+0x24908` **reads** `1` from m1n1, and m1n1 **writes** `reg[9]+0x2490c/0x24910` and
+   completes I/O across 3 CQ wraps. (E6, measured.)
+2. `reg[3]+0x24908` raises an L2C SError (2026-07-25).
+3. Linux writing `reg[9]+0x24910` through a proper ioremap **hangs the machine** (E8), while the
+   same driver writing `reg[3]+0x24910` reaches partition enumeration and then hits the CQ-wrap
+   assert (E1–E5 baseline).
+
+The difference between (1) and (3) is the access *context*, not the address: m1n1 runs with the
+MMU configured its own way and no other agent touching ANS, Linux runs with `nonposted-mmio`,
+DART/IOMMU active, and interrupts live. A plausible next hypothesis is that the linear-SQ block
+requires **posted** writes (or a specific access size/ordering) that m1n1 happens to satisfy and
+Linux's `nonposted-mmio` mapping does not — testable by dumping how m1n1's MMU maps that page
+versus what `devm_platform_ioremap_resource` produces, and by trying a `reg` entry outside the
+`nonposted-mmio` parent (or an explicit `ioremap_np`/`ioremap` choice) for just that window.
+
+**Tree state: both experiments reverted.** `drivers/nvme/host/apple.c` is back to stock upstream
+(`sq_db = mmio_nvmmu`) and the DT window is back to the ADT-declared `0x10000`, with the finding
+recorded in a comment so nobody "fixes" it blindly. The rebuilt kernel in `/out` is the known-good
+baseline again.
