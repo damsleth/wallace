@@ -56,12 +56,20 @@ I3_PKGS=""
 [ "${T6040_I3:-0}" = "1" ] && I3_PKGS="i3wm i3status"
 podman exec -e FAT_PKGS="$FAT_PKGS" -e PPP_PKGS="$PPP_PKGS" \
     -e WIFI_PKGS="$WIFI_PKGS" -e BT_PKGS="$BT_PKGS" -e I3_PKGS="$I3_PKGS" \
+    -e T6040_TZ="${T6040_TZ:-Europe/Oslo}" \
     "$CONTAINER" chroot "/out/$TMP_BASE" /bin/sh -ec '
     apk update -q
     apk add --no-cache openrc busybox-openrc kbd-bkeymaps eudev xrdb \
         xorg-server xf86-input-libinput xinit setxkbmap xrandr \
         dwm st dmenu font-terminus ttf-dejavu \
         $FAT_PKGS $PPP_PKGS $WIFI_PKGS $BT_PKGS $I3_PKGS
+    # Local wall-clock (CJ is in Oslo; the SPMI RTC keeps UTC, which is
+    # correct — localtime is a userspace concern). Single-zonefile trick:
+    # tzdata is only needed during the copy.
+    apk add --no-cache tzdata
+    cp "/usr/share/zoneinfo/${T6040_TZ:-Europe/Oslo}" /etc/localtime
+    echo "${T6040_TZ:-Europe/Oslo}" > /etc/timezone
+    apk del --no-cache tzdata
     if [ -n "$PPP_PKGS" ]; then
         : > /etc/ppp/options
     fi
@@ -330,7 +338,8 @@ general {
     interval = 5
 }
 order += "wireless wlan0"
-order += "battery all"
+order += "read_file bat"
+order += "read_file batstat"
 order += "read_file ac"
 order += "disk /data"
 order += "load"
@@ -341,12 +350,20 @@ wireless wlan0 {
     format_up = "W: %essid %quality %ip"
     format_down = "W: down"
 }
-battery all {
-    format = "%status %percentage %remaining"
-    status_chr = "CHR"
-    status_bat = "BAT"
-    status_full = "FULL"
-    low_threshold = 15
+# i3status's battery module needs charge_now/energy_now uevent fields that
+# macsmc-battery does not export ("No battery", observed live 2026-07-30);
+# read the driver's capacity/status sysfs directly instead.
+read_file bat {
+    path = "/sys/class/power_supply/macsmc-battery/capacity"
+    format = "BAT %content%"
+    format_bad = "BAT ?"
+    max_characters = 3
+}
+read_file batstat {
+    path = "/sys/class/power_supply/macsmc-battery/status"
+    format = "%content"
+    format_bad = "?"
+    max_characters = 11
 }
 read_file ac {
     path = "/sys/class/power_supply/macsmc-ac/online"
