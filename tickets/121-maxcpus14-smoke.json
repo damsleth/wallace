@@ -5,7 +5,7 @@
   "state": "blocked-maxcpus6-unpack-rootfs-oops",
   "track": "smp",
   "priority": "P2",
-  "desc": "PLAN-APPROVED but blocked: ticket 005 failed at the no-Linux-output boundary, so replacement maxcpus=2 ticket 123 must pass before reviewed ticket-120 all-core artifacts can exist. Then run one all-14-core bring-up with idle=nop and the proven polling console. Pass = 0-13 online with correct 4E+5P+5P mapping, task liveness on each cluster, watchdog and shell stable. No cpufreq, IRQ-console, USB/storage, PCIe, or new hardware operation. Requires exact hashes, independent review, healthy rig, and lease.",
+  "desc": "PLAN-APPROVED but blocked: ticket 005 failed at the no-Linux-output boundary, so replacement maxcpus=2 ticket 123 must pass before reviewed ticket-120 all-core artifacts can exist. Then run one all-14-core bring-up with idle=nop and the proven polling console. Pass = 0-13 online with correct 4E+5P+5P mapping, task liveness on each cluster, watchdog and shell stable. No cpufreq, IRQ-console, USB/storage, PCIe, or new hardware operation. Requires exact hashes, independent review, healthy rig, and lease. PREP 2026-07-30: discriminating DTB built (t6040-j614s-dcuart-c2probe.dtb, P0 siblings status=fail so maxcpus=6 reaches cluster 2). One rig cycle: v4 kernel + c2probe.dtb + untouched initramfs, maxcpus=6. Boots -> fault is P0-sibling-specific AND all three cpufreq policies register; faults -> count/second-cluster-based.",
   "author": "codex",
   "deps": [
     "005",
