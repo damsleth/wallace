@@ -1132,6 +1132,13 @@ if [ "${WIFI:-0}" = "1" ]; then
     # switch implies the MACSMC block above (set MACSMC=1 as well).
     ./scripts/config --file .config \
         -e MFD_MACSMC -e GPIO_MACSMC -e GPIOLIB -e OF_GPIO
+    # Wall-clock time (2026-07-30): rtc-macsmc = SMC CLKM counter + a 6-byte
+    # offset in the abbey PMU's RTC scratchpad (0x2100, measured from our ADT
+    # info-rtc*), reached over SPMI. All builtin (RAM image, no modules);
+    # HCTOSYS sets system time from rtc0 at boot so 1970 never appears.
+    ./scripts/config --file .config \
+        -e SPMI -e SPMI_APPLE -e NVMEM -e NVMEM_APPLE_SPMI \
+        -e RTC_CLASS -e RTC_DRV_MACSMC -e RTC_HCTOSYS
     # Storage milestone (2026-07-30): mount SD cards / USB sticks from the RAM
     # root. SDHCI is already builtin; add the filesystems and the USB mass-
     # storage path (SCSI disk) so a stick works the day VBUS does.

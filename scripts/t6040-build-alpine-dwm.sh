@@ -260,6 +260,10 @@ cat > "$TMP/usr/local/sbin/t6040-startx" <<'EOF'
 # which is the standard Alpine arrangement. Ticket 161.
 LOG=/var/log/xorg-startx.log
 export HOME=/root XAUTHORITY=/tmp/.Xauth
+# busybox sh's default PATH omits /usr/local/sbin, which is where every
+# t6040-* helper lives — so the st shell (and dmenu, which lists $PATH)
+# couldn't see t6040-wifi-connect. Exported here so i3 -> st -> sh inherit it.
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 : > "$XAUTHORITY"
 mkdir -p /run/udev
 
@@ -312,6 +316,59 @@ XEOF
 exec startx -- vt1 -keeptty -dpi "$DPI" >> "$LOG" 2>&1
 EOF
 chmod 0755 "$TMP/usr/local/sbin/t6040-startx"
+
+# i3status: the stock config hunts for BAT0 and eth0. Ours are macsmc-battery /
+# macsmc-ac (CJ verified macsmc-ac/online tracks the tether: 1 charging, 0 not)
+# and wlan0. `battery all` aggregates any battery-type supply, so it finds
+# macsmc-battery; its %status already encodes AC (CHR/BAT/FULL), and the
+# path_exists check makes the AC state explicit.
+if [ "${T6040_I3:-0}" = "1" ]; then
+    cat > "$TMP/etc/i3status.conf" <<'I3SEOF'
+general {
+    output_format = "i3bar"
+    colors = true
+    interval = 5
+}
+order += "wireless wlan0"
+order += "battery all"
+order += "read_file ac"
+order += "disk /data"
+order += "load"
+order += "memory"
+order += "tztime local"
+
+wireless wlan0 {
+    format_up = "W: %essid %quality %ip"
+    format_down = "W: down"
+}
+battery all {
+    format = "%status %percentage %remaining"
+    status_chr = "CHR"
+    status_bat = "BAT"
+    status_full = "FULL"
+    low_threshold = 15
+}
+read_file ac {
+    path = "/sys/class/power_supply/macsmc-ac/online"
+    format = "AC: %content"
+    format_bad = "AC: ?"
+    max_characters = 1
+}
+disk "/data" {
+    format = "/data %avail"
+}
+load {
+    format = "%1min"
+}
+memory {
+    format = "%used/%total"
+    threshold_degraded = "10%"
+}
+tztime local {
+    format = "%Y-%m-%d %H:%M"
+}
+I3SEOF
+fi
 
 # i3 must find a config or it blocks on the interactive first-run wizard,
 # which is useless on a machine whose keyboard layout question it asks.
@@ -380,6 +437,42 @@ install -m 0755 "$(dirname "$0")/t6040-data-mount" \
 install -m 0755 "$(dirname "$0")/t6040-data-sync" \
     "$TMP/usr/local/sbin/t6040-data-sync"
 
+# --- WiFi auto-association (optional; v2 daily driver) --------------------
+# T6040_WPA_SRC accepts either a real wpa_supplicant config, or a one-line
+# `wpa_passphrase 'SSID' 'PSK'` command file (CJ's ~/wpa.conf shape). For the
+# latter the PSK is derived here with PBKDF2 (what wpa_passphrase does), so the
+# image carries the 64-hex PSK, never the cleartext passphrase, and nothing is
+# echoed to the build log. Association itself is done by t6040-wifi-auto at
+# boot, as ::once: so it can never stall the boot.
+install -m 0755 "$(dirname "$0")/t6040-wifi-auto" \
+    "$TMP/usr/local/sbin/t6040-wifi-auto"
+install -d -m 0755 "$TMP/etc/wpa_supplicant"
+if [ -n "${T6040_WPA_SRC:-}" ] && [ -f "$T6040_WPA_SRC" ]; then
+    python3 - "$T6040_WPA_SRC" > "$TMP/etc/wpa_supplicant/wpa_supplicant.conf" <<'PYEOF'
+import hashlib, shlex, sys
+src = open(sys.argv[1]).read()
+if "wpa_passphrase" in src.split("\n", 1)[0]:
+    # a `wpa_passphrase 'SSID' 'PSK'` command line: derive the config ourselves
+    parts = shlex.split(src.strip())
+    ssid, psk = parts[1], parts[2]
+    hexpsk = hashlib.pbkdf2_hmac("sha1", psk.encode(), ssid.encode(), 4096, 32).hex()
+    print("p2p_disabled=1")
+    print("network={")
+    print('\tssid="%s"' % ssid)
+    print("\tpsk=%s" % hexpsk)
+    print("}")
+else:
+    # already a wpa_supplicant config: pass through, ensure p2p_disabled
+    if "p2p_disabled" not in src:
+        print("p2p_disabled=1")
+    sys.stdout.write(src)
+PYEOF
+    chmod 0600 "$TMP/etc/wpa_supplicant/wpa_supplicant.conf"
+    echo "== wifi: auto-association baked from T6040_WPA_SRC (PSK not logged) =="
+else
+    printf 'p2p_disabled=1\n' > "$TMP/etc/wpa_supplicant/wpa_supplicant.conf"
+fi
+
 printf 'wallace-dwm\n' > "$TMP/etc/hostname"
 : > "$TMP/etc/fstab"
 sed -i.bak 's|^root:[^:]*:|root::|' "$TMP/etc/shadow" && rm -f "$TMP/etc/shadow.bak"
@@ -392,6 +485,7 @@ cat > "$TMP/etc/inittab" <<'EOF'
 ::sysinit:/bin/sh -c 'for m in /usr/share/bkeymaps/no/no-mac.bmap /usr/share/bkeymaps/no/no.bmap; do [ -f "$m" ] && busybox loadkmap < "$m" && exit 0; [ -f "$m.gz" ] && busybox zcat "$m.gz" | busybox loadkmap && exit 0; done; true'
 ::once:/usr/local/sbin/t6040-usb-acm-console
 ::once:/usr/local/sbin/t6040-data-mount
+::once:/usr/local/sbin/t6040-wifi-auto
 ::once:/usr/local/sbin/t6040-startx
 tty1::respawn:/sbin/getty -n -l /bin/sh 38400 tty1 linux
 ::respawn:/usr/local/sbin/t6040-b0-ttydc0-console

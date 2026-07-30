@@ -38,6 +38,12 @@
 	status = "okay";
 };
 
+/* Wall-clock time: SPMI bus to the abbey PMU for the RTC offset cell
+ * (rtc-macsmc = SMC CLKM counter + this offset). */
+&nub_spmi0 {
+	status = "okay";
+};
+
 &smc {
 	status = "okay";
 };

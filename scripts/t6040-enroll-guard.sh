@@ -47,6 +47,12 @@ TARGET="${TARGET:-/Volumes/m1n1}"
 #  sol's reviewed object. Contains NO apple/tpmtfw-j614s.bin, so it needs no ticket-126
 #  firmware-upload exception. Strict verify PASS, 2158×16 KiB, both xz members PASS the
 #  minilzlib harness.
+#  beb29334… daily driver v2 (2026-07-30): v1 + wall-clock RTC (SPMI abbey PMU rtc_offset@0x2100
+#  + smc-rtc + HCTOSYS), i3status config (battery all / macsmc-ac / wlan0 / /data / local time),
+#  PATH fix (t6040-* helpers visible in st + dmenu), WiFi auto-associate from CJ's wpa.conf
+#  (derived hex PSK baked, ::once: so it cannot stall boot) + one-shot ntpd. ⚠ NOT yet
+#  chainload-verified (CJ was using the machine): the SPMI controller at 0x509014000 is a new
+#  Linux probe surface — verify one tethered boot before or accept the dual-mode/rollback net.
 #  c1529d4c… THE DAILY DRIVER (2026-07-30): i3 + dwm fallback, cpufreq (P cores to 4.512 GHz
 #  via the freq-mult-overflow patch), WiFi (19-BSS scan verified), BT, 7 GiB /data +
 #  SD/USB automount, ttydc0 getty, maxcpus=5. NO HIDF (the live tpmtfw upload kills the
@@ -67,7 +73,8 @@ f290833c8a9dd7ea4086571b925e6b775c113dd3b4626a7ef2644ebc76fd03fd b0-milestone-al
 1394c34504345fff1403340070029a5feedf744b032af02cd22c936026a7e61b rollback-bare-proxy-m1n1
 679fe1335876c14b51e30de8c615addf5e171b7f53f92eec8e489173a79f5d76 dualmode-wifi-bt-ppp-no-hidf-v116
 74e78ad848af95c1fa26e8cf610ceedc801176adbc43413e674cb0075ecbb9e0 dualmode-everything-5core
-c1529d4c8007e251606f14a86e6d307aad04b3472f2527c41f01b85c58072773 dwm-i3-everything-cpufreq-5core"
+c1529d4c8007e251606f14a86e6d307aad04b3472f2527c41f01b85c58072773 dwm-i3-everything-cpufreq-5core
+beb293340965d53f1ed3a1f14cde748bd1326d8fa6f1f6f158dc3e39bd2cb6cc dwm-i3-v2-rtc-wifi-5core"
 
 OBJ="${1:-}"
 CONFIRM="${2:-}"

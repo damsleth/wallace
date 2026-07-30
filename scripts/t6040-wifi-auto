@@ -1,0 +1,29 @@
+#!/bin/sh
+# Boot-time WiFi auto-association (v2 daily driver). Best-effort by design:
+# runs as an inittab ::once: entry, so nothing here can stall the boot the way
+# the sysinit UDC bind did (done/2026-07-30-t6040-daily-driver-object-c1529d4c.md).
+# Associates from the baked /etc/wpa_supplicant/wpa_supplicant.conf, gets a
+# lease, then one-shot NTP as clock corrector (works even before the SPMI RTC
+# lands; harmless after).
+CONF=/etc/wpa_supplicant/wpa_supplicant.conf
+grep -q '^[[:space:]]*ssid=' "$CONF" 2>/dev/null || exit 0
+
+# wlan0 appears asynchronously (PCIe probe + firmware load).
+n=0
+while [ ! -d /sys/class/net/wlan0 ] && [ "$n" -lt 30 ]; do sleep 1; n=$((n+1)); done
+[ -d /sys/class/net/wlan0 ] || exit 0
+
+ip link set wlan0 up 2>/dev/null
+wpa_supplicant -B -i wlan0 -c "$CONF" 2>/dev/null
+
+n=0
+while [ "$n" -lt 20 ]; do
+    iw dev wlan0 link 2>/dev/null | grep -q '^Connected' && break
+    sleep 1; n=$((n+1))
+done
+udhcpc -i wlan0 -t 8 -T 2 -b 2>/dev/null
+
+# Clock: prefer the RTC-set system time; ntpd corrects or (pre-RTC kernels)
+# sets it outright. One-shot, backgrounded, bounded by its own timeout.
+ntpd -dnq -p pool.ntp.org >/dev/null 2>&1 &
+exit 0

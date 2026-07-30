@@ -13,6 +13,7 @@
  */
 
 #include <dt-bindings/interrupt-controller/apple-aic.h>
+#include <dt-bindings/spmi/spmi.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 
 / {
@@ -492,6 +493,53 @@
 				compatible = "apple,smc-gpio";
 				gpio-controller;
 				#gpio-cells = <2>;
+			};
+
+			/*
+			 * Wall-clock time: SMC key CLKM is the running counter;
+			 * the boot-persistent offset lives in the abbey PMU's
+			 * RTC scratchpad, reached over SPMI (rtc_offset cell
+			 * below). Reading time is SMC+SPMI reads only; SETTING
+			 * the clock writes 6 bytes to that scratchpad — the
+			 * same "clock" write class as the permitted smc_rtc
+			 * nvram key.
+			 */
+			smc_rtc: rtc {
+				compatible = "apple,smc-rtc";
+				nvmem-cells = <&rtc_offset>;
+				nvmem-cell-names = "rtc_offset";
+			};
+		};
+
+		/*
+		 * Primary SPMI bus (ADT /arm-io/nub-spmi0, reg[0], the block
+		 * m1n1's proven spmi.c drives). Carries the die-0 "abbey" PMU
+		 * at SID 0xe (ADT spmi-abbeyL1). RTC offsets MEASURED from our
+		 * ADT info-rtc* properties: scratchpad = 0x2100 (t600x's
+		 * maverick used 0x1411 — copying that would have been wrong).
+		 * The Type-C HPMs live on separate buses (nub-spmi-a0/a1) and
+		 * are deliberately not described here.
+		 */
+		nub_spmi0: spmi@509014000 {
+			compatible = "apple,t6040-spmi", "apple,spmi";
+			reg = <0x5 0x09014000 0x0 0x100>;
+			#address-cells = <2>;
+			#size-cells = <0>;
+			status = "disabled";
+
+			pmu1: pmic@e {
+				compatible = "apple,abbey-pmic", "apple,spmi-nvmem";
+				reg = <0xe SPMI_USID>;
+
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
+
+					rtc_offset: rtc-offset@2100 {
+						reg = <0x2100 0x6>;
+					};
+				};
 			};
 		};
 
