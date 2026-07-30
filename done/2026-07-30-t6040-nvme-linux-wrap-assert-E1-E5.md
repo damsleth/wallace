@@ -81,3 +81,55 @@ milestone is file I/O on `nvme0n1p4`.
 All experiment code is on `wallace/t6040-bringup` (E3/E4/E5b commits) and
 `wallace/t6040-pcie-nvme-dualmode` (E2 hook in m1n1); the probe's `--wrap-march` mode is in
 `scripts/t6040-nvme-probe.py`. Rig parked at the rollback proxy, lease released healthy.
+
+---
+
+## E6 — register diff: the linear-SQ doorbells are in the WRONG WINDOW in Linux
+
+Read-only MMIO dump from a live, *working* m1n1 NVMe session (transcript
+`linux-build-out/e6-regdump-m1n1.txt`), taken after `nvme_init()` and one successful read:
+
+```
+nvme+0x24908  0x00000001   LINEAR_SQ_CTRL   <- reg[9]; iBoot already enabled linear-SQ mode
+nvme+0x2490c  0x00000000   DB_LINEAR_ASQ    <- reg[9]; m1n1 rings HERE
+nvme+0x24910  0x00000000   DB_LINEAR_IOSQ   <- reg[9]; m1n1 rings HERE
+nvme+0x0100c  0x00000001   DB_IOCQ          (after 1 read: head advanced to 1)
+nvme+0x01200  0x00000100070e4000  IOSQ_CMDS     nvme+0x01208 0x00000100070e8000 IOCQ_CQES
+nvmmu+0x28100 0x0000003f   NVMMU_NUM        nvmmu+0x28108/0x28110 ASQ/IOSQ TCB bases
+```
+
+**The `0x249xx` block lives in the CONTROLLER aperture (reg[9] = `0x44dcc0000`).** Confirmed two
+ways: `LINEAR_SQ_CTRL` reads `1` there, and m1n1 — which rings `reg[9]+0x2490c/0x24910` — completes
+reads across 3 CQ wraps. Independently, `reg[3]+0x24908` is the exact address that raised the L2C
+SError on 2026-07-25, i.e. the same block in the NVMMU window is *not* valid on M4.
+
+Linux (`apple.c`, `has_lsq_nvmmu` branch) does:
+
+```c
+anv->adminq.sq_db = anv->mmio_nvmmu + APPLE_ANS_LINEAR_ASQ_DB;   /* reg[3] + 0x2490c */
+anv->ioq.sq_db    = anv->mmio_nvmmu + APPLE_ANS_LINEAR_IOSQ_DB;  /* reg[3] + 0x24910 */
+anv->adminq.cq_db = anv->mmio_nvme  + APPLE_ANS_ACQ_DB;          /* reg[9] — correct */
+anv->ioq.cq_db    = anv->mmio_nvme  + APPLE_ANS_IOCQ_DB;         /* reg[9] — correct */
+```
+
+On every pre-M4 machine `mmio_nvmmu == mmio_nvme`, so the choice was invisible. With the M4
+two-base split it is a real difference: **Linux rings submission doorbells into the NVMMU window
+while ringing completion doorbells in the controller aperture.** That the SQ and CQ doorbells for
+the same queue land in different windows is, on its face, wrong.
+
+## E7 — the fix attempt: INCONCLUSIVE, boot produced no console output
+
+Changed both `sq_db` assignments to `mmio_nvme` (commit on `wallace/t6040-bringup`). The boot
+produced **no kernel console output at all** over ttydc0 and no getty — same signature as E5/E5b.
+Bootargs verified correct in the m1n1 FDT dump (`console=ttydc0` present). Machine recovered
+cleanly with a reboot to the proxy.
+
+Not interpreted as "E7 is wrong": three consecutive experiments now share this
+no-console-output signature, which points at something common to these boots (possibly long
+nvme admin-command timeouts stalling the boot before the DockChannel tty registers, or a
+console-reader problem on the host side) rather than at each individual change. **The E7
+hypothesis is untested**, not refuted.
+
+**Next step is to watch the panel**, which carries `console=tty0` and is the one channel
+independent of this failure mode — CJ can read the E7 boot directly. Until then E6 stands on its
+own as a measured, reproducible discrepancy worth reporting upstream regardless of E7's outcome.
