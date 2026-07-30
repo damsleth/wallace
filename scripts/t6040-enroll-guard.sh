@@ -47,7 +47,15 @@ TARGET="${TARGET:-/Volumes/m1n1}"
 #  sol's reviewed object. Contains NO apple/tpmtfw-j614s.bin, so it needs no ticket-126
 #  firmware-upload exception. Strict verify PASS, 2158×16 KiB, both xz members PASS the
 #  minilzlib harness.
-#  65f6fbe3… daily driver v3 (2026-07-30): v2 + INTERNAL NVMe. apple,t8132-nvme-ans2 two-base
+#  53264755… daily driver v4 (2026-07-30): v3 done RIGHT + kbd backlight + L2C SError decode.
+#  v3's kernel silently LACKED the nvme cherry-picks (stale container clone — kbuild now
+#  fetch+reset+cleans, and packing verifies drivers by string-grep of the packed member:
+#  't8132-nvme-ans2' asserted in THIS object's kernel gzip). Adds /sys/class/leds/kbd_backlight
+#  (fpwm0 + pwm-leds, ADT-measured) and yuka's L2C_ERR fault-address print on SError (needed by
+#  the 126 HIDF live capture). Same image as v3 (099e1c72). First live nvme-apple probe on
+#  T6040 happens on THIS object's first boot; dual-mode window + rollback is the net.
+#  65f6fbe3… daily driver v3 (2026-07-30) — SUPERSEDED by 53264755: its kernel is missing the
+#  nvme-apple t8132 driver entirely (build staleness); everything else works. Do not re-enroll.
 #  layout (yuka ad890806 + the two 26.x gates: no LINEAR_SQ/UNKNOWN_CTRL, no Set Features/NoQ
 #  which crashes ANS), t6040 node re-verified against OUR ADT (irqs 1530-33+2583 = t6041's,
 #  sart 0xc000). Every boot cycles CC.EN on the controller holding macOS — CJ requested this as
@@ -84,7 +92,8 @@ f290833c8a9dd7ea4086571b925e6b775c113dd3b4626a7ef2644ebc76fd03fd b0-milestone-al
 74e78ad848af95c1fa26e8cf610ceedc801176adbc43413e674cb0075ecbb9e0 dualmode-everything-5core
 c1529d4c8007e251606f14a86e6d307aad04b3472f2527c41f01b85c58072773 dwm-i3-everything-cpufreq-5core
 beb293340965d53f1ed3a1f14cde748bd1326d8fa6f1f6f158dc3e39bd2cb6cc dwm-i3-v2-rtc-wifi-5core
-65f6fbe339d6749f724fc763adafaefd0951374b7decbe755640b84c42d6bc1e dwm-i3-v3-nvme-rtc-5core"
+65f6fbe339d6749f724fc763adafaefd0951374b7decbe755640b84c42d6bc1e dwm-i3-v3-nvme-rtc-5core
+53264755c8b086292815a28143c801edc7e38e74dde9552fa88cdab4634ca930 dwm-i3-v4-nvme-kbl-5core"
 
 OBJ="${1:-}"
 CONFIRM="${2:-}"
