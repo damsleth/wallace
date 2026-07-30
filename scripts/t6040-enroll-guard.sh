@@ -47,6 +47,16 @@ TARGET="${TARGET:-/Volumes/m1n1}"
 #  sol's reviewed object. Contains NO apple/tpmtfw-j614s.bin, so it needs no ticket-126
 #  firmware-upload exception. Strict verify PASS, 2158×16 KiB, both xz members PASS the
 #  minilzlib harness.
+#  16a4c594… daily driver v5 (2026-07-30): the ANS-crash fix + Oslo time + battery bar. v4's
+#  first boot proved the driver+DT correct THROUGH identify/namespace-enumeration, then the ANS
+#  FIRMWARE crashed: our loader never touches NVMe, so Linux inherited iBoot's LIVE ANS and the
+#  driver's apple_rtkit_wake path adopted foreign RTKit state (every Asahi machine gets a
+#  quiesced ANS from m1n1's nvme_shutdown; ours early-returns on !nvme_initialized). Kernel
+#  patch t6040-nvme-apple-force-clean-ans-boot forces the stop + clean assert/reinit/boot path.
+#  Both fixes binary-asserted in the packed kernel member. Image: Europe/Oslo localtime,
+#  battery bar via macsmc-battery capacity/status read_file (charge_now absent), same
+#  everything otherwise. Expect on boot: "ANS left running by boot stage; forcing clean reset"
+#  then a clean rtkit boot, /dev/nvme0n1 + friends, and CJ's 128 GiB exFAT at /mnt/nvme.
 #  53264755… daily driver v4 (2026-07-30): v3 done RIGHT + kbd backlight + L2C SError decode.
 #  v3's kernel silently LACKED the nvme cherry-picks (stale container clone — kbuild now
 #  fetch+reset+cleans, and packing verifies drivers by string-grep of the packed member:
@@ -93,7 +103,8 @@ f290833c8a9dd7ea4086571b925e6b775c113dd3b4626a7ef2644ebc76fd03fd b0-milestone-al
 c1529d4c8007e251606f14a86e6d307aad04b3472f2527c41f01b85c58072773 dwm-i3-everything-cpufreq-5core
 beb293340965d53f1ed3a1f14cde748bd1326d8fa6f1f6f158dc3e39bd2cb6cc dwm-i3-v2-rtc-wifi-5core
 65f6fbe339d6749f724fc763adafaefd0951374b7decbe755640b84c42d6bc1e dwm-i3-v3-nvme-rtc-5core
-53264755c8b086292815a28143c801edc7e38e74dde9552fa88cdab4634ca930 dwm-i3-v4-nvme-kbl-5core"
+53264755c8b086292815a28143c801edc7e38e74dde9552fa88cdab4634ca930 dwm-i3-v4-nvme-kbl-5core
+16a4c5946fa1e0ed9a3810ed6bc4aab5cc19a2daf21006523271f9290360fa83 dwm-i3-v5-ansfix-tz-5core"
 
 OBJ="${1:-}"
 CONFIRM="${2:-}"

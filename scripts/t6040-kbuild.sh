@@ -334,6 +334,20 @@ if [ -f /out/t6040-apple-cpufreq-freq-mult-overflow.patch ]; then
         exit 1
     fi
 fi
+if [ -f /out/t6040-nvme-apple-force-clean-ans-boot.patch ]; then
+    # A loader without NVMe support (our enrolled m1n1) leaves iBoot's ANS
+    # running; the driver's wake path then crashes the ANS firmware. Force
+    # the clean boot path. Found live 2026-07-30 (v4 first boot).
+    if git apply --check /out/t6040-nvme-apple-force-clean-ans-boot.patch 2>/dev/null; then
+        git apply /out/t6040-nvme-apple-force-clean-ans-boot.patch
+        echo "t6040-nvme-apple-force-clean-ans-boot.patch applied OK"
+    elif git apply -R --check /out/t6040-nvme-apple-force-clean-ans-boot.patch 2>/dev/null; then
+        echo "t6040-nvme-apple-force-clean-ans-boot.patch already applied"
+    else
+        echo "ERROR: t6040-nvme-apple-force-clean-ans-boot.patch does not apply" >&2
+        exit 1
+    fi
+fi
 if git apply --check /out/flokli-code.patch 2>/dev/null; then
     git apply /out/flokli-code.patch
     echo "flokli-code.patch applied OK"

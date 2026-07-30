@@ -1,0 +1,48 @@
+From: CJ Damsleth <kim@damsleth.no>
+Subject: [PATCH] nvme-apple: force a clean ANS boot when a boot stage left it running
+
+apple_nvme_reset_work() assumes a running ANS coprocessor was suspended
+by this driver and resumes it with apple_rtkit_wake(). That holds on
+machines whose boot stage (m1n1) initializes NVMe and shuts it down
+before handoff, but not when the loader never touches NVMe: iBoot's
+ANS is still live with iBoot's endpoint and shared-memory state, the
+wake handshake adopts none of it, and the ANS firmware crashes
+("RTKit crashed; unable to recover without a reboot", observed on a
+T6040 J614s with fw 26.5: identify and namespace enumeration complete,
+then every read fails and reset reports -5; m1n1's nvme_shutdown() is
+guarded by nvme_initialized, so a loader without NVMe support leaves
+the coprocessor running).
+
+If the coprocessor reports RUN while our RTKit instance has never
+booted it, the state cannot be one we suspended: stop the CPU and fall
+into the existing assert/reinit/deassert/boot path instead of waking.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ drivers/nvme/host/apple.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/drivers/nvme/host/apple.c b/drivers/nvme/host/apple.c
+index 878220681216..08102a0f1c4e 100644
+--- a/drivers/nvme/host/apple.c
++++ b/drivers/nvme/host/apple.c
+@@ -1098,6 +1098,19 @@ static void apple_nvme_reset_work(struct work_struct *work)
+ 		writel(0, anv->mmio_coproc + APPLE_ANS_COPROC_CPU_CONTROL);
+ 	}
+ 
++	/*
++	 * A running coprocessor that this RTKit instance never booted was
++	 * left live by an earlier boot stage (e.g. iBoot through a loader
++	 * without NVMe support). Its endpoint/shared-memory state is not
++	 * ours to wake into; force a stop so the clean boot path below runs.
++	 */
++	if (!apple_rtkit_is_running(anv->rtk) &&
++	    (readl(anv->mmio_coproc + APPLE_ANS_COPROC_CPU_CONTROL) &
++	     APPLE_ANS_COPROC_CPU_CONTROL_RUN)) {
++		dev_warn(anv->dev, "ANS left running by boot stage; forcing clean reset\n");
++		writel(0, anv->mmio_coproc + APPLE_ANS_COPROC_CPU_CONTROL);
++	}
++
+ 	/*
+ 	 * Only do the soft-reset if the CPU is not running, which means either we
+ 	 * or the previous stage shut it down cleanly.
