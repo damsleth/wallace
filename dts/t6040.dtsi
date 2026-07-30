@@ -528,6 +528,22 @@
 		};
 
 		/*
+		 * Keyboard backlight PWM (ADT /arm-io/pwm0, whose kbd-backlight
+		 * child carries the nits->PWM tables and default-hz = 25000 =
+		 * the 40000 ns period every Asahi MacBook DT uses). The HID
+		 * route was ruled out live 2026-07-30 (no 0xff00/0x0f usage in
+		 * the keyboard rdesc) — it is a plain fpwm, like t8103 j293.
+		 */
+		fpwm0: pwm@429040000 {
+			compatible = "apple,t6040-fpwm", "apple,s5l-fpwm";
+			reg = <0x4 0x29040000 0x0 0x4000>;
+			power-domains = <&ps_fpwm0>;
+			clocks = <&clkref>;
+			#pwm-cells = <2>;
+			status = "disabled";
+		};
+
+		/*
 		 * Primary SPMI bus (ADT /arm-io/nub-spmi0, reg[0], the block
 		 * m1n1's proven spmi.c drives). Carries the die-0 "abbey" PMU
 		 * at SID 0xe (ADT spmi-abbeyL1). RTC offsets MEASURED from our

@@ -27,6 +27,7 @@
 
 /dts-v1/;
 
+#include <dt-bindings/leds/common.h>
 #include "t6040-j614s-dcuart-pcie.dts"
 
 / {
@@ -42,6 +43,27 @@
  * (rtc-macsmc = SMC CLKM counter + this offset). */
 &nub_spmi0 {
 	status = "okay";
+};
+
+/* Keyboard backlight: fpwm0 + pwm-leds, the standard Asahi MacBook shape
+ * (t8103-j293). 40000 ns = the ADT's default-hz 25000. Shows up as
+ * /sys/class/leds/kbd_backlight; brightnessctl and most DEs know it. */
+&fpwm0 {
+	status = "okay";
+};
+
+/ {
+	led-controller {
+		compatible = "pwm-leds";
+		led-0 {
+			pwms = <&fpwm0 0 40000>;
+			label = "kbd_backlight";
+			function = LED_FUNCTION_KBD_BACKLIGHT;
+			color = <LED_COLOR_ID_WHITE>;
+			max-brightness = <255>;
+			default-state = "keep";
+		};
+	};
 };
 
 /* Internal NVMe (two-base M4 layout, read path proven from raw m1n1

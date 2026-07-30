@@ -235,7 +235,7 @@ if [ "${DOCKCHANNEL_NBCON:-0}" = "1" ]; then
 fi
 if [ "${CPUFREQ:-0}" = "1" ]; then
     for base in t6040-j614s-dcuart-cpufreq.dts t6040-cpufreq.dtsi \
-                t6040-j614s-dcuart-wifi-cpufreq.dts; do
+                t6040-j614s-dcuart-wifi-cpufreq.dts t6040-j614s-dcuart-c2probe.dts; do
         for f in "/out/$base" "/src/$APPLE/$base"; do
             [ -f "$f" ] && cp "$f" $APPLE/ && break
         done
@@ -1144,6 +1144,10 @@ if [ "${WIFI:-0}" = "1" ]; then
     # gates (no LINEAR_SQ/UNKNOWN_CTRL writes, no Set Features/NoQ — crashes
     # ANS). Every Linux boot now cycles CC.EN on the controller holding macOS;
     # CJ requested this as the daily-driver storage path 2026-07-30.
+    # Keyboard backlight (2026-07-30): ADT /arm-io/pwm0/kbd-backlight — a
+    # plain s5l fpwm + pwm-leds, the t8103-j293 shape. /sys/class/leds/kbd_backlight.
+    ./scripts/config --file .config \
+        -e PWM -e PWM_APPLE -e NEW_LEDS -e LEDS_CLASS -e LEDS_PWM
     # APPLE_SART ships =m and `NVME_APPLE depends on APPLE_SART`, which pins
     # NVME_APPLE to =m (useless in the RAM image) — SART first, then NVMe.
     ./scripts/config --file .config -e APPLE_RTKIT -e APPLE_SART
@@ -1575,6 +1579,12 @@ if [ "${CPUFREQ:-0}" = "1" ] && [ -f $APPLE/t6040-j614s-dcuart-cpufreq.dts ]; th
         make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-wifi-cpufreq.dtb
         cp $APPLE/t6040-j614s-dcuart-wifi-cpufreq.dtb /out/ \
             && echo "DTB -> /out/t6040-j614s-dcuart-wifi-cpufreq.dtb"
+    fi
+    # Ticket 121 discriminator: P0 siblings failed so maxcpus=6 reaches cluster 2.
+    if [ -f $APPLE/t6040-j614s-dcuart-c2probe.dts ]; then
+        make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-c2probe.dtb
+        cp $APPLE/t6040-j614s-dcuart-c2probe.dtb /out/ \
+            && echo "DTB -> /out/t6040-j614s-dcuart-c2probe.dtb"
     fi
 fi
 if [ "${PCIE:-0}" = "1" ]; then

@@ -1,0 +1,21 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Ticket 121 discriminating DTB: P0's four non-boot cores are marked
+ * status = "fail" (the value arm64's of_get_next_cpu_node honors;
+ * "disabled" is NOT skipped for cpu nodes), so with maxcpus=6 the boot
+ * order becomes boot P0 core + 4 E cores + cpu_p10 — one core in EVERY
+ * cluster, none of P0's siblings.
+ *
+ * Discriminates the maxcpus>=6 unpack_to_rootfs fault:
+ *   - boots fine  -> the fault involves P0's sibling cores specifically
+ *                    (and as a bonus all three cpufreq policies register);
+ *   - faults      -> it's about core count / any second P cluster, not P0.
+ *
+ * Everything else identical to the daily wifi+cpufreq DT.
+ */
+#include "t6040-j614s-dcuart-wifi-cpufreq.dts"
+
+&cpu_p01 { status = "fail"; };
+&cpu_p02 { status = "fail"; };
+&cpu_p03 { status = "fail"; };
+&cpu_p04 { status = "fail"; };
