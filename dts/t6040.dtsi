@@ -374,7 +374,17 @@
 		ans_nvme: nvme@44dcc0000 {
 			compatible = "apple,t6040-nvme-ans2",
 				     "apple,t8132-nvme-ans2";
-			reg = <0x4 0x4dcc0000 0x0 0x10000>,
+			/*
+			 * The controller aperture is declared 0x10000 in the ADT,
+			 * but the linear-SQ block (LINEAR_SQ_CTRL 0x24908, the
+			 * ASQ/IOSQ doorbells 0x2490c/0x24910) answers at
+			 * reg[9]+0x249xx — measured live 2026-07-30, and it is
+			 * where m1n1 rings and works. The same offsets in the
+			 * NVMMU window raise an L2C SError (07-25). Map 0x60000
+			 * here so ioremap actually covers the doorbells; the
+			 * driver writes them via mmio_nvme (E7).
+			 */
+			reg = <0x4 0x4dcc0000 0x0 0x60000>,
 			      <0x4 0x09600000 0x0 0x4000>,
 			      <0x4 0x0dcc0000 0x0 0x60000>;
 			reg-names = "nvme", "ans", "nvmmu";
