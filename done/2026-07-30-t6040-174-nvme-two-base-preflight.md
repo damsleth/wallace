@@ -5,9 +5,11 @@ Author: `claude`, 2026-07-30. Hardware touched at build time: none.
 ## Approval scope
 
 CJ approved on 2026-07-30 (attended question round): **the read-only NVMe probe including the
-`CC.EN` cycle on the controller holding macOS**, with `pmgr_reset(ANS)` in error paths. No
-namespace-write opcode exists anywhere in the path (`nvme_read` only). This closes the approval
-gap flagged in `done/2026-07-28-upstream-review-nvme-reopened-pcie-d2-confirmed.md`.
+`CC.EN` cycle on the controller holding macOS**, with the cleanup reset path. No namespace-write
+opcode exists in the NVMe-specific dispatch (`nvme_read` only in this script); that dispatch also
+contains FLUSH, which the probe does not call. Cleanup attempts both the `ANS` and `ANS2` PMGR
+device names. This closes the approval gap flagged in
+`done/2026-07-28-upstream-review-nvme-reopened-pcie-d2-confirmed.md`.
 
 ## The candidate
 
@@ -35,8 +37,10 @@ Plus our own `1702259f` with **two fixes, the second of which is load-bearing on
    reports `OS FW version: unknown (mBoot-18000.121.3)`** (verified live in
    `linux-build-out/dcuart-chainload.log`) — so yuka's gate as written would have executed the
    exact `reg[3]+0x24908` LINEAR_SQ_CTRL write that SError'd us on 2026-07-25, and the probe would
-   have failed identically, falsely "refuting" the two-base theory. Unknown ⇒ newer than the table
-   ⇒ skip the legacy writes.
+   have failed identically, falsely "refuting" the two-base theory. For this exact machine,
+   `mBoot-18000.121.3` is numerically newer than the 15.0 threshold, so skipping was correct.
+   `V_UNKNOWN` itself has no chronological meaning: an unlisted old string also maps to zero, so
+   upstream needs a parsed build-number or hardware-capability comparison.
 
 ## Run plan (rig, unattended-OK per CJ blanket rig approval + explicit 174 approval)
 

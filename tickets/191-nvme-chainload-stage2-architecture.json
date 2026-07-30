@@ -1,0 +1,13 @@
+{
+  "seq": "191",
+  "slug": "nvme-chainload-stage2-architecture",
+  "needs": "offline",
+  "state": "open",
+  "track": "nvme",
+  "priority": "P1",
+  "desc": "Offline architecture spike unlocked by ticket 174. Design m1n1 chainload= stage-2 loading from internal NVMe without touching the rig: fixed on-disk location or GPT selection, maximum size and alignment, streaming SHA-256/authenticity policy, rollback/fallback behavior, torn-update handling, memory placement, cache/DMA ownership, shutdown handoff and failure telemetry. Threat-model corrupt or malicious disk contents and fail closed before execution. Produce an implementation plan and host-side tests only; no disk reads/writes, no new proxy opcode, no candidate run, no enrollment and no external posting.",
+  "author": "sol",
+  "deps": [],
+  "hashes": null,
+  "created": 1785393586
+}

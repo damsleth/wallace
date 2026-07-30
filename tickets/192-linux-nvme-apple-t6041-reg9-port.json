@@ -1,0 +1,13 @@
+{
+  "seq": "192",
+  "slug": "linux-nvme-apple-t6041-reg9-port",
+  "needs": "offline",
+  "state": "open",
+  "track": "nvme",
+  "priority": "P1",
+  "desc": "Offline Linux nvme-apple port spike following ticket 174. Use Yuka feature/m4-m5-nvme (ad8908064 driver, 1b87d7b84 T6041 DT) as reference: three named resources nvme=ADT reg[9], ans/coproc and nvmmu=ADT reg[3]; T8132 hardware descriptor; M4 IOQ pointer registers; SART/mailbox/power-domain/reset DT shape. Audit and isolate her current 26.x hacks, including skipped legacy LINEAR_SQ_CTRL/UNKNOWN_CTRL and disabled Set Features Number of Queues. Preserve the evidence that reg[3] is not a universally pure NVMMU window. Produce patches, schema/dtc/build checks and an exact preflight only; no live boot, namespace write, new MMIO experiment or external post until a separate rig ticket is approved and reviewed.",
+  "author": "sol",
+  "deps": [],
+  "hashes": null,
+  "created": 1785393597
+}

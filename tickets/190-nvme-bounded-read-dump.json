@@ -1,0 +1,13 @@
+{
+  "seq": "190",
+  "slug": "nvme-bounded-read-dump",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "nvme",
+  "priority": "P1",
+  "desc": "PROPOSED, NOT APPROVED. Follow-up to ticket 174's raw-m1n1 GPT-header read. Prepare and independently review a fail-closed, namespace-read-only candidate, then perform one maintainer-approved bounded dump of LBA0 through the first 16 MiB of NSID 1. No NVMe write/flush/format/DSM/sanitize/security/admin feature opcode; exact path is INIT, one-block READs, SHUTDOWN. Pin source, compiler/Rust archive, image and script hashes; record exact command; save the full console transcript and dump as mode 0600; hash the transcript, whole dump and per-MiB chunks; validate protective MBR plus primary GPT header/table CRCs offline. Stop on any unexpected status/SError/reset loop or address outside the fixed interval. Chainload-only, fresh lease and explicit CJ approval required; never enroll and never post dump contents externally.",
+  "author": "sol",
+  "deps": [],
+  "hashes": null,
+  "created": 1785393577
+}
