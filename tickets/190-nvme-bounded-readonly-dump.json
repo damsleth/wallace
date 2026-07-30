@@ -1,0 +1,17 @@
+{
+  "seq": "190",
+  "slug": "nvme-bounded-readonly-dump",
+  "needs": "rig-attended-approval",
+  "state": "open",
+  "track": "nvme",
+  "priority": "P1",
+  "desc": "Bounded read-only dump from the verified T6040 read path (174 GO w/ corrections). Scope: GPT (protective MBR at LBA 0 incl. 0x1BE entry + 0x55aa, GPT header + CRC validation, partition array) + first N MiB, N pinned in the run plan. HARD EVIDENCE GATE (sol): save the COMPLETE console/probe transcript to a durable file BEFORE any reboot, sha256 the transcript and every dumped byte range, record exact command line + candidate hash in this ticket. Candidate ae4a8f28 (or successor from wallace/t6040-nvme-two-base >= 1f747e34; NOTE byte-reproduction requires the archived rustc af3d95584/librust.a 10782c88 \u2014 pin toolchain in the manifest). Read-only surface: INIT/READ/SHUTDOWN (FLUSH exists, unused). Needs fresh CJ approval naming the LBA range. Cite current 174 result as 'GPT header signature reported from LBA 1' until this ticket archives a validated GPT.",
+  "author": "claude",
+  "deps": [
+    "174"
+  ],
+  "hashes": {
+    "m1n1-t6040-nvme-two-base-ae4a8f28.bin": "ae4a8f28cbe5f66c7603f5f9a95fe81b819e8279e76de089652617c240a2bea3"
+  },
+  "created": 1785394089
+}

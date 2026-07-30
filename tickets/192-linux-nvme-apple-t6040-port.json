@@ -1,0 +1,15 @@
+{
+  "seq": "192",
+  "slug": "linux-nvme-apple-t6040-port",
+  "needs": "offline",
+  "state": "open",
+  "track": "nvme",
+  "priority": "P1",
+  "desc": "Offline Linux nvme-apple port for T6040 based on yuka feature/m4-m5-nvme: ad8908064 (apple,t8132-nvme-ans2, separate mmio_nvmmu, M4 IOQ pointer regs, M4 hw descriptor) + 1b87d7b84 (T6041 DT: three-region reg nvme=reg[9] 0x4dcc0000/0x10000, ans mailbox 0x09600000/0x4000, nvmmu=reg[3] 0x0dcc0000/0x60000; reg-names nvme/ans/nvmmu; apple,sart, 4 mailbox irqs, ANS/APCIE power-domains, ANS reset). NOT a blind copy: her M4/M5 commits are marked untested and 9a6a6bd18 disables Set Features/Number-of-Queues because it CRASHES ANS on 26.x. Preserve the reg[3] caveat (not a clean NVMMU-only window: +0x1300 readable, +0x1210 faulted 07-25). Open anomaly to carry: delete sq/cq returns status 2 = Invalid Field (NOT Invalid Opcode) - lead is M4 queue-state/teardown-order around the IOQ pointer regs. Adapt DT numbers from OUR captured ADT, not t6041 copy-paste. NO live writes or boots until separately reviewed.",
+  "author": "claude",
+  "deps": [
+    "174"
+  ],
+  "hashes": null,
+  "created": 1785394089
+}

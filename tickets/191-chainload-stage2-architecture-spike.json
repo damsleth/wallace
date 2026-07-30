@@ -1,0 +1,15 @@
+{
+  "seq": "191",
+  "slug": "chainload-stage2-architecture-spike",
+  "needs": "offline",
+  "state": "open",
+  "track": "boot",
+  "priority": "P2",
+  "desc": "Offline architecture spike: enrolled stage-1 m1n1 reads stage 2 from internal storage via the verified reg[9] NVMe read path (174). Deliverable is a DESIGN, no hardware action: fail-closed location/size/hash format (stage-2 object pinned by sha256 in stage 1; refuse to jump on mismatch), where stage 2 lives (dedicated partition vs file in an existing FS - prefer raw partition to avoid FS code in m1n1), fallback to the current appended-payload dwm when stage 2 is absent/corrupt, and the enroll-guard story (stage 1 changes rarely; stage 2 iterates without 1TR). Kills the 16 KiB-page appended-payload pain and the enroll-per-object cycle. Review before any implementation.",
+  "author": "claude",
+  "deps": [
+    "174"
+  ],
+  "hashes": null,
+  "created": 1785394089
+}
