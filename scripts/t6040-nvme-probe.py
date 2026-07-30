@@ -96,9 +96,17 @@ def main() -> int:
     ap.add_argument("--lbas", type=int, default=1,
                     help="how many 4 KiB LBAs to read from nsid 1 (default 1)")
     ap.add_argument("--nsid", type=int, default=1)
+    ap.add_argument("--wrap-march", type=int, default=0, metavar="N",
+                    help="E1 (ticket 192): read N single LBAs sequentially in ONE "
+                         "init session, marching the I/O CQ head through ring wraps "
+                         "(64-deep ring: N=200 crosses 3 wraps). Read-only; reports "
+                         "the last successful index if the firmware dies at a wrap.")
     args = ap.parse_args()
 
-    if args.lbas < 1 or args.lbas > 8:
+    if args.wrap_march and not 1 <= args.wrap_march <= 1024:
+        print("refusing: --wrap-march must be 1..1024 (bounded probe)")
+        return 2
+    if not args.wrap_march and (args.lbas < 1 or args.lbas > 8):
         print("refusing: --lbas must be 1..8 (bounded probe)")
         return 2
 
@@ -115,6 +123,43 @@ def main() -> int:
         print("\nRESULT: m1n1's NVMe path does NOT come up on T6040.")
         print("        The chainload=-from-NVMe architecture is unavailable.")
         return 3
+
+    if args.wrap_march:
+        # E1: does m1n1's OWN doorbell scheme survive CQ ring wraps on this
+        # firmware? Linux's does not (fw assert "CQ (Host I/O) DB error" at
+        # head 61/depth 64 and head 15/depth 16, 2026-07-30). One buffer,
+        # re-read per LBA: the point is head movement, not the data.
+        print(f"\n== E1 wrap-march: {args.wrap_march} sequential single-LBA reads ==")
+        buf = u.memalign(0x4000, 0x1000)
+        last_ok = -1
+        rc = 0
+        try:
+            for lba in range(args.wrap_march):
+                got = p.nvme_read(args.nsid, lba, buf)
+                if not got:
+                    print(f"  READ FAILED at index {lba} (last ok: {last_ok})")
+                    rc = 5
+                    break
+                last_ok = lba
+                if (lba + 1) % 16 == 0:
+                    print(f"  {lba + 1}/{args.wrap_march} ok (head has wrapped "
+                          f"~{(lba + 1) // 64}x at depth 64)")
+        except Exception as exc:  # noqa: BLE001
+            print(f"  PROXY DIED at index {last_ok + 1} (last ok: {last_ok}): {exc}")
+            print("  -> m1n1's scheme ALSO fails under wrap pressure; fw-side semantics")
+            return 6
+        finally:
+            print("\n== nvme_shutdown() ==")
+            try:
+                p.nvme_shutdown()
+                print("  shutdown ok")
+            except Exception as exc:  # noqa: BLE001
+                print(f"  shutdown raised: {exc}")
+        if rc == 0:
+            print(f"\nRESULT: E1 PASS — {args.wrap_march} reads, "
+                  f"~{args.wrap_march // 64} CQ wraps survived by m1n1's scheme.")
+            print("        -> the Linux-vs-m1n1 completion-path DIFF is the bug locus.")
+        return rc
 
     print("\n== bounded read-only LBA read(s) from nsid %d ==" % args.nsid)
     buf = u.memalign(0x4000, 0x1000 * args.lbas)
