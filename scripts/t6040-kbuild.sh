@@ -1162,6 +1162,12 @@ if [ "${WIFI:-0}" = "1" ]; then
     # switch implies the MACSMC block above (set MACSMC=1 as well).
     ./scripts/config --file .config \
         -e MFD_MACSMC -e GPIO_MACSMC -e GPIOLIB -e OF_GPIO
+    # reboot/poweroff (2026-07-30, CJ report): POWER_RESET_MACSMC ships =m and
+    # the RAM image has no module loader, so the SMC restart handler is absent
+    # and `reboot` hangs after "Restarting system" (no PSCI on Apple Silicon —
+    # SMC is the only mechanism). smc_reboot writes are an explicitly permitted
+    # class. SYSCON fallback not applicable.
+    ./scripts/config --file .config -e POWER_RESET -e POWER_RESET_MACSMC
     # Wall-clock time (2026-07-30): rtc-macsmc = SMC CLKM counter + a 6-byte
     # offset in the abbey PMU's RTC scratchpad (0x2100, measured from our ADT
     # info-rtc*), reached over SPMI. All builtin (RAM image, no modules);
@@ -1464,7 +1470,8 @@ if [ "${WIFI_ASSERT_AFTER_OLDDEFCONFIG:-0}" = "1" ]; then
     wifi_fail=0
     for sym in PCIE_APPLE PINCTRL_APPLE_GPIO GPIO_MACSMC MFD_MACSMC \
                PAGE_SIZE_16KB ARM64_16K_PAGES \
-               APPLE_SART NVME_APPLE SPMI_APPLE NVMEM_APPLE_SPMI RTC_DRV_MACSMC; do
+               APPLE_SART NVME_APPLE SPMI_APPLE NVMEM_APPLE_SPMI RTC_DRV_MACSMC \
+               POWER_RESET_MACSMC; do
         grep -q "^CONFIG_${sym}=y$" .config || { echo "  WIFI LOST: CONFIG_${sym}"; wifi_fail=1; }
     done
     # brcmfmac/BT are wanted builtin but are not fatal for a link-training test:
