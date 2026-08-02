@@ -40,6 +40,23 @@ fi
 # fragility, and a final close kills output dead.
 exec 9<>/dev/ttydc0
 
+# --- SMP evidence straight to the console --------------------------------
+# Print this before anything else can fail: the panel is the one channel that
+# always works for this kernel/DTB, so the CPU answer must not depend on sshd or
+# on the network coming up. Marker strings are greppable in a photo.
+{
+    echo ""
+    echo "T6040_SMP_REPORT_BEGIN"
+    echo "cmdline: $(cat /proc/cmdline)"
+    for f in possible present online; do
+        echo "cpu_$f: $(cat /sys/devices/system/cpu/$f 2>/dev/null)"
+    done
+    echo "processor_count: $(grep -c '^processor' /proc/cpuinfo)"
+    grep -E '^processor|^CPU part' /proc/cpuinfo | tr '\n' ' '; echo ""
+    echo "T6040_SMP_REPORT_END"
+    echo ""
+} > /dev/console 2>&1
+
 # --- bring up networking and sshd in the background -----------------------
 # Point of this image: iterate userspace over the network instead of one command
 # at a time through the DebugUSB pty. Everything here is best-effort -- a failure

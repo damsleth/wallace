@@ -54,15 +54,23 @@ BT_PKGS=""
 # desktop beyond dwm). dwm stays in the image as fallback.
 I3_PKGS=""
 [ "${T6040_I3:-0}" = "1" ] && I3_PKGS="i3wm i3status"
+# sshd: with the proxy window disabled on full objects (CJ directive
+# 2026-07-30), the network is the persistent host-access channel. Key-only.
+SSH_PKGS=""
+SSH_PUBKEY=${SSH_PUBKEY:-$HOME/.ssh/id_ed25519.pub}
+if [ "${T6040_SSH:-1}" = "1" ] && [ -f "$SSH_PUBKEY" ]; then
+    SSH_PKGS="openssh-server openssh-keygen"
+fi
 podman exec -e FAT_PKGS="$FAT_PKGS" -e PPP_PKGS="$PPP_PKGS" \
     -e WIFI_PKGS="$WIFI_PKGS" -e BT_PKGS="$BT_PKGS" -e I3_PKGS="$I3_PKGS" \
+    -e SSH_PKGS="$SSH_PKGS" \
     -e T6040_TZ="${T6040_TZ:-Europe/Oslo}" \
     "$CONTAINER" chroot "/out/$TMP_BASE" /bin/sh -ec '
     apk update -q
     apk add --no-cache openrc busybox-openrc kbd-bkeymaps eudev xrdb \
         xorg-server xf86-input-libinput xinit setxkbmap xrandr \
         dwm st dmenu font-terminus ttf-dejavu \
-        $FAT_PKGS $PPP_PKGS $WIFI_PKGS $BT_PKGS $I3_PKGS
+        $FAT_PKGS $PPP_PKGS $WIFI_PKGS $BT_PKGS $I3_PKGS $SSH_PKGS
     # Local wall-clock (CJ is in Oslo; the SPMI RTC keeps UTC, which is
     # correct — localtime is a userspace concern). Single-zonefile trick:
     # tzdata is only needed during the copy.

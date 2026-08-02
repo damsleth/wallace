@@ -102,6 +102,11 @@ else
     echo "WARNING: no SSH_PUBKEY at $SSH_PUBKEY — sshd will accept no logins" >&2
 fi
 install -d -m 0755 "$TMP/etc/ssh" "$TMP/var/empty"
+# Alpine's openssh-server is built WITHOUT PAM (that is the separate
+# openssh-server-pam package), so `UsePAM` is an unsupported option and sshd
+# exits with "line N: Unsupported option UsePAM" -- which cost a boot on
+# 2026-07-29. Same for the deprecated ChallengeResponseAuthentication. Keep this
+# config to options the Alpine build actually accepts.
 cat >"$TMP/etc/ssh/sshd_config" <<'EOF'
 # Headless T6040 test root: key-only root login, nothing else.
 Port 22
@@ -109,8 +114,6 @@ PermitRootLogin prohibit-password
 PubkeyAuthentication yes
 PasswordAuthentication no
 KbdInteractiveAuthentication no
-ChallengeResponseAuthentication no
-UsePAM no
 PrintMotd no
 Subsystem sftp /usr/lib/ssh/sftp-server
 EOF
