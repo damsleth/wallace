@@ -1,5 +1,5 @@
 {
-  "seq": "198",
+  "seq": "201",
   "slug": "nvme-ans-modern-crashlog-capture",
   "needs": "rig",
   "state": "offline-parser-ready-awaiting-rig",

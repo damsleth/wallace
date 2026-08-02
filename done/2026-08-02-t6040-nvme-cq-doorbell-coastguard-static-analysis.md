@@ -23,7 +23,7 @@ macOS/CoastGuard-v2 queue path, not a justified fix by itself.
 The highest-value next discriminator remains a preserved modern RTKit
 crashlog.  `patches/t6040-rtkit-modern-crashlog-debug.patch` adds logging-only
 decoders for the modern sections that the current Linux parser reports as
-unknown, and ticket 198 asks the rig owner for exactly one hashed capture.
+unknown, and ticket 201 asks the rig owner for exactly one hashed capture.
 
 ## Paired inputs
 
@@ -146,7 +146,7 @@ patch.  Its SHA-256 is
 `849f06144da0dc867e766f6c0d8f1854a2f44238d9a99e3493e12c3e233c2669`;
 `git apply --check` and `scripts/checkpatch.pl --strict` both pass.
 
-## Next decision after ticket 198
+## Next decision after ticket 201
 
 1. Symbolicate the decoded firmware PCs if the `Ccdp` map gives a usable image
    base and the code pages are present in a paired artifact.
