@@ -1,0 +1,11 @@
+[   61.291060] INPUTS:
+[   61.292810] event0
+[   61.294906] event1
+[   61.297661] N: Name="Apple DockChannel Multi-touch"
+[   61.299618] H: Handlers=event0 
+[   61.301543] N: Name="Apple DockChannel Keyboard"
+[   61.303530] H: Handlers=sysrq kbd leds event1 
+[  152.886664] HIDF-TRIGGER-BEGIN
+[  152.889909] dockchannel-hid 514600000.hid: sending firmware for multi-touch
+[  152.892248] dockchannel-hid 514600000.hid: command 0x40 to iface 0 (comm) failed with err 0xe00002c2
+[  152.942516] open-returned rc=1

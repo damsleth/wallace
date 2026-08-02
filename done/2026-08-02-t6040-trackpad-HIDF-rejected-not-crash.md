@@ -1,10 +1,10 @@
-# Trackpad HIDF: the upload is REJECTED, it does not crash (tickets 126/197)
+# Trackpad HIDF: upload command accepted, post-upload reset rejected (126/197)
 
 2026-08-02 autonomous session. CJ granted the ticket-126 exception for `a1f4131d` only
 (volatile DMA, no flash). Image: `initramfs-dcuart-hidf.cpio.gz` (`e9fcd3b3`), minimal busybox +
 the paired blob, nothing auto-opening inputs.
 
-## The captured failure
+## The captured failure — and the corrected attribution
 
 ```
 dockchannel-hid 514600000.hid: sending firmware for multi-touch
@@ -13,10 +13,21 @@ open-returned rc=1
 ```
 
 `0xe00002c2` = **kIOReturnBadArgument** (IOKit codes: 0xe00002bc kIOReturnError, …c0 NoDevice,
-…c1 NotPrivileged, **…c2 BadArgument**). The MTP coprocessor understands the command and
-rejects its arguments.
+…c1 NotPrivileged, **…c2 BadArgument**). The first interpretation of this result was wrong:
+the rejected command is `CMD_RESET_INTERFACE` (`0x40`), not `CMD_SEND_FIRMWARE` (`0x95`).
 
-## The standing belief was WRONG — correct it
+The applied implementation calls `dchid_send_firmware()` and checks its return before it can
+call `dchid_reset_interface(iface, 0)`. `dchid_comm_cmd()` logs any nonzero coprocessor return
+against that command's first byte. Therefore the preserved sequence proves that the `0x95`
+command returned success at the protocol level and the following state-0 reset returned
+BadArgument. It does not by itself prove that MTP consumed or applied every DMA payload byte.
+
+The trigger excerpt is preserved at
+`logs/t6040-console-20260802-ticket197-hidf-trigger-excerpt.log`; its SHA-256 is recorded in
+ticket 197. At review time the rotating full console was 38,108 bytes with SHA-256
+`e738ceec631dd6dc3de59f17b6e8fe8977e98e2451c677befbc76e001acffb1b`.
+
+## The crash belief was wrong
 
 The prior claim that "the HIDF upload crashes the boot at ~1 s" is **refuted**. The upload fails
 cleanly, `open()` returns 1, and the machine continues running normally — I kept driving the
@@ -50,19 +61,19 @@ actually reports motion is untested** — that needs a human finger on the track
 can supply. CJ should try the pointer in i3 and report; if basic pointing works, multitouch
 gestures are the only thing the firmware buys.
 
-## Prime suspect for the BadArgument: version skew
+## Next question: why is the post-upload reset invalid?
 
 MTP reports `AppleMTPFirmwareMac-5340.61.4~438`, **SDK 25F63**. Our blob `a1f4131d` was extracted
-from the **25F84** paired firmware set. A blob built against a different MTP SDK is the most
-economical explanation for an argument-level rejection. Next steps (offline, good for sol):
+from the **25F84** paired firmware set. That version skew remains a candidate for a payload that
+is accepted by command `0x95` but leaves the interface unable to reset; it is no longer justified
+as the prime explanation for an upload-command argument rejection. Next steps:
 
 1. Check whether a `tpmtfw-j614s.bin` exists in a 25F63-matched firmware set and compare hashes.
-2. Diff our `dchid_send_firmware()` command struct against upstream's and against what the M4 MTP
-   expects — note the log says **command 0x40** while `patches/t6040-dockchannel-trackpad-fw.patch`
-   defines `CMD_SEND_FIRMWARE 0x95`; reconcile which field the error message prints before
-   concluding the opcode is wrong.
-3. Verify the DMA buffer is reachable by MTP through `mtp_dart` (a bad IOVA could also present as
-   BadArgument), and that `dchid_fw_header` parsing hands the coprocessor the payload it expects
-   rather than the whole file.
+2. Compare Apple's exact post-upload interface-reset sequence and state arguments with our
+   `0x40, 1, iface, 0` then `0x40, 1, iface, 2` sequence. The first reset is the observed failure.
+3. Verify the DMA buffer is reachable through `mtp_dart` and that HIDF parsing hands MTP the
+   intended payload. Protocol success for `0x95` does not prove either property.
+4. Add command-specific success/failure telemetry around `0x95` and both `0x40` calls before a
+   repeat, so later evidence cannot be misattributed from a neighboring log line.
 
 No crash, no flash write, nothing persistent — this experiment is cheaply repeatable.

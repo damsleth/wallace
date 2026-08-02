@@ -2,12 +2,14 @@
   "seq": "197",
   "slug": "trackpad-hidf-live-capture",
   "needs": "rig",
-  "state": "CAPTURED-fw-send-rejected-kIOReturnBadArgument",
+  "state": "CAPTURED-fw-command-accepted-reset0-rejected-BadArgument",
   "track": "bringup",
   "priority": "P1",
-  "desc": "Staged and ready from 2026-07-30: initramfs-dcuart-hidf.cpio.gz (e9fcd3b3, minimal busybox + the CJ-approved a1f4131d blob, nothing auto-opens inputs) + kernel carrying yuka d197cf69 (L2C_ERR fault address printed on SError). The HIDF upload fires on FIRST input-device open, which is why it killed graphical boots at ~1s. Boot this, reach the ttydc0 shell, then trigger deliberately with 'head -c1 /dev/input/event0' while the console captures. Goal: identify whether the crash is an SError (get the fault address) or something else. CJ granted the ticket-126 exception for a1f4131d only, volatile DMA, no flash. RESULT 2026-08-02: upload fires on first input open exactly as designed; MTP replies err 0xe00002c2 = kIOReturnBadArgument and the machine KEEPS RUNNING. The \"HIDF crashes the boot\" belief is REFUTED. magicmouse binds the device on event0 without firmware (motion untested - needs a human finger). Prime suspect: blob/SDK skew (MTP fw is SDK 25F63, our a1f4131d came from 25F84). Doc: done/2026-08-02-t6040-trackpad-HIDF-rejected-not-crash.md",
+  "desc": "Staged and run 2026-08-02: initramfs-dcuart-hidf.cpio.gz (e9fcd3b3, minimal busybox + CJ-approved a1f4131d blob, nothing auto-opens inputs). RESULT: first input open reaches CMD_SEND_FIRMWARE 0x95, which returns protocol success; the following CMD_RESET_INTERFACE state-0 command 0x40 returns 0xe00002c2 = kIOReturnBadArgument, open fails, and the machine KEEPS RUNNING. This attribution follows directly from the driver's checked call order and command-specific error logger; the earlier claim that 0xe00002c2 rejected the firmware command was wrong. The \"HIDF crashes the boot\" belief remains REFUTED. magicmouse binds event0 before interface start (motion untested; needs a human finger). SDK/blob skew remains only a candidate for why the accepted upload leaves reset invalid. Doc: done/2026-08-02-t6040-trackpad-HIDF-rejected-not-crash.md",
   "author": "claude",
   "deps": [],
-  "hashes": null,
+  "hashes": {
+    "trigger_excerpt": "34cb5891d004ca298f122dac3ab5e78536e802600abb1f84fda33403cb00db77"
+  },
   "created": 1785701193
 }
