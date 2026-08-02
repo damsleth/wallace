@@ -1,0 +1,194 @@
+From: CJ Damsleth <kim@damsleth.no>
+Subject: [PATCH] soc: apple: rtkit: decode modern firmware crashlog sections
+
+The ANS firmware shipped with macOS 26.5 emits Ccst, CasC, Crtk and Ccdp
+sections in its RTKit crashlog.  The current parser reports all four as
+unknown, discarding the firmware call stack, asynchronous-error registers,
+task stacks and firmware virtual-to-physical map.
+
+Decode the bounded, fixed-width portions of those sections.  This is a
+diagnostic patch for the T6040 ANS CQ-doorbell assert investigation.  It
+does not alter RTKit or device state.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ drivers/soc/apple/rtkit-crashlog.c | 151 +++++++++++++++++++++++++++++
+ 1 file changed, 151 insertions(+)
+
+diff --git a/drivers/soc/apple/rtkit-crashlog.c b/drivers/soc/apple/rtkit-crashlog.c
+--- a/drivers/soc/apple/rtkit-crashlog.c
++++ b/drivers/soc/apple/rtkit-crashlog.c
+@@ -14,6 +14,10 @@
+ #define APPLE_RTKIT_CRASHLOG_MBOX FOURCC('C', 'm', 'b', 'x')
+ #define APPLE_RTKIT_CRASHLOG_TIME FOURCC('C', 't', 'i', 'm')
+ #define APPLE_RTKIT_CRASHLOG_REGS FOURCC('C', 'r', 'g', '8')
++#define APPLE_RTKIT_CRASHLOG_STACK FOURCC('C', 'c', 's', 't')
++#define APPLE_RTKIT_CRASHLOG_ASC_ERROR FOURCC('C', 'a', 's', 'C')
++#define APPLE_RTKIT_CRASHLOG_TASKS FOURCC('C', 'r', 't', 'k')
++#define APPLE_RTKIT_CRASHLOG_MAP FOURCC('C', 'c', 'd', 'p')
+ 
+ /* For COMPILE_TEST on non-ARM64 architectures */
+ #ifndef PSR_MODE_EL0t
+@@ -184,6 +188,137 @@ static void apple_rtkit_crashlog_dump_regs(struct apple_rtkit *rtk, u8 *bfr,
+ 	dev_warn(rtk->dev, "\n");
+ }
+ 
++static void apple_rtkit_crashlog_dump_stack(struct apple_rtkit *rtk, u8 *bfr,
++					    size_t size)
++{
++	size_t payload_size, nframes, i;
++	u32 task, unk;
++	u64 pc;
++
++	/* size includes the common 16-byte section header. */
++	if (size < 24) {
++		dev_warn(rtk->dev, "RTKit: Ccst section too small: 0x%zx", size);
++		return;
++	}
++
++	payload_size = size - 16;
++	memcpy(&task, bfr, sizeof(task));
++	memcpy(&unk, bfr + 4, sizeof(unk));
++	nframes = (payload_size - 8) / sizeof(pc);
++
++	dev_warn(rtk->dev, "RTKit: Firmware call stack (task=%u, unk=0x%x)",
++		 task, unk);
++	for (i = 0; i < nframes; i++) {
++		memcpy(&pc, bfr + 8 + i * sizeof(pc), sizeof(pc));
++		if (!pc)
++			break;
++		dev_warn(rtk->dev, "RTKit:   #%02zu 0x%016llx", i, pc);
++	}
++}
++
++static void apple_rtkit_crashlog_dump_asc_error(struct apple_rtkit *rtk,
++						u8 *bfr, size_t size)
++{
++	static const char * const names[] = {
++		"l2c_err_sts", "l2c_err_adr", "l2c_err_inf",
++		"lsu_err_sts", "fed_err_sts", "mmu_err_sts",
++	};
++	size_t payload_size, i, n;
++	u64 value;
++
++	if (size < 16) {
++		dev_warn(rtk->dev, "RTKit: CasC section too small: 0x%zx", size);
++		return;
++	}
++
++	payload_size = size - 16;
++	n = min_t(size_t, ARRAY_SIZE(names), payload_size / sizeof(value));
++	dev_warn(rtk->dev, "RTKit: ASC asynchronous-error registers:");
++	for (i = 0; i < n; i++) {
++		memcpy(&value, bfr + i * sizeof(value), sizeof(value));
++		dev_warn(rtk->dev, "RTKit:   %s = 0x%016llx", names[i], value);
++	}
++}
++
++static void apple_rtkit_crashlog_dump_tasks(struct apple_rtkit *rtk, u8 *bfr,
++					    size_t size)
++{
++	size_t payload_size, off = 0, record_size, i;
++	u16 id, flags;
++	u32 ptr_count;
++	u64 ptr;
++	char name[29];
++
++	if (size < 16) {
++		dev_warn(rtk->dev, "RTKit: Crtk section too small: 0x%zx", size);
++		return;
++	}
++
++	payload_size = size - 16;
++	dev_warn(rtk->dev, "RTKit: Firmware tasks:");
++	while (payload_size - off >= 72) {
++		memcpy(&id, bfr + off, sizeof(id));
++		memcpy(&flags, bfr + off + 2, sizeof(flags));
++		memcpy(&ptr, bfr + off + 16, sizeof(ptr));
++		memcpy(&ptr_count, bfr + off + 40, sizeof(ptr_count));
++		memcpy(name, bfr + off + 44, 28);
++		name[28] = '\0';
++
++		if (ptr_count > (payload_size - off - 72) / sizeof(u64)) {
++			dev_warn(rtk->dev,
++				 "RTKit: malformed Crtk record at 0x%zx: ptr_count=%u",
++				 off, ptr_count);
++			return;
++		}
++
++		record_size = 72 + ptr_count * sizeof(u64);
++		dev_warn(rtk->dev,
++			 "RTKit:   task=%u flags=0x%x ptr=0x%016llx name=%s pointers=%u",
++			 id, flags, ptr, name, ptr_count);
++		for (i = 0; i < ptr_count; i++) {
++			memcpy(&ptr, bfr + off + 72 + i * sizeof(ptr), sizeof(ptr));
++			if (ptr)
++				dev_warn(rtk->dev, "RTKit:     [%02zu] 0x%016llx", i,
++					 ptr);
++		}
++
++		off += record_size;
++	}
++
++	if (payload_size != off)
++		dev_warn(rtk->dev, "RTKit: Crtk trailing bytes: 0x%zx",
++			 payload_size - off);
++}
++
++static void apple_rtkit_crashlog_dump_map(struct apple_rtkit *rtk, u8 *bfr,
++					  size_t size)
++{
++	size_t payload_size, nentries, i;
++	u64 va, pa;
++	u32 attr;
++
++	if (size < 16) {
++		dev_warn(rtk->dev, "RTKit: Ccdp section too small: 0x%zx", size);
++		return;
++	}
++
++	payload_size = size - 16;
++	nentries = payload_size / 20;
++	dev_warn(rtk->dev, "RTKit: Firmware VA-to-PA map:");
++	for (i = 0; i < nentries; i++) {
++		memcpy(&va, bfr + i * 20, sizeof(va));
++		memcpy(&pa, bfr + i * 20 + 8, sizeof(pa));
++		memcpy(&attr, bfr + i * 20 + 16, sizeof(attr));
++		dev_warn(rtk->dev,
++			 "RTKit:   va=0x%016llx pa=0x%016llx attr=0x%08x",
++			 va, pa, attr);
++	}
++
++	if (payload_size % 20)
++		dev_warn(rtk->dev, "RTKit: Ccdp trailing bytes: 0x%zx",
++			 payload_size % 20);
++}
++
+ void apple_rtkit_crashlog_dump(struct apple_rtkit *rtk, u8 *bfr, size_t size)
+ {
+ 	size_t offset;
+@@ -233,6 +368,22 @@ void apple_rtkit_crashlog_dump(struct apple_rtkit *rtk, u8 *bfr, size_t size)
+ 			apple_rtkit_crashlog_dump_regs(rtk, bfr + offset + 16,
+ 						       section_size);
+ 			break;
++		case APPLE_RTKIT_CRASHLOG_STACK:
++			apple_rtkit_crashlog_dump_stack(rtk, bfr + offset + 16,
++							section_size);
++			break;
++		case APPLE_RTKIT_CRASHLOG_ASC_ERROR:
++			apple_rtkit_crashlog_dump_asc_error(rtk, bfr + offset + 16,
++							    section_size);
++			break;
++		case APPLE_RTKIT_CRASHLOG_TASKS:
++			apple_rtkit_crashlog_dump_tasks(rtk, bfr + offset + 16,
++							section_size);
++			break;
++		case APPLE_RTKIT_CRASHLOG_MAP:
++			apple_rtkit_crashlog_dump_map(rtk, bfr + offset + 16,
++						      section_size);
++			break;
+ 		default:
+ 			dev_warn(rtk->dev,
+ 				 "RTKit: Unknown crashlog section: %x",
+-- 
+2.50.1

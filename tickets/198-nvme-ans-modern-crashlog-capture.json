@@ -1,0 +1,17 @@
+{
+  "seq": "198",
+  "slug": "nvme-ans-modern-crashlog-capture",
+  "needs": "rig",
+  "state": "offline-parser-ready-awaiting-rig",
+  "track": "nvme",
+  "priority": "P1",
+  "desc": "Reproduce ticket 192's Linux-only first-IOCQ-wrap assert with the exact known baseline plus patches/t6040-rtkit-modern-crashlog-debug.patch. The patch is logging-only: it decodes the modern RTKit Ccst (asserting task + firmware call stack), CasC (ASC async-error registers), Crtk (task inventory/stacks), and Ccdp (firmware VA-to-PA map) sections that current Linux reports only as unknown. No new MMIO, storage command, queue behavior, SPMI, PMU, SMC, or firmware-write surface. RIG OWNER: claude; do not transfer the lease to codex. HARD EVIDENCE GATE: use a uniquely named transcript (never linux-build-out/dcuart-console.log, which is a rotating scratch path and overwrote the earlier full crashlog on 2026-08-02); start capture before boot; after the assert and full crashlog footer, stop capture, sha256 it immediately, and record exact kernel/Image/DTB/initramfs/object hashes plus patch hash here. PASS: transcript contains the existing [7454] assert plus decoded 'Firmware call stack', 'Firmware tasks', and 'Firmware VA-to-PA map' lines with no remaining unknown 0x43637374/0x43617343/0x4372746b/0x43636470 sections. STOP: if parser says malformed/too-small, preserve the transcript unchanged and return it for an offline layout correction; do not spend a second boot. FOLLOW-UP (separate ticket only): use Ccdp to identify whether the code pages are host-readable and request a bounded read-only firmware dump; do not blind-read candidate physical ranges in this run.",
+  "author": "codex",
+  "deps": [
+    "192"
+  ],
+  "hashes": {
+    "patches/t6040-rtkit-modern-crashlog-debug.patch": "849f06144da0dc867e766f6c0d8f1854a2f44238d9a99e3493e12c3e233c2669"
+  },
+  "created": 1785701599
+}
