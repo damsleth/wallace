@@ -1,0 +1,13 @@
+{
+  "seq": "194",
+  "slug": "nvme-e11-tag-value",
+  "needs": "rig",
+  "state": "approved",
+  "track": "bringup",
+  "priority": "P1",
+  "desc": "E11 (m1n1-side, no kernel build): m1n1 always uses tag 0 -> NVMMU TCB slot 0; Linux draws from a pool with reserved_tags=2 so its I/O tag is NON-ZERO. This is one of only four remaining differences after E1-E10 matched nine properties and the fw still asserts. Force a non-zero tag in nvme_exec_command under a compile flag and re-run --wrap-march 200. If m1n1 then asserts at the wrap, the TCB slot index is the trigger and the Linux fix is to pin the I/O tag. Cheap: m1n1 build + chainload only.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785701193
+}

@@ -1,0 +1,13 @@
+{
+  "seq": "195",
+  "slug": "nvme-e12-admin-traffic",
+  "needs": "rig",
+  "state": "approved",
+  "track": "bringup",
+  "priority": "P1",
+  "desc": "E12 (m1n1-side): Linux issues Identify and keeps a live depth-2 admin queue alongside I/O, sharing the NVMMU TCB table; m1n1 issues neither after init. Add an Identify (and optionally periodic admin commands) to the m1n1 probe before/during --wrap-march. If the assert appears, concurrent admin+IO traffic through the shared NVMMU is the trigger. Depends on 194 being negative.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785701193
+}

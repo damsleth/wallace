@@ -1,0 +1,13 @@
+{
+  "seq": "196",
+  "slug": "nvme-write-milestone",
+  "needs": "rig",
+  "state": "approved",
+  "track": "bringup",
+  "priority": "P1",
+  "desc": "CJ authorized 2026-08-02: writes via the mounted exFAT AND raw writes to p3 ONLY (never raw writes to /dev/nvme0n1 or any other partition - APFS volumes must remain untouched). Blocked until the CQ wrap assert is understood or mitigated. Then: write file to /mnt/nvme, fsync, reboot, verify; raw dd soak to /dev/nvme0n1p3 for throughput/durability. Milestone = read AND write to the 128 GiB exFAT partition surviving a reboot.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785701193
+}

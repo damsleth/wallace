@@ -1,0 +1,13 @@
+{
+  "seq": "193",
+  "slug": "sd-card-end-to-end",
+  "needs": "rig",
+  "state": "approved",
+  "track": "bringup",
+  "priority": "P1",
+  "desc": "SD card is PHYSICALLY PRESENT as of 2026-08-02 (CJ). sdhci-pci binds mmc0 (ADMA 64-bit) but has never seen media. Test end to end: card detect, /proc/partitions shows mmcblk0[p1], mount, read, WRITE + fsync, reboot, re-verify persistence. Then wire into t6040-data-mount as a persistent /data target alongside NVMe (script already polls /dev/mmcblk0p1 -> /mnt/sd; t6040-data-sync already prefers /mnt/nvme then /mnt/sd). Fastest available path to the storage milestone since NVMe is blocked on the CQ wrap assert. Rig: claude.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785701193
+}
