@@ -5,7 +5,7 @@
   "state": "proposed",
   "track": "sd",
   "priority": "P1",
-  "desc": "Ticket B, WRITE ONLY AFTER ticket 199 is DONE: same exact reviewed tethered candidate m1n1 28a4e0cf812d48ab40337be9578381d66c61b5ac91730bb0b950930f77a93299; Image bd3dd526446b90697e6e2f5bc832bd839521aa89e4d820d49ae5914e0af9dc0d; SD DTB 683800ab2924a008af6fee68a828ce859bd58d1cb4c14a2fecb492d562559ea9; no-automount initramfs 6ce35315dd6058c60d34e832b6815f7cf592fb8cb70a6513febd0c122566cbd2. Run T6040_SD_WRITE_APPROVED=SD64 /usr/local/sbin/t6040-sd-write-smoke (script sha256 3a48ab0560816493b5f20e44be9ce35f7908917e3e2e32f95094d468dab4f7cd). It re-verifies /dev/mmcblk0p1 LABEL=SD64 TYPE=exfat and no fault, mounts rw, REFUSES to overwrite /mnt/sd-rw/t6040-sd-write-test.txt, writes exactly 'Project Wallace GL9755 verified write\\n' expected sha256 be6ae148beafbeee5599324a6704b5d6a192b406bd56107886933eeaa86933ca, invokes BusyBox sync FILE (fsync) plus sync directory, unmounts, remounts ro, verifies exact content+sha, and cleanly unmounts. Card content otherwise stays intact; no delete/repartition/reformat/fsck/raw block write. STOP on wrong/missing fixture, existing test path, non-rw/non-ro mount, content/hash mismatch, umount error, or any PCIe/DART/kernel fault. No NVMe/SPMI/PMU/charger/NVRAM/WiFi/BT/new SMC keys; only approved gP19. Requires 199 done, fresh CJ approval for B, independent exact review/ready, free healthy rig, lease, fresh proxy, and exactly one PCIe init per power cycle.",
+  "desc": "Ticket B, WRITE ONLY AFTER ticket 199 is DONE: same exact reviewed tethered candidate m1n1 28a4e0cf812d48ab40337be9578381d66c61b5ac91730bb0b950930f77a93299; Image bd3dd526446b90697e6e2f5bc832bd839521aa89e4d820d49ae5914e0af9dc0d; SD DTB 683800ab2924a008af6fee68a828ce859bd58d1cb4c14a2fecb492d562559ea9; no-automount initramfs 7464e15bcee5f83e5af2344f1202405b508ba8d610337d407e096b6219670def. Run T6040_SD_WRITE_APPROVED=SD64 /usr/local/sbin/t6040-sd-write-smoke (script sha256 56800f57694ba16f84742ff3e5f5401e8caf2ae51a5aa988cd629cdd327e3604). It independently re-proves PCI 17a0:9755, sdhci-pci, and the IOMMU group, re-verifies /dev/mmcblk0p1 LABEL=SD64 TYPE=exfat and no fault, mounts rw, REFUSES to overwrite /mnt/sd-rw/t6040-sd-write-test.txt, writes exactly 'Project Wallace GL9755 verified write\\n' and enforces expected sha256 be6ae148beafbeee5599324a6704b5d6a192b406bd56107886933eeaa86933ca before and after remount, invokes BusyBox sync FILE (fsync) plus sync directory, unmounts, remounts ro, verifies exact content+sha, and cleanly unmounts. Card content otherwise stays intact; no delete/repartition/reformat/fsck/raw block write. STOP on wrong/missing fixture, existing test path, non-rw/non-ro mount, content/hash mismatch, umount error, or any PCIe/DART/kernel fault. No NVMe/SPMI/PMU/charger/NVRAM/WiFi/BT/new SMC keys; only approved gP19. Requires 199 done, fresh CJ approval for B, independent exact review/ready, free healthy rig, lease, fresh proxy, and exactly one PCIe init per power cycle.",
   "author": "sol",
   "deps": [
     "199"
@@ -13,7 +13,7 @@
   "hashes": {
     "image": "bd3dd526446b90697e6e2f5bc832bd839521aa89e4d820d49ae5914e0af9dc0d",
     "dtb": "683800ab2924a008af6fee68a828ce859bd58d1cb4c14a2fecb492d562559ea9",
-    "initramfs": "6ce35315dd6058c60d34e832b6815f7cf592fb8cb70a6513febd0c122566cbd2"
+    "initramfs": "7464e15bcee5f83e5af2344f1202405b508ba8d610337d407e096b6219670def"
   },
   "created": 1785702361
 }
