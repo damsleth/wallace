@@ -1,0 +1,19 @@
+{
+  "seq": "199",
+  "slug": "sd-gl9755-readonly-smoke",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "sd",
+  "priority": "P1",
+  "desc": "STAGED FOLLOW-UP to completed combined ticket 193; this exact candidate/procedure remains unrun. Ticket A, READ-ONLY ONLY: tethered chainload exact components m1n1 /Users/damsleth/Code/linux-build-out/m1n1-t6040-pcie-V1-upstream-04e8829c.bin sha256 28a4e0cf812d48ab40337be9578381d66c61b5ac91730bb0b950930f77a93299; Image-sd-gl9755 sha256 bd3dd526446b90697e6e2f5bc832bd839521aa89e4d820d49ae5914e0af9dc0d; t6040-j614s-dcuart-sd.dtb sha256 683800ab2924a008af6fee68a828ce859bd58d1cb4c14a2fecb492d562559ea9; initramfs-alpine-sd-smoke.cpio.xz sha256 6ce35315dd6058c60d34e832b6815f7cf592fb8cb70a6513febd0c122566cbd2. Exact script /usr/local/sbin/t6040-sd-readonly-smoke sha256 c82bfc1610516edd380d79709fdfb20fea9fcc70f81edd7c271ce2c6ff7650a5. Initramfs has NO automount and script uses only mount -t exfat -o ro after verifying PCI 17a0:9755, sdhci-pci, IOMMU group, /dev/mmcblk0p1, LABEL=SD64, TYPE=exfat and pre-fault gate. PASS: mmc0/GL9755 probe, card/partition, ro mount options proven via /proc/mounts, ls, sha256 one pre-existing file, clean umount, no PCIe/DART/kernel fault. STOP immediately on fault signature, missing/wrong card, wrong label/type/driver, non-ro mount, no file, or failed umount. NO writes, fsck, repartition, reformat, NVMe, SPMI, PMU, charger, NVRAM, WiFi/BT, or new SMC keys; DT enables only approved gP19 for port 1. Requires CJ plan approval, independent exact review/ready, free healthy rig, lease, fresh proxy, and exactly one PCIe init per power cycle.",
+  "author": "sol",
+  "deps": [
+    "179"
+  ],
+  "hashes": {
+    "image": "bd3dd526446b90697e6e2f5bc832bd839521aa89e4d820d49ae5914e0af9dc0d",
+    "dtb": "683800ab2924a008af6fee68a828ce859bd58d1cb4c14a2fecb492d562559ea9",
+    "initramfs": "6ce35315dd6058c60d34e832b6815f7cf592fb8cb70a6513febd0c122566cbd2"
+  },
+  "created": 1785702335
+}

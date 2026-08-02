@@ -1,0 +1,30 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * T6040 J614s GL9755 diagnostic: proven PCIe topology plus only the SD
+ * reader's already-approved SMC endpoint-power GPIO (gP19).
+ *
+ * Deliberately absent: WiFi gP13, ANS/NVMe, SPMI/PMU RTC, keyboard PWM,
+ * USB host, HPM, and every new SMC key. This is a tethered diagnostic DT,
+ * not the graphical daily-driver DT.
+ */
+
+/dts-v1/;
+
+#include "t6040-j614s-dcuart-pcie.dts"
+
+/ {
+	model = "Apple MacBook Pro (M4 Pro) J614s [GL9755 SD diagnostic]";
+};
+
+&smc_mbox {
+	status = "okay";
+};
+
+&smc {
+	status = "okay";
+};
+
+/* ADT function-sd_pwr_en = pKW4('gP19', 0x0), approved 2026-07-29. */
+&port01 {
+	pwren-gpios = <&smc_gpio 0x19 GPIO_ACTIVE_HIGH>;
+};

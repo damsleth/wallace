@@ -257,9 +257,9 @@ if [ "${CPUFREQ:-0}" = "1" ]; then
         done
     done
 fi
-if [ "${PCIE:-0}" = "1" ]; then
+if [ "${PCIE:-0}" = "1" ] || [ "${SD_GL9755:-0}" = "1" ]; then
     if [ ! -f /out/t6040-j614s-dcuart-pcie.dts ]; then
-        echo "ERROR: PCIE=1 requires /out/t6040-j614s-dcuart-pcie.dts"
+        echo "ERROR: PCIE=1 or SD_GL9755=1 requires /out/t6040-j614s-dcuart-pcie.dts"
         exit 1
     fi
     cp /out/t6040-j614s-dcuart-pcie.dts $APPLE/
@@ -270,6 +270,13 @@ if [ "${PCIE:-0}" = "1" ]; then
     elif [ -f /src/$APPLE/t6040-j614s-dcuart-wifi.dts ]; then
         cp /src/$APPLE/t6040-j614s-dcuart-wifi.dts $APPLE/
     fi
+fi
+if [ "${SD_GL9755:-0}" = "1" ]; then
+    if [ ! -f /out/t6040-j614s-dcuart-sd.dts ]; then
+        echo "ERROR: SD_GL9755=1 requires /out/t6040-j614s-dcuart-sd.dts"
+        exit 1
+    fi
+    cp /out/t6040-j614s-dcuart-sd.dts $APPLE/
 fi
 cp /src/$APPLE/t6040-pmgr.dtsi   $APPLE/
 cp /src/$APPLE/Makefile          $APPLE/
@@ -1274,6 +1281,26 @@ if [ "${PCIE:-0}" = "1" ]; then
         -e BT -e BT_HCIBCM4377 \
         -e MMC -e MMC_SDHCI -e MMC_SDHCI_PCI -e MMC_BLOCK
 fi
+if [ "${SD_GL9755:-0}" = "1" ]; then
+    # Dedicated GL9755 diagnostic kernel. Keep the already-proven Apple PCIe,
+    # DART, and gpio-macsmc gP19 path, but exclude unrelated live surfaces:
+    # no internal NVMe, SPMI/PMU RTC, WiFi/BT, or keyboard-backlight driver.
+    # The RAM root has no module loader, so every card-I/O dependency must be
+    # builtin and is re-applied/asserted after olddefconfig below.
+    ./scripts/config --file .config -e ARM64_16K_PAGES -d ARM64_4K_PAGES
+    ./scripts/config --file .config \
+        -e PCI -e PCI_MSI -e PCIE_APPLE -e PCI_HOST_COMMON \
+        -e PINCTRL_APPLE_GPIO -e APPLE_DART \
+        -e MFD_MACSMC -e GPIO_MACSMC -e GPIOLIB -e OF_GPIO \
+        -e MMC -e MMC_BLOCK -e MMC_SDHCI -e MMC_SDHCI_PCI \
+        -e FAT_FS -e VFAT_FS -e MSDOS_FS -e EXFAT_FS \
+        -e NLS_CODEPAGE_437 -e NLS_ISO8859_1 -e NLS_UTF8 \
+        -e MSDOS_PARTITION -e EFI_PARTITION \
+        -d BLK_DEV_NVME -d NVME_APPLE \
+        -d SPMI_APPLE -d NVMEM_APPLE_SPMI -d RTC_DRV_MACSMC \
+        -d PWM_APPLE -d WLAN -d BT
+    SD_GL9755_ASSERT_AFTER_OLDDEFCONFIG=1
+fi
 if [ "${USB_HOST:-0}" = "1" ]; then
     # USB2 host image for an external root disk (ticket 009/031/032). Internal
     # NVMe is SPTM-blocked (ticket 008); Linux roots off an external USB2 disk.
@@ -1481,6 +1508,39 @@ if [ "${WIFI_ASSERT_AFTER_OLDDEFCONFIG:-0}" = "1" ]; then
     done
     test "$wifi_fail" = 0
 fi
+if [ "${SD_GL9755_ASSERT_AFTER_OLDDEFCONFIG:-0}" = "1" ]; then
+    ./scripts/config --file .config \
+        -e ARM64_16K_PAGES -d ARM64_4K_PAGES \
+        -e PCI -e PCI_MSI -e PCIE_APPLE -e PCI_HOST_COMMON \
+        -e PINCTRL_APPLE_GPIO -e APPLE_DART \
+        -e MFD_MACSMC -e GPIO_MACSMC -e GPIOLIB -e OF_GPIO \
+        -e MMC -e MMC_BLOCK -e MMC_SDHCI -e MMC_SDHCI_PCI \
+        -e FAT_FS -e VFAT_FS -e MSDOS_FS -e EXFAT_FS \
+        -e NLS_CODEPAGE_437 -e NLS_ISO8859_1 -e NLS_UTF8 \
+        -e MSDOS_PARTITION -e EFI_PARTITION \
+        -d BLK_DEV_NVME -d NVME_APPLE \
+        -d SPMI_APPLE -d NVMEM_APPLE_SPMI -d RTC_DRV_MACSMC \
+        -d PWM_APPLE -d WLAN -d BT
+    make ARCH=arm64 olddefconfig >/dev/null
+    echo "== assert GL9755 SD/exFAT path is BUILTIN and unrelated probes are absent =="
+    for sym in ARM64_16K_PAGES PCI PCIE_APPLE PINCTRL_APPLE_GPIO APPLE_DART \
+               MFD_MACSMC GPIO_MACSMC MMC MMC_BLOCK MMC_SDHCI MMC_SDHCI_PCI \
+               MMC_SDHCI_UHS2 FAT_FS VFAT_FS MSDOS_FS EXFAT_FS \
+               NLS_CODEPAGE_437 NLS_ISO8859_1 NLS_UTF8 \
+               MSDOS_PARTITION EFI_PARTITION; do
+        grep -q "^CONFIG_${sym}=y$" .config || {
+            echo "CONFIG_${sym} is not builtin" >&2
+            exit 1
+        }
+    done
+    for sym in BLK_DEV_NVME NVME_APPLE SPMI_APPLE NVMEM_APPLE_SPMI \
+               RTC_DRV_MACSMC PWM_APPLE WLAN BT; do
+        if grep -q "^CONFIG_${sym}=[ym]$" .config; then
+            echo "CONFIG_${sym} must be disabled in the SD diagnostic kernel" >&2
+            exit 1
+        fi
+    done
+fi
 if [ "${MACSMC:-0}" = "1" ]; then
     echo "== assert feature-kernel USB storage path =="
     grep -q '^CONFIG_USB_STORAGE=y$' .config
@@ -1548,7 +1608,7 @@ if [ "${NVME:-0}" = "1" ]; then
     echo "-- resulting ANS/NVMe config --"
     grep -E "CONFIG_(BLK_DEV_NVME|NVME_CORE|NVME_APPLE|APPLE_SART)=" .config || true
 fi
-if [ "${PCIE:-0}" = "1" ]; then
+if [ "${PCIE:-0}" = "1" ] || [ "${SD_GL9755:-0}" = "1" ]; then
     echo "-- resulting PCIe/WLAN/BT/SD config --"
     grep -E "CONFIG_(PCIE_APPLE|PINCTRL_APPLE_GPIO|APPLE_DART|BRCMFMAC|BRCMFMAC_PCIE|BT_HCIBCM4377|MMC_SDHCI_PCI)=" .config || true
 fi
@@ -1634,6 +1694,11 @@ if [ "${PCIE:-0}" = "1" ]; then
         cp $APPLE/t6040-j614s-dcuart-wifi.dtb /out/ \
             && echo "DTB -> /out/t6040-j614s-dcuart-wifi.dtb"
     fi
+fi
+if [ "${SD_GL9755:-0}" = "1" ]; then
+    make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-sd.dtb
+    cp $APPLE/t6040-j614s-dcuart-sd.dtb /out/ \
+        && echo "DTB -> /out/t6040-j614s-dcuart-sd.dtb"
 fi
 if [ "${MACSMC:-0}" = "1" ]; then
     make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-macsmc.dtb
@@ -1744,6 +1809,10 @@ if [ "${1:-}" = "image" ]; then
     if [ "${PCIE:-0}" = "1" ]; then
         image_name=Image-pcie
         map_name=System.map-pcie
+    fi
+    if [ "${SD_GL9755:-0}" = "1" ]; then
+        image_name=Image-sd-gl9755
+        map_name=System.map-sd-gl9755
     fi
     if [ "${DOCKCHANNEL_IRQ_TEST:-0}" = "1" ]; then
         image_name=Image-dcuart-irq
@@ -1910,7 +1979,8 @@ if [ "${1:-}" = "image" ]; then
     # dump when the framebuffer stays blank (hang before simpledrm probes).
     cp System.map "/out/$map_name" && echo "System.map -> /out/$map_name"
     if [ "${T6040_WIFI_FW_BUILTIN:-0}" = "1" ] ||
-       [ "${DOCKCHANNEL_NBCON:-0}" = "1" ]; then
+       [ "${DOCKCHANNEL_NBCON:-0}" = "1" ] ||
+       [ "${SD_GL9755:-0}" = "1" ]; then
         config_name="config-${image_name#Image-}"
         cp .config "/out/$config_name" \
             && echo "config -> /out/$config_name"
