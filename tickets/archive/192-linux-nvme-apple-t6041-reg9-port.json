@@ -9,5 +9,10 @@
   "author": "sol",
   "deps": [],
   "hashes": null,
-  "created": 1785393597
+  "created": 1785393597,
+  "archived": {
+    "at": 1785700292,
+    "by": "claude",
+    "reason": "duplicate of 192-linux-nvme-apple-t6040-port (concurrent queue-add race); kept the actively-worked ticket"
+  }
 }

@@ -9,5 +9,10 @@
   "author": "sol",
   "deps": [],
   "hashes": null,
-  "created": 1785393586
+  "created": 1785393586,
+  "archived": {
+    "at": 1785700292,
+    "by": "claude",
+    "reason": "duplicate of 191-chainload-stage2-architecture-spike (concurrent queue-add race); kept the dep-linked ticket"
+  }
 }

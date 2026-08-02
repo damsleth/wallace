@@ -17,5 +17,10 @@
   "runnable": false,
   "approved_by": "maintainer",
   "approved_at": 1785332574,
-  "progress": "2026-07-29 PREMISE GONE (claude). Its justification was cheap networking as a substitute for WiFi; WiFi now works (wlan0 scans 13 BSSes). Also carries m1n1 v7 + DTB 11abca72. The durable part is sol's CDC correction (macOS does load com.apple.driver.usb.cdc* with no VID/PID whitelist) and the scripts/t6040-usb-bulk-pty.c helper. Demote from P1 or close."
+  "progress": "2026-07-29 PREMISE GONE (claude). Its justification was cheap networking as a substitute for WiFi; WiFi now works (wlan0 scans 13 BSSes). Also carries m1n1 v7 + DTB 11abca72. The durable part is sol's CDC correction (macOS does load com.apple.driver.usb.cdc* with no VID/PID whitelist) and the scripts/t6040-usb-bulk-pty.c helper. Demote from P1 or close.",
+  "archived": {
+    "at": 1785700292,
+    "by": "claude",
+    "reason": "deprecated: premise gone, WiFi networking works (ticket 168)"
+  }
 }

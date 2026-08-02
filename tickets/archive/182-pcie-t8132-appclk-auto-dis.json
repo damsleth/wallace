@@ -15,5 +15,10 @@
     "dtb": "",
     "initramfs": ""
   },
-  "created": 1785314479
+  "created": 1785314479,
+  "archived": {
+    "at": 1785700292,
+    "by": "claude",
+    "reason": "superseded: live-causal premise refuted; no-go without rig run per ticket state"
+  }
 }

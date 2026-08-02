@@ -13,5 +13,10 @@
   "runnable": false,
   "approved_by": "maintainer",
   "approved_at": 1785097634,
-  "note": "2026-07-26: prefer 163. Its object 3aabde2d has a payload region BYTE-IDENTICAL to this ticket's 59622e78 (verified: both sha256 3b1ac51f...), differing only in the m1n1 loader, and it keeps a 10 s debug door. Enrolling a graphical-ONLY object means every later change costs a 1TR enrollment cycle. Keep this ticket only as the fallback if the windowed loader misbehaves on an enrolled boot."
+  "note": "2026-07-26: prefer 163. Its object 3aabde2d has a payload region BYTE-IDENTICAL to this ticket's 59622e78 (verified: both sha256 3b1ac51f...), differing only in the m1n1 loader, and it keeps a 10 s debug door. Enrolling a graphical-ONLY object means every later change costs a 1TR enrollment cycle. Keep this ticket only as the fallback if the windowed loader misbehaves on an enrolled boot.",
+  "archived": {
+    "at": 1785700292,
+    "by": "claude",
+    "reason": "superseded by ticket 163 dual-mode graphical daily driver"
+  }
 }

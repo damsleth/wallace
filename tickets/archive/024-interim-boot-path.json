@@ -10,5 +10,10 @@
   "deps": [],
   "hashes": null,
   "created": 1784039024,
-  "note": "2026-07-26: superseded by the untethered B0 milestone (2026-07-25) and everything after it. An enrolled raw object now cold-boots the machine to Alpine, and as of today to dwm, with no host and no cable. The 'interim' framing no longer applies \u2014 the raw-object path IS the boot path. Enrollment remains 1TR-only and maintainer-executed."
+  "note": "2026-07-26: superseded by the untethered B0 milestone (2026-07-25) and everything after it. An enrolled raw object now cold-boots the machine to Alpine, and as of today to dwm, with no host and no cable. The 'interim' framing no longer applies \u2014 the raw-object path IS the boot path. Enrollment remains 1TR-only and maintainer-executed.",
+  "archived": {
+    "at": 1785700292,
+    "by": "claude",
+    "reason": "superseded: B0 umbrella fully decomposed and completed via tickets 080/081/089/100/119"
+  }
 }

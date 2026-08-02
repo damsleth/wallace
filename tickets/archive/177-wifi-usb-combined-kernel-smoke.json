@@ -17,5 +17,10 @@
   "runnable": false,
   "approved_by": "maintainer",
   "approved_at": 1785313718,
-  "progress": "2026-07-29 SUPERSEDED (claude). Cannot succeed as written: it pins the pre-PCIe m1n1 v7 ecd264a5 (no BIT(4) PHY reset fix, so pcie_init still hangs) and DTB 11abca72, which contains ZERO pwren-gpios / antenna-sku / apple,smc-gpio \u2014 the three things WiFi actually needed. Superseded by the proven combination: m1n1 V1 28a4e0cf + t6040-j614s-dcuart-wifi.dtb + a WIFI=1 kernel. Rewrite against those hashes or close."
+  "progress": "2026-07-29 SUPERSEDED (claude). Cannot succeed as written: it pins the pre-PCIe m1n1 v7 ecd264a5 (no BIT(4) PHY reset fix, so pcie_init still hangs) and DTB 11abca72, which contains ZERO pwren-gpios / antenna-sku / apple,smc-gpio \u2014 the three things WiFi actually needed. Superseded by the proven combination: m1n1 V1 28a4e0cf + t6040-j614s-dcuart-wifi.dtb + a WIFI=1 kernel. Rewrite against those hashes or close.",
+  "archived": {
+    "at": 1785700292,
+    "by": "claude",
+    "reason": "superseded: cannot succeed as written per ticket state"
+  }
 }

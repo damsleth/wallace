@@ -17,5 +17,10 @@
     "live_proven_fallback": "2371ee5dfbfab591397fc333e7da212fb7582bfb2eaddaa6438005f5bb41759b"
   },
   "created": 1784838169,
-  "note": "2026-07-26: superseded. Enrolled cold boot is achieved and repeated many times since 2026-07-25 (B0 milestone, then Ubuntu, then the dual-mode window). The preflight concerns this ticket raised are now covered concretely by scripts/t6040-raw-object-verify.py (strict member hashes, 16 KiB alignment, page-size reporting, initramfs expansion guard) and scripts/t6040-enroll-guard.sh (fail-closed volume UUID pin)."
+  "note": "2026-07-26: superseded. Enrolled cold boot is achieved and repeated many times since 2026-07-25 (B0 milestone, then Ubuntu, then the dual-mode window). The preflight concerns this ticket raised are now covered concretely by scripts/t6040-raw-object-verify.py (strict member hashes, 16 KiB alignment, page-size reporting, initramfs expansion guard) and scripts/t6040-enroll-guard.sh (fail-closed volume UUID pin).",
+  "archived": {
+    "at": 1785700292,
+    "by": "claude",
+    "reason": "superseded: enrolled appended-payload route root-caused dead (2026-07-25 payload-scan root cause)"
+  }
 }
