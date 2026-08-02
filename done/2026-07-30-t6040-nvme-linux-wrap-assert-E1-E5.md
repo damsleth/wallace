@@ -210,3 +210,74 @@ successfully submits admin and I/O commands and enumerates all four partitions. 
 target. Time cost: two boots plus a hang. The lesson worth keeping: an address that *reads
 plausibly* from m1n1 is not evidence that the other path is wrong — check whether the suspect
 path already works before "fixing" it.
+
+---
+
+# Session 2 (2026-07-31): the bisect, and four more hypotheses down
+
+## Environment note
+
+The host's case-sensitive kernel volume (`linux-case-sensitive.sparsebundle`) was unmounted and
+the podman VM was down at session start — both restored with `hdiutil attach` +
+`podman machine start` + `podman start kbuild`. Worth knowing: `/Users/damsleth/Code/linux` is a
+symlink into that sparsebundle, so a `cd: no such file or directory` there means "volume not
+mounted", not "tree deleted".
+
+## E8 bisect: widening the window is HARMLESS
+
+Widened `nvme` reg to `0x60000` with the **stock** driver (`sq_db = mmio_nvmmu`). Boot completed
+normally — 911 lines of console, full userspace. So E8's hang was **not** caused by the DT change;
+it was caused by the driver actually *writing* `reg[9]+0x24910`. Ringing the linear-SQ doorbell in
+the controller aperture from Linux is fatal, while m1n1 does it happily — one more entry in the
+"same address, different context" column. Stock `mmio_nvmmu` is the correct path for Linux.
+
+## 🎉 The exFAT partition MOUNTED
+
+From that same boot:
+
+```
+t6040-data: /dev/nvme0n1p3 mounted at /mnt/nvme
+[    5.060179] nvme-apple … assert failed: [7454]:CQ (Host I/O) DB error, … head: 63 …
+```
+
+**Linux mounted CJ's 128 GiB exFAT partition off the internal SSD** (it is `p3`, not `p4` as
+assumed earlier) and did real filesystem I/O for ~5 s before the assert killed the controller.
+The data path works end to end; only the wrap assert stands between this and the milestone.
+
+## E9 — IRQ-enabled CQ: refuted
+
+Linux creates the IOCQ with `NVME_QUEUE_PHYS_CONTIG | NVME_CQ_IRQ_ENABLED` + `irq_vector 0`;
+m1n1 uses contiguous-only. Added `T6040_E9_CQ_IRQ` to m1n1's `create_cq` and re-ran
+`--wrap-march 200`: **PASS**, 3 wraps, no assert (transcript `1d19ebac…`). The interrupt-enabled
+CQ is not the trigger.
+
+## E10 — concurrency: REFUTED (and E5b was a false negative)
+
+`git show` on the `Revert E7` commit confirms it restored `tagset.queue_depth = 3` — so the
+boot above, which mounted the filesystem and then asserted, was **already running with exactly one
+usable I/O tag**. A single in-flight I/O command still produces `head: 63`. Concurrency is not the
+trigger, and E5b never hung — it worked, and its "hang" was the console false alarm.
+
+## Differences now MATCHED between m1n1 (works) and Linux (asserts)
+
+`create_cq` qsize 63 · `NVMMU_NUM_TCBS` 63 · physically-contiguous flag · CQ interrupt ·
+one in-flight I/O command · phase-flip logic · ring allocation size · IOQ base registers
+(`0x1200`/`0x1208`) · doorbell batching (both tested)
+
+## Differences that REMAIN
+
+1. **SQ doorbell window** — m1n1 rings `reg[9]+0x24910`, Linux `reg[3]+0x24910`. Linux cannot use
+   reg[9] (hangs, bisected above), and reg[3] demonstrably submits commands fine. Still the most
+   conspicuous asymmetry.
+2. **Tag value** — m1n1 always uses tag 0, so NVMMU TCB slot 0; Linux draws from a pool with
+   `reserved_tags = 2`, so its I/O tag is non-zero. Cheap to test m1n1-side (force tag 2 and
+   wrap-march).
+3. **Admin traffic** — Linux issues Identify and keeps a depth-2 admin queue live alongside I/O,
+   sharing the NVMMU TCB table; m1n1 issues neither after init.
+4. **Real interrupt servicing** — E9 only set the *flag* in m1n1; m1n1 never takes or services the
+   MSI. Linux completes inside its IRQ handler.
+
+Next cheapest: (2), then (3) by making m1n1 issue an Identify before the wrap-march.
+
+Tree left at the baseline: stock `queue_depth`, stock `sq_db = mmio_nvmmu`, DT window back to the
+ADT-declared `0x10000`, `/out` rebuilt. m1n1 keeps the E2/E9 hooks (both compile-time, default off).
