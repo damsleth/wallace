@@ -1,0 +1,13 @@
+{
+  "seq": "198",
+  "slug": "i3-image-boot-regression",
+  "needs": "rig",
+  "state": "approved",
+  "track": "boot",
+  "priority": "P1",
+  "desc": "The i3/Alpine image (initramfs-alpine-dwm-i3-v5.cpio.xz, 099e1c72, expands to 99.5 MB) no longer boots on the current kernel: m1n1 completes handoff and the kernel emits ZERO console output, reproducible twice. Same kernel+DTB boots initramfs-dcuart.cpio.gz fine (508 lines, SD + nvme both enumerated), so kernel and DT are good. It DID boot on the E8-bisect kernel earlier the same evening (911 lines, mounted the exFAT), so this is a regression from a revert (DT nvme window 0x60000->0x10000 or tagset queue_depth 3->stock) or a marginality that became reproducible. Blocks the daily-driver image. Bisect: rebuild with each revert individually undone; also try a smaller image and DOCKCHANNEL_EARLYCON for pre-console visibility.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785702385
+}
