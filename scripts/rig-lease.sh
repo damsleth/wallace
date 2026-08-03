@@ -46,6 +46,7 @@ RECOVERY_FLAG="$RIG_ROOT/NEEDS_RECOVERY"
 REPO_ROOT="${WALLACE_ROOT:-$HOME/Code/wallace}"
 TICKETS_DIR="${RIG_TICKETS:-$REPO_ROOT/tickets}"
 TICKETS_DONE="$TICKETS_DIR/done"
+TICKETS_ARCHIVE="$TICKETS_DIR/archive"
 TTL="${RIG_LEASE_TTL:-3600}"         # seconds (60m); covers a boot cycle plus a
                                      # long analysis hold. Still release before
                                      # lengthy OFFLINE work — the lease is for
@@ -68,9 +69,9 @@ tk_file() {   # zero-padded seq -> ticket path ("" if none); checks active then 
   [ -n "$f" ] || { f="$(ls "$TICKETS_DONE/$1"-*.json 2>/dev/null | head -1)" || f=""; }
   printf '%s' "$f"
 }
-tk_seqmax() {  # highest seq across active + done (so numbers are never reused)
+tk_seqmax() {  # highest seq across active + done + archive (so numbers are never reused)
   local m=0 f b n
-  for f in "$TICKETS_DIR"/*.json "$TICKETS_DONE"/*.json; do
+  for f in "$TICKETS_DIR"/*.json "$TICKETS_DONE"/*.json "$TICKETS_ARCHIVE"/*.json; do
     [ -e "$f" ] || continue
     b="$(basename "$f")"; n=$((10#${b%%-*})); [ "$n" -gt "$m" ] && m=$n
   done

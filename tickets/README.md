@@ -24,6 +24,15 @@ Put durable narrative, transcripts, retractions, and detailed results under
 ]
 ```
 
+## Sequence numbers
+
+`queue show` and `queue done` resolve a sequence against `tickets/` first,
+then `tickets/done/`; `tickets/archive/` is history only and is never
+resolved. A re-scoped successor may keep its predecessor's sequence (191 is
+the example): the archived record keeps the original slug, and the active
+file is the current work. New sequences are allocated above the highest
+active or done number.
+
 The `state` string may preserve a concise result qualifier, but directory
 placement decides whether the ticket is active, completed, or archived.
 Archived tickets must include `archived.at`, `archived.by`, and a concrete

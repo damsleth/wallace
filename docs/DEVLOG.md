@@ -22,18 +22,9 @@ milestones, corrections, and dead ends. Exact experiment evidence lives in
 
 ### Lease first
 
-Only the lease holder runs a rig script. The ticket must be approved and ready.
-
-    scripts/rig-lease.sh status
-    scripts/rig-lease.sh acquire <agent> "<ticket and task>" <m1n1-sha>
-    export RIG_AGENT=<agent>
-
-Release only after the proxy is quiescent:
-
-    scripts/rig-lease.sh release <agent> --state healthy
-
-Use `--state wedged` if recovery is incomplete or uncertain. Full protocol:
-[COORDINATION.md](COORDINATION.md).
+Only the lease holder runs a rig script, and only for an approved, ready
+ticket. Release `wedged` if recovery is incomplete or uncertain. The canonical
+protocol and commands are in [COORDINATION.md](COORDINATION.md).
 
 ### DebugUSB/KIS discipline
 
@@ -64,17 +55,9 @@ transcript before reboot.
 
 ### Standard loop
 
-    RIG_AGENT=$RIG_AGENT bash scripts/t6040-debugusb-console.sh reboot
-    RIG_AGENT=$RIG_AGENT bash scripts/t6040-boot-dcuart.sh
-    tail -f ~/Code/linux-build-out/dcuart-console.log
-    printf 'uname -a\n' > /tmp/m1n1
-
-Ticket-specific raw objects use:
-
-    RIG_AGENT=$RIG_AGENT bash scripts/t6040-boot-raw-object.sh <object.bin> <full-sha256>
-
-See [RUNBOOK.md](RUNBOOK.md) for build, object, enrollment, and inspection
-commands.
+The recovery, chainload, console, raw-object, build, enrollment, and
+inspection commands live in [RUNBOOK.md](RUNBOOK.md); this file records only
+the discipline around them.
 
 ## Build invariants
 
@@ -132,8 +115,13 @@ commands.
   clean at one core.
 - The uninstrumented control produced two kernel-mode page faults in four runs.
   Argument-validation work before `copy_page()` suppressed the fault in four
-  runs without finding an invalid argument. This points to a timing, ordering,
-  or cache-maintenance boundary; it is not yet a proven fix.
+  runs without finding an invalid argument.
+- The ticket 207 bisect refuted the ordering hypothesis: `smp_mb()` alone and a
+  semantically irrelevant volatile read of the destination each suppressed the
+  fault equally. Any small perturbation before `copy_page()` hides it, so the
+  race is not located in `copy_highpage`. The kernel-mode fault on a valid
+  linear-map address points at page lifetime/refcount or TLB-invalidation
+  completion; an upstream-quality report is the next step.
 - Fresh-boot baselines and at least four repetitions are required: the first
   run is the most sensitive, and a single clean run is weak evidence.
 - cpufreq works after widening the driver’s `frequency * 1000` calculation;
@@ -216,6 +204,10 @@ Do not repeat these without new evidence:
   reset bit and endpoint power.
 - A fixed SMP failure threshold at six CPUs. The current evidence indicates a
   broader, non-monotonic MM/COW problem.
+- A missing barrier in `copy_highpage` as the two-core CoW fault. `smp_mb()`
+  and a semantically irrelevant read suppress it equally; suppression by
+  perturbation is not evidence of an ordering bug, and neither variant may
+  ship as a fix.
 - Loss of ttydc0 output as proof of a hung kernel. Several apparent hangs were
   host-reader failures.
 - The NVMe submission-doorbell “wrong window” fix. The suspect Linux window
@@ -241,7 +233,7 @@ Do not repeat these without new evidence:
 | 2026-07-29 | PCIe, WiFi, Bluetooth, and the five-core desktop |
 | 2026-07-30 to 07-31 | cpufreq and Linux NVMe filesystem I/O bounded to the first CQ-wrap assert |
 | 2026-08-02 | SD read/write persistence and corrected trackpad reset attribution |
-| 2026-08-03 | One-core SD root reaches ttydc0/OpenRC; controlled two-core page-copy reproducer established; instrumentation/control divergence isolates the next MM/SMP experiment |
+| 2026-08-03 | One-core SD root reaches ttydc0/OpenRC; controlled two-core page-copy reproducer established; the barrier bisect refuted the ordering hypothesis, pointing at page lifetime or TLB invalidation |
 
 Detailed transcripts, hashes, retractions, and per-experiment stop conditions
 remain in dated files under `evidence/` and in Git history.

@@ -43,6 +43,9 @@ review.
 
 ## Roadmap
 
+This table is the milestone view; stage-level boundaries and per-stage detail
+live in [docs/ROADMAP.md](docs/ROADMAP.md).
+
 | Milestone | State | Result so far | Next boundary |
 |---|---|---|---|
 | Boot and recovery foundation | Complete | Stable m1n1 handoff, tethered development, and enrolled untethered Linux boot | Keep the boot artifacts reproducible and prepare upstream-shaped changes |
@@ -69,6 +72,31 @@ review.
    and camera support as credible hardware-specific implementations become
    available.
 
+## Where the work lives
+
+This repository is the project's coordination and evidence hub; the code
+lives in sibling trees:
+
+| Repository | Content |
+|---|---|
+| [damsleth/linux](https://github.com/damsleth/linux), branch `wallace/t6040-bringup` | Kernel tree with the T6040 device tree and driver work, based on the Asahi Linux [`asahi-wip`](https://github.com/AsahiLinux/linux) tree |
+| [damsleth/m1n1](https://github.com/damsleth/m1n1) | m1n1 bootloader fork used for bring-up experiments and the enrolled boot objects |
+
+In this repository:
+
+- `patches/` — kernel patches the build tooling applies on top of the committed tree
+- `dts/` — T6040/J614s device-tree sources and their validation checklist
+- `scripts/` — host-side build, boot, verification, and rig-coordination tooling
+- `evidence/` — dated experiment write-ups: transcripts, hashes, results, and retractions
+- `tickets/` — the working queue (active, done, archived) as JSON records
+- `docs/` — operational documentation for the (largely AI-agent) crew running
+  the rig: coordination protocol, runbook, safety policies, and roadmap. It is
+  deliberately terse and imperative; this README is the human-facing summary.
+
+The project builds directly on the [Asahi Linux](https://asahilinux.org/)
+project's kernel, bootloader, and reverse-engineering work, and several Asahi
+developers are independently bringing up the same SoC generation.
+
 ## Primary evidence
 
 The repository keeps experiment results, exact artifacts, corrections, and
@@ -87,3 +115,11 @@ The status above intentionally distinguishes proven behavior from plausible
 next steps. A successful one-off boot is not treated as finished hardware
 support, and hypotheses that later evidence disproves remain recorded rather
 than being rewritten as successes.
+
+## License
+
+The scripts, documentation, and other original content in this repository are
+MIT licensed (see [LICENSE](LICENSE)). Patches under `patches/` and
+device-tree sources under `dts/` are derived from and destined for the trees
+they modify, and carry those trees' licenses: GPL-2.0 for Linux, MIT for
+m1n1.

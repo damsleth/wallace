@@ -1,0 +1,15 @@
+{
+  "seq": "217",
+  "slug": "cow-topology-artifact",
+  "needs": "offline",
+  "state": "open",
+  "track": "bringup",
+  "priority": "P1",
+  "desc": "Build a byte-reproducible storage-free diagnostic initramfs containing scripts/t6040-cow-repro.sh, pair it with the uninstrumented CoW control Image and default DTB, and prove the stock arm64 oops already reports logical CPU while boot logs map logical CPUs to MPIDR/MIDR. Offline only; no kernel instrumentation or hardware access. Pass = two identical initramfs builds plus exact Image/DTB/initramfs/config/System.map hashes and a zero-new-hardware-operation review for ticket 209.",
+  "author": "sol",
+  "deps": [
+    "208"
+  ],
+  "hashes": null,
+  "created": 1785746957
+}

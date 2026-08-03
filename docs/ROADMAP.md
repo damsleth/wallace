@@ -60,8 +60,9 @@ Working:
 
 Open:
 
-- complete ticket 207's barrier/cache-maintenance isolation for the controlled
-  two-core page-copy fault;
+- characterise the two-core page-copy fault and report it upstream (tickets
+  209/217); ticket 207 refuted the ordering hypothesis, and perturbations that
+  merely suppress the symptom are not fixes;
 - prove stable 14-core userspace;
 - add a safe cpuidle/retention contract;
 - keep generated DTs and upstream-shaped patch series synchronized;
