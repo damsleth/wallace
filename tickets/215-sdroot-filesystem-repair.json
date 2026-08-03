@@ -2,7 +2,7 @@
   "seq": "215",
   "slug": "sdroot-filesystem-repair",
   "needs": "rig",
-  "state": "offline-v2-complete-awaiting-independent-review",
+  "state": "approved",
   "track": "storage",
   "priority": "P1",
   "desc": "Repair the dirty SD64 exFAT fixture and its known ext4 loop image before any further SD-root write. Before its first mutation, v2 proves the exact GL9755 PCI identity and sdhci-pci/IOMMU binding, mmcblk0 sysfs ancestry, SD64 label/type, root-image size, and nested ext4 UUID/type through read-only mounts and checks. Its minimal init starts no network, SSH, OpenRC, automount, watchdog, or background job. Only automatic fsck repairs are permitted, followed by read-only postchecks and fault gates. No repartition, format, resize, discard, arbitrary raw write, or new hardware-write surface. The prior initramfs and DTB hashes are withdrawn; the ticket is non-runnable until a new SD-only gP19 DTB, kernel, prefix, and complete boot object are pinned and independently reviewed.",
@@ -31,11 +31,14 @@
   "stop": "Any identity/hash mismatch, fsck result requiring non-automatic repair, mount or unmount failure, PCIe/DART/kernel fault, or lost console.",
   "evidence": [
     "evidence/2026-08-03-t6040-SD-ROOT-persistent-system.md",
-    "evidence/2026-08-03-t6040-sdroot-repair-v2-offline-review.md"
+    "evidence/2026-08-03-t6040-sdroot-repair-v2-offline-review.md",
+    "evidence/2026-08-04-t6040-215-repair-v2-independent-review.md"
   ],
   "created": 1785743968,
-  "runnable": false,
+  "runnable": true,
   "approved_by": "cj",
-  "approved_at": 1785744006,
-  "review_blocker": "Independent exact review must verify the repair/check modes, pre-mutation PCI/MMC/nested-root identity and assessment gates, minimal init, pinned package and archive members, automatic-only policy, SD-only DTB scope, complete raw-object manifest, final post-unmount exFAT check, and stop conditions before queue ready. Queue approval must acknowledge the corrected v2 object hash."
+  "approved_at": 1785796717,
+  "review_blocker": "Independent exact review must verify the repair/check modes, pre-mutation PCI/MMC/nested-root identity and assessment gates, minimal init, pinned package and archive members, automatic-only policy, SD-only DTB scope, complete raw-object manifest, final post-unmount exFAT check, and stop conditions before queue ready. Queue approval must acknowledge the corrected v2 object hash.",
+  "reviewed_by": "fable",
+  "ready_at": 1785796717
 }
