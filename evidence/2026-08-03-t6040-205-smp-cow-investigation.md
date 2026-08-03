@@ -330,3 +330,23 @@ getting away with it.
 Next: compare m1n1's secondary-CPU entry state against what `secondary_start_kernel` assumes, and
 check whether the Asahi tree carries M4 secondary-boot handling this port lacks. That is offline work
 and does not need the rig.
+
+## Round 6 addendum: silent-corruption test INCONCLUSIVE
+
+Attempted to distinguish *silent data corruption* from *faults only* — a genuinely important
+property, since silent corruption would mean a coherency bug while fault-only points at mapping or
+lifetime. Test: 6 iterations of `dd 16 MiB from /dev/urandom` → `md5sum` → `cp` → `md5sum`, comparing
+hashes, on the `p2clusters` (P00+P10) boot at maxcpus=2.
+
+**The test did not complete** — the session died before reporting. The console then showed a boot
+panicking at 3.74 s (`Attempted to kill init! exitcode=0x0000000b`), i.e. the machine had restarted
+and a subsequent SMP boot failed in the usual way. So no verdict on silent corruption, and no
+evidence that this particular test caused the death rather than merely coinciding with it.
+
+**Do not read this as "16 MiB copies crash the machine"** — the working hypothesis needs a rerun with
+the transcript preserved before each step, ideally at maxcpus=2 with the reproducer's known-good
+harness rather than a long-running loop that can lose its output when the victim is the shell.
+
+Also worth noting for whoever picks this up: `maxcpus=2` is where experiments *can* run (the system
+survives) but the shell itself is a candidate victim, so any multi-minute test needs its output
+streamed to `/dev/kmsg` line by line, not buffered to the end.
