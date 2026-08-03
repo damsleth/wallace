@@ -1,0 +1,20 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Ticket 221: gpio-macsmc BINDS, but nothing writes SMC keys.
+ *
+ * The previous step (smc-nogpio) disabled the smc_gpio child AND removed
+ * pwren-gpios, and 14 CPUs booted -- so the trigger is in that pair, not in the
+ * SMC RTKit endpoint (which initialised fine). This splits the pair:
+ *
+ *   smc_gpio ENABLED  (gpio-macsmc binds, gpiochip registers)
+ *   pwren-gpios REMOVED (no gP13/gP19 SMC key writes during PCIe probe)
+ *
+ *   14 CPUs boot -> the SMC KEY WRITES are the trigger. Very narrow: look at
+ *     gpio-macsmc's write path and macsmc's key-write locking/serialisation.
+ *   still hangs   -> merely registering the gpiochip is enough, which points at
+ *     gpio-macsmc probe (it reads the key index / does a first SMC transaction).
+ */
+#include "t6040-j614s-dcuart-wifi-cpufreq.dts"
+
+&port00 { /delete-property/ pwren-gpios; };
+&port01 { /delete-property/ pwren-gpios; };

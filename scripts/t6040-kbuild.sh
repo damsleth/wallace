@@ -266,7 +266,9 @@ if [ "${CPUFREQ:-0}" = "1" ]; then
                 t6040-j614s-dcuart-ponly.dts \
                 t6040-j614s-dcuart-p2clusters.dts \
                 t6040-j614s-dcuart-wifi-nonvme.dts \
-                t6040-j614s-dcuart-wifi-nosmc.dts; do
+                t6040-j614s-dcuart-wifi-nosmc.dts \
+                t6040-j614s-dcuart-smc-nogpio.dts \
+                t6040-j614s-dcuart-smc-gpio-nopwren.dts; do
         for f in "/out/$base" "/src/$APPLE/$base"; do
             [ -f "$f" ] && cp "$f" $APPLE/ && break
         done
@@ -1732,6 +1734,18 @@ if [ "${CPUFREQ:-0}" = "1" ] && [ -f $APPLE/t6040-j614s-dcuart-cpufreq.dts ]; th
         make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-wifi-cpufreq.dtb
         cp $APPLE/t6040-j614s-dcuart-wifi-cpufreq.dtb /out/ \
             && echo "DTB -> /out/t6040-j614s-dcuart-wifi-cpufreq.dtb"
+    fi
+    # Ticket 221: gpio-macsmc binds but nothing writes SMC keys.
+    if [ -f $APPLE/t6040-j614s-dcuart-smc-gpio-nopwren.dts ]; then
+        make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-smc-gpio-nopwren.dtb
+        cp $APPLE/t6040-j614s-dcuart-smc-gpio-nopwren.dtb /out/ \
+            && echo "DTB -> /out/t6040-j614s-dcuart-smc-gpio-nopwren.dtb"
+    fi
+    # Ticket 221: SMC alive but no gpio-macsmc consumer.
+    if [ -f $APPLE/t6040-j614s-dcuart-smc-nogpio.dts ]; then
+        make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-smc-nogpio.dtb
+        cp $APPLE/t6040-j614s-dcuart-smc-nogpio.dtb /out/ \
+            && echo "DTB -> /out/t6040-j614s-dcuart-smc-nogpio.dtb"
     fi
     # Ticket 221 bisect step 3: full wifi DTB minus SMC.
     if [ -f $APPLE/t6040-j614s-dcuart-wifi-nosmc.dts ]; then

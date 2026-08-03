@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Ticket 221: SMC RTKit endpoint ALIVE, but no gpio-macsmc consumer.
+ *
+ * Established: SMC disabled -> 14 CPUs boot; SMC enabled -> hang, with or
+ * without cpufreq, and regardless of the sram window size (shrinking it only
+ * makes SMC fail to boot).
+ *
+ * This separates the two things "SMC enabled" bundles together:
+ *   (a) the SMC RTKit coprocessor existing, booting and being polled, versus
+ *   (b) gpio-macsmc performing SMC KEY WRITES (gP13/gP19) during PCIe probe.
+ *
+ * Keep smc + smc_mbox (so (a) happens in full) and remove (b) entirely: disable
+ * the smc_gpio child AND drop the pwren-gpios that reference it, so PCIe does
+ * not sit in deferred probe waiting for a gpiochip that will never appear.
+ *
+ *   14 CPUs boot -> the SMC KEY WRITES are the trigger, not SMC itself. That is
+ *     a narrow, fixable target (and hints at gpio-macsmc's write path).
+ *   still hangs   -> merely having SMC up is enough; the gpio consumer is
+ *     exonerated and suspicion moves to the other consumers (hwmon/power/rtc)
+ *     or to macsmc's probe itself.
+ *
+ * NOTE: WiFi/BT/SD get no power in this configuration, which is why this test
+ * uses the RAM-root initramfs rather than the SD root.
+ */
+#include "t6040-j614s-dcuart-wifi-cpufreq.dts"
+
+&smc_gpio { status = "disabled"; };
+
+&port00 { /delete-property/ pwren-gpios; };
+&port01 { /delete-property/ pwren-gpios; };

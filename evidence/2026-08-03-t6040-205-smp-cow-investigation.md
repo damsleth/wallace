@@ -679,3 +679,58 @@ characterised over nine rounds. Treating them as one bug is an assumption I have
    death is visible at all. Without this, step 1 and 2 results are only pass/fail with no diagnosis.
    **Do this first if steps 1-2 are inconclusive.**
 4. Only then treat the 5-core faults as a separate investigation.
+
+---
+
+# 🎯 Round 11 (ticket 221): pinned to the **`pwren-gpios` SMC key writes**
+
+Continuing the single-variable bisect at maxcpus=14, full wifi DTB lineage, `initramfs-dcuart` RAM root:
+
+| variant | SMC RTKit | gpiochip | `pwren-gpios` key writes | 14-core result |
+|---|---|---|---|---|
+| full wifi DTB | ✅ | ✅ | ✅ | ❌ **hang** |
+| `wifi-nosmc` | ✗ | ✗ | ✗ | ✅ 14 CPUs (458 lines) |
+| `smc-nogpio` | ✅ | ✗ | ✗ | ✅ 14 CPUs (509 lines) |
+| `smc-gpio-nopwren` | ✅ | ✅ | ✗ | ✅ **14 CPUs (510 lines)** |
+
+**The trigger is the `gP13`/`gP19` SMC key writes themselves.** Everything else about SMC is fine at
+fourteen cores: the RTKit coprocessor initialises (`macsmc … RTKit: Initializing (protocol version
+12)`), `macsmc-reboot` binds, and `gpio-macsmc` registers its gpiochip — all with 14 CPUs online. Only
+when `pcie-apple` calls `gpiod_set_value()` on those two lines during port probe does the machine die.
+
+This is as narrow as the bisect can go from the DT side, and it is a **very** small target: two SMC key
+writes, performed once each, early in boot.
+
+## Why this is a satisfying explanation
+
+- **It is a write, not a read.** Every other SMC interaction that survives 14 cores is a read or an
+  endpoint handshake. `gpio-macsmc` writes `gP13 <- CMD_OUTPUT|1`.
+- It happens **exactly once per port, early**, which fits a boot-time hang rather than a gradual
+  degradation — and it fits the 14-core symptom being a *pre-console death* rather than the
+  intermittent bulk-store faults we see at 5-6 cores. Those may genuinely be two separate problems.
+- We already knew this write is **not byte-identical to macOS**: sol's decode (2026-07-29) showed
+  `AppleSMCEmbeddedFunction::callFunction()` writes `gP13 <- 0x00800001` while `gpio-macsmc` writes
+  `CMD_OUTPUT|1 = 0x01000001`. That discrepancy was recorded at the time as "the SMC empirically
+  accepts it" — it now looks considerably more suspicious.
+- The ADT also documents a `function-pcie_port_control = PrtC(0x57)` step and a 100 ms
+  `wlan_reg_on_on_delay` around this power-up that we never implemented, flagged as "if the link still
+  refuses after power-on, that port-control call is the next thing to decode".
+
+## Next experiments, cheapest first
+
+1. **Write macOS's value.** Patch `gpio-macsmc` (or hard-code a one-off) to write `0x00800001` instead
+   of `0x01000001` for these keys and retest at 14. If that fixes it, we have both the mechanism and a
+   real fix, and sol's decode becomes load-bearing rather than a footnote.
+2. **Serialise/delay the write.** Add the ADT's 100 ms `wlan_reg_on_on_delay` after the write, and try
+   performing it with fewer CPUs online (e.g. write before secondary bringup). Distinguishes "wrong
+   value" from "wrong timing/concurrency".
+3. **Which key?** Drop `pwren-gpios` from `port01` (SD) only, keeping `port00` (WiFi/BT). If one key is
+   safe and the other is not, that is a further large narrowing — and if `gP13` alone is safe we could
+   ship WiFi at 14 cores immediately.
+4. **Get output from the hang** (`DOCKCHANNEL_EARLYCON`) so failures stop being pass/fail.
+
+## Practical note
+
+We cannot simply drop `pwren-gpios`: they power WiFi, BT and the SD card the persistent root lives on.
+But experiment 3 might let us keep WiFi at full core count even before the root cause is fixed, and
+experiment 1 is a genuinely small change with a specific, evidence-backed expected value.
