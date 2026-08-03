@@ -186,3 +186,36 @@ Bisect *what* suppresses it, from cheapest to most meaningful (ticket 207):
 `smp_mb()` alone → a single dummy read of `kto` → `dcache` maintenance on the destination →
 nothing (control). Whichever minimal operation makes the fault go away names the missing primitive,
 and that is directly upstreamable.
+
+---
+
+# Round 4 (ticket 208): the control PASSES — the Heisenbug is real
+
+Reverted the instrumentation, rebuilt (verified: `t6040-cow` string absent from the Image), and ran
+the identical reproducer 4x at maxcpus=2 in one boot.
+
+| build | traces over 4 runs |
+|---|---|
+| instrumented (`WARN_ONCE` before `copy_page`) | **0** |
+| un-instrumented (control) | **2** |
+
+So the suppression is attributable to the instrumentation, not to build luck or the machine changing.
+**Ticket 207's bisect is valid** — there is a real, minimal operation that makes this fault vanish,
+and finding it names the missing primitive.
+
+Two refinements from the control run:
+
+- The fault fired only in the **first** run of the four; runs 2-4 were clean. That points at a
+  first-touch / settling effect (fresh anon pages, cold caches, or a cluster that has not yet been
+  scheduled on) rather than steady-state corruption. **Any future single-run "clean" result is
+  therefore weak evidence** — repeat counts matter, and a clean run 1 is the meaningful signal.
+- The loops **completed** in the control: the victim was a child process, not the parent shell. That
+  is consistent with the maxcpus=2 daily-driver observation (system survives, random processes die)
+  and with maxcpus>=3 killing PID 1 and panicking.
+
+## Method note for the whole ticket
+
+Because the fault is timing-sensitive and first-touch-biased, every experiment from here on must:
+1. record the trace count at a **fresh boot baseline**, then after each run;
+2. run the reproducer **at least 4 times**, treating run 1 as the sensitive one;
+3. never conclude from a single clean run.
