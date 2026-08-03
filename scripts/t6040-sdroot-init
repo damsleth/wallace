@@ -19,9 +19,52 @@ say() {
     echo "sdroot: $*"
 }
 
+# Everything the rescue shell wants to know about why the card is absent.
+# Printed before dropping the shell, because the shell may be unusable.
+diag() {
+    say "--- diagnostics ---"
+    say "partitions:"; "$BB" cat /proc/partitions 2>/dev/null
+    for h in /sys/class/mmc_host/*; do
+        [ -d "$h" ] || continue
+        say "mmc_host $("$BB" basename "$h"): slots=$("$BB" ls "$h" 2>/dev/null | "$BB" tr '\n' ' ')"
+    done
+    say "block devices: $("$BB" ls /sys/class/block 2>/dev/null | "$BB" tr '\n' ' ')"
+    say "pci devices: $("$BB" ls /sys/bus/pci/devices 2>/dev/null | "$BB" tr '\n' ' ')"
+    # Is there a keyboard at all? A rescue shell that ignores keys is usually
+    # missing an input device, not a controlling terminal.
+    say "input devices: $("$BB" ls /dev/input 2>/dev/null | "$BB" tr '\n' ' ')"
+    for i in /sys/class/input/input*; do
+        [ -r "$i/name" ] || continue
+        say "  $("$BB" basename "$i"): $("$BB" cat "$i/name" 2>/dev/null)"
+    done
+    say "--- end diagnostics ---"
+}
+
+# The rescue shell must be usable from the built-in keyboard, which means a
+# real controlling terminal. Inheriting init's stdin gives /dev/console with
+# no ctty -- busybox then prints "can't access tty: job control turned off"
+# and ignores every keypress. setsid -c on a VT fixes both.
+rescue_shell() {
+    # apple-pmgr-pwrstate emits a continuous sync_state() stream for seconds
+    # after init starts; at the default loglevel it scrolls the prompt away and
+    # makes the shell look dead. Console loglevel 1 keeps the VT usable while
+    # /dev/kmsg (and thus the serial log) still records everything.
+    echo 1 >/proc/sys/kernel/printk 2>/dev/null || true
+    for t in /dev/tty1 /dev/tty0 /dev/console; do
+        [ -c "$t" ] || continue
+        say "rescue shell on $t (keyboard should work here)"
+        setsid -c "$BB" sh -i <"$t" >"$t" 2>&1 && return
+        "$BB" setsid -c "$BB" sh -i <"$t" >"$t" 2>&1 && return
+    done
+    say "no usable VT found; falling back to an inherited-stdin shell"
+    exec "$BB" sh -i
+}
+
 stop() {
     say "STOP: $*"
     say "No further card writes will be attempted; use the diagnostic shell."
+    diag
+    rescue_shell
     exec "$BB" sh -i
 }
 
@@ -46,10 +89,29 @@ cleanup_root() {
 
 mount_core || stop "cannot mount proc, sysfs, and devtmpfs"
 
-[ -d "$PCI_DEV" ] || stop "GL9755 0000:02:00.0 is absent"
+# PCIe is enumerated asynchronously and /init can run extremely early -- on a
+# fast rootfs unpack it has been observed at 0.20s, long before apple-pcie has
+# brought up port 2 or sdhci-pci has bound. These gates therefore have to WAIT,
+# not sample once: an unwaited check reports "absent" when it means "not yet",
+# which is how this failed after a hard reboot with a perfectly good card.
+n=0
+while [ ! -d "$PCI_DEV" ] && [ "$n" -lt 25 ]; do
+    "$BB" sleep 1
+    n=$((n + 1))
+done
+[ -d "$PCI_DEV" ] || stop "GL9755 0000:02:00.0 is absent after ${n}s"
+say "GL9755 present after ${n}s"
+
 [ "$("$BB" cat "$PCI_DEV/vendor" 2>/dev/null)" = 0x17a0 ] || stop "wrong PCI vendor"
 [ "$("$BB" cat "$PCI_DEV/device" 2>/dev/null)" = 0x9755 ] || stop "wrong PCI device"
-[ -L "$PCI_DEV/driver" ] || stop "GL9755 has no bound driver"
+
+n=0
+while [ ! -L "$PCI_DEV/driver" ] && [ "$n" -lt 25 ]; do
+    "$BB" sleep 1
+    n=$((n + 1))
+done
+[ -L "$PCI_DEV/driver" ] || stop "GL9755 has no bound driver after ${n}s"
+say "sdhci-pci bound after ${n}s"
 [ "$("$BB" basename "$("$BB" readlink "$PCI_DEV/driver")")" = sdhci-pci ] || \
     stop "GL9755 is not bound to sdhci-pci"
 [ -L "$PCI_DEV/iommu_group" ] || stop "GL9755 lacks a DART/IOMMU group"
