@@ -1,0 +1,23 @@
+#!/bin/sh
+# Graphical session for the persistent SD root (ticket 213). Lives at
+# /usr/local/sbin/t6040-startx on the card, run from inittab as a ::once: entry.
+#
+# Deliberately does NOT use startx/xinit: xinit exits immediately in this
+# configuration and takes X down with it, even with a valid hostname. Launching
+# Xorg and i3 directly is the path proven live 2026-08-03 (i3 4.24 on the native
+# 3024x1867 panel).
+#
+# hostname FIRST: as a ::once: entry this races ahead of openrc's hostname
+# service, and xauth then builds the display name "(none):0", fails, and i3
+# cannot authenticate -- X exits and it looks like an X bug rather than a
+# boot-ordering bug.
+hostname -F /etc/hostname 2>/dev/null
+n=0
+while [ ! -e /dev/dri/card0 ] && [ "$n" -lt 30 ]; do sleep 1; n=$((n + 1)); done
+[ -e /dev/dri/card0 ] || exit 0
+export HOME=/root DISPLAY=:0
+/usr/libexec/Xorg :0 -logfile /var/log/xorg.log -noreset vt1 >/var/log/xorg-start.log 2>&1 &
+n=0
+while [ ! -e /tmp/.X11-unix/X0 ] && [ "$n" -lt 20 ]; do sleep 1; n=$((n + 1)); done
+setxkbmap no 2>/dev/null
+exec /usr/bin/i3 >/var/log/i3.log 2>&1
