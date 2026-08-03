@@ -885,3 +885,63 @@ with zero visibility, and the earlycon attempt was invalidated. Options: correct
 address (from the DT's dockchannel data window rather than a guess), or m1n1-side tracing of the SMC
 key write, or bisecting *which* of the two keys (`gP13` WiFi vs `gP19` SD) triggers it — the last is
 cheap and might allow WiFi at full core count even before the mechanism is understood.
+
+---
+
+# 🎯 Round 15 (ticket 223): the trigger is **`gP13` (WiFi/BT), not `gP19` (SD)** — and it proves TWO bugs
+
+## The key bisect
+
+Methodology per the round-13 rules throughout: lease live, logs deleted per boot, `maxcpus=14`
+asserted from `dcuart-boot.log`, no suppressed output, `REFUSE` count checked as 0.
+
+| DTB | key driven | 14-core result |
+|---|---|---|
+| both keys (full DTB) | `gP13` + `gP19` | ❌ hang (20 lines) |
+| `pwren-wifi-only` | **`gP13`** (BCM4388 `WL_REG_ON`) | ❌ **hang** (20 lines) |
+| `pwren-sd-only` | **`gP19`** (SD reader power) | ✅ **14 CPUs boot** (530 lines) |
+| neither key | – | ✅ 14 CPUs boot |
+
+**`gP13` alone is sufficient to cause the pre-console hang; `gP19` alone is harmless.** So the trigger
+is specifically **powering on the BCM4388 WiFi/BT module**, not SMC key writes in general — and since
+ticket 223 already exonerated brcmfmac, it is the *chip coming up* rather than any driver that does it.
+
+## This is decisive evidence for TWO separate bugs
+
+I have been careful not to assert that the 14-core hang and the 5-6 core bulk-store corruption were
+one bug. They are not:
+
+- **Bug A — the `gP13` hang.** Pre-console, deterministic, caused by powering the BCM4388 at high core
+  count. Avoidable by not driving `gP13`.
+- **Bug B — bulk-store corruption into freshly allocated pages.** Five signatures (`clear_page`,
+  `copy_page`, `__pi_memcpy_generic`, `copy_folio_from_iter_atomic`, `__pi_memset_generic`),
+  intermittent, present from 2 cores upward, unaffected by everything tested so far.
+
+Booting `pwren-sd-only` at 14 cores **avoids bug A and exposes bug B**: the kernel brings up all
+fourteen CPUs, mounts the SD card, switch_roots and starts OpenRC (532 lines) — and then **userspace
+dies**. The ttydc0 shell never answers. So this is *not* a usable 14-core system, and the honest
+statement is:
+
+> Avoiding `gP13` buys a 14-CPU **kernel**, not a 14-core **daily driver**. Bug B still ruins userspace.
+
+## What this is worth
+
+- **Mechanistically:** the hang is now bounded to one SMC key write powering one specific chip. That is
+  a very small target, and it explains why every CPU/MMU/cache hypothesis failed — bug A was never a
+  CPU bug at all.
+- **Practically:** nothing shippable yet. `maxcpus=1` remains the only configuration with a working
+  userspace, and it needs `gP13` for WiFi anyway (at 1 core `gP13` is harmless).
+- **For bug B:** we now have a configuration that reaches 14 CPUs with a real root filesystem, which is
+  a much better harness for studying bug B than anything before it — the corruption can be exercised at
+  full core count without bug A masking it.
+
+## Next steps
+
+1. **Bug A:** why does powering the BCM4388 kill a 14-CPU boot pre-console? Candidates: an interrupt
+   storm from the endpoint before any handler exists; the ADT's unimplemented
+   `function-pcie_port_control = PrtC(0x57)` step and 100 ms `wlan_reg_on_on_delay`; or PCIe link
+   training racing secondary CPU bringup. Test the ADT delay first — it is a two-line change.
+2. **Bug B:** use `pwren-sd-only` at 14 cores as the harness and re-run `scripts/t6040-cow-repro.sh`
+   with output streamed to `/dev/kmsg` per step, now that bug A no longer masks it.
+3. Both remain gated on getting **real diagnostics** from a pre-console hang (`earlycon=dockchannel`
+   with the correct address).

@@ -268,7 +268,8 @@ if [ "${CPUFREQ:-0}" = "1" ]; then
                 t6040-j614s-dcuart-wifi-nonvme.dts \
                 t6040-j614s-dcuart-wifi-nosmc.dts \
                 t6040-j614s-dcuart-smc-nogpio.dts \
-                t6040-j614s-dcuart-smc-gpio-nopwren.dts; do
+                t6040-j614s-dcuart-smc-gpio-nopwren.dts \
+                t6040-j614s-dcuart-pwren-wifi-only.dts t6040-j614s-dcuart-pwren-sd-only.dts; do
         for f in "/out/$base" "/src/$APPLE/$base"; do
             [ -f "$f" ] && cp "$f" $APPLE/ && break
         done
@@ -1750,6 +1751,13 @@ if [ "${CPUFREQ:-0}" = "1" ] && [ -f $APPLE/t6040-j614s-dcuart-cpufreq.dts ]; th
         cp $APPLE/t6040-j614s-dcuart-wifi-cpufreq.dtb /out/ \
             && echo "DTB -> /out/t6040-j614s-dcuart-wifi-cpufreq.dtb"
     fi
+    # Ticket 223 bisect: one pwren key at a time (gP13 WiFi vs gP19 SD).
+    for _pw in t6040-j614s-dcuart-pwren-wifi-only t6040-j614s-dcuart-pwren-sd-only; do
+        if [ -f $APPLE/$_pw.dts ]; then
+            make ARCH=arm64 -j"$NPROC" apple/$_pw.dtb
+            cp $APPLE/$_pw.dtb /out/ && echo "DTB -> /out/$_pw.dtb"
+        fi
+    done
     # Ticket 221: gpio-macsmc binds but nothing writes SMC keys.
     if [ -f $APPLE/t6040-j614s-dcuart-smc-gpio-nopwren.dts ]; then
         make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-smc-gpio-nopwren.dtb

@@ -1,0 +1,16 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Ticket 223 bisect: only gP13 (port00, WiFi/BT WL_REG_ON) is driven.
+ * port01's gP19 (SD reader power) is removed.
+ *
+ * Established: with BOTH pwren-gpios the machine hangs at 14 cores; with NEITHER
+ * all 14 CPUs boot. Endpoint drivers, the SMC RTKit endpoint, the sram window,
+ * cpufreq and the GPIO command value are all exonerated.
+ *
+ *   boots -> gP13 is safe and gP19 (SD) is the trigger. Practical payoff: WiFi
+ *     and BT at FULL core count immediately, losing only the SD card.
+ *   hangs -> gP13 alone is sufficient to trigger it.
+ */
+#include "t6040-j614s-dcuart-wifi-cpufreq.dts"
+
+&port01 { /delete-property/ pwren-gpios; };

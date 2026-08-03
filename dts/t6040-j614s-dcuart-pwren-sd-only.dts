@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Ticket 223 bisect: only gP19 (port01, SD reader power) is driven.
+ * port00's gP13 (WiFi/BT WL_REG_ON) is removed.
+ *
+ * The complement of pwren-wifi-only. Together the two isolate which of the two
+ * SMC key writes triggers the 14-core hang -- or show that either one does.
+ */
+#include "t6040-j614s-dcuart-wifi-cpufreq.dts"
+
+&port00 { /delete-property/ pwren-gpios; };
