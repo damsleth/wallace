@@ -229,6 +229,13 @@ if [ "${TRACKPAD_FW:-0}" = "1" ]; then
         exit 1
     }
 fi
+if [ "${TRACKPAD_RESET_CONTRACT:-0}" = "1" ]; then
+    [ "${TRACKPAD_FW:-0}" = "1" ] || {
+        echo "ERROR: TRACKPAD_RESET_CONTRACT=1 requires TRACKPAD_FW=1 (it rewrites"
+        echo "       the dchid_reset_interface() call sites that patch introduces)"
+        exit 1
+    }
+fi
 if [ "${NVME_THREADED_IRQ:-0}" = "1" ]; then
     [ "${NVME:-0}" = "1" ] || {
         echo "ERROR: NVME_THREADED_IRQ=1 requires NVME=1"
@@ -1068,6 +1075,23 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
         echo "ERROR: t6040-dockchannel-trackpad-fw.patch does not apply cleanly:"
         git apply --check /out/t6040-dockchannel-trackpad-fw.patch || true
         exit 1
+    fi
+    # The post-upload interface power request. Must land AFTER trackpad-fw,
+    # whose dchid_reset_interface() call sites it rewrites. Ticket 230.
+    if [ "${TRACKPAD_RESET_CONTRACT:-0}" = "1" ]; then
+        if grep -q 'PWR_REQ_V2' \
+                drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c; then
+            echo "t6040-dockchannel-hid-reset-contract.patch already applied"
+        elif git apply --check \
+                /out/t6040-dockchannel-hid-reset-contract.patch 2>/dev/null; then
+            git apply /out/t6040-dockchannel-hid-reset-contract.patch
+            echo "t6040-dockchannel-hid-reset-contract.patch applied OK"
+        else
+            echo "ERROR: t6040-dockchannel-hid-reset-contract.patch does not apply:"
+            git apply --check \
+                /out/t6040-dockchannel-hid-reset-contract.patch || true
+            exit 1
+        fi
     fi
     if [ "${HID_STATE_TRACE:-0}" = "1" ]; then
         if grep -q 'trace_irq_calls' drivers/mailbox/apple-dockchannel.c; then

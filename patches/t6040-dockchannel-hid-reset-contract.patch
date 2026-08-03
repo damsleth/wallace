@@ -1,0 +1,162 @@
+From: CJ Damsleth <kim@damsleth.no>
+Subject: [PATCH] HID: apple-dockchannel-hid: speak the v2 interface power request
+
+The post-upload "reset" that apple_dockchannel_hid performs on the
+multi-touch interface is really the MTP coprocessor's interface power
+request (comm HID feature report 0x40). The driver sends the four-byte,
+version-1 form:
+
+	{ 0x40, 0x01, iface, state }
+
+The J614s / T6040 MTP firmware (AppleMTPFirmwareMac-5340.61.4~438, SDK
+25F63, shipped in macOS 25F84 for Mac16,8) implements only the nine-byte,
+version-2 form:
+
+	{ 0x40, 0x02, iface, state, phase, u32 status }
+
+Its comm control-report handler checks the payload length first and bails
+with kIOReturnBadArgument (0xe00002c2) before looking at any other field, so
+the upload is accepted, the interface is never power-cycled into the
+firmware it was handed, and the ready event never arrives:
+
+	dockchannel-hid 514600000.hid: sending firmware for multi-touch
+	dockchannel-hid 514600000.hid: command 0x40 to iface 0 (comm) failed
+	    with err 0xe00002c2
+
+macOS drives the same registers. AppleHIDTransportInterface reads a
+"PowerMethod" property: kPowerMethodTypeAtomic (1) uses
+AppleHIDTransportProtocol::setInterfacePower(), the four-byte version-1
+request, and kPowerMethodTypeWillHas (2) uses the
+setInterfacePowerWillChange()/setInterfacePowerHasChanged() pair, the
+nine-byte version-2 request with phase 0 then phase 1. J614s uses the pair.
+
+Send the version-2 pair and fall back to the version-1 request if the
+coprocessor rejects it, so pre-T6040 MTP firmware keeps working. Also fix
+the command's name: 0x40 sets interface power, and 0x42 is the actual
+reset-interface command, which this driver does not use.
+
+Derived by static analysis of the macOS 25F84 kernelcache
+(AppleHIDTransportProtocolSCMFIFO) and of J614S_MtpFirmware.im4p; see
+evidence/2026-08-04-t6040-trackpad-post-upload-reset-contract.md.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+diff --git a/drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c b/drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c
+index 2b2d163..5031f7b 100644
+--- a/drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c
++++ b/drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c
+@@ -85,11 +85,37 @@ struct dchid_init_hdr {
+ #define INIT_TERMINATOR		2
+ #define INIT_PRODUCT_NAME	7
+ 
+-#define CMD_RESET_INTERFACE	0x40
+-#define CMD_RESET_INTERFACE_SUB	1
++/*
++ * Comm-interface commands. 0x40 is the coprocessor's interface power
++ * request; 0x41 reads a power state back and 0x42 is the real
++ * reset-interface command. Only 0x40 is used here.
++ */
++#define CMD_SET_POWER		0x40
+ #define CMD_SEND_FIRMWARE	0x95
+ #define CMD_ENABLE_INTERFACE	0xb4
+ 
++/* Power-request encodings. The coprocessor validates both. */
++#define PWR_REQ_V1		1	/* 4 bytes, single shot */
++#define PWR_REQ_V2		2	/* 9 bytes, will-change then has-changed */
++
++#define PWR_PHASE_WILL_CHANGE	0
++#define PWR_PHASE_HAS_CHANGED	1
++
++/* Interface power states. Anything >= 6 is rejected. */
++#define PWR_STATE_OFF		0
++#define PWR_STATE_SLEEP		1
++#define PWR_STATE_ON		2
++#define PWR_STATE_RESET		3
++
++struct dchid_power_req {
++	u8 cmd;
++	u8 version;
++	u8 iface;
++	u8 state;
++	u8 phase;
++	__le32 status;
++} __packed;
++
+ struct dchid_init_block_hdr {
+ 	__le16 type;
+ 	__le16 length;
+@@ -170,6 +196,7 @@ struct dchid_dev {
+ 	struct resource sram_res;
+ 
+ 	bool id_ready;
++	bool power_req_v1;
+ 	struct dchid_stm_id device_id;
+ 	char serial[64];
+ 
+@@ -427,12 +454,49 @@ static int dchid_enable_interface(struct dchid_iface *iface)
+ 	return dchid_comm_cmd(iface->dchid, cmd, sizeof(cmd));
+ }
+ 
++/*
++ * Move an interface to a power state. Powering an interface off and back on
++ * is what makes the coprocessor consume a firmware buffer registered with
++ * CMD_SEND_FIRMWARE, so this is also the post-upload "reset".
++ *
++ * MTP firmware from T6040 onwards implements only the version-2 request: a
++ * nine-byte message sent twice, first announcing the transition
++ * (PWR_PHASE_WILL_CHANGE) and then reporting the host side's result
++ * (PWR_PHASE_HAS_CHANGED, status 0 on success). It rejects the four-byte
++ * version-1 request on the payload-length check alone, before looking at any
++ * other field, with kIOReturnBadArgument (0xe00002c2). Earlier firmware
++ * implements only version 1. Probe for version 2 once and remember the
++ * answer; a rejected request has no side effects.
++ */
+ static int dchid_reset_interface(struct dchid_iface *iface, int state)
+ {
+-	u8 cmd[] = { CMD_RESET_INTERFACE, CMD_RESET_INTERFACE_SUB, iface->index,
+-		     (u8)state };
++	struct dchid_dev *dchid = iface->dchid;
++	struct dchid_power_req req = {
++		.cmd = CMD_SET_POWER,
++		.version = PWR_REQ_V2,
++		.iface = iface->index,
++		.state = (u8)state,
++		.phase = PWR_PHASE_WILL_CHANGE,
++		.status = cpu_to_le32(0),
++	};
++	u8 cmd[] = { CMD_SET_POWER, PWR_REQ_V1, iface->index, (u8)state };
++	int ret;
+ 
+-	return dchid_comm_cmd(iface->dchid, cmd, sizeof(cmd));
++	if (!dchid->power_req_v1) {
++		ret = dchid_comm_cmd(dchid, &req, sizeof(req));
++		if (ret >= 0) {
++			req.phase = PWR_PHASE_HAS_CHANGED;
++			return dchid_comm_cmd(dchid, &req, sizeof(req));
++		}
++		if (ret != -EIO)
++			return ret;
++
++		dev_info(dchid->dev,
++			 "v2 power request rejected, using v1 requests\n");
++		dchid->power_req_v1 = true;
++	}
++
++	return dchid_comm_cmd(dchid, cmd, sizeof(cmd));
+ }
+ 
+ static int dchid_send_firmware(struct dchid_iface *iface, const void *firmware,
+@@ -557,11 +621,11 @@ static int dchid_start_interface(struct dchid_iface *iface)
+ 		if (ret < 0)
+ 			goto err;
+ 
+-		ret = dchid_reset_interface(iface, 0);
++		ret = dchid_reset_interface(iface, PWR_STATE_OFF);
+ 		if (ret < 0)
+ 			goto err;
+ 
+-		ret = dchid_reset_interface(iface, 2);
++		ret = dchid_reset_interface(iface, PWR_STATE_ON);
+ 		if (ret < 0)
+ 			goto err;
+ 	}
