@@ -1513,6 +1513,18 @@ if [ "${CPUFREQ_ASSERT_AFTER_OLDDEFCONFIG:-0}" = "1" ]; then
     grep -q '^CONFIG_CPU_FREQ_GOV_PERFORMANCE=y$' .config
     grep -q '^CONFIG_CPU_FREQ_GOV_POWERSAVE=y$' .config
 fi
+# Ticket 215: T6040_NO_TLB_RANGE=1 disables ARM64_TLB_RANGE (TLBI RVAE1IS &c).
+# Hypothesis: M4 mishandles range TLB invalidation, which would explain the whole
+# 205 signature set -- stale translations after page-table changes, faults on
+# validly-mapped pages during BULK operations, worse with more CPUs (broadcast),
+# hidden by tiny delays, and sensitive to rodata_full (page-granular linear map
+# issues far more TLBIs). Applied after olddefconfig so it cannot be re-enabled.
+if [ "${T6040_NO_TLB_RANGE:-0}" = "1" ]; then
+    ./scripts/config --file .config -d ARM64_TLB_RANGE
+    make ARCH=arm64 olddefconfig >/dev/null
+    echo "== assert ARM64_TLB_RANGE is DISABLED =="
+    grep -q '^# CONFIG_ARM64_TLB_RANGE is not set$' .config
+fi
 if [ "${WIFI_ASSERT_AFTER_OLDDEFCONFIG:-0}" = "1" ]; then
     # Re-apply and re-settle: olddefconfig may demote a tristate we set to =y.
     # Loop until stable, then hard-assert. A silent =m here costs a rig cycle.

@@ -428,3 +428,67 @@ handed out**, and that the page-granular linear map (`rodata_full`, i.e. `set_di
    changes.
 
 Item 3 is the cheapest and most likely to be informative next.
+
+---
+
+# Round 8 (ticket 215): the config bisect — TLB invalidation is the converging answer, but no fix yet
+
+## `rodata=full` is a runtime knob, not a Kconfig symbol
+
+`rodata_full` is `bool rodata_full __ro_after_init = true` in `arch/arm64/mm/pageattr.c`, set by the
+`rodata=` cmdline parameter. There is no `CONFIG_RODATA_FULL_DEFAULT_ENABLED` in this tree, so item (1)
+of ticket 215 was moot and the cmdline test was already the right mechanism.
+
+Crucially, `can_set_direct_map()` is:
+
+```c
+return rodata_full || debug_pagealloc_enabled() || arm64_kfence_can_set_direct_map() || is_realm_world();
+```
+
+and in our config `DEBUG_PAGEALLOC`, `KFENCE`, `PAGE_POISONING` and `SHUFFLE_PAGE_ALLOCATOR` are **all
+off**. So `rodata=on` genuinely disables the page-granular linear map outright — the improvement is a
+real semantic change, not a side effect.
+
+## `rodata=on` is REPRODUCIBLE at 5 cores
+
+Per the 208 method rule, repeated:
+
+| config | maxcpus=5 | maxcpus=14 |
+|---|---|---|
+| default | **hang** (20 lines), every attempt | **hang** |
+| `rodata=on` | **boots 3/3** — 654 / 637 / 557 lines, `Brought up 1 node, 5 CPUs`, OpenRC, no panic, 3 traces each | **hang** |
+| `ARM64_TLB_RANGE=n` (no `rodata=on`) | **boots** — 635 lines, 5 CPUs, OpenRC, 3 traces, no panic | — |
+| `ARM64_TLB_RANGE=n` + `rodata=on` | — | **hang** |
+
+## The converging observation
+
+**Two independent changes produce the same improvement, and both reduce TLB-invalidation work:**
+
+- `rodata=on` → block-mapped linear map → far fewer PTE splits → far fewer TLBIs.
+- `ARM64_TLB_RANGE=n` → individual `TLBI VAE1IS` instead of range operations (`TLBI RVAE1IS`).
+
+Two unrelated-looking knobs converging on the same partial improvement, both in the TLB-maintenance
+path, is much stronger evidence than either alone. It also fits every prior observation: faults on
+validly-mapped addresses, bulk operations as the victim, severity scaling with CPU count (TLBI is
+broadcast), suppression by tiny delays, and a first-touch bias.
+
+**But it is a scaling effect, not a fix.** The threshold moved from ~3 cores to ~5; 14 cores still
+hangs with both applied, and 5 cores still produces 3 traces. So this reduces TLB pressure enough to
+get further, rather than correcting whatever is actually wrong.
+
+## Honest limits of this round
+
+- The `ARM64_TLB_RANGE=n` result is **one boot**, not four. It matches the `rodata=on` profile closely,
+  but by our own method rule it needs repeating before being leaned on.
+- Both knobs are *perturbations* as well as semantic changes, so the Heisenbug caveat from rounds 3-5
+  has not been fully escaped. The reason to take this round more seriously is the *convergence* on one
+  mechanism, not the individual results.
+- `CONFIG_ARM64_HW_AFDBM=y` (hardware access/dirty-bit management) is untested and is the other
+  strong candidate: `do_wp_page` depends on dirty/AF bits, and a core that mishandles hardware DBM
+  would corrupt exactly the CoW path. **That is the next single experiment.**
+
+## Practical state
+
+`T6040_NO_TLB_RANGE=1` is now a kbuild switch (default off), and the baseline kernel has been rebuilt
+with `ARM64_TLB_RANGE=y` restored so `/out` is unmodified. The daily driver remains `maxcpus=1`;
+nothing here changes that recommendation, because 5 cores still faults even when it boots.
