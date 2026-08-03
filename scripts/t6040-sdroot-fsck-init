@@ -12,6 +12,19 @@ mount -t tmpfs none /tmp 2>/dev/null || exit 1
 mkdir -p /run /mnt
 mount -t tmpfs none /run 2>/dev/null || exit 1
 
+# Norwegian console keymap, loaded BEFORE any shell can be spawned (including
+# the rescue shell at the end of this script). AGENTS.md: no exceptions, and a
+# shell in US layout is a build defect.
+if [ -f /etc/wallace-no.bmap ]; then
+    if busybox loadkmap < /etc/wallace-no.bmap 2>/dev/null; then
+        echo "console keymap: no (wallace-no.bmap)" >/dev/console
+    else
+        echo "WARNING: loadkmap failed; console stays US" >/dev/console
+    fi
+else
+    echo "WARNING: /etc/wallace-no.bmap missing; console stays US" >/dev/console
+fi
+
 n=0
 while [ ! -c /dev/ttydc0 ] && [ "$n" -lt 30 ]; do
     n=$((n + 1))

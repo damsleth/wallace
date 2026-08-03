@@ -5,25 +5,23 @@
   "state": "approved",
   "track": "storage",
   "priority": "P1",
-  "desc": "Repair the dirty SD64 exFAT fixture and its known ext4 loop image before any further SD-root write. Before its first mutation, v2 proves the exact GL9755 PCI identity and sdhci-pci/IOMMU binding, mmcblk0 sysfs ancestry, SD64 label/type, root-image size, and nested ext4 UUID/type through read-only mounts and checks. Its minimal init starts no network, SSH, OpenRC, automount, watchdog, or background job. Only automatic fsck repairs are permitted, followed by read-only postchecks and fault gates. No repartition, format, resize, discard, arbitrary raw write, or new hardware-write surface. The prior initramfs and DTB hashes are withdrawn; the ticket is non-runnable until a new SD-only gP19 DTB, kernel, prefix, and complete boot object are pinned and independently reviewed.",
+  "desc": "Repair the dirty SD64 exFAT fixture and its known ext4 loop image before any further SD-root write. Before its first mutation, v2 proves the exact GL9755 PCI identity and sdhci-pci/IOMMU binding, mmcblk0 sysfs ancestry, SD64 label/type, root-image size, and nested ext4 UUID/type through read-only mounts and checks. Its minimal init starts no network, SSH, OpenRC, automount, watchdog, or background job. Only automatic fsck repairs are permitted, followed by read-only postchecks and fault gates. No repartition, format, resize, discard, arbitrary raw write, or new hardware-write surface. The prior initramfs and DTB hashes are withdrawn; the ticket is non-runnable until a new SD-only gP19 DTB, kernel, prefix, and complete boot object are pinned and independently reviewed. READINESS RETRACTED 2026-08-04 (fable): the pinned repair initramfs ships NO etc/wallace-no.bmap and its /init loads no keymap, so it fails scripts/t6040-image-preflight.sh. AGENTS.md is explicit that this applies to rescue shells and initramfs-only boots with no exceptions, and this image ends in `exec sh -i`. My 2026-08-04 review did not run the mandated preflight -- that was the gap. Do NOT run the old hashes. A corrected image and object are being rebuilt; all member hashes will change. RESOLVED 2026-08-04 (fable): v3 adds etc/wallace-no.bmap and loads it via busybox loadkmap BEFORE the rescue shell. Two clean builds byte-identical (initramfs 901ad007, object bf395c6e); strict verifier PASS (36,945,920 B = 2,255x16KiB, entry 0x800, bootargs c11acb05 unchanged); t6040-image-preflight.sh OK. Run the v3 object ONLY. STOP CONDITIONS: any SError, DART/IOMMU fault, kernel panic, unexpected reset, console loss before the PASS/STOP marker, or any fsck return >1 (the script itself gates on these and refuses to force-repair). FIXTURE: SD64 in the internal GL9755 reader; nothing else attached; DebugUSB on left-back/HPM0. RECOVERY: sanctioned warm reboot via t6040-debugusb-console.sh reboot; the image mounts nothing at boot and leaves no persistent state of its own. EXPECT on ttydc0: T6040_TICKET_215_PASS or T6040_TICKET_215_STOP rc=<n>; preserve and hash the transcript before rebooting.",
   "author": "sol",
   "deps": [
     "193"
   ],
   "hashes": {
-    "m1n1-sdroot-hardened.bin": "97a304880e35e268e846273c23ed38bddf1a837ca431590a855e03e56d5e8c9f",
+    "m1n1-sdroot-repair-v3.bin": "bf395c6e70ba85fd357526c5b24aedb245717fe2e6267441de24d78fdda23188",
+    "m1n1-sdroot-hardened.bin(prefix)": "97a304880e35e268e846273c23ed38bddf1a837ca431590a855e03e56d5e8c9f",
     "Image-sd-gl9755": "bd3dd526446b90697e6e2f5bc832bd839521aa89e4d820d49ae5914e0af9dc0d",
     "Image-sd-gl9755.raw-object.gz": "8fa32648489aeb4dac97e39dcf932121706b05b264bffd58bac26511059a9648",
-    "System.map-sd-gl9755": "3ba5ba3af18a623a00980c853a69515d3f01d34c541fc9799e49cf2ac95f5509",
-    "config-sd-gl9755": "5b1ced2f0b3d61e9ef4841fcad691db42c1ee0f63fef366231cbb12b2e3bf918",
-    "dts/t6040-j614s-dcuart-sd.dts": "b6d4effbe506c5818f3e0fcc6e6de1ed6e1ac400b50304007a61102ef84acc05",
     "t6040-j614s-dcuart-sd-v2.dtb": "4e482173d1ebf6e52dc127a04b78a7a3c8a90b4bb5e8c3adbd5a162bf4b85a82",
-    "initramfs-bootstrap-sdroot-fsck-v2.cpio.gz": "f32adbe6683cf438a34311f659ec50c96b0d93afee33dc912cab173879e9afda",
-    "m1n1-sdroot-repair-v2.bin": "a013b220f350691ff5f8307280001f1e443c59c001f372f57d6062d7d220561c",
+    "initramfs-bootstrap-sdroot-fsck-v3.cpio.gz": "901ad007901291dff42364038626134f8bb713f5f30cff72d1d9fee27212bb00",
+    "bootargs": "c11acb05c92a9ddf2e6d50233b6544afac6ac449b88c97eaff279cbd8829ce2a",
     "scripts/t6040-sdroot-fsck.sh": "f6192dbea2d89a72ad4ddbeccc1a3978680be8c07b01485f4d1673955a243c14",
-    "scripts/t6040-sdroot-fsck-init": "376792502a038f67cb477da267fee419e2842462253d60ae08c4416afb535b30",
-    "scripts/t6040-build-sdroot-fsck-initramfs.sh": "a304a869dc3c6046383b87bf1077285db5f845969cdf49e77bbfea1620853e5f",
-    "exfatprogs-1.4.1-r0.apk": "434d1baa4d58ae4a7d5b61de3e24a371c38735a46ec999c2d047a011fd0a2e64"
+    "scripts/t6040-sdroot-fsck-init": "8fcd4f1d15c99b62897713514fa622c97ecde384d068da535ae76b641cab77f8",
+    "scripts/t6040-build-sdroot-fsck-initramfs.sh": "7fe5bf10a772e1a02bd118682c4268b575fc1c1b0476e2fa28e4012a44609e72",
+    "etc/wallace-no.bmap": "606ecd98f83b72983f3cd35976df939dc9c7187283703736a81e89b65aee85a8"
   },
   "bootargs": "maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel console=ttydc0 rdinit=/init",
   "command": "Minimal /init runs exactly once: T6040_SD_FSCK_APPROVED=SD64 T6040_SD_FSCK_MODE=repair /usr/local/sbin/t6040-sdroot-fsck",
@@ -37,8 +35,8 @@
   "created": 1785743968,
   "runnable": true,
   "approved_by": "cj",
-  "approved_at": 1785796717,
+  "approved_at": 1785798722,
   "review_blocker": "Independent exact review must verify the repair/check modes, pre-mutation PCI/MMC/nested-root identity and assessment gates, minimal init, pinned package and archive members, automatic-only policy, SD-only DTB scope, complete raw-object manifest, final post-unmount exFAT check, and stop conditions before queue ready. Queue approval must acknowledge the corrected v2 object hash.",
   "reviewed_by": "fable",
-  "ready_at": 1785796717
+  "ready_at": 1785798722
 }

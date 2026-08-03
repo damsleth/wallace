@@ -23,6 +23,10 @@ set -u
 
 INBOX=${T6040_OBEX_INBOX:-/root/obex-inbox}
 SESSION_ADDR_FILE=/run/t6040-obex-session-bus
+# obexd's stderr is the only place an option or plugin error appears. Keeping it
+# out of /dev/null is what makes a failure diagnosable from the rig transcript
+# instead of looking like a silent hang.
+OBEXD_LOG=${T6040_OBEX_LOG:-/tmp/t6040-obexd.log}
 OBEXD=
 for c in /usr/libexec/bluetooth/obexd /usr/lib/bluetooth/obexd /usr/libexec/obexd; do
     [ -x "$c" ] && OBEXD=$c && break
@@ -86,19 +90,59 @@ start_session_bus() {
     export DBUS_SESSION_BUS_ADDRESS
 }
 
+# The session bus ships org.bluez.obex.service with `Exec=obexd -n` -- no
+# --root and no --auto-accept. If that activation wins the race, an obexd is
+# running and owns the bus name, but it roots transfers at $XDG_CACHE_HOME and
+# registers no OBEX agent, so an inbound push is REJECTED. A bare `pidof obexd`
+# guard would silently accept that instance and report success, so verify the
+# live process's actual flags and replace it if they are wrong.
+obexd_flags_ok() {
+    pid=$(pidof obexd 2>/dev/null | awk '{print $1}')
+    [ -n "$pid" ] || return 1
+    cl=$(tr '\0' ' ' < "/proc/$pid/cmdline" 2>/dev/null)
+    case "$cl" in
+        *"--root=$INBOX"*) ;;
+        *) return 1 ;;
+    esac
+    case "$cl" in
+        *--auto-accept*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
 start_obexd() {
     [ -n "$OBEXD" ] || die "obexd binary not found; apk add bluez-obexd"
     mkdir -p "$INBOX"
-    if ! pidof obexd >/dev/null 2>&1; then
-        # --auto-accept is what makes an inbound push land without a prompt;
-        # --root bounds where a remote device may write.
-        "$OBEXD" --root="$INBOX" --auto-accept --no-input >/dev/null 2>&1 &
+    if obexd_flags_ok; then
+        return 0
+    fi
+    if pidof obexd >/dev/null 2>&1; then
+        echo "note: replacing an obexd started without --root/--auto-accept" \
+             "(bus activation uses Exec=obexd -n)"
+        kill $(pidof obexd) 2>/dev/null
         n=0
-        while [ "$n" -lt 15 ] && ! pidof obexd >/dev/null 2>&1; do
+        while [ "$n" -lt 10 ] && pidof obexd >/dev/null 2>&1; do
             n=$((n + 1)); sleep 1
         done
     fi
-    pidof obexd >/dev/null 2>&1 || die "obexd did not start"
+    # --auto-accept makes an inbound push land without an agent prompt; --root
+    # bounds where a remote device may write. Only the long options this build
+    # actually implements are used: debug noplugin nodetach root root-setup
+    # symlinks auto-accept system-bus version. There is NO --no-input; passing
+    # one is fatal because obexd does not ignore unknown GOptions.
+    "$OBEXD" --root="$INBOX" --auto-accept >>"$OBEXD_LOG" 2>&1 &
+    n=0
+    while [ "$n" -lt 15 ] && ! pidof obexd >/dev/null 2>&1; do
+        n=$((n + 1)); sleep 1
+    done
+    pidof obexd >/dev/null 2>&1 || {
+        echo "--- obexd log ---"; tail -20 "$OBEXD_LOG" 2>/dev/null
+        die "obexd did not start (see $OBEXD_LOG)"
+    }
+    obexd_flags_ok || {
+        echo "--- obexd log ---"; tail -20 "$OBEXD_LOG" 2>/dev/null
+        die "obexd is running without the required --root/--auto-accept flags"
+    }
 }
 
 report() {
@@ -120,6 +164,22 @@ report() {
     else
         echo "org.bluez.obex ABSENT (obexd not on this session bus)"
     fi
+    # Bus-name presence is NOT sufficient: a bus-activated obexd owns the name
+    # but rejects pushes. Report the live flags, which is the property that
+    # actually decides whether a transfer can land.
+    say "obexd flags (must show --root and --auto-accept)"
+    pid=$(pidof obexd 2>/dev/null | awk '{print $1}')
+    if [ -n "$pid" ]; then
+        tr '\0' ' ' < "/proc/$pid/cmdline" 2>/dev/null; echo
+        if obexd_flags_ok; then
+            echo "OBEXD_FLAGS_OK"
+        else
+            echo "OBEXD_FLAGS_WRONG — inbound pushes would be REJECTED"
+        fi
+    else
+        echo "(no obexd running)"
+    fi
+    [ -s "$OBEXD_LOG" ] && { say "obexd log tail"; tail -10 "$OBEXD_LOG"; }
     say "inbox"
     printf '%s\n' "$INBOX"
     ls -l "$INBOX" 2>/dev/null || echo "(absent)"

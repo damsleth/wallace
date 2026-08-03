@@ -92,6 +92,16 @@ install -m 0755 "$ROOT/scripts/t6040-wifi-autologin" \
     "$TMP/usr/local/sbin/t6040-wifi-autologin"
 install -m 0755 "$ROOT/scripts/t6040-wifi-report" \
     "$TMP/usr/local/sbin/t6040-wifi-report"
+
+# Norwegian console keymap. MANDATORY in every image (AGENTS.md); this builder
+# was shipping none, which t6040-image-preflight.sh correctly rejects. Binary
+# "bkeymap" form because busybox ships loadkmap, not kbd's loadkeys.
+KEYMAP=${KEYMAP:-$OUT/no-latin1.bmap}
+KEYMAP_SHA256=606ecd98f83b72983f3cd35976df939dc9c7187283703736a81e89b65aee85a8
+[ -f "$KEYMAP" ] || { echo "missing Norwegian keymap: $KEYMAP" >&2; exit 1; }
+printf '%s  %s\n' "$KEYMAP_SHA256" "$KEYMAP" | shasum -a 256 -c -
+install -d -m 0755 "$TMP/etc"
+install -m 0644 "$KEYMAP" "$TMP/etc/wallace-no.bmap"
 # OBEX helper: harmless to ship unconditionally (it refuses to run without the
 # obexd binary), so the script is present even in a non-OBEX image for triage.
 install -m 0755 "$ROOT/scripts/t6040-bt-obex.sh" \

@@ -61,8 +61,20 @@ podman exec "$CONTAINER" sh -c \
        '/out/$TMP_BASE/usr/sbin/exfat2img' \
        '/out/$TMP_BASE/usr/sbin/dump.exfat'"
 
+# Norwegian console keymap. MANDATORY in every image with NO exceptions --
+# AGENTS.md names rescue shells and initramfs-only boots explicitly, and this
+# image ends in a rescue shell. It was missing until 2026-08-04, when
+# t6040-image-preflight.sh failed the pinned artifact.
+KEYMAP=${KEYMAP:-$OUT/no-latin1.bmap}
+KEYMAP_SHA256=606ecd98f83b72983f3cd35976df939dc9c7187283703736a81e89b65aee85a8
+[ -f "$KEYMAP" ] || { echo "missing Norwegian keymap: $KEYMAP" >&2; exit 1; }
+printf '%s  %s\n' "$KEYMAP_SHA256" "$KEYMAP" | shasum -a 256 -c -
+install -d -m 0755 "$TMP/etc"
+install -m 0644 "$KEYMAP" "$TMP/etc/wallace-no.bmap"
+
 python3 "$ROOT/scripts/reproducible-newc.py" "$TMP" | gzip -n -9 >"$DEST"
-for item in init usr/sbin/fsck.exfat sbin/e2fsck usr/local/sbin/t6040-sdroot-fsck; do
+for item in init usr/sbin/fsck.exfat sbin/e2fsck usr/local/sbin/t6040-sdroot-fsck \
+            etc/wallace-no.bmap; do
     gzip -dc "$DEST" | cpio -it 2>/dev/null | grep -qx "./$item" || {
         echo "missing repair-image member: $item" >&2
         exit 1

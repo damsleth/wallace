@@ -13,6 +13,7 @@
   "hashes": null,
   "created": 1784909164,
   "evidence": [
+    "evidence/2026-08-04-t6040-r3-boundary-closure-design.md",
     "evidence/2026-08-03-t6040-096-hpm2-detach-rollback-record.md",
     "evidence/2026-07-25-t6040-hpm2-rollback-evidence.md",
     "evidence/2026-07-25-t6040-hpm2-roleswap-evidence.md",

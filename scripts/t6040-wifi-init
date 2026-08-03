@@ -22,6 +22,19 @@ echo ""
 echo "=== t6040 WiFi/BT test root ==="
 uname -a
 
+# Norwegian console keymap (AGENTS.md non-negotiable; CJ's machine has a
+# Norwegian keyboard). Without this the panel console stays US and every
+# non-ASCII key is wrong.
+if [ -f /etc/wallace-no.bmap ]; then
+    if busybox loadkmap < /etc/wallace-no.bmap 2>/dev/null; then
+        echo "console keymap: no (wallace-no.bmap)"
+    else
+        echo "WARNING: loadkmap failed; console stays US"
+    fi
+else
+    echo "WARNING: /etc/wallace-no.bmap missing; console stays US"
+fi
+
 # Keep the watchdog fed so a wedged shell does not strand the machine.
 [ -c /dev/watchdog0 ] && { watchdog -T 30 -t 10 /dev/watchdog0 & }
 

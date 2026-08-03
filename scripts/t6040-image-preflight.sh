@@ -70,19 +70,30 @@ if [ -n "$INITRAMFS" ]; then
             fail "NO Norwegian keymap -- every image must ship one"
         fi
         # And init must actually load it; shipping it unused is the same bug.
-        # Counted rather than `grep -q`: -q exits early, gzip takes EPIPE, and
-        # `set -o pipefail` then reports a false failure on a good image.
-        if [ "$(gzip -dc "$INITRAMFS" | grep -ac 'loadkmap')" -gt 0 ]; then
-            pass "init loads the keymap (loadkmap present)"
+        # Extract ./init and grep THAT, not the whole archive: a whole-archive
+        # match is a false positive on Alpine's stock /etc/conf.d/loadkmap and
+        # on the busybox binary's own applet-name table, so an image whose init
+        # never loads the keymap still passed (found 2026-08-04 reviewing the
+        # OBEX image, which shipped no keymap at all yet "passed" this line).
+        # bsdtar, not `cpio --to-stdout`: macOS ships bsdcpio, whose
+        # --to-stdout silently yields nothing here. bsdtar -xOf - is the
+        # extraction pattern already proven elsewhere in this repo.
+        INIT_TXT=$(gzip -dc "$INITRAMFS" 2>/dev/null | \
+            bsdtar -xOf - ./init 2>/dev/null || true)
+        if [ "$(printf '%s' "$INIT_TXT" | grep -ac 'loadkmap')" -gt 0 ]; then
+            pass "init loads the keymap (loadkmap call in ./init)"
         else
-            fail "keymap is never loaded -- no loadkmap call in the image"
+            fail "keymap is never loaded -- no loadkmap call in ./init"
         fi
 
         for m in init bin/busybox; do
             if member "$m"; then pass "member $m"; else fail "missing member $m"; fi
         done
-        if member sbin/fsck.exfat; then
-            pass "member sbin/fsck.exfat (SD repair available)"
+        # exfatprogs installs to /usr/sbin; the sdroot-fsck image has it there,
+        # so checking only ./sbin/fsck.exfat warned on an image that does ship
+        # the tool (observed 2026-08-04 on the ticket-215 repair image).
+        if member sbin/fsck.exfat || member usr/sbin/fsck.exfat; then
+            pass "member fsck.exfat (SD repair available)"
         else
             warn "no fsck.exfat -- a dirty SD64 cannot be repaired in place"
         fi
