@@ -350,3 +350,81 @@ harness rather than a long-running loop that can lose its output when the victim
 Also worth noting for whoever picks this up: `maxcpus=2` is where experiments *can* run (the system
 survives) but the shell itself is a candidate victim, so any multi-minute test needs its output
 streamed to `/dev/kmsg` line by line, not buffered to the end.
+
+---
+
+# Round 7: the fault is on FRESHLY ALLOCATED PAGES, and `rodata=on` is a major partial mitigation
+
+## A fourth signature retires the "memcpy" framing too
+
+The streaming rerun produced a fault with **no copy involved at all**:
+
+```
+clear_page+0x30/0x68 (P)
+__alloc_frozen_pages_noprof+0x168/0x1088
+alloc_pages_mpol+0x70/0x1b4
+folio_alloc_mpol_noprof+0x14/0x6c
+vma_alloc_folio_noprof+0x80/0xd4
+```
+
+`clear_page` is the page allocator **zeroing a newly allocated page** — a pure store loop, no source.
+Collect all four signatures:
+
+| path | what it is | context |
+|---|---|---|
+| `copy_page` | copy into a new page | CoW (`do_wp_page`) |
+| `__pi_memcpy_generic` | copy into a new buffer | ext4 journal replay |
+| `copy_folio_from_iter_atomic` | copy into a new page | initramfs unpack |
+| **`clear_page`** | **zero a new page** | **page allocator** |
+
+**The unifying factor is not copying — it is a bulk store into a FRESHLY ALLOCATED page.** Every one
+of the four writes into memory the allocator has just handed out. That is a much sharper statement
+than "bulk memcpy" (round 6) or "CoW" (rounds 1-5), and both earlier framings are now superseded.
+
+## `rodata=on` — the strongest result so far
+
+arm64's default `rodata=full` makes the **linear map page-granular** so individual pages can be
+re-protected; `rodata=on` keeps kernel text read-only but uses **block mappings** for the linear map,
+i.e. far fewer page-table changes. If freshly-allocated-page mapping visibility is the problem, that
+should matter — and it does:
+
+| config | maxcpus=5 result |
+|---|---|
+| default (`rodata=full`) | **total hang** — 20 lines, zero kernel console output, every attempt |
+| `rodata=on` | **boots** — 557 lines, `smp: Brought up 1 node, 5 CPUs`, OpenRC starts, **no panic** |
+
+At maxcpus=2, `rodata=on` also gave 0 traces across 4 reproducer runs.
+
+**This is the first change that alters the failure qualitatively rather than just hiding it** — and
+unlike the round-5 barrier/read variants, it is a *mapping* change with a mechanism that fits all
+four signatures.
+
+## But it is NOT a fix — be precise about this
+
+At maxcpus=5 with `rodata=on` the boot completes, yet:
+- **one `clear_page` fault still fires** (same signature, at 4.19 s), and
+- **userspace becomes unresponsive** — the ttydc0 shell stopped answering and SSH never came up
+  within 5 minutes.
+
+So `rodata=on` converts "total hang, no output" into "boots 5 CPUs, faults once, userspace unusable".
+Substantial progress on the *mechanism*, not a usable multi-core daily driver. **Do not ship
+`rodata=on` as a fix or claim 5-core support from it.** The single-core configuration remains the
+only one that is actually clean.
+
+## Where this leaves the hypothesis
+
+Strong evidence that the bug involves **page-table/TLB visibility for pages the allocator has just
+handed out**, and that the page-granular linear map (`rodata_full`, i.e. `set_direct_map_*` and the
+`can_set_direct_map()` paths) is either the cause or the main amplifier. Concrete next steps:
+
+1. Try `CONFIG_RODATA_FULL_DEFAULT_ENABLED=n` at build time (not just the cmdline) and re-test at
+   maxcpus=5 — the cmdline path and the build-time path do not exercise identical code.
+2. Instrument `set_direct_map_invalid_noflush`/`set_direct_map_default_noflush` and the TLBI that
+   follows, looking for a missing or incomplete broadcast on this hardware.
+3. Test with `page_alloc.shuffle=0` and with `init_on_alloc=0`/`init_on_free=0` — if `init_on_alloc`
+   is on, every allocation does a `clear_page`, which would explain why `clear_page` is the signature
+   that shows up under allocation pressure.
+4. `debug_pagealloc=off` should already be off, but confirm — it also drives page-granular linear-map
+   changes.
+
+Item 3 is the cheapest and most likely to be informative next.
