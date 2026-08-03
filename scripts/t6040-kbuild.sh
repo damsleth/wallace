@@ -1529,6 +1529,21 @@ fi
 # bits, and a core that updates them incorrectly (or without the coherency the
 # kernel assumes) produces faults on pages the kernel believes are writable.
 # Applied after olddefconfig so it cannot be re-enabled.
+# Ticket 223: T6040_NO_ENDPOINTS=1 builds WITHOUT the PCIe endpoint drivers
+# (brcmfmac, hci_bcm4377, sdhci-pci) while leaving pwren-gpios in the DT, so the
+# SMC key write and endpoint power-up still happen but no endpoint driver probes
+# or DMAs. Separates "the SMC write" from "endpoint DMA" for the 14-core hang.
+# Applied after olddefconfig so nothing can re-enable them.
+if [ "${T6040_NO_ENDPOINTS:-0}" = "1" ]; then
+    ./scripts/config --file .config \
+        -d BRCMFMAC -d BRCMFMAC_PCIE -d BT_HCIBCM4377 -d MMC_SDHCI_PCI
+    make ARCH=arm64 olddefconfig >/dev/null
+    echo "== assert PCIe endpoint drivers are DISABLED =="
+    for sym in BRCMFMAC BT_HCIBCM4377 MMC_SDHCI_PCI; do
+        grep -q "^# CONFIG_${sym} is not set$" .config \
+            || { echo "  STILL ENABLED: CONFIG_${sym}"; exit 1; }
+    done
+fi
 if [ "${T6040_NO_AFDBM:-0}" = "1" ]; then
     ./scripts/config --file .config -d ARM64_HW_AFDBM
     make ARCH=arm64 olddefconfig >/dev/null

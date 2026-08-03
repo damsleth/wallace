@@ -784,3 +784,60 @@ Second time in this ticket that a "removing X fixes it" result implied more than
 was round 8's config knobs against a stale baseline). Pattern to watch: **in a DT bisect, deleting a
 property often disables a whole downstream chain, not one behaviour.** Enumerate what else stops
 happening before concluding.
+
+---
+
+# ⚠️ Round 13: a LEASE EXPIRY silently invalidated several results
+
+## What happened
+
+The rig lease is one hour. It expired partway through round 12, and from that point `rig-guard`
+**refused every boot** with `rig-guard: REFUSE — rig is free but you don't hold a live lease`. Because
+I was invoking the boot script with `>/dev/null 2>&1`, that refusal was invisible, so each "boot"
+did nothing and I then read **stale** `dcuart-console.log` / `dcuart-boot.log` from the last real boot.
+
+The tell was there and I misread it three times: identical line counts (535, 535, 535) and a cmdline
+of `maxcpus=1` no matter what I passed. I spent several rounds diagnosing a non-existent
+"env vars aren't reaching the script" bug — checking for duplicate script copies, adding markers,
+`sed`-ing the default — when the script simply was not running at all.
+
+## Results that must be treated as INVALID
+
+Anything between the lease expiry and re-acquisition, i.e.:
+
+- the **macOS GPIO value** test at 14 cores ("still hangs") — **unverified**, must be re-run;
+- the **first 223** run (endpoint drivers off, "still hangs") — superseded by the valid re-run below;
+- both **earlycon** attempts and the conclusion "the kernel dies before earlycon initialises" —
+  **withdrawn entirely**; that inference was built on a stale log, and its self-contradiction (a kernel
+  cannot die before parsing `maxcpus=` yet behave differently by `maxcpus=`) was the clue I should have
+  followed to the tooling rather than to a hypothesis.
+
+Results from *before* the expiry stand: `smc-nogpio` → 14 CPUs (509 lines) and `smc-gpio-nopwren` →
+14 CPUs (510 lines) were fresh, distinct, and lease-backed.
+
+## Round 13: 223 re-run correctly
+
+Lease live, `maxcpus=14` verified in `dcuart-boot.log` for each boot, logs deleted beforehand so
+staleness is impossible:
+
+| config | `pwren-gpios` | endpoint drivers | 14 cores |
+|---|---|---|---|
+| control | present | **ON** | ❌ hang (20 lines) |
+| experiment | present | **OFF** (`BRCMFMAC`, `BT_HCIBCM4377`, `MMC_SDHCI_PCI` disabled, asserted) | ❌ hang (20 lines) |
+
+**Endpoint drivers are exonerated.** Their DMA is not the cause. Combined with the pre-expiry results,
+the sound conclusion is round 11's: the trigger is the **`gP13`/`gP19` SMC key write and the port
+power-up it performs**, not the endpoint drivers that follow it.
+
+## Method fixes adopted
+
+1. **Never invoke a rig script with output suppressed.** `>/dev/null` on the boot script hid a hard
+   refusal for several rounds.
+2. **Delete the log before each boot** and treat a missing/short log as "the boot did not happen",
+   not as "the boot hung".
+3. **Assert the cmdline** from `dcuart-boot.log` on every run — it is the cheapest proof that the boot
+   actually happened with the parameters intended.
+4. **Renew the lease** before each experiment batch; an hour disappears quickly in a build-boot loop.
+
+These are now the standing rules for this ticket, alongside the "fresh baseline in the same session"
+rule from 208/218 and the "deleting a DT property disables a whole chain" rule from round 12.
