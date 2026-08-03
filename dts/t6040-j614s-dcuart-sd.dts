@@ -24,6 +24,11 @@
 	status = "okay";
 };
 
+/* Do not even train the unrelated WiFi/BT port in the repair profile. */
+&port00 {
+	status = "disabled";
+};
+
 /* ADT function-sd_pwr_en = pKW4('gP19', 0x0), approved 2026-07-29. */
 &port01 {
 	pwren-gpios = <&smc_gpio 0x19 GPIO_ACTIVE_HIGH>;

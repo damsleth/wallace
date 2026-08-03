@@ -9,6 +9,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 export PATH
 BB=/bin/busybox
 PART=/dev/mmcblk0p1
+PCI_DEV=/sys/bus/pci/devices/0000:02:00.0
 ROOT_UUID=4c41b99c-7747-4688-85a5-397bc5d784a2
 ROOT_BYTES=6442450944
 LOOP=""
@@ -45,6 +46,14 @@ cleanup_root() {
 
 mount_core || stop "cannot mount proc, sysfs, and devtmpfs"
 
+[ -d "$PCI_DEV" ] || stop "GL9755 0000:02:00.0 is absent"
+[ "$("$BB" cat "$PCI_DEV/vendor" 2>/dev/null)" = 0x17a0 ] || stop "wrong PCI vendor"
+[ "$("$BB" cat "$PCI_DEV/device" 2>/dev/null)" = 0x9755 ] || stop "wrong PCI device"
+[ -L "$PCI_DEV/driver" ] || stop "GL9755 has no bound driver"
+[ "$("$BB" basename "$("$BB" readlink "$PCI_DEV/driver")")" = sdhci-pci ] || \
+    stop "GL9755 is not bound to sdhci-pci"
+[ -L "$PCI_DEV/iommu_group" ] || stop "GL9755 lacks a DART/IOMMU group"
+
 # The PCIe MMC host appears asynchronously.
 n=0
 while [ ! -b "$PART" ] && [ "$n" -lt 30 ]; do
@@ -52,6 +61,14 @@ while [ ! -b "$PART" ] && [ "$n" -lt 30 ]; do
     n=$((n + 1))
 done
 [ -b "$PART" ] || stop "$PART did not appear after ${n}s"
+[ -e /sys/class/block/mmcblk0/device ] || stop "mmcblk0 sysfs identity is missing"
+PCI_PATH=$("$BB" readlink -f "$PCI_DEV" 2>/dev/null || true)
+MMC_PATH=$("$BB" readlink -f /sys/class/block/mmcblk0/device 2>/dev/null || true)
+[ -n "$PCI_PATH" ] && [ -n "$MMC_PATH" ] || stop "cannot resolve GL9755/MMC sysfs ancestry"
+case "$MMC_PATH" in
+    "$PCI_PATH"/*) ;;
+    *) stop "mmcblk0 is not a child of the reviewed GL9755 controller" ;;
+esac
 
 # Resolve the maintainer-provided label and require that it names the expected
 # SD partition. The explicit exFAT mount below is the filesystem-type gate.
@@ -68,9 +85,6 @@ FLAGS=${FLAGS##* }
 
 "$BB" mkdir -p /sd /newroot
 "$BB" mount -t exfat -o ro "$PART" /sd || stop "SD64 did not mount as exFAT read-only"
-"$BB" umount /sd || stop "SD64 read-only identity mount would not unmount"
-"$BB" mount -t exfat -o rw "$PART" /sd || stop "SD64 did not mount as exFAT read-write"
-
 IMG=/sd/wallace-root.img
 if [ ! -f "$IMG" ]; then
     "$BB" umount /sd 2>/dev/null || true
@@ -84,7 +98,7 @@ fi
 
 LOOP=$("$BB" losetup -f 2>/dev/null || true)
 [ -n "$LOOP" ] || { "$BB" umount /sd 2>/dev/null || true; stop "no free loop device"; }
-"$BB" losetup "$LOOP" "$IMG" || { "$BB" umount /sd 2>/dev/null || true; stop "cannot attach $IMG"; }
+"$BB" losetup -r "$LOOP" "$IMG" || { "$BB" umount /sd 2>/dev/null || true; stop "cannot attach $IMG read-only"; }
 
 UUID_DEV=$("$BB" findfs "UUID=$ROOT_UUID" 2>/dev/null || true)
 if [ "$UUID_DEV" != "$LOOP" ]; then
@@ -99,6 +113,18 @@ STATE=$("$BB" dd if="$LOOP" bs=1 skip=1082 count=2 2>/dev/null | "$BB" od -An -t
 STATE=${STATE##* }
 [ -n "$STATE" ] || { cleanup_root; stop "could not read ext4 filesystem state"; }
 [ "$STATE" -eq 1 ] || { cleanup_root; stop "ext4 root is not clean (s_state=$STATE); inspect/repair before RW use"; }
+
+# The complete nested identity has now been proven without a write. Tear down
+# the read-only view before reopening the same reviewed objects read-write.
+"$BB" losetup -d "$LOOP" || { cleanup_root; stop "cannot detach read-only $LOOP"; }
+LOOP=""
+"$BB" umount /sd || stop "SD64 read-only identity mount would not unmount"
+"$BB" mount -t exfat -o rw "$PART" /sd || stop "SD64 did not mount as exFAT read-write"
+LOOP=$("$BB" losetup -f 2>/dev/null || true)
+[ -n "$LOOP" ] || { "$BB" umount /sd 2>/dev/null || true; stop "no free loop device"; }
+"$BB" losetup "$LOOP" "$IMG" || { "$BB" umount /sd 2>/dev/null || true; stop "cannot attach $IMG"; }
+UUID_DEV=$("$BB" findfs "UUID=$ROOT_UUID" 2>/dev/null || true)
+[ "$UUID_DEV" = "$LOOP" ] || { cleanup_root; stop "ext4 UUID changed after read-write attach"; }
 
 "$BB" mount -t ext4 -o rw "$LOOP" /newroot || { cleanup_root; stop "cannot mount the ext4 root"; }
 

@@ -1,0 +1,45 @@
+#!/bin/sh
+# Minimal ticket-215 init: no networking, automount, OpenRC, or background jobs.
+set -u
+
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export PATH HOME=/root TERM=vt100
+
+mount -t proc none /proc 2>/dev/null || exit 1
+mount -t sysfs none /sys 2>/dev/null || exit 1
+mount -t devtmpfs none /dev 2>/dev/null || exit 1
+mount -t tmpfs none /tmp 2>/dev/null || exit 1
+mkdir -p /run /mnt
+mount -t tmpfs none /run 2>/dev/null || exit 1
+
+n=0
+while [ ! -c /dev/ttydc0 ] && [ "$n" -lt 30 ]; do
+    n=$((n + 1))
+    sleep 1
+done
+if [ ! -c /dev/ttydc0 ]; then
+    echo "STOP: /dev/ttydc0 did not appear" >/dev/console
+    exec sh
+fi
+
+# Keep the proven DockChannel endpoint open for the life of init.
+exec 9<>/dev/ttydc0
+exec </dev/ttydc0 >&9 2>&9
+
+echo ""
+echo "=== ticket 215: bounded SD64/ext4 automatic repair ==="
+echo "cmdline: $(cat /proc/cmdline)"
+echo "The repair command will run once, then leave a recovery shell."
+echo ""
+
+T6040_SD_FSCK_APPROVED=SD64 T6040_SD_FSCK_MODE=repair \
+    /usr/local/sbin/t6040-sdroot-fsck
+rc=$?
+if [ "$rc" -eq 0 ]; then
+    echo "T6040_TICKET_215_PASS"
+else
+    echo "T6040_TICKET_215_STOP rc=$rc"
+fi
+sync
+echo "Repair sequence finished; use the reviewed host recovery path after preserving the transcript."
+exec sh -i

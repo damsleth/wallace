@@ -25,9 +25,12 @@ podman exec "$CONTAINER" chroot "/out/$TMP_BASE" /sbin/apk add \
     --no-network --allow-untrusted /tmp/sdroot-apks/exfatprogs-1.4.1-r0.apk
 install -m 0755 "$ROOT/scripts/t6040-sdroot-fsck.sh" \
     "$TMP/usr/local/sbin/t6040-sdroot-fsck"
+install -m 0755 "$ROOT/scripts/t6040-sdroot-fsck-init" "$TMP/init"
 podman exec "$CONTAINER" sh -c \
     "rm -rf '/out/$TMP_BASE/tmp/sdroot-apks' '/out/$TMP_BASE/var/cache/apk/'*; \
+     rm -rf '/out/$TMP_BASE/etc/wpa_supplicant' '/out/$TMP_BASE/root/.ssh'; \
      rm -f '/out/$TMP_BASE/var/log/apk.log' \
+       '/out/$TMP_BASE/etc/ssh/ssh_host_'* \
        '/out/$TMP_BASE/sbin/blkdiscard' \
        '/out/$TMP_BASE/sbin/blockdev' \
        '/out/$TMP_BASE/sbin/fdisk' \
@@ -59,7 +62,7 @@ podman exec "$CONTAINER" sh -c \
        '/out/$TMP_BASE/usr/sbin/dump.exfat'"
 
 python3 "$ROOT/scripts/reproducible-newc.py" "$TMP" | gzip -n -9 >"$DEST"
-for item in usr/sbin/fsck.exfat sbin/e2fsck usr/local/sbin/t6040-sdroot-fsck; do
+for item in init usr/sbin/fsck.exfat sbin/e2fsck usr/local/sbin/t6040-sdroot-fsck; do
     gzip -dc "$DEST" | cpio -it 2>/dev/null | grep -qx "./$item" || {
         echo "missing repair-image member: $item" >&2
         exit 1
