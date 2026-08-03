@@ -1,0 +1,29 @@
+{
+  "seq": "212",
+  "slug": "trackpad-fw-sdk-match",
+  "needs": "offline",
+  "state": "done",
+  "track": "bringup",
+  "priority": "P1",
+  "desc": "Offline pairing audit completed without a rig run. Apple's Mac16,8/J614s 25F84 BuildIdentity pairs J614S_MtpFirmware.im4p with J614s_Multitouch.im4p. The paired controller firmware is AppleMTPFirmwareMac-5340.61.4~438 and embeds SDK 25F63, exactly matching the live MTP report; its paired multitouch payload is the source of the existing a1f4131d... blob. Therefore restore build 25F84 versus controller SDK 25F63 is not a firmware mismatch. The observed failure is the post-upload interface reset command 0x40 in state 0, not upload command 0x95. Continue with reset-sequence, DMA-reachability, and command-specific telemetry work rather than another blob hunt.",
+  "author": "claude",
+  "deps": [],
+  "hashes": {
+    "J614S_MtpFirmware.im4p": "d025f4478b5ad79fab920413eaa0bce57764535f8fb9b66380710fb1726bac81",
+    "J614S_MtpFirmware.bin": "6528799d227f2a78bc23ddd1870a70171587b3531da9e9950e6e402ac96763ed",
+    "J614s_Multitouch.im4p": "4f06afea3e412010fc56ed7dc1214d62fa48b400dbf4f75e261f14e8afe00bf4",
+    "tpmtfw-j614s.bin": "a1f4131d0cb7caf6fa15b19f47725458a6d7b0e3a34f15169339d5541663d9e2"
+  },
+  "evidence": [
+    "evidence/2026-08-03-t6040-trackpad-25F63-pairing-refutation.md",
+    "evidence/2026-08-02-t6040-trackpad-HIDF-rejected-not-crash.md"
+  ],
+  "result": {
+    "restore_build": "25F84",
+    "controller_sdk": "25F63",
+    "controller_version": "AppleMTPFirmwareMac-5340.61.4~438",
+    "conclusion": "Apple's paired artifacts prove these identifiers are compatible; the version-skew hypothesis is refuted."
+  },
+  "created": 1785744315,
+  "done_at": 1785749767
+}

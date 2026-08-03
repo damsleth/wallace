@@ -63,17 +63,23 @@ gestures are the only thing the firmware buys.
 
 ## Next question: why is the post-upload reset invalid?
 
-MTP reports `AppleMTPFirmwareMac-5340.61.4~438`, **SDK 25F63**. Our blob `a1f4131d` was extracted
-from the **25F84** paired firmware set. That version skew remains a candidate for a payload that
-is accepted by command `0x95` but leaves the interface unable to reset; it is no longer justified
-as the prime explanation for an upload-command argument rejection. Next steps:
+> **2026-08-03 correction:** the version-skew candidate below is now refuted.
+> The paired 25F84 `J614S_MtpFirmware` itself identifies as the exact observed
+> `AppleMTPFirmwareMac-5340.61.4~438`, SDK `25F63`, and Apple's same J614s
+> BuildIdentity pairs it with the existing `J614s_Multitouch.im4p` source for
+> blob `a1f4131d...`. See
+> `evidence/2026-08-03-t6040-trackpad-25F63-pairing-refutation.md`.
 
-1. Check whether a `tpmtfw-j614s.bin` exists in a 25F63-matched firmware set and compare hashes.
-2. Compare Apple's exact post-upload interface-reset sequence and state arguments with our
+MTP reports `AppleMTPFirmwareMac-5340.61.4~438`, **SDK 25F63**. Our blob `a1f4131d` was extracted
+from the **25F84** paired firmware set. The restore-build/SDK-number difference was initially a
+candidate for a payload that is accepted by command `0x95` but leaves the interface unable to
+reset. Static pairing evidence has since refuted it. Remaining next steps:
+
+1. Compare Apple's exact post-upload interface-reset sequence and state arguments with our
    `0x40, 1, iface, 0` then `0x40, 1, iface, 2` sequence. The first reset is the observed failure.
-3. Verify the DMA buffer is reachable through `mtp_dart` and that HIDF parsing hands MTP the
+2. Verify the DMA buffer is reachable through `mtp_dart` and that HIDF parsing hands MTP the
    intended payload. Protocol success for `0x95` does not prove either property.
-4. Add command-specific success/failure telemetry around `0x95` and both `0x40` calls before a
+3. Add command-specific success/failure telemetry around `0x95` and both `0x40` calls before a
    repeat, so later evidence cannot be misattributed from a neighboring log line.
 
 No crash, no flash write, nothing persistent — this experiment is cheaply repeatable.

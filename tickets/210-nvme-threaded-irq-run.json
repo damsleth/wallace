@@ -5,9 +5,12 @@
   "state": "approved",
   "track": "bringup",
   "priority": "P1",
-  "desc": "RUN sol's staged threaded-IRQ discriminator (ticket 203) against the CQ-wrap assert (206). Hypothesis: Linux completes CQEs inside its hard IRQ handler while m1n1 polls; that is the strongest surviving difference after E1-E11. Boot the SD root at maxcpus=1 (clean), mount /dev/nvme0n1p3, and drive sustained I/O (dd from the partition, then a file copy inside the mount) until either the assert fires or ~2 minutes pass. PASS = no assert => deferring completion out of hard-IRQ context is the fix and becomes the upstream patch. FAIL = assert unchanged => IRQ context is exonerated and only the CoastGuard fw RE path remains. Read-only I/O for this run; writes are ticket 211.",
+  "desc": "RUN sol's staged threaded-IRQ discriminator (ticket 203) against the CQ-wrap assert (206). Hypothesis: Linux completes CQEs inside its hard IRQ handler while m1n1 polls; this is a surviving difference after E1-E11. First reproduce the exact baseline assert on the hash-pinned unmodified artifact, then boot the hash-pinned threaded artifact with the same m1n1 prefix, DTB, initramfs, maxcpus=1, mount, read-only command stream, queue/MMIO settings, and transcript capture. Drive sustained reads until either the assert fires or 2 minutes pass. Record all five firmware fields. ASSERT UNCHANGED = hard-vs-threaded servicing is refuted for this command stream. CLEAN WINDOW = execution context, IRQ masking, or scheduling latency remains implicated; it does not by itself prove a production fix or justify an upstream patch. Read-only I/O only; writes are ticket 211. The paired ANS firmware RE in evidence/2026-08-03-t6040-nvme-ansf-assert-7454-re.md shows that assert 7454 reports hardware status bit 2 and raw error registers, not a CoastGuard software head comparison.",
   "author": "claude",
-  "deps": [],
+  "deps": [
+    "201",
+    "203"
+  ],
   "hashes": null,
   "created": 1785744315,
   "runnable": false,
