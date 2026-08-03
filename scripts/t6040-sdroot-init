@@ -50,6 +50,22 @@ rescue_shell() {
     # makes the shell look dead. Console loglevel 1 keeps the VT usable while
     # /dev/kmsg (and thus the serial log) still records everything.
     echo 1 >/proc/sys/kernel/printk 2>/dev/null || true
+
+    # ALWAYS provide a shell on the serial console as well as on the panel.
+    # On 2026-08-04 a rescue shell bound only to /dev/tty1 locked the remote
+    # operator out completely: the enrolled object is window-free so there is no
+    # proxy to chainload through, and the only input path was the physical
+    # keyboard. dockchannel RX works in poll mode -- shells have been driven
+    # over /tmp/m1n1 for a whole session -- so this costs nothing and is the
+    # difference between "debuggable remotely" and "wait for someone to walk up
+    # to the machine".
+    if [ -c /dev/ttydc0 ]; then
+        setsid -c "$BB" sh -i </dev/ttydc0 >/dev/ttydc0 2>&1 &
+        say "remote rescue shell on /dev/ttydc0 (serial)"
+    else
+        say "WARNING: no /dev/ttydc0; no remote shell is available"
+    fi
+
     for t in /dev/tty1 /dev/tty0 /dev/console; do
         [ -c "$t" ] || continue
         say "rescue shell on $t (keyboard should work here)"
@@ -229,10 +245,39 @@ UUID_DEV=$("$BB" findfs "UUID=$ROOT_UUID" 2>/dev/null || true)
 
 "$BB" mount -t ext4 -o rw "$LOOP" /newroot || { cleanup_root; stop "cannot mount the ext4 root"; }
 
-for required in /sbin/init /bin/busybox /etc/inittab \
-    /usr/local/sbin/t6040-sdroot-early-console \
-    /usr/local/sbin/t6040-sdroot-openrc \
-    /usr/local/sbin/t6040-sdroot-powerctl; do
+# Self-heal the helpers WE ship rather than refusing to boot without them.
+#
+# These are project scripts carried in this very initramfs under /opt/wallace,
+# so "the card does not have the newest copy" is not a reason to strand the
+# machine in a rescue shell -- it happened on 2026-08-04 with a perfectly good
+# root, purely because t6040-sdroot-early-console post-dated the last time the
+# apply script had been run. Installing them also means the card no longer has
+# to be kept in lockstep by hand.
+install_helper() {  # install_helper <path-on-newroot> <name-in-/opt/wallace>
+    src=/opt/wallace/$2
+    dst=/newroot$1
+    [ -s "$src" ] || return 1
+    "$BB" mkdir -p "$(dirname "$dst")" || return 1
+    "$BB" cp "$src" "$dst" || return 1
+    "$BB" chmod 0755 "$dst" || return 1
+    say "installed $1 from the initramfs"
+}
+
+for pair in \
+    "/usr/local/sbin/t6040-sdroot-early-console t6040-sdroot-early-console" \
+    "/usr/local/sbin/t6040-sdroot-openrc       t6040-sdroot-openrc" \
+    "/usr/local/sbin/t6040-sdroot-powerctl     t6040-sdroot-powerctl" \
+    "/usr/local/sbin/t6040-startx              t6040-sdroot-startx" \
+    "/etc/inittab                              t6040-sdroot-inittab"; do
+    # shellcheck disable=SC2086
+    set -- $pair
+    if [ ! -s "/newroot$1" ]; then
+        install_helper "$1" "$2" || { cleanup_root; stop "new root is missing $1 and it could not be installed"; }
+    fi
+done
+
+# These genuinely cannot be repaired from here.
+for required in /sbin/init /bin/busybox; do
     [ -s "/newroot$required" ] || { cleanup_root; stop "new root is missing $required"; }
 done
 

@@ -1,0 +1,13 @@
+{
+  "seq": 227,
+  "slug": "nvme-dead-ctrl-teardown-uaf",
+  "state": "open",
+  "needs": "offline",
+  "track": "nvme",
+  "pri": "P1",
+  "owner": "claude",
+  "evidence": [
+    "evidence/2026-08-04-t6040-227-nvme-dead-ctrl-uaf-oops.md"
+  ],
+  "desc": "NVMe dead-controller teardown is a use-after-free that takes down ALL block I/O, not just NVMe. Captured 2026-08-04 from the enrolled wallace-sdroot-no-20260804 object. Sequence: ANS dies on real I/O (Buffer I/O error on nvme0n1p1 and nvme0n1p4, so namespaces AND partitions enumerated first -- the ticket 206 CQ-wrap assert); apple_nvme_remove_dead_ctrl_work tears down via device_release_driver -> apple_nvme_remove -> nvme_uninit_ctrl -> put_device -> nvme_free_ctrl -> blk_put_queue -> blk_mq_release, which WARNs at block/blk-mq.c:4423 that the queue is not clean; then ~4s later blk_mq_timeout_work runs against the freed queue and oopses: Internal error 0000000096000007 (data abort, translation fault L3) at blk_mq_timeout_work+0x1cc/0x238 with x2=0 and faulting insn ldr x0,[x2]. CONSEQUENCE: the oops kills kworker/0:0H on kblockd, the SHARED block workqueue, so block-IO timeouts for every device including the SD root stop being serviced -- this is the reported 'shell works for a few seconds then hangs'. NVMe does not just fail, it breaks SD with it. MITIGATION ALREADY APPLIED: the daily-driver object is built on t6040-j614s-dcuart-wifi-nonvme.dtb (ans_nvme/ans_sart/ans_mbox status=disabled, verified in the built DTB) so ANS never probes and cannot die. FIX for this ticket: make the teardown sound -- blk_sync_queue / blk_mq_quiesce_queue (or nvme_stop_ctrl) before nvme_uninit_ctrl in apple_nvme_remove, so timeout work cannot outlive the queue. Independent of 206: 206 removes the trigger, 227 removes the crash. Likely a generic apple_nvme bug, nothing in the trace is M4-specific."
+}

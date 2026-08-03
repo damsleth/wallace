@@ -40,6 +40,15 @@ printf '%s  %s\n' "$KEYMAP_SHA256" "$KEYMAP" | shasum -a 256 -c -
 install -d -m 0755 "$TMP/etc"
 install -m 0644 "$KEYMAP" "$TMP/etc/wallace-no.bmap"
 
+# Carry the SD-root helpers so /init can install them onto a root that is merely
+# out of date, instead of stranding the machine in a rescue shell. The card no
+# longer has to be kept in lockstep with this repo by hand.
+install -d -m 0755 "$TMP/opt/wallace"
+for helper in t6040-sdroot-early-console t6040-sdroot-openrc \
+              t6040-sdroot-powerctl t6040-sdroot-startx t6040-sdroot-inittab; do
+    install -m 0755 "$ROOT/scripts/$helper" "$TMP/opt/wallace/$helper"
+done
+
 # brcmfmac and hci_bcm4377 probe before switch_root, so their paired 25F84
 # firmware must be in this initramfs rather than only on the Alpine root.
 (cd "$TMP/lib/firmware" && printf '%s\n' \
@@ -55,6 +64,7 @@ install -m 0644 "$KEYMAP" "$TMP/etc/wallace-no.bmap"
 python3 "$ROOT/scripts/reproducible-newc.py" "$TMP" | gzip -n -9 >"$DEST"
 
 for item in init shutdown bin/busybox sbin/fsck.exfat etc/wallace-no.bmap \
+    opt/wallace/t6040-sdroot-early-console opt/wallace/t6040-sdroot-inittab \
     lib/firmware/brcm/brcmfmac4388c0-pcie.apple,mriya-WLMT-u.bin \
     lib/firmware/brcm/brcmbt4388c2-apple,mriya-u.bin; do
     gzip -dc "$DEST" | cpio -it 2>/dev/null | grep -qx "./$item" || {
