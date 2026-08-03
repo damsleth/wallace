@@ -1,0 +1,23 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Ticket 221 bisect step 3: full wifi DTB minus SMC (and therefore minus the
+ * SMC-GPIO pwren path and the smc-rtc child).
+ *
+ * At maxcpus=14, same kernel, same initramfs-dcuart RAM root:
+ *   thin dcuart        -> 14 CPUs boot
+ *   dcuart-pcie        -> 14 CPUs boot        (PCIe exonerated)
+ *   wifi minus ANS     -> HANG               (ANS/NVMe exonerated)
+ *   wifi-cpufreq full  -> HANG
+ *
+ * SMC is the remaining prime suspect: an RTKit coprocessor whose driver Linux
+ * drives directly, and the one thing here that writes SMC KEYS (gP13/gP19 via
+ * gpio-macsmc for pwren-gpios) during PCIe probe.
+ *
+ * NOTE this also disables the RTC and the pwren GPIOs, so WiFi/SD will not power
+ * up in this configuration -- that is acceptable, the question is only whether 14
+ * CPUs survive.
+ */
+#include "t6040-j614s-dcuart-wifi-cpufreq.dts"
+
+&smc { status = "disabled"; };
+&smc_mbox { status = "disabled"; };

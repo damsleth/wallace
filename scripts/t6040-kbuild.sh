@@ -264,7 +264,9 @@ if [ "${CPUFREQ:-0}" = "1" ]; then
                 t6040-j614s-dcuart-wifi-cpufreq.dts t6040-j614s-dcuart-c2probe.dts \
                 t6040-j614s-dcuart-onepercluster.dts \
                 t6040-j614s-dcuart-ponly.dts \
-                t6040-j614s-dcuart-p2clusters.dts; do
+                t6040-j614s-dcuart-p2clusters.dts \
+                t6040-j614s-dcuart-wifi-nonvme.dts \
+                t6040-j614s-dcuart-wifi-nosmc.dts; do
         for f in "/out/$base" "/src/$APPLE/$base"; do
             [ -f "$f" ] && cp "$f" $APPLE/ && break
         done
@@ -1730,6 +1732,18 @@ if [ "${CPUFREQ:-0}" = "1" ] && [ -f $APPLE/t6040-j614s-dcuart-cpufreq.dts ]; th
         make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-wifi-cpufreq.dtb
         cp $APPLE/t6040-j614s-dcuart-wifi-cpufreq.dtb /out/ \
             && echo "DTB -> /out/t6040-j614s-dcuart-wifi-cpufreq.dtb"
+    fi
+    # Ticket 221 bisect step 3: full wifi DTB minus SMC.
+    if [ -f $APPLE/t6040-j614s-dcuart-wifi-nosmc.dts ]; then
+        make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-wifi-nosmc.dtb
+        cp $APPLE/t6040-j614s-dcuart-wifi-nosmc.dtb /out/ \
+            && echo "DTB -> /out/t6040-j614s-dcuart-wifi-nosmc.dtb"
+    fi
+    # Ticket 221 bisect: full wifi DTB minus ANS/NVMe.
+    if [ -f $APPLE/t6040-j614s-dcuart-wifi-nonvme.dts ]; then
+        make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-wifi-nonvme.dtb
+        cp $APPLE/t6040-j614s-dcuart-wifi-nonvme.dtb /out/ \
+            && echo "DTB -> /out/t6040-j614s-dcuart-wifi-nonvme.dtb"
     fi
     # Ticket 205: two P cores in different clusters (2x2 control for ponly).
     if [ -f $APPLE/t6040-j614s-dcuart-p2clusters.dts ]; then

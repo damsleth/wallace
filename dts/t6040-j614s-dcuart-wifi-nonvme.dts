@@ -1,0 +1,22 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Ticket 221 bisect: the full wifi DTB minus ANS/NVMe.
+ *
+ * Established so far at maxcpus=14 (same kernel, same initramfs-dcuart RAM root):
+ *   thin dcuart DTB       -> 14 CPUs boot
+ *   dcuart-pcie DTB       -> 14 CPUs boot   (PCIe exonerated)
+ *   wifi-cpufreq DTB      -> HANG
+ *
+ * So the culprit is among what the wifi DTS adds: SMC + smc_mbox, nub_spmi0/RTC,
+ * ANS (mbox + SART + nvme), fpwm0/LED, pwren-gpios. ANS is the prime suspect: it
+ * is an RTKit coprocessor doing SART-mediated DMA that m1n1 quiesces at handoff
+ * and Linux then re-boots, so it is the one that writes to memory Linux owns.
+ *
+ *   14 CPUs boot -> ANS/NVMe is the culprit; the SMP "bug" is an NVMe DMA problem.
+ *   still hangs   -> ANS is exonerated; move on to SMC, then SPMI.
+ */
+#include "t6040-j614s-dcuart-wifi-cpufreq.dts"
+
+&ans_nvme { status = "disabled"; };
+&ans_sart { status = "disabled"; };
+&ans_mbox { status = "disabled"; };

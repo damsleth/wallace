@@ -563,3 +563,65 @@ same core count.
 
 `T6040_NO_TLB_RANGE` and `T6040_NO_AFDBM` remain as kbuild switches (both default off) and the
 baseline kernel is restored, but neither should be presented as having any effect on this bug.
+
+---
+
+# 🎯 Round 10 (ticket 221): FOUND IT — **SMC** is the culprit, not the CPU/MMU
+
+## The bisect
+
+All at **maxcpus=14**, same kernel, same `initramfs-dcuart.cpio.gz` RAM root (the SD root cannot be
+used here: it needs PCIe for the card, which would confound the test). Only the DTB varies:
+
+| DTB | maxcpus=14 result |
+|---|---|
+| thin `dcuart` (no PCIe/ANS/SMC/SPMI) | ✅ **14 CPUs boot**, 447 lines |
+| `dcuart-pcie` | ✅ **14 CPUs boot**, 496 lines → **PCIe exonerated** |
+| `wifi-cpufreq` **minus ANS/NVMe** | ❌ hang, 20 lines → **ANS/NVMe exonerated** |
+| `wifi-cpufreq` **minus SMC** | ✅ **14 CPUs boot**, 458 lines → **SMC IS THE CULPRIT** |
+| `wifi-cpufreq` (full) | ❌ hang, 20 lines |
+| control: full DTB + **same RAM root** | ❌ hang, 20 lines → initramfs is not the variable here |
+
+Disabling `smc` + `smc_mbox` — and nothing else — takes maxcpus=14 from a 100% hang to all fourteen
+cores up. That is a single-variable result with its control run in the same session.
+
+## This reframes ticket 205 completely
+
+It was never a CPU, MMU, cache or TLB bug. **`macsmc` (or something it does) breaks the machine as
+core count rises**, and the corruption we spent nine rounds characterising — five bulk-store
+signatures on freshly allocated pages — is the *symptom* of whatever SMC does to memory, not a
+property of the store paths themselves.
+
+Everything now fits, including the things that previously did not:
+
+- **Why any small perturbation hid it** (rounds 3-5): a timing window against an asynchronous agent,
+  not an ordering bug in `copy_page`.
+- **Why it appeared in five unrelated callers**: the victim is whichever page the allocator most
+  recently handed out when SMC touches memory, so the caller is essentially random.
+- **Why severity scaled with core count**: more cores → more SMC traffic (gpio/pwren key writes, SMC
+  RTKit endpoints, hwmon/battery polling) and more concurrent allocation.
+- **Why config knobs looked like they worked** (round 8, withdrawn): they were perturbations of the
+  same window.
+- **Why the fault addresses were validly mapped**: nothing was wrong with the mapping; the *contents*
+  or the surrounding state were being disturbed by an agent outside Linux's control.
+
+## Immediate practical consequence
+
+SMC gives us battery/thermals, the RTC, and — critically — the `gP13`/`gP19` **pwren-gpios that power
+WiFi, BT and the SD reader**. So we cannot simply disable it: the persistent SD root and networking
+depend on it. But this converts an open-ended "M4 SMP is broken" problem into a bounded driver
+question with obvious next steps.
+
+## Next experiments (all cheap, all single-variable)
+
+1. **Which part of SMC?** Disable only the `smc_gpio` child (keep `smc`/`smc_mbox`) and retest at 14 —
+   that separates "SMC key writes from `gpio-macsmc`" from "the SMC RTKit endpoint itself".
+2. **Which SMC consumer?** Selectively drop `macsmc-hwmon`, `macsmc-power`, `macsmc-rtc` and
+   `POWER_RESET_MACSMC` from the kernel config, keeping only what `pwren-gpios` needs.
+3. **Is it the shared memory?** `macsmc`'s RTKit shmem setup is the one place SMC and Linux share
+   pages. Compare against `apple-rtkit`'s expectations and check whether the SMC SRAM window is being
+   mapped or reserved correctly for T6040 (our `reg` has `smc` + `sram`; a wrong `sram` size would let
+   SMC write outside what Linux reserved — **this is my prime suspect**).
+4. **Cross-check upstream**: this is very likely the "weird crashes with smp" yuka and sven discussed
+   on 2026-08-02, and "depends very much on the kernel config used" is consistent with *which SMC
+   consumers are built in*. That is now a much more specific question to put to them.
