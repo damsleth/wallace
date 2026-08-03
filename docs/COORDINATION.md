@@ -35,6 +35,28 @@ Release `healthy` only after the proxy is back at a quiescent
 `Running proxy`. Release `wedged` if the link is unhealthy or uncertain;
 the next holder must recover it before use.
 
+## Ticket numbering — claude takes ODD, sol takes EVEN
+
+**CJ's ruling, 2026-08-03, after three collisions in one session.** Both agents were allocating the
+next free sequence number concurrently, so each of us silently overwrote or forced a renumber of the
+other's tickets (my 199 became 204, my 215/216 became 218/219).
+
+From now on:
+
+| agent | sequence numbers |
+|---|---|
+| **claude** | **odd** (…, 221, 223, 225) |
+| **sol**    | **even** (…, 220, 222, 224) |
+
+Rules:
+
+- Pick the next free number **of your own parity**; never take one of the other parity even if free.
+- Do **not** renumber the other agent's existing tickets. Everything already filed keeps its number,
+  whatever its parity — the split applies to new tickets only.
+- Reference the other agent's tickets freely; parity is an allocation rule, not ownership of the work.
+- If you genuinely need a number of the wrong parity (e.g. keeping a related pair adjacent), say so in
+  the ticket description so the exception is visible rather than looking like a collision.
+
 ## Ticket lifecycle
 
 Actionable work is stored as JSON:

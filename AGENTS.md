@@ -10,12 +10,18 @@ dwm; internal keyboard; five proven CPU cores and cpufreq; SMC telemetry; PCIe,
 WiFi, Bluetooth, keyboard backlight, and verified SD read/write persistence.
 At one core, SD-root reaches ttydc0 and OpenRC and persists writes; panic tests
 left its filesystems dirty, so tickets 215/216 own repair and clean shutdown.
-Ticket 207 is isolating the barrier/cache primitive behind a reproducible
-two-core kernel page-copy fault; ticket 208 confirmed the instrumentation
-suppression against an uninstrumented control.
+Tickets 207/208 closed the two-core page-copy bisect with a negative: any
+small perturbation before `copy_page()` suppresses the fault, the ordering
+hypothesis is refuted, and the race is not in `copy_highpage`. Tickets 209/217
+now characterise victim-CPU topology; an upstream-quality report is the
+highest-value next step.
 Linux NVMe briefly mounts exFAT before a first-CQ-wrap firmware assert.
 Trackpad motion, USB host/VBUS, GPU acceleration, panel backlight, audio, camera,
 suspend, and stable full-core userspace remain open.
+
+**Ticket numbering (CJ, 2026-08-03):** claude allocates **odd** sequence numbers, sol allocates
+**even** — after three collisions in one session. Existing tickets keep their numbers; the rule applies
+to new ones. Details in `docs/COORDINATION.md`.
 
 **Start here, in this order:**
 1. This file (the map).
