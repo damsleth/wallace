@@ -42,14 +42,26 @@ cp /etc/resolv.conf "$TMP/etc/resolv.conf" 2>/dev/null || \
 echo "== installing wifi/bt userspace in the container chroot =="
 # iw + wpa_supplicant: association. dhcpcd + busybox udhcpc: addressing.
 # bluez/bluez-btmgmt: bring hci0 up and scan. pciutils: lspci for evidence.
-podman exec "$CONTAINER" chroot "/out/$TMP_BASE" /bin/sh -ec '
+# T6040_OBEX=1 adds bluez-obexd + dbus for CJ's OBEX file-transfer acceptance
+# test. It is opt-in so the default image stays byte-identical to the
+# live-proven WiFi/BT root; obexd pulls libical/ICU, which is ~35 MB of RAM
+# root we do not want in every boot.
+OBEX_PKGS=""
+[ "${T6040_OBEX:-0}" = "1" ] && OBEX_PKGS="bluez-obexd dbus"
+podman exec -e OBEX_PKGS="$OBEX_PKGS" "$CONTAINER" \
+    chroot "/out/$TMP_BASE" /bin/sh -ec '
     apk update -q
     apk add --no-cache openrc busybox-openrc \
         iw wpa_supplicant wireless-tools dhcpcd \
         bluez bluez-deprecated pciutils iproute2 \
         openssh-server openssh-keygen \
-        e2fsprogs e2fsprogs-extra apk-tools
+        e2fsprogs e2fsprogs-extra apk-tools $OBEX_PKGS
     rm -rf /var/cache/apk/* /var/log/apk.log /etc/resolv.conf
+    # dbus'\''s post-install writes a RANDOM /etc/machine-id, which was the sole
+    # byte-difference between two otherwise identical OBEX builds. Drop it here
+    # and let t6040-bt-obex create a volatile one at runtime (dbus-uuidgen
+    # --ensure), so the image stays byte-reproducible.
+    rm -f /etc/machine-id /var/lib/dbus/machine-id
 '
 
 echo "== staging BCM4388 apple,mriya firmware =="
@@ -80,6 +92,10 @@ install -m 0755 "$ROOT/scripts/t6040-wifi-autologin" \
     "$TMP/usr/local/sbin/t6040-wifi-autologin"
 install -m 0755 "$ROOT/scripts/t6040-wifi-report" \
     "$TMP/usr/local/sbin/t6040-wifi-report"
+# OBEX helper: harmless to ship unconditionally (it refuses to run without the
+# obexd binary), so the script is present even in a non-OBEX image for triage.
+install -m 0755 "$ROOT/scripts/t6040-bt-obex.sh" \
+    "$TMP/usr/local/sbin/t6040-bt-obex"
 
 # The ttydc0 console helper execs getty with -l t6040-b0-autologin; point that
 # name at this image's own autologin so the helper can be reused verbatim.
@@ -150,7 +166,12 @@ install -m 0755 "$ROOT/scripts/t6040-wifi-init" "$TMP/init"
 sed -i 's/^root:[^:]*:/root:*:/' "$TMP/etc/shadow" 2>/dev/null || true
 
 echo "== packing =="
-python3 "$ROOT/scripts/reproducible-newc.py" "$TMP" | gzip -9 >"$DEST"
+# -n matters: without it gzip stamps the build time into its header, so two
+# otherwise byte-identical images differ in 4 bytes and no pinned hash can ever
+# be reproduced. Every other Wallace builder already uses `gzip -n -9`; this one
+# was the outlier (found 2026-08-04 by two OBEX builds whose cpio payloads were
+# identical while the archives were not).
+python3 "$ROOT/scripts/reproducible-newc.py" "$TMP" | gzip -n -9 >"$DEST"
 printf 'built %s (%d bytes)\n' "$DEST" "$(wc -c <"$DEST")"
 gzip -dc "$DEST" | cpio -it 2>/dev/null | grep -cE '.' | \
     xargs printf 'entries: %s\n'
@@ -158,11 +179,22 @@ for want in ./sbin/wpa_supplicant ./usr/sbin/iw ./sbin/dhcpcd ./sbin/udhcpc \
             ./usr/sbin/sshd ./usr/bin/ssh-keygen ./etc/ssh/sshd_config \
             ./usr/bin/hciconfig ./usr/bin/bluetoothctl ./usr/bin/lspci \
             ./init ./usr/local/sbin/t6040-wifi-report \
+            ./usr/local/sbin/t6040-bt-obex \
             './lib/firmware/brcm/brcmfmac4388c0-pcie.apple,mriya-WLMT-u.bin' \
             './lib/firmware/brcm/brcmfmac4388c0-pcie.apple,mriya-WLMT-u.txt' \
             './lib/firmware/brcm/brcmbt4388c2-apple,mriya-u.bin'; do
     gzip -dc "$DEST" | cpio -it 2>/dev/null | grep -qxF "$want" \
         || { echo "MISSING from image: $want" >&2; exit 1; }
 done
+if [ "${T6040_OBEX:-0}" = "1" ]; then
+    # Alpine 3.24 puts obexd at /usr/lib/bluetooth/obexd (not libexec) and
+    # ships NO obexctl, which is why t6040-bt-obex drives OBEX over gdbus.
+    for want in ./usr/lib/bluetooth/obexd ./usr/bin/dbus-daemon \
+                ./usr/bin/gdbus ./usr/bin/dbus-send; do
+        gzip -dc "$DEST" | cpio -it 2>/dev/null | grep -qxF "$want" \
+            || { echo "MISSING from OBEX image: $want" >&2; exit 1; }
+    done
+    echo "obex members present"
+fi
 echo "all required members present"
 shasum -a 256 "$DEST"
