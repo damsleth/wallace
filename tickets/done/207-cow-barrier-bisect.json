@@ -1,0 +1,33 @@
+{
+  "seq": "207",
+  "slug": "cow-barrier-bisect",
+  "needs": "rig",
+  "state": "done",
+  "track": "bringup",
+  "priority": "P0",
+  "desc": "Negative result: smp_mb() and a semantically irrelevant destination read both suppressed the maxcpus=2 CoW fault. The experiment did not identify a missing barrier or a safe fix; do not ship either perturbation.",
+  "author": "claude",
+  "deps": [
+    "208"
+  ],
+  "hashes": {
+    "kbuild_207a_log": "07bf20c26b24313b9398a0ac21f584454475b795e44f1331fcb1167c96c2d943",
+    "kbuild_207b_log": "f28267d06dec7b7bc1fb0d7e262ad12776e32c9053982aa4030dc488e6d79e49",
+    "kbuild_control_log": "fa603bb1ad967b565f5ba72cead04d64a9fc84a8b32def5cbfd0114866b8eb47"
+  },
+  "evidence": [
+    "evidence/2026-08-03-t6040-205-smp-cow-investigation.md"
+  ],
+  "result": {
+    "control": "2 kernel traces",
+    "smp_mb": "0 traces in 4 runs",
+    "destination_read": "0 traces in 4 runs",
+    "conclusion": "Small pre-copy perturbations suppress the Heisenbug, so barrier semantics were not demonstrated. The fault is observed in copy_page, but this experiment does not locate its origin."
+  },
+  "limitations": [
+    "No uniquely named live console transcript was retained.",
+    "The source-read and cache-maintenance variants were not needed to refute the barrier inference and were not run."
+  ],
+  "created": 1785744315,
+  "done_at": 1785746798
+}
