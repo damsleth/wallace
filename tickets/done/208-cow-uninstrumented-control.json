@@ -1,0 +1,29 @@
+{
+  "seq": "208",
+  "slug": "cow-uninstrumented-control",
+  "needs": "rig",
+  "state": "done",
+  "track": "bringup",
+  "priority": "P0",
+  "desc": "Control passed: the uninstrumented maxcpus=2 build produced two kernel traces in four reproducer runs, while the pre-copy validation build produced none. The validation work suppresses the fault but does not identify its cause.",
+  "author": "claude",
+  "deps": [],
+  "hashes": {
+    "kbuild_control_log": "fa603bb1ad967b565f5ba72cead04d64a9fc84a8b32def5cbfd0114866b8eb47",
+    "kbuild_instrumented_log": "41963a79c9d3d3627081edb79417c3c302a2fa9054ca2bf3f4177a0251e4a3ff"
+  },
+  "evidence": [
+    "evidence/2026-08-03-t6040-205-smp-cow-investigation.md"
+  ],
+  "result": {
+    "uninstrumented": "2 kernel traces in 4 runs",
+    "instrumented": "0 kernel traces in 4 runs",
+    "method_rule": "Start each candidate from a fresh boot and run the reproducer at least four times; one clean run is weak evidence."
+  },
+  "limitations": [
+    "The fault occurred only during the first uninstrumented run, showing a first-touch or settling bias.",
+    "No uniquely named live console transcript was retained."
+  ],
+  "created": 1785744315,
+  "done_at": 1785746851
+}
