@@ -1,94 +1,89 @@
 # Project Wallace
 
-Project Wallace brings mainline Linux to the 14-inch M4 Pro MacBook Pro
-(T6040 “Brava Chop”, Mac16,8 / J614s). This repository contains the board
-device trees, kernel patches, host tools, build recipes, tickets, and evidence.
-The m1n1 and Linux source trees live in sibling repositories.
+Project Wallace is bringing Linux to the 14-inch M4 Pro MacBook Pro: Apple
+Mac16,8 / J614s, built around the T6040 “Brava Chop” SoC. The project
+tracks the board description, kernel and m1n1 changes, build tooling, experiments,
+and evidence needed to turn first-boot support into a reliable upstream-quality
+Linux system.
+
+This is experimental bring-up work, not a ready-to-install distribution. There
+is no public installer image yet, and the machine is not ready to replace macOS
+as a dependable daily driver.
 
 ## Status — 2026-08-03
 
-Linux boots both tethered and untethered. The useful baseline is Alpine with
-the internal display and keyboard, PCIe, WiFi, Bluetooth, SMC telemetry, and
-five proven CPU cores. The internal SD reader now provides verified persistent
-storage. The remaining work is reliability and integration, not first boot.
+Linux boots both tethered and untethered. The current useful baseline is Alpine
+Linux with the internal display and keyboard, Xorg with i3 or dwm, PCIe, WiFi,
+Bluetooth, SMC telemetry, cpufreq, and persistent SD storage. A five-core
+RAM-root desktop has run successfully; the persistent SD-root system currently
+uses one core because a reproducible multi-core kernel memory race remains the
+largest reliability blocker.
 
-| Area | Verified state | Current limit |
+The project has therefore moved beyond “can Linux boot?” The work now is making
+the existing hardware support stable, maintainable, and suitable for upstream
+review.
+
+## Hardware support
+
+| Component | What works | What remains |
 |---|---|---|
-| Boot | Enrolled raw m1n1 object cold-boots Linux without a host payload | Objects must be 16 KiB aligned; standard EFI boot is not required yet |
+| Boot | A self-contained, enrolled m1n1 object cold-boots Linux without a host-supplied payload | The current raw-object path is project-specific; a conventional stage-2 or EFI-style flow is optional future work |
+| CPU and cpufreq | All 14 cores enter the kernel; a five-core RAM-root desktop and frequency scaling are proven | Multi-core page-copy workloads can fault in the kernel. A minimal reproducer exists; the simple missing-barrier theory has been refuted, leaving page lifetime/refcount or TLB invalidation as leading areas to investigate |
 | Display | simpledrm/fbcon and Xorg with i3 or dwm work on the internal panel | No GPU acceleration or panel-backlight control |
-| Keyboard | Internal keyboard and Norwegian layout work | Trackpad motion does not; firmware upload succeeds but the following reset is rejected |
-| CPU | All 14 cores enter the kernel; a five-core RAM-root desktop and cpufreq are proven | A controlled two-core reproducer faults in kernel page-copy paths; instrumentation suppresses it, with barrier/cache-maintenance isolation active under ticket 207 |
-| SMC | Battery, AC, charger, and temperature telemetry work | Power-management integration is incomplete |
-| PCIe | T6040 PCIe and endpoint power work | Endpoint power is limited to the approved SMC GPIO keys `gP13` and `gP19` |
-| WiFi / Bluetooth | BCM4388 associates, gets DHCP, routes traffic, and exposes a working `hci0` | No known bring-up blocker |
-| SD | GL9755 enumerates as `mmc0`; exFAT read, write, sync, reboot, and hash persistence are proven | The stricter staged fixture tickets 199/200 remain separate review gates |
-| Persistent root | At `maxcpus=1`, the SD loop root reaches ttydc0 and OpenRC and retains writes across reboot | Panic testing left exFAT/ext4 dirty; repair and the staged clean-shutdown path need live verification before further RW use |
-| Internal NVMe | Raw m1n1 sustains reads across several queue wraps. Linux enumerates namespaces and briefly mounts the exFAT partition | Linux firmware asserts at the first I/O CQ wrap; Linux NVMe writes are not verified |
-| USB | The DFU controller works in Linux device mode | macOS does not bind the tested Linux CDC gadget shapes; USB host/VBUS remains unproven |
-| Audio / camera / suspend / GPU | Not brought up | These remain later-stage work |
+| Input | The internal keyboard, Norwegian layout, and keyboard backlight work | Trackpad motion does not. Firmware upload succeeds, but the following interface reset is rejected |
+| SMC and power | Battery, AC, charger, and temperature telemetry work | cpuidle, suspend, lid/power integration, and production power policy remain incomplete |
+| PCIe | The T6040 root complex, link training, and approved endpoint-power paths work | Upstream cleanup and broader regression coverage |
+| WiFi and Bluetooth | BCM4388 WiFi associates, receives DHCP, and routes traffic; Bluetooth exposes a working `hci0` | No known bring-up blocker; integration and upstream review remain |
+| SD storage | The internal GL9755 reader enumerates as `mmc0`; exFAT read, write, sync, reboot, and hash persistence are verified | Panic testing left the current fixture dirty; automatic repair and clean-shutdown validation are staged before further read/write use |
+| Persistent root | At `maxcpus=1`, an ext4 loop image on the SD card reaches ttydc0 and OpenRC and retains writes across reboot | Clean shutdown, repeated cold boots, reliable services, and graphical-session integration still need live validation |
+| Internal NVMe | Raw m1n1 reads survive several completion-queue wraps; Linux enumerates namespaces and briefly mounts exFAT | Linux triggers a firmware assert at the first I/O completion-queue wrap; Linux writes are not verified |
+| USB | The DFU controller works in Linux device mode | USB host mode, Type-C role handling, and VBUS remain unproven |
+| GPU | The internal framebuffer provides an unaccelerated desktop | T6040/G16 needs matching kernel, firmware-ABI, m1n1, and Mesa support; G14 tables are not a valid substitute |
+| Audio, camera, suspend | Hardware topology and dependencies have been mapped in several areas | No usable audio or camera path; suspend is unsafe without a valid CPU-retention model |
 
-Primary evidence:
+## Roadmap
 
-- [SD read/write persistence](evidence/2026-08-02-t6040-SD-CARD-WORKS-persistent-storage.md)
-- [SD-root status](evidence/2026-08-03-t6040-SD-ROOT-persistent-system.md)
-- [WiFi and Bluetooth](evidence/2026-07-29-t6040-WIFI-AND-BLUETOOTH-WORKING.md)
-- [Five-core desktop and SMP boundary](evidence/2026-07-29-t6040-SMP-threshold-maxcpus6-and-5core-shippable.md)
-- [Current MM/SMP investigation](evidence/2026-08-03-t6040-205-smp-cow-investigation.md)
-- [NVMe Linux wrap failure](evidence/2026-07-30-t6040-nvme-linux-wrap-assert-E1-E5.md)
-- [NVMe completion-order audit](evidence/2026-08-03-t6040-nvme-irq-completion-order-audit.md)
-- [Trackpad reset result](evidence/2026-08-02-t6040-trackpad-HIDF-rejected-not-crash.md)
+| Milestone | State | Result so far | Next boundary |
+|---|---|---|---|
+| Boot and recovery foundation | Complete | Stable m1n1 handoff, tethered development, and enrolled untethered Linux boot | Keep the boot artifacts reproducible and prepare upstream-shaped changes |
+| Kernel and board foundation | Functional | CPU topology, interrupt controller, PMGR, watchdog, framebuffer, DockChannel, SMC, PCIe, SDHCI, WiFi, Bluetooth, and cpufreq are integrated | Resolve the multi-core memory race, add cpuidle, and upstream the proven pieces |
+| Local unaccelerated desktop | Partial | Internal panel, keyboard, keyboard backlight, and Xorg/i3 or dwm work | Trackpad motion, panel backlight, accelerated graphics, and desktop polish |
+| Connectivity | Functional | WiFi and Bluetooth work over the internal PCIe endpoint | Upstreaming and, separately, a safe USB-host/Type-C implementation |
+| Persistent Linux system | Partial | SD storage is persistent; a one-core Alpine root reaches console and OpenRC | Repair the fixture, prove clean shutdown, then validate network and desktop services across cold boots |
+| Stable multi-core userspace | Active blocker | Five-core RAM-root use is proven, and the two-core kernel fault has a small repeatable reproducer | Report and isolate the page lifetime/TLB failure; do not treat timing perturbations as a fix |
+| Internal NVMe root | Experimental | Both m1n1 and Linux reach real media; m1n1 reads are stable across wraps | Explain and fix the Linux first-CQ-wrap firmware assert before any write or root migration |
+| Power and multimedia | Early | SMC telemetry and cpufreq work; audio/camera topology is documented | cpuidle, suspend, panel backlight, audio, camera, lid handling, and thermal policy |
+| Practical daily driver | Not yet | Most of the basic platform is visible and several major devices work | Clean persistent boot, stable multi-core execution, trackpad, backlight, and dependable service integration |
 
 ## Current priorities
 
-1. Build and independently review ticket 207's controlled
-   barrier/cache-maintenance variants, then run the bisect against the
-   reproducible two-core kernel page-copy fault.
-2. Run reviewed ticket 215 to repair and recheck the dirty SD filesystems, then
-   ticket 216 to validate the hardened root and clean shutdown path.
-3. Preserve a complete modern ANS crashlog for the Linux NVMe CQ-wrap assert
-   (ticket 201), then review the threaded-IRQ discriminator (ticket 203).
-4. Resolve the trackpad post-upload interface-reset contract.
-5. Keep USB-host/HPM, GPU, audio, camera, and suspend behind their existing
-   evidence and safety gates.
+1. Turn the reproducible two-core kernel page-copy fault into an upstream-quality
+   report and investigate page lifetime/refcount and TLB invalidation. A barrier
+   and a plain read both hide the symptom, so neither is a valid fix.
+2. Repair and recheck the dirty SD filesystems, then validate the hardened
+   SD-root shutdown path and post-shutdown filesystem state.
+3. Preserve a complete modern ANS crashlog for the Linux NVMe CQ-wrap assert,
+   then test the remaining completion-context hypothesis.
+4. Resolve the trackpad's post-firmware-upload interface-reset contract.
+5. Continue upstream-oriented work on USB host, GPU, power management, audio,
+   and camera support as credible hardware-specific implementations become
+   available.
 
-The machine is not yet a dependable daily driver: clean SD-root shutdown,
-trackpad motion, multi-core memory stability, accelerated graphics, and panel
-backlight control remain open.
+## Primary evidence
 
-## Safety and coordination
+The repository keeps experiment results, exact artifacts, corrections, and
+failed hypotheses alongside successful milestones. Useful starting points:
 
-Two agents share one physical machine. Read
-[docs/COORDINATION.md](docs/COORDINATION.md) before any rig work. A rig script
-may run only for an approved and independently reviewed ticket while the caller
-holds the lease from `scripts/rig-lease.sh`.
-
-Never write PMU, charger, NVRAM, firmware, or unknown SPMI state. The only
-additional approved SMC writes are the PCIe endpoint-power GPIO keys
-`gP13` and `gP19`. The exact SPMI policy is
-[docs/SPMI_SAFETY.md](docs/SPMI_SAFETY.md).
-
-## Repository layout
-
-| Path | Purpose |
+| Area | Evidence |
 |---|---|
-| `~/Code/wallace` | this repository: current docs, scripts, patches, DTS files, tickets, evidence, and archived research |
-| `~/Code/m1n1` | active m1n1 fork |
-| `~/Code/m1n1-clean` | curated upstream-shaped m1n1 series |
-| `~/Code/linux` | Linux branch `wallace/t6040-bringup` |
-| `~/Code/linux-build-out` | container build output and retained artifacts |
-| `~/Code/macvdmtool` | DebugUSB entry and remote reboot |
-| `~/Code/kisd` | DebugUSB-to-PTY bridge |
+| Untethered boot | [First enrolled self-contained Linux milestone](evidence/2026-07-25-t6040-B0-MILESTONE.md) |
+| CPU | [Five-core desktop and SMP boundary](evidence/2026-07-29-t6040-SMP-threshold-maxcpus6-and-5core-shippable.md) · [Current minimal reproducer and MM/SMP investigation](evidence/2026-08-03-t6040-205-smp-cow-investigation.md) |
+| WiFi and Bluetooth | [Working BCM4388 WiFi and Bluetooth](evidence/2026-07-29-t6040-WIFI-AND-BLUETOOTH-WORKING.md) |
+| SD storage | [Read/write persistence](evidence/2026-08-02-t6040-SD-CARD-WORKS-persistent-storage.md) · [Persistent-root status and integrity work](evidence/2026-08-03-t6040-SD-ROOT-persistent-system.md) |
+| Internal NVMe | [Linux first-CQ-wrap firmware assert](evidence/2026-07-30-t6040-nvme-linux-wrap-assert-E1-E5.md) · [Completion-order audit](evidence/2026-08-03-t6040-nvme-irq-completion-order-audit.md) |
+| Trackpad | [Firmware upload and rejected reset result](evidence/2026-08-02-t6040-trackpad-HIDF-rejected-not-crash.md) |
 
-## Reading order
-
-1. [AGENTS.md](AGENTS.md): repository map and hard rules.
-2. [docs/COORDINATION.md](docs/COORDINATION.md): mandatory shared-rig protocol.
-3. [docs/NEXT_STEPS.md](docs/NEXT_STEPS.md): current work only.
-4. [docs/RUNBOOK.md](docs/RUNBOOK.md): operational commands.
-5. [docs/DEVLOG.md](docs/DEVLOG.md): operating knowledge and chronological history.
-6. [docs/ROADMAP.md](docs/ROADMAP.md): stage-level scope.
-
-Actionable work lives in `tickets/`. Completed tickets move to
-`tickets/done/`; deprecated or superseded tickets move to
-`tickets/archive/`. Detailed experiment records remain in `evidence/` and are
-historical evidence, not current status pages.
+The status above intentionally distinguishes proven behavior from plausible
+next steps. A successful one-off boot is not treated as finished hardware
+support, and hypotheses that later evidence disproves remain recorded rather
+than being rewritten as successes.
