@@ -1,0 +1,27 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Ticket 205: the 2x2 control for P-only. Two Everest cores in DIFFERENT
+ * clusters (P00 boot core + P10), with no E core online.
+ *
+ * The P-only DTB changed two variables at once versus the default:
+ *   default maxcpus=2 = P00 + E0  (different clusters, DIFFERENT core type) -> boots clean
+ *   ponly   maxcpus=2 = P00 + P01 (SAME cluster,      same core type)       -> 3 traces at boot
+ *
+ * This isolates them: same core type as ponly, but different clusters.
+ *   clean at boot  -> intra-cluster sharing IS the aggravating factor
+ *                     (core type controlled), which points at the shared L2.
+ *   faults at boot -> the second Everest core is what matters, not sharing.
+ */
+#include "t6040-j614s-dcuart-wifi-cpufreq.dts"
+
+/* no E cores */
+&cpu_e0 { status = "fail"; };
+&cpu_e1 { status = "fail"; };
+&cpu_e2 { status = "fail"; };
+&cpu_e3 { status = "fail"; };
+
+/* no P0 siblings, so CPU1 comes from cluster 2 */
+&cpu_p01 { status = "fail"; };
+&cpu_p02 { status = "fail"; };
+&cpu_p03 { status = "fail"; };
+&cpu_p04 { status = "fail"; };

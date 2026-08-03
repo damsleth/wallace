@@ -229,6 +229,16 @@ if [ "${TRACKPAD_FW:-0}" = "1" ]; then
         exit 1
     }
 fi
+if [ "${NVME_THREADED_IRQ:-0}" = "1" ]; then
+    [ "${NVME:-0}" = "1" ] || {
+        echo "ERROR: NVME_THREADED_IRQ=1 requires NVME=1"
+        exit 1
+    }
+    [ "${NVME_MODE:-builtin}" = "builtin" ] || {
+        echo "ERROR: NVME_THREADED_IRQ=1 requires NVME_MODE=builtin"
+        exit 1
+    }
+fi
 if [ "${DOCKCHANNEL_EARLYCON:-0}" = "1" ]; then
     [ "${DOCKCHANNEL:-0}" = "1" ] || {
         echo "ERROR: DOCKCHANNEL_EARLYCON=1 requires DOCKCHANNEL=1"
@@ -252,7 +262,9 @@ fi
 if [ "${CPUFREQ:-0}" = "1" ]; then
     for base in t6040-j614s-dcuart-cpufreq.dts t6040-cpufreq.dtsi \
                 t6040-j614s-dcuart-wifi-cpufreq.dts t6040-j614s-dcuart-c2probe.dts \
-                t6040-j614s-dcuart-onepercluster.dts; do
+                t6040-j614s-dcuart-onepercluster.dts \
+                t6040-j614s-dcuart-ponly.dts \
+                t6040-j614s-dcuart-p2clusters.dts; do
         for f in "/out/$base" "/src/$APPLE/$base"; do
             [ -f "$f" ] && cp "$f" $APPLE/ && break
         done
@@ -353,6 +365,23 @@ if [ -f /out/t6040-nvme-apple-force-clean-ans-boot.patch ]; then
         echo "t6040-nvme-apple-force-clean-ans-boot.patch already applied"
     else
         echo "ERROR: t6040-nvme-apple-force-clean-ans-boot.patch does not apply" >&2
+        exit 1
+    fi
+fi
+if [ "${NVME_THREADED_IRQ:-0}" = "1" ]; then
+    echo "== apply Apple NVMe threaded-IRQ discriminator =="
+    threaded_irq_patch=/out/t6040-nvme-threaded-irq-discriminator.patch
+    if [ ! -f "$threaded_irq_patch" ]; then
+        echo "ERROR: NVME_THREADED_IRQ=1 requires $threaded_irq_patch" >&2
+        exit 1
+    elif git apply --check "$threaded_irq_patch" 2>/dev/null; then
+        git apply "$threaded_irq_patch"
+        echo "t6040-nvme-threaded-irq-discriminator.patch applied OK"
+    elif git apply -R --check "$threaded_irq_patch" 2>/dev/null; then
+        echo "t6040-nvme-threaded-irq-discriminator.patch already applied"
+    else
+        echo "ERROR: t6040-nvme-threaded-irq-discriminator.patch does not apply" >&2
+        git apply --check "$threaded_irq_patch" || true
         exit 1
     fi
 fi
@@ -1678,6 +1707,18 @@ if [ "${CPUFREQ:-0}" = "1" ] && [ -f $APPLE/t6040-j614s-dcuart-cpufreq.dts ]; th
         cp $APPLE/t6040-j614s-dcuart-wifi-cpufreq.dtb /out/ \
             && echo "DTB -> /out/t6040-j614s-dcuart-wifi-cpufreq.dtb"
     fi
+    # Ticket 205: two P cores in different clusters (2x2 control for ponly).
+    if [ -f $APPLE/t6040-j614s-dcuart-p2clusters.dts ]; then
+        make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-p2clusters.dtb
+        cp $APPLE/t6040-j614s-dcuart-p2clusters.dtb /out/ \
+            && echo "DTB -> /out/t6040-j614s-dcuart-p2clusters.dtb"
+    fi
+    # Ticket 205 discriminator: P cores only (no Sawtooth/E core online).
+    if [ -f $APPLE/t6040-j614s-dcuart-ponly.dts ]; then
+        make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-ponly.dtb
+        cp $APPLE/t6040-j614s-dcuart-ponly.dtb /out/ \
+            && echo "DTB -> /out/t6040-j614s-dcuart-ponly.dtb"
+    fi
     # Ticket 205 discriminator: one CPU per cluster (no intra-cluster sharing).
     if [ -f $APPLE/t6040-j614s-dcuart-onepercluster.dts ]; then
         make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-onepercluster.dtb
@@ -1900,6 +1941,10 @@ if [ "${1:-}" = "image" ]; then
         image_name="${image_name}-wifi-fw"
         map_name="${map_name}-wifi-fw"
     fi
+    if [ "${NVME_THREADED_IRQ:-0}" = "1" ]; then
+        image_name="${image_name}-threaded-irq"
+        map_name="${map_name}-threaded-irq"
+    fi
 
     # Ticket 154: assert the PAGE SIZE from the built arm64 Image header, before the
     # artifact is published. Ticket 147 existed only because DIET_CAPABLE silently became
@@ -1987,7 +2032,8 @@ if [ "${1:-}" = "image" ]; then
     cp System.map "/out/$map_name" && echo "System.map -> /out/$map_name"
     if [ "${T6040_WIFI_FW_BUILTIN:-0}" = "1" ] ||
        [ "${DOCKCHANNEL_NBCON:-0}" = "1" ] ||
-       [ "${SD_GL9755:-0}" = "1" ]; then
+       [ "${SD_GL9755:-0}" = "1" ] ||
+       [ "${NVME_THREADED_IRQ:-0}" = "1" ]; then
         config_name="config-${image_name#Image-}"
         cp .config "/out/$config_name" \
             && echo "config -> /out/$config_name"

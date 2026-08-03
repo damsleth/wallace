@@ -269,3 +269,64 @@ That reframes the search away from `copy_highpage` and toward:
 - Do not ship any of variants (a)/(b) as a fix. They hide the symptom, the mechanism is unknown, and
   (b) proves the suppression is not semantic.
 - Do not conclude anything further from single runs; the fault is first-touch biased (208).
+
+---
+
+# Round 6: it is NOT CoW-specific — it is bulk memcpy, in every SMP topology
+
+## The 2x2 on core type and cluster placement
+
+All at maxcpus=2, `sdroot.shell`, topology verified from `Booted secondary processor` MPIDRs:
+
+| DTB | CPUs online | same cluster? | same core type? | traces at boot | reproducer |
+|---|---|---|---|---|---|
+| default | P00 + E0 (`0x0`, midr `…0541`) | no | no | **0** | faults |
+| `p2clusters` | P00 + P10 (`0x10200`, midr `…0551`) | no | yes | **1** | no new in 2 runs |
+| `ponly` | P00 + P01 (`0x10101`, midr `…0551`) | **yes** | yes | **3** | +1 |
+
+**Mixed core types is REFUTED** — a P-only pair faults, and faults harder than the mixed pair. Cluster
+sharing is not the *cause* either (the earlier one-per-cluster test at maxcpus=3 panicked), but it is
+clearly an **aggravating factor**: same-cluster is worst, and it is the only configuration that faults
+during boot three times before any stress is applied.
+
+So: **every** 2-CPU configuration is broken, in every combination of placement and core type. There is
+no "safe" pairing to ship.
+
+## The unifying observation: the victim is always a bulk memcpy
+
+The P-only boot fault is **not** in the CoW path at all:
+
+```
+__pi_memcpy_generic+0x128/0x22c (P)
+jbd2_journal_recover+0x164/0x1cc
+jbd2_journal_load+0xb0/0x360
+ext4_fill_super+0x17e8/0x2c1c
+```
+
+That is ext4 journal recovery during mount. Collect the three signatures seen so far:
+
+| path | caller |
+|---|---|
+| `copy_page` | `copy_highpage` ← `do_wp_page` (copy-on-write) |
+| `__pi_memcpy_generic` | `jbd2_journal_recover` ← `ext4_fill_super` (journal replay) |
+| `copy_folio_from_iter_atomic` | `unpack_to_rootfs` (initramfs unpack, from the original 121 reports) |
+
+Three unrelated subsystems, one common factor: **a large memory-to-memory copy running while another
+CPU is active.** This retires "CoW bug" as a framing — CoW was simply the first path the reproducer
+happened to hit. Ticket 205's title and 121's framing should both be read as "SMP bulk-copy
+corruption".
+
+## What this points at now
+
+A fault that appears in *any* bulk copy, in *any* SMP topology, on addresses that are validly mapped
+(round 3) and with alignment/validity proven, and which a few instructions of delay can hide
+(rounds 3-5), looks like a **coherency or CPU-init problem rather than a bug in any of these callers**.
+The most promising untested area is therefore **the state secondary CPUs are started in**: this port
+brings them up via `spin-table` out of m1n1, and if a secondary begins executing with cache, MMU,
+MAIR/TCR or Apple-specific (SPRR/GXF/APRR) state that does not match the boot CPU, its view of memory
+would be incoherent in exactly this way — large copies corrupting or faulting, small ones usually
+getting away with it.
+
+Next: compare m1n1's secondary-CPU entry state against what `secondary_start_kernel` assumes, and
+check whether the Asahi tree carries M4 secondary-boot handling this port lacks. That is offline work
+and does not need the rig.

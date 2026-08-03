@@ -1,0 +1,28 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Ticket 205 discriminator: P cores ONLY — no Sawtooth (E) core online.
+ *
+ * Every multi-CPU configuration tested so far has included an E core, so
+ * "mixed core types" was never actually excluded:
+ *   maxcpus=2 default  = P00 + E0            -> reproducer FAULTS
+ *   maxcpus=3 default  = P00 + E0 + E1       -> PID 1 dies, panic
+ *   maxcpus=3 onepercluster = P00 + E0 + P10 -> panics (refuted CLUSTER placement,
+ *                                               but E0 was still present)
+ *
+ * Failing all four E cores makes the first CPUs Linux brings up P00 + P01,
+ * i.e. two Everest cores in the SAME cluster and of the SAME type.
+ *
+ *   reproducer clean at maxcpus=2 -> the E cluster / mixed core types is the
+ *     trigger, and the bug is about heterogeneity, not core count. That would
+ *     also mean a P-only multi-core daily driver is available immediately.
+ *   reproducer faults             -> plain core count; heterogeneity dies too.
+ *
+ * Linux numbering: cpu0 = P00 (boot, part 0x055), cpu1..4 = the E cores
+ * (part 0x054), cpu5..8 = P01..P04, cpu9..13 = P10..P14.
+ */
+#include "t6040-j614s-dcuart-wifi-cpufreq.dts"
+
+&cpu_e0 { status = "fail"; };
+&cpu_e1 { status = "fail"; };
+&cpu_e2 { status = "fail"; };
+&cpu_e3 { status = "fail"; };
