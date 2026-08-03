@@ -841,3 +841,47 @@ power-up it performs**, not the endpoint drivers that follow it.
 
 These are now the standing rules for this ticket, alongside the "fresh baseline in the same session"
 rule from 208/218 and the "deleting a DT property disables a whole chain" rule from round 12.
+
+## Round 14: macOS GPIO value REFUTED — now on valid evidence
+
+Re-run of the test that the lease expiry invalidated. Methodology per the round-13 rules: lease
+renewed, logs deleted before each boot, `maxcpus=14` asserted from `dcuart-boot.log`, boot output not
+suppressed, endpoint drivers **enabled** (normal config), two runs.
+
+| run | cmdline asserted | result |
+|---|---|---|
+| 1 | `maxcpus=14` | ❌ hang (20 lines) |
+| 2 | `maxcpus=14` | ❌ hang (20 lines) |
+
+**Writing macOS's `0x00800001` instead of `CMD_OUTPUT|1 = 0x01000001` does not fix the 14-core hang.**
+The invalid round-12 result happened to reach the same conclusion, but it is now established properly.
+Experiment reverted; the known-good kernel is rebuilt and the 1-core SD-root desktop verified back up
+(537 lines, SD card detected, OpenRC running).
+
+sol's decode remains correct — the values genuinely differ from macOS — but the discrepancy is **not**
+the cause of this failure, and `gpio-macsmc`'s value should not be changed on the strength of it.
+
+## Where ticket 205/221/223 stands after fourteen rounds
+
+**Established (all with controls in the same session):**
+
+- The 14-core boot hang is caused by the **`gP13`/`gP19` SMC key write / PCIe port power-up**. Disabling
+  SMC, or the gpiochip, or just the `pwren-gpios` properties, lets all 14 CPUs boot; keeping them hangs.
+- **Not** the endpoint drivers (223: brcmfmac/BT/sdhci all disabled, still hangs).
+- **Not** the SMC RTKit endpoint, which initialises fine at 14 cores with the gpiochip present.
+- **Not** the SMC `sram` window size, **not** cpufreq, **not** the GPIO command value.
+- Separately, at 5-6 cores the machine boots but suffers intermittent **bulk-store faults into freshly
+  allocated pages** (five signatures: `clear_page`, `copy_page`, `__pi_memcpy_generic`,
+  `copy_folio_from_iter_atomic`, `__pi_memset_generic`). Whether that is the same bug as the 14-core
+  hang is **still unproven** — the symptoms differ (pre-console hang vs late intermittent faults).
+- Refuted along the way: ordering/barriers, TLB-range invalidation, hardware AFDBM, page-granular
+  linear map (`rodata=full`), core type, cluster placement, concurrency, tagset depth, initramfs size
+  as a cause (it only shifts the threshold), and CPU/MMU/cache in general.
+
+**The daily driver remains `maxcpus=1`**, which is clean, and that is not affected by any of this.
+
+**Highest-value next step:** get real diagnostic output from the 14-core hang. It is still pass/fail
+with zero visibility, and the earlycon attempt was invalidated. Options: correct `earlycon=dockchannel`
+address (from the DT's dockchannel data window rather than a guess), or m1n1-side tracing of the SMC
+key write, or bisecting *which* of the two keys (`gP13` WiFi vs `gP19` SD) triggers it — the last is
+cheap and might allow WiFi at full core count even before the mechanism is understood.
