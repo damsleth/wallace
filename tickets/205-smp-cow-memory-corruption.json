@@ -14,5 +14,6 @@
   "hashes": {
     "initramfs-sdroot.cpio.gz": "reproducer"
   },
+  "ticket_correction": "The config-bisect work called ticket 215 in the historical desc was renumbered to ticket 218 after a collision with the pre-existing SD repair ticket.",
   "created": 1785740940
 }

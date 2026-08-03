@@ -431,13 +431,13 @@ Item 3 is the cheapest and most likely to be informative next.
 
 ---
 
-# Round 8 (ticket 215): the config bisect — TLB invalidation is the converging answer, but no fix yet
+# Round 8 (ticket 218): the config bisect — TLB invalidation is the converging answer, but no fix yet
 
 ## `rodata=full` is a runtime knob, not a Kconfig symbol
 
 `rodata_full` is `bool rodata_full __ro_after_init = true` in `arch/arm64/mm/pageattr.c`, set by the
 `rodata=` cmdline parameter. There is no `CONFIG_RODATA_FULL_DEFAULT_ENABLED` in this tree, so item (1)
-of ticket 215 was moot and the cmdline test was already the right mechanism.
+of ticket 218 was moot and the cmdline test was already the right mechanism.
 
 Crucially, `can_set_direct_map()` is:
 

@@ -1,5 +1,5 @@
 {
-  "seq": "215",
+  "seq": "218",
   "slug": "smp-config-bisect-vs-upstream",
   "needs": "rig",
   "state": "ROUND1-tlb-invalidation-converging-no-fix-yet",
