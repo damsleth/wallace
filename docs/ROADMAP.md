@@ -14,7 +14,7 @@ work and [NEXT_STEPS.md](NEXT_STEPS.md) contains the current order.
 | E. WiFi and Bluetooth | Functional | Integration and upstreaming |
 | F. GPU acceleration | Blocked on a real T6040/G16 stack | Maintainer-endorsed kernel, firmware ABI, m1n1, and Mesa support |
 | G. Power and peripherals | Partial | Audio, camera, suspend, cpuidle, lid/power integration |
-| H. Persistent distro | Partial | One-core SD root works; dirty-filesystem repair and clean-shutdown validation are pending |
+| H. Persistent distro | Partial | One-core SD root works; a static `fsck.exfat` now ships in the initramfs to repair the dirty fixture, and clean-shutdown validation is pending |
 
 ## A. Proxy and recovery
 

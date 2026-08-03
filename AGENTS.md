@@ -10,19 +10,35 @@ M4 Pro (T6040 "Brava Chop", Mac16,8 / J614s)**. This repo holds the current
 plans, documentation, host-side scripts, kernel patches, tickets, and evidence.
 The code lives in sibling repos under `~/Code/`.
 
-**Working on 2026-08-03:** enrolled untethered Linux; simpledrm plus Xorg/i3 or
+**Working on 2026-08-04:** enrolled untethered Linux; simpledrm plus Xorg/i3 or
 dwm; internal keyboard; five proven CPU cores and cpufreq; SMC telemetry; PCIe,
 WiFi, Bluetooth, keyboard backlight, and verified SD read/write persistence.
 At one core, SD-root reaches ttydc0 and OpenRC and persists writes; panic tests
-left its filesystems dirty, so tickets 215/216 own repair and clean shutdown.
+left its filesystems dirty, and the initramfs now carries a static
+`fsck.exfat` so repair is a real filesystem check rather than clearing the
+dirty flag (tickets 215/216 own repair and clean shutdown).
 Tickets 207/208 closed the two-core page-copy bisect with a negative: any
 small perturbation before `copy_page()` suppresses the fault, the ordering
-hypothesis is refuted, and the race is not in `copy_highpage`. Tickets 209/217
-now characterise victim-CPU topology; an upstream-quality report is the
-highest-value next step.
+hypothesis is refuted, and the race is not in `copy_highpage`. Round 18 then
+established that the bug is **fail-stop** — it kills processes rather than
+returning wrong data — so `maxcpus>1` is an availability limit, not a
+data-integrity one. Tickets 209/217 characterise victim-CPU topology.
 Linux NVMe briefly mounts exFAT before a first-CQ-wrap firmware assert.
 Trackpad motion, USB host/VBUS, GPU acceleration, panel backlight, audio, camera,
 suspend, and stable full-core userspace remain open.
+
+**Current objective (CJ, 2026-08-03):** a practical daily driver with SD, USB
+read/write, NVMe read/write, WiFi, Bluetooth, and trackpad all working
+unambiguously. **Upstream reporting is deferred** — where older docs call an
+upstream report the highest-value action, that is engineering value, not current
+priority. NVMe writes are confined to the exFAT `linux` partition, verified by
+label *and* GPT type, aborting on mismatch.
+
+**Before blaming hardware, verify the kernel.** `$OUT/Image` is what boots and
+is *not* updated by the named `Image-<config>` artifacts, so it can be weeks
+stale. A whole missing subsystem (empty `/sys/bus/pci/devices`, no `/dev/input`)
+means the wrong kernel. `boot-dcuart.sh` now refuses a kernel lacking
+`pcie-apple` or `macsmc`.
 
 **Ticket numbering (CJ, 2026-08-03):** claude allocates **odd** sequence numbers, sol allocates
 **even** — after three collisions in one session. Existing tickets keep their numbers; the rule applies
@@ -32,9 +48,12 @@ to new ones. Details in `docs/COORDINATION.md`.
 1. This file (the map).
 2. `docs/COORDINATION.md` — mandatory before any rig work.
 3. `docs/NEXT_STEPS.md` — current priorities.
-4. `docs/RUNBOOK.md` — operational commands.
-5. `docs/DEVLOG.md` — operating knowledge, solved blockers, and dead ends.
-6. `docs/ROADMAP.md` — stage-level scope.
+4. `docs/BUILD_RECIPE.md` — **mandatory properties of every image and boot
+   object**, enforced by `scripts/t6040-image-preflight.sh`. Run the preflight
+   before anything is enrolled, handed to CJ, or booted.
+5. `docs/RUNBOOK.md` — operational commands.
+6. `docs/DEVLOG.md` — operating knowledge, solved blockers, and dead ends.
+7. `docs/ROADMAP.md` — stage-level scope.
 
 ## The repos
 
@@ -49,6 +68,25 @@ to new ones. Details in `docs/COORDINATION.md`.
 | `~/Code/kisd` | AsahiLinux/kisd | host daemon bridging DebugUSB → pty (`/tmp/m1n1`) |
 
 ## Non-negotiables (full rules in `~/Code/m1n1/AGENTS.md`)
+
+- **Every image ships the Norwegian keyboard layout. No exceptions — this
+  includes throwaway diagnostic images, rescue shells, and initramfs-only
+  boots.** The machine has a Norwegian keyboard; with the default US map, `|`,
+  `\`, `@`, `$`, `[`, `]`, `{`, `}` and the Norwegian letters are all wrong or
+  unreachable, which makes a shell effectively unusable for real work. That
+  applies at three layers, and all three must be set:
+  - **console/initramfs:** load the shipped binary keymap before any shell is
+    spawned, including the rescue path — `busybox loadkmap < /etc/wallace-no.bmap`.
+    busybox provides `loadkmap` (binary keymap on stdin), **not** kbd's
+    `loadkeys`, and ships no applet symlink for it;
+  - **Alpine/OpenRC root:** `keymap="no"` and the console keymap service;
+  - **Xorg:** `XkbLayout "no"` via `xorg.conf.d`, set by config and not only by
+    a `setxkbmap` call that can fail silently.
+  Also prefer the `nb_NO` locale. A build that reaches a shell in US layout is
+  a defect, not a cosmetic issue — treat it as a build failure.
+  **This is enforced**, not just documented: `scripts/t6040-image-preflight.sh`
+  fails an image with no keymap or no `loadkmap` call. Run it before anything is
+  enrolled, handed to CJ, or booted. Rationale in `docs/BUILD_RECIPE.md`.
 
 - Never write PMU, charger, NVRAM, firmware, or an unknown SPMI endpoint.
 - SPMI is deny-by-default. Only an exact transaction permitted by

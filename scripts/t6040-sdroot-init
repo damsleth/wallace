@@ -89,6 +89,24 @@ cleanup_root() {
 
 mount_core || stop "cannot mount proc, sysfs, and devtmpfs"
 
+# Norwegian console keymap, loaded before ANY shell can be spawned -- including
+# the rescue shell reached by stop(). This is a hard project requirement: the
+# machine has a Norwegian keyboard, and under the default US map |, \, @, $,
+# [], {} and the Norwegian letters are wrong or unreachable.
+#
+# The keymap is kernel state on the VT, so loading it here also covers the
+# console after switch_root; only X needs its own XkbLayout.
+# busybox provides loadkmap (binary keymap on stdin), not kbd's loadkeys.
+if [ -f /etc/wallace-no.bmap ]; then
+    if "$BB" loadkmap < /etc/wallace-no.bmap 2>/dev/null; then
+        say "Norwegian console keymap loaded"
+    else
+        say "WARNING: loadkmap failed; console stays US"
+    fi
+else
+    say "WARNING: /etc/wallace-no.bmap missing; console stays US"
+fi
+
 # PCIe is enumerated asynchronously and /init can run extremely early -- on a
 # fast rootfs unpack it has been observed at 0.20s, long before apple-pcie has
 # brought up port 2 or sdhci-pci has bound. These gates therefore have to WAIT,

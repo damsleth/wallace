@@ -10,11 +10,11 @@ milestones, corrections, and dead ends. Exact experiment evidence lives in
 |---|---|
 | Boot | Enrolled, untethered Linux boot works |
 | Display | simpledrm/fbcon and Xorg with i3 or dwm |
-| Input | Keyboard works; trackpad reset contract unresolved |
-| CPU | Five-core RAM-root desktop works; a controlled two-core page-copy reproducer faults |
+| Input | Keyboard works; both HID interfaces register evdev nodes (`Apple DockChannel Keyboard`, `Apple DockChannel Multi-touch`); trackpad reset contract unresolved |
+| CPU | Five-core RAM-root desktop works; a controlled two-core page-copy reproducer faults, and the failure is confirmed **fail-stop** (kills processes, does not return wrong data) |
 | SMC | Battery, AC, charger, and temperature telemetry |
 | PCIe | Root complex, WiFi, Bluetooth, and SD reader work |
-| Storage | One-core SD root reaches ttydc0/OpenRC; repair and clean-shutdown validation pending |
+| Storage | One-core SD root reaches ttydc0/OpenRC; a static `fsck.exfat` in the initramfs now repairs a dirty SD64 in place; clean-shutdown validation pending |
 | NVMe | m1n1 reads work; Linux loses ANS at its first I/O CQ wrap |
 | USB | Device mode works; host role/VBUS does not |
 
@@ -48,6 +48,20 @@ Rules:
    `T6040_KEEPALIVE=1`; otherwise the parent may reap the helper group.
 7. The proven DebugUSB port is left-back/HPM0. Do not involve it in right-port
    HPM experiments.
+8. **Never leave a rig command polling in the background.** The rig is a single
+   exclusive resource, so a stranded waiter becomes a second driver. On
+   2026-08-03 a `until grep 'Running proxy'` loop was backgrounded after its
+   reboot failed; when a later reboot printed that string the stale loop woke up
+   and launched a *second* `boot-dcuart.sh` concurrently with the foreground
+   one. Two proxyclients on one PTY produced
+   `UartTimeout: Expected 1 bytes, got 0 bytes`. Wait in the foreground, or
+   check for stragglers (`pgrep -f t6040-boot-dcuart`) before every boot.
+9. `debugusb-console.sh reboot` leaves its own `cat /tmp/m1n1` reader running,
+   and it fights whatever proxyclient runs next. `boot-dcuart.sh` detaches the
+   old reader itself, so do **not** `pkill` it by hand — that only creates a
+   window with no reader at all. Symptom of contention: a console log that stops
+   at exactly m1n1's own output (~625 bytes / 20 lines) with nothing after
+   `Vectoring to next stage`.
 
 An empty ttydc0 transcript is not proof of a kernel hang. Reattach kisd,
 confirm the proxy or a known console control, and preserve the first complete
@@ -71,6 +85,21 @@ the discipline around them.
 - The strict verifier pins every member and embedded bootargs.
 - Never repack a root filesystem from an extraction that lost device nodes or
   ownership.
+- **`$OUT/Image` is what boots, and nothing keeps it in sync with the named
+  `Image-<config>` artifacts.** It can silently be weeks old. `boot-dcuart.sh`
+  now refuses any kernel with zero occurrences of `pcie-apple` or `macsmc`
+  (override: `BOOT_SKIP_IMAGE_CHECK=1`). Verify by hand with:
+
+      command ls -l $OUT/Image                       # date must match the build
+      strings -a $OUT/Image | grep -m1 'Linux version'
+      strings -a $OUT/Image | grep -c pcie-apple     # 0 == no PCIe driver
+
+  Note `ls` is aliased to `eza` on this host, so use `command ls -t` for real
+  mtime ordering. When grepping a binary for a driver marker, confirm the grep
+  works by also matching a control string — `strings … | head -1` will happily
+  hide the very line that disproves your theory.
+- **A whole missing *subsystem* means the wrong kernel, not broken hardware.**
+  One absent device can be hardware; an empty `/sys/bus/pci/devices` cannot.
 
 ## Durable bring-up results
 
@@ -105,6 +134,19 @@ the discipline around them.
 - Norwegian console and X layouts are working.
 - DockChannel UART uses measured AIC input 816; the ADT-derived 360 value was
   wrong.
+- Both HID interfaces register evdev nodes once the correct kernel is booted:
+  `input0: Apple DockChannel Multi-touch` and `input1: Apple DockChannel
+  Keyboard`. The trackpad gap is therefore event delivery, not enumeration.
+- `hid-generic … device has no listeners, quitting` right after
+  `Initializing comm interface <4- "actuator">` is **benign** — that is the
+  actuator interface, a non-input HID interface with nothing to claim it. Do not
+  read it as a keyboard failure.
+- A shell spawned by `/init` with inherited stdin has **no controlling
+  terminal**: busybox prints `can't access tty: job control turned off` and
+  ignores every keypress. Rescue shells must run under `setsid -c` on a real VT.
+  Also drop the console loglevel first — the `apple-pmgr-pwrstate sync_state()`
+  stream scrolls the prompt away for seconds and makes a working shell look
+  dead.
 
 ### CPU
 
@@ -122,6 +164,20 @@ the discipline around them.
   race is not located in `copy_highpage`. The kernel-mode fault on a valid
   linear-map address points at page lifetime/refcount or TLB-invalidation
   completion; an upstream-quality report is the next step.
+- **The failure is fail-stop, not silent corruption (round 18, 2026-08-03).**
+  With the fork-heavy reproducer running in the background and a fault firing
+  that killed it, twelve consecutive 64 KiB copy-and-compare verifications in
+  the surviving process were byte-identical (`SAME=12, DIFFER=0`, loop
+  completed). That matches the fault path by construction —
+  `die_kernel_fault` → `arm64_force_sig_fault` → `make_task_dead`. So
+  `maxcpus>1` costs availability, not data, and storage written during earlier
+  multi-core sessions is not suspect. Bounded honestly: it does not prove that a
+  process *hit* by the fault writes nothing bad before dying, nor that a fault
+  during page-cache writeback cannot reach storage.
+  Method note — the test must be cheap enough to survive itself: 64 KiB units
+  (not 2 MiB), generate the pattern once, and one `cmp -s` instead of two
+  `md5sum` calls. Heavier versions killed the shell before emitting any verdict,
+  which is why the question stayed open for a dozen rounds.
 - Fresh-boot baselines and at least four repetitions are required: the first
   run is the most sensitive, and a single clean run is weak evidence.
 - cpufreq works after widening the driver’s `frequency * 1000` calculation;
@@ -157,7 +213,24 @@ the discipline around them.
 - At `maxcpus=1`, the loop root reaches ttydc0 and OpenRC and retains writes.
 - Panic testing left exFAT and ext4 unclean. Ticket 215 owns repair; ticket 216
   owns the staged PID-1 shutdown pivot and post-shutdown clean checks.
-- Do not mount the SD root read/write before ticket 215 passes.
+- Repair is a real `fsck.exfat`, never clearing exFAT `VolumeFlags` bit 1: an
+  unclean shutdown mid-write can leave genuine metadata inconsistency, and
+  masking the flag would mount a container already known to be suspect
+  (CJ's decision, 2026-08-03). The initramfs therefore carries a **statically
+  linked** `sbin/fsck.exfat` — it has no libc and no dynamic loader, so a
+  dynamic binary would pull glibc plus `ld-linux` into the boot path. Built from
+  Debian `exfatprogs 1.2.0-1+deb12u1` source in the arm64 kbuild container with
+  `make LDFLAGS=-all-static` (libtool ignores a plain `-static` in `LDFLAGS`,
+  and a PIE default silently defeats it), stripped, and hash-pinned in
+  `scripts/t6040-build-sdroot-initramfs.sh`.
+- The dirty gate stays unconditional *after* any repair: clean at that point or
+  no read-write mount.
+- **PCIe gates in `/init` must wait, not sample.** `/init` has been observed
+  running at 0.20 s, long before `apple-pcie` brings up port 2 or `sdhci-pci`
+  binds. The GL9755 presence and driver checks originally sampled sysfs once
+  while only the block device got a timeout, so a slow probe was reported as
+  "absent". Both now wait up to 25 s and log how long they took, which
+  distinguishes a real absence from "not yet".
 
 ### Internal NVMe
 
@@ -199,6 +272,26 @@ the discipline around them.
 
 Do not repeat these without new evidence:
 
+- **A latched SMC power rail as the cause of a missing SD reader (2026-08-03).**
+  The reader, the card, and the rail were all fine. `$OUT/Image` was the Jul 24
+  build, containing *zero* occurrences of `pcie-apple` and `macsmc` — no PCIe
+  driver and no SMC driver at all. That single fact manufactured every symptom:
+  empty `/sys/bus/pci/devices`, `GL9755 0000:02:00.0 is absent`, no `mmcblk0`,
+  no `wlan0`, no `/dev/input` and therefore a dead keyboard, and a silent
+  dockchannel console. Acting on the wrong theory cost two needless physical
+  interventions (an SD reseat and a hard power cycle) plus most of an evening.
+  The tell that was walked past: a sub-second failure timestamp
+  (`[0.205907]`) means a startup race or a wrong artifact, never a power rail —
+  at 0.2 s nothing has enumerated yet.
+- **Silent memory corruption from the SMP page-copy bug.** Round 18 refuted it:
+  with a fault firing and killing a concurrent process, twelve consecutive
+  64 KiB copy-and-compare verifications were byte-identical. The bug is
+  fail-stop. Do not describe `maxcpus>1` as a data-integrity hazard.
+- **`console=ttydc0` as the cause of a dead keyboard.** The flag is fine and the
+  known-good desktop recipe includes it; what matters is *ordering*. All
+  `console=` entries receive printk, but the **last** becomes `/dev/console`,
+  which is what init's shell opens for stdin. Put `console=tty0` last so the
+  panel keeps the shell; keep `ttydc0` earlier so serial still logs.
 - DockChannel IRQ 360. Use measured input 816.
 - PCIe op-115 as a missing PLL-lock sequence. The load-bearing fixes were the
   reset bit and endpoint power.

@@ -29,6 +29,17 @@ printf '%s  %s\n' "$FSCK_SHA256" "$FSCK" | shasum -a 256 -c -
 install -d -m 0755 "$TMP/sbin"
 install -m 0755 "$FSCK" "$TMP/sbin/fsck.exfat"
 
+# Norwegian console keymap. MANDATORY in every image -- see AGENTS.md. Binary
+# "bkeymap" form because busybox ships loadkmap, not kbd's loadkeys. Generated
+# in the arm64 kbuild container with:
+#   loadkeys --bkeymap /usr/share/keymaps/i386/qwerty/no-latin1.kmap.gz
+KEYMAP=${KEYMAP:-$OUT/no-latin1.bmap}
+KEYMAP_SHA256=606ecd98f83b72983f3cd35976df939dc9c7187283703736a81e89b65aee85a8
+[ -f "$KEYMAP" ] || { echo "missing Norwegian keymap: $KEYMAP" >&2; exit 1; }
+printf '%s  %s\n' "$KEYMAP_SHA256" "$KEYMAP" | shasum -a 256 -c -
+install -d -m 0755 "$TMP/etc"
+install -m 0644 "$KEYMAP" "$TMP/etc/wallace-no.bmap"
+
 # brcmfmac and hci_bcm4377 probe before switch_root, so their paired 25F84
 # firmware must be in this initramfs rather than only on the Alpine root.
 (cd "$TMP/lib/firmware" && printf '%s\n' \
@@ -43,7 +54,7 @@ install -m 0755 "$FSCK" "$TMP/sbin/fsck.exfat"
 
 python3 "$ROOT/scripts/reproducible-newc.py" "$TMP" | gzip -n -9 >"$DEST"
 
-for item in init shutdown bin/busybox sbin/fsck.exfat \
+for item in init shutdown bin/busybox sbin/fsck.exfat etc/wallace-no.bmap \
     lib/firmware/brcm/brcmfmac4388c0-pcie.apple,mriya-WLMT-u.bin \
     lib/firmware/brcm/brcmbt4388c2-apple,mriya-u.bin; do
     gzip -dc "$DEST" | cpio -it 2>/dev/null | grep -qx "./$item" || {

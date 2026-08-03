@@ -77,6 +77,25 @@ If the link is unhealthy or uncertain:
 
 Do not silently hand off a wedged KIS link.
 
+## 5b. Verify the kernel before you boot it
+
+`$OUT/Image` is what `t6040-boot-dcuart.sh` boots, and the per-build
+`Image-<config>` artifacts do **not** update it. Check before blaming hardware:
+
+    command ls -l $OUT/Image                       # date must match the build
+    strings -a $OUT/Image | grep -m1 'Linux version'
+    strings -a $OUT/Image | grep -c pcie-apple     # 0 == no PCIe driver
+    strings -a $OUT/Image | grep -c macsmc         # 0 == no SMC driver
+
+`boot-dcuart.sh` enforces this and refuses a kernel missing either marker;
+`BOOT_SKIP_IMAGE_CHECK=1` overrides for a deliberately minimal kernel. `ls` is
+aliased to `eza` here, so use `command ls -t` for real mtime ordering.
+
+An entire missing subsystem is never a hardware fault. Empty
+`/sys/bus/pci/devices`, no `mmcblk0`, no `wlan0` and no `/dev/input` all at once
+means the wrong kernel, and a sub-second failure timestamp means a startup race
+or a wrong artifact — not a power rail.
+
 ## 6. Build a kernel
 
 The host Linux tree is on a case-sensitive volume. Code changes are supplied
@@ -107,6 +126,26 @@ Run two clean builds before claiming byte reproducibility.
     python3 scripts/t6040-raw-object-verify.py --strict \
       --m1n1 <m1n1.bin> --kernel <Image.xz> --dtb <board.dtb> \
       --initramfs <initramfs.cpio.xz> --expect-bootargs '<args>' <out.bin>
+
+If you pass an *uncompressed* `Image`, the packer compresses it internally and
+the verifier will then fail on the kernel hash — it is comparing your raw file
+against a compressed member. Use `--kernel-output` to save the exact member the
+packer embedded and verify against that:
+
+    python3 scripts/t6040-build-raw-object.py --kernel $OUT/Image \
+      --kernel-output $OUT/<name>.kernel.gz … <out.bin>
+    python3 scripts/t6040-raw-object-verify.py --strict \
+      --kernel $OUT/<name>.kernel.gz … <out.bin>
+
+Choose the m1n1 deliberately: an object built with a **window-free** m1n1 boots
+straight through, while an always-proxy build waits for a host. Check with
+`strings -a <m1n1.bin> | grep -c 'Waiting for proxy connection'` — `0` means
+window-free. Confirm the check itself works by also matching a control string
+such as `Boot policy: sip0`, or a false `0` will read as good news.
+
+Put `console=tty0` **last** in the bootargs. Every `console=` receives printk,
+but the last becomes `/dev/console`, which is what init's shell reads; with
+`ttydc0` last the panel shows a shell that ignores the keyboard.
 
 Required properties:
 

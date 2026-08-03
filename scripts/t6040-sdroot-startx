@@ -16,8 +16,33 @@ n=0
 while [ ! -e /dev/dri/card0 ] && [ "$n" -lt 30 ]; do sleep 1; n=$((n + 1)); done
 [ -e /dev/dri/card0 ] || exit 0
 export HOME=/root DISPLAY=:0
+
+# Norwegian layout for X, by CONFIG rather than only by command: setxkbmap below
+# was silenced with 2>/dev/null, so if the binary is absent the layout silently
+# stays US -- and a US map makes |, \, @, $, [], {} and the Norwegian letters
+# wrong or unreachable. Mandatory per AGENTS.md; the console keymap is loaded
+# separately by the initramfs and does not cover X.
+if [ ! -f /etc/X11/xorg.conf.d/00-keyboard.conf ]; then
+    mkdir -p /etc/X11/xorg.conf.d
+    cat > /etc/X11/xorg.conf.d/00-keyboard.conf <<'XKB'
+Section "InputClass"
+    Identifier "system-keyboard"
+    MatchIsKeyboard "on"
+    Option "XkbLayout" "no"
+EndSection
+XKB
+    echo "wrote xorg.conf.d/00-keyboard.conf (XkbLayout no)" >/var/log/wallace-keymap.log
+fi
+
 /usr/libexec/Xorg :0 -logfile /var/log/xorg.log -noreset vt1 >/var/log/xorg-start.log 2>&1 &
 n=0
 while [ ! -e /tmp/.X11-unix/X0 ] && [ "$n" -lt 20 ]; do sleep 1; n=$((n + 1)); done
-setxkbmap no 2>/dev/null
+# Belt and braces: the config above is authoritative, this catches a running X
+# that was started before the file existed. Failure is reported, not swallowed.
+if command -v setxkbmap >/dev/null 2>&1; then
+    setxkbmap no >>/var/log/wallace-keymap.log 2>&1 ||
+        echo "setxkbmap no FAILED" >>/var/log/wallace-keymap.log
+else
+    echo "setxkbmap absent; relying on xorg.conf.d" >>/var/log/wallace-keymap.log
+fi
 exec /usr/bin/i3 >/var/log/i3.log 2>&1
