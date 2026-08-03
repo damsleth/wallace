@@ -1,0 +1,15 @@
+{
+  "seq": "221",
+  "slug": "smp-thin-dtb-dma-discriminator",
+  "needs": "rig",
+  "state": "approved",
+  "track": "kernel",
+  "priority": "P0",
+  "author": "claude",
+  "deps": [
+    "205"
+  ],
+  "hashes": null,
+  "created": 1785763480,
+  "desc": "205 discriminator: is the bulk-store corruption a CPU/MMU problem at all, or a DMA-capable coprocessor writing into RAM Linux believes is free? Every 205 boot so far has run the FULL driver set -- PCIe, brcmfmac (WLAN DMA), hci_bcm4377, nvme-apple/ANS (RTKit + SART DMA), MTP (dockchannel HID, RTKit DMA), SMC, SD/sdhci -- all of which DMA into kernel memory, and several of which are RTKit coprocessors whose shared-memory regions m1n1 sets up. If one of them writes outside its mapping, a bulk store into a freshly allocated page is exactly what would fault or corrupt, it would scale with system activity (hence with core count), and it would be hidden by tiny delays. TEST: boot the THIN DTB t6040-j614s-dcuart.dtb (dockchannel UART only -- no PCIe, no ANS, no MTP, no SMC) with the RAM-root initramfs-dcuart.cpio.gz (the SD root cannot be used: it needs PCIe for the card) at maxcpus=14, then run scripts/t6040-cow-repro.sh >=4 times with a fresh-boot baseline. BOOTS CLEAN => the CPU/MMU is fine and a driver/coprocessor DMA is the culprit; bisect by re-enabling subsystems one at a time (PCIe, then ANS, then MTP). HANGS => drivers are exonerated and it is genuinely CPU/MMU/coherency, which also means the reproducer works without any of our peripheral bring-up and gets much simpler. Per ticket 208/218 method rules: re-measure the control in the SAME session and image, and never conclude from one run."
+}
