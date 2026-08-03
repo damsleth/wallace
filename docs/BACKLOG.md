@@ -1,209 +1,99 @@
-# BACKLOG — strategy & priorities
-> **2026-07-25 — MILESTONE B0 REACHED (ticket 101 done).** B0 is **done**; persistent USB root and the usable-machine items are the open fronts.
-> Enrolled object `f290833c` (578 × 16 KiB). Root cause of every earlier
-> enrolled failure: **an enrolled raw object's total size must be a multiple of
-> 16 KiB**, or m1n1 is never entered. Now enforced by
-> `scripts/t6040-build-raw-object.py`. See `done/2026-07-25-t6040-B0-MILESTONE.md`.
+# Backlog strategy
 
-This is the **map**, not the ticket list. The actionable work lives in tickets:
+Current as of 2026-08-03. The JSON files in `tickets/` are authoritative.
+This page explains priority and pruning; it does not duplicate every ticket.
 
-- **`tickets/`** — one git-tracked JSON file per ticket, offline tasks and rig
-  experiments alike. Managed only through the CLI (don't hand-edit):
-  ```sh
-  scripts/rig-lease.sh queue list [--rig|--offline]   # what's there
-  scripts/rig-lease.sh queue next --offline           # next open offline task (grab it)
-  scripts/rig-lease.sh queue next --rig               # next approved+ready rig experiment
-  scripts/rig-lease.sh queue add <you> <slug> "<desc>" --needs offline|rig [--track T --pri P1 --dep NNN]
-  scripts/rig-lease.sh queue approve 001-006 --by cj  # rig tickets only; offline needs no approval
-  scripts/rig-lease.sh queue ready 001 --reviewed-by sol
-  scripts/rig-lease.sh queue show <seq>               # full JSON
-  ```
-- **`.rig/`** — the lease only (ephemeral, gitignored). Not the backlog.
+## Queue model
 
-Each ticket has `needs: offline | rig`. **Offline tickets** (`state: open`) need
-no rig and no approval — any agent grabs one and does it; that's where parallel
-speed comes from, so favour them. **Rig tickets** (`state: proposed` →
-`approved` → `done`) need the lease and CJ's approval. `runnable:true` is
-separate: `queue ready` requires pinned hashes, all dependencies done, and an
-independent reviewer before `queue next --rig` will schedule the ticket. Their depth is
-bounded by data-dependency (you can't spec step N+2 before step N runs), so the
-rig list stays short and the deep pipeline stays here as offline analysis.
+- `tickets/`: active offline and rig work.
+- `tickets/done/`: completed work.
+- `tickets/archive/`: superseded, deprecated, deferred, or wontfix work.
+- `.rig/`: host-local lease state, not project history.
 
-**Pre-approval semantics:** `queue approve` authorizes the *plan* and sets
-`runnable:false`. The per-image safety gate still stands: after the other agent
-cross-reviews exact hashes against `~/Code/m1n1/AGENTS.md`, run
-`queue ready`; unresolved dependencies or absent hashes fail closed.
+Use `scripts/rig-lease.sh queue add` for new tickets. Sequence allocation is
+not atomic, so immediately verify that the reported sequence still contains
+the expected slug. Use `queue done` for completed work. Archive only when the
+reason is explicit and the active dependencies remain understandable.
 
-## Priority & dependency order (updated 2026-07-24)
+## Priority order
 
-There are now two explicit milestones. **B0 bootable build** is an enrolled,
-self-contained Alpine RAM distro and does not wait for Linux storage. **B2
-usable persistent distro** still requires external USB root because internal
-NVMe is NO-GO near-term (008: SPTM-gated, no raw-boot guarded entry). The
-sequenced gates are in `docs/BOOTABLE_BUILD_EXPERIMENTS.md`.
-In rough order of leverage:
+| Priority | Work | Tickets | Gate |
+|---|---|---|---|
+| P1 | Make the SD-root system operable | 204 | Panel observation, minimal console, then services |
+| P1 | Preserve the modern NVMe crashlog | 201 | Exact logging-only artifact and one retained transcript |
+| P1 | Review the threaded NVMe IRQ discriminator | 203 | Offline, two byte-identical builds; follows 201 for any live A/B |
+| P1 | Keep the strict SD fixture sequence available | 199 → 200 | Read-only A before separately approved write B |
+| P1 | Reframe the MM/SMP fault | 121 family | New evidence must explain COW faults and non-monotonic boots |
+| P1 | Resolve trackpad reset state | 126 family | Exact approved volatile blob only |
+| P2 | Design stage-2 storage | 191 | Offline; compare SD and NVMe honestly |
+| P2 | Upstream proven enablement | 022, 023, 114–117 and patch drafts | No speculative live access |
+| P3 | Desktop polish and optional distro work | 166 and related items | After SD-root reliability |
 
-1. **Rig link healthy; preserve the recovery control** (xcut). Ticket 118
-   closed the post-095 recovery question after a maintainer power cycle,
-   healthy proxy check, and later successful reboot cycles. Keep its
-   fail-closed checklist; causality remains unattributed.
-2. **B0 bootable-build pipeline** (distro/HID, P1). Captures **076**, decode
-   **077**, and the HID-type repair **078** are complete. The rebased
-   `hid-apple` rejected the untyped BUS_HOST keyboard; the minimal type
-   assignment now live-registers `input0/event0`. **079 is complete** with a
-   twice-reproducible Alpine/OpenRC RAM distro (`ddd98171...`), normal
-   runlevels, dual local consoles, watchdog, and no storage/network runtime
-   configuration. **080 is complete**: direct raw m1n1,
-   entry `0x800`, exact concatenated payload contract, and strict host
-   verifier are documented. Ticket-078's exact HID-restored Alpine components
-   were packed in reproducible object `b50f52ab...`; control **089** passed one
-   upload with no `linux.py`. The final release object `2371ee5d...` passed
-   independent review and ticket **100**'s tethered single-object boot:
-   OpenRC, watchdog, panel shell, internal keyboard, and empty partitions.
-   **081/100 are done.** **082** has the reversible enrollment procedure and
-   now needs the target-volume UUID, enrolled-object backup/hash, and execution
-   split confirmation. Ticket **119** completed a conditional independent
-   PASS on dual-mode candidate `46237ade...`: its payload is byte-identical to
-   the live-proven object, while the version tag and exact Rust nightly need
-   pinning before claiming full rebuild reproducibility. **101** is
-   plan-approved but runnable=false until 082 closes; it owns separate cold
-   boot and dual-mode trigger checks. Direct m1n1 is the selected B0 route; U-Boot
-   ticket **025** is B1; its no-MMIO framebuffer/EFI-hello prep is complete,
-   with any live proof deferred until after B0. Installer requirements ticket
-   **026** is complete:
-   raw enrollment already exists upstream; atomic self-contained-object
-   handling, J614s/T6040 admission, and macOS 26 firmware extraction are the
-   remaining upstream gaps.
-3. **USB-root pipeline** (storage, P1 — the persistent Stage D exit).
-   Build/port-map gates
-   are clear. Ticket 063 proved the right-port DART+xHCI root hubs but no child
-   device enumerated. **064** bounded the gap to the Linux-absent SPMI HPM +
-   T6040 ATC/ACIO physical-link path. Powered test **065** is cancelled unrun
-   because the hub supply is unavailable. **067** booted Alpine RAM-root and
-   cleared the storage-free userspace checks, but exposed a 7.1.3 USB-host
-   kernel regression: MTP says the keyboard is ready while Linux registers no
-   input device. Offline **069** tested the current-mailbox RX
-   acknowledge/drain race with a storage-disabled mask/drain/re-arm candidate
-   and the failed image's config byte-for-byte.
-   The 2026-07-24 paired-kext decode now proves the T6040 44-bank ATC map and
-   tunable encoding exactly. Its direct eUSB2 sequence is now bounded to banks
-   0/1 and six offsets, and paired XHCI proves the exact host branch; ticket
-   **023** now also proves the target is SPMI Gen3 and bounds the class-10 HPM
-   discovery reads. HALType5/Type10 selection and the first nine-byte host RMW
-   are exact too, but ticket 023 remains open for the separately gated
-   disconnect/rollback, power/config, and repeater path.
-   Yuka's new compiling `tps6598x-spmi` branch (`dcc5f1bc...`) is the first
-   public code to match the exact J614s SPMI/SN201202x nodes, but reported
-   hardware success covers only T6000/I2C. The 2026-07-24 endpoint-scoped
-   policy now permits separately reviewed right-HPM2 operations while keeping
-   PMU/charger/NVRAM/firmware and unknown endpoints prohibited. Offline
-   **092** produced reproducible staged candidates. The first R0 live attempt
-   failed closed before SPMI because the standard chainloader changes volatile
-   ADT handoff fields. Its replacement also failed closed before SPMI after
-   correctly exposing a raw-versus-translated ADT address mismatch in the
-   gate. m1n1 `471700035efd` requires both the raw `0x309...` tuples and
-   translated `0x509...` physical banks. R0/**093** then proved the selector
-   window stays inactive until WAKEUP. Narrowed R1/**094** passed with one
-   WAKEUP and a read-only state result of `0x07`; no extended write was linked.
-   Ticket **095** then passed the narrowed SSPS-only boundary: initial state
-   `0x07`, exact DATA1/CMD1 `SSPS`, final S0 state `0x00`; mask access was
-   absent and remains untested. Offline **096** found semantic detach/PHY
-   shutdown but no complete byte/state inverse; R3 remains a no-go pending new
-   primary evidence.
-   Umbrellas **097/099** are decomposed into post-S0 status, optional mask only
-   if justified, HPM host transition, ATC/xHCI enumeration, read-only block
-   identity, separate destructive flashing, bounded read-write root, and
-   untethered root boot. Corrected OpenRC image **098** is complete
-   (`1c493fad...`, PARTUUID `e4731abe-...`). Each new live step needs its own
-   review and approval. Exact child ladder: **102–113**.
-   Canonical rules: `docs/SPMI_SAFETY.md`.
-   Reviewed rig control **070** was inconclusive: the old keyboard kernel never
-   reached the Alpine framebuffer shell in two exact attempts and has no
-   ttydc0 failure log. Do not retry it. The one-shot corrected-kernel **071**
-   still produced no input devices, disproving that change as a sufficient fix.
-   Offline **072** built and statically verified the observation-only
-   IRQ/FIFO/DCHID state trace without a receive-path control change.
-   Independently reviewed one-shot capture **074** reached Alpine over ttydc0
-   TX, but ttydc0 RX was non-responsive, so the trace could not be requested.
-   Do not retry it unchanged. Offline ticket **075** built and host-tested a
-   bootarg-gated automatic TX reporter; capture **076**, decode **077**, and
-   HID repair **078** then completed. No speculative receive kick remains.
-   **060** is complete as a guarded, host-tested recipe; do not use its
-   destructive device mode or populate a persistent USB rootfs until
-   enumeration and read-only block identity pass. Tickets 110–113 then isolate
-   flashing, tethered read-write root, and untethered boot.
-4. **PCIe → WiFi/BT** (pcie, P1). Ticket 068 proved the exact clkgen sequence
-   locks its PLL but does not unstick the op-115 PHY-IP read. **124** resumes
-   paired-driver route-finding; only a new evidence-backed manifest goes live.
-   **044** (port-0/BCM4388 manifest)
-   is the pre-reviewed stage after link-up; the complete restore-recoverable
-   firmware corpus is staged and ticket 030 is done.
-5. **Two-way remote console** (console, P2 but high leverage for every later
-   rig experiment). Poll-mode tty is proven. The ADT's IRQ 360 is now known
-   wrong; measured UART input is 816, so 059's timing image is closed
-   superseded. Audit/adapt the WIP direct `apple,dockchannel-uart` IRQ-816
-   earlycon/`ttyDC0` path is complete under **062**; **073 passed** with stable
-   bidirectional IRQ-driven shell traffic and zero reported IRQ errors.
-6. **Make the approved rig queue runnable** (smp/cpufreq/hid). The exact
-   preflights **034/035** are complete, but maxcpus=2 ticket 005 reached kernel
-   vectoring with no Linux output. Diagnosis/build **122 is done** and its
-   exact non-blocking early-DockChannel candidate passed independent review;
-   obtain fresh approval for replacement 123 before all-core 120/121. Cpufreq
-   006 waits for 121. Trackpad provisioning **016** is
-   complete (`tpmtfw-j614s.bin` `a1f4131d...`); ticket 004's first exact set
-   was retired unrun after review found the HID type fix absent and multitouch
-   modular without modules. Offline 125 now byte-reproduces and independently
-   passes with Image `446eeb2e...`; proposed 126 additionally needs fresh
-   approval and an explicit narrow volatile-runtime-firmware exception before
-   an attended run.
-7. **Upstreaming proven work** (xcut, P1): SMP/cpufreq posting drafts are
-   finalized under completed **019**; **046** now provides the rebased
-   nine-patch m1n1 RFC and cover letter. **047** now provides the consolidated
-   J614s Linux DT series, and **048** provides clean m1n1-PTY and macvdmtool
-   ACE3 mail drafts (kisd's T6040 support is already upstream). PMGR series is
-   draft-ready (CJ asks flokli re J773s policy and posts).
-8. **Stage-D comforts, offline-preparable**: **061** SMC DT wiring (battery,
-   power button, lid — read-only keys). **037** is complete: its audited patch
-   set is intentionally empty because none of the 26.x deltas is
-   version-gate-only. **027** suspend analysis is complete and correctly gated
-   on a reviewed T6040 retention/cpuidle contract; do not allowlist T6040 in
-   the existing deep-WFI driver.
-9. **SPTM internal-NVMe long shot** (storage, background): keep **114–117**
-   host-only. Refresh public SPTM work, validate the service-6 contracts in a
-   host harness, and audit guarded-state/domain provenance. Do not retry
-   unchanged GENTER or raw NVMe BAR access; both have already failed at the
-   protected boundary.
-10. **Track-and-test** ([UPSTREAM] tickets): 022 DCP and 023 ATC PHY remain
-   watchers. Installer 026 and GPU mule prep 039 are complete; the latter has
-   an exact evidence packet and test contract but no safe G16 candidate.
+The queue may contain older dependency ladders whose later steps are not
+runnable. Do not treat `approved` as `ready`: a rig ticket is schedulable
+only when its plan is approved, exact hashes are pinned, dependencies are done,
+and an independent reviewer records readiness.
 
-## Lanes (avoid duplicate work; not exclusive ownership)
+## Active lanes
 
-Per COORDINATION.md roles, extended for the USB-root era:
+### Persistent system
 
-| Lane | Primary | Current contents |
-|---|---|---|
-| Storage: RAM-root + USB-root pipeline + SPTM | **sol** | right HPM2 reached S0; 096 is R3 no-go and blocks 102–113 pending new evidence; 114–117 keep NVMe host-only |
-| PCIe/WiFi-BT, DockChannel console | **claude** | 068/044; completed 062 feeds non-runnable 073 |
-| Rig-queue preflights, SMC/PM, upstream drafts | **claude** (first grab) | 122→123→120/121→006; 061 and 019/046/047/048 complete |
-| Rootfs recipe, xcut, tracking | either (queue order) | 029/030, 022/023; 026/039/060 complete |
+The SD reader is the current storage path. Ticket 193 proved read/write
+persistence; ticket 204 owns the usable root. USB-root work is no longer the
+shortest path.
 
-The other agent still cross-reviews every live image regardless of lane, and
-either agent picks up an abandoned lane rather than waiting.
+### Internal NVMe
 
-`[UPSTREAM]`-tagged tickets (DCP, ATC PHY, installer, GPU) are track-and-test,
-**not** build-here — this machine's unique value is Stages A–B and the DT/
-enablement halves of C–E. See ROADMAP.md for the full stage map.
+Linux reaches a real exFAT mount, then firmware asserts at the first I/O CQ
+wrap. The useful sequence is crashlog preservation, offline discriminator
+review, then one-variable live tests. NVMe writes remain blocked.
 
-## Known dead-ends — do NOT propose (graves)
+Raw m1n1 sustained reads are separately proven and remain useful for a
+fail-closed stage-2 design.
 
-- Direct NVMe main/secure-BAR register writes, or the SPTM GENTER call unchanged
-  (hangs; SPRR/GXF disabled on raw boot).
-- SBU analog serial (confirmed dead on ACE3).
-- USB gadget console (EP0 dies post-enumeration).
-- Inventing ATC PHY per-bucket reg offsets.
-- Any blind MMIO probing; any PMU/charger/NVRAM/firmware or unknown-SPMI
-  write; or any non-PMU SPMI transaction outside the exact
-  `docs/SPMI_SAFETY.md` allowlist and ticket.
-- Any further DockChannel IRQ-360 diagnostic — input 360 came from a lying ADT;
-  bounded M4 Pro measurement found the real UART interrupt at AIC input 816.
+### CPU and input
+
+Five cores work for the smaller RAM-root desktop, but later copy-on-write
+faults invalidate the old fixed-threshold story. Trackpad HIDF upload is
+accepted; the following state-0 interface reset is rejected. Both tracks need
+better contracts, not broader integration images.
+
+### USB host and Type-C
+
+The right HPM reached S0, but no reversible role/VBUS/interrupt/PHY sequence is
+known. Keep the decomposed USB ladder for its read-only and storage contracts,
+but do not schedule its state-changing steps until new primary evidence closes
+the R3 safety gaps.
+
+### Long-term hardware
+
+GPU, audio, camera, suspend, cpuidle, and backlight remain roadmap work. GPU
+testing waits for explicit T6040/G16 support; suspend waits for a valid
+retention contract.
+
+## Pruning rules
+
+Move a ticket to `tickets/done/` when its stated deliverable and evidence are
+complete. Move it to `tickets/archive/` when:
+
+- a later ticket or working path supersedes it;
+- its artifact is invalid and its useful part has been folded elsewhere;
+- its premise was disproved;
+- it is deliberately deferred until a named condition appears.
+
+Record `archived.at`, `archived.by`, and a concise reason. Do not archive a
+dependency ladder merely because its first approach stalled; preserve any
+still-useful read-only, rollback, or safety contract.
+
+## Do not revive without new evidence
+
+- direct SPTM `genter` or blind NVMe protected-register experiments;
+- the NVMe “wrong SQ-doorbell window,” non-zero-tag, simple depth, or batching
+  explanations already refuted;
+- DockChannel IRQ 360; the measured input is 816;
+- PCIe op-115 PLL theories; the proven fixes were the T6040 reset bit and
+  endpoint power;
+- generic HPM iteration, SID scans, blind MMIO, or unreviewed role/VBUS writes;
+- USB gadget networking to the current macOS host using already failed
+  descriptor shapes;
+- G14 GPU tables relabeled as G16.

@@ -1,6 +1,6 @@
 # T6040 SPMI safety policy
 
-Approved by the maintainer: 2026-07-29 (supersedes 2026-07-25, which superseded 2026-07-24)
+Current policy as of 2026-08-03; maintainer approval last changed 2026-07-29.
 
 SPMI is a transport, not a single risk class. Transactions are deny-by-default,
 but an exact, ADT-verified non-PMU endpoint may be approved when its controller,
@@ -167,7 +167,9 @@ named with its exact operation:
   them would have no reference sequence, no readback path for `0x55`, and no
   proven neutral value.
 
-This remains an explicit R3 no-go and ticket 096 is still open. No VBUS-off
+This remains an explicit R3 no-go. Ticket 096 records the proposed R3 sequence
+as withdrawn because it only selected data role and lacked a complete
+rollback. No VBUS-off
 operation exists in either direction (macOS has no VBUS primitive at all on this
 port); the `0x18` W1C consumption is irreversible; and there is no restoration
 for the interrupt mask, the detect state, or the observed pre-SSPS state `0x07`.
@@ -199,20 +201,25 @@ powered source during an unproven source-role/VBUS experiment.
   access outside the manifest. Recover with the documented warm reboot, then a
   power cycle if necessary.
 
-Current recovery status: ticket 095 passed but its following VDM/KIS recovery
-did not. Ticket 118 later completed a healthy proxy control after a maintainer
-power cycle and recorded the exact fail-closed checklist. The transient remains
-unattributed; every later SPMI experiment still requires a fresh healthy proxy
-check and normal recovery gate.
+Ticket 118 completed a healthy proxy control after the earlier post-095
+recovery failure. The transient remains unattributed; every later SPMI
+experiment still requires a fresh healthy proxy check and normal recovery
+gate.
 
-## Current upstream candidate
+## Current implementation lead
 
-Yuka's `tps6598x-spmi` branch at `dcc5f1bccbbe986099f218e9057f7fa99a0b1fe2`
-is an implementation lead, not an approved live artifact. It recognizes the
-correct Gen3/SN201202x topology, but it iterates HPM1/HPM2/HPM5, automatically
-sends WAKEUP and SHUTDOWN, may issue `SSPS`, clears/masks interrupts, and has
-unbounded/error-lifetime issues. Wallace experiments must extract and harden
-only the operation needed for the current stage.
+Yuka's `tps6598x-spmi` branch at
+`dcc5f1bccbbe986099f218e9057f7fa99a0b1fe2` matches the
+Gen3/SN201202x topology but is not an approved live artifact. Its generic
+iteration, automatic power-state commands, interrupt mutation, and recovery
+behavior exceed this allowlist.
+
+Wallace has an offline, uncalled port of the transport on
+`codex/t6040-spmi-transport` at
+`74d3ccc705e7f5b1bddc055403f77f921890d289`. It deliberately does not run
+from `usb_init()` and does not expose a proven VBUS-enable path. Any future
+candidate must select only HPM2 and implement only the operation class named by
+its ticket.
 
 The detailed topology and source audits are:
 

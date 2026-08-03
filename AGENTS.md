@@ -1,22 +1,25 @@
 # AGENTS.md — Project Wallace (T6040 / M4 Pro Linux bring-up)
 
 The umbrella project for bringing mainline Linux to an **Apple MacBook Pro 14"
-M4 Pro (T6040 "Brava Chop", Mac16,8 / J614s)** — a real, tethered daily-driver
-machine. This repo holds all plans, documentation, host-side scripts, and
-kernel patches. The code lives in sibling repos under `~/Code/` (below).
+M4 Pro (T6040 "Brava Chop", Mac16,8 / J614s)**. This repo holds the current
+plans, documentation, host-side scripts, kernel patches, tickets, and evidence.
+The code lives in sibling repos under `~/Code/`.
 
-**Working today (2026-07-29):** untethered enrolled boot → Alpine + dwm on the internal panel,
-Norwegian keyboard, watchdog, SMC battery/charger/temperatures, and **PCIe → WiFi (BCM4388) +
-Bluetooth**. Not yet: USB host/VBUS (no known power-role 4CC — see ticket 176's negative result),
-internal NVMe, trackpad multitouch.
+**Working on 2026-08-03:** enrolled untethered Linux; simpledrm plus Xorg/i3 or
+dwm; internal keyboard; five proven CPU cores and cpufreq; SMC telemetry; PCIe,
+WiFi, Bluetooth, and verified SD read/write persistence. SD-root reaches
+`switch_root` and OpenRC but lacks usable console/network/desktop services.
+Linux NVMe briefly mounts exFAT before a first-CQ-wrap firmware assert.
+Trackpad motion, USB host/VBUS, GPU acceleration, backlight, audio, camera,
+suspend, and stable full-core userspace remain open.
 
 **Start here, in this order:**
 1. This file (the map).
-2. `docs/NEXT_STEPS.md` — what to do next, nothing else.
-3. `docs/DEVLOG.md` — how to operate the rig (boot/build recipes, the DebugUSB
-   pty-discipline rules — read those BEFORE touching the hardware), solved
-   blockers, dead ends.
-4. `docs/ROADMAP.md` — the long game (stages A–H) and the current snapshot.
+2. `docs/COORDINATION.md` — mandatory before any rig work.
+3. `docs/NEXT_STEPS.md` — current priorities.
+4. `docs/RUNBOOK.md` — operational commands.
+5. `docs/DEVLOG.md` — operating knowledge, solved blockers, and dead ends.
+6. `docs/ROADMAP.md` — stage-level scope.
 
 ## The repos
 
@@ -32,21 +35,16 @@ internal NVMe, trackpad multitouch.
 
 ## Non-negotiables (full rules in `~/Code/m1n1/AGENTS.md`)
 
-- Never write PMU/charger/NVRAM/firmware or unknown SPMI endpoints. SPMI is
-  deny-by-default, not transport-wide forbidden: only an exact, reviewed
-  non-PMU endpoint transaction permitted by `docs/SPMI_SAFETY.md` may run.
-- **SMC writes:** `smc_reboot`/`smc_rtc` remain the only *ad-hoc* permitted ones.
-  Since 2026-07-29 CJ has additionally approved the **PCIe endpoint power-enable
-  GPIOs** driven by the kernel's `gpio-macsmc` via `pwren-gpios` — SMC keys
-  `gP13` (WiFi/BT `WL_REG_ON`) and `gP19` (SD reader). These are PMU *GPIO
-  outputs* reached through the standard upstream API, not charger or
-  voltage-rail writes. Any *other* SMC key is still forbidden without a fresh,
-  recorded exception.
-  The sole current candidate is right-port
+- Never write PMU, charger, NVRAM, firmware, or an unknown SPMI endpoint.
+- SPMI is deny-by-default. Only an exact transaction permitted by
+  `docs/SPMI_SAFETY.md` may run. The sole current endpoint is right-port
   `/arm-io/nub-spmi-a1/hpm2` (Gen3, controller `0x309198000`, SID `0x0c`);
-  generic HPM iteration is not allowed. MMIO writes outside known-safe paths
-  are gated on the maintainer. Never blind-probe MMIO offsets — wrong offsets
-  raise **async SErrors** that kill m1n1 (derive addresses from the ADT).
+  generic HPM iteration is forbidden.
+- Permitted SMC writes are `smc_reboot`, `smc_rtc`, and the upstream
+  `gpio-macsmc` endpoint-power GPIOs `gP13` (WiFi/BT) and `gP19` (SD).
+  Any other key needs a fresh recorded exception.
+- Never blind-probe MMIO. Derive addresses from the ADT; a wrong offset can
+  raise an async SError and kill m1n1.
 - Never post externally (GitHub/IRC) — draft only; the maintainer posts.
 - The remote dev loop is sanctioned: reboot/chainload/boot via
   `scripts/t6040-debugusb-console.sh [reboot]` + `scripts/t6040-boot-dcuart.sh`.

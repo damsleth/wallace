@@ -1,606 +1,167 @@
-# T6040 (M4 Pro, Mac16,8 / J614s) — roadmap: first light → full Linux desktop
-> **2026-07-25 — MILESTONE B0 REACHED (ticket 101 done).** B0 is **complete**: untethered enrolled cold boot into Alpine/OpenRC on the panel.
-> Enrolled object `f290833c` (578 × 16 KiB). Root cause of every earlier
-> enrolled failure: **an enrolled raw object's total size must be a multiple of
-> 16 KiB**, or m1n1 is never entered. Now enforced by
-> `scripts/t6040-build-raw-object.py`. See `done/2026-07-25-t6040-B0-MILESTONE.md`.
+# T6040 / J614s Linux roadmap
 
-End-goal: a bootable Linux distro on this MacBook Pro 14" M4 Pro with GPU accel,
-WiFi, Bluetooth, keyboard/trackpad, audio, webcam, power management — daily-driver
-comfort comparable to macOS.
+Current as of 2026-08-03. This is the stage map; tickets contain the executable
+work and [NEXT_STEPS.md](NEXT_STEPS.md) contains the current order.
 
-Written 2026-07-10, last updated **2026-07-24** (tethered B0 PASS; right HPM2
-reaches S0; IRQ-816 console PASS; dual-mode cross-review complete; rig healthy).
-Companion docs: `NEXT_STEPS.md` (immediate work), `DEVLOG.md`
-(operational reference + solved blockers), `t6040-dt-checklist.md` (Stage C
-reference), and `BOOTABLE_BUILD_EXPERIMENTS.md` (B0 cold-boot ladder).
-All finished per-topic plans/write-ups are archived in `done/`.
-Unposted #asahi-dev drafts awaiting review: `done/2026-07-10-t6040-smp-writeup.md`,
-`done/2026-07-10-t6040-cpufreq-writeup.md`,
-`done/2026-07-14-t6040-sptm-asahi-question.md` (M4 NVMe SPTM boundary question).
+## Project state
 
-## Where we are
+| Stage | State | Remaining boundary |
+|---|---|---|
+| A. Stable proxy and recovery | Complete | Maintain the lease and DebugUSB discipline |
+| B. m1n1 Linux boot | Complete for the current raw-object path | Upstream cleanup and optional standard stage 2 |
+| C. Kernel DT and core boot | Functional | MM/SMP stability, cpuidle, upstreaming |
+| D. Local usable machine | Partial | SD-root services, trackpad, backlight, USB host |
+| E. WiFi and Bluetooth | Functional | Integration and upstreaming |
+| F. GPU acceleration | Blocked on a real T6040/G16 stack | Maintainer-endorsed kernel, firmware ABI, m1n1, and Mesa support |
+| G. Power and peripherals | Partial | Audio, camera, suspend, cpuidle, lid/power integration |
+| H. Persistent distro | Partial | SD root reaches OpenRC but lacks working console/network/desktop services |
 
-**Linux reaches userspace on bare metal (2026-07-11).** Mainline 7.2-rc2 plus
-the local bring-up patch series boots to a BusyBox shell on the full 214-domain
-PMGR DT (maxcpus=1, idle=nop), reproducibly. The internal keyboard works there
-(dockchannel-HID,
-2026-07-11); the Linux watchdog takes over m1n1's (shell persists); the
-framebuffer (simpledrm+fbcon) is the early console.
+## A. Proxy and recovery
 
-**Fully remote dev loop (2026-07-12).** Two-way m1n1 proxy AND a two-way Linux
-shell (`/dev/ttydc0`, poll-mode dockchannel driver; the ADT's UART IRQ 360 is
-wrong and bounded M4 Pro measurement found the real input at 816) over a single
-DebugUSB/KIS cable in the DFU port, plus
-remote reboot via `macvdmtool`: reboot → chainload → boot → interactive shell
-with zero physical access. SBU analog serial was proven a dead end on ACE3.
+Complete:
 
-**Alpine RAM-root boots (2026-07-23).** Alpine 3.24.0/aarch64 now reaches a
-responsive, storage-free shell loaded entirely through m1n1; RAM writes pass
-and no block device or storage controller probes. The tested 7.1.3 USB-host
-kernel regresses internal HID registration even though MTP reports `Keyboard
-ready`. A storage-disabled test of the suspected unmasked
-acknowledge/threaded-drain race booted successfully but still registered no
-input device, so that change is not a sufficient fix. The next gate is bounded
-observation-only tracing across the DockChannel IRQ/FIFO and DCHID
-event/identity boundary. Tickets 075/076 completed the TX-only automatic
-capture: transport, identity, and every `hid_add_device()` call succeed, but
-Linux registers no input device. Ticket 077 found the exact surrounding delta:
-Asahi's BUS_HOST `hid-apple` rejects the transport's unset `hid->type`.
-Ticket 078's minimal type assignment now live-registers `input0/event0`.
+- DebugUSB/KIS reaches a stable m1n1 proxy.
+- Remote reboot and tethered chainload are routine.
+- All rig access is serialized through `scripts/rig-lease.sh`.
+- The recovery bar is a quiescent `Running proxy`, not merely a responsive
+  USB device.
 
-**Bootable-build path live-proven tethered (2026-07-24).** The B0 milestone is an
-enrolled raw m1n1 object carrying a self-contained Alpine RAM distro, reaching
-simpledrm/fbcon and internal keyboard without a host payload upload. It does
-not wait for USB or internal NVMe. Tickets 077–079 restore HID and produce the
-release-like distro. Ticket 080 completed the raw payload audit and selected
-direct m1n1: exact prefix + command line + compressed kernel + raw DTB +
-compressed initramfs, entry `0x800`, with a strict host verifier. Tickets 081
-and 100 completed the independently reviewed single-object tethered proof:
-OpenRC default runlevel, watchdog, internal panel shell, keyboard echo, and no
-block devices passed. Ticket 082's enrollment procedure exists; exact volume
-identity/backup and the maintainer action split remain before plan-approved
-ticket 101's cold boot and trigger check. Ticket 119 conditionally passed
-dual-mode candidate `46237ade...`: the payload is exact, but version/Rust
-inputs must be pinned before claiming a fully reproducible m1n1 rebuild.
-Full sequence:
-`docs/BOOTABLE_BUILD_EXPERIMENTS.md`. Layout result:
-`done/2026-07-23-t6040-raw-boot-object-layout.md`.
+Keep this stable; it is infrastructure, not an active hardware target.
 
-**Concrete raw-object control (2026-07-24).** The exact ticket-076 Alpine
-HID-restored payload is now packaged behind safe m1n1 `1394c345...` as a
-twice-reproduced, strictly verified 21,729,039-byte object `b50f52ab1fac...`.
-Ticket 089 passed one upload and embedded autoboot with no `linux.py`; it was a
-delivery control, not the final B0 object.
+## B. Boot chain
 
-**Release RAM distro built (2026-07-24).** Ticket 079 now provides a
-twice-reproducible Alpine/OpenRC RAM distro (`ddd98171...`) with normal
-runlevels, fbcon plus delayed ttydc0 consoles, watchdog, a bounded health
-report, locked root password, no enabled network configuration, and zero block
-nodes. Its exact self-contained raw object is the twice-reproduced, strictly
-decoded 22,183,563-byte `2371ee5d...`; ticket 100 live-proved it. The
-dual-mode replacement candidate `46237ade...` preserves the proven payload and
-adds only `EARLY_PROXY_TIMEOUT=5`. Ticket 119's conditional independent review
-reproduced the object and post-prefix identity, exposed the unpinned version
-tag/Rust nightly, and left the display/DebugUSB classification for ticket
-101's two separate bounded live checks. Nothing is enrolled.
+Complete:
 
-**Right-port HPM reaches S0 (2026-07-24).** The staged endpoint-only sequence
-proved the selector window inactive before WAKEUP, read power state `0x07`
-after WAKEUP, then issued the exact `SSPS` command and read final state
-`0x00`. Role/VBUS, repeater, ATC, xHCI child enumeration, and block access are
-not yet proved. The verified OpenRC GPT/ext4 image is unflashed. The post-run
-VDM recovery failed once; ticket 118's post-power-cycle control and later
-reboot cycles are healthy, without attributing the transient to SSPS.
+- m1n1 boots Linux on T6040 and provides the board DT.
+- A self-contained raw object carries m1n1, kernel, DTB, initramfs, and
+  bootargs.
+- An enrolled object cold-boots without a tether.
+- The builder and verifier enforce the 16 KiB total-size requirement.
+- A dual-mode loader preserves a short DebugUSB window before normal boot.
 
-**Stage A complete 2026-07-10** — proxy solid, 14/14 cores (4E+5P+5P), MPIDR
-map, execute-and-return, broken_wfi handled (WFE park), ~10 s chainload loop.
+Optional follow-on:
 
-**Stage B effectively complete 2026-07-10** — cpufreq minimal (APSC/pstate;
-throttle offsets deferred, need RE), MCC t6041 Ph1+2 (cache-enable proven;
-unknown TZ offsets reduced to non-blocking m1n1 EL2 hardening by ticket 020),
-PCIe register map plus clock/PLL targets resolved (the traced
-`[70]` SError was a top-of-RAM log-buffer artifact; with the guard, Apple's
-complete 105-operation clock/tunable prefix runs and boots Linux cleanly),
-ATC/USB DART audited
-(DART done, PHY tunables deferred → USB2 fallback), kboot FDT display carveout
-fixed, dapf gate + watchdog arm added for M4.
+- design a fail-closed stage-2 loader so the enrolled stage changes rarely;
+- compare internal NVMe with SD storage;
+- use a raw partition or a supported filesystem. U-Boot does not read exFAT.
 
-### Current working / not-working snapshot
+This is an iteration improvement, not a prerequisite for the current system.
 
-| Works | Not yet |
-|---|---|
-| Tethered single-object Alpine/OpenRC B0: panel shell, internal keyboard, watchdog, empty partitions | Enrolled untethered cold boot (082 remaining identity/backup/action-split gates; 101 approved) |
-| BusyBox userspace; full PMGR with property-free T6041 quirk, reproducible | PMGR draft review/submission (split, checkpatch/schema-clean; NEXT_STEPS #2) |
-| Internal keyboard at the shell; trackpad registers + validated firmware-loader path; paired trackpad/BCM/ISP/ASMedia corpus staged; corrected trackpad candidate 125 reproduced/reviewed | live trackpad 126 approval plus volatile-runtime-HIDF exception and attended motion; PMU-backed reset remains forbidden; maxcpus>1/idle states |
-| Two-way Linux shell + m1n1 proxy over one DebugUSB cable; poll fallback and IRQ-816 RX both proven | Printk over ttydc needs a separate polled/atomic TX path; current TTY queue is not console-safe |
-| Right HPM2 WAKEUP + SSPS: state `0x07` → S0 `0x00`; verified OpenRC disk image | USB role/VBUS/repeater/ATC, child enumeration, block read/write, image flashing |
-| Linux apple_wdt; fbcon early console | NVMe rootfs (power/SART/ANS work; queue and per-command TCB setup require unavailable raw-boot SPTM entry) |
-| Kernel build env (podman, arm64-native) with patch pipeline | USB gadget console (parked: EP0 dies post-enumeration) |
-| SMP/cpufreq/MCC groundwork; PCIe host+wireless DT and drivers build | reviewed maxcpus=2 early-DockChannel replacement awaits fresh approval; cpufreq; PCIe op-115 still hangs after PLL lock; wireless; USB3/TB |
+## C. Kernel and board description
 
-**Upstreaming pending**: the SMP/broken_wfi/MPIDR + cpufreq channel drafts are
-finalized in `done/` (ticket 019). Ticket 046 has now shaped the actual
-nine-patch m1n1 RFC on upstream `7c7716b6`, including a safe incomplete PCIe
-clock prefix; CJ still decides whether/where to post it. Also pending:
-dockchannel-uart per-instance IRQ masks + poll-mode patch to the
-dockchannel-branch authors (retire ADT IRQ 360; measured UART input is 816);
-the curated code-only `t6040-bringup` branch remains the hardware-history
-record at `f0738eee`, while the review branch is
-`codex/t6040-upstream-series` at `37fafb86`.
+Working:
 
-One structural constraint colors everything below: **M4 = raw boot only** (SPTM
-owns the mach-o path). Apple-private sysregs are locked. Linux itself doesn't
-care (it runs at EL2/EL1 normally), but: no hypervisor tracing of macOS drivers
-on this machine — the classic Asahi reverse-engineering tool (`hv` + tracers) is
-crippled on M4. Reverse engineering of new hardware blocks largely has to happen
-on M1/M2/M3 machines upstream, or via static ADT/firmware analysis. This is the
-single biggest reason most of Stages E–G are "track upstream" rather than "build
-it here". *Watch this space: upstream m1n1 (merged 2026-07-14) now gates hv's
-SPRR/GXF/AMX use on `apple_sysregs_unlocked` and knows the T6040 CPUSTART —
-yuka appears to be making hv tolerate locked-sysreg machines. A degraded hv on
-the T6040 is untested here, but if it becomes viable it would reopen (some)
-tracing on this rig.*
+- T6040 CPU topology, AIC, PMGR, watchdog, simple framebuffer, DockChannel
+  UART/HID, SMC, PCIe, SDHCI, WiFi, Bluetooth, cpufreq, and experimental NVMe
+  nodes exist on the Wallace branch.
+- All 14 CPUs enter the kernel.
+- A five-core RAM-root desktop schedules work on all five CPUs.
+- cpufreq reaches 4.512 GHz on the P cluster.
 
-*Locked-AIC status (from #asahi-dev 2026-07-21, yuka;
-`done/2026-07-21-asahi-dev-irc-review.md`): iBoot builds that leave the relevant
-AIC reg **unlocked** exist for t8132/t8140/t6050 but **not** for
-t6040/t6041/t8142 — so our machine keeps the `aic_init_cpu` locked-sysreg skip
-(flokli patch). An Apple radar already unlocked one machine; a follow-up radar
-to cover t6040/t6041/t8142 in a future iBoot is under discussion upstream, which
-would be the clean long-term fix. SPTM/GXF itself remains the wall (no signed
-guarded entry for a raw-boot object) — the SEP-loads-keys-into-the-NVMe-
-controller remark (chaos_princess, 2026-07-20) is a lead for the internal-NVMe
-route, tracked under the SPTM tickets.*
+Open:
 
-## Stage map
+- isolate the MM/SMP copy-on-write fault;
+- prove stable 14-core userspace;
+- add a safe cpuidle/retention contract;
+- keep generated DTs and upstream-shaped patch series synchronized;
+- upstream the narrow, proven changes.
 
-```
-A. Proxy solid ──► B. m1n1 Linux-boot ──► C. Kernel DT + boot ──► D. Storage/USB/HID/console
-                                                                        │
-        ┌───────────────────────────────────────────────────────────────┤
-        ▼                          ▼                        ▼           ▼
-E. WiFi + Bluetooth        F. GPU (long pole)        G. Audio/ISP/PM   H. Distro integration
-```
+## D. Local usable machine
 
-A→D are sequential. E/F/G parallelize after D. H wraps it all.
+Working:
 
----
+- internal panel through simpledrm/fbcon;
+- Xorg with i3 or dwm;
+- internal keyboard with Norwegian layout;
+- DockChannel shell and watchdog;
+- battery, AC, charger, and temperature telemetry;
+- GL9755 SD read/write persistence.
 
-## Stage A — proxy solid, all cores ✅ COMPLETE (2026-07-10)
+Open:
 
-*Was `done/t6040-bringup-plan.md` phases 2–4. Took days, as scoped.*
+- complete SD-root console, SSH, and graphical services;
+- resolve trackpad post-HIDF reset;
+- enable panel and keyboard backlight control;
+- bring up USB host only after a reversible Type-C/VBUS contract exists.
 
-- [x] Second machine + `shell.py` → proxy prompt (M1 host over USB; no PR #616 needed)
-- [x] `smp.start_secondaries()` — `CPU_START_OFF_T6031` 0x88000 (src/smp.c:296)
-      **validated correct**; all 14 cores up. Plus execute-and-return + MPIDR map.
-- [x] `chainload.py -r build/m1n1.bin` reliable → ~10-second dev loop, kmutil retired
-      **(done 2026-07-10, build chain fixed)**
-- [x] Upstream posting draft: confirmed constants, MPIDRs, and the
-      features_m4/broken_wfi raw-boot note, finalized by ticket 019 in
-      `2026-07-10-t6040-smp-writeup.md`. Upstream m1n1 already carries T6040
-      CPUSTART `0x88000` in proxyclient/hv via yuka `0ec216de`; the draft
-      correctly frames WFE parking as the locked-sysreg fallback after Sven's
-      `c22ca847` retention-bit diagnosis. Ticket 046's review-only mail draft
-      is now in `patches/m1n1-t6040-upstream-v1/`.
+The SD path replaces USB root as the immediate persistence route.
 
-**Exit:** ✅ proxy stable across reboots, 14/14 cores. (chainload dev loop + upstream
-carry forward as small residuals; neither blocks Stage B.)
+## E. WiFi and Bluetooth
 
-## Stage progress note (2026-07-26)
+Functional:
 
-**B and C are effectively complete, and D is partially delivered.** An enrolled raw boot object cold-boots
-the machine untethered into Alpine (milestone B0, 2026-07-25), and as of 2026-07-26 a tethered object
-reaches a **graphical desktop** — Xorg on `modesetting`/simpledrm with dwm, `st`, dmenu and a working
-Norwegian keyboard on the internal panel. So of Stage D's four pillars: **HID and display console are
-done**, **storage and USB are not**.
+- PCIe links train with the correct T6040 PHY reset bit and endpoint power;
+- BCM4388 WiFi scans, associates, receives DHCP, and routes traffic;
+- BCM4388 Bluetooth exposes a working `hci0`;
+- the paired firmware mapping and BSS-info v116 support are recorded.
 
-That makes Stage D's remaining scope precise rather than open-ended:
+Remaining work is cleanup, regression coverage, and upstream review. Do not
+reopen the old op-115 PLL theory; endpoint power and the reset bit were the
+load-bearing fixes.
 
-| Stage D pillar | State |
-|---|---|
-| display console | **done** — simpledrm + fbcon, and now Xorg/dwm on top |
-| HID (internal keyboard) | **done** — DockChannel HID, `event0`, Norwegian layout |
-| USB | blocked on the HPM/ATC host link (096/097, or U-Boot 132) |
-| storage | blocked — NVMe behind SPTM/CoastGuard; USB storage kernel-ready but needs the USB link |
+## F. GPU
 
-Two Stage D adjacencies are worth noting as *cheap*, because they were measured absent from the kernel
-config rather than assumed hard: **backlight** (`APPLE_DWI_BL`, ticket 164) and **battery/thermals**
-(`MACSMC_POWER`/`HWMON`, ticket 165). And **Stage E (WiFi) needs no kernel work at all** — `BRCMFMAC`
-and `CFG80211` are already enabled — so it is gated purely on PCIe reaching link-up (op-115, ticket 124)
-plus firmware staging (168).
+No safe T6040/G16 live candidate exists. The first candidate must explicitly
+support:
 
-The machine's remaining daily-driver gaps are therefore: persistence, networking, **more than one core**
-(it still runs `maxcpus=1`, ticket 169), backlight, and battery/thermal telemetry.
+- T6040/G16 identity and configuration;
+- the matching macOS 26.x firmware ABI;
+- T6040 GPU DT/UAT reservations in m1n1;
+- a Mesa G16 path selected through the kernel UAPI.
 
----
+Do not adapt G14 tables by analogy. The staged test sequence remains in
+[t6040-gpu-upstream-smoke.md](t6040-gpu-upstream-smoke.md).
 
-## Stage B — m1n1 grows Linux-boot support for T6040
+## G. Power and remaining peripherals
 
-*What `kboot` needs before it can hand a kernel a usable machine. This is the
-M3 template (commits 83364d0→5393f41) replayed on T6040. Weeks. All of it is
-doable solo with the proxy + ADT dumps; this is the highest-leverage local work.*
+Partial:
 
-1. ✅ **cpufreq** (`src/cpufreq.c`) — **DONE (minimal) 2026-07-10; throttle
-   residual bounded 2026-07-23.** T6040 reuses `t6031_clusters`; pstate/APSC
-   works. T6030 throttle offsets SError on T6040 P-clusters. Paired
-   `AppleT6041PMGR` analysis recovered no safe replacement and shows a
-   target-specific generic-throttler override plus RegMap-mediated paths.
-   Keep throttles omitted; they are not required for Linux DVFS. See
-   `2026-07-10-t6040-cpufreq-plan.md` and
-   `2026-07-23-t6040-cpufreq-throttle-analysis.md`.
-2. ✅ **MCC** (`src/mcc.c`) — **Phases 1+2 DONE (2026-07-10); residual
-   bounded 2026-07-23.** `mcc_init_t6041()`
-   added: t6031 reuse mis-parsed the ADT (AMCCs at `reg[12..15]` per `amcc-reg-idx`/
-   `amcc-count`, no `plane-count-per-amcc`). Phase 2 hardware-RE'd the SLC: 1 plane
-   per AMCC, status = 0x00010101 (T6031 decode wrong) — both encoded as `T6041_*`
-   constants. The idempotent cache-enable write is proven by repeated Linux
-   boots. T603x TZ offsets still read zero, but region-id-4 begins at the
-   exclusive normal-RAM limit and region-id-2 is higher, so Linux never sees
-   either range. Remaining work is non-blocking m1n1 EL2 hardening via an
-   ADT-backed unmap or static iBoot decode; no live sweep. See
-   `2026-07-23-t6040-mcc-carveout-analysis.md`.
-3. **PCIe** (`src/pcie.c` + tunables) — **HOST-SIDE COMPLETE; LIVE GATED
-   (2026-07-14).** Added
-   `regs_t6040` + `apcie,t6040` dispatch branch. ADT-verified against live
-   `/arm-io/apcie0`: 35 regs, #ports=4, shared block = reg[0..6] then 4×7 port
-   regs ⇒ `shared_reg_count=7` (the one delta vs t6031; 8 would fail the
-   even-divide check). Static analysis of `AppleT6040PCIe::start()` proves the
-   two new clock groups target reg[5] (CIO3 PLL) and reg[6] (PCIe clkgen); m1n1
-   now applies both and reuses the T6031/T8122 init path. The matching
-   PCIe/DART/BCM4388/GL9755 Linux DT and driver image build cleanly. The first
-   live attempt reached `No common tunables`; the traced retry delivered an
-   asynchronous SError after AXI `[70]` and before `[71]`. Static disassembly
-   then proved Apple keeps clock gate 7 (`APCIE_PHY_SW`) off through AXI/CIO3/
-   clkgen programming, whereas m1n1 enabled it early. The approved corrected
-   105-write run matched Apple's gate order but delivered the same SError after
-   `[70]`, disproving the early-gate hypothesis. Barriers plus immediate L2C
-   status reads also repeated `[70]` with a zero post-write sample. A zero-PCIe-
-   write trace reproduced it, proving a log-buffer artifact: the 16 KiB ring
-   ends at top-of-RAM and crosses its boundary during `[61] done`. An upper-guard
-   dry-run control completed all 77 entries and booted Linux, proving the guard.
-   The approved guarded stop-before-PHY run then completed all 105 operations,
-   including CIO3, clkgen, and the late PHY clock gate, and booted Linux without
-   an L2 error or SError. The next bounded stage is PHY setup only, with a return
-   before the first per-port write. Detailed in
-   `2026-07-14-t6040-wireless-pcie-map.md`. WiFi/BT prerequisite.
-4. **ATC/USB tunables + DART config** — **AUDITED 2026-07-10 (mostly verify+defer).**
-   All kboot-only, FDT-only (safe). **DART = done** (t6040 DARTs are `dart,t8110`,
-   fully supported). **ACIO USB4 rc+pcie_adapter = works as-is** (prop names match).
-   **ATC PHY bank map = statically resolved 2026-07-24.** The paired 25F84
-   `AppleT6040TypeCPhy` table exactly matches all 44 ADT ranges for all four
-   ports, and its tunable format proves bank+offset. The paired direct eUSB2
-   initializer is now decoded to banks 0/1 and six offsets, and the paired
-   XHCI driver proves the exact host branch. The target's Gen3 SPMI and
-   SN201202x class-10 discovery boundary is now inventoried, including six
-   initial register windows, but even that read path changes provider/timer
-   state. The exact HALType5/Type10 class path and its first host mutation are
-   also proved: a nine-byte address-`0x14` RMW. It has no local inverse, and
-   the remaining power/config/repeater coordination must not be invented.
-   The maintainer-approved `docs/SPMI_SAFETY.md` now permits only exact
-   right-HPM2 stages. Tickets 093–095 have proved inactive selector, WAKEUP +
-   state `0x07`, and SSPS + state `0x00`; the mask experiment was removed and
-   remains untested. Ticket 096's final static pass found semantic eUSB2/ACIO
-   teardown but no complete VBUS/event/cache/mask/detect/power-state inverse,
-   so R3 and tickets 102–108 remain blocked pending new primary evidence.
-   Decomposed later tickets own host role, ATC/xHCI enumeration, block reads,
-   flashing, and bounded writes only after that gate clears.
-   Root hubs without that physical path are not a functional USB2 fallback.
-   USB3/TB remains a Stage D comfort.
-   NHI/apciec (Thunderbolt) name-mapping is also deferred.
-   The old `upstream/atcphy-new-tunables` pointer is stale at a January 2025
-   tip, not an active T6040 branch. Watch broader m1n1/Linux/#asahi-dev work for
-   an explicit T6040 SN201202x HPM path. Detailed in
-   `done/2026-07-10-t6040-atc-usb-dart-plan.md` and
-   `done/2026-07-23-t6040-atcphy-upstream-checkpoint.md`, with the paired
-   bank-map proof in `done/2026-07-24-t6040-atcphy-kext-bank-map.md` and the
-   direct sequence in `done/2026-07-24-t6040-eusb2-init-sequence.md`, and the
-   HPM boundary in
-   `done/2026-07-24-t6040-hpm-spmi-discovery-boundary.md` and the class-10
-   checkpoint in
-   `done/2026-07-24-t6040-hpm-class10-host-transition.md`.
-5. **kboot FDT init** (`src/kboot.c` and friends) — **AUDITED + display FIXED
-   2026-07-10.** kboot-only, FDT-only (safe), Stage-C-coupled (patches a kernel DT
-   that doesn't exist yet). Generic parts already work for t6040: spin-table/
-   CPU-release (`dt_set_cpus`, SMP done), DART (t8110), ACIO. **Fixed:**
-   `dt_set_display` now has a t6040 branch — was hitting "unknown compatible, skip",
-   now reuses the t602x carveout scheme (region-id 49/50/57/94/95/157 verified on
-   the live carveout map) + dcpext firmware. **Deferred:** compat fixup (speculative
-   until a real t6040 DT exists), GPU carveout (Stage F), dcpext data-region
-   validation, ISP/SEP/SMC (verify at Stage C). Detailed in
-   `2026-07-10-t6040-kboot-fdt-plan.md`.
-6. **Python side** (`proxyclient/m1n1/`) — T6040 chip knowledge for the tools
-   used to dump/verify all of the above.
+- SMC telemetry works;
+- cpufreq works;
+- watchdog and remote reboot paths exist.
 
-**Exit:** m1n1 boots a kernel image with a correct, complete FDT; kernel gets to
-early console. (Testable incrementally against Stage C.)
+Open:
 
-## Stage C — kernel devicetree + core boot (Asahi kernel tree)
+- cpuidle and suspend;
+- panel and keyboard backlight;
+- audio;
+- camera/ISP;
+- lid and power-button integration;
+- thermal and performance policy suitable for sustained daily use.
 
-*Target: linux-asahi boots to a shell on this machine. Weeks, parallel with B.*
+The current `idle=nop` baseline is for bring-up, not a finished power model.
 
-- **Device trees:** **FULL 214-DOMAIN PMGR TO USERSPACE (2026-07-12, temporary
-  policy).** `t6040.dtsi`
-  + `t6040-j614s*.dts` + generated `t6040-pmgr.dtsi` in `~/Code/linux`
-  (templated from t8132/t6050, ADT-verified). The 2026-07-10 async-L2C-SError
-  handoff blocker was the m1n1 dapf init (all t6040 dapf entries trap; gated in
-  `src/dapf.c`). Board variants: `-kbd` (keyboard, known-good) and `-dcuart`
-  (keyboard + DockChannel shell). The board state, measured DCUART IRQ 816,
-  and 14-inch identity are committed; an upstream-shaped four-patch draft is
-  in `patches/linux-t6040-j614s-dt-v1/`. **Remaining:
-  full-pmgr legacy policy hangs pre-console, but the exact deterministic minimum
-  (preserve active, disable `disp_cpu`, skip auto-enable only for
-  `dispext0_cpu` and `dispext1_cpu`) boots 3/3. Both CPU skips are necessary;
-  the former `sys`, `fe`, and ANE restrictions are not.
-  The live-tested T6041-compatible quirk now carries that policy without custom
-  DT booleans. A 2026-07-24 raw-record audit confirms the exact J614s ADT
-  already excludes AMCC/DCS 16–31 and dispext2/3 through the existing `no_ps`
-  bit, so the 214-domain topology is not over-counted and no new decoder bit
-  supersedes the quirk. Review/upstream submission is the remaining Stage C PMGR work**;
-  see NEXT_STEPS #2 and DEVLOG's PMGR section.
-- **AIC3:** **works** — the AsahiLinux `asahi-wip` base has
-  `apple,t8122-aic3` support; boots and
-  delivers interrupts (keyboard mailbox IRQs verified live). Two locked-sysreg
-  writes in `aic_init_cpu` must be skipped on M4 raw-boot (flokli patch).
-- **Core platform drivers** (mostly compat-string + minor deltas on existing
-  Asahi drivers): UART, watchdog, PMGR power domains, pinctrl/GPIO, I2C/SPI,
-  mailbox/RTKit (new firmware version strings for 26.x!), DART t8110, cpufreq
-  (`apple,cluster-cpufreq`), SMC, SPMI/PMU.
-- **RTKit firmware versioning:** every coprocessor (NVMe/ANS, SMC, DCP, ISP…)
-  ships firmware from the macOS 26.x install; Asahi drivers whitelist known
-  ABI versions. Expect a steady trickle of "add fw 26.x compat" patches.
+## H. Persistent distro
 
-**Exit:** linux-asahi + our DT boots to initramfs shell over USB gadget/serial,
-all 14 cores online, cpufreq working.
-**Status 2026-07-24:** initramfs shell and full PMGR are proven locally at
-maxcpus=1. A WIP `more-t6041` branch independently reached an M4 Pro shell with
-all cores and PMGR, but its inherited CPU/domain topology is not J614s-correct;
-completed preflight 034 fed `maxcpus=2` control 005, which reached kernel
-vectoring but produced no Linux output. Diagnosis 122 is complete; its exact
-storage-disabled early-DockChannel replacement passed independent review.
-Ticket 123 remains proposed pending fresh maintainer approval because it was
-created after the last approve-all. It precedes all-core candidate/run tickets
-120/121, and cpufreq ticket 006 waits for 121.
-T6040/T6041 AIC
-sysregs remain firmware-locked, so the trap-avoidance patch and `idle=nop`
-remain required.
+Current architecture:
 
-## Stage D — storage, USB, HID, display console (usable machine)
+1. enrolled raw m1n1 stage;
+2. small switch-root initramfs;
+3. exFAT SD partition containing `wallace-root.img`;
+4. ext4 loop image as the Alpine root.
 
-*The "it's a real computer now" stage. Weeks.*
+Verified:
 
-- **NVMe** (apple-nvme + SART + ANS RTKit): internal SSD. PCIe parents can be
-  forced actual-on; CoastGuard/SART activation, RTKit buffers, ANS boot, and
-  boot status all succeed. T8140 then rejects direct legacy and standard NVMe
-  queue-register programming. macOS uses guarded SPTM service 6 for queue and
-  per-command TCB authorization. Its ABI is decoded, but raw boot has
-  SPRR/GXF disabled and the exact GENTER call hangs. iBoot's queue buffers are
-  ordinary, unreserved RAM and the macOS path performs per-command TCB
-  authorization, so preserving only the firmware ASQ/ACQ is not a complete
-  Linux design. Do not repeat direct register or GENTER attempts unchanged
-  (NEXT_STEPS #3).
-- **USB** (dwc3 + ATC PHY): the J614s physical map is captured and independently
-  reviewed (`usb-drd0` left-back/KIS, `usb-drd1` left-front, `usb-drd2` right).
-  The right-only no-root smoke initialized its DARTs and xHCI root hubs cleanly,
-  but no attached device enumerated. The saved ADT maps that port through a
-  right-side SPMI HPM, `atc-phy,t6040`, and `acio2`, while Linux describes none
-  of that connector/PHY path; force-host therefore starts xHCI with no generic
-  PHY provider. The failed device was the directly attached passive USB-C stick
-  that remains the fixed right-port test device. Ticket 065's powered-fixture
-  discriminator was cancelled and is not a remaining gate. Ticket 067 therefore
-  supplies the interim distro milestone: Alpine booted entirely from a
-  m1n1-uploaded RAM-root with all storage paths disabled. Persistent external
-  root is gated directly on reviewed T6040 HPM/ATC work, enumeration, read-only
-  block identity, separately confirmed flashing, and a bounded
-  write/persistence test.
-  A late-2026-07-24 public m1n1 WIP (`tps6598x-spmi`, `dcc5f1bc...`) now
-  recognizes the exact J614s Gen3 SPMI/SN201202x topology and compiles, but its
-  only reported test is the legacy T6000/I2C iterator. The T6040 path performs
-  multiple state-changing SPMI/HPM operations and has unbounded/error-lifetime
-  issues, so it is an implementation lead rather than a live artifact.
-  Wallace extracted only exact direct-HPM2 operations under
-  `docs/SPMI_SAFETY.md`; 093–095 reached S0, while 096 and 102–108 own the
-  remaining rollback/link/enumeration boundaries. The branch is never run
-  wholesale.
-  M3 ATC PHY work
-  enumerated a real device on 2026-07-20, but its SPMI wake and PHY data are not
-  T6040 parameters; USB3/TB stays track-and-test. The 2026-07-23 upstream
-  refresh found no published T6040 compatible or SN201202x path. The paired
-  25F84 Type-C PHY kext now independently resolves all 44 target register
-  banks and the raw tunable encoding. Its direct eUSB2 sequence is now bounded
-  to banks 0/1 and six offsets; paired XHCI also proves the host branch,
-  leaving HPM ownership as the actual implementation blocker. Ticket 086's
-  historical 1 GiB Alpine GPT/ext4 image is structurally verified
-  (`32a897cb...`) but not bootable because its minirootfs lacks
-  `/sbin/openrc`. Ticket 098 supersedes it with the verified OpenRC B0 image
-  (`1c493fad...`, PARTUUID `e4731abe-3566-4c3a-8019-c8828ca27a5a`);
-  GPT/ext4/OpenRC/content checks pass and its normalized tree reproduces.
-  It has not been written to the stick, which is attached to the M4 rather
-  than the M1; M4 enumeration remains the gate.
-- **Internal keyboard + trackpad:** ✅ **keyboard DONE early (2026-07-11)** via
-  dockchannel-HID (three bugs fixed — see DEVLOG); trackpad registers as
-  input0. Its missing HIDF loader and retry recovery are fixed. Ticket 016
-  reproducibly staged the paired 25F84 `tpmtfw-j614s.bin` (`a1f4131d...`).
-  Ticket 030 now also provides a deterministic full restore corpus and
-  22-file Linux tree (`cb7a4ee2...` raw archive). Ticket 004's exact
-  reproducible TX-only candidate (`86e031db...` Image, `3a47c95d...`
-  initramfs) was retired unrun after review found the HID type fix absent and
-  multitouch modular without modules. Replacement 125 adds the fix and
-  built-in driver and now byte-reproduces/reviews PASS at Image `446eeb2e...`.
-  Live 126 requires fresh approval plus a narrow explicit policy exception for
-  the paired volatile runtime HIDF upload. The result will
-  determine whether J614s needs the forbidden
-  legacy PMU-backed GPIO proxy path without exercising that write
-  (NEXT_STEPS #1).
-- **Display:** two steps.
-  1. `simpledrm` on the m1n1-provided framebuffer — works immediately, no
-     driver; gives a desktop-capable (unaccelerated) console. This alone plus
-     NVMe/USB/HID = installable, usable-in-anger machine.
-  2. **DCP driver** for real display control (brightness, DPMS, mode switch,
-     external DP alt-mode). Firmware-version-locked; M4 + macOS 26.x firmware
-     support must exist in the asahi DCP driver. The July 2026 `dcp/14.8.3`
-     work now boots and has HPD/brightness progress, but is ABI groundwork rather
-     than 26.x/T6040 support. The 2026-07-23 J614s ADT inventory prepares the
-     internal/external DT topology but also proves the local blockers: a fifth
-     display MMIO window, eight-input ASC wrapper, SID/register-bank deltas, and
-     the intentionally isolated raw-boot display power domain. Do not enable a
-     borrowed 14.x node; see
-     `done/2026-07-23-t6040-dcp-upstream-dt-prep.md`.
-- **SMC:** power button, lid, battery/charger via macsmc — mostly compat work.
-  Track the July 2026 v2 hwmon/RTC DT-subdevice series; it has not established
-  T6040 compatibility. PMU/charger/NVRAM writes remain absolutely prohibited;
-  the endpoint-scoped right-HPM2 exception in `docs/SPMI_SAFETY.md` does not
-  extend to SMC/PMU or charge control.
+- SD read, write, sync, unmount, reboot, and hash persistence;
+- loop mount and `switch_root`;
+- OpenRC begins startup from the SD root.
 
-**Exit:** boot an external USB root to a desktop on simpledrm, with working
-built-in keyboard/trackpad and battery status. Internal NVMe is a later secure-
-firmware integration goal, not the Stage-D gate. Daily-drivable without
-GPU/WiFi (USB ethernet).
+Required for completion:
 
-## Stage E — WiFi + Bluetooth
+- reliable local console and SSH;
+- persistent boot logging;
+- WiFi/Bluetooth services;
+- Xorg/i3 startup;
+- clean shutdown and filesystem checks;
+- repeated cold-boot validation.
 
-*Moderate; mostly enablement, not R&E — the drivers exist. Depends on Stage B PCIe.*
+Internal NVMe is a later replacement candidate. Linux reaches real filesystem
+I/O but still loses the controller at the first I/O CQ wrap.
 
-- **Mapped and host-built 2026-07-14:** port 0 is BCM4388 WiFi (`14e4:4434`)
-  plus Bluetooth (`14e4:5f72`), board module `mriya`; port 1 is the GL9755 SD
-  reader. Linux already carries both Broadcom IDs and explicit BCM4388 support.
-  The complete PCIe/GPIO/DART child topology is in the separately gated
-  `t6040-j614s-dcuart-pcie` DT; see
-  `done/2026-07-14-t6040-wireless-pcie-map.md`.
-- **Shared-PHY boundary:** the approved continuation after the successful
-  Apple-ordered 105-operation prefix ran at main `85b01036`, binary
-  SHA-256
-  `add3cef43947dab1605bd95ad602b6dcbf8e89de0a3f1b43f278005cd52dd9da`,
-  used the PCIe-free base DT and returned before ports. Operations 1–114
-  completed; the target stopped during operation 115, the first PHY-IP PLL RMW
-  at `0x417040090`. Linux did not hand off and no port or storage access ran.
-  Exact result in `done/2026-07-14-t6040-pcie-phy-diagnostic.md`. Until link-up
-  succeeds, firmware work cannot be exercised.
-- **WiFi:** `brcmfmac` PCIe path; m1n1 already copies the MAC, antenna SKU and
-  calibration blob from ADT when `wifi0` is aliased. Ticket 030 stages the
-  exact C0/C2 `apple,mriya` firmware and raw 26.x-only metadata.
-- **Bluetooth:** `hci_bcm4377`; m1n1 copies the address and calibration blobs.
-  The paired USI output is ready for initramfs/rootfs. The AMKOR pair is
-  preserved raw because current tooling has no agreed Linux filename mapping.
-- If the chip generation is genuinely new (not just a new ID), this becomes
-  upstream-collab work — but Broadcom generations have been incremental so far.
+## Completion criteria
 
-**Exit:** WiFi associates + BT pairs on mainline-asahi drivers with extracted fw.
-
-## Stage F — GPU (the long pole)
-
-*This is the item that decides when "all the comforts" arrives. Not a solo project.*
-
-- M4 GPU is the G15/G16 family (M3 introduced Dynamic Caching — a large
-  architectural break from the G13/G14 the shipping drm/asahi driver grew up on).
-  Kernel driver (Rust, drm/asahi) + firmware ABI + Mesa compiler (agx) all need
-  the M3/M4-generation work that the upstream Asahi team has been driving since
-  the M3 bring-up; the 2026-06 progress report explicitly says M4 groundwork is
-  being laid.
-- Firmware ABI is version-locked per macOS release → our 26.x install needs
-  explicit support.
-- **Realistic role for this machine:** be the T6040 test mule — provide ADT/fw
-  dumps, run bring-up branches, report. Writing a G16 GPU driver from scratch
-  here is out of scope; the raw-boot hypervisor limitation (no XNU tracing on
-  M4) means even upstream does the RE on other hardware.
-- **2026-07-24 checkpoint:** current asahi-wip ends at T6022/G14, Mesa has no
-  explicit G16 chip path (generation ≥14 currently selects G14), m1n1 has no
-  T6040 GPU handoff case, and the official T604x GPU status is TBA. The exact
-  ADT/25F84 evidence packet and staged upstream-mule contract are ready in
-  `done/2026-07-24-t6040-gpu-upstream-test-prep.md` and
-  `docs/t6040-gpu-upstream-smoke.md`. Never test a G14 alias on this machine.
-- **Until it lands:** simpledrm desktop. KDE on simpledrm at 3024x1964 is
-  serviceable; no video decode offload, no games, high CPU for compositing.
-
-**Exit:** drm/asahi + Mesa honeykrisp/agx running the desktop with GL/Vulkan.
-
-## Stage G — comforts: audio, camera, power
-
-- **Speakers/headphones:** macaudio stack (tas2764 amps + cs42l84 jack codec are
-  the recurring parts) — needs j614s DT wiring, `speakersafetyd` limits, and an
-  **asahi-audio DSP profile measured for this exact chassis** (each model gets
-  tuned EQ; 14" M4 Pro won't exist yet). Speaker safety is a hard gate: no
-  profile → speakers stay muted. Headphones/USB audio work much earlier.
-- **Webcam:** apple-isp driver + m1n1 ISP prealloc (Stage B item) + new sensor/
-  firmware handling for the 12MP Center Stage camera. Upstream-tracking.
-- **Power management:** ticket 027 established that SMC supplies lid/power hard
-  wake events but generic s2idle residency comes from `cpuidle-apple`. That
-  driver stops at T6034 and its current deep path writes locked CYC_OVRD then
-  executes WFI; merely allowlisting T6040 is unsafe given proven state loss,
-  `broken_wfi = true`, `SLEEP_NONE`, and the required `idle=nop`. A reviewed
-  T6040 retention contract, bounded cpuidle test, and separate SMC-wake test
-  must precede s2idle. EFI-PSCI progress does not yet replace the J614s
-  raw-kboot release/WFE audit. Full analysis:
-  `done/2026-07-24-t6040-suspend-feasibility.md`.
-- **Explicitly never (or SEP-blocked):** Touch ID. **Late/limited:** Thunderbolt
-  tunneling (USB3/DP alt-mode work; full TB is still open upstream), video
-  decode engines (AVD is M1/M2-era work, M4 unexplored).
-
-## Stage H — distro integration ("bootable Linux distro")
-
-- **B0, personal cold boot:** use the dedicated APFS/m1n1 volume and raw
-  enrollment to boot one self-contained m1n1 + kernel + J614s DTB + Alpine RAM
-  distro. DebugUSB may observe but supplies no payload. This is intentionally
-  storage-free and is the first “this machine boots Linux” milestone. The
-  tethered object proof (081/100) has passed. Ticket 082 now owns only the
-  final volume identity/backup/review fields; plan-approved, `runnable=false`
-  ticket 101 is the maintainer-executed cold boot.
-  `docs/BOOTABLE_BUILD_EXPERIMENTS.md` defines
-  the evidence-gated sequence.
-- **B1, standard boot flow:** after B0, make U-Boot/EFI work and move toward
-  GRUB/systemd-boot or a unified kernel image. Ticket 025's offline prep now
-  provides a reproducible no-MMIO T6040 U-Boot/EFI-hello target; any live proof
-  remains a separate post-B0 review/approval. Ticket 080 confirmed U-Boot is
-  not required for B0.
-- **B2, persistent distro:** use the verified external OpenRC USB image after
-  HPM/ATC brings up a child, read-only block identity passes, the image is
-  flashed separately on the M1, and bounded read-write persistence passes.
-  Tickets 102–113 encode those boundaries. Internal NVMe stays a later SPTM
-  integration goal; tickets 114–117 remain static/host-only unless a supported
-  guarded-entry contract appears.
-- **asahi-installer:** its current second stage already invokes
-  `kmutil --raw --entry-point 2048 --lowest-virtual-address 0`. It must add
-  Mac16,8/T6040 admission, preserve a complete kernel+DTB+initramfs payload
-  atomically across install/repair/upgrade, and support 26.x AEA plus moved
-  firmware layouts. Requirements:
-  `done/2026-07-23-t6040-asahi-installer-requirements.md`.
-- **U-Boot:** no-MMIO T6040 framebuffer/EFI-hello draft is prepared and
-  reproducible. Next is a post-B0 first-light proof, then reviewed storage
-  drivers → standard EFI boot flow → GRUB/systemd-boot. Exact boundary:
-  `done/2026-07-23-t6040-uboot-noio-prep.md`.
-- **Fedora Asahi Remix:** kernel with all of the above, j614s asahi-audio
-  profile, mesa builds, calamares/initial-setup — mostly automatic once the
-  pieces exist upstream.
-- The B0 path deliberately uses direct m1n1 payloads first. It must not be
-  blocked on official installer integration, U-Boot, persistent storage, SMP,
-  cpufreq, or post-boot comfort drivers.
-
-## Dependencies & effort summary
-
-| Stage | Blocked by | Who realistically does it | Effort |
-|---|---|---|---|
-| A proxy/SMP | — | you, now | days |
-| B m1n1 kboot | A | you (best solo leverage) | weeks |
-| C kernel DT/boot | B partial, AIC3 driver | you + upstream | weeks |
-| D NVMe/USB/HID/simpledrm | C | you + upstream compat patches | weeks |
-| E WiFi/BT | B (PCIe), D | mostly enablement, you | days–weeks |
-| F GPU | upstream M3/M4 GPU program | upstream; you = test mule | months (external) |
-| G audio/ISP/PM | D; audio profile needs hw measurement | mixed | weeks–months |
-| H installer/distro | all above | upstream + you for j614s bits | weeks (external) |
-
-## Risks (beyond the bring-up plan's table)
-
-| Risk | Mitigation |
-|---|---|
-| No hypervisor tracing on M4 (SPTM) starves RE for new blocks | Static ADT/fw analysis; lean on upstream's M3 machines where blocks are shared |
-| macOS 26.x firmware ABIs unsupported by every RTKit driver | Expect per-driver fw-version patches; keep the m1n1 volume's macOS pinned once things work |
-| AIC3 unsupported in kernel | Check asahi tree first — if missing, it's the Stage C critical path; raise on #asahi-dev early |
-| GPU timeline entirely external | simpledrm desktop is the honest interim; don't plan around a date |
-| Speaker safety profile requires acoustic measurement rig | Use headphones/USB audio until a j614s profile exists upstream |
-
-## Operating principle
-
-Everything in Stages A–B and the DT/enablement halves of C–E is scarce-hardware
-work where a T6040 owner adds unique value — do it, upstream it fast, coordinate
-on #asahi-dev before writing anything big. Stages F and the deep halves of G–H
-are upstream programs — track, test, report, don't fork.
+The project reaches a practical mainline daily-driver milestone when an
+enrolled boot reliably reaches the persistent SD root with a working panel,
+keyboard, trackpad, network, power telemetry, stable multi-core execution, and
+clean shutdown. GPU acceleration, audio, camera, and suspend may land
+incrementally, but their absence must remain explicit.

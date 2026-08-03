@@ -1,5 +1,9 @@
 # T6040 / J614s upstream GPU mule checklist
 
+Status 2026-08-03: parked. No maintainer-endorsed T6040/G16 kernel, firmware
+ABI, m1n1, and Mesa combination is available, so no GPU artifact should be
+built or run yet.
+
 Use this only for a branch explicitly supplied or endorsed for T6040/G16
 testing by the drm/asahi maintainers. It is not a recipe for adapting the
 current G14 driver. Every live run still needs an exact-artifact rig ticket,
