@@ -17,6 +17,18 @@ LC_ALL=C gzip -dc "$BASE" | (cd "$TMP" && LC_ALL=C bsdtar -xf -)
 install -m 0755 "$ROOT/scripts/t6040-sdroot-init" "$TMP/init"
 install -m 0755 "$ROOT/scripts/t6040-sdroot-shutdown" "$TMP/shutdown"
 
+# fsck.exfat repairs a dirty SD64 in place. Statically linked on purpose: this
+# initramfs carries no libc and no dynamic loader, so a dynamic binary would
+# drag glibc plus ld-linux into the boot path. Built from Debian's own
+# exfatprogs 1.2.0-1+deb12u1 source in the arm64 kbuild container with
+# `make LDFLAGS=-all-static`, then stripped.
+FSCK=${FSCK:-$OUT/fsck.exfat}
+FSCK_SHA256=d56b877d91e8e42a64cf8d8ad574ea425041f6fe117f0e52180f84ffad972790
+[ -f "$FSCK" ] || { echo "missing static fsck.exfat: $FSCK" >&2; exit 1; }
+printf '%s  %s\n' "$FSCK_SHA256" "$FSCK" | shasum -a 256 -c -
+install -d -m 0755 "$TMP/sbin"
+install -m 0755 "$FSCK" "$TMP/sbin/fsck.exfat"
+
 # brcmfmac and hci_bcm4377 probe before switch_root, so their paired 25F84
 # firmware must be in this initramfs rather than only on the Alpine root.
 (cd "$TMP/lib/firmware" && printf '%s\n' \
@@ -31,7 +43,7 @@ install -m 0755 "$ROOT/scripts/t6040-sdroot-shutdown" "$TMP/shutdown"
 
 python3 "$ROOT/scripts/reproducible-newc.py" "$TMP" | gzip -n -9 >"$DEST"
 
-for item in init shutdown bin/busybox \
+for item in init shutdown bin/busybox sbin/fsck.exfat \
     lib/firmware/brcm/brcmfmac4388c0-pcie.apple,mriya-WLMT-u.bin \
     lib/firmware/brcm/brcmbt4388c2-apple,mriya-u.bin; do
     gzip -dc "$DEST" | cpio -it 2>/dev/null | grep -qx "./$item" || {

@@ -138,12 +138,33 @@ LABEL_DEV=$("$BB" findfs LABEL=SD64 2>/dev/null || true)
 [ "$LABEL_DEV" = "$PART" ] || stop "LABEL=SD64 resolved to '${LABEL_DEV:-nothing}', expected $PART"
 
 # exFAT VolumeFlags is the little-endian word at byte 106; bit 1 means dirty.
-# Refuse RW mounting after a panic or unclean shutdown. Repair is a separate,
-# explicitly approved operation.
-FLAGS=$("$BB" dd if="$PART" bs=1 skip=106 count=2 2>/dev/null | "$BB" od -An -tu2)
-FLAGS=${FLAGS##* }
+# Refuse RW mounting after a panic or unclean shutdown.
+read_flags() {
+    _f=$("$BB" dd if="$PART" bs=1 skip=106 count=2 2>/dev/null | "$BB" od -An -tu2)
+    echo "${_f##* }"
+}
+
+FLAGS=$(read_flags)
 [ -n "$FLAGS" ] || stop "could not read exFAT VolumeFlags"
-[ $((FLAGS & 2)) -eq 0 ] || stop "SD64 exFAT is dirty (VolumeFlags=$FLAGS); inspect/repair before RW use"
+
+# Repair with a real filesystem check rather than clearing the dirty bit: an
+# unclean shutdown mid-write can leave genuine metadata inconsistency, and
+# masking the flag would mount a container we already know is suspect.
+# CJ approved carrying fsck.exfat in the initramfs for exactly this (2026-08-03).
+if [ $((FLAGS & 2)) -ne 0 ]; then
+    say "SD64 exFAT is dirty (VolumeFlags=$FLAGS); running fsck.exfat"
+    [ -x /sbin/fsck.exfat ] || stop "dirty exFAT but /sbin/fsck.exfat is missing"
+    /sbin/fsck.exfat -y "$PART"
+    rc=$?
+    say "fsck.exfat exit=$rc"
+    FLAGS=$(read_flags)
+    [ -n "$FLAGS" ] || stop "could not re-read exFAT VolumeFlags after fsck"
+    say "VolumeFlags after fsck=$FLAGS"
+fi
+
+# The gate is unconditional: whether the volume was clean to begin with or was
+# just repaired, it must be clean HERE or we do not mount it read-write.
+[ $((FLAGS & 2)) -eq 0 ] || stop "SD64 exFAT still dirty (VolumeFlags=$FLAGS) after repair; do not use RW"
 
 "$BB" mkdir -p /sd /newroot
 "$BB" mount -t exfat -o ro "$PART" /sd || stop "SD64 did not mount as exFAT read-only"

@@ -19,6 +19,12 @@ RAM-root desktop has run successfully; the persistent SD-root system currently
 uses one core because a reproducible multi-core kernel memory race remains the
 largest reliability blocker.
 
+That race is now characterised as **fail-stop**: it kills processes rather than
+returning wrong data. With a fault firing and killing a concurrent process,
+twelve consecutive copy-and-compare verifications came back byte-identical. So
+running above one core is a stability limit, not a data-integrity risk, and
+storage written by earlier multi-core sessions is not suspect.
+
 The project has therefore moved beyond “can Linux boot?” The work now is making
 the existing hardware support stable, maintainable, and suitable for upstream
 review.
@@ -28,13 +34,13 @@ review.
 | Component | What works | What remains |
 |---|---|---|
 | Boot | A self-contained, enrolled m1n1 object cold-boots Linux without a host-supplied payload | The current raw-object path is project-specific; a conventional stage-2 or EFI-style flow is optional future work |
-| CPU and cpufreq | All 14 cores enter the kernel; a five-core RAM-root desktop and frequency scaling are proven | Multi-core page-copy workloads can fault in the kernel. A minimal reproducer exists; the simple missing-barrier theory has been refuted, leaving page lifetime/refcount or TLB invalidation as leading areas to investigate |
+| CPU and cpufreq | All 14 cores enter the kernel; a five-core RAM-root desktop and frequency scaling are proven. The multi-core fault is confirmed fail-stop, so it costs availability but not data integrity | Multi-core page-copy workloads can fault in the kernel. A minimal reproducer exists; the simple missing-barrier theory has been refuted, leaving page lifetime/refcount or TLB invalidation as leading areas to investigate |
 | Display | simpledrm/fbcon and Xorg with i3 or dwm work on the internal panel | No GPU acceleration or panel-backlight control |
-| Input | The internal keyboard, Norwegian layout, and keyboard backlight work | Trackpad motion does not. Firmware upload succeeds, but the following interface reset is rejected |
+| Input | The internal keyboard, Norwegian layout, and keyboard backlight work. Both HID interfaces register evdev nodes — `Apple DockChannel Keyboard` and `Apple DockChannel Multi-touch` | Trackpad motion does not. Firmware upload succeeds, but the following interface reset is rejected; the input device exists, so the gap is event delivery rather than enumeration |
 | SMC and power | Battery, AC, charger, and temperature telemetry work | cpuidle, suspend, lid/power integration, and production power policy remain incomplete |
 | PCIe | The T6040 root complex, link training, and approved endpoint-power paths work | Upstream cleanup and broader regression coverage |
 | WiFi and Bluetooth | BCM4388 WiFi associates, receives DHCP, and routes traffic; Bluetooth exposes a working `hci0` | No known bring-up blocker; integration and upstream review remain |
-| SD storage | The internal GL9755 reader enumerates as `mmc0`; exFAT read, write, sync, reboot, and hash persistence are verified | Panic testing left the current fixture dirty; automatic repair and clean-shutdown validation are staged before further read/write use |
+| SD storage | The internal GL9755 reader enumerates as `mmc0`; exFAT read, write, sync, reboot, and hash persistence are verified | Panic testing left the current fixture dirty and the fail-closed gate correctly refuses to mount it read-write. `fsck.exfat` is being added to the initramfs so repair is a real filesystem check rather than clearing the dirty flag; clean-shutdown validation follows |
 | Persistent root | At `maxcpus=1`, an ext4 loop image on the SD card reaches ttydc0 and OpenRC and retains writes across reboot | Clean shutdown, repeated cold boots, reliable services, and graphical-session integration still need live validation |
 | Internal NVMe | Raw m1n1 reads survive several completion-queue wraps; Linux enumerates namespaces and briefly mounts exFAT | Linux triggers a firmware assert at the first I/O completion-queue wrap; Linux writes are not verified |
 | USB | The DFU controller works in Linux device mode | USB host mode, Type-C role handling, and VBUS remain unproven |
@@ -53,7 +59,7 @@ live in [docs/ROADMAP.md](docs/ROADMAP.md).
 | Local unaccelerated desktop | Partial | Internal panel, keyboard, keyboard backlight, and Xorg/i3 or dwm work | Trackpad motion, panel backlight, accelerated graphics, and desktop polish |
 | Connectivity | Functional | WiFi and Bluetooth work over the internal PCIe endpoint | Upstreaming and, separately, a safe USB-host/Type-C implementation |
 | Persistent Linux system | Partial | SD storage is persistent; a one-core Alpine root reaches console and OpenRC | Repair the fixture, prove clean shutdown, then validate network and desktop services across cold boots |
-| Stable multi-core userspace | Active blocker | Five-core RAM-root use is proven, and the two-core kernel fault has a small repeatable reproducer | Report and isolate the page lifetime/TLB failure; do not treat timing perturbations as a fix |
+| Stable multi-core userspace | Active blocker | Five-core RAM-root use is proven, the two-core kernel fault has a small repeatable reproducer, and the failure mode is confirmed fail-stop rather than silently corrupting | Report and isolate the page lifetime/TLB failure; do not treat timing perturbations as a fix |
 | Internal NVMe root | Experimental | Both m1n1 and Linux reach real media; m1n1 reads are stable across wraps | Explain and fix the Linux first-CQ-wrap firmware assert before any write or root migration |
 | Power and multimedia | Early | SMC telemetry and cpufreq work; audio/camera topology is documented | cpuidle, suspend, panel backlight, audio, camera, lid handling, and thermal policy |
 | Practical daily driver | Not yet | Most of the basic platform is visible and several major devices work | Clean persistent boot, stable multi-core execution, trackpad, backlight, and dependable service integration |

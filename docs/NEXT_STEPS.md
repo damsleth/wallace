@@ -4,6 +4,33 @@ Current as of 2026-08-03. This file states priorities and stop conditions.
 Exact work items, hashes, dependencies, and approval state live in
 `tickets/*.json`.
 
+## 0. The current objective: a practical daily driver
+
+**CJ's direction, 2026-08-03 (supersedes the previous upstream-first ordering).**
+The goal is a machine that is actually usable, with six capabilities working
+unambiguously:
+
+| capability | state |
+|---|---|
+| SD read/write | reader and persistence proven; fixture needs `fsck.exfat` repair |
+| USB read/write | device mode only; host mode and VBUS unproven |
+| NVMe read/write | m1n1 reads stable; Linux asserts at the first CQ wrap; writes unproven |
+| WiFi | works, including DHCP and routed traffic |
+| Bluetooth | `hci0` present and working |
+| Trackpad | evdev node registers; no motion events |
+
+**Upstream reporting is explicitly deferred** — CJ: "we are not doing any
+upstream reporting just now." Sections below that call an upstream report the
+highest-value action are describing engineering value, not current priority.
+
+Standing constraints for autonomous work:
+
+- **NVMe writes are restricted to the exFAT `linux` partition**, verified by
+  label *and* GPT type before any write, aborting on mismatch. No other
+  partition on the internal SSD may be written (CJ, 2026-08-03).
+- SD repair is a real `fsck.exfat`, not clearing the dirty flag (CJ, same).
+- Chainload rather than enroll; the always-proxy rollback object stays enrolled.
+
 ## 1. Characterise and report the MM/SMP copy race
 
 Tickets: **205** (umbrella), **217** (offline artifact), **209** (approved
@@ -18,6 +45,16 @@ Any small perturbation before `copy_page()` hides it, so the race is not
 located in `copy_highpage`; that is where the fault is taken, not where the
 bug lives. The fault is a kernel-mode fault on a valid linear-map address,
 which points at page lifetime/refcount or TLB-invalidation completion.
+
+Round 18 settled the question that mattered most for daily use: **the bug is
+fail-stop, not silent corruption.** With the fork-heavy reproducer running in
+the background and a fault firing that killed it, twelve consecutive 64 KiB
+copy-and-compare verifications in the surviving process were byte-identical
+(`SAME=12, DIFFER=0`). The fault path — `die_kernel_fault` →
+`arm64_force_sig_fault` → `make_task_dead` — is fail-stop by construction. So
+`maxcpus>1` costs availability, not data. Bounded honestly: this does not prove
+a process *hit* by the fault writes nothing bad before dying, nor that a fault
+during page-cache writeback cannot reach storage.
 
 Do next:
 
