@@ -496,6 +496,21 @@
 		smc: smc@50c600000 {
 			compatible = "apple,t8140-smc", "apple,t8103-smc",
 				     "apple,smc";
+			/*
+			 * sram size 0x100000 is taken from t8103/t600x/t602x, where it
+			 * is ADT-verified; on T6040 the region is NOT in the ADT and
+			 * only the base (0x50de70000) is evidenced, from an observed
+			 * RTKit buffer request. TICKET 221 TESTED SHRINKING IT and the
+			 * hypothesis that an over-large window mis-maps SMC shmem onto
+			 * adjacent MMIO is REFUTED: the failing buffer offset simply
+			 * TRACKS whatever size we declare (16 KiB -> fails at 0x6000;
+			 * 32 KiB -> fails at 0x8000), because RTKit keeps requesting
+			 * further buffers as earlier ones succeed. So the real region is
+			 * larger than either, shrinking only makes SMC fail to boot
+			 * ("Failed to initialize shared memory (-14)"), and 1 MiB stays
+			 * the best available value. What ticket 221 DID establish is
+			 * that SMC being functional is what breaks high-core-count SMP.
+			 */
 			reg = <0x5 0x0c600000 0x0 0x4000>,
 			      <0x5 0x0de70000 0x0 0x100000>;
 			reg-names = "smc", "sram";

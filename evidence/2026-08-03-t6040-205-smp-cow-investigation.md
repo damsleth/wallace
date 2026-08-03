@@ -625,3 +625,57 @@ question with obvious next steps.
 4. **Cross-check upstream**: this is very likely the "weird crashes with smp" yuka and sven discussed
    on 2026-08-02, and "depends very much on the kernel config used" is consistent with *which SMC
    consumers are built in*. That is now a much more specific question to put to them.
+
+## Round 10b: narrowing inside SMC — sram size REFUTED, cpufreq REFUTED
+
+All at maxcpus=14, full wifi DTB, `initramfs-dcuart` RAM root, one variable each:
+
+| variant | 14-core result | what it means |
+|---|---|---|
+| `sram` = 1 MiB (as shipped) | hang | SMC boots fully |
+| `sram` = 16 KiB | **14 CPUs boot**, `buffer request outside SRAM region: [0x50de76000,…]` | SMC *fails to boot* |
+| `sram` = 32 KiB | **14 CPUs boot**, fails at `[0x50de78000,…]`, `Failed to initialize shared memory (-14)` | SMC *fails to boot* |
+| SMC enabled, **cpufreq absent** (`wifi.dtb`) | hang | **cpufreq exonerated** |
+| SMC disabled | **14 CPUs boot** | SMC is the culprit |
+
+### The over-large-window hypothesis is REFUTED
+
+I proposed that our `sram` size (1 MiB, copied from t8103/t600x/t602x where it is ADT-verified; on
+T6040 the region is absent from the ADT and only the *base* `0x50de70000` is evidenced) let a buffer
+request past the real SRAM pass validation and be mapped onto adjacent MMIO.
+
+The data says no: **the failing buffer offset simply tracks whatever size we declare** — 16 KiB fails
+at `0x6000`, 32 KiB fails at `0x8000` — because RTKit keeps requesting further buffers as earlier ones
+succeed. So the real region is larger than either, shrinking merely makes SMC fail to initialise, and
+1 MiB remains the best available value. The window has been restored, with this refutation recorded in
+the DT comment so nobody re-tries it.
+
+**Shrinking `sram` is therefore not a fix — it is just another way to disable SMC.**
+
+### And cpufreq is not involved
+
+Plausible alternative: SMC + P-cores boosting to 4.5 GHz exceeds a power/thermal limit and destabilises
+memory. Tested with `t6040-j614s-dcuart-wifi.dtb` (SMC enabled, no cpufreq): **still hangs at 14
+cores.** Power/thermal via DVFS is out.
+
+### One observation that may matter: two distinct symptoms
+
+- **14 cores + SMC: hang with ZERO kernel console output** (20 lines) — it dies *before* the console
+  registers, which is much earlier than any fault we have captured.
+- **5-6 cores + SMC: boots, then intermittent bulk-store faults.**
+
+These may not be the same failure. The 14-core case looks like macsmc's *probe* dying early (macsmc is
+a core device that probes before console), while the 5-core case is the memory corruption we
+characterised over nine rounds. Treating them as one bug is an assumption I have not tested.
+
+### Next experiments, cheapest first
+
+1. **`smc_gpio` child only** — keep `smc`/`smc_mbox`, delete the gpio child, retest at 14. Separates
+   "SMC key writes from `gpio-macsmc` during PCIe probe" from "the SMC RTKit endpoint existing".
+2. **Drop SMC consumers selectively** in the kernel config: `SENSORS_MACSMC_HWMON` (polls many keys),
+   `MACSMC_POWER` (battery polling), `RTC_DRV_MACSMC`, `POWER_RESET_MACSMC`. If one consumer's polling
+   is the trigger, that is both the answer and a workaround.
+3. **Get output from the 14-core hang** — `earlycon` or the DOCKCHANNEL_EARLYCON build, so the pre-console
+   death is visible at all. Without this, step 1 and 2 results are only pass/fail with no diagnosis.
+   **Do this first if steps 1-2 are inconclusive.**
+4. Only then treat the 5-core faults as a separate investigation.
