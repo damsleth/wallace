@@ -2,7 +2,7 @@
   "seq": "197",
   "slug": "trackpad-hidf-live-capture",
   "needs": "rig",
-  "state": "CAPTURED-fw-command-accepted-reset0-rejected-BadArgument",
+  "state": "done",
   "track": "bringup",
   "priority": "P1",
   "desc": "Staged and run 2026-08-02: initramfs-dcuart-hidf.cpio.gz (e9fcd3b3, minimal busybox + CJ-approved a1f4131d blob, nothing auto-opens inputs). RESULT: first input open reaches CMD_SEND_FIRMWARE 0x95, which returns protocol success; the following CMD_RESET_INTERFACE state-0 command 0x40 returns 0xe00002c2 = kIOReturnBadArgument, open fails, and the machine KEEPS RUNNING. This attribution follows directly from the driver's checked call order and command-specific error logger; the earlier claim that 0xe00002c2 rejected the firmware command was wrong. The \"HIDF crashes the boot\" belief remains REFUTED. magicmouse binds event0 before interface start (motion untested; needs a human finger). SDK/blob skew remains only a candidate for why the accepted upload leaves reset invalid. Doc: done/2026-08-02-t6040-trackpad-HIDF-rejected-not-crash.md",
@@ -11,5 +11,6 @@
   "hashes": {
     "trigger_excerpt": "34cb5891d004ca298f122dac3ab5e78536e802600abb1f84fda33403cb00db77"
   },
-  "created": 1785701193
+  "created": 1785701193,
+  "done_at": 1785736217
 }
