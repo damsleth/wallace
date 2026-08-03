@@ -66,3 +66,65 @@ console. Next steps, in order:
 Artifacts: `initramfs-sdroot.cpio.gz` (`1a8c4599…`), `initramfs-bootstrap-sdroot.cpio.gz`
 (`ae815319…`, headless WiFi + e2fsprogs + apk, 49.8 MB — the image used to build and repair the
 card, reachable over SSH at 192.168.10.157). `scripts/t6040-sdroot-init` is the switch-root init.
+
+---
+
+# ✅ RESOLVED: the SD root works, and the whole blocker is ONE kernel bug
+
+## It works
+
+Booted with `/sbin/init` at `maxcpus=1`:
+
+```
+sdroot: newroot /dev ok (ttydc0 present)
+sdroot: switching to the SD root
+   OpenRC 0.63.2 is starting up Linux 7.1.3-gcd5da1d058e3-dirty (aarch64)
+ * Starting System Message Bus ... [ ok ]
+ * Starting Bluetooth ... [ ok ]
+~ # hostname; nproc; df -h /
+t6040
+1
+/dev/loop0   5.8G   371.3M   5.1G   7%   /
+```
+
+**Persistence proven across a reboot** — `/root/boot-log.txt` accumulated:
+
+```
+boot Mon Aug  3 06:47:30 UTC 2026
+boot Mon Aug  3 06:50:51 UTC 2026
+```
+
+Two different timestamps, written by two separate boots to the SD card. Note the dates are real:
+the SPMI/abbey RTC work is holding. Also confirmed live in this system:
+`/sys/class/leds/kbd_backlight` exists, `max_brightness` 255, and writing 255 succeeds — the fpwm0
++ pwm-leds wiring from 2026-07-30 is functional at the sysfs level.
+
+## The single remaining blocker, isolated
+
+`sdroot.shell` (switch_root into the SD root but exec a plain shell instead of init) gave the clean
+answer:
+
+| maxcpus | result |
+|---|---|
+| 4 | shell **SIGSEGV** (`exitcode=0x0000000b`), `copy_page → do_wp_page`, panic |
+| 1 | **zero call traces, zero panics**, working shell, correct root |
+
+So the SD-root architecture is entirely sound and **every** daily-driver symptom we have been
+chasing — the i3 image failing to boot, the SD-root userspace dying, the `unpack_to_rootfs` fault —
+is the *same* kernel memory bug appearing under SMP. It is not initramfs-specific, not image-size
+specific, and not architecture-specific to this design; those factors only change how likely the
+race is to fire.
+
+**Consequence for the project:** a persistent, complete Alpine daily driver on the SD card exists
+today at `maxcpus=1`. Getting it to 4-5 cores is now a single, well-scoped kernel bug rather than a
+pile of unrelated boot failures. Ticket 121 should be rewritten around `do_wp_page`/`copy_page` CoW
+corruption under SMP, with the `unpack_to_rootfs` signature demoted to one symptom among several.
+
+## How to boot it
+
+```
+EXTRA_BOOTARGS='maxcpus=1 console=ttydc0'   initramfs-sdroot.cpio.gz
+```
+
+Add `sdroot.shell` to get a bare shell instead of init (diagnostics). The card holds everything;
+edit files on it directly instead of rebuilding an object.

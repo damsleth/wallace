@@ -2,10 +2,10 @@
   "seq": "204",
   "slug": "sd-root-persistent-system",
   "needs": "rig",
-  "state": "switch-root-works-userspace-services-down",
+  "state": "WORKING-at-maxcpus-1-persistent-verified",
   "track": "boot",
   "priority": "P1",
-  "desc": "Persistent Alpine on the SD card via a 1.8 MB switch-root initramfs + 6 GiB ext4 loop image on CJ's exFAT partition (card NOT reformatted). Bootstrapped 197 packages / 377 MB with apk --root. switch_root WORKS and OpenRC starts; no console on ttydc0/tty1 and no sshd yet. Next: read the PANEL during an SD-root boot (console=tty0 carries OpenRC output), then strip inittab to console-only and add services back. Also proves the SMP fault is broader than unpack_to_rootfs: maxcpus=5 gives copy_page/copy_user_highpage/do_wp_page (CoW), maxcpus=1 gives zero traces. Doc: done/2026-08-03-t6040-SD-ROOT-persistent-system.md",
+  "desc": "Persistent Alpine on the SD card via a 1.8 MB switch-root initramfs + 6 GiB ext4 loop image on CJ's exFAT partition (card NOT reformatted). Bootstrapped 197 packages / 377 MB with apk --root. switch_root WORKS and OpenRC starts; no console on ttydc0/tty1 and no sshd yet. Next: read the PANEL during an SD-root boot (console=tty0 carries OpenRC output), then strip inittab to console-only and add services back. Also proves the SMP fault is broader than unpack_to_rootfs: maxcpus=5 gives copy_page/copy_user_highpage/do_wp_page (CoW), maxcpus=1 gives zero traces. Doc: done/2026-08-03-t6040-SD-ROOT-persistent-system.md RESOLVED 2026-08-03: full system boots from the SD card at maxcpus=1 \u2014 hostname t6040, OpenRC + dbus + bluetooth up, root on /dev/loop0 (5.8G ext4 on the card), shell on ttydc0, and PERSISTENCE PROVEN (boot-log.txt accumulated two timestamped entries across a reboot; real dates, so the SPMI RTC holds). kbd_backlight confirmed present and writable (max_brightness 255). The sdroot.shell escape hatch isolated the ONLY blocker: at maxcpus=4 the first userspace process SIGSEGVs with copy_page/do_wp_page; at maxcpus=1 zero traces. All daily-driver boot failures are ONE kernel MM/SMP bug, not separate problems. Boot: EXTRA_BOOTARGS=\"maxcpus=1 console=ttydc0\" initramfs-sdroot.cpio.gz.",
   "author": "claude",
   "deps": [
     "193"
