@@ -145,6 +145,59 @@ if [ -n "$OBJECT" ]; then
         else
             fail "NOT 16 KiB aligned ($SZ bytes) -- iBoot will never run it"
         fi
+
+        # Check what the object ACTUALLY CONTAINS, not a file sitting next to it.
+        # Checking a standalone initramfs proves nothing about the object: the two
+        # can diverge, and member offsets/sizes shift whenever a member changes
+        # size, so cached offsets from a previous build are wrong.
+        EMBEDDED=$(python3 - "$OBJECT" <<'PY'
+import gzip, subprocess, sys
+blob = open(sys.argv[1], 'rb').read()
+pos, found = 0, False
+while True:
+    pos = blob.find(b'\x1f\x8b\x08', pos)
+    if pos < 0:
+        break
+    try:
+        raw = gzip.decompress(blob[pos:])          # trailing garbage is tolerated
+    except Exception:
+        try:
+            d = gzip.zlib.decompressobj(gzip.zlib.MAX_WBITS | 16)
+            raw = d.decompress(blob[pos:])
+        except Exception:
+            pos += 1
+            continue
+    # Require the newc magic at offset 0. A false gzip magic inside another
+    # member can decompress to something that merely CONTAINS "TRAILER!!!",
+    # which cpio then cannot parse -- that produced an empty listing and a
+    # confident set of false failures.
+    if not raw.startswith(b'070701'):
+        pos += 1
+        continue
+    names = set(subprocess.run(['cpio', '-t'], input=raw,
+                               capture_output=True).stdout.decode(errors='replace').split())
+    for want in ('./init', './bin/busybox', './etc/wallace-no.bmap', './sbin/fsck.exfat'):
+        print(f'{"OK" if want in names else "NO"} {want}')
+    print(f'{"OK" if b"loadkmap" in raw else "NO"} loadkmap-call-in-init')
+    found = True
+    break
+if not found:
+    print('NOFIND embedded-initramfs')
+PY
+)
+        while read -r verdict what; do
+            case "$verdict" in
+                OK) pass "object embeds $what" ;;
+                NO) if [ "$what" = "./sbin/fsck.exfat" ]; then
+                        warn "object does NOT embed $what (no in-place SD repair)"
+                    else
+                        fail "object does NOT embed $what"
+                    fi ;;
+                NOFIND) warn "could not locate an embedded initramfs to inspect" ;;
+            esac
+        done <<EOF
+$EMBEDDED
+EOF
     fi
 fi
 
