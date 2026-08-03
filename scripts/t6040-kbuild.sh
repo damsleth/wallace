@@ -251,7 +251,8 @@ if [ "${DOCKCHANNEL_NBCON:-0}" = "1" ]; then
 fi
 if [ "${CPUFREQ:-0}" = "1" ]; then
     for base in t6040-j614s-dcuart-cpufreq.dts t6040-cpufreq.dtsi \
-                t6040-j614s-dcuart-wifi-cpufreq.dts t6040-j614s-dcuart-c2probe.dts; do
+                t6040-j614s-dcuart-wifi-cpufreq.dts t6040-j614s-dcuart-c2probe.dts \
+                t6040-j614s-dcuart-onepercluster.dts; do
         for f in "/out/$base" "/src/$APPLE/$base"; do
             [ -f "$f" ] && cp "$f" $APPLE/ && break
         done
@@ -1676,6 +1677,12 @@ if [ "${CPUFREQ:-0}" = "1" ] && [ -f $APPLE/t6040-j614s-dcuart-cpufreq.dts ]; th
         make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-wifi-cpufreq.dtb
         cp $APPLE/t6040-j614s-dcuart-wifi-cpufreq.dtb /out/ \
             && echo "DTB -> /out/t6040-j614s-dcuart-wifi-cpufreq.dtb"
+    fi
+    # Ticket 205 discriminator: one CPU per cluster (no intra-cluster sharing).
+    if [ -f $APPLE/t6040-j614s-dcuart-onepercluster.dts ]; then
+        make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-dcuart-onepercluster.dtb
+        cp $APPLE/t6040-j614s-dcuart-onepercluster.dtb /out/ \
+            && echo "DTB -> /out/t6040-j614s-dcuart-onepercluster.dtb"
     fi
     # Ticket 121 discriminator: P0 siblings failed so maxcpus=6 reaches cluster 2.
     if [ -f $APPLE/t6040-j614s-dcuart-c2probe.dts ]; then
