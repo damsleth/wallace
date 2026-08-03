@@ -1,0 +1,18 @@
+{
+  "seq": "199",
+  "slug": "sd-root-persistent-system",
+  "needs": "rig",
+  "state": "switch-root-works-userspace-services-down",
+  "track": "boot",
+  "priority": "P1",
+  "desc": "Persistent Alpine on the SD card via a 1.8 MB switch-root initramfs + 6 GiB ext4 loop image on CJ's exFAT partition (card NOT reformatted). Bootstrapped 197 packages / 377 MB with apk --root. switch_root WORKS and OpenRC starts; no console on ttydc0/tty1 and no sshd yet. Next: read the PANEL during an SD-root boot (console=tty0 carries OpenRC output), then strip inittab to console-only and add services back. Also proves the SMP fault is broader than unpack_to_rootfs: maxcpus=5 gives copy_page/copy_user_highpage/do_wp_page (CoW), maxcpus=1 gives zero traces. Doc: done/2026-08-03-t6040-SD-ROOT-persistent-system.md",
+  "author": "claude",
+  "deps": [
+    "193"
+  ],
+  "hashes": {
+    "initramfs-sdroot.cpio.gz": "1a8c4599b16f3d3b",
+    "initramfs-bootstrap-sdroot.cpio.gz": "ae815319e2d6d4b76cdfda09dd23b94f30908950907b1f8284192e637f82a097"
+  },
+  "created": 1785736281
+}

@@ -47,7 +47,8 @@ podman exec "$CONTAINER" chroot "/out/$TMP_BASE" /bin/sh -ec '
     apk add --no-cache openrc busybox-openrc \
         iw wpa_supplicant wireless-tools dhcpcd \
         bluez bluez-deprecated pciutils iproute2 \
-        openssh-server openssh-keygen
+        openssh-server openssh-keygen \
+        e2fsprogs e2fsprogs-extra apk-tools
     rm -rf /var/cache/apk/* /var/log/apk.log /etc/resolv.conf
 '
 
@@ -124,6 +125,7 @@ EOF
 # then rebuild with WPA_CONF=/tmp/wpa.conf. Without it the image still has all
 # the tools and can be associated by hand at the panel.
 install -d -m 0755 "$TMP/etc/wpa_supplicant"
+WPA_CONF=${WPA_CONF:-$HOME/wpa.conf}
 if [ -n "${WPA_CONF:-}" ] && [ -f "$WPA_CONF" ]; then
     { echo "p2p_disabled=1"; cat "$WPA_CONF"; } \
         > "$TMP/etc/wpa_supplicant/wpa_supplicant.conf"

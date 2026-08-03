@@ -1,0 +1,64 @@
+#!/bin/busybox sh
+# /init for the TINY switch-root initramfs (ticket 199).
+#
+# Why this exists: the 99 MB i3 RAM image loses a race in unpack_to_rootfs on
+# this hardware (see done/2026-08-02 SD doc and ticket 198) -- it booted at
+# maxcpus 1 and 4 but hung at 3 and 5, i.e. it is a race the image size widens,
+# not a clean maxcpus threshold. The fix is to stop shipping a big initramfs:
+# keep the RAM root at a few MB and put the real system on the SD card, which
+# is persistent anyway. This also makes iteration free -- edit files on the
+# card instead of rebuilding and re-enrolling an object.
+#
+# Layout: SD card p1 (exFAT, CJ's own card, NOT reformatted) holds
+# wallace-root.img, an ext4 image loop-mounted as the real root.
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export PATH
+
+# This initramfs ships only a handful of applet symlinks (busybox, cat, dmesg,
+# echo, ls, mount, poweroff, sh, sleep, uname) even though the binary contains
+# every applet -- notably mkdir and switch_root have NO symlink, so calling
+# them bare exits 127 and the kernel panics with "Attempted to kill init".
+# Invoke everything through busybox explicitly.
+BB=/bin/busybox
+$BB mount -t proc none /proc
+$BB mount -t sysfs none /sys
+$BB mount -t devtmpfs none /dev
+
+say() { echo "sdroot: $*" > /dev/kmsg 2>/dev/null; echo "sdroot: $*"; }
+
+# The MMC host probes over PCIe, so the card node appears asynchronously.
+n=0
+while [ ! -b /dev/mmcblk0p1 ] && [ "$n" -lt 30 ]; do $BB sleep 1; n=$((n + 1)); done
+if [ ! -b /dev/mmcblk0p1 ]; then
+    say "FATAL: /dev/mmcblk0p1 never appeared after ${n}s"
+    exec $BB sh
+fi
+
+$BB mkdir -p /sd /newroot
+if ! $BB mount -t exfat /dev/mmcblk0p1 /sd 2>/dev/null && ! $BB mount /dev/mmcblk0p1 /sd; then
+    say "FATAL: cannot mount the SD card"
+    exec $BB sh
+fi
+
+IMG=/sd/wallace-root.img
+if [ ! -f "$IMG" ]; then
+    say "FATAL: $IMG missing -- falling back to a shell"
+    exec $BB sh
+fi
+
+if ! $BB mount -o loop "$IMG" /newroot; then
+    say "FATAL: cannot loop-mount $IMG"
+    exec $BB sh
+fi
+
+# Keep the card reachable from the real root: everything CJ wants to persist
+# outside the image (and the image itself) lives there.
+$BB mkdir -p /newroot/mnt/sd
+$BB mount --move /sd /newroot/mnt/sd 2>/dev/null || say "warn: could not move the SD mount"
+
+say "switching to the SD root"
+$BB mount --move /dev /newroot/dev 2>/dev/null
+$BB mount --move /proc /newroot/proc 2>/dev/null
+$BB mount --move /sys /newroot/sys 2>/dev/null
+
+exec $BB switch_root /newroot /sbin/init
