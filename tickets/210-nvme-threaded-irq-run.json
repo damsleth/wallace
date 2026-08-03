@@ -1,0 +1,13 @@
+{
+  "seq": "210",
+  "slug": "nvme-threaded-irq-run",
+  "needs": "rig",
+  "state": "approved",
+  "track": "bringup",
+  "priority": "P1",
+  "desc": "RUN sol's staged threaded-IRQ discriminator (ticket 203) against the CQ-wrap assert (206). Hypothesis: Linux completes CQEs inside its hard IRQ handler while m1n1 polls; that is the strongest surviving difference after E1-E11. Boot the SD root at maxcpus=1 (clean), mount /dev/nvme0n1p3, and drive sustained I/O (dd from the partition, then a file copy inside the mount) until either the assert fires or ~2 minutes pass. PASS = no assert => deferring completion out of hard-IRQ context is the fix and becomes the upstream patch. FAIL = assert unchanged => IRQ context is exonerated and only the CoastGuard fw RE path remains. Read-only I/O for this run; writes are ticket 211.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785744315
+}

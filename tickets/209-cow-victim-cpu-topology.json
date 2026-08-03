@@ -1,0 +1,13 @@
+{
+  "seq": "209",
+  "slug": "cow-victim-cpu-topology",
+  "needs": "rig",
+  "state": "approved",
+  "track": "bringup",
+  "priority": "P1",
+  "desc": "Characterise WHICH cpu takes the fault and whether the source/destination pages were last touched by a different cluster. Add a printk (not WARN, to perturb less) recording raw_smp_processor_id() plus the MIDR part of the faulting CPU on entry to the CoW path, and boot the c2probe / onepercluster DTBs so the online set is controlled. Question: does the fault only occur when the faulting CPU differs in core TYPE (Everest 0x055 vs Sawtooth 0x054) from the CPU that populated the page? Cluster PLACEMENT was already refuted (one-per-cluster still faults) but core-type asymmetry was not. Cheap now: the reproducer fires in ~40 s at maxcpus=2.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785744315
+}

@@ -1,0 +1,13 @@
+{
+  "seq": "213",
+  "slug": "sdroot-i3-on-panel",
+  "needs": "rig",
+  "state": "approved",
+  "track": "bringup",
+  "priority": "P1",
+  "desc": "Bring the graphical desktop up on the persistent SD root (204) at maxcpus=1, which is the only clean core count. The root already has xorg-server, xf86-input-libinput, i3wm, i3status, st, dmenu, fonts, /etc/i3/config, /etc/i3status.conf and /root/.xinitrc (setxkbmap no; exec i3). Verify: X starts on the panel via startx, i3 bar shows WiFi/battery/AC/disk/clock, Super+Return opens st, Super+d opens dmenu, Norwegian keymap is active, and the keyboard backlight responds to brightnessctl. This is the last step to a genuinely usable machine at 1 core and does not depend on 205 at all.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785744315
+}

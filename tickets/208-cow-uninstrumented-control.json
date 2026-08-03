@@ -1,0 +1,13 @@
+{
+  "seq": "208",
+  "slug": "cow-uninstrumented-control",
+  "needs": "rig",
+  "state": "approved",
+  "track": "bringup",
+  "priority": "P0",
+  "desc": "CONTROL for 205 round 3, cheapest possible and must run FIRST. Rebuild WITHOUT the copy_highpage WARN (revert the instrument commit), boot maxcpus=2 sdroot.shell, run scripts/t6040-cow-repro.sh up to 4 times in one session. PASS(bug returns) = >=1 kernel trace => the instrumentation really is what suppresses it, and 207's bisect is valid. FAIL(stays clean 4x) = attribution was wrong, the bug is simply intermittent, and EVERY 205 conclusion that relied on single runs must be re-tested with repetition counts. Archive the transcript either way.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785744315
+}

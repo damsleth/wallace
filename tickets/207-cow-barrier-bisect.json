@@ -1,0 +1,13 @@
+{
+  "seq": "207",
+  "slug": "cow-barrier-bisect",
+  "needs": "rig",
+  "state": "approved",
+  "track": "bringup",
+  "priority": "P0",
+  "desc": "Name the missing primitive. In copy_highpage, immediately before copy_page(), try ONE change per build and run scripts/t6040-cow-repro.sh 4x at maxcpus=2 after each: (a) smp_mb() only; (b) a single volatile read of kto only; (c) a single volatile read of kfrom only; (d) flush_dcache_page(to) / __flush_dcache_area equivalent on the destination; (e) nothing (control, = 208). The cheapest variant that makes the fault vanish names what the CoW path is missing on this hardware. If (a) suffices it is an ordering bug; if only (d) suffices it is cache maintenance; if only the full virt_addr_valid() work suffices it is a timing artefact and the real bug is elsewhere. Depends on 208 passing. This is the ticket most likely to produce an upstreamable patch.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785744315
+}

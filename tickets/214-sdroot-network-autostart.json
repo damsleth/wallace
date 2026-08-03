@@ -1,0 +1,13 @@
+{
+  "seq": "214",
+  "slug": "sdroot-network-autostart",
+  "needs": "rig",
+  "state": "approved",
+  "track": "bringup",
+  "priority": "P2",
+  "desc": "The SD root's t6040-net-up runs as an inittab ::once: entry but WiFi/sshd were not confirmed up on the maxcpus=1 boot (no address reported). Verify and fix: check wpa_supplicant associates from the baked /etc/wpa_supplicant/wpa_supplicant.conf, udhcpc gets a lease, sshd starts with the 98-byte authorized_keys, and ntpd corrects the clock. Success = the machine is reachable over ssh straight after a cold boot with no console interaction, which removes the serial tether from every future userspace iteration.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785744315
+}
