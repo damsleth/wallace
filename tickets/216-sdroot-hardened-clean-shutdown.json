@@ -5,23 +5,26 @@
   "state": "approved",
   "track": "storage",
   "priority": "P1",
-  "desc": "After ticket 215 passes, install and verify the hardened one-core SD root. Exercise its fail-closed identity gates, early ttydc0 console, OpenRC boot, and PID-1 shutdown pivot; then use the repair image in check-only mode to prove exFAT and ext4 remained clean.",
+  "desc": "After ticket 215 passes, install and verify the reproducible Alpine SD-root daily-v2 object. Exercise its read-only hardware/card/image/filesystem identity gates, early ttydc0 console, OpenRC boot, panel+i3, WiFi/BT firmware loaded before switch_root, and PID-1 shutdown pivot; then use the repair image in check-only mode to prove exFAT and ext4 remained clean. The daily DT deliberately disables ANS/NVMe to avoid the known CQ-wrap assert and disables system-PMU SPMI plus macsmc RTC/reboot under the current SPMI policy. Filesystems must unmount cleanly; the final hardware reboot/poweroff remains a separately reviewed blocker and may no-op.",
   "author": "sol",
   "deps": [
     "215"
   ],
   "hashes": {
+    "m1n1-alpine-sdroot-daily-v2.bin": "bdd8cc865081a2041e587d1bb30495ca0bb65da305552dd4b6679cba66c5f5a5",
     "m1n1-sdroot-hardened.bin": "97a304880e35e268e846273c23ed38bddf1a837ca431590a855e03e56d5e8c9f",
-    "Image-sdroot-hardened": "bcc1ea09479f89e1dbf286721b62a7c89e147385362d3c496cf05b25168118c4",
-    "config": "96e83d858ddbbcf19027d3ea56411158f75ae75fe4c42c0b03dbdd28b6da3eee",
-    "t6040-j614s-dcuart-sdroot-hardened.dtb": "879caa5abc565977315ec1b359174307efa10e7769676258a5a7eb19e6f3e1e5",
-    "initramfs-sdroot-hardened.cpio.gz": "a412a2841f0b995ec6cf7f0a09a14c2fee5f4f69873bde902ada40b8ba02c6d3",
-    "scripts/t6040-build-sdroot-initramfs.sh": "745450ca0ccf7fb884fb8aaa0324dc87ed677953a01416e38958966c20757f92",
-    "initramfs-bootstrap-sdroot-fsck.cpio.gz": "71b725dc1e3eb17a4d5eb22b6adcffdabfa123c2725ec38c6e30848aacfeae1b",
-    "scripts/t6040-sdroot-fsck.sh": "b66a74c53b5ed4e5c77c57afc5ed6cb6900a67879c28a132de84551f15b8a1b5",
+    "Image-alpine-sdroot-daily-v2": "3e129466d612d176b0d52ddd2a004ed89a920b8e2f3a38f39504cda4059d04f2",
+    "Image-alpine-sdroot-daily-v2.raw-object.gz": "b5d33b3335475e36ac14158fc01514e506956fb1448c2296cf84890f5d8b7b27",
+    "System.map-alpine-sdroot-daily-v2": "3045396bd8ac86ff9c4073496818f74dfe1cdc4939a31cf963aff52112fc7fa6",
+    "config-alpine-sdroot-daily-v2": "251f19e8d01e07ba0a11f3db370df7760ce00cc686e0227268b94bbc5b660125",
+    "t6040-j614s-dcuart-wifi-cpufreq-sdroot.dtb": "c5c3b4c38b24748f95e06fd3cc39b348326783a58feb7029d9273a5b23dd7e72",
+    "dts/t6040-j614s-dcuart-wifi-cpufreq-sdroot.dts": "0706d4222baa65584fd7a719be69c2f3f35c31b903226434e9ab4836f1b3d29d",
+    "initramfs-sdroot-daily-v2.cpio.gz": "7fe674e28a152ef0abda86525487c271b7bea7d8a9b481baba5faeb7f2175ec3",
+    "initramfs-sdroot-wifi-base-59764944.cpio.gz": "59764944c4aad38189df5ee05a190c5ce60fd44727482105e4f20df7d8c7edc1",
+    "scripts/t6040-build-sdroot-initramfs.sh": "6b00789cd75c87a19504ac62006151ab5dea1637d01e6cb3bf8b819efe7e5773",
     "scripts/t6040-sdroot-apply": "457f4b9453e334875ca12770deefd1a1823f06283d6acbdb395e62f61ac6ce2f",
     "scripts/t6040-sdroot-apply-remote": "a6660f57cce126004d9f9baba131da7c23158f97c8e73b7e4170f050df8172e5",
-    "scripts/t6040-sdroot-init": "d920c2c1877d80aae518403e7709ca0f03777a5c9f1483e158b7fb9611150d86",
+    "scripts/t6040-sdroot-init": "d0f55c5635ab8e65b25e64773223a2c6bc0923cca13bd88b2f4f4136da5092ff",
     "scripts/t6040-sdroot-shutdown": "afb2433edf6c81de760e625c3a4132a3e2b82fd258aa3ce79398b66cbd13ee2f",
     "scripts/t6040-sdroot-inittab": "d92897ffb5a3ea0dc143885d2b130ec8d535c44c74e63e1ad8a98bb0a680d4b7",
     "scripts/t6040-sdroot-early-console": "9fba64d6d3579cc2538e40fdff68efc3bf912214483b83d487fcf1e1d7c5e4d8",
@@ -32,14 +35,15 @@
   "apply": "scripts/t6040-sdroot-apply root@HOST",
   "shutdown": "/usr/local/sbin/poweroff",
   "postcheck": "T6040_SD_FSCK_APPROVED=SD64 T6040_SD_FSCK_MODE=check /usr/local/sbin/t6040-sdroot-fsck",
-  "pass": "SD64, image size, and ext4 UUID gates pass; ttydc0 precedes OpenRC; shutdown unmounts ext4 and exFAT and detaches the loop; postcheck is clean without repair.",
+  "pass": "SD64, image size, ext4 UUID, and clean-state gates pass; ttydc0 precedes OpenRC; panel+i3 and WiFi/BT return; shutdown unmounts ext4 and exFAT and detaches the loop; postcheck is clean without repair. Final reset may no-op because the PMU-backed reboot node is intentionally disabled.",
   "stop": "Any dirty or identity gate, hash mismatch, mount/pivot/unmount failure, repair request, PCIe/DART/kernel fault, or lost console.",
   "evidence": [
-    "evidence/2026-08-03-t6040-SD-ROOT-persistent-system.md"
+    "evidence/2026-08-03-t6040-SD-ROOT-persistent-system.md",
+    "evidence/2026-08-03-t6040-alpine-sdroot-daily-v2-offline-build.md"
   ],
   "created": 1785743994,
   "runnable": false,
   "approved_by": "cj",
   "approved_at": 1785744006,
-  "review_blocker": "Blocked on ticket 215 and independent exact review of the shutdown mount topology, PID-1 SIGQUIT/restart path, embedded scripts, userspace payload, and complete boot manifest."
+  "review_blocker": "Blocked on ticket 215 and independent exact review of object bdd8cc865081a2041e587d1bb30495ca0bb65da305552dd4b6679cba66c5f5a5: DTB disabled-node gates, paired firmware manifest, shutdown mount topology, PID-1 SIGQUIT/restart path, embedded scripts, userspace payload, and strict complete-object verification. The maintainer will separately create the third boot partition and install the object after review."
 }

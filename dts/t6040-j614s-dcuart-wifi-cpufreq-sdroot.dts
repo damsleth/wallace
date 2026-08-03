@@ -1,0 +1,41 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * J614s one-core Alpine SD-root daily-driver DT.
+ *
+ * Keep the proven graphical/WiFi/BT/SD/cpufreq description, but leave ANS and
+ * the system-PMU SPMI bus disabled. The current ANS path asserts during
+ * ordinary partition scanning at the first I/O-CQ wrap. The project SPMI
+ * policy also excludes nub-spmi0/abbey PMU traffic, including the RTC and
+ * reboot nvmem cells. NVMe and macsmc-reboot experiments therefore use their
+ * own hash-pinned DTBs and tickets.
+ */
+
+#include "t6040-j614s-dcuart-wifi-cpufreq.dts"
+
+/ {
+	model = "Apple MacBook Pro (M4 Pro) J614s [Alpine SD root, NVMe and PMU SPMI disabled]";
+};
+
+&nub_spmi0 {
+	status = "disabled";
+};
+
+&smc_rtc {
+	status = "disabled";
+};
+
+&smc_reboot {
+	status = "disabled";
+};
+
+&ans_mbox {
+	status = "disabled";
+};
+
+&ans_sart {
+	status = "disabled";
+};
+
+&ans_nvme {
+	status = "disabled";
+};
