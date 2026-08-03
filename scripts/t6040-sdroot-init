@@ -56,9 +56,30 @@ fi
 $BB mkdir -p /newroot/mnt/sd
 $BB mount --move /sd /newroot/mnt/sd 2>/dev/null || say "warn: could not move the SD mount"
 
-say "switching to the SD root"
-$BB mount --move /dev /newroot/dev 2>/dev/null
-$BB mount --move /proc /newroot/proc 2>/dev/null
-$BB mount --move /sys /newroot/sys 2>/dev/null
+# Give the new root its own pseudo-filesystems. `mount --move` was used here
+# first and failed silently under 2>/dev/null, leaving /newroot/dev EMPTY --
+# so busybox init had no /dev/ttydc0 or /dev/console and produced no output at
+# all after switch_root (2026-08-03). devtmpfs is a single kernel-wide
+# instance, so mounting it again in the new root is safe and explicit.
+$BB mkdir -p /newroot/dev /newroot/proc /newroot/sys
+$BB mount -t devtmpfs none /newroot/dev || say "warn: devtmpfs in newroot FAILED"
+$BB mount -t proc none /newroot/proc    || say "warn: proc in newroot FAILED"
+$BB mount -t sysfs none /newroot/sys    || say "warn: sysfs in newroot FAILED"
+if [ -c /newroot/dev/ttydc0 ]; then
+    say "newroot /dev ok (ttydc0 present)"
+else
+    say "WARNING: /newroot/dev/ttydc0 missing -- console will be silent"
+fi
 
+# Diagnostic escape hatch: `sdroot.shell` on the kernel cmdline switches into
+# the SD root but execs a plain shell instead of /sbin/init. /dev/console is
+# ttydc0 (the last console= on the cmdline wins), so that shell is reachable
+# from the host -- use it to prove the root filesystem is sound independently
+# of whatever init is doing.
+if $BB grep -q sdroot.shell /proc/cmdline 2>/dev/null; then
+    say "switching to the SD root (DIAGNOSTIC SHELL, not /sbin/init)"
+    exec $BB switch_root /newroot /bin/busybox sh -i
+fi
+
+say "switching to the SD root"
 exec $BB switch_root /newroot /sbin/init
