@@ -49,7 +49,12 @@ attach_reader() {
 pkill -f "^cat $M1$" 2>/dev/null || true
 
 KERNEL_LOG_ARGS="${KERNEL_LOG_ARGS:-ignore_loglevel}"
-CMDLINE="maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 $KERNEL_LOG_ARGS${EXTRA_BOOTARGS:+ $EXTRA_BOOTARGS} rdinit=/init"
+# maxcpus and idle are overridable so experiments do not end up with two
+# conflicting copies on the cmdline (which made the ticket-205 idle=yield test
+# inconclusive on 2026-08-03 -- both idle=nop and idle=yield were present).
+BOOT_MAXCPUS="${BOOT_MAXCPUS:-1}"
+BOOT_IDLE="${BOOT_IDLE:-nop}"
+CMDLINE="maxcpus=$BOOT_MAXCPUS idle=$BOOT_IDLE nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 $KERNEL_LOG_ARGS${EXTRA_BOOTARGS:+ $EXTRA_BOOTARGS} rdinit=/init"
 
 echo "== chainload fresh m1n1 over $M1 =="
 CHAINLOAD_LOG="$OUT/dcuart-chainload.log"

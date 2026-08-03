@@ -81,3 +81,64 @@ throughout. Do not pursue the non-temporal angle.
 A **complete persistent Alpine daily driver exists today at maxcpus=1** (ticket 204): i3, WiFi, BT,
 cpufreq, RTC, keyboard backlight, and a real root filesystem on the SD card that survives reboots.
 Going multi-core is now this one well-scoped kernel bug.
+
+---
+
+# Round 2: a dependency-free reproducer, and a controlled 1-vs-2 result
+
+## The reproducer (`scripts/t6040-cow-repro.sh`)
+
+No toolchain needed — pure busybox. Fork N children that each write to a large inherited heap,
+forcing `do_wp_page`/`copy_page` for every page:
+
+```sh
+X=$(dd if=/dev/zero bs=1024 count=512 2>/dev/null | tr '\000' 'a')   # 512 KB heap
+i=0; while [ $i -lt 300 ]; do ( Y="${X}b"; echo "${#Y}" >/dev/null ) & i=$((i+1)); done; wait
+```
+
+## Controlled result — same loop, same heap, only core count differs
+
+| maxcpus | traces before | traces after | loop finished? |
+|---|---|---|---|
+| 2 | 0 | **3** | **no** — task killed |
+| 1 | 0 | **0** | **yes** — `COW-LOOP-DONE-1CPU` |
+
+The failing path, captured from the reproducer (not just the boot):
+
+```
+do_page_fault → do_bad_area → die_kernel_fault → arm64_force_sig_fault → make_task_dead → do_exit
+```
+
+`die_kernel_fault` confirms the fault is taken in **kernel mode**, matching the boot-time
+`copy_page+0x48` / `copy_highpage+0x70` / `do_wp_page` signature.
+
+**Why this matters:** every previous data point cost a full boot (~2 min). Now a single boot at
+maxcpus=2 gives a shell where the bug can be triggered on demand in ~40 s, and the same script is
+directly usable in an upstream bug report — no Wallace-specific boot machinery required.
+
+## `idle=yield` HANGS the boot — hypothesis untestable this way
+
+We always boot `idle=nop` because M4 loses CPU state on WFI, so idle cores spin; that is unusual and
+scales with core count, making it a natural suspect. Testing it needed a boot-script fix first:
+`t6040-boot-dcuart.sh` hardcoded `maxcpus=1 idle=nop`, so an `EXTRA_BOOTARGS` override produced
+**two** conflicting copies on the cmdline (`maxcpus=1 … maxcpus=2`, `idle=nop … idle=yield`) and the
+first attempt was inconclusive. Now overridable via `BOOT_MAXCPUS` / `BOOT_IDLE`.
+
+With a clean `maxcpus=2 idle=yield` cmdline the kernel produced **zero console output** (20 lines,
+m1n1 only) where `maxcpus=2 idle=nop` boots reliably. So `idle=yield` is not viable on this
+hardware and the idle-loop hypothesis cannot be tested by swapping the idle method. It would need
+either `idle=wfi` (expected to be worse — WFI is exactly what M4 mishandles) or an instrumented
+idle path.
+
+## Where round 2 leaves it
+
+Confirmed: a real SMP-dependent kernel-mode fault in the CoW page-copy path, reproducible on demand
+with a three-line shell script, clean at one CPU. Refuted so far: intra-cluster sharing, non-temporal
+stores, and (as a testing route) the idle method.
+
+Best next steps:
+1. Take the reproducer to **upstream/yuka** — this is now a clean report and t8132 may already know it.
+2. Instrument `copy_highpage`/`copy_page`: log the `x0`/`x1` page addresses and check alignment and
+   whether the destination is a page the kernel should own; a `WARN_ON` on non-page-aligned or
+   unexpected mapping would localise it fast, and the reproducer makes each attempt cheap.
+3. Check the Asahi tree for any CoW/cache-maintenance patch we are missing in this port.
