@@ -1,0 +1,50 @@
+#!/run/initramfs/bin/busybox sh
+# BusyBox init execs this as PID 1 for its SIGQUIT restart action.
+BB=/run/initramfs/bin/busybox
+ROOT=/run/initramfs
+
+say() { echo "sdroot-shutdown: $*" >/dev/console 2>/dev/null; }
+fail() {
+    say "STOP: $*"
+    say "Filesystems remain mounted; manual recovery is required."
+    exec "$BB" sh -i </dev/console >/dev/console 2>&1
+}
+
+[ "$$" -eq 1 ] || fail "shutdown program is not PID 1"
+ACTION=$($BB cat "$ROOT/action" 2>/dev/null || echo reboot)
+case "$ACTION" in reboot|poweroff) ;; *) fail "invalid action '$ACTION'" ;; esac
+
+say "syncing and detaching the SD root for $ACTION"
+$BB sync
+$BB umount /mnt/sd || fail "cannot unmount the /mnt/sd bind mount"
+
+cd "$ROOT" || fail "cannot enter shutdown tmpfs"
+$BB pivot_root . oldroot || fail "pivot_root back to shutdown tmpfs failed"
+cd /
+BB=/bin/busybox
+
+$BB mkdir -p /dev
+$BB mount -t devtmpfs none /dev || fail "cannot mount shutdown devtmpfs"
+say "running from shutdown tmpfs"
+
+$BB umount /oldroot/dev/pts 2>/dev/null || true
+$BB umount /oldroot/dev || fail "cannot unmount old-root devtmpfs"
+$BB umount /oldroot/proc || fail "cannot unmount old-root proc"
+$BB umount /oldroot/sys || fail "cannot unmount old-root sysfs"
+$BB mount -o remount,ro /oldroot || fail "cannot remount ext4 root read-only"
+$BB sync
+$BB umount /oldroot || fail "cannot unmount ext4 root"
+
+LOOP=$($BB cat /loopdev 2>/dev/null || true)
+if [ -n "$LOOP" ] && [ -b "$LOOP" ]; then
+    $BB losetup -d "$LOOP" || fail "cannot detach $LOOP"
+fi
+$BB sync
+$BB umount /sd || fail "cannot cleanly unmount SD64 exFAT"
+$BB sync
+say "SD64 and its ext4 root are cleanly unmounted"
+
+case "$ACTION" in
+    poweroff) exec $BB poweroff -f ;;
+    reboot)   exec $BB reboot -f ;;
+esac

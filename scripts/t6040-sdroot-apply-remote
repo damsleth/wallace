@@ -1,0 +1,87 @@
+#!/bin/sh
+# Remote half of t6040-sdroot-apply; run only inside the reviewed bootstrap.
+set -eu
+
+PAYLOAD=${1:?missing extracted payload directory}
+PART=/dev/mmcblk0p1
+SD=/mnt/sd
+ROOT=/mnt/root
+LOOP=
+
+cleanup() {
+    rc=$?
+    trap - EXIT INT TERM
+    sync
+    if mountpoint -q "$ROOT" && ! umount "$ROOT"; then
+        echo "STOP: cleanup could not unmount $ROOT"
+        rc=1
+    fi
+    if [ -n "$LOOP" ] && ! losetup -d "$LOOP" 2>/dev/null; then
+        echo "STOP: cleanup could not detach $LOOP"
+        rc=1
+    fi
+    if mountpoint -q "$SD" && ! umount "$SD"; then
+        echo "STOP: cleanup could not unmount $SD"
+        rc=1
+    fi
+    exit "$rc"
+}
+trap cleanup EXIT INT TERM
+
+mkdir -p "$SD" "$ROOT"
+[ "$(blkid -s LABEL -o value "$PART")" = SD64 ] || { echo "STOP: wrong SD label"; exit 1; }
+[ "$(blkid -s TYPE -o value "$PART")" = exfat ] || { echo "STOP: SD64 is not exFAT"; exit 1; }
+
+FLAGS=$(/bin/busybox dd if="$PART" bs=1 skip=106 count=2 2>/dev/null | /bin/busybox od -An -tu2)
+FLAGS=${FLAGS##* }
+[ -n "$FLAGS" ] && [ $((FLAGS & 2)) -eq 0 ] || {
+    echo "STOP: SD64 exFAT is dirty (VolumeFlags=${FLAGS:-unreadable}); do not mount RW"
+    exit 1
+}
+
+mount -t exfat -o rw "$PART" "$SD"
+[ "$(stat -c %s "$SD/wallace-root.img")" = 6442450944 ] || {
+    echo "STOP: unexpected wallace-root.img size"
+    exit 1
+}
+LOOP=$(losetup -f)
+losetup "$LOOP" "$SD/wallace-root.img"
+[ "$(blkid -s UUID -o value "$LOOP")" = 4c41b99c-7747-4688-85a5-397bc5d784a2 ] || {
+    echo "STOP: unexpected ext4 root UUID"
+    exit 1
+}
+[ "$(blkid -s TYPE -o value "$LOOP")" = ext4 ] || { echo "STOP: root image is not ext4"; exit 1; }
+
+STATE=$(/bin/busybox dd if="$LOOP" bs=1 skip=1082 count=2 2>/dev/null | /bin/busybox od -An -tu2)
+STATE=${STATE##* }
+[ -n "$STATE" ] && [ "$STATE" -eq 1 ] || {
+    echo "STOP: ext4 root is not clean (s_state=${STATE:-unreadable})"
+    exit 1
+}
+
+mount -t ext4 -o rw "$LOOP" "$ROOT"
+[ -e "$ROOT/etc/inittab.pre-204-hardening" ] || \
+    cp -p "$ROOT/etc/inittab" "$ROOT/etc/inittab.pre-204-hardening"
+cp "$PAYLOAD/t6040-sdroot-inittab" "$ROOT/etc/inittab"
+cp "$PAYLOAD/t6040-sdroot-early-console" "$ROOT/usr/local/sbin/t6040-sdroot-early-console"
+cp "$PAYLOAD/t6040-sdroot-openrc" "$ROOT/usr/local/sbin/t6040-sdroot-openrc"
+cp "$PAYLOAD/t6040-sdroot-powerctl" "$ROOT/usr/local/sbin/t6040-sdroot-powerctl"
+chmod 0644 "$ROOT/etc/inittab"
+chmod 0755 "$ROOT/usr/local/sbin/t6040-sdroot-early-console" \
+    "$ROOT/usr/local/sbin/t6040-sdroot-openrc" \
+    "$ROOT/usr/local/sbin/t6040-sdroot-powerctl"
+ln -sf t6040-sdroot-powerctl "$ROOT/usr/local/sbin/reboot"
+ln -sf t6040-sdroot-powerctl "$ROOT/usr/local/sbin/poweroff"
+
+echo "installed hashes:"
+sha256sum "$ROOT/etc/inittab" \
+    "$ROOT/usr/local/sbin/t6040-sdroot-early-console" \
+    "$ROOT/usr/local/sbin/t6040-sdroot-openrc" \
+    "$ROOT/usr/local/sbin/t6040-sdroot-powerctl"
+sync
+umount "$ROOT"
+losetup -d "$LOOP"
+LOOP=
+umount "$SD"
+trap - EXIT INT TERM
+echo "APPLIED: SD64 and ext4 root cleanly unmounted"

@@ -1,0 +1,45 @@
+{
+  "seq": "216",
+  "slug": "sdroot-hardened-clean-shutdown",
+  "needs": "rig",
+  "state": "approved",
+  "track": "storage",
+  "priority": "P1",
+  "desc": "After ticket 215 passes, install and verify the hardened one-core SD root. Exercise its fail-closed identity gates, early ttydc0 console, OpenRC boot, and PID-1 shutdown pivot; then use the repair image in check-only mode to prove exFAT and ext4 remained clean.",
+  "author": "sol",
+  "deps": [
+    "215"
+  ],
+  "hashes": {
+    "m1n1-sdroot-hardened.bin": "97a304880e35e268e846273c23ed38bddf1a837ca431590a855e03e56d5e8c9f",
+    "Image-sdroot-hardened": "bcc1ea09479f89e1dbf286721b62a7c89e147385362d3c496cf05b25168118c4",
+    "config": "96e83d858ddbbcf19027d3ea56411158f75ae75fe4c42c0b03dbdd28b6da3eee",
+    "t6040-j614s-dcuart-sdroot-hardened.dtb": "879caa5abc565977315ec1b359174307efa10e7769676258a5a7eb19e6f3e1e5",
+    "initramfs-sdroot-hardened.cpio.gz": "a412a2841f0b995ec6cf7f0a09a14c2fee5f4f69873bde902ada40b8ba02c6d3",
+    "scripts/t6040-build-sdroot-initramfs.sh": "745450ca0ccf7fb884fb8aaa0324dc87ed677953a01416e38958966c20757f92",
+    "initramfs-bootstrap-sdroot-fsck.cpio.gz": "71b725dc1e3eb17a4d5eb22b6adcffdabfa123c2725ec38c6e30848aacfeae1b",
+    "scripts/t6040-sdroot-fsck.sh": "b66a74c53b5ed4e5c77c57afc5ed6cb6900a67879c28a132de84551f15b8a1b5",
+    "scripts/t6040-sdroot-apply": "457f4b9453e334875ca12770deefd1a1823f06283d6acbdb395e62f61ac6ce2f",
+    "scripts/t6040-sdroot-apply-remote": "a6660f57cce126004d9f9baba131da7c23158f97c8e73b7e4170f050df8172e5",
+    "scripts/t6040-sdroot-init": "d920c2c1877d80aae518403e7709ca0f03777a5c9f1483e158b7fb9611150d86",
+    "scripts/t6040-sdroot-shutdown": "afb2433edf6c81de760e625c3a4132a3e2b82fd258aa3ce79398b66cbd13ee2f",
+    "scripts/t6040-sdroot-inittab": "d92897ffb5a3ea0dc143885d2b130ec8d535c44c74e63e1ad8a98bb0a680d4b7",
+    "scripts/t6040-sdroot-early-console": "9fba64d6d3579cc2538e40fdff68efc3bf912214483b83d487fcf1e1d7c5e4d8",
+    "scripts/t6040-sdroot-openrc": "47e7504d7060870411a13219e1ac2ddd6ad6e360d7e6963018e5582de77304c1",
+    "scripts/t6040-sdroot-powerctl": "791c0f8a5e344335f5b45eba3e52205b54d6535d554cd1ffc11eeb6f9706d2e9"
+  },
+  "bootargs": "maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel console=ttydc0 rdinit=/init",
+  "apply": "scripts/t6040-sdroot-apply root@HOST",
+  "shutdown": "/usr/local/sbin/poweroff",
+  "postcheck": "T6040_SD_FSCK_APPROVED=SD64 T6040_SD_FSCK_MODE=check /usr/local/sbin/t6040-sdroot-fsck",
+  "pass": "SD64, image size, and ext4 UUID gates pass; ttydc0 precedes OpenRC; shutdown unmounts ext4 and exFAT and detaches the loop; postcheck is clean without repair.",
+  "stop": "Any dirty or identity gate, hash mismatch, mount/pivot/unmount failure, repair request, PCIe/DART/kernel fault, or lost console.",
+  "evidence": [
+    "evidence/2026-08-03-t6040-SD-ROOT-persistent-system.md"
+  ],
+  "created": 1785743994,
+  "runnable": false,
+  "approved_by": "cj",
+  "approved_at": 1785744006,
+  "review_blocker": "Blocked on ticket 215 and independent exact review of the shutdown mount topology, PID-1 SIGQUIT/restart path, embedded scripts, userspace payload, and complete boot manifest."
+}

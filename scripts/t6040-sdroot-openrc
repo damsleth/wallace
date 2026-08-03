@@ -1,0 +1,21 @@
+#!/bin/sh
+# Keep BusyBox init as PID 1 in diagnostic mode so clean shutdown still works.
+set -eu
+
+if /bin/busybox grep -qw sdroot.shell /proc/cmdline 2>/dev/null; then
+    echo "sdroot: diagnostic mode; skipping $*" >/dev/console
+    exit 0
+fi
+
+case "${1:-}" in
+    net)
+        exec /bin/sh /usr/local/sbin/t6040-net-up
+        ;;
+    sysinit|boot|default|shutdown)
+        exec /sbin/openrc "$1"
+        ;;
+    *)
+        echo "sdroot: invalid OpenRC wrapper action '${1:-}'" >/dev/console
+        exit 2
+        ;;
+esac

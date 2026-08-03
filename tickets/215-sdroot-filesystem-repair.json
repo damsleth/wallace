@@ -1,0 +1,35 @@
+{
+  "seq": "215",
+  "slug": "sdroot-filesystem-repair",
+  "needs": "rig",
+  "state": "approved",
+  "track": "storage",
+  "priority": "P1",
+  "desc": "Repair the dirty SD64 exFAT fixture and its known ext4 loop image before any further SD-root write. The pinned script accepts only clean/error-found assessment codes, permits only automatic fsck repairs, then repeats read-only checks for ext4 and for exFAT after its final unmount. No repartition, reformat, file deletion, arbitrary raw write, or new hardware-write surface.",
+  "author": "sol",
+  "deps": [
+    "193"
+  ],
+  "hashes": {
+    "m1n1-sdroot-hardened.bin": "97a304880e35e268e846273c23ed38bddf1a837ca431590a855e03e56d5e8c9f",
+    "Image-sdroot-hardened": "bcc1ea09479f89e1dbf286721b62a7c89e147385362d3c496cf05b25168118c4",
+    "t6040-j614s-dcuart-sdroot-hardened.dtb": "879caa5abc565977315ec1b359174307efa10e7769676258a5a7eb19e6f3e1e5",
+    "config": "96e83d858ddbbcf19027d3ea56411158f75ae75fe4c42c0b03dbdd28b6da3eee",
+    "initramfs-bootstrap-sdroot-fsck.cpio.gz": "71b725dc1e3eb17a4d5eb22b6adcffdabfa123c2725ec38c6e30848aacfeae1b",
+    "scripts/t6040-sdroot-fsck.sh": "b66a74c53b5ed4e5c77c57afc5ed6cb6900a67879c28a132de84551f15b8a1b5",
+    "scripts/t6040-build-sdroot-fsck-initramfs.sh": "5992f40e55a01408dfdb71b61757d868674c654dfc0791b3a80c6d8380d89c80",
+    "exfatprogs-1.4.1-r0.apk": "434d1baa4d58ae4a7d5b61de3e24a371c38735a46ec999c2d047a011fd0a2e64"
+  },
+  "bootargs": "maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel console=ttydc0 rdinit=/init",
+  "command": "T6040_SD_FSCK_APPROVED=SD64 /usr/local/sbin/t6040-sdroot-fsck",
+  "pass": "Both post-repair read-only checks return clean; the loop detaches and SD64 unmounts cleanly.",
+  "stop": "Any identity/hash mismatch, fsck result requiring non-automatic repair, mount or unmount failure, PCIe/DART/kernel fault, or lost console.",
+  "evidence": [
+    "evidence/2026-08-03-t6040-SD-ROOT-persistent-system.md"
+  ],
+  "created": 1785743968,
+  "runnable": false,
+  "approved_by": "cj",
+  "approved_at": 1785744006,
+  "review_blocker": "Independent exact review must verify the repair/check modes, assessment exit-code gates, pinned package and artifact members, identity gates, automatic-only policy, final post-unmount exFAT check, and stop conditions before queue ready."
+}

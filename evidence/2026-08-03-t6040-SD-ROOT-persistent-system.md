@@ -1,140 +1,119 @@
-# SD-root: a persistent Alpine system on the SD card (ticket 204)
+# T6040 SD root: working at one core, integrity hardening pending
 
-2026-08-03 autonomous session. Built on the 193 SD result. **Boots and switch_roots; userspace
-services not yet up** — status and the exact remaining work are at the bottom.
+Date: 2026-08-03
 
-## Why this architecture
+Ticket: 204
 
-The 99 MB i3 RAM image loses a race during boot: it booted at maxcpus **1 and 4** but hung at
-**3 and 5**, and earlier booted once at 5. Non-monotonic ⇒ a **race**, not a maxcpus threshold;
-the big initramfs just widens the window. So the fix is to stop shipping a big initramfs at all.
+Result: **PARTIAL PASS** — the root path works at `maxcpus=1`; the fixture is
+currently dirty and must not be mounted read/write before ticket 215.
 
-Layout, deliberately non-destructive to CJ's card (**no repartitioning, no reformat**):
+## Proven path
 
+The existing `SD64` exFAT partition was not repartitioned or reformatted. It
+contains `wallace-root.img`, a 6 GiB ext4 filesystem used as `/`:
+
+```text
+GL9755 -> mmcblk0p1 (SD64, exFAT) -> wallace-root.img -> loop0 (ext4) -> /
 ```
-SD p1 (exFAT, CJ's own)  ->  /mnt/sd
-  wallace-root.img       ->  6 GiB ext4 image, loop-mounted as /
-initramfs-sdroot.cpio.gz ->  1.8 MB expanded (55x smaller than the i3 image)
-```
 
-Requirements all builtin already: `BLK_DEV_LOOP=y`, `EXT4_FS=y`, `EXFAT_FS=y`, `MMC_BLOCK=y`.
+At `maxcpus=1`, the system reached:
 
-## What works
-
-- `mkfs.ext4` + loop mount on the card: **OK**
-- Alpine bootstrapped with `apk --root`: **197 packages, 377 MB** — i3, Xorg, st, dmenu, wpa_supplicant,
-  bluez, openssh, e2fsprogs, git/vim/htop, tzdata, Norwegian keymaps
-- `initramfs-sdroot` mounts the card, loop-mounts the image, and **switch_roots**: `sdroot:
-  switching to the SD root`, `Freeing initrd memory: 960K`
-- **OpenRC starts from the SD root**: `OpenRC 0.63.2 is starting up Linux 7.1.3 (aarch64)`
-
-## The SMP bug is broader than "unpack_to_rootfs"
-
-The SD-root boot at maxcpus=5 produced `copy_page → copy_user_highpage → do_wp_page` — a
-**copy-on-write** fault, not an initramfs unpack fault, but the same memory-corruption family.
-At **maxcpus=1 the same boot produced zero call traces.** So this is a general MM/SMP fault on
-this hardware that initramfs unpack merely exercises first and hardest. Ticket 121's framing
-("maxcpus>=6 faults in unpack_to_rootfs") is too narrow and should be rewritten.
-
-## Three self-inflicted bugs worth remembering
-
-1. **`sh -s` eats heredocs.** Piping a config script to `ssh 'sh -s'` makes every internal
-   `cat > file <<EOF` read from the *same stdin*, so files land **0 bytes**. `t6040-net-up` and
-   the console script were empty — an empty file execs as **"Exec format error"**, which is what
-   the panel showed. Fix: pass the script as an *argument* (`ssh host "$(cat script.sh)"`).
-2. **The minimal initramfs busybox has only 10 applet symlinks** (busybox, cat, dmesg, echo, ls,
-   mount, poweroff, sh, sleep, uname). `mkdir` and `switch_root` have none, so calling them bare
-   exits 127 → `Attempted to kill init! exitcode=0x00007f00`. Always invoke via `$BB applet`.
-3. **Alpine has no `/sbin/agetty`.** `tty1::respawn:/sbin/agetty …` spins forever with
-   "No such file or directory". Use busybox `setsid sh -i <>/dev/ttyX`.
-
-## Status and what remains
-
-The system switch_roots and OpenRC runs, but **no console appears on ttydc0 or tty1 and sshd does
-not come up**, so the boot cannot yet be driven. The inittab was rewritten (console entries first,
-busybox-only, no wrapper scripts, `openrc default` demoted to `::once:` so it can never block the
-console) and `authorized_keys` repaired (98 bytes), but the boot after those fixes still showed no
-console. Next steps, in order:
-
-1. Read the **panel** (`console=tty0`) during an SD-root boot — it carries OpenRC's output and any
-   init error, and is independent of whatever is failing on ttydc0.
-2. If OpenRC is hanging, drop it entirely for a first pass: inittab with only the two console
-   respawns and `::once:` networking; add services back one at a time.
-3. Once a console exists, verify persistence (`/root/boot-log.txt` accumulates a line per boot),
-   then start X and confirm i3 on the panel.
-
-Artifacts: `initramfs-sdroot.cpio.gz` (`1a8c4599…`), `initramfs-bootstrap-sdroot.cpio.gz`
-(`ae815319…`, headless WiFi + e2fsprogs + apk, 49.8 MB — the image used to build and repair the
-card, reachable over SSH at 192.168.10.157). `scripts/t6040-sdroot-init` is the switch-root init.
-
----
-
-# ✅ RESOLVED: the SD root works, and the whole blocker is ONE kernel bug
-
-## It works
-
-Booted with `/sbin/init` at `maxcpus=1`:
-
-```
+```text
 sdroot: newroot /dev ok (ttydc0 present)
 sdroot: switching to the SD root
-   OpenRC 0.63.2 is starting up Linux 7.1.3-gcd5da1d058e3-dirty (aarch64)
- * Starting System Message Bus ... [ ok ]
- * Starting Bluetooth ... [ ok ]
-~ # hostname; nproc; df -h /
-t6040
-1
-/dev/loop0   5.8G   371.3M   5.1G   7%   /
+OpenRC 0.63.2 is starting up Linux 7.1.3 (aarch64)
+hostname: t6040
+root: /dev/loop0, 5.8 GiB, about 371 MiB used
 ```
 
-**Persistence proven across a reboot** — `/root/boot-log.txt` accumulated:
+`/root/boot-log.txt` contained two different boot timestamps, proving that the
+ext4 image persisted writes across reboot. DockChannel console, OpenRC, D-Bus,
+and Bluetooth started in the successful one-core boot.
 
-```
-boot Mon Aug  3 06:47:30 UTC 2026
-boot Mon Aug  3 06:50:51 UTC 2026
-```
+The rotating `dcuart-console.log` was later overwritten by SMP testing. The
+committed excerpt above remains, but there is no preserved, hash-pinned full
+transcript for that successful boot. Future tickets must use unique log names.
 
-Two different timestamps, written by two separate boots to the SD card. Note the dates are real:
-the SPMI/abbey RTC work is holding. Also confirmed live in this system:
-`/sys/class/leds/kbd_backlight` exists, `max_brightness` 255, and writing 255 succeeds — the fpwm0
-+ pwm-leds wiring from 2026-07-30 is functional at the sysfs level.
+## SMP boundary
 
-## The single remaining blocker, isolated
+The same small root fails with more than one CPU. Ticket 205 reduced this to a
+general MM/copy-on-write fault:
 
-`sdroot.shell` (switch_root into the SD root but exec a plain shell instead of init) gave the clean
-answer:
-
-| maxcpus | result |
+| CPUs | Result |
 |---|---|
-| 4 | shell **SIGSEGV** (`exitcode=0x0000000b`), `copy_page → do_wp_page`, panic |
-| 1 | **zero call traces, zero panics**, working shell, correct root |
+| 1 | clean repeated boot and shell |
+| 2 | non-init processes fault in kernel page-copy paths |
+| 3 or more | PID 1 commonly faults and the kernel panics |
 
-So the SD-root architecture is entirely sound and **every** daily-driver symptom we have been
-chasing — the i3 image failing to boot, the SD-root userspace dying, the `unpack_to_rootfs` fault —
-is the *same* kernel memory bug appearing under SMP. It is not initramfs-specific, not image-size
-specific, and not architecture-specific to this design; those factors only change how likely the
-race is to fire.
+This is not specific to initramfs size or SD storage. Use `maxcpus=1` for the
+SD-root acceptance path until ticket 205 is resolved.
 
-**Consequence for the project:** a persistent, complete Alpine daily driver on the SD card exists
-today at `maxcpus=1`. Getting it to 4-5 cores is now a single, well-scoped kernel bug rather than a
-pile of unrelated boot failures. Ticket 121 should be rewritten around `do_wp_page`/`copy_page` CoW
-corruption under SMP, with the `unpack_to_rootfs` signature demoted to one symptom among several.
+## Integrity problem found during review
 
-## How to boot it
+Later panic-driven runs recorded both:
 
-```
-EXTRA_BOOTARGS='maxcpus=1 console=ttydc0'   initramfs-sdroot.cpio.gz
+```text
+exFAT-fs (mmcblk0p1): Volume was not properly unmounted
+EXT4-fs (loop0): recovery complete
 ```
 
-Add `sdroot.shell` to get a bare shell instead of init (diagnostics). The card holds everything;
-edit files on it directly instead of rebuilding an object.
+The original design mounted the outer exFAT filesystem and the loop ext4 root
+read/write but had no way to detach them before reboot. Ticket 204 is therefore
+not complete, despite the successful userspace boot.
 
-## ⌨️ Keyboard backlight CONFIRMED (ticket 164)
+No further SD-root read/write mount is permitted until ticket 215 runs the
+reviewed automatic-only repair and repeats read-only checks for both
+filesystems.
 
-CJ visually verified on 2026-08-03: `echo 255 > /sys/class/leds/kbd_backlight/brightness` **lights
-the keys**. This closes the keyboard half of the backlight work end to end — ADT decode
-(`/arm-io/pwm0/kbd-backlight` is a plain s5l fpwm, not a HID or SMC path) → `fpwm0@429040000` +
-`pwm-leds` in the DTS → `PWM_APPLE`/`LEDS_PWM` builtin → working sysfs LED at `max_brightness`
-255. `brightnessctl` and most desktop environments will pick it up with no extra work.
+## Hardened candidate
 
-The **panel** backlight is a different device and remains DCP-blocked (ticket 022).
+The offline replacement adds:
+
+- exact `LABEL=SD64`, exFAT type, image-size, and ext4-UUID checks;
+- direct exFAT and ext4 clean-state checks before any read/write mount;
+- fatal handling for mount, pseudo-filesystem, tty, and root-identity failures;
+- a DockChannel console started before blocking OpenRC work;
+- diagnostic `sdroot.shell` mode that keeps BusyBox init as PID 1;
+- a shutdown tmpfs and BusyBox `restart` action that pivots away from the ext4
+  root, unmounts it, detaches the loop, unmounts exFAT, then powers off.
+- a repair image stripped of standalone partitioning, formatting, resize,
+  label, discard, and PCI-configuration tools outside the ticket's scope.
+
+Two clean initramfs builds were byte-identical.
+
+| Artifact | SHA-256 |
+|---|---|
+| `m1n1-sdroot-hardened.bin` | `97a304880e35e268e846273c23ed38bddf1a837ca431590a855e03e56d5e8c9f` |
+| `Image-sdroot-hardened` | `bcc1ea09479f89e1dbf286721b62a7c89e147385362d3c496cf05b25168118c4` |
+| kernel config | `96e83d858ddbbcf19027d3ea56411158f75ae75fe4c42c0b03dbdd28b6da3eee` |
+| hardened DTB | `879caa5abc565977315ec1b359174307efa10e7769676258a5a7eb19e6f3e1e5` |
+| hardened initramfs | `a412a2841f0b995ec6cf7f0a09a14c2fee5f4f69873bde902ada40b8ba02c6d3` |
+| repair initramfs | `71b725dc1e3eb17a4d5eb22b6adcffdabfa123c2725ec38c6e30848aacfeae1b` |
+
+The config has `MMC`, `MMC_BLOCK`, `MMC_SDHCI`, `MMC_SDHCI_PCI`, `EXFAT_FS`,
+`VFAT_FS`, `EXT4_FS`, `BLK_DEV_LOOP`, and `TMPFS` built in.
+The initramfs carries BusyBox `mount`, `umount`, `ls`, `findfs`, `blkid`,
+`losetup`, `sha256sum`, and the other ticket commands; the repair image adds
+only the pinned `fsck.exfat` implementation needed beyond the existing
+`e2fsck` path.
+
+## Stop and next
+
+1. Ticket 215: independently review, repair, and recheck SD64 and the ext4 image.
+2. Ticket 216: apply the root configuration, boot at one core, exercise the
+   clean shutdown pivot, then prove both filesystems remain clean.
+3. Close ticket 204 only after ticket 216 passes with a uniquely named,
+   hash-pinned transcript.
+
+No new SMC key, SPMI, PMU, charger, NVRAM, firmware, repartition, or reformat is
+part of either candidate.
+
+## Flagged follow-on: untethered stage 2
+
+Do not build this yet. U-Boot already has Apple PCIe and generic PCI SDHCI
+support, so the GL9755 could plausibly hold an untethered stage-2 object, but
+U-Boot cannot read the card's existing exFAT filesystem. That route would need
+a separate FAT32 partition and therefore an explicitly approved repartition.
+It also duplicates the internal-NVMe stage-2 design in tickets 190/191. SD is
+the simpler removable recovery medium; NVMe is the cleaner permanent path if
+its Linux/firmware handoff and integrity model can be made reliable.

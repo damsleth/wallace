@@ -1,0 +1,13 @@
+#!/bin/sh
+# Request the clean ticket-204 shutdown path instead of BusyBox's direct reboot.
+set -eu
+
+ACTION=${1:-${0##*/}}
+case "$ACTION" in reboot|poweroff) ;; *) echo "usage: $0 reboot|poweroff" >&2; exit 2 ;; esac
+[ -x /run/initramfs/shutdown ] || { echo "shutdown tmpfs is unavailable" >&2; exit 1; }
+printf '%s\n' "$ACTION" >/run/initramfs/action
+/bin/busybox sync
+/bin/busybox kill -QUIT 1
+/bin/busybox sleep 10
+echo "PID 1 did not enter the clean shutdown path" >&2
+exit 1

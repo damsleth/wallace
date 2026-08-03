@@ -1,24 +1,22 @@
-#!/bin/sh
-# Apply repo-side SD-root config onto the card, run FROM the bootstrap image
-# (initramfs-bootstrap-sdroot.cpio.gz) over ssh. Usage:
-#   ssh root@<m4> "$(cat scripts/t6040-sdroot-apply)"      <-- as an ARGUMENT
-# NEVER pipe this to `sh -s`: internal heredocs would read from the same stdin
-# and land 0-byte files (an empty file execs as "Exec format error"), which cost
-# a full debugging cycle on 2026-08-03.
-set -e
-mkdir -p /mnt/sd /mnt/root
-mountpoint -q /mnt/sd   || mount /dev/mmcblk0p1 /mnt/sd
-mountpoint -q /mnt/root || mount -o loop /mnt/sd/wallace-root.img /mnt/root
-R=/mnt/root
-cat > $R/etc/inittab <<'XEOF'
-ttydc0::respawn:/bin/busybox sh -i
-tty1::respawn:/bin/busybox sh -l
-::sysinit:/sbin/openrc sysinit
-::sysinit:/sbin/openrc boot
-::once:/sbin/openrc default
-::once:/bin/sh /usr/local/sbin/t6040-net-up
-::ctrlaltdel:/sbin/reboot
-::shutdown:/sbin/openrc shutdown
-XEOF
-echo "inittab: $(wc -c < $R/etc/inittab) bytes"
-sync; umount $R; umount /mnt/sd; echo APPLIED
+#!/usr/bin/env bash
+# Install the reviewed ticket-204 userspace configuration through the bootstrap
+# image. The payload is a tar stream, so script input and file content cannot
+# consume each other.
+set -euo pipefail
+
+TARGET=${1:?usage: t6040-sdroot-apply root@HOST}
+ROOT=$(cd "$(dirname "$0")/.." && pwd)
+
+bsdtar -cf - -C "$ROOT/scripts" \
+    t6040-sdroot-apply-remote \
+    t6040-sdroot-inittab \
+    t6040-sdroot-early-console \
+    t6040-sdroot-openrc \
+    t6040-sdroot-powerctl |
+ssh "$TARGET" '
+    set -eu
+    payload=/tmp/t6040-sdroot-config.$$
+    mkdir -p "$payload"
+    tar -xf - -C "$payload"
+    exec /bin/sh "$payload/t6040-sdroot-apply-remote" "$payload"
+'

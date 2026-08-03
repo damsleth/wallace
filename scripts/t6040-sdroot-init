@@ -1,85 +1,141 @@
 #!/bin/busybox sh
-# /init for the TINY switch-root initramfs (ticket 204).
+# Fail-closed /init for the ticket-204 SD root.
 #
-# Why this exists: the 99 MB i3 RAM image loses a race in unpack_to_rootfs on
-# this hardware (see done/2026-08-02 SD doc and ticket 198) -- it booted at
-# maxcpus 1 and 4 but hung at 3 and 5, i.e. it is a race the image size widens,
-# not a clean maxcpus threshold. The fix is to stop shipping a big initramfs:
-# keep the RAM root at a few MB and put the real system on the SD card, which
-# is persistent anyway. This also makes iteration free -- edit files on the
-# card instead of rebuilding and re-enrolling an object.
-#
-# Layout: SD card p1 (exFAT, CJ's own card, NOT reformatted) holds
-# wallace-root.img, an ext4 image loop-mounted as the real root.
+# SD64 remains one exFAT partition. wallace-root.img is a 6 GiB ext4 image
+# used as /. A small tmpfs survives switch_root so a SIGQUIT restart action
+# can pivot away from the loop root, detach it, and unmount exFAT cleanly.
+
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 export PATH
-
-# This initramfs ships only a handful of applet symlinks (busybox, cat, dmesg,
-# echo, ls, mount, poweroff, sh, sleep, uname) even though the binary contains
-# every applet -- notably mkdir and switch_root have NO symlink, so calling
-# them bare exits 127 and the kernel panics with "Attempted to kill init".
-# Invoke everything through busybox explicitly.
 BB=/bin/busybox
-$BB mount -t proc none /proc
-$BB mount -t sysfs none /sys
-$BB mount -t devtmpfs none /dev
+PART=/dev/mmcblk0p1
+ROOT_UUID=4c41b99c-7747-4688-85a5-397bc5d784a2
+ROOT_BYTES=6442450944
+LOOP=""
 
-say() { echo "sdroot: $*" > /dev/kmsg 2>/dev/null; echo "sdroot: $*"; }
+say() {
+    echo "sdroot: $*" >/dev/kmsg 2>/dev/null
+    echo "sdroot: $*"
+}
 
-# The MMC host probes over PCIe, so the card node appears asynchronously.
+stop() {
+    say "STOP: $*"
+    say "No further card writes will be attempted; use the diagnostic shell."
+    exec "$BB" sh -i
+}
+
+mount_core() {
+    "$BB" mount -t proc none /proc || return 1
+    "$BB" mount -t sysfs none /sys || return 1
+    "$BB" mount -t devtmpfs none /dev || return 1
+}
+
+cleanup_root() {
+    "$BB" sync
+    "$BB" umount /newroot/mnt/sd 2>/dev/null || true
+    "$BB" umount /newroot/dev 2>/dev/null || true
+    "$BB" umount /newroot/proc 2>/dev/null || true
+    "$BB" umount /newroot/sys 2>/dev/null || true
+    "$BB" umount /newroot/run/initramfs/sd 2>/dev/null || true
+    "$BB" umount /newroot/run/initramfs 2>/dev/null || true
+    "$BB" umount /newroot 2>/dev/null || true
+    [ -z "$LOOP" ] || "$BB" losetup -d "$LOOP" 2>/dev/null || true
+    "$BB" umount /sd 2>/dev/null || true
+}
+
+mount_core || stop "cannot mount proc, sysfs, and devtmpfs"
+
+# The PCIe MMC host appears asynchronously.
 n=0
-while [ ! -b /dev/mmcblk0p1 ] && [ "$n" -lt 30 ]; do $BB sleep 1; n=$((n + 1)); done
-if [ ! -b /dev/mmcblk0p1 ]; then
-    say "FATAL: /dev/mmcblk0p1 never appeared after ${n}s"
-    exec $BB sh
-fi
+while [ ! -b "$PART" ] && [ "$n" -lt 30 ]; do
+    "$BB" sleep 1
+    n=$((n + 1))
+done
+[ -b "$PART" ] || stop "$PART did not appear after ${n}s"
 
-$BB mkdir -p /sd /newroot
-if ! $BB mount -t exfat /dev/mmcblk0p1 /sd 2>/dev/null && ! $BB mount /dev/mmcblk0p1 /sd; then
-    say "FATAL: cannot mount the SD card"
-    exec $BB sh
-fi
+# Resolve the maintainer-provided label and require that it names the expected
+# SD partition. The explicit exFAT mount below is the filesystem-type gate.
+LABEL_DEV=$("$BB" findfs LABEL=SD64 2>/dev/null || true)
+[ "$LABEL_DEV" = "$PART" ] || stop "LABEL=SD64 resolved to '${LABEL_DEV:-nothing}', expected $PART"
+
+# exFAT VolumeFlags is the little-endian word at byte 106; bit 1 means dirty.
+# Refuse RW mounting after a panic or unclean shutdown. Repair is a separate,
+# explicitly approved operation.
+FLAGS=$("$BB" dd if="$PART" bs=1 skip=106 count=2 2>/dev/null | "$BB" od -An -tu2)
+FLAGS=${FLAGS##* }
+[ -n "$FLAGS" ] || stop "could not read exFAT VolumeFlags"
+[ $((FLAGS & 2)) -eq 0 ] || stop "SD64 exFAT is dirty (VolumeFlags=$FLAGS); inspect/repair before RW use"
+
+"$BB" mkdir -p /sd /newroot
+"$BB" mount -t exfat -o ro "$PART" /sd || stop "SD64 did not mount as exFAT read-only"
+"$BB" umount /sd || stop "SD64 read-only identity mount would not unmount"
+"$BB" mount -t exfat -o rw "$PART" /sd || stop "SD64 did not mount as exFAT read-write"
 
 IMG=/sd/wallace-root.img
 if [ ! -f "$IMG" ]; then
-    say "FATAL: $IMG missing -- falling back to a shell"
-    exec $BB sh
+    "$BB" umount /sd 2>/dev/null || true
+    stop "$IMG is missing"
+fi
+IMG_BYTES=$("$BB" stat -c %s "$IMG" 2>/dev/null || true)
+if [ "$IMG_BYTES" != "$ROOT_BYTES" ]; then
+    "$BB" umount /sd 2>/dev/null || true
+    stop "$IMG has size '${IMG_BYTES:-unknown}', expected $ROOT_BYTES"
 fi
 
-if ! $BB mount -o loop "$IMG" /newroot; then
-    say "FATAL: cannot loop-mount $IMG"
-    exec $BB sh
+LOOP=$("$BB" losetup -f 2>/dev/null || true)
+[ -n "$LOOP" ] || { "$BB" umount /sd 2>/dev/null || true; stop "no free loop device"; }
+"$BB" losetup "$LOOP" "$IMG" || { "$BB" umount /sd 2>/dev/null || true; stop "cannot attach $IMG"; }
+
+UUID_DEV=$("$BB" findfs "UUID=$ROOT_UUID" 2>/dev/null || true)
+if [ "$UUID_DEV" != "$LOOP" ]; then
+    "$BB" losetup -d "$LOOP" 2>/dev/null || true
+    "$BB" umount /sd 2>/dev/null || true
+    stop "root UUID resolved to '${UUID_DEV:-nothing}', expected $LOOP"
 fi
 
-# Keep the card reachable from the real root: everything CJ wants to persist
-# outside the image (and the image itself) lives there.
-$BB mkdir -p /newroot/mnt/sd
-$BB mount --move /sd /newroot/mnt/sd 2>/dev/null || say "warn: could not move the SD mount"
+# ext4 s_state is the little-endian word at superblock offset 58. Require
+# EXT4_VALID_FS before allowing a writable root; do not replay a journal here.
+STATE=$("$BB" dd if="$LOOP" bs=1 skip=1082 count=2 2>/dev/null | "$BB" od -An -tu2)
+STATE=${STATE##* }
+[ -n "$STATE" ] || { cleanup_root; stop "could not read ext4 filesystem state"; }
+[ "$STATE" -eq 1 ] || { cleanup_root; stop "ext4 root is not clean (s_state=$STATE); inspect/repair before RW use"; }
 
-# Give the new root its own pseudo-filesystems. `mount --move` was used here
-# first and failed silently under 2>/dev/null, leaving /newroot/dev EMPTY --
-# so busybox init had no /dev/ttydc0 or /dev/console and produced no output at
-# all after switch_root (2026-08-03). devtmpfs is a single kernel-wide
-# instance, so mounting it again in the new root is safe and explicit.
-$BB mkdir -p /newroot/dev /newroot/proc /newroot/sys
-$BB mount -t devtmpfs none /newroot/dev || say "warn: devtmpfs in newroot FAILED"
-$BB mount -t proc none /newroot/proc    || say "warn: proc in newroot FAILED"
-$BB mount -t sysfs none /newroot/sys    || say "warn: sysfs in newroot FAILED"
-if [ -c /newroot/dev/ttydc0 ]; then
-    say "newroot /dev ok (ttydc0 present)"
-else
-    say "WARNING: /newroot/dev/ttydc0 missing -- console will be silent"
-fi
+"$BB" mount -t ext4 -o rw "$LOOP" /newroot || { cleanup_root; stop "cannot mount the ext4 root"; }
 
-# Diagnostic escape hatch: `sdroot.shell` on the kernel cmdline switches into
-# the SD root but execs a plain shell instead of /sbin/init. /dev/console is
-# ttydc0 (the last console= on the cmdline wins), so that shell is reachable
-# from the host -- use it to prove the root filesystem is sound independently
-# of whatever init is doing.
-if $BB grep -q sdroot.shell /proc/cmdline 2>/dev/null; then
-    say "switching to the SD root (DIAGNOSTIC SHELL, not /sbin/init)"
-    exec $BB switch_root /newroot /bin/busybox sh -i
-fi
+for required in /sbin/init /bin/busybox /etc/inittab \
+    /usr/local/sbin/t6040-sdroot-early-console \
+    /usr/local/sbin/t6040-sdroot-openrc \
+    /usr/local/sbin/t6040-sdroot-powerctl; do
+    [ -s "/newroot$required" ] || { cleanup_root; stop "new root is missing $required"; }
+done
 
-say "switching to the SD root"
-exec $BB switch_root /newroot /sbin/init
+# Preserve only the shutdown tools. The original initramfs root is discarded
+# by switch_root; this tmpfs remains mounted inside the real root.
+"$BB" mkdir -p /newroot/run/initramfs/bin /newroot/run/initramfs/oldroot \
+    /newroot/run/initramfs/sd /newroot/mnt/sd
+"$BB" mount -t tmpfs -o mode=0755,size=4m none /newroot/run/initramfs \
+    || { cleanup_root; stop "cannot mount the shutdown tmpfs"; }
+"$BB" mkdir -p /newroot/run/initramfs/bin /newroot/run/initramfs/oldroot \
+    /newroot/run/initramfs/sd
+"$BB" cp /bin/busybox /newroot/run/initramfs/bin/busybox \
+    || { cleanup_root; stop "cannot preserve busybox for shutdown"; }
+"$BB" cp /shutdown /newroot/run/initramfs/shutdown \
+    || { cleanup_root; stop "cannot preserve the shutdown program"; }
+echo "$LOOP" >/newroot/run/initramfs/loopdev
+echo reboot >/newroot/run/initramfs/action
+
+# Keep the exFAT mount outside the loop-root subtree. A bind mount exposes it
+# as /mnt/sd during normal operation; shutdown removes that view before pivot.
+"$BB" mount --move /sd /newroot/run/initramfs/sd \
+    || { cleanup_root; stop "cannot move SD64 under the shutdown tmpfs"; }
+"$BB" mount --bind /newroot/run/initramfs/sd /newroot/mnt/sd \
+    || { cleanup_root; stop "cannot expose SD64 at /mnt/sd"; }
+
+"$BB" mkdir -p /newroot/dev /newroot/proc /newroot/sys
+"$BB" mount -t devtmpfs none /newroot/dev || { cleanup_root; stop "newroot devtmpfs failed"; }
+"$BB" mount -t proc none /newroot/proc || { cleanup_root; stop "newroot proc failed"; }
+"$BB" mount -t sysfs none /newroot/sys || { cleanup_root; stop "newroot sysfs failed"; }
+[ -c /newroot/dev/ttydc0 ] || { cleanup_root; stop "newroot ttydc0 is missing"; }
+
+say "switching to the verified SD root"
+exec "$BB" switch_root /newroot /sbin/init

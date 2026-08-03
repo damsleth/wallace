@@ -1,19 +1,12 @@
-# /etc/inittab for the SD root (ticket 199).
-#
-# CRITICAL: busybox init does NOT do shell quoting or redirection. A line like
-#   ::respawn:/bin/busybox sh -c "exec sh -i <>/dev/ttydc0 >&0 2>&1"
-# is split on whitespace and the redirections are passed as literal argv, so the
-# entry silently fails -- that is why the 2026-08-03 SD-root boots reached
-# "sdroot: switching to the SD root" and then showed nothing at all.
-#
-# The correct mechanism is busybox init's OWN tty field: the id before the first
-# "::" is the device (with an implied /dev/ prefix), and init opens it as the
-# process's stdin/stdout. No redirection needed, no metacharacters.
-ttydc0::respawn:/bin/busybox sh -i
+# /etc/inittab for the ticket-204 SD root.
+# BusyBox runs action classes in fixed order. Start the DockChannel getty from
+# the first sysinit action so it remains available if a later OpenRC job hangs.
+::sysinit:/usr/local/sbin/t6040-sdroot-early-console
+::sysinit:/usr/local/sbin/t6040-sdroot-openrc sysinit
+::sysinit:/usr/local/sbin/t6040-sdroot-openrc boot
+::once:/usr/local/sbin/t6040-sdroot-openrc default
+::once:/usr/local/sbin/t6040-sdroot-openrc net
 tty1::respawn:/bin/busybox sh -l
-::sysinit:/sbin/openrc sysinit
-::sysinit:/sbin/openrc boot
-::once:/sbin/openrc default
-::once:/bin/sh /usr/local/sbin/t6040-net-up
-::ctrlaltdel:/sbin/reboot
-::shutdown:/sbin/openrc shutdown
+::ctrlaltdel:/usr/local/sbin/t6040-sdroot-powerctl reboot
+::shutdown:/usr/local/sbin/t6040-sdroot-openrc shutdown
+::restart:/run/initramfs/shutdown

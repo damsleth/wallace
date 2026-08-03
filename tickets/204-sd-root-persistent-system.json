@@ -2,17 +2,27 @@
   "seq": "204",
   "slug": "sd-root-persistent-system",
   "needs": "rig",
-  "state": "WORKING-at-maxcpus-1-persistent-verified",
+  "state": "blocked-dirty-filesystems-hardening-staged",
   "track": "boot",
   "priority": "P1",
-  "desc": "Persistent Alpine on the SD card via a 1.8 MB switch-root initramfs + 6 GiB ext4 loop image on CJ's exFAT partition (card NOT reformatted). Bootstrapped 197 packages / 377 MB with apk --root. switch_root WORKS and OpenRC starts; no console on ttydc0/tty1 and no sshd yet. Next: read the PANEL during an SD-root boot (console=tty0 carries OpenRC output), then strip inittab to console-only and add services back. Also proves the SMP fault is broader than unpack_to_rootfs: maxcpus=5 gives copy_page/copy_user_highpage/do_wp_page (CoW), maxcpus=1 gives zero traces. Doc: done/2026-08-03-t6040-SD-ROOT-persistent-system.md RESOLVED 2026-08-03: full system boots from the SD card at maxcpus=1 \u2014 hostname t6040, OpenRC + dbus + bluetooth up, root on /dev/loop0 (5.8G ext4 on the card), shell on ttydc0, and PERSISTENCE PROVEN (boot-log.txt accumulated two timestamped entries across a reboot; real dates, so the SPMI RTC holds). kbd_backlight confirmed present and writable (max_brightness 255). The sdroot.shell escape hatch isolated the ONLY blocker: at maxcpus=4 the first userspace process SIGSEGVs with copy_page/do_wp_page; at maxcpus=1 zero traces. All daily-driver boot failures are ONE kernel MM/SMP bug, not separate problems. Boot: EXTRA_BOOTARGS=\"maxcpus=1 console=ttydc0\" initramfs-sdroot.cpio.gz.",
+  "desc": "At maxcpus=1, GL9755 exposes SD64 and its ext4 loop root reaches ttydc0, OpenRC, and persistent writes. SMP panic tests later left both filesystems dirty. Ticket 215 owns repair; ticket 216 owns the fail-closed identity gates and clean PID-1 shutdown. Multi-core use remains blocked by ticket 205.",
   "author": "claude",
   "deps": [
     "193"
   ],
   "hashes": {
-    "initramfs-sdroot.cpio.gz": "1a8c4599b16f3d3b",
-    "initramfs-bootstrap-sdroot.cpio.gz": "ae815319e2d6d4b76cdfda09dd23b94f30908950907b1f8284192e637f82a097"
+    "proven-initramfs-sdroot.cpio.gz": "9d5cd5c48ae22b74261be90ee2ee2db15da24943659d656404a546fc3b7fdfba",
+    "hardened-m1n1.bin": "97a304880e35e268e846273c23ed38bddf1a837ca431590a855e03e56d5e8c9f",
+    "hardened-Image": "bcc1ea09479f89e1dbf286721b62a7c89e147385362d3c496cf05b25168118c4",
+    "hardened-config": "96e83d858ddbbcf19027d3ea56411158f75ae75fe4c42c0b03dbdd28b6da3eee",
+    "hardened-dtb": "879caa5abc565977315ec1b359174307efa10e7769676258a5a7eb19e6f3e1e5",
+    "hardened-initramfs": "a412a2841f0b995ec6cf7f0a09a14c2fee5f4f69873bde902ada40b8ba02c6d3",
+    "bootstrap-fsck-initramfs": "71b725dc1e3eb17a4d5eb22b6adcffdabfa123c2725ec38c6e30848aacfeae1b"
   },
+  "evidence": [
+    "evidence/2026-08-03-t6040-SD-ROOT-persistent-system.md"
+  ],
+  "runnable": false,
+  "review_blocker": "Tickets 215 and 216 require independent exact review and must run in order. The fixture is currently dirty; no SD-root RW mount is allowed before 215 passes.",
   "created": 1785736281
 }

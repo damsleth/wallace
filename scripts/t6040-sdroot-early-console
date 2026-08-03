@@ -1,0 +1,19 @@
+#!/bin/sh
+# Start a self-respawning DockChannel getty before blocking OpenRC sysinit jobs.
+set -u
+
+CONSOLE=/usr/local/sbin/t6040-b0-ttydc0-console
+if [ ! -x "$CONSOLE" ]; then
+    echo "sdroot: missing $CONSOLE" >/dev/console
+    exit 1
+fi
+
+(
+    while :; do
+        "$CONSOLE"
+        /bin/busybox sleep 1
+    done
+) </dev/null >/dev/null 2>&1 &
+
+echo "$!" >/run/t6040-sdroot-console.pid
+echo "sdroot: early ttydc0 console started" >/dev/console
