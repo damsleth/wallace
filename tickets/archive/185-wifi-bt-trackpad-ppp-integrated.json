@@ -2,7 +2,7 @@
   "seq": "185",
   "slug": "wifi-bt-trackpad-ppp-integrated",
   "needs": "rig",
-  "state": "approved",
+  "state": "superseded-by-ticket187-and-hidf197",
   "track": "integration",
   "priority": "P1",
   "desc": "Attended tethered chainload of /Users/damsleth/Code/linux-build-out/m1n1-dwm-wifi-bt-trackpad-ppp.bin SHA256 19690506050552ea73e67a4932a91e05773b64b86a40df753e68e3d6aa3f8fb4, size 35405824=2161*16KiB. Exact live-proven PCIe m1n1 28a4e0cf and WiFi DTB 0afb98ae; byte-reproduced 16K kernel 5d913da6 with PCIe/WiFi/BT/SDHCI, USB storage/UAS/usbnet, DockChannel nbcon, built-in multitouch and PPP async; byte-reproduced Alpine+dwm initramfs d11e5c41 with Norwegian keyboard, exact BCM4388 aliases, iw/wpa_supplicant, BlueZ helper, exact paired tpmtfw a1f4131d, and dual-ACM PPP. Kernel/initramfs pass m1n1 XzDecode; strict raw verifier PASS. Not an enrollment candidate: diagnostic m1n1 lacks 10-second dual-mode door. Live boot performs PCIe PHY writes, Linux SMC gP13/gP19 endpoint power, and may upload the exact non-persistent paired HIDF into volatile trackpad DMA when X/libinput opens it. Requires independent exact review, CJ attended, and explicit exception for only that exact a1f4131d volatile HIDF/interface reset; no flash/NVM, arbitrary firmware, PMU reset, SPMI or persistent write. PASS: wlan0 associates/DHCP, BlueZ sees hci0, multitouch event produces motion, PPP fallback enumerates; collect dmesg/health. Recover fresh Running proxy after chainload.",
@@ -20,5 +20,10 @@
   "artifact": "/Users/damsleth/Code/linux-build-out/m1n1-dwm-wifi-bt-trackpad-ppp.bin",
   "runnable": false,
   "approved_by": "maintainer",
-  "approved_at": 1785332574
+  "approved_at": 1785332574,
+  "archived": {
+    "at": 1785736860,
+    "by": "sol",
+    "reason": "superseded: no-HIDF daily path is reviewed and ticket 197 exposed the post-upload reset failure"
+  }
 }

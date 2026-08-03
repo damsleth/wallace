@@ -2,7 +2,7 @@
   "seq": "184",
   "slug": "wifi-ppp-network-smoke",
   "needs": "rig",
-  "state": "approved",
+  "state": "superseded-by-live-wifi-and-ticket187",
   "track": "network",
   "priority": "P1",
   "desc": "Attended tethered chainload of /Users/damsleth/Code/linux-build-out/m1n1-dwm-wifi-ppp-network.bin SHA256 32a4afe183e5a6f50518bda1fc698c29b2f01ff7db8ce26e0936652c4f55f837, size 33439744 = 2041*16KiB. Byte-reproducible strict-verified composition: live-proven PCIe V1 m1n1 28a4e0cf; reproducible 16K feature+PPP kernel xz 21a8651 with CONFIG_PPP/PPP_ASYNC, USB storage/UAS/usbnet, BRCMFMAC and nbcon; live-proven WiFi DTB 0afb98ae; minilzlib-safe Alpine+dwm initramfs 9326edba with Norwegian keyboard, iw/wpa_supplicant, live-proven BCM4388 c2-under-c0-WLMT-u mapping, and dual-ACM target pppd. WiFi PASS = t6040-wifi-connect associates, DHCP succeeds, known LAN peer pings. Optional same-boot PPP PASS = native tty or exact-product libusb PTY forms 10.42.0.1<->10.42.0.2 and pings both ways. No HPM/SPMI/persistent writes, but same live-proven PCIe-PHY writes and SMC gP13/gP19 endpoint power occur: attended-only, exact review + CJ approval, one PCIe init per power cycle. Chainload only; NOT enrollment/dual-mode candidate. Host pppd requires CJ to create empty root-owned /etc/ppp/options once. Evidence done/2026-07-29-t6040-wifi-ppp-network-candidate.md.",
@@ -16,5 +16,10 @@
   "created": 1785319386,
   "runnable": false,
   "approved_by": "maintainer",
-  "approved_at": 1785332574
+  "approved_at": 1785332574,
+  "archived": {
+    "at": 1785736860,
+    "by": "sol",
+    "reason": "superseded by live WiFi and Bluetooth plus reviewed dual-mode no-HIDF ticket 187"
+  }
 }

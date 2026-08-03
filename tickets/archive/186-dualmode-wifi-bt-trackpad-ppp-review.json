@@ -2,7 +2,7 @@
   "seq": "186",
   "slug": "dualmode-wifi-bt-trackpad-ppp-review",
   "needs": "offline",
-  "state": "open",
+  "state": "superseded-by-ticket187-and-hidf197",
   "track": "integration",
   "priority": "P1",
   "desc": "Offline exact-artifact review of enrollment candidate /Users/damsleth/Code/linux-build-out/m1n1-dwm-wifi-bt-trackpad-ppp-dualmode.bin SHA256 db8ab4e44119a0ace019359823d438c75b0773b4a628c84b4cfa8d2f6c933e48, size 35405824=2161*16KiB. Prefix ee58fa40 is two-build byte-reproducible from exact live-proven PCIe source 04e8829c plus only existing m1n1-dualmode-window.patch and EARLY_PROXY_TIMEOUT=10/EARLY_PROXY_UNCONDITIONAL/FB_CONSOLE_ALWAYS. Post-prefix bytes are exactly identical to strict-verified ticket185 chainload object (payload SHA 184d1e2f...). Reviewer must rederive source delta, 10s/DTR gate, PCIe BIT(4) provenance, exact members, XzDecode, strict layout, 16KiB alignment, non-persistent HIDF policy gate, and confirm no SPMI/PMU/charger/NVRAM/flash path. This is review only; do not enroll or run. After PASS, separately add exact hash to t6040-enroll-guard and hand CJ the 1TR-only enrollment plan.",
@@ -17,5 +17,10 @@
     "initramfs": "d11e5c416e95262ea48347def8f9be08f1c5a08b4bcf3f6a48f1803e194e7547"
   },
   "created": 1785323065,
-  "artifact": "/Users/damsleth/Code/linux-build-out/m1n1-dwm-wifi-bt-trackpad-ppp-dualmode.bin"
+  "artifact": "/Users/damsleth/Code/linux-build-out/m1n1-dwm-wifi-bt-trackpad-ppp-dualmode.bin",
+  "archived": {
+    "at": 1785736860,
+    "by": "sol",
+    "reason": "superseded: no-HIDF daily path is reviewed and ticket 197 exposed the post-upload reset failure"
+  }
 }
