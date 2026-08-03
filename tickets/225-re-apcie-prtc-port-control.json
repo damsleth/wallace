@@ -1,0 +1,15 @@
+{
+  "seq": "225",
+  "slug": "re-apcie-prtc-port-control",
+  "needs": "offline",
+  "state": "open",
+  "track": "pcie",
+  "priority": "P1",
+  "author": "claude",
+  "deps": [
+    "223"
+  ],
+  "hashes": null,
+  "created": 1785776092,
+  "desc": "FOR SOL (kernelcache RE). Ticket 223 pinned the 14-core pre-console boot hang to powering the BCM4388 via the gP13 SMC key write (gP19/SD is harmless). Every cheap avenue is now closed: the GPIO value (macOS 0x800001, verified refuted), a missing delay (pcie-apple already does the 100 ms Tpvperl msleep), the endpoint drivers (brcmfmac/BT/sdhci all disabled, still hangs), the SMC RTKit endpoint, the SMC sram window, and cpufreq. The ONE piece of ADT-derived information we have never implemented is: /device-tree/amfm function-pcie_port_control = PrtC(0x57), whose provider is phandle 86 = /arm-io/apcie0 (apcie,t6040) -- i.e. a PCIe-CONTROLLER platform function, not an SMC one. TASK: decode what macOS's APCIe driver does for the PrtC function with argument 0x57 -- which registers it touches, in what order, and its relationship to the gP13 power-on and to link training. Hypothesis worth testing in the decode: PrtC gates or masks something at the port (interrupts? link state?) that must be set BEFORE the endpoint is powered, and without it the freshly powered BCM4388 does something the host is not ready for -- which would explain a pre-console hang that scales with core count. CORRECTIONS to earlier notes, please do not propagate them: there is NO wlan_reg_on_on_delay property anywhere in either ADT capture (my error, withdrawn), and function-reg_on's value argument 0x800000 (|1 = 0x800001) matches your 2026-07-29 decode exactly, so the ADT holds no unused info about the write itself."
+}

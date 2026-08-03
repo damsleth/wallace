@@ -945,3 +945,65 @@ statement is:
    with output streamed to `/dev/kmsg` per step, now that bug A no longer masks it.
 3. Both remain gated on getting **real diagnostics** from a pre-console hang (`earlycon=dockchannel`
    with the correct address).
+
+---
+
+# Round 16: the "ADT delay + PrtC" plan was based on two errors of mine
+
+Went to implement the two things I said were the cheap next step for bug A. Both are void, and one of
+my earlier statements was simply wrong.
+
+## Exact ADT values (from `j614s-full-20260728.adt`, not the usb-port-map capture)
+
+```
+/device-tree/amfm
+  function-pcie_port_control  ->  PrtC(0x57)              provider phandle 86
+  function-reg_on             ->  pKW4('gP13', 0x800000)  provider phandle 294
+```
+
+Resolving the providers:
+
+| phandle | node | meaning |
+|---|---|---|
+| 86 | `/arm-io/apcie0` (`apcie,t6040`) | **`PrtC` is a PCIe-controller platform function**, not an SMC one |
+| 294 | `/arm-io/smc/iop-smc-nub/smc-pmu` | `pKW4` is the SMC PMU key write, as expected |
+
+## Error 1: there is NO `wlan_reg_on_on_delay` in the ADT
+
+I have referred to "the ADT's 100 ms `wlan_reg_on_on_delay`" several times, including in ticket text.
+A full-tree search for any `*delay*` property related to wlan/reg_on returns **nothing**. That property
+does not exist in either capture. The claim is withdrawn.
+
+## Error 2: the 100 ms delay is already implemented
+
+Even if such a property existed, `pcie-apple.c` already does exactly this:
+
+```c
+gpiod_set_value_cansleep(pwren, 1);
+...
+/* If powering up, the minimal Tpvperl is 100ms */
+msleep(100);
+```
+
+So "add the missing 100 ms delay" was never an available change — the delay is there.
+
+## Error 3: `PrtC(0x57)` is not a two-line change
+
+I described it as one. It is a platform function on the **PCIe controller** (`apcie0`), so implementing
+it faithfully means reverse-engineering what macOS's APCIe port-control routine does for argument
+`0x57` — which register writes, in what order, relative to the `gP13` power-on. That is kernelcache RE,
+not a DT or driver tweak.
+
+Also note `function-reg_on`'s value argument is `0x800000`; with the on-state bit that is `0x800001`,
+which **confirms sol's decode exactly** — and that value was already tested at 14 cores and refuted
+(round 14). So the ADT contains no *unused* information about the write itself.
+
+## Where bug A actually stands
+
+The only remaining ADT-derived lead is `PrtC(0x57)`, and it is an RE task. Handed to sol as ticket
+**225**. Bug A is otherwise bounded but not explained: powering the BCM4388 via `gP13` deterministically
+kills a 14-CPU boot before the console exists, and every cheap avenue (value, delay, endpoint drivers,
+SMC endpoint, sram window, cpufreq) is now closed.
+
+The productive direction for me remains **bug B** on the new `pwren-sd-only` 14-core harness, plus
+getting `earlycon` working so bug A stops being pass/fail.
