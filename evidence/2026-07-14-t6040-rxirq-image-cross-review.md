@@ -8,7 +8,7 @@ Reviewer: `fable` (ticket 043), 2026-07-14. Author: `claude`. Reviewed against
 `~/Code/m1n1/AGENTS.md` non-negotiables and the DEVLOG DockChannel MMIO
 caution, per AGENT_ONBOARDING §6 / COORDINATION §Cross-agent review. Every
 claim below was verified against the artifacts, not the write-up
-(`done/2026-07-14-t6040-dockchannel-rxirq-txpoll.md`).
+(`evidence/2026-07-14-t6040-dockchannel-rxirq-txpoll.md`).
 
 ## Hashes — all match, byte-exact
 

@@ -64,7 +64,7 @@ the **ATC host PHY** brought up with the ADT `tunable_USB2PHY_HOST`. Two paths:
    direct-HPM2 policy; this branch performs
    WAKEUP/SHUTDOWN, register-select, possible `SSPS`, and IRQ writes across
    additional HPMs and has unresolved safety/correctness issues. Audit:
-   `done/2026-07-24-t6040-yuka-hpm-spmi-branch-audit.md`.
+   `evidence/2026-07-24-t6040-yuka-hpm-spmi-branch-audit.md`.
 2. **Upstream `atc-phy,t6040` + tipd/HPM Linux drivers** — the clean long-term
    path; tracked (ticket 023), not build-here.
 

@@ -137,7 +137,7 @@ HPM logical addresses `0x14`, `0x16`, `0x18`, `0x23`, `0x24`, `0x50`, and
 writes require a complete host-transition and detach/rollback design. They are
 not permanently banned, but each exact sequence is separately gated.
 
-The 2026-07-25 decode (`done/2026-07-25-t6040-hpm2-rollback-evidence.md`)
+The 2026-07-25 decode (`evidence/2026-07-25-t6040-hpm2-rollback-evidence.md`)
 established which of these the macOS class-10 path actually touches, so each is
 named with its exact operation:
 
@@ -223,7 +223,7 @@ its ticket.
 
 The detailed topology and source audits are:
 
-- `done/2026-07-24-t6040-hpm-spmi-discovery-boundary.md`
-- `done/2026-07-24-t6040-hpm-class10-host-transition.md`
-- `done/2026-07-24-t6040-yuka-hpm-spmi-branch-audit.md`
-- `done/2026-07-24-t6040-hpm2-r2-ssps-s0-result.md`
+- `evidence/2026-07-24-t6040-hpm-spmi-discovery-boundary.md`
+- `evidence/2026-07-24-t6040-hpm-class10-host-transition.md`
+- `evidence/2026-07-24-t6040-yuka-hpm-spmi-branch-audit.md`
+- `evidence/2026-07-24-t6040-hpm2-r2-ssps-s0-result.md`

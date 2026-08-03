@@ -18,7 +18,7 @@ paired driver's default applies: **100 ms**. The exact first SMC value remains
 **`gP13 <- 0x00800001`**, not Linux `gpio-macsmc`'s `0x01000001`.
 
 This resolves the "AMFM actor not yet identified" limitation in
-`done/2026-07-29-t6040-pcie-endpoint-power-crossreview.md`. It does **not**
+`evidence/2026-07-29-t6040-pcie-endpoint-power-crossreview.md`. It does **not**
 clear that review's NO-GO: the proposed Linux DT is upstream-shaped, but it is
 not an exact replay of the paired Apple sequence and the new SMC write still
 requires CJ's explicit approval.

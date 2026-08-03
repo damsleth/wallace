@@ -1,7 +1,7 @@
 # Ticket 105 preflight — R3 (SWDF host role swap) and R4 (SWUF inverse) candidates
 
 > **2026-07-28 — THIS PREFLIGHT IS WITHDRAWN. NO-GO.** Cross-review by `sol`
-> (`done/2026-07-28-t6040-r3-r4-crossreview-no-go.md`) found three defects in it:
+> (`evidence/2026-07-28-t6040-r3-r4-crossreview-no-go.md`) found three defects in it:
 > 1. **`SWDF` is a data-role swap (DFP), not a power-role swap.** The source/sink commands are
 >    `SWSr`/`SWSk`. So this artifact **cannot establish VBUS sourcing** and R4 cannot roll back a
 >    source transition. The premise of the whole document — "swap to DFP ⇒ sources VBUS" — is an
@@ -15,7 +15,7 @@
 >    *execute* — but the assertion was wrong regardless, and the deny-list needs the pattern added.)
 >
 > The run that did happen was also unobservable — see
-> `done/2026-07-28-t6040-r3-swdf-blind-run-no-transcript.md`. Keep this file only as the record of
+> `evidence/2026-07-28-t6040-r3-swdf-blind-run-no-transcript.md`. Keep this file only as the record of
 > what was built and why it was rejected.
 
 Status: **DRAFT — build pending the independent 4CC review.** Hashes and review verdicts are
@@ -27,7 +27,7 @@ filled in below when they exist; this document is not a run authorization until 
 One bounded hardware action: command the right-port HPM (SN201202x class-10,
 `/arm-io/nub-spmi-a1/hpm2`, SID `0x0c`) to swap to **DFP (host/source)** so the port sources
 VBUS to the attached passive bus-powered stick. Decoded basis:
-`done/2026-07-28-t6040-roleswap-decoded-swdf-swuf-confirmed.md` — `AppleHPMInterface::roleSwap(0)`
+`evidence/2026-07-28-t6040-roleswap-decoded-swdf-swuf-confirmed.md` — `AppleHPMInterface::roleSwap(0)`
 issues the 4CC **`SWDF`** to CMD1 (`0x08`) via `execute4Cc`; `roleSwap(1)` issues **`SWUF`**
 (back to UFP/device), the inverse.
 
@@ -57,7 +57,7 @@ register R2 already wrote), and the 10 s observation hold.
 
 - Fixture: the M1↔M4 tether is on the top-left DFU port; the right port holds only the passive
   bus-powered stick. Sourcing VBUS to a passive sink is the designed host operation; VBUS cannot
-  reach another host. (`done/2026-07-25-t6040-r3-risk-calibration.md`)
+  reach another host. (`evidence/2026-07-25-t6040-r3-risk-calibration.md`)
 - No persistent-brick mechanism exists in this op set: register RMW + runtime 4CC only, no
   flash/OTP/patch-bundle writes. Worst realistic case is odd port state (VBUS latched, role
   stuck) **until a power cycle**, which the workflow performs routinely.
@@ -71,7 +71,7 @@ register R2 already wrote), and the 10 s observation hold.
 
 1. **Independent byte-level 4CC review — PASSED (2026-07-28).** All four questions answered from
    a fresh re-derivation (verdicts recorded in the addendum of
-   `done/2026-07-28-t6040-roleswap-decoded-swdf-swuf-confirmed.md`): (a) polarity CONFIRMED,
+   `evidence/2026-07-28-t6040-roleswap-decoded-swdf-swuf-confirmed.md`): (a) polarity CONFIRMED,
    roleSwap(0)→SWDF is host/DFP; (b) CONFIRMED no DFU/flash 4CC exists anywhere in the
    kernelcache — the only 1-byte neighbor of SWDF is SWUF itself; (c) byte order CONFIRMED,
    two cancelling reversals put forward-ASCII `53 57 44 46` on CMD1, the R2 convention;
@@ -112,7 +112,7 @@ not this run.
 
 ## After the run
 
-- PASS or FAIL, record the transcript in `done/` and update tickets 096/105/106.
+- PASS or FAIL, record the transcript in `evidence/` and update tickets 096/105/106.
 - If PASS: the port may remain DFP with VBUS on across the warm reboot (HPM state is volatile
   only to power cycle). That is expected; note it, don't treat it as an anomaly. R4 (SWUF) or a
   power cycle restores device role.

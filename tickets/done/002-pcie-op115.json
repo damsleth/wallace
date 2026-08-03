@@ -5,7 +5,7 @@
   "state": "done",
   "track": "pcie",
   "priority": "P1",
-  "desc": "isolate op-115: read-only first PHY-IP PLL access at 0x417040090, ops 1-114 unchanged, return before write (NEXT_STEPS §0.1; done/2026-07-14-t6040-pcie-op115-static-analysis.md). m1n1 main d1494f5a bin 5616b05f; base DTB e7691ee4 recovered+stashed as linux-build-out/t6040-j614s-dcuart-base-e7691ee4.dtb. Cross-reviewed by fable 2026-07-14: PASS (done/2026-07-14-t6040-op115-read-cross-review.md)",
+  "desc": "isolate op-115: read-only first PHY-IP PLL access at 0x417040090, ops 1-114 unchanged, return before write (NEXT_STEPS §0.1; evidence/2026-07-14-t6040-pcie-op115-static-analysis.md). m1n1 main d1494f5a bin 5616b05f; base DTB e7691ee4 recovered+stashed as linux-build-out/t6040-j614s-dcuart-base-e7691ee4.dtb. Cross-reviewed by fable 2026-07-14: PASS (evidence/2026-07-14-t6040-op115-read-cross-review.md)",
   "author": "claude",
   "deps": [],
   "hashes": {

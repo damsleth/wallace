@@ -2,7 +2,7 @@
   "seq": "115",
   "slug": "nvme-service6-host-harness",
   "needs": "offline",
-  "state": "open",
+  "state": "archived-direct-ans-route-superseded-premise",
   "track": "storage",
   "priority": "P2",
   "desc": "Build a host-only encoder/parser and unit-test harness for the pinned T6041/M4-family SPTM NVMe service-6 contracts decoded in 051/052/054. Validate descriptor packing, per-op lengths, queue/TCB/page-list ownership constraints, overflow/alignment rejection, and expected status decoding against static blobs. It must have no target transport or live GENTER path.",
@@ -13,5 +13,10 @@
     "054"
   ],
   "hashes": null,
-  "created": 1784927435
+  "created": 1784927435,
+  "archived": {
+    "at": 1785744499,
+    "by": "codex",
+    "reason": "superseded: the service-6 shim harness does not address the observed Linux first-CQ-wrap assert; retained static decode remains in archived evidence"
+  }
 }

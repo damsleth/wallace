@@ -3,15 +3,15 @@
 > **Superseded routing note (2026-07-21):** this comparison remains useful for
 > its FIFO/flow-control observations, but both live images used ADT input 360.
 > The real UART interrupt is AIC input 816. Do not proceed to the proposed
-> timing follow-up unchanged. See `done/2026-07-21-asahi-dev-log-review.md`.
+> timing follow-up unchanged. See `evidence/2026-07-21-asahi-dev-log-review.md`.
 
 Ticket 049 compared the two completed IRQ-mode runs without touching the rig:
 
 - the TX-only reporter, whose kernel accepted the single host probe before
-  losing its TX report (`done/2026-07-14-t6040-dockchannel-irq-tx-report.md`);
+  losing its TX report (`evidence/2026-07-14-t6040-dockchannel-irq-tx-report.md`);
 - the bounded RX-IRQ/TX-poll reporter, whose AP FIFO, local IRQ state, and AIC
   count all remained zero after its single host probe
-  (`done/2026-07-14-t6040-dockchannel-rxirq-txpoll-result.md`).
+  (`evidence/2026-07-14-t6040-dockchannel-rxirq-txpoll-result.md`).
 
 The comparison does not support an RX startup-order difference. It leaves two
 controlled confounders: the time at which the host injected relative to AP TX,

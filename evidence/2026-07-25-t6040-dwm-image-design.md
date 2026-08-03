@@ -130,7 +130,7 @@ installed, still affordable given the 256 MiB object ceiling) or a different ren
 
 Next step is a **tethered chainload smoke over KIS** (not the USB gadget — the gadget cannot
 observe a `tty0` console, per the harness rule in
-`done/2026-07-25-t6040-ubuntu-untethered-object.md`). Watch for: modesetting probing
+`evidence/2026-07-25-t6040-ubuntu-untethered-object.md`). Watch for: modesetting probing
 `simpledrm`, Xorg starting without a pointer device, dwm appearing on the panel, and whether
 the diet kernel's missing `DRM_TTM`/`DRM_SCHED`/`DRM_DISPLAY_HELPER` matter. `xorg-startx.log`
 is the first place to look if the panel stays on the console.

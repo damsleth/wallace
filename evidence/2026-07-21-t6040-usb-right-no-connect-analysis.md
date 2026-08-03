@@ -89,7 +89,7 @@ architecture but does not supply T6040 register data or authorize its writes.
 attached, bus-powered USB-C memory stick. The powered-device discriminator is
 therefore still informative and is proposed as ticket 065. Its exact fixture
 and unchanged hashes are in
-`done/2026-07-21-t6040-usb-right-powered-smoke-preflight.md`.
+`evidence/2026-07-21-t6040-usb-right-powered-smoke-preflight.md`.
 
 ## Next gate
 

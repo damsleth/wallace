@@ -9,8 +9,8 @@ the exact chain so nobody starts at the wrong end.
 |---|---|---|
 | 1 | **PCIe link up (op-115)** | ❌ **negative result.** Ticket 068's clkgen/PLL retest ran 2026-07-24: the PLL *locks*, but the PHY-IP read at `0x417040090` **still hangs**. Verdict was "do not retry unchanged". |
 | 2 | An additional pre-`reg[3]` gate/reset/domain operation | ❌ unknown — ticket 124 must find it by **static paired-driver tracing**; explicitly "do not guess offsets, add another write, or repeat the read until a new exact precondition is independently grounded". |
-| 3 | **BCM4388 firmware staged** | ❌ **expired.** `/private/tmp/t6040-vendorfw` now contains only `apple/tpmtfw-j614s.bin` (trackpad). The WiFi firmware is gone — `/private/tmp` is ephemeral. Regeneration recipe: `done/2026-07-14-t6040-bcm4388-fw-extract.md` (26.x firmware lives inside the `AppleBCMWLAN` dext). |
-| 4 | Networking-capable kernel | ✅ **done today** — `Image-b0-dietcap` (33.7 MiB / 9.85 MiB xz) carries `PCIE_APPLE`, `BRCMFMAC`, `BRCMFMAC_PCIE`, `CFG80211`, `MAC80211`, `NET`, `FW_LOADER`, `APPLE_DART`. See `done/2026-07-25-t6040-dietcap-kernel.md`. |
+| 3 | **BCM4388 firmware staged** | ❌ **expired.** `/private/tmp/t6040-vendorfw` now contains only `apple/tpmtfw-j614s.bin` (trackpad). The WiFi firmware is gone — `/private/tmp` is ephemeral. Regeneration recipe: `evidence/2026-07-14-t6040-bcm4388-fw-extract.md` (26.x firmware lives inside the `AppleBCMWLAN` dext). |
+| 4 | Networking-capable kernel | ✅ **done today** — `Image-b0-dietcap` (33.7 MiB / 9.85 MiB xz) carries `PCIE_APPLE`, `BRCMFMAC`, `BRCMFMAC_PCIE`, `CFG80211`, `MAC80211`, `NET`, `FW_LOADER`, `APPLE_DART`. See `evidence/2026-07-25-t6040-dietcap-kernel.md`. |
 | 5 | `brcmfmac` binds + firmware loads | not reachable until 1-3 |
 | 6 | `wpa_supplicant`/`iw` in the distro image | trivial once 5 works (Alpine packages; musl-clean) |
 

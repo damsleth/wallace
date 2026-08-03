@@ -6,7 +6,7 @@ knowledge gap, not a permission gap.
 
 ## 1. Forced host mode is already proven — and already proven insufficient
 
-`done/2026-07-21-t6040-usb-host-right-smoke-result.md` records exactly the experiment I was about to
+`evidence/2026-07-21-t6040-usb-host-right-smoke-result.md` records exactly the experiment I was about to
 build. `apple,force-host-mode` on `usb_drd2` (the right port) with
 `dts/t6040-j614s-dcuart-usb-host-right.dts`:
 
@@ -52,7 +52,7 @@ original note may have come from the *public* TPS6598x driver rather than Apple'
 
 ## 3. A qualification to the brick assessment (not an overturn)
 
-`done/2026-07-25-t6040-r3-risk-calibration.md` withdrew the "unrecoverable port" framing on the grounds
+`evidence/2026-07-25-t6040-r3-risk-calibration.md` withdrew the "unrecoverable port" framing on the grounds
 that there are "no flash/OTP/patch-bundle writes" in the staged op set. **That remains true of our
 candidates** — R0–R2 contain exactly two extended writes, reviewed byte for byte.
 

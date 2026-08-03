@@ -19,7 +19,7 @@ it on hardware), **hypothesis**, or **unanswered**. Local verifications I did my
 
 The IRC trawl independently surfaced yuka's ANS **reg[3]=NVMMU / reg[9]=NVMe** split, matching the
 finding I verified against our own ADT and fault log in
-`done/2026-07-28-upstream-review-nvme-reopened-pcie-d2-confirmed.md`. Two additions from IRC:
+`evidence/2026-07-28-upstream-review-nvme-reopened-pcie-d2-confirmed.md`. Two additions from IRC:
 
 - **It also explains a loose end we recorded:** our "m1n1 `0x29120` vs Linux `0x28120` TCB-status"
   discrepancy is exactly a two-base-vs-one-base artifact.

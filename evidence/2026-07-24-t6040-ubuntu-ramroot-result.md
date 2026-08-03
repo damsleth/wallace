@@ -22,7 +22,7 @@ so the RAM-root boots as-is with a minimal custom `/init`.
 Boot set: m1n1 upper-guard `1394c345` + `Image-hid-type-fix` `df7657c1` (the
 keyboard-fixed dcuart kernel) + DTB `2782b922` + the Ubuntu initramfs; maxcpus=1,
 no `root=` (RAM-root), console over ttydc0. Lease held+released healthy.
-`logs/t6040-console-20260724-ubuntu-ramroot.log`:
+`evidence/logs/t6040-console-20260724-ubuntu-ramroot.log`:
 
 ```
 *** Ubuntu 24.04 RAM-root on /dev/ttydc0 (glibc) ***
@@ -69,7 +69,7 @@ flagged two things:
 Final image: `initramfs-ubuntu-ramroot-no.cpio.gz` SHA-256
 `0987cb7c22cabe2c4fdd5f25544441733452bee0b2b605b5c20b9275298323fa` (29 MB) —
 watchdog-fix **and** Norwegian keymap. Re-booted clean to `root@(none):/#`
-(`logs/t6040-console-20260724-ubuntu-no.log`); the `loadkeys`/watchdog output
+(`evidence/logs/t6040-console-20260724-ubuntu-no.log`); the `loadkeys`/watchdog output
 goes to `tty0` (the panel), which CJ observes. See memory `norwegian-keyboard`:
 apply `loadkeys no` + `nb_NO` to all future boot images.
 

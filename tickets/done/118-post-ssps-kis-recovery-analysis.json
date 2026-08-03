@@ -5,7 +5,7 @@
   "state": "done",
   "track": "xcut",
   "priority": "P1",
-  "desc": "DONE: post-095 failure was VDM/no-kisd, not the common attached-PTY wedge signature and not evidence SSPS failed. After the maintainer power cycle, fresh KIS plus the bounded T6040 proxy health check passed; later reboot cycles were healthy. Causality remains unattributed. Exact fail-closed recovery checklist: done/2026-07-24-t6040-post-ssps-kis-recovery-analysis.md.",
+  "desc": "DONE: post-095 failure was VDM/no-kisd, not the common attached-PTY wedge signature and not evidence SSPS failed. After the maintainer power cycle, fresh KIS plus the bounded T6040 proxy health check passed; later reboot cycles were healthy. Causality remains unattributed. Exact fail-closed recovery checklist: evidence/2026-07-24-t6040-post-ssps-kis-recovery-analysis.md.",
   "author": "codex",
   "deps": [
     "095"

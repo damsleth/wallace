@@ -56,10 +56,10 @@ even theoretically open.
 
 ## Session notes (not for posting)
 
-- Full ABI decode: `done/2026-07-14-t6040-sptm-service6-abi.md`. Route analysis:
-  `done/2026-07-14-t6040-nvme-sptm-route-finding.md`. NVMe map:
-  `done/2026-07-13-t6040-nvme-map.md`.
-- Snapshot transcript: `logs/t6040-console-20260714-nvme-sptm.log`.
+- Full ABI decode: `evidence/2026-07-14-t6040-sptm-service6-abi.md`. Route analysis:
+  `evidence/2026-07-14-t6040-nvme-sptm-route-finding.md`. NVMe map:
+  `evidence/2026-07-13-t6040-nvme-map.md`.
+- Snapshot transcript: `evidence/logs/t6040-console-20260714-nvme-sptm.log`.
 - m1n1 side: `supports_gxf()` needs `cpu_features->mmu_sprr`; `features_m4`
   (chickens.c) omits it, so `gxf_init()` never runs on T6040. m1n1's `gl_call`
   (gxf.c) is the M1/M2 own-GL-code model, which doesn't help here — enabling it

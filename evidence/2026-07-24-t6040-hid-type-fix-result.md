@@ -49,7 +49,7 @@ exact-hash gate.
 Rig retest (m1n1 upper-guard `1394c345`, DTB `2782b922`,
 `initramfs-alpine-hid-trace-auto` `d5b790c6`, `t6040.hid_trace_auto=1`, Alpine
 RAM-root, maxcpus=1; lease held+released healthy;
-`logs/t6040-console-20260724-078-hid-fix.log`):
+`evidence/logs/t6040-console-20260724-078-hid-fix.log`):
 
 ```
 [/proc/bus/input/devices]

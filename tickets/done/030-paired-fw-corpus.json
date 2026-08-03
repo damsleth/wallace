@@ -5,7 +5,7 @@
   "state": "done",
   "track": "xcut",
   "priority": "P1",
-  "desc": "DONE host-only: built a deterministic, hash-pinned Mac16,8/J614s 25F84 restore corpus outside Git. It contains five exact non-iBoot FUD objects (DCP/SPTM/TXM/InputDevice/Multitouch), 72 raw mriya WiFi inputs, both USI/AMKOR BT pairs, appleh13camerad, the paired kernelcache, and 22 regression-checked Linux vendorfw outputs (14 BCM, trackpad, six ISP, ASMedia). The read-only raw archive reproduced byte-for-byte; full SHA256SUMS passes. Machine-private ALS is not in the restore and is split to ticket 087 for read-only capture from the M4, never the M1. Result: done/2026-07-24-t6040-paired-fw-corpus.md.",
+  "desc": "DONE host-only: built a deterministic, hash-pinned Mac16,8/J614s 25F84 restore corpus outside Git. It contains five exact non-iBoot FUD objects (DCP/SPTM/TXM/InputDevice/Multitouch), 72 raw mriya WiFi inputs, both USI/AMKOR BT pairs, appleh13camerad, the paired kernelcache, and 22 regression-checked Linux vendorfw outputs (14 BCM, trackpad, six ISP, ASMedia). The read-only raw archive reproduced byte-for-byte; full SHA256SUMS passes. Machine-private ALS is not in the restore and is split to ticket 087 for read-only capture from the M4, never the M1. Result: evidence/2026-07-24-t6040-paired-fw-corpus.md.",
   "author": "sol",
   "deps": [],
   "hashes": {

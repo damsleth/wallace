@@ -5,7 +5,7 @@
   "state": "done",
   "track": "usb",
   "priority": "P1",
-  "desc": "DONE PASS with the independently reviewed narrowed artifact. Exact m1n1 3e4ea5b880d1 R1 bf369434... passed the raw+translated right-HPM2 identity gate, WAKEUP ACKed, exact 10 ms delay activated the selector window, selector read back 0x20, and logical system-power-state read returned 0x07. No extended write, SSPS, SLEEP/SHUTDOWN/RESET, IRQ/event, USB/PHY/storage path, fallback, or escalation was linked or executed. Automatic warm reboot and healthy proxy recovery passed. Ticket 095 is narrowed to SSPS-to-S0 only; mask testing moves later. Evidence: done/2026-07-24-t6040-hpm2-r1-wake-read-result.md.",
+  "desc": "DONE PASS with the independently reviewed narrowed artifact. Exact m1n1 3e4ea5b880d1 R1 bf369434... passed the raw+translated right-HPM2 identity gate, WAKEUP ACKed, exact 10 ms delay activated the selector window, selector read back 0x20, and logical system-power-state read returned 0x07. No extended write, SSPS, SLEEP/SHUTDOWN/RESET, IRQ/event, USB/PHY/storage path, fallback, or escalation was linked or executed. Automatic warm reboot and healthy proxy recovery passed. Ticket 095 is narrowed to SSPS-to-S0 only; mask testing moves later. Evidence: evidence/2026-07-24-t6040-hpm2-r1-wake-read-result.md.",
   "author": "codex",
   "deps": [
     "092",

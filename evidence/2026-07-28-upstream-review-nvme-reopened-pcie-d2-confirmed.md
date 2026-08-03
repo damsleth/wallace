@@ -30,7 +30,7 @@ own 2026-07-13 session called "the secure BAR … a separate 64 KiB window", rea
 controller aperture*.
 
 Our own m1n1 SError, arithmetic re-done from the recorded value in
-`done/2026-07-25-t6040-nvme-probe-result.md` (`L2C_ERR_ADR: 0x28360040dce4908`):
+`evidence/2026-07-25-t6040-nvme-probe-result.md` (`L2C_ERR_ADR: 0x28360040dce4908`):
 
 ```
 low 36 bits      = 0x40dce4908
@@ -45,7 +45,7 @@ result's conclusion ("m1n1 cannot bring ANS up either … the protection is enfo
 **not supported by that fault address**. Timeline note: our probe ran 2026-07-25, yuka's fix landed
 2026-07-26, so our loader could not have contained it.
 
-The same register explains the Linux-side failure too: `done/2026-07-13-t6040-nvme-map.md:513`
+The same register explains the Linux-side failure too: `evidence/2026-07-13-t6040-nvme-map.md:513`
 records "a same-value write to linear-SQ control faults" — same `0x24908`, different code path.
 
 ### What this does and does not overturn

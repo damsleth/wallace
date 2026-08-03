@@ -121,7 +121,7 @@ ipsw macho disass --no-color -q -d \
 
 The bank identities and right-port bases can be reproduced with
 `scripts/t6040-atcphy-kext-map.py` as documented in
-`done/2026-07-24-t6040-atcphy-kext-bank-map.md`.
+`evidence/2026-07-24-t6040-atcphy-kext-bank-map.md`.
 
 The host call is at VA `0xfffffe000b02c784` in
 `AppleT8150USBXHCI::start`, whose function begins at VA

@@ -1,7 +1,7 @@
 # PCIe: the "T6040 tunables are traced, never written" claim is refuted — 068 already applied them
 
 Offline code-inspection finding, 2026-07-28. No rig run, no hardware access. This corrects the
-2026-07-26 note `done/2026-07-26-t6040-pcie-trace-mode-and-op115-identified.md` (finding 1), the
+2026-07-26 note `evidence/2026-07-26-t6040-pcie-trace-mode-and-op115-identified.md` (finding 1), the
 matching ticket-124 progress entry, and the NEXT_STEPS top-block statement of WiFi priority 2.
 
 ## The claim under test
@@ -39,8 +39,8 @@ i.e. the tunables were **applied to hardware** in both runs.
 
 `pcie: T6040 AXI trace dry run complete; no PCIe MMIO` exists only in the 2026-07-14
 **zero-write trace-volume control** (commit `cc8b0ead` "pcie: add T6040 zero-write trace control",
-run as the log-buffer diagnostic — `done/2026-07-14-t6040-logbuf-upper-guard-control.md`,
-`logs/t6040-console-20260714-logbuf-upper-guard.log`). That control existed to prove the traced
+run as the log-buffer diagnostic — `evidence/2026-07-14-t6040-logbuf-upper-guard-control.md`,
+`evidence/logs/t6040-console-20260714-logbuf-upper-guard.log`). That control existed to prove the traced
 SError was a console/log-buffer artifact. The dry-run call was removed again by `0bede592` /
 `f46d6e35` "pcie: restore guarded T6040 clock diagnostic". Reading that line as the *current*
 behavior of the PCIe path was the 2026-07-26 error.
@@ -55,14 +55,14 @@ The project's own live history, reread with the corrected semantics:
 - **2026-07-24, ticket 068 at `e4671e08`:** the same applied prefix *plus* the decoded clkgen PLL
   enable+lock. PLL locked, 100 MHz refclk OK, CLK0/CLK1 acked, PHY reset released — and the
   op-115 PLL-lock poll at `0x417040090` still hung
-  (`done/2026-07-24-t6040-pcie-op115-clkgen-pll-result.md`).
+  (`evidence/2026-07-24-t6040-pcie-op115-clkgen-pll-result.md`).
 
 So "apply the five phy tunables, then re-check op-115" is not a new experiment: it is **ticket 068,
 which is negative and marked never-retry-unchanged**. Do **not** stage an attended session for it.
 
 ## What remains the real open lead (ticket 124, unchanged)
 
-The `_initializePhy()` decode (`done/2026-07-26-t6040-pcie-initializephy-trace.md`): Apple performs
+The `_initializePhy()` decode (`evidence/2026-07-26-t6040-pcie-initializephy-trace.md`): Apple performs
 shared-PHY-aperture initialization that m1n1 never does — a bit-0 RMW of PhyCommon[0]
 (`0x417004000`) plus PhyPhy setup (`0x417008000` window) — *before* any PHY-IP access. The exact
 PhyPhy register/value pairs, the second PhyCommon write, and the authoritative

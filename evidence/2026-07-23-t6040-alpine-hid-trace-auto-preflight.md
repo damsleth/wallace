@@ -27,7 +27,7 @@ starts the shell, so the run sends no target input.
 The m1n1, Image, DTB, and config byte-match ticket 074. Only the initramfs
 changes. Its source, reproducible build, host tests, archive checks, and
 independent review are recorded in
-`done/2026-07-23-t6040-alpine-hid-trace-auto-reporter.md`.
+`evidence/2026-07-23-t6040-alpine-hid-trace-auto-reporter.md`.
 
 Independent reviewer `usb_smoke_cross_review` returned **PASS** for the final
 `d5b790c6...` archive and left the rig untouched. The archive has 518

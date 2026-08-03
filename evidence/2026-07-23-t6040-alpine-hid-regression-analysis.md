@@ -98,7 +98,7 @@ Ticket 071 booted this exact image once. Alpine 3.24.0/aarch64 and ttydc0
 worked, `/proc/partitions` remained empty, but `/proc/bus/input/devices` was
 still empty and `/dev/input` did not exist. Therefore the re-arm change is not
 the sufficient HID correction and must remain experimental. Exact result:
-`done/2026-07-23-t6040-alpine-hid-rx-rearm-result.md`.
+`evidence/2026-07-23-t6040-alpine-hid-rx-rearm-result.md`.
 
 The next experiment must first add observation-only state tracing across the
 mailbox IRQ/FIFO and DCHID event/identity boundaries. Do not add another

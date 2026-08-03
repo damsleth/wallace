@@ -3,7 +3,7 @@
 > **Superseded routing note (2026-07-21):** this historical image used ADT
 > input 360. Bounded M4 Pro measurement later found the real UART interrupt at
 > AIC input 816. The observations below remain valid, but they did not test the
-> UART's AIC route. See `done/2026-07-21-asahi-dev-log-review.md`.
+> UART's AIC route. See `evidence/2026-07-21-asahi-dev-log-review.md`.
 
 Prepared and run once on 2026-07-14 after the corrected RX BIT(1) interactive
 run remained silent. The unique instruction banner printed and the host sent
@@ -87,7 +87,7 @@ bytes. Following the gate, the image was not retried; a sanctioned DebugUSB
 reboot restored a fresh m1n1 proxy. No PCIe, NVMe, or storage access occurred.
 
 Transcript:
-`logs/t6040-console-20260714-dockchannel-irq-tx-report.log`, SHA-256
+`evidence/logs/t6040-console-20260714-dockchannel-irq-tx-report.log`, SHA-256
 `b6ca4474b017035e5b0335f955abb8dd98097a1af4864fb90e185cf084db9ad2`.
 
 The embedded BusyBox was separately tested on an arm64 pseudo-terminal: its

@@ -47,7 +47,7 @@ pcie-apple: Link up on /soc/pcie@1cb0000000/pci@1,0 — link up after 8ms
 
 Both links, after **two weeks** of "link didn't come up". Full diagnosis and everything ruled out
 first (PERST, refclk, timing, iommu-map, bus-range, PMGR) is in
-`done/2026-07-29-t6040-pcie-endpoint-power-root-cause.md`.
+`evidence/2026-07-29-t6040-pcie-endpoint-power-root-cause.md`.
 
 ### 2. `apple,antenna-sku` was missing, so brcmfmac never looked for our NVRAM
 

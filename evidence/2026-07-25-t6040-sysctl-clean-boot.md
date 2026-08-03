@@ -50,5 +50,5 @@ real input and count the result, rather than trusting a clean exit.
 
 The currently enrolled/proven B0 roots (`initramfs-alpine-b0-nb2.cpio.xz` `d7fcc795` and the
 objects built from it) are **left untouched**. Rebuilding them would change hashes that are cited
-in `done/` write-ups and pinned in tickets, purely for cosmetics. The fix applies to the next
+in `evidence/` write-ups and pinned in tickets, purely for cosmetics. The fix applies to the next
 build of that root; the noise remains in the current image and is documented as expected.

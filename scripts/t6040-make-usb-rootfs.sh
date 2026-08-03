@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # t6040-make-usb-rootfs.sh — build a reproducible external ext4 root for the
-# T6040 USB-root path (ticket 060; design: done/2026-07-14-t6040-usb-root-design.md).
+# T6040 USB-root path (ticket 060; design: evidence/2026-07-14-t6040-usb-root-design.md).
 #
 # RECIPE ONLY. Do NOT run against a real disk until the USB-host SMOKE test
-# proves a device enumerates and stays present >=10 s (BACKLOG gate; the passive
+# proves a device enumerates and stays present >=10 s (ticket gate; the passive
 # right-side stick test showed root hubs but no child device — ATC/HPM physical
 # link is unsolved, tickets 023/064). This script is the populate step that
 # follows a passing smoke, kept ready and reviewable.

@@ -11,7 +11,7 @@
 # never needs to WRITE the stick. NOTE: M4 USB *enumeration* is still gated on the
 # ATC-PHY/HPM host-link bring-up (ticket 023 / yuka's tps6598x-spmi); this image
 # is ready for the moment that lands. See
-# done/2026-07-24-t6040-usb-stick-readwrite-state.md.
+# evidence/2026-07-24-t6040-usb-stick-readwrite-state.md.
 set -euo pipefail
 
 MINIROOT="${MINIROOT:-/out/alpine-minirootfs-3.24.0-aarch64.tar.gz}"

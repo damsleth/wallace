@@ -5,7 +5,7 @@
   "state": "done",
   "track": "cpufreq",
   "priority": "P2",
-  "desc": "Prepare ticket 006 offline: wire and schema-check apple,cluster-cpufreq for the three T6040 clusters, verify APSC/pstate resources against the proven minimal path, then build/hash artifacts and expected transition checks (ROADMAP Stage C exit; done/2026-07-10-t6040-cpufreq-plan.md)",
+  "desc": "Prepare ticket 006 offline: wire and schema-check apple,cluster-cpufreq for the three T6040 clusters, verify APSC/pstate resources against the proven minimal path, then build/hash artifacts and expected transition checks (ROADMAP Stage C exit; evidence/2026-07-10-t6040-cpufreq-plan.md)",
   "author": "sol",
   "deps": [],
   "hashes": null,

@@ -3,7 +3,7 @@
 Date: 2026-07-23  
 Rig ticket: 071  
 State: **completed — FAIL; see
-`done/2026-07-23-t6040-alpine-hid-rx-rearm-result.md`**
+`evidence/2026-07-23-t6040-alpine-hid-rx-rearm-result.md`**
 
 This is one storage-disabled boot of the current 7.1.3 Alpine kernel with the
 single DockChannel RX mask/drain/re-arm correction from offline ticket 069.

@@ -5,7 +5,7 @@
  * nvram path.
  *
  * SMC data from the live J614s ADT /arm-io/smc (iop,ascwrap-v6) via m1n1 adt.py
- * (done/2026-07-23-t6040-smc-adt-data.md): ascwrap base 0x30c600000; ASC IRQs
+ * (evidence/2026-07-23-t6040-smc-adt-data.md): ascwrap base 0x30c600000; ASC IRQs
  * 997/996/999/998; iop-smc-nub region-base 0x50df00000/0x100000 (RTKit SRAM);
  * smc-pmu events pwrbtn=0, lid=8. ASC reg split follows the upstream convention
  * (smc @ base+0x0, mailbox @ base+0x8000, each 0x4000).

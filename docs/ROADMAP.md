@@ -10,11 +10,11 @@ work and [NEXT_STEPS.md](NEXT_STEPS.md) contains the current order.
 | A. Stable proxy and recovery | Complete | Maintain the lease and DebugUSB discipline |
 | B. m1n1 Linux boot | Complete for the current raw-object path | Upstream cleanup and optional standard stage 2 |
 | C. Kernel DT and core boot | Functional | MM/SMP stability, cpuidle, upstreaming |
-| D. Local usable machine | Partial | SD-root services, trackpad, backlight, USB host |
+| D. Local usable machine | Partial | Clean SD-root shutdown, trackpad, panel backlight, USB host |
 | E. WiFi and Bluetooth | Functional | Integration and upstreaming |
 | F. GPU acceleration | Blocked on a real T6040/G16 stack | Maintainer-endorsed kernel, firmware ABI, m1n1, and Mesa support |
 | G. Power and peripherals | Partial | Audio, camera, suspend, cpuidle, lid/power integration |
-| H. Persistent distro | Partial | SD root reaches OpenRC but lacks working console/network/desktop services |
+| H. Persistent distro | Partial | One-core SD root works; dirty-filesystem repair and clean-shutdown validation are pending |
 
 ## A. Proxy and recovery
 
@@ -60,7 +60,8 @@ Working:
 
 Open:
 
-- isolate the MM/SMP copy-on-write fault;
+- complete ticket 207's barrier/cache-maintenance isolation for the controlled
+  two-core page-copy fault;
 - prove stable 14-core userspace;
 - add a safe cpuidle/retention contract;
 - keep generated DTs and upstream-shaped patch series synchronized;
@@ -79,9 +80,10 @@ Working:
 
 Open:
 
-- complete SD-root console, SSH, and graphical services;
+- repair and validate clean SD-root shutdown;
+- complete SSH and graphical service integration;
 - resolve trackpad post-HIDF reset;
-- enable panel and keyboard backlight control;
+- enable panel backlight control; keyboard backlight already works;
 - bring up USB host only after a reversible Type-C/VBUS contract exists.
 
 The SD path replaces USB root as the immediate persistence route.
@@ -110,7 +112,7 @@ support:
 - a Mesa G16 path selected through the kernel UAPI.
 
 Do not adapt G14 tables by analogy. The staged test sequence remains in
-[t6040-gpu-upstream-smoke.md](t6040-gpu-upstream-smoke.md).
+[the GPU upstream smoke playbook](playbooks/GPU_UPSTREAM_SMOKE.md).
 
 ## G. Power and remaining peripherals
 
@@ -123,7 +125,7 @@ Partial:
 Open:
 
 - cpuidle and suspend;
-- panel and keyboard backlight;
+- panel backlight;
 - audio;
 - camera/ISP;
 - lid and power-button integration;
@@ -144,12 +146,14 @@ Verified:
 
 - SD read, write, sync, unmount, reboot, and hash persistence;
 - loop mount and `switch_root`;
-- OpenRC begins startup from the SD root.
+- ttydc0 and OpenRC work from the SD root at `maxcpus=1`;
+- writes persist across reboot.
 
 Required for completion:
 
-- reliable local console and SSH;
-- persistent boot logging;
+- repair the currently dirty exFAT and ext4 filesystems;
+- validate the shutdown pivot and post-shutdown clean checks;
+- reliable SSH;
 - WiFi/Bluetooth services;
 - Xorg/i3 startup;
 - clean shutdown and filesystem checks;

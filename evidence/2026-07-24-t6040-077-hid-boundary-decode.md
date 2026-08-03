@@ -92,7 +92,7 @@ failed to appear as a bound input device/event node.
 Ticket 078's live run did not falsify it: `Apple DockChannel Keyboard`
 registered as `input0`, handlers `sysrq kbd leds event0`, with
 `/dev/input/event0` present and partitions still empty. Exact result:
-`done/2026-07-24-t6040-hid-type-fix-result.md`.
+`evidence/2026-07-24-t6040-hid-type-fix-result.md`.
 
 The reporter's additional ordinary probe/sysfs inventory remains a useful
 host-tested diagnostic, but no extra observation run is required for this

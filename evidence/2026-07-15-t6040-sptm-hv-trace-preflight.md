@@ -106,7 +106,7 @@ documents it, in `docs/DEVLOG.md` **"Dead ends (do not re-investigate)"** (line 
 
 > *"…m1n1's vuart (hv-only → dead after handoff); **m1n1 hv is SPTM-blocked entirely.**"*
 
-Corroborated: `done/2026-07-09-t6040-first-light-session.md:12` ("SPTM/GL2 environment
+Corroborated: `evidence/2026-07-09-t6040-first-light-session.md:12` ("SPTM/GL2 environment
 that's unusable") and `DEVLOG.md:526-529` (upstream now gates hv SPRR/GXF writes on
 `apple_sysregs_unlocked` to *tolerate* locked-sysreg machines like this one, but "whether a
 degraded hv is actually usable on the T6040 is untested" — and 668 records that it isn't).

@@ -7,10 +7,14 @@ The code lives in sibling repos under `~/Code/`.
 
 **Working on 2026-08-03:** enrolled untethered Linux; simpledrm plus Xorg/i3 or
 dwm; internal keyboard; five proven CPU cores and cpufreq; SMC telemetry; PCIe,
-WiFi, Bluetooth, and verified SD read/write persistence. SD-root reaches
-`switch_root` and OpenRC but lacks usable console/network/desktop services.
+WiFi, Bluetooth, keyboard backlight, and verified SD read/write persistence.
+At one core, SD-root reaches ttydc0 and OpenRC and persists writes; panic tests
+left its filesystems dirty, so tickets 215/216 own repair and clean shutdown.
+Ticket 207 is isolating the barrier/cache primitive behind a reproducible
+two-core kernel page-copy fault; ticket 208 confirmed the instrumentation
+suppression against an uninstrumented control.
 Linux NVMe briefly mounts exFAT before a first-CQ-wrap firmware assert.
-Trackpad motion, USB host/VBUS, GPU acceleration, backlight, audio, camera,
+Trackpad motion, USB host/VBUS, GPU acceleration, panel backlight, audio, camera,
 suspend, and stable full-core userspace remain open.
 
 **Start here, in this order:**
@@ -25,7 +29,7 @@ suspend, and stable full-core userspace remain open.
 
 | Path | What | Role here |
 |---|---|---|
-| `~/Code/wallace` | this repo | plans, docs, scripts/, patches/, dts/, done/ |
+| `~/Code/wallace` | this repo | plans, docs, scripts/, patches/, dts/, evidence/ |
 | `~/Code/m1n1` | m1n1 fork (branch `main`) | bootloader + proxyclient; per-dir AGENTS.md files carry the **hardware safety rules** and code-level knowledge |
 | `~/Code/m1n1-clean` | worktree, branch `t6040-bringup` | curated code-only commit series (upstream-shaped); keep in sync with m1n1 `src/` changes |
 | `~/Code/linux` | kernel tree, branch `wallace/t6040-bringup` in `damsleth/linux`, based on AsahiLinux `asahi-wip` | t6040 DT files live here (partly uncommitted); code changes go via `patches/` applied by kbuild — NOT as tree edits (builds use committed state + copied DT files only); remotes are `origin` (damsleth), `asahi`, `yuka`, and `torvalds` |

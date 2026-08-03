@@ -11,7 +11,7 @@ values are invented here.**
 table `ECPU0 0x210e00000 / PCPU0 0x211e00000 / PCPU1 0x212e00000`
 (`~/Code/m1n1/src/cpufreq.c`), and m1n1 cpufreq works on the rig (ROADMAP Stage
 B) → these bases are live-verified. They are **identical to t6031**; the plan's
-"bases may differ on M4" risk (`done/2026-07-10-t6040-cpufreq-plan.md`) is
+"bases may differ on M4" risk (`evidence/2026-07-10-t6040-cpufreq-plan.md`) is
 retired by the working m1n1 bring-up. Apple's DVFS cluster regs are not ADT
 addressable nodes (the cpu nodes carry `acc-impl-reg`/`cpm-impl-reg`, and m1n1
 reads the pstate table from `base + 0x70000`), so the base cross-check is m1n1,

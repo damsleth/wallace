@@ -28,7 +28,7 @@ Two decisive risks remain:
 
 Neither can be answered by more raw-m1n1 experiments. The next legitimate
 inputs are an upstream answer to the sharpened draft in
-`xnu-shim/docs/asahi-dev-escalation.md` (CJ posts, never this agent) or a future
+`archive/xnu-shim/docs/asahi-dev-escalation.md` (CJ posts, never this agent) or a future
 signed permissive-kernelcache shim proof. The signing/build path is itself
 unresolved.
 

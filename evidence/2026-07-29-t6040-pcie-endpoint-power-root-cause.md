@@ -2,7 +2,7 @@
 
 Attended-approved autonomous session, 2026-07-29 (CJ approved all rig tickets and asked for
 WiFi/USB/BT/trackpad). This closes the "link didn't come up" question opened by
-`done/2026-07-29-t6040-pcie-op115-SOLVED-links-dont-train.md`.
+`evidence/2026-07-29-t6040-pcie-op115-SOLVED-links-dont-train.md`.
 
 ## Root cause
 

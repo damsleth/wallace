@@ -5,7 +5,7 @@
   "state": "done",
   "track": "storage",
   "priority": "P1",
-  "desc": "CANCELLED UNRUN 2026-07-23: the powered hub exists but its power supply could not be found, so the required externally powered fixture is unavailable. No approval, lease, boot, or rig access occurred. Preserve the exact topology-only plan in done/2026-07-21-t6040-usb-right-powered-smoke-preflight.md for later reuse, but do not revive it without confirming a standards-compliant powered fixture. Work pivots to a storage-free Alpine RAM-root delivered through m1n1.",
+  "desc": "CANCELLED UNRUN 2026-07-23: the powered hub exists but its power supply could not be found, so the required externally powered fixture is unavailable. No approval, lease, boot, or rig access occurred. Preserve the exact topology-only plan in evidence/2026-07-21-t6040-usb-right-powered-smoke-preflight.md for later reuse, but do not revive it without confirming a standards-compliant powered fixture. Work pivots to a storage-free Alpine RAM-root delivered through m1n1.",
   "author": "codex",
   "deps": [
     "063",

@@ -9,9 +9,9 @@ kmutil/bputil, APFS, or Boot Policy action. Nothing was posted externally.
 
 Both enrolled-untethered routes died on 2026-07-25: the appended-payload shape
 can never be discovered (m1n1's payload scan lands inside its own image,
-`done/2026-07-25-t6040-enrolled-payload-rootcause.md`), and `chainload=` from
+`evidence/2026-07-25-t6040-enrolled-payload-rootcause.md`), and `chainload=` from
 internal NVMe dies in m1n1's own `nvme_init()` with the async L2C SError
-(`done/2026-07-25-t6040-nvme-probe-result.md`). The remaining untethered shape
+(`evidence/2026-07-25-t6040-nvme-probe-result.md`). The remaining untethered shape
 is a small enrolled loader that reads stage 2 from a FAT32 USB stick. m1n1 has
 no USB mass-storage or filesystem code; U-Boot has both. This task answers
 whether U-Boot can also solve the *port bring-up* problem, and prepares the
@@ -50,9 +50,9 @@ performs `usb_init()` PHY bring-up. On M3/M4 m1n1 explicitly does **less**:
 touches the SPMI HPMs. And on T6040 we have live proof the inherited state is
 *not* host-capable: the reviewed right-port Linux smoke produced healthy root
 hubs and zero device detection
-(`done/2026-07-21-t6040-usb-right-no-connect-analysis.md`), because nothing
+(`evidence/2026-07-21-t6040-usb-right-no-connect-analysis.md`), because nothing
 performs the HPM2 host transition, which is itself a final **NO-GO**
-(ticket 096, `done/2026-07-24-t6040-hpm2-detach-static-slice.md`).
+(ticket 096, `evidence/2026-07-24-t6040-hpm2-detach-static-slice.md`).
 
 **Consequence, stated plainly: U-Boot inherits exactly the same HPM/ATC
 dependency as Linux. Building U-Boot does not unlock USB enumeration on

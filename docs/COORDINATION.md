@@ -67,6 +67,18 @@ only when:
 immediately verify that the reported sequence still contains the expected
 slug. Re-add or re-sequence if another concurrent add won the race.
 
+Keep `desc` focused on the current objective and pass/fail boundary. Durable
+analysis, transcripts, retractions, and detailed results belong in
+`evidence/`; new or materially revised tickets should link them through a
+top-level `evidence` array. See `tickets/README.md` for the record shape.
+
+Move a ticket to `tickets/done/` when its stated deliverable and evidence are
+complete. Move it to `tickets/archive/` when a later path supersedes it, its
+premise was disproved, its useful content was folded elsewhere, or it is
+deferred pending a named condition. Archived tickets record `archived.at`,
+`archived.by`, and a concise reason. Preserve still-useful dependency,
+read-only, rollback, and safety contracts.
+
 ## Rig session
 
 1. Confirm `queue next --rig` and the exact ticket.
@@ -116,5 +128,5 @@ Every commit is signed off with `git commit -s`, has no
 `Co-Authored-By` trailer, uses a topic prefix, and includes an explicit
 pathspec. External posts remain drafts for CJ to send.
 
-The lease in `.rig/` is ephemeral. Tickets, commits, `done/`, and the
+The lease in `.rig/` is ephemeral. Tickets, commits, `evidence/`, and the
 current-facing docs are the durable record.

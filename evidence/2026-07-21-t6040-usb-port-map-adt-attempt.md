@@ -50,4 +50,4 @@ further reboot or live experiment was attempted.
 The maintainer moved the tether to the previously proven top-left/rear Type-C
 port and cold-started the M4. KIS then attached immediately. Ticket 057 ran to
 completion; its capture hash and controller-to-port mapping are recorded in
-`done/2026-07-21-t6040-usb-port-map-adt-result.md`.
+`evidence/2026-07-21-t6040-usb-port-map-adt-result.md`.

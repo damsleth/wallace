@@ -50,7 +50,7 @@ FDT: Adding reserved-memory node flash@105ce7a0000
 All 77 dry-run tunable entries printed through completion, m1n1 handed off to
 Linux, and the DockChannel console reached a shell without SError. Transcript
 and artifact hashes remain pinned in
-`done/2026-07-14-t6040-logbuf-upper-guard-control.md`.
+`evidence/2026-07-14-t6040-logbuf-upper-guard-control.md`.
 
 The review found no overlap or hidden semantic expansion:
 

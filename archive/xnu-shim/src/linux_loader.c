@@ -13,7 +13,7 @@
 
 /* SPTM page-table ops live in the XNU_BOOTSTRAP table (paper A.4): RETYPE=1, MAP_PAGE=2,
  * MAP_TABLE=3, REGISTER_CPU=14, … These are the SAME table-0 endpoint-only genters we saw
- * in the kernelcache (done/...xnushim-asahi-neo-crossref.md), so the shim reuses XNU's path. */
+ * in the kernelcache (evidence/...xnushim-asahi-neo-crossref.md), so the shim reuses XNU's path. */
 
 int linux_loader_load(void *linux_image, void *initramfs, void *fdt)
 {
@@ -25,5 +25,5 @@ int linux_loader_load(void *linux_image, void *initramfs, void *fdt)
     /* NOTE: no SPTM watchdog (paper §5.4 / SPTM_FINDINGS) — Linux won't be killed for  */
     /* not calling back. Frames typed XNU_DEFAULT are R/W/X-capable from EL1 (feasible, */
     /* not hardened) — acceptable for the boot goal.                                    */
-    return -1; /* not implemented — see PLAN.md */
+    return -1; /* not implemented — see README.md */
 }

@@ -9,7 +9,7 @@ new hardware writes to the PCIe clkgen/PHY blocks, and a bad PHY write can wedge
 Every T6040 PCIe run hangs at the same place: the **read half** of the first
 `apcie-phy-ip-pll-tunables` RMW at reg[3]+0x90 (`0x417040090`) never returns — a
 non-responding PHY-IP aperture. (Note: the full decode,
-`done/2026-07-28-t6040-initializephy-full-decode.md`, established this is an RMW *setting*
+`evidence/2026-07-28-t6040-initializephy-full-decode.md`, established this is an RMW *setting*
 bit 0, not a PLL-lock poll — `_applyTunablesFromData` has no poll semantics. The earlier
 "poll" reading came from m1n1's own diagnostic label, and the hang is the aperture, not a
 lock that never comes up.)
@@ -70,7 +70,7 @@ and the code still returns before any PHY-IP write and before all port/Linux-PCI
    sanctioned DebugUSB reboot (identical to every prior op-115 run). Next candidates are the
    D4 ordering delta (Apple applies apcie-common tunables + lane-cfg *after* clkgen/gate-7;
    m1n1 before) and a deeper look at `enableDeviceClock` index mapping.
-6. Either way: record the transcript in `done/`, update ticket 124, release the rig healthy.
+6. Either way: record the transcript in `evidence/`, update ticket 124, release the rig healthy.
 
 Known bounded risks: the two new RMWs touch the clkgen and shared-PHY blocks that all prior
 runs already wrote without SError; the failure mode observed for this path has always been a

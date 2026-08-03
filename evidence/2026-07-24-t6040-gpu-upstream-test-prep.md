@@ -91,7 +91,7 @@ guess a filename or substitute a different macOS build.
 
 ## Ready test contract
 
-`docs/t6040-gpu-upstream-smoke.md` is the reusable gate, staged checklist, stop
+`docs/playbooks/GPU_UPSTREAM_SMOKE.md` is the reusable gate, staged checklist, stop
 policy, and report template. It enforces:
 
 1. explicit T6040/G16 support across m1n1, kernel, and Mesa;

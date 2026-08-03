@@ -6,7 +6,7 @@
   "runnable": true,
   "track": "smp",
   "priority": "P2",
-  "desc": "DONE negative: exact reviewed maxcpus=2 set ran once. m1n1 completed kboot preparation and vectored to Linux, but DockChannel produced only the m1n1 handoff and no Linux line or SMP report in the bounded window. Normal DebugUSB recovery returned healthy. Do not retry unchanged; 122/123 own diagnosis/replacement before 120/121 or cpufreq 006. Result: done/2026-07-24-t6040-maxcpus2-result.md.",
+  "desc": "DONE negative: exact reviewed maxcpus=2 set ran once. m1n1 completed kboot preparation and vectored to Linux, but DockChannel produced only the m1n1 handoff and no Linux line or SMP report in the bounded window. Normal DebugUSB recovery returned healthy. Do not retry unchanged; 122/123 own diagnosis/replacement before 120/121 or cpufreq 006. Result: evidence/2026-07-24-t6040-maxcpus2-result.md.",
   "author": "claude",
   "deps": [
     "034"

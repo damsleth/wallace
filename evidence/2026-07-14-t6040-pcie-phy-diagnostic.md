@@ -67,7 +67,7 @@ Regenerate the exact subset with:
 ```sh
 git -C ~/Code/linux show feature/m4-m5-minimal-device-trees:j614s.adt \
   | scripts/t6040-pcie-write-plan.py --stop-before-ports \
-  > done/2026-07-14-t6040-pcie-phy-diagnostic.tsv
+  > evidence/2026-07-14-t6040-pcie-phy-diagnostic.tsv
 ```
 
 ## Live result
@@ -90,7 +90,7 @@ still made all port operations unreachable. Linux did not hand off; no port,
 PERST#, RID2SID/MSIMAP, config-space, Linux PCIe, NVMe, or storage access ran.
 
 The sanctioned DebugUSB reboot restored a fresh, quiescent proxy. Transcript:
-`../logs/t6040-console-20260714-pcie-shared-phy.log`, SHA-256
+`evidence/logs/t6040-console-20260714-pcie-shared-phy.log`, SHA-256
 `b567ab1353682787549a1e666b489dd46228a960a23cb5248e14c0a5221668bb`
 (432 lines, 27,927 bytes).
 

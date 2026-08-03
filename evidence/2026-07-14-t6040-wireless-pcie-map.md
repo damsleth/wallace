@@ -157,7 +157,7 @@ Regenerate it with:
 ```sh
 git -C ~/Code/linux show feature/m4-m5-minimal-device-trees:j614s.adt \
   | scripts/t6040-pcie-write-plan.py \
-  > done/2026-07-14-t6040-pcie-write-manifest.tsv
+  > evidence/2026-07-14-t6040-pcie-write-manifest.tsv
 ```
 
 ## First live result
@@ -182,7 +182,7 @@ The uploader timed out without a proxy reply. The sanctioned HPM DebugUSB warm
 reboot recovered the target to a healthy `Running proxy`; the opaque sequence
 was not retried. Linux never handed off, no endpoint/port result was observed,
 and no NVMe or user-storage access occurred. Transcript:
-`logs/t6040-console-20260714-pcie-stage1.log`, SHA-256
+`evidence/logs/t6040-console-20260714-pcie-stage1.log`, SHA-256
 `b850b08a6ce2b40a2067324dabacaa52102f6b4c07b1c7b045237f64fb2a5398`.
 
 ## Traced follow-up result
@@ -210,7 +210,7 @@ untraced run's later `No common tunables` line.
 The uploader was terminated without a Linux handoff. HPM DebugUSB recovery
 restored a fresh, quiescent `Running proxy`. No CIO3, clkgen, PHY, port, PERST#,
 RID2SID, MSIMAP, Linux PCIe, or storage access occurred. Transcript:
-`logs/t6040-console-20260714-pcie-axi-trace.log`, SHA-256
+`evidence/logs/t6040-console-20260714-pcie-axi-trace.log`, SHA-256
 `41774ef8866e775de30ca2c98957d167085943163fe24d25c7aaca29eb177860`.
 
 ## Corrected clock-gate ordering
@@ -271,7 +271,7 @@ remains the Apple-accurate implementation and should be retained.
 The uploader stopped without Linux handoff. No PHY, port, PERST#, Linux PCIe,
 NVMe, or storage access occurred. The sanctioned DebugUSB reboot restored a
 fresh quiescent proxy. Transcript:
-`logs/t6040-console-20260714-pcie-staged-gate.log`, SHA-256
+`evidence/logs/t6040-console-20260714-pcie-staged-gate.log`, SHA-256
 `c31275546280b9df2dbf9b014d2e6411cfb708f87f1c803e10b11e2cdb95ec2f`
 (407 lines, 25,940 bytes).
 
@@ -284,7 +284,7 @@ implemented that check and would abort without clearing a nonzero status. The
 approved run again printed `[70] done`, proving the barrier completed and the
 immediate status sample was zero, then took the same SError before `[71]`.
 Therefore the L2C status does not latch early enough to attribute an individual
-RMW. Transcript: `logs/t6040-console-20260714-pcie-barrier.log`, SHA-256
+RMW. Transcript: `evidence/logs/t6040-console-20260714-pcie-barrier.log`, SHA-256
 `cebc058921b62b2f594855bb65db28b312570b6c707f5a29a29480c31c04667b`.
 The PCIe-free base DT was used; no later write, Linux, or storage access ran.
 Full result: `2026-07-14-t6040-pcie-barrier-diagnostic.md`.

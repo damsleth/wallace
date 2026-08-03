@@ -10,7 +10,7 @@
   "deps": [],
   "hashes": null,
   "created": 1785011068,
-  "note": "2026-07-26: DEPRIORITISED, not rejected. The maintainer chose Alpine ('We'll go with alpine for now'), and Alpine + Xorg + dwm now demonstrably works on the panel with a working keyboard (see done/2026-07-26-t6040-dwm-working-hidpi.md), so the motivating gap is closed. Revisit only if a specific Alpine limitation bites \u2014 likely candidates are wayland/dwl needing no X server at all, or glibc-only binaries where musl is a problem. Keep for the comparison notes, not as active work.",
+  "note": "2026-07-26: DEPRIORITISED, not rejected. The maintainer chose Alpine ('We'll go with alpine for now'), and Alpine + Xorg + dwm now demonstrably works on the panel with a working keyboard (see evidence/2026-07-26-t6040-dwm-working-hidpi.md), so the motivating gap is closed. Revisit only if a specific Alpine limitation bites \u2014 likely candidates are wayland/dwl needing no X server at all, or glibc-only binaries where musl is a problem. Keep for the comparison notes, not as active work.",
   "archived": {
     "at": 1785736860,
     "by": "sol",

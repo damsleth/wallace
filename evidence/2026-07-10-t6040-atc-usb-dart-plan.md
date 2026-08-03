@@ -85,7 +85,7 @@ current m1n1 main. It is not an active T6040 implementation. Current main has
 newer T8122 handling but still no T6040 table/fuse entry, and published Linux
 ATC branches have no T6040 compatible. Track the broader upstream work and
 #asahi-dev rather than that branch alone. Exact refresh:
-`done/2026-07-23-t6040-atcphy-upstream-checkpoint.md`.
+`evidence/2026-07-23-t6040-atcphy-upstream-checkpoint.md`.
 
 ## Next steps (when unblocking)
 

@@ -5,7 +5,7 @@
   "state": "done",
   "track": "gpu",
   "priority": "P2",
-  "desc": "DONE offline [UPSTREAM]: refreshed Asahi Linux asahi-wip f4dd286f, Mesa main 479773c7, m1n1 upstream 7c7716b6, and the official M4 feature table. No safe candidate exists: kernel configurations stop at T6022/G14, Mesa maps every generation >=14 to G14G/G14X, m1n1 has no T6040 GPU handoff case, and T604x GPU remains TBA. Inventoried the captured J614s gpu,t6040/gfx-asc registers, IRQs, perf metadata, and six reserved regions plus exact 25F84 AGXFirmwareKextG16RTBuddy/AGXG16X/RTKit-1558.40.16 kernelcache hashes. Added an explicit no-G14-alias admission gate, staged G0-G3 storage-free smoke checklist, stop policy, and report template. No fork, rig work, MMIO, or external post. Result: done/2026-07-24-t6040-gpu-upstream-test-prep.md; procedure: docs/t6040-gpu-upstream-smoke.md.",
+  "desc": "DONE offline [UPSTREAM]: refreshed Asahi Linux asahi-wip f4dd286f, Mesa main 479773c7, m1n1 upstream 7c7716b6, and the official M4 feature table. No safe candidate exists: kernel configurations stop at T6022/G14, Mesa maps every generation >=14 to G14G/G14X, m1n1 has no T6040 GPU handoff case, and T604x GPU remains TBA. Inventoried the captured J614s gpu,t6040/gfx-asc registers, IRQs, perf metadata, and six reserved regions plus exact 25F84 AGXFirmwareKextG16RTBuddy/AGXG16X/RTKit-1558.40.16 kernelcache hashes. Added an explicit no-G14-alias admission gate, staged G0-G3 storage-free smoke checklist, stop policy, and report template. No fork, rig work, MMIO, or external post. Result: evidence/2026-07-24-t6040-gpu-upstream-test-prep.md; procedure: docs/playbooks/GPU_UPSTREAM_SMOKE.md.",
   "author": "sol",
   "deps": [],
   "hashes": {

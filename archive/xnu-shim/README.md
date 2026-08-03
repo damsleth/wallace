@@ -13,13 +13,13 @@ after handoff. Later work disproved that as the immediate blocker:
   CQ wrap.
 
 The active route is therefore the T8132-style m1n1/Linux ANS work tracked by
-tickets 192, 201, 203, and related experiments. The XNU shim adds a custom
+tickets 192, 201, 203, 206, and related experiments. The XNU shim adds a custom
 kernelcache, signing, domain-provenance, and handoff problem without addressing
 the observed CQ-wrap failure.
 
 ## Retained value
 
-The files under `xnu-shim/` remain useful as static research:
+The files under `archive/xnu-shim/` remain useful as static research:
 
 - decoded guarded NVMe operations and argument shapes;
 - SPTM domain and permission questions;
@@ -39,5 +39,6 @@ Reconsider this route only if all of the following become true:
 3. caller-domain provenance across an XNU-to-Linux pivot is understood;
 4. the work has a concrete advantage over fixing the current CQ-wrap contract.
 
-Until then, tickets 114–117 remain offline research only. No shim, custom
-kernelcache, SPTM call, or handoff should be built for the rig.
+Tickets 114–117 are archived with this route. Until the conditions above are
+met, no shim, custom kernelcache, SPTM call, or handoff should be built for the
+rig.

@@ -5,7 +5,7 @@
   "state": "done",
   "track": "hid",
   "priority": "P2",
-  "desc": "DONE offline PASS. Replaced retired ticket-004 bytes with the proven DockChannel hid->type patch and CONFIG_HID_MULTITOUCH=y while retaining the exact storage-disabled DTB, bounded TX-only reporter, initramfs, paired J614s HIDF, and m1n1. Two independent build directories byte-match after normalizing C and assembly debug paths. Independent exact-artifact review verified functional event-node reachability and no reachable storage/USB/SPMI/PMU/GPIO/NVRAM/flash path. Proposed live ticket 126 remains unapproved and separately blocked on an explicit exception for the exact volatile non-persistent runtime firmware upload plus attended finger motion. Evidence: done/2026-07-24-t6040-trackpad-motion-revised-preflight.md.",
+  "desc": "DONE offline PASS. Replaced retired ticket-004 bytes with the proven DockChannel hid->type patch and CONFIG_HID_MULTITOUCH=y while retaining the exact storage-disabled DTB, bounded TX-only reporter, initramfs, paired J614s HIDF, and m1n1. Two independent build directories byte-match after normalizing C and assembly debug paths. Independent exact-artifact review verified functional event-node reachability and no reachable storage/USB/SPMI/PMU/GPIO/NVRAM/flash path. Proposed live ticket 126 remains unapproved and separately blocked on an explicit exception for the exact volatile non-persistent runtime firmware upload plus attended finger motion. Evidence: evidence/2026-07-24-t6040-trackpad-motion-revised-preflight.md.",
   "author": "codex",
   "deps": [
     "004"

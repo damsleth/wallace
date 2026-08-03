@@ -5,7 +5,7 @@ Question: does m1n1's OWN pre-Linux NVMe path (ANS + SART over RTKit) work on
 T6040? If yes, the upstream Asahi boot architecture opens up: a small enrolled
 stage-1 m1n1 + `chainload=` stage 2 read from storage, which removes the
 appended-payload limitation root-caused in
-done/2026-07-25-t6040-enrolled-payload-rootcause.md.
+evidence/2026-07-25-t6040-enrolled-payload-rootcause.md.
 
 Safety properties (by construction):
   * The m1n1 proxy exposes NO write opcode for NVMe. P_NVME_INIT / P_NVME_READ /

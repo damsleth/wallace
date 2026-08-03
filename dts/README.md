@@ -1,4 +1,4 @@
-# T6040 / J614s device-tree checklist
+# T6040 / J614s device-tree sources and checklist
 
 Current as of 2026-08-03. The early bring-up checklist is complete enough to
 boot and exercise the board; this page now records what is verified and what
@@ -20,9 +20,9 @@ still needs upstream-quality cleanup.
 - experimental T8132-style ANS/NVMe split mappings from the captured J614s ADT.
 - SDHCI and exFAT path through `mmc0`.
 
-The active board sources are in `dts/` and the Linux worktree. The build
-copies DT files into a clean committed kernel tree; uncommitted kernel code is
-not part of the build.
+This directory contains the active board sources; the Linux worktree carries
+their build-tree counterparts. The build copies DT files into a clean committed
+kernel tree; uncommitted kernel code is not part of the build.
 
 ## Still open
 
@@ -31,7 +31,7 @@ not part of the build.
 | MM/SMP | Explain the copy-on-write fault before claiming stable 14-core userspace |
 | cpuidle/suspend | T6040 retention and locked-sysreg contract |
 | panel backlight | Correct DCP/DWI ownership and bindings |
-| keyboard backlight | Decode the ADT node and driver path |
+| keyboard backlight | Working through `fpwm0` and `pwm-leds`; keep regression coverage |
 | trackpad | Correct post-HIDF reset/interface contract |
 | USB host | Reversible HPM role/VBUS plus ATC/eUSB2/xHCI sequence |
 | NVMe | Fix the Linux first-I/O-CQ-wrap firmware assert |
@@ -53,6 +53,6 @@ not part of the build.
 ## Historical source
 
 The original 2026-07-10 extraction commands and placeholder audit are retained
-in Git history. Current ADT-derived results are documented in `done/`,
+in Git history. Current ADT-derived results are documented in `evidence/`,
 especially the Linux DT series, PCIe endpoint-power, SD preflight, and NVMe
 port write-ups.

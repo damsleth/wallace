@@ -79,7 +79,7 @@ retimer-mode transition:
   health and crash state rather than program USB lane mode.
 
 Exact functions, cross-references, hashes, and the bounded conclusion are in
-`done/2026-07-29-t6040-atcrt-owner-correction.md`.
+`evidence/2026-07-29-t6040-atcrt-owner-correction.md`.
 
 The three exact children remain disabled inventory because their physical
 power, clock, reset, and firmware ownership is still unknown. However, lack

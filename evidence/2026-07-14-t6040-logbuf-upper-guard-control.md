@@ -73,11 +73,11 @@ the 16 KiB upper guard. It also proves that none of the previous `[70]` failures
 can implicate a PCIe RMW. No PCIe PMGR/controller/PHY/port access, Linux PCIe,
 NVMe, or storage operation ran.
 
-- m1n1 transcript: `logs/t6040-console-20260714-logbuf-upper-guard.log`,
+- m1n1 transcript: `evidence/logs/t6040-console-20260714-logbuf-upper-guard.log`,
   SHA-256
   `2e8624d795bc6bddab24b932a530bf7f992f35732402ed041bfc308857260d63`
   (383 lines, 24,915 bytes);
-- Linux transcript: `logs/t6040-linux-20260714-logbuf-upper-guard.log`, SHA-256
+- Linux transcript: `evidence/logs/t6040-linux-20260714-logbuf-upper-guard.log`, SHA-256
   `6c6c0073bacbec235a9e54c6535a646f34ad372792c02ee30a5cb1fc5983d8e9`
   (36 lines, 2,255 bytes).
 

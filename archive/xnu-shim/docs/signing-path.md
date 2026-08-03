@@ -14,4 +14,4 @@ requirements is established:
 Because the direct m1n1/Linux ANS path now reaches real filesystem I/O, solving
 this signing stack would add risk without addressing the observed Linux
 CQ-wrap assert. Retain the question for research; do not begin implementation
-unless the conditions in `../PLAN.md` are met.
+unless the conditions in `../README.md` are met.

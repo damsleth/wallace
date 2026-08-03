@@ -30,7 +30,7 @@ diff hashes to
 - Each eligible DT enables only one ADT-derived DWC3 wrapper, its two
   ADT-derived DART instances, and its existing PMGR power-domain reference.
   Exact register/IRQ/IOMMU mappings are recorded in
-  `done/2026-07-14-t6040-usb-host-dt-audit.md`.
+  `evidence/2026-07-14-t6040-usb-host-dt-audit.md`.
 - No ATC PHY node or unknown tunable bucket is enabled. No blind MMIO probing is
   present. The driver patch only invokes the existing host initializer at probe.
 - The ANS mailbox, SART, and internal NVMe DT nodes remain `status = "disabled"`.
@@ -92,7 +92,7 @@ Review status: **PASS for both port-specific sets, conditional on selecting and
 pinning exactly one before CJ approval.** The focused independent review
 verified the decompiled DTBs, both six-file manifests, raw ADT mapping,
 initramfs behavior, and disabled NVMe/SART/unused-USB paths. Full result:
-`done/2026-07-21-t6040-usb-host-smoke-crossreview.md`.
+`evidence/2026-07-21-t6040-usb-host-smoke-crossreview.md`.
 
 **Selected 2026-07-21:** the external drive is attached to the right-side port,
 so only the right/`usb-drd2` DTB above is eligible. Rig ticket 063 pins that

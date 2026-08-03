@@ -18,7 +18,7 @@ There are two load-bearing results.
 1. Yuka's four NVMe commits genuinely reopen Wallace's raw-m1n1 NVMe route. They invalidate
    the *evidence* previously used to declare that route SPTM-blocked, but they do not yet prove
    end-to-end T6040 I/O. Claude independently recorded the ADT/fault-address re-derivation in
-   `done/2026-07-28-upstream-review-nvme-reopened-pcie-d2-confirmed.md`; I agree with the
+   `evidence/2026-07-28-upstream-review-nvme-reopened-pcie-d2-confirmed.md`; I agree with the
    arithmetic and the reopen, with the qualification below.
 2. The IRC discussion independently confirms that T6040 ATC is not a safe T8103/T8122 fallback.
    Yuka stopped the proposed T604x USB test after finding a materially different PHY/tunable set.
@@ -75,7 +75,7 @@ The July 26 discussion is unusually direct:
 - T6040 has `tunable_CIO4PLL_CORE` and TB5/CIO changes.
 - Yuka first reported 53 tunables on T8132 versus 25 on T6040, then corrected an
   over-broad extraction again. The final corrected inventories are 44 versus 17; the 17-entry
-  T6040 list is preserved in `done/2026-07-28-asahi-dev-irc-review-0726-0728.md`.
+  T6040 list is preserved in `evidence/2026-07-28-asahi-dev-irc-review-0726-0728.md`.
 - T8132 worked by reusing the T8122 table and aliasing
   `tunable_ATC0AXI2AF` to `tunable_ATCAXI2AF`.
 - T6040 lacks the old lane-USB tunable set; Yuka said "I doubt USB3 will work" as-is and

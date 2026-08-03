@@ -5,7 +5,7 @@
   "state": "open",
   "track": "display",
   "priority": "P2",
-  "desc": "[UPSTREAM] Track the asahi DCP driver M4/26.x support; J614s DT wiring is now inventoried from the captured ADT, but remains blocked on the 26.x ABI, a fifth display MMIO window, the ASC eight-to-four IRQ delta, DCP SID/register-bank differences, and a reviewed raw-boot PMGR ownership transition. simpledrm is the honest interim. Checked 2026-07-23: m1n1 PR 630 remains open at 7e391ffde033bf2fa0e22cc5bda575f83d2d584b; chadmed/linux dcp/14.8.3 is f4df8984b39affb6d661ac67d097c131132b8f26. This is 14.x ABI groundwork, not J614s macOS 26.x support (done/2026-07-23-t6040-dcp-upstream-dt-prep.md).",
+  "desc": "[UPSTREAM] Track the asahi DCP driver M4/26.x support; J614s DT wiring is now inventoried from the captured ADT, but remains blocked on the 26.x ABI, a fifth display MMIO window, the ASC eight-to-four IRQ delta, DCP SID/register-bank differences, and a reviewed raw-boot PMGR ownership transition. simpledrm is the honest interim. Checked 2026-07-23: m1n1 PR 630 remains open at 7e391ffde033bf2fa0e22cc5bda575f83d2d584b; chadmed/linux dcp/14.8.3 is f4df8984b39affb6d661ac67d097c131132b8f26. This is 14.x ABI groundwork, not J614s macOS 26.x support (evidence/2026-07-23-t6040-dcp-upstream-dt-prep.md).",
   "author": "claude",
   "deps": [],
   "hashes": {

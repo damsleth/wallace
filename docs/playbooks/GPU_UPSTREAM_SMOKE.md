@@ -27,7 +27,7 @@ Reject the candidate before building unless all of these are true:
    first-test scope, and crash/recovery instructions.
 
 The baseline evidence packet is
-`done/2026-07-24-t6040-gpu-upstream-test-prep.md`.
+`evidence/2026-07-24-t6040-gpu-upstream-test-prep.md`.
 
 ## Offline build and inspection
 

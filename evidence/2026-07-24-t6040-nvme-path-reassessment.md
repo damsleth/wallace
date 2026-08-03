@@ -60,7 +60,7 @@ an unconfigured GENTER vector.
 - **A. Ride sven's hv/SPRR work** (track). When a degraded M4 hv exists, revisit
   tracing the macOS service-6 NVMe path and testing whether a shim inherits live
   SPTM state. Our 007/051/052/054/055 decode is the ready payload.
-- **B. Asahi escalation** (CJ posts `xnu-shim/docs/asahi-dev-escalation.md`): does
+- **B. Asahi escalation** (CJ posts `archive/xnu-shim/docs/asahi-dev-escalation.md`): does
   the M4 boot chain offer *any* documented way for a permissive/custom object to
   enter genuine SPTM and expose the service-6 NVMe ABI — or is internal NVMe
   gated on an open SPTM re-implementation? Attach the ABI decode + the SEP-key

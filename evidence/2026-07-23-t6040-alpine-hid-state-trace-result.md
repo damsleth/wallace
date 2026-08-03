@@ -73,7 +73,7 @@ loop was observed before recovery.
 
 | Evidence | Bytes | SHA-256 |
 |---|---:|---|
-| `logs/t6040-linux-20260723-hid-state-trace.log` | 465 | `6f42f4db69cd6b3e70ce91729fd3ccce488fd11dffa15f29dfa906f45401aa62` |
+| `evidence/logs/t6040-linux-20260723-hid-state-trace.log` | 465 | `6f42f4db69cd6b3e70ce91729fd3ccce488fd11dffa15f29dfa906f45401aa62` |
 | `linux-build-out/dcuart-boot.log` | 25,483 | `09ad8d1b23d1fbb79cdba7e78cf75f236bca32ffe8f5ba5bcb285c4ab090e3d2` |
 | `linux-build-out/dcuart-chainload.log` | 4,726 | `a77bed1f997d01eac6027650e34453bfba047fdd3e5690d5af3eec655ac121b8` |
 

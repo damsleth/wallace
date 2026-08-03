@@ -2084,7 +2084,7 @@ index 000000000000..b92fdbde8373
 + * t8122-aic3) in a Pro-die multi-cluster layout (4E + 5P + 5P).
 + *
 + * All reg/irq values verified against the live j614s ADT (2026-07-10); see
-+ * m1n1 .plans/2026-07-10-t6040-kboot-fdt-plan.md and t6040-dt-checklist.md.
++ * m1n1 .plans/2026-07-10-t6040-kboot-fdt-plan.md and dts/README.md.
 + *
 + * Copyright The Asahi Linux Contributors
 + */

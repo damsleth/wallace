@@ -5,7 +5,7 @@
   "state": "done",
   "track": "distro",
   "priority": "P2",
-  "desc": "Ubuntu 24.04 aarch64 RAM-root distro-progression boot (busybox->alpine->ubuntu). Built initramfs-ubuntu-ramroot.cpio.gz (94753f88, 28MB) from ubuntu-base-24.04.3 + custom /init (glibc/bash, ttydc0 console, watchdog-ping); boot set m1n1 1394c345 + Image-hid-type-fix df7657c1 + DTB 2782b922. LIVE RESULT: booted to interactive Ubuntu glibc bash prompt (root@(none):/#) over ttydc0, machine stable. Distro progression complete. Log logs/t6040-console-20260724-ubuntu-ramroot.log. Builder scripts/t6040-build-usbroot-image.sh sibling for RAM: inline in done/2026-07-24-t6040-ubuntu-ramroot-result.md.",
+  "desc": "Ubuntu 24.04 aarch64 RAM-root distro-progression boot (busybox->alpine->ubuntu). Built initramfs-ubuntu-ramroot.cpio.gz (94753f88, 28MB) from ubuntu-base-24.04.3 + custom /init (glibc/bash, ttydc0 console, watchdog-ping); boot set m1n1 1394c345 + Image-hid-type-fix df7657c1 + DTB 2782b922. LIVE RESULT: booted to interactive Ubuntu glibc bash prompt (root@(none):/#) over ttydc0, machine stable. Distro progression complete. Log evidence/logs/t6040-console-20260724-ubuntu-ramroot.log. Builder scripts/t6040-build-usbroot-image.sh sibling for RAM: inline in evidence/2026-07-24-t6040-ubuntu-ramroot-result.md.",
   "author": "claude",
   "deps": [],
   "hashes": null,

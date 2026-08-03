@@ -1971,7 +1971,7 @@ if [ "${1:-}" = "image" ]; then
     fi
 
     # Refuse to silently replace an existing artifact: any Image already in /out may
-    # be referenced by a done/ write-up or pinned in a ticket. Set KBUILD_OVERWRITE=1
+    # be referenced by an evidence write-up or pinned in a ticket. Set KBUILD_OVERWRITE=1
     # to replace deliberately.
     if [ -e "/out/$image_name" ] && [ "${KBUILD_OVERWRITE:-0}" != "1" ]; then
         echo "REFUSING to overwrite existing /out/$image_name" >&2

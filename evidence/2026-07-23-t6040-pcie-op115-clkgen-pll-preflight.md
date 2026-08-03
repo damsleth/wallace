@@ -3,7 +3,7 @@
 Pre-approval packet for a single **bounded state-changing** retest of the
 op-115 boundary with
 the PCIe-PLL bring-up that `_configPciePLLs` performs and m1n1 omitted. Grounded
-decode + rationale: `done/2026-07-21-t6040-pcie-op115-routefind.md` (ticket 058).
+decode + rationale: `evidence/2026-07-21-t6040-pcie-op115-routefind.md` (ticket 058).
 This changes m1n1 only; it performs two exact clkgen writes, then stops at the
 existing op-115 read-only
 diagnostic (reads `0x417040090` once, returns before any PHY-IP write). Awaiting

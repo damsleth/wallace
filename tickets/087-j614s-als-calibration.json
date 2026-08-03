@@ -5,7 +5,7 @@
   "state": "approved",
   "track": "xcut",
   "priority": "P2",
-  "desc": "EXACT PREFLIGHT REVIEW PASS; runnable=false only because capture is maintainer-attended. From upstream asahi-installer c53d66dc, collect this M4's ioreg ALS plist, exact Mac16,8 model, macOS version, and nonempty HmCA* FactoryData under set -eu/umask077 into a fresh mode-0700 capture and mode-0600 archive; extract atomically on the M1 with fail-closed script 7c05d56b... to private apple/aop-als-cal.bin, matching HmCA*, and manifest. Never substitute the M1. No NVRAM, PMU/SPMI, Boot Policy, kmutil/bputil, or hardware/config write. Do not discard the healthy proxy unattended; run only during an attended boot into the M4's main macOS. Preflight: done/2026-07-24-t6040-als-calibration-preflight.md.",
+  "desc": "EXACT PREFLIGHT REVIEW PASS; runnable=false only because capture is maintainer-attended. From upstream asahi-installer c53d66dc, collect this M4's ioreg ALS plist, exact Mac16,8 model, macOS version, and nonempty HmCA* FactoryData under set -eu/umask077 into a fresh mode-0700 capture and mode-0600 archive; extract atomically on the M1 with fail-closed script 7c05d56b... to private apple/aop-als-cal.bin, matching HmCA*, and manifest. Never substitute the M1. No NVRAM, PMU/SPMI, Boot Policy, kmutil/bputil, or hardware/config write. Do not discard the healthy proxy unattended; run only during an attended boot into the M4's main macOS. Preflight: evidence/2026-07-24-t6040-als-calibration-preflight.md.",
   "author": "codex",
   "deps": [],
   "hashes": {

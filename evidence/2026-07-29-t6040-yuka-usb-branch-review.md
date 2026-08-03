@@ -91,7 +91,7 @@ The T8122 driver support comes from:
 
 Its USB2 path is close to, but not identical with, the paired T6040
 `AppleT6040TypeCPhy::eusb2phy_init(false, false)` sequence decoded in
-`done/2026-07-24-t6040-eusb2-init-sequence.md`.
+`evidence/2026-07-24-t6040-eusb2-init-sequence.md`.
 
 The decisive mismatch is the event bank:
 

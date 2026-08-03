@@ -45,7 +45,7 @@ a perfect Linux-side driver would still hit this.
 The upstream Asahi architecture (small enrolled stage 1 + `chainload=` stage 2
 read from storage) is **unavailable on T6040** for internal NVMe, because
 `chainload_load()` depends on `nvme_init()`. Combined with the appended-payload
-root cause (`done/2026-07-25-t6040-enrolled-payload-rootcause.md`), both routes to
+root cause (`evidence/2026-07-25-t6040-enrolled-payload-rootcause.md`), both routes to
 an untethered enrolled boot are now closed:
 
 | Route | Status |

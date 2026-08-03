@@ -57,11 +57,11 @@ operation 106 and all later PHY/port work. The PCIe-free base kernel then
 reached BusyBox. No PHY, port, PERST#, RID2SID/MSIMAP, Linux PCIe, NVMe, or
 storage access occurred.
 
-- m1n1 transcript: `../logs/t6040-console-20260714-pcie-guarded-clock.log`,
+- m1n1 transcript: `evidence/logs/t6040-console-20260714-pcie-guarded-clock.log`,
   SHA-256
   `8dac965aadfb8f5bd92cf2c0e17ceefaea3f74de11790d8089121d527f54b175`
   (402 lines, 26,188 bytes)
-- Linux transcript: `../logs/t6040-linux-20260714-pcie-guarded-clock.log`,
+- Linux transcript: `evidence/logs/t6040-linux-20260714-pcie-guarded-clock.log`,
   SHA-256
   `b1caef2f4b6612675f329402bc0d9f87813494a98c28a84bb09033471d792063`
   (36 lines, 2,255 bytes)

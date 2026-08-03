@@ -33,7 +33,7 @@ M1N1_ALIGNMENT = 0x4000
 # Measured 2026-07-25: 64 MiB and 256 MiB graded probes both load in FULL, so no
 # enrolled-object size ceiling was found. This stays a sanity policy (a runaway object
 # is still a bug) but is set to the largest size actually proven good.
-# See done/2026-07-25-t6040-object-size-ceiling.md.
+# See evidence/2026-07-25-t6040-object-size-ceiling.md.
 MAX_OBJECT_SIZE = 256 * 1024 * 1024
 MAX_COMPRESSED_EXPANSION = 1024 * 1024 * 1024
 MAX_KERNEL_RESERVE = 512 * 1024 * 1024
@@ -389,7 +389,7 @@ def verify_object(
     # five times before showing "needs to be reinstalled". This was the root cause of
     # every enrolled-boot failure on 2026-07-25 (ticket 129) and took six wrong
     # hypotheses to find, so it is a hard error here, not a warning.
-    # See done/2026-07-25-t6040-enrolled-payload-rootcause.md.
+    # See evidence/2026-07-25-t6040-enrolled-payload-rootcause.md.
     if len(object_data) % M1N1_ALIGNMENT:
         pad = M1N1_ALIGNMENT - (len(object_data) % M1N1_ALIGNMENT)
         raise VerificationError(

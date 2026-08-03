@@ -82,7 +82,7 @@ Regenerate and verify the old manifest with:
 git -C ~/Code/linux show feature/m4-m5-minimal-device-trees:j614s.adt \
   | scripts/t6040-pcie-write-plan.py --stop-before-ports \
   > /tmp/t6040-shared-phy.tsv
-cmp /tmp/t6040-shared-phy.tsv done/2026-07-14-t6040-pcie-phy-diagnostic.tsv
+cmp /tmp/t6040-shared-phy.tsv evidence/2026-07-14-t6040-pcie-phy-diagnostic.tsv
 ```
 
 ## Exact read-only candidate for ticket 002
@@ -121,7 +121,7 @@ Regenerate the candidate manifest with:
 ```sh
 git -C ~/Code/linux show feature/m4-m5-minimal-device-trees:j614s.adt \
   | scripts/t6040-pcie-write-plan.py --isolate-op115-read \
-  > done/2026-07-14-t6040-pcie-op115-read-manifest.tsv
+  > evidence/2026-07-14-t6040-pcie-op115-read-manifest.tsv
 ```
 
 Pre-register the interpretation:

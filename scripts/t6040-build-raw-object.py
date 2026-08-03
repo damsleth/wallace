@@ -124,7 +124,7 @@ def main() -> int:
     # 16 KiB page size: an object of any other length is never executed (m1n1 is not
     # entered at all, and iBoot resets ~every 5 s, 5 times, then shows the
     # "needs to be reinstalled" screen). Measured 2026-07-25 across ten objects --
-    # see done/2026-07-25-t6040-enrolled-payload-rootcause.md. Padding with zeros is
+    # see evidence/2026-07-25-t6040-enrolled-payload-rootcause.md. Padding with zeros is
     # inert: m1n1 stops scanning at the 4-zero terminator, and the ticket-080 contract
     # already requires the remainder of the object to be zero.
     if len(output) % M1N1_ALIGNMENT:

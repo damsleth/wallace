@@ -178,7 +178,7 @@ before XNU runs. The `mrs s3_6_c15_c8_0` read then succeeds and GENTER traps
 into the SPTM guarded vector, which services the request and `GEXIT`s back.
 
 Raw m1n1 boot provides none of this. The read-only m1n1 snapshot before the
-prior Linux attempt (`logs/t6040-console-20260714-nvme-sptm.log`):
+prior Linux attempt (`evidence/logs/t6040-console-20260714-nvme-sptm.log`):
 
 ```
 SPRR_CONFIG_EL1 = 0x0

@@ -62,5 +62,5 @@ preserved.**
 Parse method: `adt.py` `PMGRDevices` over `/arm-io/pmgr.devices`; exact live ADT
 SHA-256 `7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84`.
 The complete flag distribution and evidence table are in
-`done/2026-07-24-t6040-pmgr-active-encoding.md`. No rig, no writes. Ticket 085
+`evidence/2026-07-24-t6040-pmgr-active-encoding.md`. No rig, no writes. Ticket 085
 done.

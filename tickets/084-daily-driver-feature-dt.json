@@ -5,7 +5,7 @@
   "state": "open",
   "track": "integration",
   "priority": "P2",
-  "desc": "U8 (docs/USABLE_MACHINE_EXPERIMENTS.md): strictly after B0/101, all-14-core 121, cpufreq 006, and IRQ-816 console 073 each pass solo, build ONE integrated J614s DT carrying all proven features. Host-validate, pin, cross-review, and propose a single integration boot. This is the usable RAM-distro DT and the only step that combines those boundaries. No forbidden writes.",
+  "desc": "U8 (the former usable-machine experiment ladder (retained in Git history)): strictly after B0/101, all-14-core 121, cpufreq 006, and IRQ-816 console 073 each pass solo, build ONE integrated J614s DT carrying all proven features. Host-validate, pin, cross-review, and propose a single integration boot. This is the usable RAM-distro DT and the only step that combines those boundaries. No forbidden writes.",
   "author": "claude",
   "deps": [
     "005",

@@ -19,7 +19,7 @@
  *
  * All three ports are enabled so whichever carries the disk and has a usable
  * PHY enumerates; ticket 032 / a gated rig run identifies the viable physical
- * port and confirms VBUS. See done/2026-07-14-t6040-usb-host-dt-audit.md.
+ * port and confirms VBUS. See evidence/2026-07-14-t6040-usb-host-dt-audit.md.
  */
 
 #include "t6040-j614s-dcuart.dts"

@@ -5,7 +5,7 @@
   "state": "done",
   "track": "storage",
   "priority": "P3",
-  "desc": "DONE offline: decompressed and structurally compared T8132, T8140, and exact T6041 SPTM. Domain/table/IOMMU ids, XNU permission 0x12, nine-op func_state order, handler arguments, NVMe mapping, and SART boundary are stable; every function/bootstrap address is variant-specific. T8132/T8140 have identical NVMe/SART string inventories, while T6041 adds segment-count and NLB violations. This validates T8132 as a semantic proxy but forbids reusing offsets/policy. Result: done/2026-07-23-sptm-three-soc-structural-diff.md.",
+  "desc": "DONE offline: decompressed and structurally compared T8132, T8140, and exact T6041 SPTM. Domain/table/IOMMU ids, XNU permission 0x12, nine-op func_state order, handler arguments, NVMe mapping, and SART boundary are stable; every function/bootstrap address is variant-specific. T8132/T8140 have identical NVMe/SART string inventories, while T6041 adds segment-count and NLB violations. This validates T8132 as a semantic proxy but forbids reusing offsets/policy. Result: evidence/2026-07-23-sptm-three-soc-structural-diff.md.",
   "author": "fable",
   "deps": ["052"],
   "hashes": {

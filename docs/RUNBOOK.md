@@ -130,9 +130,16 @@ Proven RAM-root builders:
     DEST=~/Code/linux-build-out/initramfs-dwm.cpio.xz \
       bash scripts/t6040-build-alpine-dwm.sh
 
-The current persistent-root path is built on the SD card and entered by
-`scripts/t6040-sdroot-init`. Follow ticket 204 and its result document; do
-not reconstruct the card from stale commands in older write-ups.
+The persistent root uses `scripts/t6040-sdroot-init`. Its filesystems are
+currently dirty; do not mount them read/write outside approved ticket 215.
+Build the pinned repair and hardened images with:
+
+    scripts/t6040-build-sdroot-fsck-initramfs.sh
+    scripts/t6040-build-sdroot-initramfs.sh
+
+Ticket 215 must pass before ticket 216 applies `scripts/t6040-sdroot-apply`.
+Normal reboot and poweroff must resolve to `t6040-sdroot-powerctl`; direct
+BusyBox reboot bypasses the clean loop/exFAT teardown.
 
 ## 9. Dual-mode debug window
 

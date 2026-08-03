@@ -53,7 +53,7 @@ It is cosmetic, and expected on any image with `ignore_loglevel` on this fbcon.
 `console=ttydc0` matched no registered console, so no kernel dmesg ever left the machine — the
 post-handoff console log was 0 bytes. `/dev/ttydc0` does exist, which is why a **userspace** getty
 works and how the ticket-147 B0 health report reached the host. Full root cause in
-`done/2026-07-26-t6040-dockchannel-tty-provenance.md`.
+`evidence/2026-07-26-t6040-dockchannel-tty-provenance.md`.
 
 The fix is now one rebuild away: `patches/t6040-dockchannel-nbcon.patch` adds a real
 `register_console` and, **verified today, applies cleanly** on top of the recovered driver patch. It

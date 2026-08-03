@@ -63,7 +63,7 @@ die() { echo "rig-lease: $1" >&2; exit "${2:-2}"; }
 # The `|| x=""` guards the bash 3.2 set -e quirk where a non-matching glob in
 # $(...) aborts the script.
 tk_need_jq() { command -v jq >/dev/null 2>&1 || die "the ticket queue needs jq on PATH (brew install jq)"; }
-tk_file() {   # zero-padded seq -> ticket path ("" if none); checks active then done/
+tk_file() {   # zero-padded seq -> ticket path ("" if none); checks active then tickets/done/
   local f; f="$(ls "$TICKETS_DIR/$1"-*.json 2>/dev/null | head -1)" || f=""
   [ -n "$f" ] || { f="$(ls "$TICKETS_DONE/$1"-*.json 2>/dev/null | head -1)" || f=""; }
   printf '%s' "$f"

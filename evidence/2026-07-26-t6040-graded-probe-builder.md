@@ -20,7 +20,7 @@ built  c7fcfa71015979391c5c9b85243fe9b04f996877e6b78dd5daa1615edad87cc3
 proven c7fcfa71015979391c5c9b85243fe9b04f996877e6b78dd5daa1615edad87cc3   cmp: identical
 ```
 
-That hash is the one recorded in `done/2026-07-25-t6040-object-size-ceiling.md`, so the builder is
+That hash is the one recorded in `evidence/2026-07-25-t6040-object-size-ceiling.md`, so the builder is
 provably equivalent to whatever produced the probe that actually booted. It also self-checks every
 stamp it wrote and asserts 16 KiB alignment before writing the file.
 

@@ -1,7 +1,7 @@
 # T6040 SPTM ⇄ asahi_neo cross-review: XNU-shim route, SPTM-vs-PPL, new experiments (2026-07-14)
 
-Follow-up to tickets 007/008 (`done/2026-07-14-t6040-sptm-service6-abi.md`,
-`done/2026-07-14-t6040-nvme-sptm-route-finding.md`). Cross-reads `~/Code/asahi_neo`
+Follow-up to tickets 007/008 (`evidence/2026-07-14-t6040-sptm-service6-abi.md`,
+`evidence/2026-07-14-t6040-nvme-sptm-route-finding.md`). Cross-reads `~/Code/asahi_neo`
 (XNU-shim boot project, target A18 Pro / t8140) against the T6040/M4 NVMe-SPTM
 blocker. Four questions from CJ. Static analysis only; read-only string/symbol greps
 and a byte-level GENTER decode over the already-staged M4 kernelcache — no rig, no
@@ -340,7 +340,7 @@ MOVK pattern — 222k bogus "lsl#48" hits), so this rests on the **targeted** de
    "iBoot-loads-SPTM-for-m1n1" ask, and it recruits asahi_neo's capability-model
    argument against route-B pessimism.
 4. **DONE — SPTM blob disassembly (Q3.1/Q4.1):** see
-   `done/2026-07-14-t6040-sptm-nvme-guarded-backend-decode.md`. Decompressed the
+   `evidence/2026-07-14-t6040-sptm-nvme-guarded-backend-decode.md`. Decompressed the
    M4-family SPTM (t8132) and read the guarded-side NVMe backend directly: **9 ops
    0..8** (`func_state[N]`), op-4=admin-queue **confirmed**, and **op-5..8 corrected**
    (5=IOQA, 6=IOSQ, 7=IOCQ, 8=ANS-SHA — ticket 007's guesses were wrong). Full

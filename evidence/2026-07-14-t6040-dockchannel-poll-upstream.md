@@ -2,7 +2,7 @@
 
 > **Routing update (2026-07-21):** the patch's poll fallback and per-instance
 > masks remain useful, but the J614s board DT must use measured AIC input 816,
-> not the ADT's 360. See `done/2026-07-21-asahi-dev-log-review.md`.
+> not the ADT's 360. See `evidence/2026-07-21-asahi-dev-log-review.md`.
 
 Ticket 012 is complete offline. The source draft remains
 `patches/t6040-dockchannel-poll.patch`, SHA-256
@@ -21,8 +21,8 @@ uses RX BIT(1). The J614s instances therefore cannot share one hard-coded RX
 mask. The bounded UART run with explicit BIT(2)/BIT(1) retained TX but did not
 recover interactive RX, and could not retrieve an interrupt count. It proves
 the instance mask difference; it does **not** prove that ADT AIC input 360 is
-dead. See `done/2026-07-14-t6040-dockchannel-irq-retest.md` and
-`done/2026-07-14-t6040-dockchannel-rxirq-txpoll-result.md`.
+dead. See `evidence/2026-07-14-t6040-dockchannel-irq-retest.md` and
+`evidence/2026-07-14-t6040-dockchannel-rxirq-txpoll-result.md`.
 
 The same source draft provides an explicit 5 ms delayed-work fallback. That
 path is the current daily remote shell: it completes TX when the existing data

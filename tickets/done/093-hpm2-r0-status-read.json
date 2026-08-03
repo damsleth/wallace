@@ -5,7 +5,7 @@
   "state": "done",
   "track": "usb",
   "priority": "P1",
-  "desc": "DONE as a bounded inactive-endpoint result after two conservative zero-transaction gate stops. Exact m1n1 471700035efd R0 passed the complete raw+translated ADT identity gate. Its approved Register-0 selector command to right HPM2/SID 0x0c ACKed, but the physical selector-window read returned 0x00; it stopped before the logical data-window read, with no WAKEUP, SSPS, extended write, IRQ/event, USB/PHY/storage path, SError, or retry. Automatic warm reboot and healthy proxy recovery passed. Public initialization requires WAKEUP+10 ms before selector access, so do not retry unchanged; ticket 094 is narrowed to WAKEUP plus the same read only. Evidence: done/2026-07-24-t6040-hpm2-r0-attempt3.md.",
+  "desc": "DONE as a bounded inactive-endpoint result after two conservative zero-transaction gate stops. Exact m1n1 471700035efd R0 passed the complete raw+translated ADT identity gate. Its approved Register-0 selector command to right HPM2/SID 0x0c ACKed, but the physical selector-window read returned 0x00; it stopped before the logical data-window read, with no WAKEUP, SSPS, extended write, IRQ/event, USB/PHY/storage path, SError, or retry. Automatic warm reboot and healthy proxy recovery passed. Public initialization requires WAKEUP+10 ms before selector access, so do not retry unchanged; ticket 094 is narrowed to WAKEUP plus the same read only. Evidence: evidence/2026-07-24-t6040-hpm2-r0-attempt3.md.",
   "author": "codex",
   "deps": [
     "092"

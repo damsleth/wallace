@@ -46,7 +46,7 @@ PY
 fi
 
 # Optional paired BCM4388 WiFi/BT firmware staged by ticket 014
-# (done/2026-07-14-t6040-bcm4388-fw-extract.md). Points at a vendorfw/ tree
+# (evidence/2026-07-14-t6040-bcm4388-fw-extract.md). Points at a vendorfw/ tree
 # holding brcm/ files in Linux firmware naming; installs only the apple,mriya
 # board set. Example: VENDORFW_DIR=/private/tmp/t6040-vendorfw/vendorfw \
 #   ./scripts/t6040-make-initramfs.sh

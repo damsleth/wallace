@@ -104,4 +104,4 @@ does not acquire that interrupt in `apple,poll-mode`, so the cell was inert in
 ticket 067. Future builds use the corrected source and must encode 816.
 
 Exact proposed live procedure and pass/stop conditions:
-`done/2026-07-23-t6040-alpine-ramroot-preflight.md`.
+`evidence/2026-07-23-t6040-alpine-ramroot-preflight.md`.

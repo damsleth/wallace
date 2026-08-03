@@ -5,7 +5,7 @@
   "state": "done",
   "track": "storage",
   "priority": "P1",
-  "desc": "DONE offline: built and hash-pinned the USB2 host Image, config/System.map, smoke/root initramfs, and independently reviewed one-port DTBs; documented exact no-root smoke and read-only first-root procedure. Ticket 060 adds the guarded Alpine rootfs/modules/firmware population recipe and manifest. The right-side smoke later proved xHCI/DART init but no child device, so no disk was populated; HPM/ATC or a powered fixture remains the live gate. Result: done/2026-07-14-t6040-usb-root-artifacts.md and done/2026-07-23-t6040-usb-rootfs-recipe.md.",
+  "desc": "DONE offline: built and hash-pinned the USB2 host Image, config/System.map, smoke/root initramfs, and independently reviewed one-port DTBs; documented exact no-root smoke and read-only first-root procedure. Ticket 060 adds the guarded Alpine rootfs/modules/firmware population recipe and manifest. The right-side smoke later proved xHCI/DART init but no child device, so no disk was populated; HPM/ATC or a powered fixture remains the live gate. Result: evidence/2026-07-14-t6040-usb-root-artifacts.md and evidence/2026-07-23-t6040-usb-rootfs-recipe.md.",
   "author": "sol",
   "deps": [
     "009",

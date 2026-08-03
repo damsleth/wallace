@@ -94,7 +94,7 @@ that also need J614s ADT confirmation.
   are out of scope and not proposed.
 - **No PMU / SPMI writes.** SMC-PMU-backed GPIOs are forbidden: the trackpad
   audit already found `gp1c` resolving through `/arm-io/smc/iop-smc-nub/smc-pmu`
-  (`done/2026-07-12-t6040-trackpad-firmware.md`); this audit touches none of that.
+  (`evidence/2026-07-12-t6040-trackpad-firmware.md`); this audit touches none of that.
 - `macsmc-reboot` writes only its own boot-stage/shutdown nvmem keys (standard
   reboot path), not PMU/charger — noted, not exercised here.
 

@@ -95,7 +95,7 @@ matches the exact target compatibles and compiles, but the reported
 performs multiple state-changing SPMI/HPM operations and has unresolved
 bounded-poll, lifetime, bounds, and rollback issues. It is tracked as the
 leading implementation candidate, not a reason to retry:
-`done/2026-07-24-t6040-yuka-hpm-spmi-branch-audit.md`.
+`evidence/2026-07-24-t6040-yuka-hpm-spmi-branch-audit.md`.
 
 Do not guess or replay SPMI/HPM writes. Later 2026-07-24 testing retired the
 powered-fixture discriminator and proved only the exact endpoint-scoped

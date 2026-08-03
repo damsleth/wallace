@@ -5,7 +5,7 @@
   "state": "done",
   "track": "distro",
   "priority": "P1",
-  "desc": "DONE conditional PASS. Fresh rebuild exposed two missing provenance pins: M1N1_VERSION_TAG width and Rust nightly. With the exact archived 2026-07-09 Rust output, fresh C relink reproduced base 1394c345 and dual 11f6fbf1; exact old-rustc installation remains to make this a fully independent rebuild. Fresh deterministic packing reproduced object 46237ade, and every byte after its 1097728-byte prefix matches live-proven 2371ee5d. Source review bounds the no-connection path to nominal 5 s and confirms connected proxy is intentionally indefinite; display/lp-sip trigger assumptions require separate ticket-101 cold-boot and DebugUSB validation. Evidence: done/2026-07-24-t6040-b0-dualmode-crossreview.md.",
+  "desc": "DONE conditional PASS. Fresh rebuild exposed two missing provenance pins: M1N1_VERSION_TAG width and Rust nightly. With the exact archived 2026-07-09 Rust output, fresh C relink reproduced base 1394c345 and dual 11f6fbf1; exact old-rustc installation remains to make this a fully independent rebuild. Fresh deterministic packing reproduced object 46237ade, and every byte after its 1097728-byte prefix matches live-proven 2371ee5d. Source review bounds the no-connection path to nominal 5 s and confirms connected proxy is intentionally indefinite; display/lp-sip trigger assumptions require separate ticket-101 cold-boot and DebugUSB validation. Evidence: evidence/2026-07-24-t6040-b0-dualmode-crossreview.md.",
   "author": "codex",
   "deps": [
     "100"

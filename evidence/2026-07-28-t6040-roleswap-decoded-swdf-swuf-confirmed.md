@@ -9,7 +9,7 @@
 > shows. The 4CC identity, byte order, CMD1 target, and the one-byte-`0x00` DATA1 payload all remain
 > correct. A replacement source/VBUS plan must decode and review `SWSr`, a source-state verification
 > read, and its power-role inverse separately — and must not infer VBUS from a successful `SWDF`.
-> Cross-review: `done/2026-07-28-t6040-r3-r4-crossreview-no-go.md` (reviewer `sol`).
+> Cross-review: `evidence/2026-07-28-t6040-r3-r4-crossreview-no-go.md` (reviewer `sol`).
 
 ## I was wrong on 2026-07-26; the original 096 claim was right
 

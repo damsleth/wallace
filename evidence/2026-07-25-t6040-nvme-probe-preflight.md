@@ -9,7 +9,7 @@ risk class on a daily-driver machine.
 Does m1n1's **own** pre-Linux NVMe path (ANS + SART over RTKit) work on T6040?
 
 This matters because the enrolled appended-payload route is now root-caused as
-unusable (`done/2026-07-25-t6040-enrolled-payload-rootcause.md`: the payload scan
+unusable (`evidence/2026-07-25-t6040-enrolled-payload-rootcause.md`: the payload scan
 address holds m1n1's own `.rodata`). The upstream Asahi architecture avoids
 appended payloads entirely:
 

@@ -58,5 +58,5 @@ The decisive stdout excerpt was captured in this source session, but the full ra
 not copied to a durable hash-pinned file; the temporary console path has since been reused. Treat
 that as an evidence-hygiene defect and require the next bounded dump to preserve and hash its full
 transcript. Candidate hash is pinned in
-`done/2026-07-30-t6040-174-nvme-two-base-preflight.md`; independent exact-artifact review is in
-`done/2026-07-30-t6040-174-nvme-two-base-adversarial-review.md`.
+`evidence/2026-07-30-t6040-174-nvme-two-base-preflight.md`; independent exact-artifact review is in
+`evidence/2026-07-30-t6040-174-nvme-two-base-adversarial-review.md`.

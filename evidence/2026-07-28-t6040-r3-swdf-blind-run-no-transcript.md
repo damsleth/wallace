@@ -63,7 +63,7 @@ relay existed; I did not verify *which device* produced it.
   three outcomes (PASS, `!CMD` rejection, ADT-gate FAIL with zero SPMI transactions) end in the
   same warm reboot and are indistinguishable from the host.
 - The right port may now be in DFP/source state with VBUS on the passive stick. Per
-  `done/2026-07-25-t6040-r3-risk-calibration.md` that state is volatile and clears on a **power
+  `evidence/2026-07-25-t6040-r3-risk-calibration.md` that state is volatile and clears on a **power
   cycle**; two warm reboots have happened since and warm reset is not guaranteed to clear it.
   This is not a hazard (VBUS into a passive sink is the designed host operation, and the M1↔M4
   cable is on the left DFU port) but it does mean the HPM's pre-state for any *next* run is

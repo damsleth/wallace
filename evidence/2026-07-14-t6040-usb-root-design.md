@@ -11,7 +11,7 @@ storage access.
 
 Ticket 008 concluded internal NVMe under raw boot is NO-GO near-term: the
 T8140-class controller mediates all queue setup through Apple's signed SPTM, and
-raw m1n1 boot has no guarded entry (`done/2026-07-14-t6040-nvme-sptm-route-finding.md`).
+raw m1n1 boot has no guarded entry (`evidence/2026-07-14-t6040-nvme-sptm-route-finding.md`).
 Rather than wait on upstream SPTM support, boot Linux entirely from external USB
 storage. This yields the honest "my MacBook boots Linux from disk and stays up"
 milestone (ROADMAP Stage D / Stage H) without touching the internal SSD.
@@ -63,7 +63,7 @@ must be validated deliberately (ticket 031).
 
 ## USB2 host mode on M4 — the real constraint
 
-From the ATC/USB DART audit (`done/2026-07-10-t6040-atc-usb-dart-plan.md`) and
+From the ATC/USB DART audit (`evidence/2026-07-10-t6040-atc-usb-dart-plan.md`) and
 the current DT (`arch/arm64/boot/dts/apple/t6040.dtsi`):
 
 - `usb-drd0..2` = `usb-drd,t6040` + `usb-drd,t8132`; DARTs are `dart,t8110`

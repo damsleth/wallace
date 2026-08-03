@@ -3,7 +3,7 @@
 > **Superseded routing note (2026-07-21):** this historical image used ADT
 > input 360. Bounded M4 Pro measurement later found the real UART interrupt at
 > AIC input 816. The observations below remain valid, but they did not test the
-> UART's AIC route. See `done/2026-07-21-asahi-dev-log-review.md`.
+> UART's AIC route. See `evidence/2026-07-21-asahi-dev-log-review.md`.
 
 Prepared and run once on 2026-07-14 with explicit approval for UART TX BIT(2)
 and RX BIT(1). The corrected mask did not restore host-to-target input: Linux
@@ -100,7 +100,7 @@ retried. A sanctioned DebugUSB reboot restored a fresh, quiescent m1n1 proxy.
 Linux never accessed NVMe or another storage namespace.
 
 Transcript:
-`logs/t6040-console-20260714-dockchannel-irq-bit1.log`, SHA-256
+`evidence/logs/t6040-console-20260714-dockchannel-irq-bit1.log`, SHA-256
 `698d3e51df4009ab3d254c7588ed3e70e309fb8003f8e6c937ef793b7890fe7c`.
 
 This is a negative result for interactive RX with the corrected FIFO enable,
@@ -109,7 +109,7 @@ request `/proc/interrupts` and dmesg, the run captured neither the IRQ count nor
 the diagnostic driver's internal count. The next useful test must report those
 counts autonomously over the proven TX path before and after a bounded host-byte
 injection. That offline follow-up is now built and separately gated in
-`done/2026-07-14-t6040-dockchannel-irq-tx-report.md`. Keep poll mode as the
+`evidence/2026-07-14-t6040-dockchannel-irq-tx-report.md`. Keep poll mode as the
 standard configuration and do not publish the old scan as a hardware erratum.
 
 ## Approval record

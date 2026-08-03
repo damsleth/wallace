@@ -1,7 +1,7 @@
 # T6040 ticket 096 — new primary evidence: the role-swap pair, and no VBUS-off exists
 
 Date: 2026-07-25. Host-only static analysis; no rig, no SPMI, no writes to the paired
-firmware corpus. Continues `done/2026-07-24-t6040-hpm2-detach-static-slice.md` (Sol) and
+firmware corpus. Continues `evidence/2026-07-24-t6040-hpm2-detach-static-slice.md` (Sol) and
 does not redo what it proves.
 
 ## 1. A matched operation/inverse pair: `SWDF` / `SWUF`
@@ -55,7 +55,7 @@ Two consequences:
   4CC-controlled, so an R3 rollback cannot be built around a VBUS-off command because none
   exists to build around.
 - **Independent corroboration of the risk calibration**
-  (`done/2026-07-25-t6040-r3-risk-calibration.md`): no flash/OTP commands (`FLrr`, `FLwr`,
+  (`evidence/2026-07-25-t6040-r3-risk-calibration.md`): no flash/OTP commands (`FLrr`, `FLwr`,
   `FLem`, `FLad`, `FLvy`) appear anywhere in the kernelcache, which is the actual
   persistent-brick vector. Its absence across the whole image, not just the staged op set,
   supports "no persistent-brick mechanism".

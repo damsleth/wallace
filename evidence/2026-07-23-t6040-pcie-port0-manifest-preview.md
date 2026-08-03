@@ -1,13 +1,13 @@
 # T6040 PCIe port-0 (BCM4388) stage — pre-review (ticket 044, 2026-07-23)
 
 Pre-reviews the PCIe **port-0** subset of the write manifest
-`done/2026-07-14-t6040-pcie-write-manifest.tsv` (source ADT SHA
+`evidence/2026-07-14-t6040-pcie-write-manifest.tsv` (source ADT SHA
 `87f5c391…`), the stage that runs **after** the shared-PHY prefix and PHY-IP
 tunables complete. Gated behind ticket **068** (op-115 clkgen-PLL read must first
 prove the PHY-IP aperture is live) **and** the full PHY block (ops 115–351)
 completing on the rig. Pre-reviewed now so it is ready when link-up is reachable.
 
-## Target (from `done/2026-07-14-t6040-wireless-pcie-map.md`)
+## Target (from `evidence/2026-07-14-t6040-wireless-pcie-map.md`)
 
 - **Port 0 = `pci-bridge0` = BCM4388 WiFi (`14e4:4434`) + Bluetooth (`14e4:5f72`)**;
   Gen2; DART `0x410000000`, IRQ 1724; **PERST# = GPIO 4**, CLKREQ# = GPIO 0 fn 2.

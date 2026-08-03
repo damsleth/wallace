@@ -9,7 +9,7 @@ CJ approved on 2026-07-30 (attended question round): **the read-only NVMe probe 
 opcode exists in the NVMe-specific dispatch (`nvme_read` only in this script); that dispatch also
 contains FLUSH, which the probe does not call. Cleanup attempts both the `ANS` and `ANS2` PMGR
 device names. This closes the approval gap flagged in
-`done/2026-07-28-upstream-review-nvme-reopened-pcie-d2-confirmed.md`.
+`evidence/2026-07-28-upstream-review-nvme-reopened-pcie-d2-confirmed.md`.
 
 ## The candidate
 

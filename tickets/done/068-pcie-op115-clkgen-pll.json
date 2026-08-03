@@ -6,7 +6,7 @@
   "runnable": true,
   "track": "",
   "priority": "P1",
-  "desc": "DONE negative: exact reviewed two-write clkgen candidate ran once. PLL lock, late gate, 100 MHz, CLK0/CLK1, and reset-release all completed, then the first PHY-IP read at 0x417040090 hung exactly as before. No value/write/Linux/storage followed; normal recovery was healthy. Do not retry unchanged; offline 124 owns the next paired-driver precondition trace. Result: done/2026-07-24-t6040-pcie-op115-clkgen-pll-result.md.",
+  "desc": "DONE negative: exact reviewed two-write clkgen candidate ran once. PLL lock, late gate, 100 MHz, CLK0/CLK1, and reset-release all completed, then the first PHY-IP read at 0x417040090 hung exactly as before. No value/write/Linux/storage followed; normal recovery was healthy. Do not retry unchanged; offline 124 owns the next paired-driver precondition trace. Result: evidence/2026-07-24-t6040-pcie-op115-clkgen-pll-result.md.",
   "author": "claude",
   "deps": [
     "058"

@@ -3,11 +3,11 @@
 > **Superseded routing note (2026-07-21):** this historical image used ADT
 > input 360. Bounded M4 Pro measurement later found the real UART interrupt at
 > AIC input 816. The observations below remain valid, but they did not test the
-> UART's AIC route. See `done/2026-07-21-asahi-dev-log-review.md`.
+> UART's AIC route. See `evidence/2026-07-21-asahi-dev-log-review.md`.
 
 Run once 2026-07-14 by `fable` under approved rig ticket 001 (cross-review:
-`done/2026-07-14-t6040-rxirq-image-cross-review.md`; artifact record:
-`done/2026-07-14-t6040-dockchannel-rxirq-txpoll.md`). **Clean bounded result;
+`evidence/2026-07-14-t6040-rxirq-image-cross-review.md`; artifact record:
+`evidence/2026-07-14-t6040-dockchannel-rxirq-txpoll.md`). **Clean bounded result;
 no retry.** One boot, one marker-triggered `IRQ_BIT1_PROBE` injection.
 
 ## Exact booted set (hashes re-verified immediately before boot)
@@ -22,7 +22,7 @@ no retry.** One boot, one marker-triggered `IRQ_BIT1_PROBE` injection.
 - `initramfs-dcuart-irq-txpoll-report.cpio.gz`
   `4697a5b6ebc88c5c123854d268da45ae919b1672d9dd58e4554e627362770263`
 
-Transcript: `logs/t6040-console-20260714-dockchannel-rxirq-txpoll.log`,
+Transcript: `evidence/logs/t6040-console-20260714-dockchannel-rxirq-txpoll.log`,
 SHA-256 `2fca14570939da4f9eacfb2568fb317e4a9637f75bb96088a63b37a109969ee2`
 (81 lines).
 
@@ -73,7 +73,7 @@ old "dead IRQ 360" claim remains unpublishable — but so does the IRQ-storm
 hypothesis: with zero handler entries there was no reassertion to observe.
 
 The sharpest new question is a build-delta one: the earlier TX-only reporter
-(`done/2026-07-14-t6040-dockchannel-irq-tx-report.md`) **did** receive the
+(`evidence/2026-07-14-t6040-dockchannel-irq-tx-report.md`) **did** receive the
 probe line once in an IRQ-mode build, while this build — whose only material
 RX-side differences are the telemetry counters, TX BIT(2) never being
 unmasked, and probe/startup IRQ-block writes identical in sequence — saw no

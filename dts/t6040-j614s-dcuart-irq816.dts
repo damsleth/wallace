@@ -5,7 +5,7 @@
  * Identical to t6040-j614s-dcuart.dts EXCEPT the dockchannel-uart mailbox drops
  * `apple,poll-mode`, so RX/TX run interrupt-driven on the measured AIC input
  * 816 (the ADT's 360 is an Apple copy-paste error; yuka measured 816 on M4 Pro
- * and enverbalalic reproduced it on real t6041 — done/2026-07-21-asahi-dev-irc-review.md).
+ * and enverbalalic reproduced it on real t6041 — evidence/2026-07-21-asahi-dev-irc-review.md).
  *
  * Purpose (ticket 062): the earlier interrupt-driven RX diagnostics
  * (rxirq-txpoll, NEXT_STEPS #0) registered on ADT input 360 and the handler

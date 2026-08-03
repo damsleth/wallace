@@ -62,7 +62,7 @@ cp "$FW_SRC"/* "$TMP/lib/firmware/brcm/"
 # present and DMA working. So publish the c2 content under the c0 names that
 # the driver actually requests. board_types[2] is
 # "<board>-<otp.module>-<otp.vendor>" = apple,mriya-WLMT-u, which is why these
-# exact names matter. See done/2026-07-29-t6040-WIFI-AND-BLUETOOTH-WORKING.md.
+# exact names matter. See evidence/2026-07-29-t6040-WIFI-AND-BLUETOOTH-WORKING.md.
 for ext in bin clm_blob txcap_blob sig txt; do
     src="$TMP/lib/firmware/brcm/brcmfmac4388c2-pcie.apple,mriya.$ext"
     [ "$ext" = txt ] && src="$TMP/lib/firmware/brcm/brcmfmac4388c2-pcie.apple,mriya-WLMT-u.txt"

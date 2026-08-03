@@ -42,7 +42,7 @@ b137dcdaf4b5238e6bb4d692b03a3a799597f1ffd536f1f986fdc0963b387cd8  SHA256SUMS
 
 All entries in the corpus `SHA256SUMS` passed. Detailed Apple restore provenance is
 preserved in `provenance.json`; the extraction background remains in
-`done/2026-07-14-t6040-bcm4388-fw-extract.md`.
+`evidence/2026-07-14-t6040-bcm4388-fw-extract.md`.
 
 ## Kernel build support
 

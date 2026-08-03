@@ -8,7 +8,7 @@ agent inherits the overstatement.
 ## What is actually true
 
 - **No persistent-brick mechanism exists in the staged HPM op set.** This was
-  already the documented conclusion (`done/2026-07-24-t6040-spmi-risk-policy-review.md`:
+  already the documented conclusion (`evidence/2026-07-24-t6040-spmi-risk-policy-review.md`:
   *"No persistent-brick mechanism has been identified in the staged HPM
   operations. The credible failures are a dead right port, timeout, lost events,
   proxy wedge, or power-cycle recovery."*). An independent re-check of the decode

@@ -5,7 +5,7 @@
   "state": "done",
   "track": "xcut",
   "priority": "P2",
-  "desc": "DONE offline: shaped signed-off upstream branches and mail drafts for m1n1 proxyclient PTY transport (codex/proxyclient-pty at 13c52b61) and macvdmtool ACE3 actions/vdm/dven/localserial commands (codex/ace3-host-tools at 3e2038ee). Tightened raw word validation/documentation; py_compile, byte-preserving PTY test, clean macOS build, and exact git-am tree checks pass. kisd needs no duplicate patch: current upstream already recognizes KIS 4.00/M4 Pro, auto-detects the Pro/Max offset, and documents verified T6040 base 0x548700000. NOPASSWD remains local operator policy. Nothing posted/pushed/run. Result: done/2026-07-24-t6040-host-tools-upstream-prep.md.",
+  "desc": "DONE offline: shaped signed-off upstream branches and mail drafts for m1n1 proxyclient PTY transport (codex/proxyclient-pty at 13c52b61) and macvdmtool ACE3 actions/vdm/dven/localserial commands (codex/ace3-host-tools at 3e2038ee). Tightened raw word validation/documentation; py_compile, byte-preserving PTY test, clean macOS build, and exact git-am tree checks pass. kisd needs no duplicate patch: current upstream already recognizes KIS 4.00/M4 Pro, auto-detects the Pro/Max offset, and documents verified T6040 base 0x548700000. NOPASSWD remains local operator policy. Nothing posted/pushed/run. Result: evidence/2026-07-24-t6040-host-tools-upstream-prep.md.",
   "author": "fable",
   "deps": [],
   "hashes": {

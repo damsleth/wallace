@@ -100,7 +100,7 @@ flaky `/build/linux-usb-host3` tree was discarded.
 
 Ticket 060 now supplies the reproducible, guarded implementation:
 `scripts/t6040-populate-usb-rootfs.sh`, documented in
-`done/2026-07-23-t6040-usb-rootfs-recipe.md`. It pins the Alpine 3.24.0 aarch64
+`evidence/2026-07-23-t6040-usb-rootfs-recipe.md`. It pins the Alpine 3.24.0 aarch64
 minirootfs, creates GPT + ext4 `LABEL=t6040root`, records fresh disk/partition/
 filesystem UUIDs, installs the matching modules tree and full firmware corpus,
 and emits the exact `root=PARTUUID=...` bootarg plus per-file manifest.
@@ -138,7 +138,7 @@ console; `rootwait` plus the init's own 30 s wait covers USB enumeration.)
    that branch. No further integration/rebase is needed.
 2. **Rig smoke test before the rootfs.** The parked gadget effort enumerated once
    then went deaf (suspected missing `atc-phy,t6040` USB2 PHY driver / wrong
-   dwc3-apple wrapper offsets; `done/2026-07-11-t6040-usb-gadget-plan.md`). Host
+   dwc3-apple wrapper offsets; `evidence/2026-07-11-t6040-usb-gadget-plan.md`). Host
    mode may share that failure. So the SMOKE test must pass on the rig before an
    external rootfs is populated — do not invest in the rootfs on the assumption
    host works. This is the next rig experiment to propose (needs the lease + CJ).

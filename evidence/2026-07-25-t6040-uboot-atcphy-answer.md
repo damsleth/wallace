@@ -6,7 +6,7 @@ Type-C / ATC-PHY driver able to bring a USB-C port up in HOST mode by itself?**
 ## Answer: no. U-Boot inherits the same blocker.
 
 Source: `AsahiLinux/u-boot`, branch `asahi`, HEAD `8aa706b2daa49b64102e44067d8514de8a26dc42`
-(the exact commit pinned in `done/2026-07-23-t6040-uboot-noio-prep.md`).
+(the exact commit pinned in `evidence/2026-07-23-t6040-uboot-noio-prep.md`).
 
 `drivers/phy/phy-apple-atc.c` exists and the filename is encouraging, but it is **55 lines
 and does nothing**:

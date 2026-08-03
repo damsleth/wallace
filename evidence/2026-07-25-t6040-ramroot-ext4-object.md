@@ -68,7 +68,7 @@ initramfs RAM-root ships.
 ## Not yet booted
 
 Needs a tethered chainload smoke over **KIS** (the USB gadget cannot observe a `tty0`
-console — see the harness rule in `done/2026-07-25-t6040-ubuntu-untethered-object.md`), which
+console — see the harness rule in `evidence/2026-07-25-t6040-ubuntu-untethered-object.md`), which
 in turn needs a proxy-capable object enrolled. **Also note this is the first use of the
 `DIET_CAPABLE` kernel, which is 16 KiB pages where the proven B0 kernel is 4 KiB** — an
 ABI-level difference, so a failure here could be the page size rather than the root path. If it

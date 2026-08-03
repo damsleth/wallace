@@ -19,7 +19,7 @@ first PHY-IP PLL RMW with one ADT-derived 32-bit read.
   `4f377fad6b1e5107cb9167af19b3899719e4e2d8a11cffeabadabfe20b167524`
 
 The independent review and the reason for pinning the changed base DTB are in
-`done/2026-07-14-t6040-pcie-op115-cross-review.md`. The DTB has no PCIe host;
+`evidence/2026-07-14-t6040-pcie-op115-cross-review.md`. The DTB has no PCIe host;
 ANS/SART/NVMe are disabled. The candidate contains operations 1-114 unchanged,
 one read at operation 115, and no operation 116.
 
@@ -59,7 +59,7 @@ discipline; the single successful chainload above is the only live run.
 
 The sanctioned DebugUSB reboot then restored a fresh, quiescent `Running
 proxy` target. Transcript:
-`logs/t6040-console-20260714-pcie-op115-read.log`, SHA-256
+`evidence/logs/t6040-console-20260714-pcie-op115-read.log`, SHA-256
 `bdf7c2f8be0947c5da91c2c7f44f9e41a967a048ca35d0362782d8509bafafc8`
 (411 lines, 26,720 bytes).
 

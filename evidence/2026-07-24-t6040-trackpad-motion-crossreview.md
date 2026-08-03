@@ -54,6 +54,6 @@ capture. The healthy `Running proxy` state was not consumed.
 Offline ticket 125 subsequently made exactly those two corrections, reproduced
 the resulting artifacts twice, and passed independent exact-artifact review.
 Its authoritative manifest is
-`done/2026-07-24-t6040-trackpad-motion-revised-preflight.md`. Live ticket 126
+`evidence/2026-07-24-t6040-trackpad-motion-revised-preflight.md`. Live ticket 126
 remains proposed and unapproved under the firmware-policy and attendance gates
 above.

@@ -6,7 +6,7 @@
   "runnable": true,
   "track": "",
   "priority": "P1",
-  "desc": "DONE PASS: exact reviewed no-poll DT on measured AIC input 816 booted once. The ttydc0 shell received, echoed, and executed two host command batches across a 12-second interval; /proc/interrupts showed 652 events for 50880c000.mailbox and Err: 0. No storm/reset/SError; normal recovery healthy. Result: done/2026-07-24-t6040-dockchannel-irq816-result.md.",
+  "desc": "DONE PASS: exact reviewed no-poll DT on measured AIC input 816 booted once. The ttydc0 shell received, echoed, and executed two host command batches across a 12-second interval; /proc/interrupts showed 652 events for 50880c000.mailbox and Err: 0. No storm/reset/SError; normal recovery healthy. Result: evidence/2026-07-24-t6040-dockchannel-irq816-result.md.",
   "author": "claude",
   "deps": [
     "062"

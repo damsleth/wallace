@@ -5,7 +5,7 @@
   "state": "done",
   "track": "pcie",
   "priority": "P2",
-  "desc": "Prep the GL9755 SD reader (port 1, 17a0:9755, ADT cap Gen1; done/2026-07-14-t6040-wireless-pcie-map.md) as the low-risk first link-up endpoint: confirm sdhci-pci-gli GL9755 support and quirks, the DT child node + DART/GPIO wiring in the gated t6040-j614s-dcuart-pcie DT, and a read-only detection test — a simpler success signal than BCM4388, which also needs firmware (ticket 014)",
+  "desc": "Prep the GL9755 SD reader (port 1, 17a0:9755, ADT cap Gen1; evidence/2026-07-14-t6040-wireless-pcie-map.md) as the low-risk first link-up endpoint: confirm sdhci-pci-gli GL9755 support and quirks, the DT child node + DART/GPIO wiring in the gated t6040-j614s-dcuart-pcie DT, and a read-only detection test — a simpler success signal than BCM4388, which also needs firmware (ticket 014)",
   "author": "fable",
   "deps": [
     "002"

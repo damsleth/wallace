@@ -7,8 +7,8 @@ binaries. No rig lease, no boot, no SPMI/MMIO transaction, no artifact built or
 run. Nothing in `scripts/` was executed.
 
 Supersedes nothing; **corrects** two load-bearing claims in
-`done/2026-07-24-t6040-hpm-class10-host-transition.md` and
-`done/2026-07-24-t6040-hpm2-detach-static-slice.md` (see "Corrections").
+`evidence/2026-07-24-t6040-hpm-class10-host-transition.md` and
+`evidence/2026-07-24-t6040-hpm2-detach-static-slice.md` (see "Corrections").
 
 ## Exact sources
 
@@ -47,7 +47,7 @@ PAC diversifier = (raw >> 32) & 0xffff
 The decode is self-checking: the diversifier stored in each entry must equal the
 `movk x16/x17, #imm, lsl #0x30` at the call site. Every slot cited below was
 verified that way. **This independently confirms Sol's Type10 slot table in
-`done/2026-07-24-t6040-hpm2-detach-static-slice.md` as correct.** It also adds
+`evidence/2026-07-24-t6040-hpm2-detach-static-slice.md` as correct.** It also adds
 the slots that table lacked, which is where the new evidence came from:
 
 | Slot | Method |
@@ -718,7 +718,7 @@ Summary against the six items:
 | 5 | Inverse / neutral for 0x23 / 0x24 / 0x55 | **NOT FOUND** — and these registers are unreachable from the class-10 path entirely |
 | 6 | Safe cross-layer teardown order | **NOT FOUND** — structurally: Apple performs no cross-layer teardown on detach. HPM-layer order IS found and fully specified, but it still contains one blind unsaved write (reg 0x50) |
 
-## Risk framing (read with `done/2026-07-25-t6040-r3-risk-calibration.md`)
+## Risk framing (read with `evidence/2026-07-25-t6040-r3-risk-calibration.md`)
 
 This NO-GO is a **completeness verdict about the reversal decode**, not a danger
 claim, and it does not reinstate the withdrawn "unrecoverable port" overstatement.
@@ -742,14 +742,14 @@ cycle, and do we know the values to put back". The answer to both is still no.
 
 ## Corrections to earlier write-ups
 
-1. **`done/2026-07-24-t6040-hpm-class10-host-transition.md`** states the
+1. **`evidence/2026-07-24-t6040-hpm-class10-host-transition.md`** states the
    `forcePortEvaluation()` operation as
    `read 0x14 / raw[1] |= 0x0d / raw[7] |= 0x08 / write address 0x14, length 9`.
    The final step is **not** a register write. It is the virtual call at slot
    +0xb38, `processInterruptEvents(buf, 9)` — verified by symbol, by PAC
    diversifier, and by the fact that register 0x14 is never passed to `writeReg`
    anywhere in the kext. The two ORs land on a stack buffer, not on hardware.
-2. **`done/2026-07-24-t6040-hpm2-detach-static-slice.md`** carries the same
+2. **`evidence/2026-07-24-t6040-hpm2-detach-static-slice.md`** carries the same
    mis-decode forward ("and processes/writes the result"), and its final-decision
    bullet "race-safe inverse handling for the `0x14` OR mutation" rests on it.
    That specific blocker is void; the real one is the 0x18 W1C, plus the blind

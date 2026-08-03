@@ -61,7 +61,7 @@ enrolled is still preferable, and is required anyway for the HPM work.
 3. **PASS** = it gets past the first PHY-IP access (previously the hang point) and reports port/link
    status. Then: BCM4388 firmware (ticket 168) and WiFi becomes reachable.
 4. **FAIL (hang at the PHY-IP access)** = boot V2 in the same session and compare.
-5. Either way record the transcript in `done/` and update tickets 124/175.
+5. Either way record the transcript in `evidence/` and update tickets 124/175.
 
 Recovery is the sanctioned DebugUSB reboot — the observed failure mode for this path has always been
 a hang, never an SError.

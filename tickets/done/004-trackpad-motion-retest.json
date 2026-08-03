@@ -6,7 +6,7 @@
   "runnable": false,
   "track": "hid",
   "priority": "P2",
-  "desc": "DONE STATIC NO-GO; exact candidate retired unrun. Independent review matched every byte and passed its storage/MMIO/bounds checks, but Image 86e031db lacks the proven hid->type fix and leaves HID_MULTITOUCH=m while the initramfs has no modules. No multi-touch event node can bind or trigger the volatile HIDF upload. Offline replacement 125 subsequently applied both corrections, byte-reproduced, and independently passed. Proposed live ticket 126 still requires fresh approval, explicit maintainer authorization for the exact paired non-persistent runtime firmware upload, and attended finger motion. Evidence: done/2026-07-24-t6040-trackpad-motion-crossreview.md.",
+  "desc": "DONE STATIC NO-GO; exact candidate retired unrun. Independent review matched every byte and passed its storage/MMIO/bounds checks, but Image 86e031db lacks the proven hid->type fix and leaves HID_MULTITOUCH=m while the initramfs has no modules. No multi-touch event node can bind or trigger the volatile HIDF upload. Offline replacement 125 subsequently applied both corrections, byte-reproduced, and independently passed. Proposed live ticket 126 still requires fresh approval, explicit maintainer authorization for the exact paired non-persistent runtime firmware upload, and attended finger motion. Evidence: evidence/2026-07-24-t6040-trackpad-motion-crossreview.md.",
   "author": "claude",
   "deps": [
     "016"

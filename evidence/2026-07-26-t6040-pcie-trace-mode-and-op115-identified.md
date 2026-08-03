@@ -5,7 +5,7 @@
 > applied in both the 2026-07-14 and ticket-068 live runs, and op-115 still hung. "Apply the
 > tunables, re-poll op-115" is therefore a retry of negative ticket 068 — do not stage it. The
 > quoted "dry run" log line came from the 07-14 zero-write log-buffer control binary, not the
-> current path. Full evidence: `done/2026-07-28-t6040-pcie-trace-mode-claim-refuted.md`.
+> current path. Full evidence: `evidence/2026-07-28-t6040-pcie-trace-mode-claim-refuted.md`.
 > Finding 2 (op-115 is a PLL-lock poll) and the section-3 address correction still stand.
 
 Offline session, no rig run, no hardware writes. Three findings, one of which corrects something I
@@ -61,7 +61,7 @@ SError was unfounded; it hangs because m1n1 spins waiting for a bit.
 
 ## 3. Correction: the absolute addresses I published today are wrong
 
-In `done/2026-07-26-t6040-pcie-initializephy-trace.md`, and repeated in DEVLOG/README, I converted the
+In `evidence/2026-07-26-t6040-pcie-initializephy-trace.md`, and repeated in DEVLOG/README, I converted the
 decoded offsets against the ADT `reg[]` values and published:
 
 | | I published | Actually (from the trace) | delta |

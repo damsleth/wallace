@@ -420,7 +420,7 @@ predecessor of J614s, same 4-port t602x-shaped APCIE, same BCM4388 family, same
 
 `reg` is **ADT-correct**. `/arm-io/apcie0` has **35** entries = 7 header + 4 ports × 7
 (**MEASURED-FROM-ADT**). Applying the `/arm-io` `ranges` delta `+0x200000000`
-(`done/2026-07-27-t6040-adt-ranges-address-correction.md`): rc `0x214000000`→`0x414000000`,
+(`evidence/2026-07-27-t6040-adt-ranges-address-correction.md`): rc `0x214000000`→`0x414000000`,
 port0 core `0x210028000`→`0x410028000` (size `0x8000`), phy0 `0x217020000`→`0x417020000`,
 port1 `0x411028000`, port2 `0x412028000`, port3 `0x413028000`, phy1/2/3
 `0x417024000`/`0x417028000`/`0x41702c000`, ECAM `0x1cb0000000`/`0x10000000` (high window, no delta).

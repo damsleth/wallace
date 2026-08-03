@@ -5,7 +5,7 @@
   "state": "done",
   "track": "xcut",
   "priority": "P1",
-  "desc": "DONE offline: audited curated f0738eee against reviewed main, refreshed upstream to 7c7716b6 (which now carries initial T6041 identity, T6040 PCIe recognition/reset bit, and four-level paging), and shaped the 22-commit bring-up history into a nine-patch RFC on codex/t6040-upstream-series tip 37fafb86. Dropped duplicate CPUSTART/identity/reset support, host helpers, PTY/linux.py policy, tracing, and the unapproved op-115 candidate. The final PCIe patch adds only the proven J614s clock/gate prefix and stops before op 115. Generated signed-off mail + cover letter, git-am tree identity passed, and two clean builds reproduced exact bin/elf hashes. Draft only; nothing posted or run. Result: done/2026-07-23-t6040-m1n1-upstream-series.md; mail: patches/m1n1-t6040-upstream-v1/.",
+  "desc": "DONE offline: audited curated f0738eee against reviewed main, refreshed upstream to 7c7716b6 (which now carries initial T6041 identity, T6040 PCIe recognition/reset bit, and four-level paging), and shaped the 22-commit bring-up history into a nine-patch RFC on codex/t6040-upstream-series tip 37fafb86. Dropped duplicate CPUSTART/identity/reset support, host helpers, PTY/linux.py policy, tracing, and the unapproved op-115 candidate. The final PCIe patch adds only the proven J614s clock/gate prefix and stops before op 115. Generated signed-off mail + cover letter, git-am tree identity passed, and two clean builds reproduced exact bin/elf hashes. Draft only; nothing posted or run. Result: evidence/2026-07-23-t6040-m1n1-upstream-series.md; mail: patches/m1n1-t6040-upstream-v1/.",
   "author": "fable",
   "deps": [],
   "hashes": {

@@ -1,7 +1,7 @@
 /*
  * sptm_nvme_iface.h — SPTM / NVMe guarded-call interface for the M4 XNU-shim route.
  *
- * Derived from the guarded-side decode (done/2026-07-14-t6040-sptm-nvme-guarded-backend-decode.md)
+ * Derived from the guarded-side decode (evidence/2026-07-14-t6040-sptm-nvme-guarded-backend-decode.md)
  * and the Steffin/Classen ABI (arXiv:2510.09272, appendices A.2–A.5). This header encodes
  * ONLY what was proven from the SPTM blob + kernelcache. Guarded-side argument consumption
  * is byte-verified in ticket 051; the outer IOMMU call marshalling remains TBD-053.

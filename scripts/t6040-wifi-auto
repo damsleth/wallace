@@ -1,7 +1,7 @@
 #!/bin/sh
 # Boot-time WiFi auto-association (v2 daily driver). Best-effort by design:
 # runs as an inittab ::once: entry, so nothing here can stall the boot the way
-# the sysinit UDC bind did (done/2026-07-30-t6040-daily-driver-object-c1529d4c.md).
+# the sysinit UDC bind did (evidence/2026-07-30-t6040-daily-driver-object-c1529d4c.md).
 # Associates from the baked /etc/wpa_supplicant/wpa_supplicant.conf, gets a
 # lease, then one-shot NTP as clock corrector (works even before the SPMI RTC
 # lands; harmless after).

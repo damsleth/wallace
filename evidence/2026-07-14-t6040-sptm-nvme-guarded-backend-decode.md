@@ -1,7 +1,7 @@
 # T6040/M4 SPTM NVMe guarded-backend decode — the real op map (2026-07-14)
 
 Experiment "#3" from the asahi_neo cross-review
-(`done/2026-07-14-t6040-sptm-xnushim-asahi-neo-crossref.md`): disassemble the SPTM
+(`evidence/2026-07-14-t6040-sptm-xnushim-asahi-neo-crossref.md`): disassemble the SPTM
 firmware blob to read the **guarded-side** NVMe implementation directly, replacing the
 now-retracted caller-side "service-6 ABI" (ticket 007). Static, offline; no rig, no MMIO,
 no storage.

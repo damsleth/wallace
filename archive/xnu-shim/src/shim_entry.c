@@ -26,5 +26,5 @@ int shim_intercept(void)
     /* TODO(P3): linux_loader_load(image, initramfs, fdt) — retype+map Linux via SPTM. */
     /* TODO(P3): transfer to Linux __primary_switch: x0=FDT PA, MMU per SPTM, other cores WFE. */
     /* NVMe (P4) happens *inside* Linux via sptm_nvme_bringup() — not here. */
-    return -1; /* not implemented — see PLAN.md phases */
+    return -1; /* not implemented — see README.md */
 }

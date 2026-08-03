@@ -59,4 +59,4 @@ drivers. No raw MMIO or PMU/SPMI write is authorized by this result.
 The attached device was later confirmed to be a simple bus-powered USB-C
 memory stick, not a powered hub or self-powered enclosure. Ticket 065 therefore
 proposes one topology-only powered retry; preflight:
-`done/2026-07-21-t6040-usb-right-powered-smoke-preflight.md`.
+`evidence/2026-07-21-t6040-usb-right-powered-smoke-preflight.md`.

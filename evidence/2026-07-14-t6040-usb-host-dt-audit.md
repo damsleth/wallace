@@ -11,8 +11,8 @@ needed.
 ## Sources
 
 ADT facts from the offline `j614s.adt` audit already captured in
-`done/2026-07-11-t6040-usb-gadget-plan.md` and
-`done/2026-07-10-t6040-atc-usb-dart-plan.md`; DT reg/IRQ/power/iommu values from
+`evidence/2026-07-11-t6040-usb-gadget-plan.md` and
+`evidence/2026-07-10-t6040-atc-usb-dart-plan.md`; DT reg/IRQ/power/iommu values from
 `arch/arm64/boot/dts/apple/t6040.dtsi` (nodes authored from that ADT). No new
 live dump; where a value needs the rig to confirm it is flagged below.
 
@@ -87,7 +87,7 @@ Forcing host is necessary but the deeper unknown from the gadget effort applies
 here too. With `apple,force-device-mode` the gadget port *enumerated once* but
 went **deaf right after enumeration** (EP0 timeouts), suspected to be the missing
 `atc-phy,t6040` USB2 PHY driver and/or wrong t6040 dwc3-apple wrapper (CIO)
-offsets (`done/2026-07-11-t6040-usb-gadget-plan.md`). A forced-host port may hit
+offsets (`evidence/2026-07-11-t6040-usb-gadget-plan.md`). A forced-host port may hit
 the same wall. Therefore a **rig smoke test that an external disk actually
 enumerates and stays alive** must precede building a full external rootfs
 (ticket 032) — do not invest in the rootfs on the assumption host works.
@@ -106,7 +106,7 @@ enumerates and stays alive** must precede building a full external rootfs
 2. **No `atc-phy,t6040` driver.** The USB2 PHY is only whatever iBoot/m1n1 left
    configured. The gadget investigation proved a port can enumerate once on that
    leftover state but could not survive suspend/resume without the PHY driver
-   (`done/2026-07-11-t6040-usb-gadget-plan.md`). For a **host** with a wired disk
+   (`evidence/2026-07-11-t6040-usb-gadget-plan.md`). For a **host** with a wired disk
    the controller keeps the bus active (no host-initiated selective suspend by
    default), so the leftover-PHY path is more likely to hold than in the gadget
    case — but this is a hypothesis to test, not a proven fact.
@@ -154,4 +154,4 @@ raw ADT also resolves `usb-drd2.atc-phy-parent` to `/arm-io/atc-phy2` and
 contains T6040-specific USB2 host/device tunables. The Linux DT has no PHY
 provider, so `dwc3-apple`'s host-mode `phy_set_mode()` calls act on absent
 generic PHY handles. Full analysis:
-`done/2026-07-21-t6040-usb-right-no-connect-analysis.md`.
+`evidence/2026-07-21-t6040-usb-right-no-connect-analysis.md`.

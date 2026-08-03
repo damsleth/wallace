@@ -14,7 +14,7 @@ Maintainer-attended: CJ was at the machine and confirmed the panel + keyboard.
   `2371ee5dfbfab591397fc333e7da212fb7582bfb2eaddaa6438005f5bb41759b`,
   22,183,563 B, entry 0x800 (author codex/sol; cross-reviewed by claude — strict
   verifier + 6-gate audit PASS, see
-  `done/2026-07-24-t6040-alpine-openrc-single-object-preflight.md`).
+  `evidence/2026-07-24-t6040-alpine-openrc-single-object-preflight.md`).
 - Components (all content-hash matched): safe m1n1 `1394c345`, 078 kernel
   `df7657c`/`d76463e5`, storage-disabled DTB `2782b922`, OpenRC root initramfs
   `ddd98171` (699 entries, 0 block nodes), bootargs `… rdinit=/sbin/init

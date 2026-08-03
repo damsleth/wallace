@@ -4,48 +4,53 @@ Current as of 2026-08-03. This file states priorities and stop conditions.
 Exact work items, hashes, dependencies, and approval state live in
 `tickets/*.json`.
 
-## 1. Finish the SD-root system
+## 1. Isolate the MM/SMP copy race
 
-Ticket: **204**
+Tickets: **205** and **207**; control ticket **208** passed
 
-The SD reader and card are already proven read/write across reboot. A 6 GiB
-ext4 loop image on the card mounts, `switch_root` succeeds, and OpenRC starts.
-The current failure is userspace integration: no reliable ttydc0/tty1 console
-and no SSH. Corrected BusyBox `inittab`/apply files and an explicit new-root
-pseudo-filesystem mount are staged offline but not yet live-proven.
+The dependency-free BusyBox reproducer reliably distinguishes one from two
+cores. At `maxcpus=2`, the uninstrumented kernel produced two kernel-mode page
+faults in four runs. Adding argument-validation work immediately before
+`copy_page()` produced zero faults in four runs, and the validation itself
+never found a bad address, misalignment, or self-copy. A same-session control
+restored the bug, so the suppression is real rather than a stale-build result.
 
 Do next:
 
-1. Exact-review the final inittab and new-root mount delta.
-2. Observe one boot on the panel through `console=tty0`.
-3. Keep one BusyBox console independent of OpenRC.
-4. Add networking, SSH, and OpenRC services back one at a time.
-5. Verify a persistent boot log changes across reboot.
-6. Start Xorg and i3 only after the console and network are stable.
+1. Build and independently review each ticket 207 variant, then run its
+   one-change-at-a-time barrier/cache-maintenance bisect.
+2. Start every variant from a fresh boot and run the reproducer at least four
+   times; the first run is the most sensitive.
+3. Keep storage, drivers, topology, and workload constant across variants.
+4. Preserve the exact Image hash and a uniquely named transcript for each
+   result.
 
-Use `maxcpus=1` while debugging this path. The five-core SD-root run hit a
-copy-on-write fault; that is a separate kernel problem, not a userspace-service
-failure.
+Pass: identify the smallest primitive that suppresses the fault repeatedly and
+turn it into an upstream-reviewable explanation or patch. A single clean run is
+not evidence.
 
-Pass: unattended SD-root boot reaches a local console and SSH, retains a file
-across reboot, and starts the graphical session without a kernel fault.
+## 2. Repair and harden the SD-root system
 
-## 2. Keep the strict SD fixture sequence honest
+Tickets: **215**, then **216**; these close **204**
 
-Tickets: **199** then **200**
+The SD reader and root image work at `maxcpus=1`: `switch_root`, ttydc0, OpenRC,
+and persistence were observed. Later SMP panic tests left exFAT and ext4
+unclean. Do not mount the root read/write again before ticket 215.
 
-Ticket 193 already proved SD read/write persistence. Tickets 199/200 are a
-stricter, hash-pinned fixture procedure and must not be treated as if they have
-run.
+Do next:
 
-- Ticket 199 is read-only: identify GL9755 and `SD64`, mount `ro`, list,
-  hash one existing file, and unmount.
-- Ticket 200 may run only after 199 is done and separately approved: mount
-  read/write, create the one named test file, fsync, unmount, remount read-only,
-  and verify content and SHA-256.
+1. Exact-review ticket 215's pinned repair image and automatic-only repair script.
+2. Repair and repeat read-only checks for SD64 and the ext4 image.
+3. Exact-review ticket 216's identity gates, early console, and shutdown pivot.
+4. Apply the root configuration and boot it at `maxcpus=1`.
+5. Power off through the PID-1 restart path; verify ext4 and exFAT are clean.
+6. Preserve a uniquely named, hash-pinned transcript.
 
-Neither ticket permits repartitioning, formatting, fsck, or unrelated card
-changes.
+Use `maxcpus=1`. Ticket 205 proves that two or more CPUs can fault in kernel
+page-copy paths; that is separate from SD storage.
+
+Pass: the repaired root boots through ttydc0 and OpenRC, cleanly powers off,
+and both filesystems pass post-shutdown read-only checks without repair.
 
 ## 3. Isolate the Linux NVMe CQ-wrap assert
 
@@ -73,19 +78,23 @@ Order:
 Do not revive the refuted “wrong MMIO window,” non-zero tag, batching, or
 simple queue-depth explanations without new evidence.
 
-## 4. Reframe the MM/SMP fault
+## 4. Keep the strict SD fixture sequence honest
 
-Ticket 121’s old “maxcpus >= 6 initramfs-unpack threshold” wording is stale.
-Later boots were non-monotonic, and the SD-root path faulted in
-`copy_page → do_wp_page`. The current claim is narrower:
+Tickets: **199** then **200**
 
-> Some multi-core workloads corrupt or incorrectly protect pages during copy
-> or copy-on-write. Five cores are proven for the smaller RAM-root desktop, but
-> full multi-core memory stability is not.
+Ticket 193 already proved SD read/write persistence. Tickets 199/200 are a
+stricter, hash-pinned fixture procedure and must not be treated as if they have
+run.
 
-The next useful work is an offline discriminator that changes CPU topology or
-memory pressure without changing drivers, storage, or boot media. Do not ship
-a new threshold claim from one boot.
+- Ticket 199 is read-only: identify GL9755 and `SD64`, mount `ro`, list,
+  hash one existing file, and unmount.
+- Ticket 200 may run only after 199 is done and separately approved: mount
+  read/write, create the one named test file, fsync, unmount, remount read-only,
+  and verify content and SHA-256.
+
+Neither ticket permits repartitioning, formatting, fsck, or unrelated card
+changes. Ticket 200 must also respect the dirty-filesystem gate owned by
+tickets 215/216.
 
 ## 5. Resolve trackpad initialization
 
@@ -107,8 +116,8 @@ volatile HIDF blob and requires its own reviewed ticket.
 - **Standard stage 2:** ticket 191 may compare SD and NVMe storage designs
   offline. U-Boot lacks exFAT support, so SD stage 2 would require a FAT32
   partition; do not repartition the fixture without CJ.
-- **Audio, camera, suspend, cpuidle, backlight:** retain as roadmap work; none
-  blocks the current SD-root milestone.
+- **Audio, camera, suspend, cpuidle, panel backlight:** retain as roadmap work;
+  none blocks the current SD-root milestone.
 
 ## Global stop conditions
 

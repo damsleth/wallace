@@ -4,7 +4,7 @@ Date: 2026-07-23
 Offline ticket: 072  
 Proposed rig ticket: 074  
 State: **completed — FAIL; see
-`done/2026-07-23-t6040-alpine-hid-state-trace-result.md`**
+`evidence/2026-07-23-t6040-alpine-hid-state-trace-result.md`**
 
 ## Purpose
 

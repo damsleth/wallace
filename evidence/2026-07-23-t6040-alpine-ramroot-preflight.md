@@ -34,7 +34,7 @@ previously reviewed and boot-proven; fresh decompilation confirms:
   affect this run. Do not reuse this DTB for any interrupt-mode experiment.
 
 The new initramfs is host-validated and reproducible as recorded in
-`done/2026-07-23-t6040-alpine-ramroot-artifact.md`.
+`evidence/2026-07-23-t6040-alpine-ramroot-artifact.md`.
 
 ## Exact run
 

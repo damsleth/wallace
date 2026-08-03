@@ -1,8 +1,8 @@
 .DS_Store
 .*.swp
 # rig lease runtime state (the mutex + its audit log). Host-local, ephemeral,
-# shared between agents via the filesystem — not git. The backlog itself
-# (tickets/) IS git-tracked; only the live lease is ignored here.
+# shared between agents via the filesystem — not git. The ticket queue
+# (tickets/) is Git-tracked; only the live lease is ignored here.
 .rig/
 # jq writes tickets atomically via a .tmp sidecar; never commit a stray one.
 tickets/*.tmp

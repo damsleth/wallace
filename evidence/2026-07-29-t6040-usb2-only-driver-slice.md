@@ -51,7 +51,7 @@ without inheriting T8103/T8122 high-speed behavior.
 
 The source mirrors
 `AppleT6040TypeCPhy::eusb2phy_init(false, false)` from
-`done/2026-07-24-t6040-eusb2-init-sequence.md`:
+`evidence/2026-07-24-t6040-eusb2-init-sequence.md`:
 
 1. five separate bank-0 signal RMWs set bits 14, 13, 12, 0, and 1;
 2. sleep 10 ms;

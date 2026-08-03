@@ -4,7 +4,7 @@ Ticket 008 (offline, P0, storage track). Decision writeup: can raw m1n1 boot
 acquire the protected execution state the M4 NVMe controller requires, via a
 documented loader transition — or must internal storage wait for upstream Asahi
 M4 SPTM support? Builds directly on the ticket-007 ABI decode
-(`done/2026-07-14-t6040-sptm-service6-abi.md`). Pure static reasoning; no rig, no
+(`evidence/2026-07-14-t6040-sptm-service6-abi.md`). Pure static reasoning; no rig, no
 MMIO, no storage access.
 
 ## Verdict
@@ -40,7 +40,7 @@ service-6 GENTER calls that a live SPTM services."
    `cpu_features->mmu_sprr`; `features_m4` in `chickens.c` deliberately omits it
    ("XXX figure out what features are actually available on M4"), so `gxf_init()`
    is never called on T6040. This matches the raw-boot snapshot
-   (`logs/t6040-console-20260714-nvme-sptm.log`): `SPRR_CONFIG_EL1 = 0`,
+   (`evidence/logs/t6040-console-20260714-nvme-sptm.log`): `SPRR_CONFIG_EL1 = 0`,
    `GXF_CONFIG_EL1 = 0`, `GXF_STATUS_EL1 = 0`, and `GXF_ENTER_EL1` /
    `GXF_ABORT_EL1` reads trap (guarded sysregs inaccessible while GXF disabled).
 3. **m1n1's GXF is the M1/M2 model, not SPTM.** `gxf.c`/`gl_call` enable SPRR +

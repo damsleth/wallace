@@ -2,7 +2,7 @@
 
 Current as of 2026-08-03. This file keeps durable operating knowledge,
 milestones, corrections, and dead ends. Exact experiment evidence lives in
-`done/`; current work lives in [NEXT_STEPS.md](NEXT_STEPS.md).
+`evidence/`; current work lives in [NEXT_STEPS.md](NEXT_STEPS.md).
 
 ## Current state
 
@@ -11,10 +11,10 @@ milestones, corrections, and dead ends. Exact experiment evidence lives in
 | Boot | Enrolled, untethered Linux boot works |
 | Display | simpledrm/fbcon and Xorg with i3 or dwm |
 | Input | Keyboard works; trackpad reset contract unresolved |
-| CPU | Five-core RAM-root desktop and cpufreq work; full-core MM stability does not |
+| CPU | Five-core RAM-root desktop works; a controlled two-core page-copy reproducer faults |
 | SMC | Battery, AC, charger, and temperature telemetry |
 | PCIe | Root complex, WiFi, Bluetooth, and SD reader work |
-| Storage | SD read/write persistence works; SD root reaches OpenRC |
+| Storage | One-core SD root reaches ttydc0/OpenRC; repair and clean-shutdown validation pending |
 | NVMe | m1n1 reads work; Linux loses ANS at its first I/O CQ wrap |
 | USB | Device mode works; host role/VBUS does not |
 
@@ -127,10 +127,15 @@ commands.
 
 - All 14 cores enter the kernel.
 - A five-core RAM-root desktop schedules work on every online core.
-- The old “fails at maxcpus >= 6” claim is superseded. Later boots were
-  non-monotonic, and SD-root faulted in copy-on-write code.
-- The supported current statement is that some multi-core memory workloads are
-  unstable; full 14-core userspace is unproven.
+- The old “fails at maxcpus >= 6” claim is superseded. A dependency-free
+  BusyBox copy-on-write workload faults at `maxcpus=2` while the same run is
+  clean at one core.
+- The uninstrumented control produced two kernel-mode page faults in four runs.
+  Argument-validation work before `copy_page()` suppressed the fault in four
+  runs without finding an invalid argument. This points to a timing, ordering,
+  or cache-maintenance boundary; it is not yet a proven fix.
+- Fresh-boot baselines and at least four repetitions are required: the first
+  run is the most sensitive, and a single clean run is weak evidence.
 - cpufreq works after widening the driver’s `frequency * 1000` calculation;
   P cores reach 4.512 GHz.
 - `idle=nop` remains a bring-up workaround, not a power-management solution.
@@ -161,8 +166,10 @@ commands.
 - File write, sync, unmount, reboot, remount, and hash persistence are proven.
 - The persistent-root prototype stores a 6 GiB ext4 loop image on the existing
   exFAT partition without repartitioning or formatting it.
-- A small initramfs mounts the loop image and reaches `switch_root`; OpenRC
-  starts. Console, SSH, and desktop services remain open.
+- At `maxcpus=1`, the loop root reaches ttydc0 and OpenRC and retains writes.
+- Panic testing left exFAT and ext4 unclean. Ticket 215 owns repair; ticket 216
+  owns the staged PID-1 shutdown pivot and post-shutdown clean checks.
+- Do not mount the SD root read/write before ticket 215 passes.
 
 ### Internal NVMe
 
@@ -234,7 +241,7 @@ Do not repeat these without new evidence:
 | 2026-07-29 | PCIe, WiFi, Bluetooth, and the five-core desktop |
 | 2026-07-30 to 07-31 | cpufreq and Linux NVMe filesystem I/O bounded to the first CQ-wrap assert |
 | 2026-08-02 | SD read/write persistence and corrected trackpad reset attribution |
-| 2026-08-03 | SD-root reaches OpenRC; NVMe completion-order discriminator staged |
+| 2026-08-03 | One-core SD root reaches ttydc0/OpenRC; controlled two-core page-copy reproducer established; instrumentation/control divergence isolates the next MM/SMP experiment |
 
 Detailed transcripts, hashes, retractions, and per-experiment stop conditions
-remain in dated files under `done/` and in Git history.
+remain in dated files under `evidence/` and in Git history.

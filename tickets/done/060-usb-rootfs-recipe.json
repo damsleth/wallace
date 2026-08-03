@@ -5,7 +5,7 @@
   "state": "done",
   "track": "storage",
   "priority": "P1",
-  "desc": "DONE offline: added guarded stage/device population and host tests. The recipe pins Alpine 3.24.0 aarch64, creates GPT + ext4 LABEL=t6040root, records fresh disk/PARTUUID/filesystem UUIDs, installs matching modules and rootfs-only paired firmware, emits exact bootargs plus a hash manifest, and refuses destructive mode without Linux/root/a removable whole disk/no mounts/literal ERASE:<device>. Host tests verify staging and refusal paths. No block device was touched; live deployment remains gated on a USB child and sd* persisting for >=10 seconds. Result: done/2026-07-23-t6040-usb-rootfs-recipe.md.",
+  "desc": "DONE offline: added guarded stage/device population and host tests. The recipe pins Alpine 3.24.0 aarch64, creates GPT + ext4 LABEL=t6040root, records fresh disk/PARTUUID/filesystem UUIDs, installs matching modules and rootfs-only paired firmware, emits exact bootargs plus a hash manifest, and refuses destructive mode without Linux/root/a removable whole disk/no mounts/literal ERASE:<device>. Host tests verify staging and refusal paths. No block device was touched; live deployment remains gated on a USB child and sd* persisting for >=10 seconds. Result: evidence/2026-07-23-t6040-usb-rootfs-recipe.md.",
   "author": "claude",
   "deps": [],
   "hashes": {

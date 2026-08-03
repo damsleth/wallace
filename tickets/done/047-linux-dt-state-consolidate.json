@@ -5,7 +5,7 @@
   "state": "done",
   "track": "xcut",
   "priority": "P1",
-  "desc": "DONE offline: committed the remaining J614s identity/DCUART state on wallace/t6040-bringup, including measured IRQ 816 and per-instance IRQ masks; refreshed and compared yuka's J773s-oriented T6040 work; shaped a four-patch RFC on codex/t6040-j614s-dt-series which excludes experimental USB/ANS nodes; generated signed-off mail, verified git-am tree identity, compiled three DTBs, passed strict checkpatch, and isolated remaining dtbs_check output to prerequisite AIC/watchdog/ASC/DockChannel schemas. Draft only; nothing posted or run. Result: done/2026-07-23-t6040-linux-dt-series.md; mail: patches/linux-t6040-j614s-dt-v1/.",
+  "desc": "DONE offline: committed the remaining J614s identity/DCUART state on wallace/t6040-bringup, including measured IRQ 816 and per-instance IRQ masks; refreshed and compared yuka's J773s-oriented T6040 work; shaped a four-patch RFC on codex/t6040-j614s-dt-series which excludes experimental USB/ANS nodes; generated signed-off mail, verified git-am tree identity, compiled three DTBs, passed strict checkpatch, and isolated remaining dtbs_check output to prerequisite AIC/watchdog/ASC/DockChannel schemas. Draft only; nothing posted or run. Result: evidence/2026-07-23-t6040-linux-dt-series.md; mail: patches/linux-t6040-j614s-dt-v1/.",
   "author": "fable",
   "deps": [],
   "hashes": {

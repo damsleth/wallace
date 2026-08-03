@@ -5,7 +5,7 @@
   "state": "done",
   "track": "storage",
   "priority": "P2",
-  "desc": "DONE offline: Apple objdump disassembly of every t8132 guarded NVMe handler byte-proved the per-op input contract. Op 0 takes no args; op 1 consumes qid/cid/TCB PA/page-list PA/count; op 2 consumes qid/cid/state flag; op 3 consumes queue entries/protocol version; op 4 is confirmed ASQ PA/depth + ACQ PA/depth; ops 5–8 are IOQA entries, IOSQ PA, IOCQ PA, and SHA base/size/config. Updated the XNU-shim interface without implementing a call path. Outer IOMMU marshalling/domain provenance and exact T6041 blob remain open. Result: done/2026-07-23-t6040-sptm-nvme-op-args.md.",
+  "desc": "DONE offline: Apple objdump disassembly of every t8132 guarded NVMe handler byte-proved the per-op input contract. Op 0 takes no args; op 1 consumes qid/cid/TCB PA/page-list PA/count; op 2 consumes qid/cid/state flag; op 3 consumes queue entries/protocol version; op 4 is confirmed ASQ PA/depth + ACQ PA/depth; ops 5–8 are IOQA entries, IOSQ PA, IOCQ PA, and SHA base/size/config. Updated the XNU-shim interface without implementing a call path. Outer IOMMU marshalling/domain provenance and exact T6041 blob remain open. Result: evidence/2026-07-23-t6040-sptm-nvme-op-args.md.",
   "author": "fable",
   "deps": ["007"],
   "hashes": {

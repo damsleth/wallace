@@ -1,8 +1,8 @@
 # T6040 PCIe op-115 route-finding — the PHY-IP aperture precondition (2026-07-21)
 
 Ticket 058 (offline, P1, pcie track). Continues
-`done/2026-07-14-t6040-pcie-op115-static-analysis.md` and the read-only
-isolation result (`done/2026-07-14-t6040-pcie-op115-read-result.md`): the first
+`evidence/2026-07-14-t6040-pcie-op115-static-analysis.md` and the read-only
+isolation result (`evidence/2026-07-14-t6040-pcie-op115-read-result.md`): the first
 PHY-IP access hangs on its **read** side, so a precondition that makes the
 `reg[3]` PHY-IP aperture (phys `0x417040000`) respond to reads is not satisfied
 at m1n1's op-115 point. This ticket finds what that precondition is. Static
@@ -185,7 +185,7 @@ present. Grounded so far:
   that agent stalled at launch (no output in 6.5 h) and was retired.
 
 **Cross-check against the only other M4-family attempt (from the IRC review,
-`done/2026-07-21-asahi-dev-irc-review.md`):** yuka's
+`evidence/2026-07-21-asahi-dev-irc-review.md`):** yuka's
 `github.com/yuyuyureka/m1n1/tree/feature/untested-t8142-pcie` drives t8142 (same
 M4 cohort as t6040/t6041) with the plain `regs_t8132` template and adds **no**
 extra PHY-IP ungate, no extra clock-gate index, and no reg[3] write before the

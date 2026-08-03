@@ -3,7 +3,7 @@
 This is the focused parallel review/plan. The complementary source-linked
 day-range record, including lower-priority ATC, PSCI, SMC, DCP, trackpad,
 wireless, and power-telemetry findings, is
-`done/2026-07-21-asahi-dev-log-review.md`. Project policy still applies: no
+`evidence/2026-07-21-asahi-dev-log-review.md`. Project policy still applies: no
 agent posts or contacts upstream; prepare drafts for CJ to send.
 
 Trawl of the OFTC `#asahi-dev` logs (`oftc.catirclogs.org/asahi-dev/<date>`) for

@@ -62,9 +62,9 @@ tethered and photograph the panic (`console=tty0` will show it). Ticket 126 upda
 
 ## Also done tonight (separate docs)
 
-- **NVMe READ WORKS** — `done/2026-07-30-t6040-NVME-READ-WORKS.md` (GPT `EFI PART` read from the
+- **NVMe READ WORKS** — `evidence/2026-07-30-t6040-NVME-READ-WORKS.md` (GPT `EFI PART` read from the
   internal SSD via reg[9]; V_UNKNOWN FW-gate fix was load-bearing).
-- **cpufreq root cause** — `done/2026-07-30-t6040-006-SOLVED-cpufreq-32bit-overflow.md` (upstream
+- **cpufreq root cause** — `evidence/2026-07-30-t6040-006-SOLVED-cpufreq-32bit-overflow.md` (upstream
   32-bit overflow; M4 is the first Apple silicon to trip it). **Draft for upstream** with the NVMe
   reg_len + V_UNKNOWN items.
 - IRC 07-29: yuka's t8122 SD-reader ltssm notes (we're unaffected); sven actively on M4 SPTM

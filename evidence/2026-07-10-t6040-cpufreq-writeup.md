@@ -58,11 +58,11 @@ aborts.
 - The working code has four dispatch additions, a no-op T6040 misc case, and a
   dedicated two-entry `t6040_features[]`.
 - Live PSTATE and failure detail:
-  `done/2026-07-10-t6040-cpufreq-plan.md`.
+  `evidence/2026-07-10-t6040-cpufreq-plan.md`.
 - Linux DT/OPP audit, including the decoded J614s DVFM tables:
-  `done/2026-07-23-t6040-cpufreq-dt-preflight.md`.
+  `evidence/2026-07-23-t6040-cpufreq-dt-preflight.md`.
 - Paired PMGR/CLPC static analysis:
-  `done/2026-07-23-t6040-cpufreq-throttle-analysis.md`.
+  `evidence/2026-07-23-t6040-cpufreq-throttle-analysis.md`.
 - The later Linux DT work does not change the m1n1 safety conclusion: hardware
   owns voltage selection, while unknown throttle offsets remain untouched.
 

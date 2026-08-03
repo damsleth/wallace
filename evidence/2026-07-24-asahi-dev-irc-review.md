@@ -1,6 +1,6 @@
 # #asahi-dev IRC review, 2026-07-22 → 2026-07-24 — findings
 
-Follow-on to `done/2026-07-21-asahi-dev-irc-review.md`. Read the 07-22/23/24 logs
+Follow-on to `evidence/2026-07-21-asahi-dev-irc-review.md`. Read the 07-22/23/24 logs
 (browser, Anubis-cleared). 07-24 is only early-morning UTC so far. Project policy:
 agents never post upstream; drafts for CJ only.
 
@@ -37,7 +37,7 @@ marks AMCC/DCS 16–31 and every dispext2/3 record inactive; the generated
 needed for this board. The preserve-active quirk therefore remains a separate
 raw-boot ownership policy. Ask yuka for the exact board/firmware/record bytes
 before generalizing; evidence and a draft-for-CJ message are in
-`done/2026-07-24-t6040-pmgr-active-encoding.md`.
+`evidence/2026-07-24-t6040-pmgr-active-encoding.md`.
 
 ## 2. sven: SPRR/SPTM emulation under hv on M4 (bears on our NVMe blocker)
 
@@ -71,7 +71,7 @@ missing path. It is not safe/live-ready: the reported test covers the older
 I2C path, while the SPMI path sends WAKEUP/SHUTDOWN, register-select writes,
 possible `SSPS`, IRQ clear/mask writes, and has an unbounded selection poll plus
 several lifetime/bounds bugs. Exact audit:
-`done/2026-07-24-t6040-yuka-hpm-spmi-branch-audit.md`.
+`evidence/2026-07-24-t6040-yuka-hpm-spmi-branch-audit.md`.
 
 ## 4. atc-phy tunables (bears on ATC PHY / USB3-TB, deferred)
 

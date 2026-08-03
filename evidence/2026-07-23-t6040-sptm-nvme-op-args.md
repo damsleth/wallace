@@ -62,5 +62,5 @@ route is dead because GXF cannot be trapped there; the remaining route is the
 exact-blob/static work in ticket 052 plus the XNU-shim escalation in ticket
 055. The header intentionally keeps `sptm_nvme_call()` stubbed.
 
-The decoded contract is reflected in `xnu-shim/include/sptm_nvme_iface.h`; no
+The decoded contract is reflected in `archive/xnu-shim/include/sptm_nvme_iface.h`; no
 callable hardware path was added.

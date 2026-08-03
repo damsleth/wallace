@@ -70,7 +70,7 @@ sample printed. The uploader stopped without Linux handoff; `[71]`, CIO3,
 clkgen, the late gate, PHY, ports, PERST#, Linux PCIe, NVMe, and storage were
 not reached. Sanctioned DebugUSB recovery restored a fresh quiescent proxy.
 
-Transcript: `logs/t6040-console-20260714-pcie-barrier.log`, SHA-256
+Transcript: `evidence/logs/t6040-console-20260714-pcie-barrier.log`, SHA-256
 `cebc058921b62b2f594855bb65db28b312570b6c707f5a29a29480c31c04667b`
 (407 lines, 25,940 bytes).
 

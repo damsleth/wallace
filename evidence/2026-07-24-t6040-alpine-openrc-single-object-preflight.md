@@ -16,7 +16,7 @@ entry 0x800
 ```
 
 Its components, offsets, expansion bounds, two-build result, and service
-surface are in `done/2026-07-24-t6040-alpine-b0-release-bundle.md`.
+surface are in `evidence/2026-07-24-t6040-alpine-b0-release-bundle.md`.
 `m1n1-b0-alpine-openrc.build2.bin` byte-matches. The strict raw-object verifier
 passes with the exact expected command line and the initramfs verifier reports
 699 entries and zero block nodes.

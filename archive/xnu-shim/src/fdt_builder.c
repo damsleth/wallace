@@ -13,6 +13,6 @@ void *fdt_build(void)
 {
     /* TODO(P3): serial (s5l/dockchannel earlycon), AIC, arch timer, memory (RAM base). */
     /* TODO(P3): ans/nvme node (compatible = apple,nvme-ans2 t6041) + its DART/SART.     */
-    /* TODO(P3): reuse dts/ + done/2026-07-10-t6040-kboot-fdt-plan.md; do NOT re-author. */
-    return 0; /* not implemented — see PLAN.md */
+    /* TODO(P3): reuse dts/ + evidence/2026-07-10-t6040-kboot-fdt-plan.md; do NOT re-author. */
+    return 0; /* not implemented — see README.md */
 }

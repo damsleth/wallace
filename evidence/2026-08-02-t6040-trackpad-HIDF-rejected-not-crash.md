@@ -23,7 +23,7 @@ command returned success at the protocol level and the following state-0 reset r
 BadArgument. It does not by itself prove that MTP consumed or applied every DMA payload byte.
 
 The trigger excerpt is preserved at
-`logs/t6040-console-20260802-ticket197-hidf-trigger-excerpt.log`; its SHA-256 is recorded in
+`evidence/logs/t6040-console-20260802-ticket197-hidf-trigger-excerpt.log`; its SHA-256 is recorded in
 ticket 197. At review time the rotating full console was 38,108 bytes with SHA-256
 `e738ceec631dd6dc3de59f17b6e8fe8977e98e2451c677befbc76e001acffb1b`.
 

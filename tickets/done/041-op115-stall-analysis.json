@@ -5,7 +5,7 @@
   "state": "done",
   "track": "pcie",
   "priority": "P1",
-  "desc": "Static RE of the op-115 stall: first PHY-IP PLL RMW at 0x417040090 printed its pre-line and never completed (done/2026-07-14-t6040-pcie-phy-diagnostic.md). Disassemble the paired kernelcache PHY-IP PLL path for missing preconditions (poll/ack ordering, e.g. PHY-clock-enable at 0x417008008 bit0 is only polled after op 348; read- vs write-side stall; aperture) and emit an evidence-backed bounded manifest for ticket 002. Complements 013",
+  "desc": "Static RE of the op-115 stall: first PHY-IP PLL RMW at 0x417040090 printed its pre-line and never completed (evidence/2026-07-14-t6040-pcie-phy-diagnostic.md). Disassemble the paired kernelcache PHY-IP PLL path for missing preconditions (poll/ack ordering, e.g. PHY-clock-enable at 0x417008008 bit0 is only polled after op 348; read- vs write-side stall; aperture) and emit an evidence-backed bounded manifest for ticket 002. Complements 013",
   "author": "fable",
   "deps": [],
   "hashes": null,

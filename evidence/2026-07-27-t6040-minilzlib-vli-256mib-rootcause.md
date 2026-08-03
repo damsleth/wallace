@@ -33,7 +33,7 @@ Boundary confirmed on the harness:
 | 256 MiB (268435456) | == 2^28 | **fails** |
 | 278 MiB (291504128) | over | **fails** |
 
-**Correction to `done/2026-07-27-t6040-minilzlib-decode-limit-harness.md`:** I earlier called the
+**Correction to `evidence/2026-07-27-t6040-minilzlib-decode-limit-harness.md`:** I earlier called the
 limit "content/level dependent" because 200 MiB of zeros and 200 MiB at `xz -6` decoded while 278 MiB
 at `-9e` failed. That was premature — all three passing cases are simply **< 256 MiB**, and the one
 failing case is **> 256 MiB**. Content and compression level are irrelevant; the cap is a clean
