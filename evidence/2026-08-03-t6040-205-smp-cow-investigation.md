@@ -219,3 +219,53 @@ Because the fault is timing-sensitive and first-touch-biased, every experiment f
 1. record the trace count at a **fresh boot baseline**, then after each run;
 2. run the reproducer **at least 4 times**, treating run 1 as the sensitive one;
 3. never conclude from a single clean run.
+
+---
+
+# Round 5 (ticket 207): the barrier bisect — "missing barrier" REFUTED
+
+Method per 208's rule: fresh boot, baseline trace count, then 4 reproducer runs at maxcpus=2.
+
+| variant | change before `copy_page()` | traces / 4 runs |
+|---|---|---|
+| (e) control | nothing (un-instrumented) | **2** — faults |
+| (a) barrier | `smp_mb()` only | **0** — clean |
+| (b) read | `READ_ONCE(*(volatile unsigned long *)kto)`, **no barrier** | **0** — clean |
+
+## Conclusion: it is not an ordering bug
+
+Variant (a) looked like the answer — a bare barrier suppressed the fault, which would have been a
+clean, upstreamable "arm64 CoW needs a barrier on Apple cores" result. Variant (b) kills it: a single
+volatile read with **no barrier at all** suppresses it just as completely. So (a) demonstrated only
+that *something* executes before `copy_page`, not that ordering was missing.
+
+**Any small perturbation before the copy hides this fault.** Combined with round 3 (the WARN's
+validation work also hid it) and round 4 (removing it brought the fault back), the honest conclusion
+is that this is a **timing-sensitive race that is not located in `copy_highpage` at all** —
+`copy_page` is where the fault is *taken*, not where the bug lives. Editing this function to make the
+symptom go away would be papering over it, and I am not proposing that as a fix.
+
+## What the evidence now points at
+
+The fault is a **kernel-mode** fault (`die_kernel_fault`) on a **linear-map** address that
+`copy_page` is legitimately reading/writing, with valid, aligned arguments (round 3). For a linear-map
+access to fault at all, the mapping must have changed under us — which suggests a **page
+lifetime/mapping** problem rather than a data-ordering one: the source or destination page being
+freed, unmapped, or re-protected by another CPU while the copy is in flight. On arm64 with
+`rodata_full` the linear map is page-granular and *can* be made invalid, so this is mechanically
+possible.
+
+That reframes the search away from `copy_highpage` and toward:
+1. **Page refcount/lifetime in the CoW path** — is the destination page's reference held for the whole
+   copy? A missing `get_page`/premature `put_page` would fit exactly.
+2. **TLB invalidation completion** on this hardware — a broadcast TLBI that does not complete before
+   the mapping is reused would produce faults on addresses that "should" be mapped.
+3. **Upstream/yuka**: we run untested M4 support. This may be a known erratum with a known workaround
+   that our port simply lacks. **The reproducer makes this a clean report** — that is now the single
+   highest-value action, ahead of more local experiments.
+
+## Do NOT do next
+
+- Do not ship any of variants (a)/(b) as a fix. They hide the symptom, the mechanism is unknown, and
+  (b) proves the suppression is not semantic.
+- Do not conclude anything further from single runs; the fault is first-touch biased (208).
