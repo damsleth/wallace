@@ -1,0 +1,83 @@
+#!/bin/sh
+# Report what the input stack exposes, and optionally watch a device for events.
+#
+# Exists because trackpad motion cannot be verified by an agent: it needs a
+# human finger. This makes the result observable AFTER the fact, so a touch
+# during an unattended boot still produces hard evidence on ttydc0 instead of
+# needing someone at the panel to describe what happened.
+#
+# Read-only. Opens input devices for reading only; no storage, SMC, SPMI, PMU,
+# NVRAM, or firmware operation.
+#
+# NOTE: opening a DockChannel HID input device is what triggers
+# dchid_start_interface() -> firmware upload for an interface that has a
+# firmware-name node. That is a live HIDF attempt and needs its own approved
+# ticket. `inventory` does NOT open any device; `watch` does.
+#
+# Usage:
+#   t6040-input-report inventory            # enumerate only, opens nothing
+#   t6040-input-report watch [dev] [secs]   # count events (default event0, 60s)
+set -u
+
+say() { echo "== $*"; }
+
+inventory() {
+    say "input devices"
+    ls -l /dev/input/ 2>/dev/null || echo "(no /dev/input)"
+    say "/proc/bus/input/devices"
+    cat /proc/bus/input/devices 2>/dev/null || echo "(unavailable)"
+    say "dockchannel-hid kernel messages"
+    dmesg 2>/dev/null | grep -iE 'dockchannel|magicmouse|hid-generic|multi-touch|tpmtfw|firmware' | tail -25
+    say "hid devices"
+    ls /sys/bus/hid/devices/ 2>/dev/null || echo "(none)"
+    for d in /sys/class/input/input*; do
+        [ -d "$d" ] || continue
+        printf '%s: name=%s\n' "${d##*/}" "$(cat "$d/name" 2>/dev/null)"
+    done
+}
+
+# Count events without evtest: an input_event on 64-bit arm64 is 24 bytes
+# (16-byte timeval + u16 type + u16 code + s32 value). We only need "did
+# anything arrive", so counting bytes is enough and needs no extra package.
+watch_dev() {
+    dev=${1:-/dev/input/event0}
+    secs=${2:-60}
+    [ -e "$dev" ] || { echo "STOP: $dev does not exist"; exit 1; }
+    say "watching $dev for ${secs}s — TOUCH THE TRACKPAD NOW"
+    printf 'T6040_INPUT_WATCH_START dev=%s secs=%s\n' "$dev" "$secs"
+    tmp=/tmp/t6040-input-capture.bin
+    rm -f "$tmp"
+    # dd with a short read timeout is unreliable on a blocking chardev, so read
+    # in the background and stop it on a timer.
+    ( cat "$dev" > "$tmp" 2>/dev/null ) &
+    reader=$!
+    n=0
+    while [ "$n" -lt "$secs" ]; do
+        n=$((n + 1))
+        sleep 1
+        kill -0 "$reader" 2>/dev/null || break
+    done
+    kill "$reader" 2>/dev/null
+    wait "$reader" 2>/dev/null
+    bytes=$(wc -c < "$tmp" 2>/dev/null || echo 0)
+    bytes=$(printf '%s' "$bytes" | tr -d ' ')
+    events=$((bytes / 24))
+    printf 'T6040_INPUT_WATCH_RESULT dev=%s bytes=%s events=%s\n' \
+        "$dev" "$bytes" "$events"
+    if [ "$events" -gt 0 ]; then
+        say "first 160 bytes (hex) — proof of real reports"
+        od -An -tx1 -N160 "$tmp" 2>/dev/null || \
+            hexdump -C -n 160 "$tmp" 2>/dev/null
+        echo "T6040_INPUT_EVENTS_PRESENT"
+    else
+        echo "T6040_INPUT_NO_EVENTS"
+        say "kernel messages during the watch"
+        dmesg 2>/dev/null | tail -15
+    fi
+}
+
+case "${1:-inventory}" in
+inventory) inventory ;;
+watch)     inventory; shift; watch_dev "${1:-/dev/input/event0}" "${2:-60}" ;;
+*) echo "usage: t6040-input-report inventory|watch [dev] [secs]" >&2; exit 2 ;;
+esac
