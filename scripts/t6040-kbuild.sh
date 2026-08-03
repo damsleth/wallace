@@ -1519,6 +1519,18 @@ fi
 # validly-mapped pages during BULK operations, worse with more CPUs (broadcast),
 # hidden by tiny delays, and sensitive to rodata_full (page-granular linear map
 # issues far more TLBIs). Applied after olddefconfig so it cannot be re-enabled.
+# Ticket 215: T6040_NO_AFDBM=1 disables ARM64_HW_AFDBM (hardware access/dirty
+# bit management). Hypothesis: M4 mishandles hardware DBM, which would corrupt
+# exactly the CoW path -- do_wp_page decides what to copy from the dirty/AF
+# bits, and a core that updates them incorrectly (or without the coherency the
+# kernel assumes) produces faults on pages the kernel believes are writable.
+# Applied after olddefconfig so it cannot be re-enabled.
+if [ "${T6040_NO_AFDBM:-0}" = "1" ]; then
+    ./scripts/config --file .config -d ARM64_HW_AFDBM
+    make ARCH=arm64 olddefconfig >/dev/null
+    echo "== assert ARM64_HW_AFDBM is DISABLED =="
+    grep -q '^# CONFIG_ARM64_HW_AFDBM is not set$' .config
+fi
 if [ "${T6040_NO_TLB_RANGE:-0}" = "1" ]; then
     ./scripts/config --file .config -d ARM64_TLB_RANGE
     make ARCH=arm64 olddefconfig >/dev/null

@@ -492,3 +492,74 @@ get further, rather than correcting whatever is actually wrong.
 `T6040_NO_TLB_RANGE=1` is now a kbuild switch (default off), and the baseline kernel has been rebuilt
 with `ARM64_TLB_RANGE=y` restored so `/out` is unmodified. The daily driver remains `maxcpus=1`;
 nothing here changes that recommendation, because 5 cores still faults even when it boots.
+
+---
+
+# Round 9 (ticket 215): ⚠️ ROUND 8 WAS WRONG — the config knobs were all red herrings
+
+## The control that broke it
+
+`HW_AFDBM=n` was the next single experiment. At maxcpus=5 it gave **660 lines, 5 CPUs, 3 traces, no
+panic** — the *same* profile as `rodata=on` and as `ARM64_TLB_RANGE=n`. Three unrelated knobs
+producing an identical result is a warning sign, so I ran the control I should have run first:
+**the plain baseline, freshly rebuilt, no knobs, no `rodata=on`.**
+
+```
+BASELINE-CONTROL 5cpu: lines=556  brought=1  traces=1
+```
+
+**The baseline boots at maxcpus=5 too.** So none of the three knobs fixed anything, and round 8's
+"two independent knobs converge on TLB invalidation" conclusion is **withdrawn**. It was a coincidence
+of three perturbations all being compared against a stale baseline.
+
+## What actually changed: the initramfs, not the config
+
+My "maxcpus=5 always hangs" evidence came from the era of the **99 MB i3 image**. Since then the boot
+payload became the **8.8 MB sdroot initramfs**. Re-measuring the threshold properly, baseline config,
+same image throughout:
+
+| maxcpus | result |
+|---|---|
+| 5 | **boots** (556-702 lines, 5 CPUs, OpenRC) |
+| 6 | hang (20 lines) |
+| 7 | hang |
+| 8 | hang |
+| 10 | hang |
+| 14 | hang |
+
+**The threshold is exactly 6** — which is precisely the *original* characterisation in the
+`smp-maxcpus6-unpack-rootfs-fault` memory and ticket 121. My round-1 finding that "2 is the limit" was
+an artefact of the 99 MB image lowering the threshold; the underlying boundary was ~6 all along.
+
+So the size-dependence is real (99 MB → threshold ~3; 8.8 MB → threshold 6) but the *headline* number
+should always have been 6, and I moved it to 2 on the strength of a differently-configured payload.
+
+## But 5 cores is still NOT a usable daily driver
+
+With the full `/sbin/init` at maxcpus=5 the system boots (702 lines) and then degrades: **4 traces**,
+including a **fifth signature**:
+
+```
+__pi_memset_generic+0x…  ← ext4_mb_prefetch+0x…      (a bulk memSET, not a copy)
+do_exit+0x…              ← make_task_dead+0x…        (a process killed)
+```
+
+and neither the ttydc0 shell nor SSH answered afterwards. Same behaviour as maxcpus=2 in earlier
+rounds: the machine boots, then processes die. **`maxcpus=1` remains the only clean configuration**
+and the daily-driver recommendation is unchanged.
+
+The fifth signature does reinforce the round-7 generalisation: `memset` into a freshly allocated
+buffer joins `clear_page`, `copy_page`, `__pi_memcpy_generic` and `copy_folio_from_iter_atomic`. Bulk
+stores into fresh pages, five different callers.
+
+## Method failure worth recording
+
+I compared three experimental builds against a baseline measured **under a different payload**, and
+built a mechanistic story ("TLB invalidation") on top of it. The 208 method rule said "≥4 runs, fresh
+baseline" and I honoured the run count but not the *baseline* half — the baseline has to be
+re-measured in the same conditions as the experiment, not recalled from earlier sessions. Any future
+config experiment on this bug must re-run the unmodified control in the same session, same image,
+same core count.
+
+`T6040_NO_TLB_RANGE` and `T6040_NO_AFDBM` remain as kbuild switches (both default off) and the
+baseline kernel is restored, but neither should be presented as having any effect on this bug.
