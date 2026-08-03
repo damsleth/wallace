@@ -1,0 +1,13 @@
+{
+  "seq": "229",
+  "slug": "hpm2-r0-connector-state-read",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "ATTENDED-ONLY (CJ must be present -- SPMI_SAFETY keeps every SPMI experiment attended and review-gated because the selector is an SPMI write; CJ's blanket rig pre-approval does NOT override that). Widen ticket 178's unrun R0 candidate from {Status 0x1a, power state 0x20} to the full connector-state set, and unlink the unapproved SWDF/SWUF role-swap code from the same source file so the artifact cannot perform an operation class it is not approved for. WHY THIS MATTERS: static RE (evidence/2026-08-04-t6040-r3-boundary-closure-design.md) cross-validated the SN201202x map against upstream Linux apple,cd321x two independent ways -- the '!CMD' sentinel matches byte-for-byte (0x444d4321 at drivers/usb/typec/tipd/core.c:144 vs Apple's literal compare) and AppleHPMDeviceHAL::setStatus decodes register 0x1a exactly onto upstream's TPS_STATUS_* bits (PLUG_PRESENT b0, CONN_STATE b[3:1] where 4=no-connection, PORTROLE b5, DATAROLE b6, PP_5V0_SWITCH b9). So the question R3 exists to answer -- is the right port already sourcing VBUS and in what role -- is answerable at class R0, which policy ALREADY permits. Four independent lines predict it is already sourcing: macOS has no VBUS primitive at all, getVbusPresent is a stub returning false, ADT hpm2 is a byte-for-byte configuration twin of the WORKING hpm0 (same class/port-type/features/transports/interrupts and even the same SID 0x0c), and port-usb-c-3 declares a 1300 mA accessory current limit. Registers to read, all R0 per policy: 0x1a status, 0x03 mode, 0x20 system power state, plus the port/role status registers named in the design doc. Reads only; the WAKEUP preamble is in-class per SPMI_SAFETY R0. FORBIDDEN in this ticket: any write to data window 0x20, any W1C (0x14/0x18), any mask write (0x16), any 4CC command including SSPS/SWDF/SWUF, any role/VBUS/PHY/repeater operation, any second endpoint or SID iteration. Address ONLY /arm-io/nub-spmi-a1/hpm2 SID 0x0c behind the full fail-closed ADT identity gate. FIXTURE: passive bus-powered USB stick on the RIGHT port; DebugUSB stays on left-back/HPM0 and is never involved. STOP on any unexpected reply/value/timeout, leftover FIFO entry, SError, reset, or recovery-transport loss; warm reboot is the recovery. PASS = a decoded connector-state report. If it shows the port already sourcing VBUS in host role, R3 becomes unnecessary and the draft R3 ticket in the design doc should be DELETED rather than signed. Needs: two byte-identical builds, independent exact-artifact review, CJ attendance.",
+  "author": "fable",
+  "deps": [],
+  "hashes": null,
+  "created": 1785798821
+}
