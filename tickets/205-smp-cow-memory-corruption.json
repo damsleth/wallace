@@ -1,0 +1,18 @@
+{
+  "seq": "205",
+  "slug": "smp-cow-memory-corruption",
+  "needs": "rig",
+  "state": "approved",
+  "track": "kernel",
+  "priority": "P0",
+  "desc": "THE single blocker for a multi-core daily driver on t6040. Under SMP, the first userspace process after switch_root SIGSEGVs with copy_page -> copy_user_highpage -> do_wp_page, i.e. copy-on-write page copying corrupts or writes a page it must not. Supersedes the narrow unpack_to_rootfs framing in 121: the SAME fault hits ordinary CoW with a 1.8 MB initramfs and no unpack pressure. EVIDENCE: maxcpus=1 -> zero call traces, clean system, repeatedly; maxcpus=4 -> SIGSEGV (exitcode 0x0000000b) + panic; maxcpus=3 and 5 -> hang; maxcpus=4 booted the 99 MB i3 image once. Non-monotonic => a RACE whose window widens with the amount of page copying. REPRODUCER (fast, reliable, no enrollment): boot initramfs-sdroot.cpio.gz with EXTRA_BOOTARGS='maxcpus=N console=ttydc0 sdroot.shell' -- switch_root execs a bare shell, so the very first userspace CoW either survives or panics within ~4 s. Faulting instruction was a8300c02 (stp, a store). LINES OF ATTACK, cheapest first: (1) find the maxcpus threshold precisely with the reproducer (2 vs 3) since 2 may be usable and is untested; (2) suspect cache/TLB maintenance on this core generation -- Everest/Sawtooth mixed clusters, check whether flush_dcache_page / __sync_icache_dcache / the CoW copy path needs an Apple-specific barrier, and whether the fault only occurs when the two threads land on DIFFERENT cluster types (test by pinning cores from ONE cluster only via a c2probe-style DTB); (3) try CONFIG_ARM64_WORKAROUND_* / idle=nop interaction -- we always boot idle=nop because M4 loses CPU state on WFI, which changes the timing of every idle core; (4) bisect a minimal C reproducer (fork + write to a shared page in a loop) so it can be reported upstream without the boot machinery. Check whether yuka/upstream have seen this on t8132; it may be a known M4 erratum.",
+  "author": "claude",
+  "deps": [
+    "121",
+    "204"
+  ],
+  "hashes": {
+    "initramfs-sdroot.cpio.gz": "reproducer"
+  },
+  "created": 1785740940
+}
