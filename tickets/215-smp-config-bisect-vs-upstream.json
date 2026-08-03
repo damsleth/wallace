@@ -1,0 +1,13 @@
+{
+  "seq": "215",
+  "slug": "smp-config-bisect-vs-upstream",
+  "needs": "rig",
+  "state": "approved",
+  "track": "bringup",
+  "priority": "P0",
+  "desc": "FROM IRC 2026-08-02: yuka told sven she has not seen the 'trying to write to read-only' SMP crash 'since a few weeks' but that 'it depends very much on the kernel config used'. That is (a) proof our 205 bug is a KNOWN M4 issue, not a Wallace bug, and (b) independent corroboration of our round-7 finding that rodata=full vs rodata=on changes the failure qualitatively (maxcpus=5: total hang -> full 5-CPU boot, no panic). ACTION: bisect the config. (1) Build with CONFIG_RODATA_FULL_DEFAULT_ENABLED=n rather than the rodata=on cmdline -- the two paths do not exercise identical code -- and retest maxcpus=5 with scripts/t6040-cow-repro.sh, >=4 runs, fresh baseline (208 method rule). (2) Diff our .config against a Fedora Asahi config and against yuka's branch defaults for MM/arm64 knobs: RODATA_FULL, DEBUG_PAGEALLOC, INIT_ON_ALLOC/FREE, PAGE_POISONING, KFENCE, SHUFFLE_PAGE_ALLOCATOR, VMAP_STACK, ARM64_16K_PAGES. (3) If a single knob fixes it, that is the answer AND a real contribution -- nobody upstream has isolated which knob matters. Our three-line reproducer is the tool they lack.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785752187
+}

@@ -1,0 +1,13 @@
+{
+  "seq": "217",
+  "slug": "capture-live-adt-for-sven",
+  "needs": "rig",
+  "state": "approved",
+  "track": "bringup",
+  "priority": "P2",
+  "desc": "FROM IRC 2026-07-31 21:51 and 2026-08-01 05:34: sven asked twice for 'a live ADT from apple entitled boot mode on a machine with SPTM and TXM' -- there are runtime values not present when m1n1 is running. CJ's J614s is exactly that (M4 Pro, macOS 26.x, SPTM, no exclaves per mmediouni). mmediouni suggests 'ioreg -l' covers most of it. ACTION: capture from the M4's OWN macOS (attended, CJ runs it): ioreg -l plus any AppleARMPlatform device-tree properties, sanity-check for anything identifying, hash it, and hand CJ a ready-to-send artifact + message. Low effort, high goodwill, and we benefit from the same runtime values for our own ADT-derived work. Do NOT post -- CJ sends.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785752187
+}

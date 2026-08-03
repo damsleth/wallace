@@ -1,0 +1,13 @@
+{
+  "seq": "216",
+  "slug": "draft-pcie-pwren-for-yuka",
+  "needs": "offline",
+  "state": "open",
+  "track": "bringup",
+  "priority": "P1",
+  "desc": "DRAFT FOR CJ TO SEND (agents never post). FROM IRC 2026-08-01 23:09: yuka reports 'on T6040 it appears followed by link down' for PCIe and has not yet tried port 0 for WiFi. That is EXACTLY the failure we root-caused on 2026-07-29: the endpoints are never powered because their power-enable lines are SMC KEY WRITES, not AP GPIOs. ADT: /amfm function-reg_on = pKW4('gP13', 0x800000) and apcie0/pci-bridge1/pcie-sdreader function-sd_pwr_en = pKW4('gP19', 0x0); gpio-macsmc maps a line to key 'gP%02x' by hex, so gP13 = line 19 (WiFi WL_REG_ON) and gP19 = line 25 (SD). Fix is two DT lines: pwren-gpios = <&smc_gpio 0x13 GPIO_ACTIVE_HIGH> on port00 and <&smc_gpio 0x19 ...> on port01, plus an apple,smc-gpio child on the smc node. Independently corroborated by upstream t603x-j514-j516.dtsi (M3 Pro/Max, J614s's predecessor) which uses the SAME line numbers 19 and 25. With this our WiFi + BT + SD reader all came up and have worked since. Also mention apple,antenna-sku and the c2-content-under-c0-filenames trap for BCM4388 rev-6, which cost us a day. Prepare a short, friendly message plus the evidence doc reference; CJ sends.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785752187
+}
