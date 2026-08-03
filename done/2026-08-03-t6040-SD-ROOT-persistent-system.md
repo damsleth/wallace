@@ -128,3 +128,13 @@ EXTRA_BOOTARGS='maxcpus=1 console=ttydc0'   initramfs-sdroot.cpio.gz
 
 Add `sdroot.shell` to get a bare shell instead of init (diagnostics). The card holds everything;
 edit files on it directly instead of rebuilding an object.
+
+## ⌨️ Keyboard backlight CONFIRMED (ticket 164)
+
+CJ visually verified on 2026-08-03: `echo 255 > /sys/class/leds/kbd_backlight/brightness` **lights
+the keys**. This closes the keyboard half of the backlight work end to end — ADT decode
+(`/arm-io/pwm0/kbd-backlight` is a plain s5l fpwm, not a HID or SMC path) → `fpwm0@429040000` +
+`pwm-leds` in the DTS → `PWM_APPLE`/`LEDS_PWM` builtin → working sysfs LED at `max_brightness`
+255. `brightnessctl` and most desktop environments will pick it up with no extra work.
+
+The **panel** backlight is a different device and remains DCP-blocked (ticket 022).
