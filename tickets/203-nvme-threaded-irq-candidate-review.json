@@ -1,0 +1,15 @@
+{
+  "seq": "203",
+  "slug": "nvme-threaded-irq-candidate-review",
+  "needs": "offline",
+  "state": "open",
+  "track": "nvme",
+  "priority": "P1",
+  "desc": "Build and independently exact-review the T6040 nvme-apple threaded-IRQ discriminator from completed ticket 202. Apply only patches/t6040-nvme-threaded-irq-discriminator.patch on the known Linux NVMe baseline; retain the same m1n1 quiesce prefix, T6040 DT, initramfs, maxcpus=1, read-only storage path, and every queue/MMIO setting. Produce two clean byte-identical builds, Image/System.map/config/DTB/initramfs/object SHA-256s, symbol/disassembly proof that nvme-apple uses devm_request_threaded_irq with IRQF_ONESHOT, and a zero-other-delta manifest. Cross-review must confirm no new MMIO/storage/SPMI/PMU/SMC/firmware/NVRAM operation. Offline only; do not boot, mark ready, or create the rig run until ticket 201 has preserved the exact baseline crashlog and CJ approves a separately hash-pinned A/B plan.",
+  "author": "sol",
+  "deps": [
+    "202"
+  ],
+  "hashes": null,
+  "created": 1785736677
+}

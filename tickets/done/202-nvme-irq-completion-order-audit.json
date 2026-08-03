@@ -1,0 +1,16 @@
+{
+  "seq": "202",
+  "slug": "nvme-irq-completion-order-audit",
+  "needs": "offline",
+  "state": "done",
+  "track": "nvme",
+  "priority": "P1",
+  "desc": "Offline discriminator after ticket 194 refuted non-zero tag/TCB slot. Compare the exact Linux nvme-apple I/O completion path against m1n1's synchronous poller: IRQ entry and threading context, CQE visibility/phase check, DMA barriers, NVMMU TCB invalidation ordering, CQ-head doorbell write, RTKit/admin-queue interaction, and error teardown. Deliverable: source+commit-pinned ordering matrix, explicit matched/unmatched facts, and the smallest logging-only or deferred-completion patch proposal if justified. Do not infer IRQ context as root cause from E11 alone; ticket 195 separately tests live admin traffic and ticket 201 separately captures the firmware crashlog. Offline only: no rig, MMIO, storage command, firmware access, or linux tree edit; any candidate patch belongs in Wallace and requires a new independently reviewed rig ticket with exact hashes.",
+  "author": "sol",
+  "deps": [
+    "194"
+  ],
+  "hashes": null,
+  "created": 1785736277,
+  "done_at": 1785736677
+}

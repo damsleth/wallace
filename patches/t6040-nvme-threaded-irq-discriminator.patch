@@ -1,0 +1,37 @@
+From: CJ Damsleth <kim@damsleth.no>
+Subject: [PATCH DEBUG] nvme: apple: run completions in a threaded IRQ
+
+T6040 ANS firmware 26.5 asserts at Linux's first I/O completion-queue
+wrap, while m1n1 survives multiple wraps after matching the queue depth,
+phase convention, tag value, TCB slot, interrupt-enabled CQ, and immediate
+CQ-head doorbell updates.  The remaining structural difference is that
+Linux handles completions in hard-IRQ context while m1n1 polls
+synchronously.
+
+Request the existing nvme-apple handler as an IRQF_ONESHOT thread.  This
+keeps the handler body, CQ/TCB ordering, MMIO addresses and values, queue
+formats, and storage commands unchanged; it changes only the execution
+context and interrupt-line masking around the handler.
+
+This is a diagnostic discriminator, not a proposed production fix.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ drivers/nvme/host/apple.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/nvme/host/apple.c b/drivers/nvme/host/apple.c
+--- a/drivers/nvme/host/apple.c
++++ b/drivers/nvme/host/apple.c
+@@ -1661,8 +1661,9 @@ static struct apple_nvme *apple_nvme_alloc(struct platform_device *pdev)
+ 	if (ret)
+ 		goto put_dev;
+ 
+-	ret = devm_request_irq(anv->dev, anv->irq, apple_nvme_irq, 0,
+-			       "nvme-apple", anv);
++	ret = devm_request_threaded_irq(anv->dev, anv->irq, NULL,
++					apple_nvme_irq, IRQF_ONESHOT,
++					"nvme-apple", anv);
+ 	if (ret) {
+ 		dev_err_probe(dev, ret, "Failed to request IRQ");
+ 		goto put_dev;
