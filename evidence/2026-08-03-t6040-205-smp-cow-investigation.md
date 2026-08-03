@@ -1007,3 +1007,71 @@ SMC endpoint, sram window, cpufreq) is now closed.
 
 The productive direction for me remains **bug B** on the new `pwren-sd-only` 14-core harness, plus
 getting `earlycon` working so bug A stops being pass/fail.
+
+---
+
+# Round 17: bug B on the `pwren-sd-only` harness — and bug B is ALSO aggravated by the WiFi chip
+
+## Harness characterisation (pwren-sd-only, SD root, `sdroot.shell`)
+
+Methodology: lease live, cmdline asserted from `dcuart-boot.log` every boot, output not suppressed.
+
+| maxcpus | CPUs up | traces at boot | bare shell responds? |
+|---|---|---|---|
+| 14 | 14 | 1 | ❌ dead |
+| 8 | 8 | 3 | ❌ dead |
+| **4** | **4** | **0** | ✅ **alive** |
+
+So `maxcpus=4` is a usable interactive harness on this DTB.
+
+## The notable finding: bug B's threshold moves with WiFi power
+
+With the **full** DTB (both `pwren-gpios`, WiFi powered) the limit was **2 cores** — 3+ faulted and
+maxcpus=2 already produced faults under the reproducer. With **`pwren-sd-only`** (WiFi *not* powered),
+maxcpus=4 boots with **zero** traces and a live shell.
+
+**So the BCM4388 being powered aggravates bug B as well, not just bug A.** That is a real link between
+the two failures that I previously had no evidence for — and it means "bug B is independent of bug A"
+(round 15) needs qualifying: they are distinct *failures*, but both are made worse by the same chip
+being powered.
+
+## Bug B fires on demand here
+
+At maxcpus=4, `scripts/t6040-cow-repro.sh` (512 KiB heap, 300 forking children), four runs:
+
+| run | traces (cumulative) | loop completed |
+|---|---|---|
+| 1 | 0 → **24** | ✅ |
+| 2 | 24 | ✅ |
+| 3 | 24 | ✅ |
+| 4 | 24 | ✅ |
+
+All 24 traces come from **run 1**; runs 2-4 add none. That is the first-touch bias from ticket 208 in
+its clearest form yet, and it means **run 1 is the only informative run** — a "clean" result from a
+repeat run means nothing.
+
+Every sampled trace is **`clear_page`** — the page allocator zeroing a freshly allocated page.
+
+## Data-integrity question: still INCONCLUSIVE, but with a new hint
+
+Ran a heavier integrity test (3 iterations of: generate 2 MiB pattern, md5, `cp`, md5, compare) with
+each step streamed to `/dev/kmsg`. **No result lines appeared, and the shell died** — while the kernel
+trace count stayed at 24, i.e. **no new kernel fault**.
+
+So under heavier load the *process* dies without a kernel-mode fault. That leans towards "processes are
+killed rather than silently given wrong data", but it is **not** proof: I never obtained a single
+MATCH/MISMATCH line. The question stands.
+
+Next attempt should use a much smaller unit of work (e.g. 64 KiB per iteration, one md5 pair per kmsg
+line) so a result lands before the shell can die.
+
+## Two more tooling traps found (both cost a cycle each)
+
+1. **Do not delete the console log while the reader holds it open.** The reader keeps writing to the
+   unlinked inode, so the new file stays empty and a perfectly good boot looks like a total failure.
+   Compare line counts across boots instead — the boot script truncates the log itself.
+2. **Do not grep for a marker that also appears in the command you echoed.** The echoed command line
+   contains the literal marker, so `grep -c MARKER` and `until grep -q MARKER` both match immediately.
+   Match the timestamped form (`^\[[ 0-9.]+\] MARKER`) to see only real kernel/kmsg output.
+
+Both are now standing rules alongside the round-13 set.
