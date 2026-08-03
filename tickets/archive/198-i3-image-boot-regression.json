@@ -2,10 +2,10 @@
   "seq": "198",
   "slug": "i3-image-boot-regression",
   "needs": "rig",
-  "state": "archived-superseded-by-199",
+  "state": "archived-superseded-by-204",
   "track": "boot",
   "priority": "P1",
-  "desc": "The i3/Alpine image (initramfs-alpine-dwm-i3-v5.cpio.xz, 099e1c72, expands to 99.5 MB) no longer boots on the current kernel: m1n1 completes handoff and the kernel emits ZERO console output, reproducible twice. Same kernel+DTB boots initramfs-dcuart.cpio.gz fine (508 lines, SD + nvme both enumerated), so kernel and DT are good. It DID boot on the E8-bisect kernel earlier the same evening (911 lines, mounted the exFAT), so this is a regression from a revert (DT nvme window 0x60000->0x10000 or tagset queue_depth 3->stock) or a marginality that became reproducible. Blocks the daily-driver image. Bisect: rebuild with each revert individually undone; also try a smaller image and DOCKCHANNEL_EARLYCON for pre-console visibility. ROOT CAUSE 2026-08-03: NOT a maxcpus threshold \u2014 boots at 1 and 4, hangs at 3 and 5, booted once at 5. It is a RACE that the 99 MB image widens. Superseded by 199 (SD root, 1.8 MB initramfs) rather than fixed. The underlying MM/SMP fault also hits copy-on-write (do_wp_page) in the SD-root boot, so ticket 121s unpack_to_rootfs framing is too narrow.",
+  "desc": "The i3/Alpine image (initramfs-alpine-dwm-i3-v5.cpio.xz, 099e1c72, expands to 99.5 MB) no longer boots on the current kernel: m1n1 completes handoff and the kernel emits ZERO console output, reproducible twice. Same kernel+DTB boots initramfs-dcuart.cpio.gz fine (508 lines, SD + nvme both enumerated), so kernel and DT are good. It DID boot on the E8-bisect kernel earlier the same evening (911 lines, mounted the exFAT), so this is a regression from a revert (DT nvme window 0x60000->0x10000 or tagset queue_depth 3->stock) or a marginality that became reproducible. Blocks the daily-driver image. Bisect: rebuild with each revert individually undone; also try a smaller image and DOCKCHANNEL_EARLYCON for pre-console visibility. ROOT CAUSE 2026-08-03: NOT a maxcpus threshold \u2014 boots at 1 and 4, hangs at 3 and 5, booted once at 5. It is a RACE that the 99 MB image widens. Superseded by 204 (SD root, 1.8 MB initramfs) rather than fixed. The underlying MM/SMP fault also hits copy-on-write (do_wp_page) in the SD-root boot, so ticket 121s unpack_to_rootfs framing is too narrow.",
   "author": "claude",
   "deps": [],
   "hashes": null,
@@ -13,6 +13,6 @@
   "archived": {
     "at": 1785736860,
     "by": "sol",
-    "reason": "superseded: the 99 MiB image race is bypassed by ticket 199 SD-root; the underlying MM and SMP COW fault remains separately open"
+    "reason": "superseded: the 99 MiB image race is bypassed by ticket 204 SD-root; the underlying MM and SMP COW fault remains separately open"
   }
 }

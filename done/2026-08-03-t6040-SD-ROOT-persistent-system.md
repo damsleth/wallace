@@ -1,4 +1,4 @@
-# SD-root: a persistent Alpine system on the SD card (ticket 199)
+# SD-root: a persistent Alpine system on the SD card (ticket 204)
 
 2026-08-03 autonomous session. Built on the 193 SD result. **Boots and switch_roots; userspace
 services not yet up** — status and the exact remaining work are at the bottom.

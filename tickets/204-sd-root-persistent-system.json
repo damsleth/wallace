@@ -1,5 +1,5 @@
 {
-  "seq": "199",
+  "seq": "204",
   "slug": "sd-root-persistent-system",
   "needs": "rig",
   "state": "switch-root-works-userspace-services-down",

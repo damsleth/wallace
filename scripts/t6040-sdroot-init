@@ -1,5 +1,5 @@
 #!/bin/busybox sh
-# /init for the TINY switch-root initramfs (ticket 199).
+# /init for the TINY switch-root initramfs (ticket 204).
 #
 # Why this exists: the 99 MB i3 RAM image loses a race in unpack_to_rootfs on
 # this hardware (see done/2026-08-02 SD doc and ticket 198) -- it booted at
