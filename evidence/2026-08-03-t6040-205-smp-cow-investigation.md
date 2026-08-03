@@ -734,3 +734,53 @@ writes, performed once each, early in boot.
 We cannot simply drop `pwren-gpios`: they power WiFi, BT and the SD card the persistent root lives on.
 But experiment 3 might let us keep WiFi at full core count even before the root cause is fixed, and
 experiment 1 is a genuinely small change with a specific, evidence-backed expected value.
+
+---
+
+# Round 12: macOS GPIO value REFUTED — and round 11 had a CONFOUND
+
+## The macOS value is not the answer
+
+Patched `gpio-macsmc` to write macOS's `0x00800001` (cmd byte `0x00`/`CMD_ACTION` with `0x80` in bits
+23-16) instead of `CMD_OUTPUT|1 = 0x01000001`, full DTB, maxcpus=14: **still hangs** (20 lines). The
+value discrepancy sol decoded is real but is **not** the cause of this failure. Experiment reverted.
+
+## The confound in round 11
+
+Round 11 concluded "the trigger is the `pwren-gpios` SMC key writes" because removing `pwren-gpios`
+let 14 cores boot. That inference does not hold: `pwren-gpios` is *also* the switch that powers the
+PCIe endpoints, so removing it prevents **brcmfmac, hci_bcm4377 and sdhci-pci from probing at all**,
+and therefore removes all of their DMA.
+
+Verified by counting `pwren-gpios` in each DTB:
+
+| DTB | `pwren-gpios` | endpoints powered | endpoint drivers running | 14 cores |
+|---|---|---|---|---|
+| `dcuart-pcie` | **0** | no | no | ✅ boots |
+| `smc-nogpio` | **0** | no | no | ✅ boots |
+| `smc-gpio-nopwren` | **0** | no | no | ✅ boots |
+| `wifi-cpufreq` (full) | **2** | yes | yes | ❌ hang |
+
+**Every** passing case has unpowered endpoints; **every** failing case has powered endpoints. So the
+bisect cannot yet distinguish "the SMC key write" from "WiFi/BT/SD existing and doing DMA". The
+round-11 claim is downgraded to: *something in the chain `SMC key write → endpoint power → driver probe
+→ endpoint DMA` breaks 14-core boot.*
+
+Since brcmfmac downloads firmware over PCIe DMA through the DART and sdhci-pci uses 64-bit ADMA, the
+DMA end of that chain is now at least as suspicious as the SMC-write end.
+
+## The experiment that separates them (ticket 223)
+
+Keep `pwren-gpios` (endpoints powered, SMC write performed) but **remove the endpoint drivers** from the
+kernel config — `BRCMFMAC`, `BT_HCIBCM4377`, `MMC_SDHCI_PCI`:
+
+- **14 cores boot** → SMC write and power-up are innocent; an endpoint driver's DMA is the culprit, and
+  it bisects further one driver at a time (brcmfmac first).
+- **still hangs** → drivers innocent, and round 11's SMC-write conclusion is restored on sound evidence.
+
+## Correction discipline note
+
+Second time in this ticket that a "removing X fixes it" result implied more than it supported (the first
+was round 8's config knobs against a stale baseline). Pattern to watch: **in a DT bisect, deleting a
+property often disables a whole downstream chain, not one behaviour.** Enumerate what else stops
+happening before concluding.

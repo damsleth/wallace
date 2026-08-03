@@ -1,0 +1,15 @@
+{
+  "seq": "223",
+  "slug": "smp-endpoint-driver-vs-smc-write",
+  "needs": "rig",
+  "state": "approved",
+  "track": "kernel",
+  "priority": "P0",
+  "author": "claude",
+  "deps": [
+    "221"
+  ],
+  "hashes": null,
+  "created": 1785768976,
+  "desc": "Separate the two things ticket 221 conflated. Round 11 concluded the gP13/gP19 SMC key writes break 14-core boot because removing pwren-gpios fixed it -- but pwren-gpios ALSO powers the PCIe endpoints, so removing it stops brcmfmac, hci_bcm4377 and sdhci-pci probing and removes all their DMA. Verified: every DTB that boots 14 cores has pwren-gpios count 0; the only one that hangs has 2. So the sound statement is only that something in the chain SMC-key-write -> endpoint-power -> driver-probe -> endpoint-DMA breaks the boot. TEST: keep pwren-gpios (SMC write happens, endpoints power up) but build WITHOUT the endpoint drivers -- disable BRCMFMAC, BT_HCIBCM4377, MMC_SDHCI_PCI. 14 cores boot => SMC write and power-up innocent, an endpoint driver's DMA is the culprit; bisect one at a time, brcmfmac first (large firmware DMA through the DART). Still hangs => drivers innocent and round 11's SMC-write conclusion is restored on sound evidence. ALSO: the macOS GPIO value 0x00800001 (vs CMD_OUTPUT|1) was tested at 14 cores and does NOT fix the hang -- refuted, experiment reverted. AND get DOCKCHANNEL_EARLYCON output: the 14-core hang is still pass/fail with zero diagnosis, which is the main thing slowing this down."
+}
