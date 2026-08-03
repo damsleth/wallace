@@ -142,3 +142,47 @@ Best next steps:
    whether the destination is a page the kernel should own; a `WARN_ON` on non-page-aligned or
    unexpected mapping would localise it fast, and the reproducer makes each attempt cheap.
 3. Check the Asahi tree for any CoW/cache-maintenance patch we are missing in this port.
+
+---
+
+# Round 3: the instrumentation makes the bug DISAPPEAR (and the args are clean)
+
+Added to `copy_highpage()` a `WARN_ONCE` validating exactly what `copy_page()` is about to be handed:
+page-alignment of both addresses, `virt_addr_valid()` on both, and self-copy. Verified present in the
+packed Image (`t6040-cow: bad copy_page` string).
+
+Result at `maxcpus=2`, **four consecutive runs** of the reproducer in one boot:
+
+| run | kernel traces | `t6040-cow` warns | loop completed |
+|---|---|---|---|
+| 1 | 0 | 0 | yes |
+| 2 | 0 | 0 | yes |
+| 3 | 0 | 0 | yes |
+| 4 | 0 | 0 | yes |
+
+The un-instrumented kernel faulted on the **first** run of the same loop at the same core count.
+
+## Two conclusions
+
+1. **`copy_page`'s inputs are always valid.** The WARN never fired once — both addresses are
+   page-aligned, both are valid linear-map addresses, and source never equals destination. So the
+   corruption is not a bad-argument bug; it is in the copy itself or in the state of the pages.
+2. **A few instructions of work before `copy_page` suppress the race.** This is a Heisenbug. That is
+   a *lead*, not just an annoyance: `virt_addr_valid()` performs memory reads (pfn/sparsemem
+   lookups), so the fix-by-accident is consistent with a **missing barrier or cache maintenance
+   before the CoW copy** — e.g. the destination page's prior contents (zeroed or written by another
+   CPU) not yet visible to the copying CPU.
+
+## Attribution caveat
+
+The faulting runs were on the build immediately *before* the instrumentation commit — same tree
+otherwise. Attribution to the instrumentation is reasonable but not airtight, since any rebuild can
+shift codegen. A control run of the un-instrumented Image in the *same* session should confirm it
+(ticket 208).
+
+## The experiment this sets up
+
+Bisect *what* suppresses it, from cheapest to most meaningful (ticket 207):
+`smp_mb()` alone → a single dummy read of `kto` → `dcache` maintenance on the destination →
+nothing (control). Whichever minimal operation makes the fault go away names the missing primitive,
+and that is directly upstreamable.
