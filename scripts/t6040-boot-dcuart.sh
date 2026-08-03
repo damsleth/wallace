@@ -34,6 +34,31 @@ IMAGE="${IMAGE:-Image}"
 M1N1_BIN="${M1N1_BIN:-build/m1n1.bin}"
 echo "== m1n1: $M1N1_BIN  DTB: $DTB  kernel: $IMAGE  initramfs: $INITRAMFS  dev: $M1 =="
 
+# Refuse a kernel that is missing entire driver subsystems.
+#
+# $OUT/Image is what actually boots, and per-build "Image-<name>" artifacts do
+# NOT update it -- so it can silently stay weeks old. On 2026-08-03 it was still
+# the Jul 24 build, which contains zero occurrences of pcie-apple and macsmc.
+# That cost an evening of false hardware diagnoses (empty /sys/bus/pci/devices,
+# GL9755 "absent", no mmcblk0, no wlan0, no /dev/input so a dead keyboard, and a
+# silent dockchannel console) and two needless physical interventions.
+#
+# A whole subsystem missing means the wrong kernel, not broken hardware. Set
+# BOOT_SKIP_IMAGE_CHECK=1 when a deliberately minimal kernel is the point.
+if [ "${BOOT_SKIP_IMAGE_CHECK:-0}" != 1 ]; then
+    for _sym in pcie-apple macsmc; do
+        if [ "$(strings -a "$OUT/$IMAGE" 2>/dev/null | grep -ci "$_sym")" -eq 0 ]; then
+            echo "ERROR: $OUT/$IMAGE contains no '$_sym' -- it lacks whole driver subsystems."
+            echo "       version: $(strings -a "$OUT/$IMAGE" 2>/dev/null | grep -m1 'Linux version' | cut -c1-72)"
+            echo "       date:    $(command ls -l "$OUT/$IMAGE" | awk '{print $6, $7, $8}')"
+            echo "       Fix: copy the intended Image-<name> over $OUT/$IMAGE, or rebuild."
+            echo "       Override with BOOT_SKIP_IMAGE_CHECK=1 if a minimal kernel is intended."
+            exit 1
+        fi
+    done
+    echo "== kernel check: pcie-apple + macsmc present ($(command ls -l "$OUT/$IMAGE" | awk '{print $6, $7, $8}')) =="
+fi
+
 attach_reader() {
     stty -f "$M1" raw -echo 2>/dev/null || true
     # Detach from short-lived automation PTYs; otherwise their teardown can
