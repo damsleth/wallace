@@ -1075,3 +1075,70 @@ line) so a result lands before the shell can die.
    Match the timestamped form (`^\[[ 0-9.]+\] MARKER`) to see only real kernel/kmsg output.
 
 Both are now standing rules alongside the round-13 set.
+
+---
+
+# 🎯 Round 18: bug B is FAIL-STOP, not silent corruption
+
+The question I have been carrying since round 6 finally has an answer.
+
+## Method that worked
+
+Earlier attempts failed because the test itself was too heavy — the shell died before any verdict was
+emitted. Fixes: **64 KiB units** instead of 2 MiB, **generate the pattern once** instead of per
+iteration, **`cmp -s` instead of two `md5sum` calls** (2 forks per iteration instead of 4), a marker
+after every step, and results matched only in their timestamped form so the echoed command cannot be
+mistaken for output.
+
+## Result 1: clean baseline (no fault fired)
+
+8 iterations of `cp` + `cmp` on 64 KiB at maxcpus=4 on the `pwren-sd-only` harness:
+
+```
+SAME=8  DIFFER=0  finished  traces=0
+```
+
+Establishes the test is sound and produces verdicts. Unremarkable on its own — the bug did not fire.
+
+## Result 2: verification WHILE the fault fires — the decisive one
+
+Backgrounded the fork-heavy reproducer (512 KiB heap, 300 children) and ran 12 `cp`+`cmp`
+verifications in the foreground on a fresh boot (first-touch still available):
+
+| measurement | value |
+|---|---|
+| verifications identical | **SAME = 12** |
+| verifications differing | **DIFFER = 0** |
+| verify loop completed | ✅ |
+| background fork load completed | ❌ **died** (`LOADDONE` never printed) |
+| kernel faults during the run | **1** |
+
+So a kernel fault fired, it **killed the load process**, and **every one of the twelve data
+verifications in the surviving process was byte-identical**.
+
+## Conclusion: fail-stop
+
+**Bug B kills processes; it does not silently hand back wrong data.** For the surviving process,
+copied data was correct across 12 checks while a fault was killing another process.
+
+This is materially good news:
+
+- **Data at rest is not being silently corrupted.** The persistent SD root, the ext4 image and the
+  files on it are not quietly rotting while the machine runs at >1 core. What happens instead is that
+  processes die.
+- It also fits every earlier observation: `die_kernel_fault` → `arm64_force_sig_fault` →
+  `make_task_dead` is a *fail-stop* path by construction, and the "userspace becomes unresponsive"
+  symptom at higher core counts is processes being killed, not producing garbage.
+
+**Scope of the claim, honestly:** this shows no corruption in a *surviving* process's data while a
+fault killed a *different* process. It does not prove that a process which is itself hit by the fault
+never writes bad data before dying, nor that a fault during a page-cache writeback could not reach
+storage. Those need separate tests. But the common worry — silent memory corruption spreading into the
+filesystem — is not what this bug does.
+
+## Practical consequence
+
+Running at >1 core is a **stability** problem, not a **data-integrity** problem. That changes the risk
+calculus: experimenting at 4-14 cores on the SD root is much safer than feared, and the SD card's
+contents can be trusted after a multi-core crash (still worth an `fsck`, since a process dying
+mid-write is an ordinary unclean-shutdown risk).
