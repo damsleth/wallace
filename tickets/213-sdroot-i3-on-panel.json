@@ -9,5 +9,8 @@
   "author": "claude",
   "deps": [],
   "hashes": null,
-  "created": 1785744315
+  "created": 1785744315,
+  "runnable": false,
+  "approved_by": "cj",
+  "approved_at": 1785746507
 }
