@@ -248,3 +248,27 @@ Two habits that have each produced a wrong conclusion here:
   exits early, the upstream `gzip` takes `EPIPE`, and the pipeline status is
   non-zero. Count matches instead. This bug was in the first version of the
   preflight script and would have condemned good images.
+
+### SD-root / initramfs interaction (added 2026-08-04)
+
+- **`/init` refreshes the card's helpers every boot, so anything the card has
+  that our copies lack is DESTROYED.** This cost two regressions in one session:
+  refreshing `/etc/inittab` removed the card's `ttydc0` getty (losing all remote
+  access) and then its `t6040-startx` entry (losing the GUI). **Rule: the shipped
+  `inittab` must be a superset of everything the card is expected to run**, and
+  the refresh must ship the whole dependency closure of what it installs.
+- **Keep one dependency-free serial shell.**
+  `ttydc0::respawn:/bin/busybox sh -l` cannot fail for a missing helper, unlike
+  `early-console` → `t6040-b0-ttydc0-console` → `getty` + autologin. Losing the
+  serial shell while a window-free object is enrolled means **no way in at all**.
+- **The X0 socket existing does not mean X accepts connections.** A `setxkbmap`
+  call right after the socket appears fails with `Cannot open display ":0"`, and
+  `XAUTHORITY` must be set explicitly. Retry until it succeeds and log the result;
+  a silenced failure leaves a working desktop in the US layout.
+- **An empty WiFi scan is not broken WiFi.** A stale (or self-colliding)
+  `wpa_supplicant` starves the radio: `iw scan` returned 0 networks, and after
+  `killall wpa_supplicant` the same scan returned 75. The giveaway in the log is
+  `nl80211: kernel reports: Match already configured`.
+- **Verify by booting the real object, not the build.** Both regressions above
+  passed every static check and were only caught by `t6040-boot-raw-object.sh`
+  plus a live query over the serial shell.
