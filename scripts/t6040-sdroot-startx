@@ -37,11 +37,23 @@ fi
 /usr/libexec/Xorg :0 -logfile /var/log/xorg.log -noreset vt1 >/var/log/xorg-start.log 2>&1 &
 n=0
 while [ ! -e /tmp/.X11-unix/X0 ] && [ "$n" -lt 20 ]; do sleep 1; n=$((n + 1)); done
-# Belt and braces: the config above is authoritative, this catches a running X
-# that was started before the file existed. Failure is reported, not swallowed.
+# The X0 socket existing does NOT mean X accepts connections yet: this ran too
+# early and logged 'Cannot open display ":0"' -> 'setxkbmap no FAILED', leaving a
+# US layout on an otherwise working desktop (2026-08-04). XAUTHORITY must also be
+# explicit here -- it is set for i3 below, but setxkbmap ran without it.
+# So: retry until the server actually answers, and report the outcome either way.
+export XAUTHORITY="${XAUTHORITY:-/root/.Xauthority}"
 if command -v setxkbmap >/dev/null 2>&1; then
-    setxkbmap no >>/var/log/wallace-keymap.log 2>&1 ||
-        echo "setxkbmap no FAILED" >>/var/log/wallace-keymap.log
+    n=0
+    while [ "$n" -lt 20 ]; do
+        if setxkbmap no >>/var/log/wallace-keymap.log 2>&1; then
+            echo "setxkbmap no OK after ${n}s" >>/var/log/wallace-keymap.log
+            break
+        fi
+        n=$((n + 1))
+        sleep 1
+    done
+    [ "$n" -lt 20 ] || echo "setxkbmap no FAILED after ${n}s" >>/var/log/wallace-keymap.log
 else
     echo "setxkbmap absent; relying on xorg.conf.d" >>/var/log/wallace-keymap.log
 fi

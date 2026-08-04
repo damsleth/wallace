@@ -6,6 +6,12 @@
 ::sysinit:/usr/local/sbin/t6040-sdroot-openrc boot
 ::once:/usr/local/sbin/t6040-sdroot-openrc default
 ::once:/usr/local/sbin/t6040-sdroot-openrc net
+# Graphical session. This MUST be here: because /init now refreshes /etc/inittab
+# unconditionally, anything the card had but this file lacks is destroyed. That
+# is exactly how the GUI was lost on 2026-08-04 -- the card's own inittab carried
+# this entry and ours did not, so Xorg and i3 simply stopped being started.
+# Rule: this file must be a SUPERSET of whatever the card is expected to run.
+::once:/usr/local/sbin/t6040-startx
 tty1::respawn:/bin/busybox sh -l
 # Direct, dependency-free serial shell. t6040-sdroot-early-console above is the
 # nicer path (it runs a real getty with autologin) but it needs
