@@ -1,0 +1,13 @@
+{
+  "seq": 231,
+  "slug": "usb-typec-config-and-atcphy-gap",
+  "state": "open",
+  "needs": "offline",
+  "track": "usb",
+  "pri": "P1",
+  "owner": "claude",
+  "evidence": [
+    "evidence/2026-08-04-t6040-usb-vbus-gap-analysis.md"
+  ],
+  "desc": "USB host storage is blocked on VBUS, and this ticket enumerates exactly what is missing. Ticket 170 already showed the right-port smoke reached xHCI ROOT HUBS but no child device because a bus-powered stick has no VBUS; apple,force-host-mode deliberately bypasses the CD321x PD controller that owns CC detection, data/power role and VBUS sourcing. NOTE a self-powered device does NOT avoid this: USB forbids a device applying its D+ pull-up before it sees VBUS, so an iPhone or powered SSD still will not attach. FINDINGS (config-macsmc-hid-type-fix-trackpad-nbcon-ppp-cpufreq): dwc3, xHCI and USB_ROLE_SWITCH are =y; but CONFIG_TYPEC=m, CONFIG_TYPEC_TPS6598X=m (the cd321x driver) and CONFIG_I2C_APPLE=m are MODULES, and our boot images have no module loading; and CONFIG_PHY_APPLE_ATC is NOT SET AT ALL. Worse for the USB3 path: drivers/phy/apple/atc.c matches ONLY apple,t8103-atcphy, with zero occurrences of t602x/t6020/t8112 -- the Apple Type-C PHY driver does not support this SoC yet. PHY_APPLE_ATC also depends on TYPEC, so TYPEC must be built in first. PLAN, cheapest first: (1) config-only TYPEC=y, TYPEC_TPS6598X=y, I2C_APPLE=y -- no new code or DT, just makes the PD controller bindable; (2) locate the CD321x on T6040 from the ADT (which I2C controller, address, interrupt) -- ADT-derived only, never copied from another SoC; (3) compose a right-port connector node (i2c + apple,cd321x + connector power-role/data-role) and test whether the PD driver sources VBUS without any HPM 4CC poking, which is the entire point of 170's redirect and keeps us out of the deny-by-default SPMI path; (4) only then re-run 108 (enumeration) and 109 (read-only block). USB2-only (ticket 188's byte-reproducible candidate) is the cheapest credible route to a flash drive and avoids atcphy entirely, but still needs VBUS. Rig is serialized for ticket 230, so this is offline work."
+}
