@@ -63,3 +63,62 @@ sourcing VBUS. Self-powering only reduces the current we must supply.
 Do not test with an iPhone expecting a block device: it exposes Apple's
 vendor-specific usbmux plus PTP/MTP, never USB Mass Storage, so `usb-storage`
 cannot bind. It is a valid *enumeration* probe and nothing more.
+
+---
+
+# CORRECTION (same day): the CD321x/I2C plan does not apply to T6040
+
+The ADT hunt refuted step 3 of the plan above before any of it was built. Recorded
+here rather than quietly dropped, because the refuted plan is the obvious one and
+someone will propose it again.
+
+## What the ADT actually says
+
+`linux-build-out/j614s-full-20260728.adt` describes **four** USB-C power
+controllers, and every one of them is an **SPMI** device:
+
+```
+name hpm0   compatible usbc,sn201202x,spmi    (under nub-spmi-a0)
+name hpm1   compatible usbc,sn201202x,spmi
+name hpm2   compatible usbc,sn201202x,spmi    (under nub-spmi-a1)
+name hpm5   compatible usbc,sn201202x,spmi
+```
+
+Not `i2c`. Not `cd321x`. The part is an `sn201202x` on SPMI.
+
+## Why that kills the upstream path
+
+- `drivers/usb/typec/tipd/core.c` — the driver that binds `apple,cd321x` — is an
+  **I2C** driver (`#include <linux/i2c.h>`, `i2c_protocol`). It has no SPMI
+  transport and cannot bind to an SPMI node.
+- `grep -rl sn201202x drivers/` returns **nothing**. There is no driver for this
+  part in the tree at all.
+- The SPMI *bus* is supported (`drivers/spmi/spmi-apple-controller.c`), so the
+  transport exists; the *client* does not.
+
+Ticket 170's "use the DT Type-C stack instead of HPM 4CC pokes" redirect was
+derived from the M1/M2 upstream work, where the PD controller is on I2C. **That
+premise does not hold on M4 Pro.** The redirect is still right in spirit — we
+want a driver, not raw pokes — but there is no existing driver to redirect to.
+
+## Revised options for VBUS, honestly costed
+
+1. **Write an SPMI client for the PD controller.** The correct path: either an
+   SPMI transport under `tipd` or a small dedicated driver. This is new driver
+   code, not configuration, and it is the honest cost of USB host on this
+   machine.
+2. **Use the already reverse-engineered 4CC command sequence over SPMI.** Fast,
+   but it is the deny-by-default SPMI path and needs a fresh explicit exception
+   from CJ. Note ticket 096 recorded the R3 attempt as
+   `r3-withdrawn-swdf-data-role-only` — it swapped the *data* role, not power, so
+   it did not produce VBUS and is not a shortcut to it.
+3. **There is no hardware shortcut.** VBUS on these ports is owned by the PD
+   controller; a self-powered device cannot supply its own, because USB forbids a
+   device asserting D+ before it sees VBUS.
+
+## Config consequences
+
+Of the three config changes proposed above, only `TYPEC=y` survives — it is a
+genuine prerequisite for the Type-C class and for `PHY_APPLE_ATC`, which
+`depends on TYPEC`. `TYPEC_TPS6598X=y` and `I2C_APPLE=y` were justified solely by
+the I2C CD321x path and would add nothing here.
