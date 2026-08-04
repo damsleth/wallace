@@ -268,6 +268,7 @@ for pair in \
     "/usr/local/sbin/t6040-sdroot-openrc       t6040-sdroot-openrc" \
     "/usr/local/sbin/t6040-sdroot-powerctl     t6040-sdroot-powerctl" \
     "/usr/local/sbin/t6040-startx              t6040-sdroot-startx" \
+    "/usr/local/sbin/t6040-sdroot-net          t6040-sdroot-net" \
     "/etc/inittab                              t6040-sdroot-inittab"; do
     # shellcheck disable=SC2086
     set -- $pair
@@ -279,6 +280,34 @@ for pair in \
     # initramfs by construction, so neither can happen again.
     install_helper "$1" "$2" || { cleanup_root; stop "cannot install $1 onto the new root"; }
 done
+
+# WiFi credentials, refreshed EVERY boot: CJ maintains ~/wpa.conf on the host and
+# that is the source of truth. Installing only-if-absent silently stranded the
+# card on a one-network config while the host file had three, so the machine kept
+# hunting for an out-of-range SSID (2026-08-04).
+if [ -s /opt/wallace/wpa_supplicant.conf ]; then
+    "$BB" mkdir -p /newroot/etc/wpa_supplicant &&
+    "$BB" cp /opt/wallace/wpa_supplicant.conf /newroot/etc/wpa_supplicant/wpa_supplicant.conf &&
+    "$BB" chmod 0600 /newroot/etc/wpa_supplicant/wpa_supplicant.conf &&
+    say "installed wpa_supplicant.conf from the initramfs"
+fi
+
+# Xcursor theme, installed once if the card has none.
+if [ ! -d /newroot/usr/share/icons/Adwaita/cursors ] && [ -d /opt/wallace/icons/Adwaita ]; then
+    "$BB" mkdir -p /newroot/usr/share/icons &&
+    "$BB" cp -a /opt/wallace/icons/Adwaita /newroot/usr/share/icons/ &&
+    say "installed the Adwaita cursor theme"
+fi
+
+# Local time. Without /etc/localtime the whole system sits in UTC, so the i3 bar
+# clock reads two hours behind Oslo in summer. The zoneinfo database is already
+# on the card; only the symlink was missing (2026-08-04).
+if [ ! -e /newroot/etc/localtime ] &&
+   [ -e /newroot/usr/share/zoneinfo/Europe/Oslo ]; then
+    "$BB" ln -sf /usr/share/zoneinfo/Europe/Oslo /newroot/etc/localtime &&
+    echo "Europe/Oslo" > /newroot/etc/timezone &&
+    say "set timezone Europe/Oslo"
+fi
 
 # These genuinely cannot be repaired from here.
 for required in /sbin/init /bin/busybox; do

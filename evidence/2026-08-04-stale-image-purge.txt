@@ -1,0 +1,15 @@
+# Stale image purge, 2026-08-04
+# Removes superseded boot objects so an old, non-functioning one cannot be
+# enrolled or chainloaded by mistake (CJ's request).
+
+KEEP (current, verified):
+  wallace-daily-final-win3.raw-object.bin wallace-daily-final-nowindow.raw-object.bin
+KEEP (enrolled always-proxy rollback):  rollback-m1n1-1394c345.bin
+
+DELETED superseded objects:
+  wallace-daily-nonvme-nowindow.raw-object.bin  ea2c55888d8ac599
+  wallace-daily-nonvme-win3.raw-object.bin  c6fa6ab79b4b593f
+  wallace-sdroot-fsck-20260803.raw-object.bin  c97f9e1270f675fb
+  wallace-sdroot-no-20260804.raw-object.bin  089d2241b462fb80
+  wallace-sdroot-v2-nowindow.raw-object.bin  d152ddc8aecedf79
+  wallace-sdroot-v2-win3.raw-object.bin  f41dbd8a8c636ba3

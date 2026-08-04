@@ -11,11 +11,46 @@
 # service, and xauth then builds the display name "(none):0", fails, and i3
 # cannot authenticate -- X exits and it looks like an X bug rather than a
 # boot-ordering bug.
+# Xorg runs on vt2, NOT vt1. inittab respawns a login shell on tty1, and a
+# shell holding that terminal competes with X for it: keystrokes go to the
+# shell instead of X, so keyboard and trackpad both appear dead in i3 while the
+# console keyboard still works. That regression appeared on 2026-08-04 when the
+# refreshed inittab began spawning the tty1 shell. Keeping X on vt2 preserves a
+# usable rescue console on Ctrl+Alt+F1.
 hostname -F /etc/hostname 2>/dev/null
 n=0
 while [ ! -e /dev/dri/card0 ] && [ "$n" -lt 30 ]; do sleep 1; n=$((n + 1)); done
 [ -e /dev/dri/card0 ] || exit 0
 export HOME=/root DISPLAY=:0
+
+# udev MUST be running before Xorg starts, or X finds no input devices at all --
+# no keyboard AND no mouse, on an otherwise perfect desktop. Xorg autoconfigures
+# input through udev; without it the log says "If no devices become available,
+# reconfigure udev or disable AutoAddDevices" and silently starts with none.
+# Observed 2026-08-04: libinput_drv.so present, /run/udev absent, zero mentions
+# of libinput in Xorg.log. The console keyboard still works, which makes this
+# look like an X or HID bug when it is neither.
+if [ ! -d /run/udev ] && command -v udevd >/dev/null 2>&1; then
+    udevd --daemon >>/var/log/wallace-udev.log 2>&1
+    udevadm trigger --type=subsystems --action=add >>/var/log/wallace-udev.log 2>&1
+    udevadm trigger --type=devices --action=add >>/var/log/wallace-udev.log 2>&1
+    udevadm settle --timeout=10 >>/var/log/wallace-udev.log 2>&1
+    echo "udevd started; /dev/input: $(ls /dev/input 2>/dev/null | tr '\n' ' ')" \
+        >>/var/log/wallace-udev.log
+fi
+
+# HiDPI. The internal panel is 3024x1867 on 14", so at the default 96 dpi every
+# UI element is roughly half the size it should be. 192 dpi is exact 2x scaling;
+# Xft.dpi covers toolkit text (including i3's pango fonts) and XCURSOR_SIZE the
+# pointer, which is otherwise a few pixels of confetti on this display.
+export XCURSOR_SIZE="${XCURSOR_SIZE:-48}"
+# A size alone does nothing without a THEME: X falls back to the built-in core
+# cursor font, a fixed small bitmap that ignores Xcursor.size entirely. The card
+# shipped only the "hicolor" icon theme with no cursors/ directory at all, which
+# is why the pointer stayed tiny while text scaled correctly (2026-08-04).
+export XCURSOR_THEME="${XCURSOR_THEME:-Adwaita}"
+export XCURSOR_PATH="${XCURSOR_PATH:-/usr/share/icons}"
+export GDK_SCALE="${GDK_SCALE:-2}" QT_AUTO_SCREEN_SCALE_FACTOR=1
 
 # Norwegian layout for X, by CONFIG rather than only by command: setxkbmap below
 # was silenced with 2>/dev/null, so if the binary is absent the layout silently
@@ -34,7 +69,7 @@ XKB
     echo "wrote xorg.conf.d/00-keyboard.conf (XkbLayout no)" >/var/log/wallace-keymap.log
 fi
 
-/usr/libexec/Xorg :0 -logfile /var/log/xorg.log -noreset vt1 >/var/log/xorg-start.log 2>&1 &
+/usr/libexec/Xorg :0 -dpi 192 -logfile /var/log/xorg.log -noreset vt2 >/var/log/xorg-start.log 2>&1 &
 n=0
 while [ ! -e /tmp/.X11-unix/X0 ] && [ "$n" -lt 20 ]; do sleep 1; n=$((n + 1)); done
 # The X0 socket existing does NOT mean X accepts connections yet: this ran too
@@ -57,4 +92,24 @@ if command -v setxkbmap >/dev/null 2>&1; then
 else
     echo "setxkbmap absent; relying on xorg.conf.d" >>/var/log/wallace-keymap.log
 fi
+# Toolkit-level scaling. Xft.dpi is what actually enlarges text in i3, i3bar,
+# dmenu and most X clients; -dpi alone only sets the server's reported DPI.
+if command -v xrdb >/dev/null 2>&1; then
+    printf 'Xft.dpi: 192\nXcursor.size: 48\nXcursor.theme: Adwaita\n' | xrdb -merge 2>>/var/log/wallace-keymap.log
+fi
+
+# HiDPI i3 config, generated once from the distro config so /etc/i3/config is
+# never modified and deleting this file restores stock behaviour. st and dmenu
+# are built with a fixed pixelsize font spec and therefore ignore Xft.dpi
+# completely -- only an explicit -f/-fn makes them readable on this panel. The
+# pango font stays at 10, which Xft.dpi already scales to match (2026-08-04: 16
+# made the bar and tab titles far larger than the terminal).
+if [ ! -f /root/.config/i3/config ] && [ -f /etc/i3/config ]; then
+    mkdir -p /root/.config/i3
+    sed -e "s|exec st$|exec st -f monospace:pixelsize=28|" \
+        -e "s|exec dmenu_run$|exec dmenu_run -fn monospace:pixelsize=28|" \
+        /etc/i3/config > /root/.config/i3/config
+    echo "generated /root/.config/i3/config (HiDPI st/dmenu fonts)" >>/var/log/wallace-keymap.log
+fi
+
 exec /usr/bin/i3 >/var/log/i3.log 2>&1

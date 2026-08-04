@@ -1,6 +1,6 @@
 # T6040 / J614s development log and operating notes
 
-Current as of 2026-08-03. This file keeps durable operating knowledge,
+Current as of 2026-08-04. This file keeps durable operating knowledge,
 milestones, corrections, and dead ends. Exact experiment evidence lives in
 `evidence/`; current work lives in [NEXT_STEPS.md](NEXT_STEPS.md).
 
@@ -10,12 +10,12 @@ milestones, corrections, and dead ends. Exact experiment evidence lives in
 |---|---|
 | Boot | Enrolled, untethered Linux boot works |
 | Display | simpledrm/fbcon and Xorg with i3 or dwm |
-| Input | Keyboard works; both HID interfaces register evdev nodes (`Apple DockChannel Keyboard`, `Apple DockChannel Multi-touch`); trackpad reset contract unresolved |
+| Input | Keyboard works in X (i3 modifier is ⌘/Mod4). The trackpad emits **zero** events while touched (0 bytes vs 9 456 from the keyboard), despite a complete multitouch enumeration — userspace is exonerated, the fault is firmware-side |
 | CPU | Five-core RAM-root desktop works; a controlled two-core page-copy reproducer faults, and the failure is confirmed **fail-stop** (kills processes, does not return wrong data) |
 | SMC | Battery, AC, charger, and temperature telemetry |
 | PCIe | Root complex, WiFi, Bluetooth, and SD reader work |
-| Storage | One-core SD root reaches ttydc0/OpenRC; a static `fsck.exfat` in the initramfs now repairs a dirty SD64 in place; clean-shutdown validation pending |
-| NVMe | m1n1 reads work; Linux loses ANS at its first I/O CQ wrap |
+| Storage | One-core SD root boots unattended to Xorg/i3 with WiFi; a static `fsck.exfat` repairs a dirty SD64 in place; persistence verified across four reboots; clean-shutdown validation pending |
+| NVMe | m1n1 reads work; Linux loses ANS at its first I/O CQ wrap, and the teardown is a use-after-free that kills `kblockd` and stalls **all** block I/O (227). Disabled in the daily DTB |
 | USB | Device mode works; host role/VBUS does not |
 
 ## Operating the rig
@@ -94,8 +94,9 @@ the discipline around them.
       strings -a $OUT/Image | grep -m1 'Linux version'
       strings -a $OUT/Image | grep -c pcie-apple     # 0 == no PCIe driver
 
-  Note `ls` is aliased to `eza` on this host, so use `command ls -t` for real
-  mtime ordering. When grepping a binary for a driver marker, confirm the grep
+  (`ls`/`cat` were aliased to `eza`/`bat` on this host until 2026-08-04, which
+  broke mtime sorting and injected ANSI codes into files written over the serial
+  console; CJ has removed both aliases.) When grepping a binary for a driver marker, confirm the grep
   works by also matching a control string — `strings … | head -1` will happily
   hide the very line that disproves your theory.
 - **A whole missing *subsystem* means the wrong kernel, not broken hardware.**

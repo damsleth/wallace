@@ -10,22 +10,18 @@ M4 Pro (T6040 "Brava Chop", Mac16,8 / J614s)**. This repo holds the current
 plans, documentation, host-side scripts, kernel patches, tickets, and evidence.
 The code lives in sibling repos under `~/Code/`.
 
-**Working on 2026-08-04:** enrolled untethered Linux; simpledrm plus Xorg/i3 or
-dwm; internal keyboard; five proven CPU cores and cpufreq; SMC telemetry; PCIe,
-WiFi, Bluetooth, keyboard backlight, and verified SD read/write persistence.
-At one core, SD-root reaches ttydc0 and OpenRC and persists writes; panic tests
-left its filesystems dirty, and the initramfs now carries a static
-`fsck.exfat` so repair is a real filesystem check rather than clearing the
-dirty flag (tickets 215/216 own repair and clean shutdown).
-Tickets 207/208 closed the two-core page-copy bisect with a negative: any
-small perturbation before `copy_page()` suppresses the fault, the ordering
-hypothesis is refuted, and the race is not in `copy_highpage`. Round 18 then
-established that the bug is **fail-stop** — it kills processes rather than
-returning wrong data — so `maxcpus>1` is an availability limit, not a
-data-integrity one. Tickets 209/217 characterise victim-CPU topology.
-Linux NVMe briefly mounts exFAT before a first-CQ-wrap firmware assert.
-Trackpad motion, USB host/VBUS, GPU acceleration, panel backlight, audio, camera,
-suspend, and stable full-core userspace remain open.
+**Working on 2026-08-04:** the SD root is a working daily-driver baseline —
+persistent ext4 on the card (verified across four reboots), Xorg + i3 at 2x HiDPI,
+Norwegian console and X layouts, Adwaita cursors, Europe/Oslo time, WiFi
+associating with DHCP and routed traffic, Bluetooth `hci0`, keyboard working in X
+(i3 modifier is ⌘/Mod4). `/init` self-heals the card's helpers, keymap, timezone,
+cursor theme and WiFi config from the image, so the card cannot drift behind the
+repo. NVMe is disabled in the daily DTB: its dead-controller teardown is a
+use-after-free that kills `kblockd` and takes SD down with it (227), on top of the
+first-CQ-wrap firmware assert (206). The trackpad emits **zero** events despite a
+complete multitouch enumeration, which exonerates the whole userspace stack (212).
+Ticket 205's multi-core fault is confirmed fail-stop. USB host/VBUS, GPU
+acceleration, panel backlight, audio, camera and suspend remain open.
 
 **Current objective (CJ, 2026-08-03):** a practical daily driver with SD, USB
 read/write, NVMe read/write, WiFi, Bluetooth, and trackpad all working

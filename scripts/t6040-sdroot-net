@@ -1,0 +1,43 @@
+#!/bin/sh
+# Bring up WiFi on the SD root. Installed to /usr/local/sbin/t6040-sdroot-net
+# and run from inittab as a ::once: entry.
+set -u
+LOG=/var/log/wallace-net.log
+CONF=/etc/wpa_supplicant/wpa_supplicant.conf
+
+echo "--- net start" >>"$LOG"
+[ -f "$CONF" ] || { echo "no $CONF" >>"$LOG"; exit 0; }
+
+n=0
+while [ ! -d /sys/class/net/wlan0 ] && [ "$n" -lt 30 ]; do sleep 1; n=$((n + 1)); done
+[ -d /sys/class/net/wlan0 ] || { echo "wlan0 never appeared" >>"$LOG"; exit 0; }
+ip link set wlan0 up 2>>"$LOG"
+
+# COOPERATE with an existing supplicant instead of restarting it. OpenRC's net
+# runlevel starts its own wpa_supplicant, and a second instance does not fail
+# loudly: it logs "nl80211: kernel reports: Match already configured" and starves
+# the radio, so scans return zero networks and it looks like broken WiFi. Killing
+# and restarting just races OpenRC's supervisor (both observed 2026-08-04).
+if [ "$(ps | grep -c '[w]pa_supplicant')" -gt 0 ]; then
+    echo "supplicant already running; not starting a second one" >>"$LOG"
+else
+    wpa_supplicant -B -i wlan0 -c "$CONF" -C /run/wpa_supplicant >>"$LOG" 2>&1
+    echo "started wpa_supplicant" >>"$LOG"
+fi
+
+n=0
+while [ "$n" -lt 45 ]; do
+    if iw dev wlan0 link 2>/dev/null | grep -q "Connected to"; then
+        echo "associated after ${n}s: $(iw dev wlan0 link 2>/dev/null | sed -n 2p)" >>"$LOG"
+        # -s is explicit on purpose: without the script udhcpc cannot apply a lease,
+        # and a bare invocation right after association also failed to see any
+        # DHCPOFFER at all. More retries cover the gap between "associated" and
+        # "AP will actually answer DHCP" (2026-08-04).
+        udhcpc -i wlan0 -n -q -t 12 -s /usr/share/udhcpc/default.script >>"$LOG" 2>&1
+        echo "address: $(ip -o -4 addr show wlan0 2>/dev/null)" >>"$LOG"
+        exit 0
+    fi
+    n=$((n + 1))
+    sleep 1
+done
+echo "not associated after ${n}s; visible: $(iw dev wlan0 scan 2>/dev/null | grep -c SSID) networks" >>"$LOG"

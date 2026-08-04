@@ -45,9 +45,31 @@ install -m 0644 "$KEYMAP" "$TMP/etc/wallace-no.bmap"
 # longer has to be kept in lockstep with this repo by hand.
 install -d -m 0755 "$TMP/opt/wallace"
 for helper in t6040-sdroot-early-console t6040-sdroot-openrc \
-              t6040-sdroot-powerctl t6040-sdroot-startx t6040-sdroot-inittab; do
+              t6040-sdroot-powerctl t6040-sdroot-startx t6040-sdroot-inittab \
+              t6040-sdroot-net; do
     install -m 0755 "$ROOT/scripts/$helper" "$TMP/opt/wallace/$helper"
 done
+
+# CJ's WiFi config, so the SD root associates without hand-holding. CJ has
+# confirmed the passphrases are not sensitive.
+WPA=${WPA:-$OUT/wpa_supplicant.conf}
+if [ -f "$WPA" ]; then
+    install -m 0600 "$WPA" "$TMP/opt/wallace/wpa_supplicant.conf"
+else
+    echo "warning: no $WPA; the SD root will not auto-associate" >&2
+fi
+
+# Xcursor theme. Without a theme installed, X uses the fixed-size core cursor
+# bitmap and XCURSOR_SIZE/Xcursor.size do nothing, leaving a tiny pointer on a
+# 254 ppi panel. Bundled rather than apk-installed so the machine does not need
+# working WiFi to get a usable cursor. ~1.3 MiB compressed.
+CURSORS=${CURSORS:-$OUT/cursor-theme}
+if [ -d "$CURSORS/Adwaita/cursors" ]; then
+    install -d -m 0755 "$TMP/opt/wallace/icons"
+    cp -R "$CURSORS/Adwaita" "$TMP/opt/wallace/icons/Adwaita"
+else
+    echo "warning: no cursor theme at $CURSORS; pointer will stay tiny" >&2
+fi
 
 # brcmfmac and hci_bcm4377 probe before switch_root, so their paired 25F84
 # firmware must be in this initramfs rather than only on the Alpine root.
