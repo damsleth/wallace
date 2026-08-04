@@ -177,6 +177,10 @@ understood.
   *Attempted to kill init*.
 - **The builder writes `initramfs-sdroot-hardened.cpio.gz`**, not
   `initramfs-sdroot.cpio.gz`. Booting the latter silently uses an older image.
+- **`t6040-make-initramfs.sh` installs `EXTRA_FILES` with mode 0644**, so a
+  helper script shipped that way is not executable. Invoke it as
+  `busybox sh /bin/<script>` (the ticket-230 fixture does this for
+  `t6040-input-report`), or install it via a proper builder that sets 0755.
 - **`mount --move` can fail silently**, leaving `/newroot/dev` empty. Mount
   devtmpfs explicitly.
 - **Alpine has no `/sbin/agetty`**, and busybox `init` does no shell quoting in

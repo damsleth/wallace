@@ -1,6 +1,6 @@
 # T6040 Linux bring-up — next steps
 
-Current as of 2026-08-03. This file states priorities and stop conditions.
+Current as of 2026-08-04. This file states priorities and stop conditions.
 Exact work items, hashes, dependencies, and approval state live in
 `tickets/*.json`.
 
@@ -13,11 +13,11 @@ unambiguously:
 | capability | state |
 |---|---|
 | SD read/write | reader and persistence proven; fixture needs `fsck.exfat` repair |
-| USB read/write | device mode only; host mode and VBUS unproven |
+| USB read/write | device mode only; right-port host run now fails at dwc3 core init (`-EINVAL`, 108) — earlier than the July root-hub smoke; VBUS gap identified: PD controllers are SPMI `sn201202x` with no in-tree driver (231) |
 | NVMe read/write | m1n1 reads stable; Linux asserts at the first CQ wrap; writes unproven |
 | WiFi | works, including DHCP and routed traffic |
 | Bluetooth | `hci0` present and working |
-| Trackpad | evdev node registers; no motion events |
+| Trackpad | **transport fixed live 2026-08-04** (230): v2 power request accepted, firmware consumed, `Touch MT ready`; CJ's finger-on-pad confirmation pending, then daily-image integration (301) |
 
 **Upstream reporting is explicitly deferred** — CJ: "we are not doing any
 upstream reporting just now." Sections below that call an upstream report the
@@ -153,21 +153,60 @@ Neither ticket permits repartitioning, formatting, fsck, or unrelated card
 changes. Ticket 200 must also respect the dirty-filesystem gate owned by
 tickets 215/216.
 
-## 5. Resolve trackpad initialization
+## 5. Trackpad: transport fixed; finger confirmation and daily integration remain
 
-The exact J614s HIDF upload command returned success. The following
-`CMD_RESET_INTERFACE(0)` returned `kIOReturnBadArgument`. This is not an
-upload crash and does not prove that the firmware consumed every byte.
+**Resolved at the transport level on 2026-08-04** (ticket 230,
+`evidence/2026-08-04-t6040-trackpad-v2-power-request-accepted.md`). The
+post-upload command `0x40` is the MTP interface power request; J614s speaks
+only the 9-byte v2 two-phase form; the patched driver's v2 pair is accepted
+live — the coprocessor consumed the CBOR firmware (DMA through `mtp_dart`
+positively confirmed) and raised `Touch interface ready` / `Touch MT ready`
+260 ms after the first `open()` of event0.
 
-Next work is protocol analysis of the expected post-upload reset state and
-interface number. Any new live attempt remains limited to the already approved
-volatile HIDF blob and requires its own reviewed ticket.
+Do next:
 
-## 6. Parked tracks
+1. **CJ, at the machine:** run
+   `busybox sh /bin/t6040-input-report watch /dev/input/event0 60` on any
+   image carrying `TRACKPAD_RESET_CONTRACT=1` and touch the pad. `events>0`
+   plus the hex dump completes ticket 230's pass condition. If a real finger
+   yields `events=0`, the gap is above the transport and
+   `magicmouse_raw_event_mtp`'s `46 + N*30` length filter is the next decode
+   target.
+2. Ticket 301 (blocked on 1): fold the patch and the `a1f4131d` blob into the
+   daily sdroot image, two-build reproduce, preflight, new enrollable object.
 
-- **USB host/VBUS:** the current SN201202x transport is an offline lead, not a
-  proven power-role implementation. R3 remains no-go pending reversible
-  primary evidence.
+Any live attempt stays limited to the approved volatile HIDF blob
+`a1f4131d…`; nothing else changed in the safety scope.
+
+## 6. USB host/VBUS (active)
+
+Tickets: **108** (enumeration, ran 2026-08-04), **231** (gap analysis),
+**109+** (block read-only and beyond, blocked)
+
+Two independent blockers are now precisely identified:
+
+1. **dwc3 core init fails** on the right port with the Jul-29
+   `usb2-native-right` image pair: `dwc3-apple 392280000.usb: error -EINVAL:
+   failed to initialize core` — *earlier* than the 2026-07-21 smoke, which
+   reached xHCI root hubs. Suspected kernel/DTB mismatch (the image may lack
+   the matching eUSB2-native patch; `PHY_APPLE_ATC` is not set and `atc.c` is
+   M1-only). Next: root-cause the `-EINVAL` offline, then stage a matched
+   kernel+DTB pair.
+2. **VBUS has no owner:** ticket 231 refuted the CD321x/I2C plan — all four
+   PD controllers are SPMI `usbc,sn201202x,spmi` (hpm0/1 under `nub-spmi-a0`,
+   hpm2/5 under `nub-spmi-a1`) and no driver for that part exists in the
+   tree. The SPMI controller driver itself works. A bus-powered stick (and
+   equally a self-powered device, which must see VBUS before applying its
+   pull-up) cannot attach until VBUS is sourced.
+
+Per CJ's standing scope, the VBUS path is **offline R3 design first, then CJ
+sign-off** of the exact SPMI transaction sequence before anything runs.
+SPMI stays deny-by-default under `SPMI_SAFETY.md`; the only touched endpoint
+remains right-port `hpm2`, and R0 connector-state reads (229) inform the
+design.
+
+## 7. Parked tracks
+
 - **GPU:** wait for a maintainer-endorsed T6040/G16 kernel, firmware ABI, m1n1,
   and Mesa stack. Do not relabel G14 support.
 - **Standard stage 2:** ticket 191 may compare SD and NVMe storage designs

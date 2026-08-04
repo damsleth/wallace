@@ -10,13 +10,13 @@ milestones, corrections, and dead ends. Exact experiment evidence lives in
 |---|---|
 | Boot | Enrolled, untethered Linux boot works |
 | Display | simpledrm/fbcon and Xorg with i3 or dwm |
-| Input | Keyboard works in X (i3 modifier is ⌘/Mod4). The trackpad emits **zero** events while touched (0 bytes vs 9 456 from the keyboard), despite a complete multitouch enumeration — userspace is exonerated, the fault is firmware-side |
+| Input | Keyboard works in X (i3 modifier is ⌘/Mod4). Trackpad transport **fixed live 2026-08-04** (230): `0x40` is the MTP interface power request, J614s accepts only the 9-byte v2 form, and the patched pair brings the touch pipeline to `Touch MT ready`; finger-on-pad confirmation pending |
 | CPU | Five-core RAM-root desktop works; a controlled two-core page-copy reproducer faults, and the failure is confirmed **fail-stop** (kills processes, does not return wrong data) |
 | SMC | Battery, AC, charger, and temperature telemetry |
 | PCIe | Root complex, WiFi, Bluetooth, and SD reader work |
 | Storage | One-core SD root boots unattended to Xorg/i3 with WiFi; a static `fsck.exfat` repairs a dirty SD64 in place; persistence verified across four reboots; clean-shutdown validation pending |
 | NVMe | m1n1 reads work; Linux loses ANS at its first I/O CQ wrap, and the teardown is a use-after-free that kills `kblockd` and stalls **all** block I/O (227). Disabled in the daily DTB |
-| USB | Device mode works; host role/VBUS does not |
+| USB | Device mode works; host role does not — right-port run fails at dwc3 core init (`-EINVAL`, 108), and VBUS has no owner: all four PD controllers are SPMI `sn201202x` with no in-tree driver (231) |
 
 ## Operating the rig
 
@@ -253,10 +253,20 @@ the discipline around them.
 - The exact paired HIDF blob is available and its narrow volatile-use
   exception was exercised.
 - The upload command returned success at the protocol layer.
-- The following `CMD_RESET_INTERFACE(0)` returned
-  `kIOReturnBadArgument`.
+- The post-upload `0x40` rejection is **solved**: `0x40` is the MTP
+  coprocessor's interface *power request*, not a reset, and J614s firmware
+  implements only the nine-byte version-2 two-phase form. The four-byte v1
+  form failed its length check with `kIOReturnBadArgument` before any field
+  was read (static decode, 2026-08-04).
+- `patches/t6040-dockchannel-hid-reset-contract.patch` sends the v2 pair.
+  Proven live on 2026-08-04 (ticket 230): all four `0x40` messages returned
+  0, the coprocessor consumed the CBOR image (`New AFE[0] cbor image
+  received`, which also proves DMA reachability through `mtp_dart`), and the
+  pipeline raised `Touch interface ready` / `Touch MT ready` 260 ms after the
+  first `open()`. A second open does not re-upload and stays healthy.
 - The earlier “firmware upload crashes the machine” attribution is withdrawn.
-  Motion is still unavailable.
+- Remaining: a human finger during a watch window (ticket 230's second half),
+  then daily-image integration (ticket 301).
 
 ### USB and Type-C
 
@@ -268,6 +278,16 @@ the discipline around them.
   no-go; no USB-host device has been proven through that path.
 - The offline SN201202x transport port is deliberately uncalled and is not a
   VBUS implementation.
+- **The CD321x/I2C plan is refuted** (231, 2026-08-04): the captured ADT
+  shows four PD controllers, all SPMI `usbc,sn201202x,spmi`; the in-tree
+  `tipd` driver is I2C-only and nothing in the tree matches `sn201202x`. Any
+  VBUS implementation goes through SPMI and therefore through an offline R3
+  design plus CJ sign-off, per `SPMI_SAFETY.md`.
+- The 2026-08-04 right-port enumeration run (108, S128 stick present) failed
+  **before** the VBUS question: `dwc3-apple 392280000.usb: error -EINVAL:
+  failed to initialize core` with the Jul-29 `usb2-native-right` image pair —
+  a regression relative to the 2026-07-21 smoke, which reached xHCI root
+  hubs. Suspected kernel/DTB mismatch; root-cause offline before rerunning.
 
 ## Corrections and dead ends
 
@@ -328,6 +348,7 @@ Do not repeat these without new evidence:
 | 2026-07-30 to 07-31 | cpufreq and Linux NVMe filesystem I/O bounded to the first CQ-wrap assert |
 | 2026-08-02 | SD read/write persistence and corrected trackpad reset attribution |
 | 2026-08-03 | One-core SD root reaches ttydc0/OpenRC; controlled two-core page-copy reproducer established; the barrier bisect refuted the ordering hypothesis, pointing at page lifetime or TLB invalidation |
+| 2026-08-04 | SD-root daily-driver baseline (Xorg/i3, WiFi, Norwegian layouts, self-healing card); **trackpad transport fixed live** — the v2 interface power request is accepted, firmware consumed, `Touch MT ready` (230); right-port USB regressed to a dwc3 core-init `-EINVAL` (108) and the PD controllers were identified as driverless SPMI `sn201202x` (231) |
 
 Detailed transcripts, hashes, retractions, and per-experiment stop conditions
 remain in dated files under `evidence/` and in Git history.

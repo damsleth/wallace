@@ -1,6 +1,6 @@
 # T6040 / J614s Linux roadmap
 
-Current as of 2026-08-03. This is the stage map; tickets contain the executable
+Current as of 2026-08-04. This is the stage map; tickets contain the executable
 work and [NEXT_STEPS.md](NEXT_STEPS.md) contains the current order.
 
 ## Project state
@@ -83,7 +83,8 @@ Open:
 
 - repair and validate clean SD-root shutdown;
 - complete SSH and graphical service integration;
-- resolve trackpad post-HIDF reset;
+- confirm trackpad motion under a finger (transport fixed 2026-08-04: the
+  post-upload command is a v2 power request, now accepted live);
 - enable panel backlight control; keyboard backlight already works;
 - bring up USB host only after a reversible Type-C/VBUS contract exists.
 

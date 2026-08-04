@@ -91,6 +91,15 @@ Do not silently hand off a wedged KIS link.
 `BOOT_SKIP_IMAGE_CHECK=1` overrides for a deliberately minimal kernel. `ls` is
 aliased to `eza` here, so use `command ls -t` for real mtime ordering.
 
+Cleaner than copying over `$OUT/Image`: pass the pinned artifact directly with
+`IMAGE=Image-<name>` (relative to `$OUT`) —
+
+    RIG_AGENT=$RIG_AGENT IMAGE=Image-trackpad-reset-contract \
+        bash scripts/t6040-boot-dcuart.sh <dtb> <initramfs>
+
+The kernel marker check runs against whatever `IMAGE=` names, and `$OUT/Image`
+never silently shadows the intended build (proven in the 230 and 108 runs).
+
 An entire missing subsystem is never a hardware fault. Empty
 `/sys/bus/pci/devices`, no `mmcblk0`, no `wlan0` and no `/dev/input` all at once
 means the wrong kernel, and a sub-second failure timestamp means a startup race
