@@ -1,0 +1,18 @@
+{
+  "seq": "301",
+  "slug": "trackpad-reset-contract-daily",
+  "needs": "offline",
+  "state": "open",
+  "track": "hid",
+  "priority": "P2",
+  "desc": "Fold the proven v2 power-request fix into the daily-driver image. Ticket 230 proved live (evidence/2026-08-04-t6040-trackpad-v2-power-request-accepted.md) that patches/t6040-dockchannel-hid-reset-contract.patch makes the J614s MTP coprocessor accept the interface power request, consume the CBOR firmware, and raise Touch MT ready. Once CJ confirms finger motion (the open half of 230), rebuild the daily sdroot kernel with TRACKPAD_RESET_CONTRACT=1 (+ TRACKPAD_FW=1 HID_TYPE_FIX=1 DOCKCHANNEL=1 and the existing daily profile), add the a1f4131d tpmtfw blob to the sdroot initramfs so first-open upload works on the daily image, two-build reproduce, preflight, and hand CJ a new enrollable window-free object. Blocked on 230's finger confirmation. NUMBERING NOTE: filed manually as seq 301 in fable's declared 300+ block per CJ/claude coordination instruction of 2026-08-04 (claude odd / sol even continue below 300); rig-lease.sh queue add cannot take an explicit sequence, so this record was written directly.",
+  "author": "fable",
+  "deps": [
+    "230"
+  ],
+  "created": 1785840501,
+  "evidence": [
+    "evidence/2026-08-04-t6040-trackpad-v2-power-request-accepted.md",
+    "evidence/2026-08-04-t6040-trackpad-post-upload-reset-contract.md"
+  ]
+}

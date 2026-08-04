@@ -2,7 +2,7 @@
   "seq": "126",
   "slug": "trackpad-motion-revised-live",
   "needs": "rig",
-  "state": "exception-used-upload-accepted-reset0-rejected-no-crash",
+  "state": "done",
   "track": "hid",
   "priority": "P2",
   "desc": "Offline 125 byte-reproduced the storage-disabled candidate and CJ granted the a1f4131d volatile-upload exception. The earlier inference that HIDF killed graphical boots was refuted by ticket 197: a deliberate first-open trigger stayed alive. Adversarial correction 2026-08-02: CMD_SEND_FIRMWARE 0x95 returned protocol success; the following CMD_RESET_INTERFACE state-0 command 0x40 returned 0xe00002c2 (BadArgument). Thus neither 'upload crashes' nor 'firmware command rejected' is supported. magicmouse binds event0 before start, but motion remains untested and needs a human finger. Next offline work is Apple's post-upload reset contract, HIDF payload/DMA validation, and command-specific telemetry; no further write or rig action is authorized by this completed exception.",
@@ -25,5 +25,6 @@
   "created": 1784931592,
   "runnable": false,
   "approved_by": "maintainer",
-  "approved_at": 1784975299
+  "approved_at": 1784975299,
+  "done_at": 1785839787
 }

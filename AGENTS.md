@@ -18,8 +18,10 @@ associating with DHCP and routed traffic, Bluetooth `hci0`, keyboard working in 
 cursor theme and WiFi config from the image, so the card cannot drift behind the
 repo. NVMe is disabled in the daily DTB: its dead-controller teardown is a
 use-after-free that kills `kblockd` and takes SD down with it (227), on top of the
-first-CQ-wrap firmware assert (206). The trackpad emits **zero** events despite a
-complete multitouch enumeration, which exonerates the whole userspace stack (212).
+first-CQ-wrap firmware assert (206). The trackpad transport is fixed as of 2026-08-04: the
+post-upload command `0x40` is the MTP interface power request, J614s speaks only
+the 9-byte v2 form, and the patched driver's v2 pair is accepted live — firmware
+consumed, `Touch MT ready` (230); only CJ's finger-on-pad confirmation remains.
 Ticket 205's multi-core fault is confirmed fail-stop. USB host/VBUS, GPU
 acceleration, panel backlight, audio, camera and suspend remain open.
 

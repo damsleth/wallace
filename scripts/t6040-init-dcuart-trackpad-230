@@ -1,0 +1,71 @@
+#!/bin/busybox sh
+# Ticket 230 fixture init: t6040-init-dcuart plus the mandatory Norwegian
+# keymap load. Opens NO input device itself -- the HIDF trigger (first open of
+# /dev/input/event0) stays under explicit operator control via
+# `busybox sh /bin/t6040-input-report watch /dev/input/event0 60`.
+/bin/busybox mount -t proc none /proc
+/bin/busybox mount -t sysfs none /sys
+/bin/busybox mount -t devtmpfs none /dev 2>/dev/null
+
+# Norwegian keymap before any shell can spawn -- AGENTS.md non-negotiable.
+if [ -f /etc/wallace-no.bmap ]; then
+    /bin/busybox loadkmap < /etc/wallace-no.bmap \
+        && echo "--- Norwegian keymap loaded ---" \
+        || echo "--- WARNING: loadkmap failed rc=$? ---"
+else
+    echo "--- WARNING: /etc/wallace-no.bmap missing ---"
+fi
+
+echo ""
+echo "==================================================="
+echo "  USERSPACE + DOCKCHANNEL UART (t6040, ticket 230)"
+echo "==================================================="
+/bin/busybox uname -a
+
+if [ -c /dev/watchdog0 ]; then
+    /bin/busybox watchdog -T 30 -t 10 /dev/watchdog0 &
+    echo "--- watchdog0 active (30s timeout, ping every 10s) ---"
+else
+    echo "--- WARNING: /dev/watchdog0 missing ---"
+fi
+
+# The dockchannel tty probes asynchronously; wait for the node.
+n=0
+while [ ! -c /dev/ttydc0 ] && [ $n -lt 15 ]; do
+    /bin/busybox sleep 1
+    n=$((n + 1))
+done
+
+echo "--- dockchannel dmesg ---"
+/bin/busybox dmesg | /bin/busybox grep -Ei 'dockchannel|ttydc|mailbox' \
+    | /bin/busybox tail -30
+
+if [ -c /dev/ttydc0 ]; then
+    echo "--- /dev/ttydc0 present: banner + respawning shell on it ---"
+    # Hold the port open for the whole life of init so the driver never sees
+    # a final close (first boot: output stopped dead after the banner writer
+    # closed the port -- suspected close/reopen fragility in the test driver).
+    exec 9<>/dev/ttydc0
+    (
+        echo ""
+        echo "*** t6040 Linux DockChannel UART console alive (ticket 230) ***"
+        /bin/busybox uname -a
+        /bin/busybox dmesg | /bin/busybox tail -20
+    ) >&9 2>/dev/null
+    (
+        while :; do
+            echo "[dcuart] spawning shell on /dev/ttydc0" >&9
+            /bin/busybox setsid /bin/busybox sh -c \
+                'exec /bin/busybox sh -i <>/dev/ttydc0 >&0 2>&1' \
+                || echo "[dcuart] setsid spawn failed rc=$?" >&9
+            /bin/busybox sleep 2
+        done
+    ) &
+else
+    echo "--- WARNING: /dev/ttydc0 missing after ${n}s ---"
+fi
+
+echo "==================================================="
+echo "  fbcon shell below; kisd shell on /dev/ttydc0."
+echo "==================================================="
+exec /bin/busybox sh
