@@ -1,18 +1,29 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: CJ Damsleth <kim@damsleth.no>
-Date: Wed, 29 Jul 2026 12:25:31 +0200
+Date: Tue, 4 Aug 2026 12:59:49 +0200
 Subject: [PATCH] phy: apple: add experimental T6040 USB2-only slice
+
+v2 (2026-08-04, ticket 108): default the provider to PHY_MODE_USB_HOST at
+probe. dwc3 powers on its phys from dwc3_core_init() inside
+dwc3_core_probe(), before any consumer set_mode can reach the phy;
+dwc3-apple's early phy_set_mode() runs on a still-NULL
+dwc.usb2_generic_phy[0] and is a silent no-op, so the v1
+PHY_MODE_INVALID default made power_on return -EINVAL and dwc3-apple
+probe fail ('failed to initialize core' / err=-22) on every boot of the
+usb2-native-right DT. The provider is host-only by construction and
+set_mode still rejects every non-host request; the enabling DT node
+remains the review boundary.
 
 Signed-off-by: CJ Damsleth <kim@damsleth.no>
 ---
  drivers/phy/apple/Kconfig      |  15 +++
  drivers/phy/apple/Makefile     |   3 +
- drivers/phy/apple/t6040-usb2.c | 229 +++++++++++++++++++++++++++++++++
- 3 files changed, 247 insertions(+)
+ drivers/phy/apple/t6040-usb2.c | 239 +++++++++++++++++++++++++++++++++
+ 3 files changed, 257 insertions(+)
  create mode 100644 drivers/phy/apple/t6040-usb2.c
 
 diff --git a/drivers/phy/apple/Kconfig b/drivers/phy/apple/Kconfig
-index 8409b67f6d1e..66e331c8e71d 100644
+index 8409b67..66e331c 100644
 --- a/drivers/phy/apple/Kconfig
 +++ b/drivers/phy/apple/Kconfig
 @@ -12,6 +12,21 @@ config PHY_APPLE_ATC
@@ -38,7 +49,7 @@ index 8409b67f6d1e..66e331c8e71d 100644
  	tristate "Apple DPTX PHY"
  	depends on ARCH_APPLE || COMPILE_TEST
 diff --git a/drivers/phy/apple/Makefile b/drivers/phy/apple/Makefile
-index b9e7bf3e4ac1..e7156408e792 100644
+index b9e7bf3..e715640 100644
 --- a/drivers/phy/apple/Makefile
 +++ b/drivers/phy/apple/Makefile
 @@ -3,5 +3,8 @@
@@ -52,10 +63,10 @@ index b9e7bf3e4ac1..e7156408e792 100644
  phy-apple-dptx-y		+= dptx.o
 diff --git a/drivers/phy/apple/t6040-usb2.c b/drivers/phy/apple/t6040-usb2.c
 new file mode 100644
-index 000000000000..df7fb70f26d5
+index 0000000..a9ae1e3
 --- /dev/null
 +++ b/drivers/phy/apple/t6040-usb2.c
-@@ -0,0 +1,229 @@
+@@ -0,0 +1,239 @@
 +// SPDX-License-Identifier: GPL-2.0 OR BSD-2-Clause
 +/*
 + * Apple T6040 USB2 PHY -- experimental host-only slice
@@ -244,7 +255,17 @@ index 000000000000..df7fb70f26d5
 +		return -ENOMEM;
 +
 +	tphy->dev = dev;
-+	tphy->mode = PHY_MODE_INVALID;
++	/*
++	 * dwc3 powers on its phys from dwc3_core_init(), which runs inside
++	 * dwc3_core_probe() -- before any consumer can deliver phy_set_mode()
++	 * to this phy. dwc3-apple's early phy_set_mode() call happens while
++	 * dwc.usb2_generic_phy[] is still unpopulated, so it is a silent no-op
++	 * on a NULL phy, and a PHY_MODE_INVALID default then fails power_on
++	 * with -EINVAL ("failed to initialize core", ticket 108). This
++	 * provider implements exactly one mode, so start in it; set_mode
++	 * still rejects every request that is not PHY_MODE_USB_HOST.
++	 */
++	tphy->mode = PHY_MODE_USB_HOST;
 +	mutex_init(&tphy->lock);
 +	platform_set_drvdata(pdev, tphy);
 +
@@ -285,6 +306,3 @@ index 000000000000..df7fb70f26d5
 +MODULE_AUTHOR("The Asahi Linux Contributors");
 +MODULE_DESCRIPTION("Experimental Apple T6040 USB2 PHY");
 +MODULE_LICENSE("Dual BSD/GPL");
--- 
-2.47.1
-
