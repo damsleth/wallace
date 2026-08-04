@@ -1,0 +1,13 @@
+{
+  "seq": 229,
+  "slug": "wifi-24ghz-band-blind",
+  "state": "open",
+  "needs": "rig",
+  "track": "wifi",
+  "pri": "P2",
+  "owner": "claude",
+  "evidence": [
+    "evidence/2026-08-04-t6040-live-capability-sweep.md"
+  ],
+  "desc": "WiFi radio works but the 2.4 GHz band returns nothing, so the configured AP cannot be found. Measured live 2026-08-04 on the SD root: after killing a stale/colliding wpa_supplicant (which was starving the radio and made a working scan return 0 -- do NOT read an empty scan as broken WiFi), iw scan returned 75 SSIDs; band split is grep -c 'freq: 5' = 47 versus grep -c 'freq: 2' = 0. The configured SSID 'Bilbo Laggins' never appears and wpa_state stays SCANNING, so if that AP is 2.4 GHz this fully explains the failure to associate. Firmware itself is healthy: BCM4388/6 version 23.50.20.0.41.51.208 with TxCap and platform calibration blobs both accepted; only non-fatal -52 iovar errors (set_joinpref, WLC_SET_ROAM_DELTA). SEPARATE DEFECT found alongside: /lib/firmware/regulatory.db is missing, so 'iw reg set NO' silently does nothing and the domain stays country 00 -- that restricts 5 GHz to passive scan, though country 00 does permit 2402-2472 so it does NOT by itself explain the blind 2.4 GHz band. NEXT: confirm with CJ which band the AP uses; ship wireless-regdb (regulatory.db + .p7s) into the root; then investigate whether the 2.4 GHz chain needs a different antenna-sku/calibration path than the 5 GHz one."
+}
