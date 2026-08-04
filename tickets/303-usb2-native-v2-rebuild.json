@@ -1,0 +1,19 @@
+{
+  "seq": "303",
+  "slug": "usb2-native-v2-rebuild",
+  "needs": "offline",
+  "state": "in-progress-fable",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "Rebuild the right-port USB2-native kernel with v2 of the PHY slice (patch b7f02c3c, dwc3 -EINVAL fix, independently reviewed in evidence/2026-08-04-t6040-usb2-slice-v2-independent-review.md) so ticket 108 can re-run. Profile reconstructed from the Jul-29 fat image's name plus its saved config: DOCKCHANNEL=1 DOCKCHANNEL_NBCON=1 MACSMC=1 HID_TYPE_FIX=1 T6040_PPP=1 PCIE=1 WIFI=1 USB_HOST=1 USB_HOST_PORT=right T6040_USB2_NATIVE=1. ACCEPTANCE: (1) built config byte-identical to the saved config-macsmc-hid-type-fix-nbcon-ppp-usb2-native-right (v2 changes no Kconfig; any config drift means wrong flags -- fix flags, not the baseline); (2) two clean builds from independent BUILD_DIRs byte-identical; (3) artifacts copied to *-v2phy names immediately (the kbuild output names collide with the sibling's future builds in /out) and hashes pinned here; (4) exact binary review by a non-builder (fable built, so claude or CJ reviews) before any rig re-run of 108. This unblocks 108 whose 2026-08-04 run failed at dwc3 core init; per the R3 boundary design there is a real chance the right port already sources VBUS, so this rebuild alone may enumerate the S128 stick. NUMBERING NOTE: seq 303 in fable's declared 300+ block per coordination instruction 2026-08-04.",
+  "author": "fable",
+  "deps": [
+    "108"
+  ],
+  "created": 1785841946,
+  "evidence": [
+    "evidence/2026-08-04-t6040-usb2-slice-v2-independent-review.md",
+    "evidence/2026-08-04-t6040-dwc3-einval-phy-mode-ordering.md",
+    "evidence/2026-07-29-t6040-native-usb2-right-build.md"
+  ]
+}
