@@ -1,7 +1,32 @@
-# Coordination: two agents, one rig
+# Coordination: three agents, one rig
 
-Current as of 2026-08-03. `claude` and `sol` share one Git worktree and one
-physical M4 Pro. CJ is the approval gate and tie-breaker.
+Current as of 2026-08-04. `claude`, `sol` and `fable` share one Git worktree and
+one physical M4 Pro. CJ is the approval gate and tie-breaker.
+
+## RIG SERIALIZED — fable holds it for ticket 230 (CJ, 2026-08-04)
+
+CJ has ruled that the rig is **serialized**, not time-sliced, while ticket 230
+(`trackpad-v2-power-request-live`) runs. **claude stays off the rig entirely
+until 230 lands** and does offline USB-host work in the meantime. This is a
+standing instruction, not a lease convention: do not acquire the lease "briefly"
+to check something.
+
+Why it matters here: 230 is a live HIDF upload under CJ's ticket-126 volatile
+exception, and a concurrent chainload would both invalidate its transcript and
+risk taking the console away mid-run.
+
+When 230 completes, the rig returns to normal lease arbitration.
+
+## Ticket numbering with a third agent
+
+| agent | sequence numbers |
+|---|---|
+| **claude** | **odd** (…, 227, 229, 231) |
+| **sol** | **even** (…, 228, 230, 232) |
+| **fable** | **300+ block**, any parity, stated explicitly in the description |
+
+The odd/even split was CJ's ruling after three collisions in one session; a
+third agent needs its own range rather than a parity it would share.
 
 ## Scope of the lease
 
