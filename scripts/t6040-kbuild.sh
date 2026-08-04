@@ -460,6 +460,21 @@ if [ "${T6040_USB2_NATIVE:-0}" = "1" ]; then
     fi
 fi
 
+if [ "${T6040_TYPEC_PD:-0}" = "1" ]; then
+    echo "== apply T6040 Type-C PD SPMI transport (tps6598x) =="
+    typec_pd_patch=/out/0001-usb-typec-tps6598x-add-SPMI-transport-for-T6040-SN20.patch
+    if git apply --check "$typec_pd_patch" 2>/dev/null; then
+        git apply "$typec_pd_patch"
+        echo "T6040 Type-C PD SPMI patch applied OK"
+    elif git apply -R --check "$typec_pd_patch" 2>/dev/null; then
+        echo "T6040 Type-C PD SPMI patch already applied"
+    else
+        echo "ERROR: T6040 Type-C PD SPMI patch does not apply cleanly:"
+        git apply --check "$typec_pd_patch" || true
+        exit 1
+    fi
+fi
+
 # A reused build tree can retain the old MTP IRQ-order diagnostics even though
 # the source tree and current patch set are clean. Remove that known residue
 # deterministically instead of allowing unconditional mailbox logs into images.
@@ -1377,6 +1392,27 @@ fi
 if [ "${T6040_USB2_NATIVE:-0}" = "1" ]; then
     ./scripts/config --file .config -e PHY_APPLE_T6040_USB2
 fi
+if [ "${T6040_TYPEC_PD:-0}" = "1" ]; then
+    # T6040 Type-C USB-PD controller (ticket 231/301): the SN201202x PD
+    # controllers are on Apple SPMI. Build the whole Type-C class, the
+    # tps6598x driver and its new SPMI transport, and the Apple SPMI bus in --
+    # our boot images cannot load modules, so these must be =y, not =m.
+    # SPMI_APPLE (the bus controller) is needed for a *functional* image; the
+    # driver itself compiles against the SPMI core (CONFIG_SPMI) alone.
+    if [ "${SD_GL9755:-0}" = "1" ]; then
+        # The GL9755 SD-diagnostic profile deliberately strips SPMI and
+        # asserts SPMI_APPLE is OFF; it cannot coexist with the PD controller.
+        echo "ERROR: T6040_TYPEC_PD=1 is incompatible with SD_GL9755=1 (SD-diag forbids SPMI)"
+        exit 1
+    fi
+    ./scripts/config --file .config \
+        -e TYPEC -e TYPEC_TPS6598X -e TYPEC_TPS6598X_SPMI \
+        -e USB_ROLE_SWITCH -e POWER_SUPPLY -e REGMAP \
+        -e SPMI -e SPMI_APPLE
+    # olddefconfig can demote a =y symbol whose dependency is =m; re-apply and
+    # hard-assert after it, like the WiFi/SD paths do.
+    TYPEC_PD_ASSERT_AFTER_OLDDEFCONFIG=1
+fi
 if [ "${DIET:-0}" = "1" ]; then
     echo "== DIET: strip everything the B0 RAM-root does not need =="
     # Why: arm64 defconfig builds a ~50 MiB Image (10.9 MiB XZ). The enrolled
@@ -1719,6 +1755,28 @@ if [ "${T6040_USB2_NATIVE:-0}" = "1" ]; then
             exit 1
         }
     done
+fi
+if [ "${TYPEC_PD_ASSERT_AFTER_OLDDEFCONFIG:-0}" = "1" ]; then
+    # Re-apply after olddefconfig so nothing demotes the Type-C PD stack, then
+    # hard-assert. The compile-critical symbols (the driver will not build
+    # without them) are fatal; SPMI_APPLE is only needed for a functional
+    # image (it is the bus the HPM sits on) and is warn-only here so a
+    # non-SPMI-bus config can still validate the driver compiles.
+    ./scripts/config --file .config \
+        -e TYPEC -e TYPEC_TPS6598X -e TYPEC_TPS6598X_SPMI \
+        -e USB_ROLE_SWITCH -e POWER_SUPPLY -e REGMAP \
+        -e SPMI -e SPMI_APPLE
+    make ARCH=arm64 olddefconfig >/dev/null
+    echo "-- resulting T6040 Type-C PD config --"
+    grep -E "CONFIG_(TYPEC=|TYPEC_TPS6598X|USB_ROLE_SWITCH|SPMI=|SPMI_APPLE)" .config
+    for sym in TYPEC TYPEC_TPS6598X TYPEC_TPS6598X_SPMI SPMI USB_ROLE_SWITCH; do
+        grep -q "^CONFIG_${sym}=y$" .config || {
+            echo "MISSING TYPEC PD SYMBOL: CONFIG_${sym}=y" >&2
+            exit 1
+        }
+    done
+    grep -q "^CONFIG_SPMI_APPLE=y$" .config || \
+        echo "  TYPEC PD WARN: CONFIG_SPMI_APPLE not builtin -- driver compiles but has no SPMI bus to bind"
 fi
 grep -qE "CONFIG_ARM64_SME=y" .config && echo "WARN: SME still enabled!" || echo "SME disabled OK"
 

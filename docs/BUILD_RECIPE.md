@@ -165,6 +165,24 @@ understood.
 - **The kbuild container clone must be synced** (`git fetch`, `reset --hard`,
   `clean -qfd`) or cherry-picks never reach the binary. Assert the driver is
   actually present in the built Image afterwards.
+- **`make olddefconfig` demotes/drops a `=y` symbol a later block re-disables,
+  so config that must survive it is re-applied *after* olddefconfig** and then
+  hard-asserted (`WIFI_ASSERT_AFTER_OLDDEFCONFIG`, `SD_GL9755_ASSERT_*`, and
+  now `TYPEC_PD_ASSERT_AFTER_OLDDEFCONFIG`). A pre-olddefconfig `./scripts/config
+  -e SPMI_APPLE` read back as *absent* because the `SD_GL9755` post-olddefconfig
+  block ran `-d SPMI_APPLE` afterward. If a new switch needs a symbol built in,
+  re-enable it in a post-olddefconfig block, not only before.
+- **`T6040_TYPEC_PD=1` (the SPMI PD driver) is mutually exclusive with
+  `SD_GL9755=1`.** The GL9755 SD-diagnostic profile deliberately strips SPMI and
+  *asserts* `SPMI_APPLE` is off (it must not touch the PMU/SPMI); the PD
+  controller needs `SPMI_APPLE=y`. The switch hard-errors on the combination. A
+  USB-host image that wants both storage *and* the PD controller must root off an
+  initramfs (or a reconciled config), not the SD-diagnostic profile.
+- **The PD driver compiles against the SPMI *core* (`CONFIG_SPMI`); `SPMI_APPLE`
+  is only a runtime bus dep.** So a compile-validation build can assert `SPMI`,
+  `TYPEC`, `TYPEC_TPS6598X`, `TYPEC_TPS6598X_SPMI`, `USB_ROLE_SWITCH` as fatal
+  and treat `SPMI_APPLE` as warn-only; a *functional* T6040 image still needs
+  `SPMI_APPLE=y` (`WIFI=1`/`PCIE=1` provide it).
 
 ### Initramfs and busybox
 
