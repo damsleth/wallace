@@ -7,6 +7,14 @@
 ::once:/usr/local/sbin/t6040-sdroot-openrc default
 ::once:/usr/local/sbin/t6040-sdroot-openrc net
 tty1::respawn:/bin/busybox sh -l
+# Direct, dependency-free serial shell. t6040-sdroot-early-console above is the
+# nicer path (it runs a real getty with autologin) but it needs
+# t6040-b0-ttydc0-console, which needs getty and an autologin helper -- any of
+# which being absent silently costs ALL remote access. That happened on
+# 2026-08-04: refreshing this inittab replaced a working ttydc0 entry with the
+# early-console indirection whose dependency the card did not have. busybox is
+# guaranteed present here, so this line cannot fail for a missing dependency.
+ttydc0::respawn:/bin/busybox sh -l
 ::ctrlaltdel:/usr/local/sbin/t6040-sdroot-powerctl reboot
 ::shutdown:/usr/local/sbin/t6040-sdroot-openrc shutdown
 ::restart:/run/initramfs/shutdown
