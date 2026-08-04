@@ -272,3 +272,65 @@ Two habits that have each produced a wrong conclusion here:
 - **Verify by booting the real object, not the build.** Both regressions above
   passed every static check and were only caught by `t6040-boot-raw-object.sh`
   plus a live query over the serial shell.
+
+### Desktop, input and locale on the SD root (added 2026-08-04)
+
+All of these looked like driver or hardware faults and were none of them.
+
+- **X gets NO input devices unless `udevd` is running.** `libinput_drv.so` being
+  installed is not enough — Xorg autoconfigures input through udev, and without
+  it silently starts with zero devices while logging *"If no devices become
+  available, reconfigure udev or disable AutoAddDevices"*. The console keyboard
+  keeps working, so it looks like an X or HID bug. Start `udevd --daemon`,
+  `udevadm trigger` (subsystems **and** devices) and `udevadm settle` before X.
+- **Do not run X on a VT that also has a login shell.** `inittab` respawns a
+  shell on `tty1`; with Xorg on `vt1` the shell owns the terminal and keystrokes
+  never reach X. Xorg runs on **vt2**, which also leaves Ctrl+Alt+F1 as a rescue
+  console. Confirm with `cat /sys/class/tty/tty0/active` — it must name X's VT.
+- **`Xft.dpi` scales pango (i3, i3bar, i3status) but NOT `st` or `dmenu`**, which
+  are built with a fixed `pixelsize` font spec and ignore DPI completely. They
+  need an explicit `-f`/`-fn`. Current values: `Xft.dpi: 192`, `st -f
+  monospace:pixelsize=28`, i3 `font pango:DejaVu Sans Mono 10` — the pango size
+  stays 10 *because* Xft.dpi already doubles it; raising it to 16 made the bar
+  and tab titles far larger than the terminal.
+- **`Xcursor.size` does nothing without a cursor THEME.** With only `hicolor`
+  installed (no `cursors/` directory) X falls back to the fixed-size core cursor
+  bitmap, so the pointer stays tiny while text scales correctly. The Adwaita
+  cursors are bundled in the initramfs (~1.3 MiB compressed, 124 files) rather
+  than `apk add`ed, so a machine with no network still gets a usable pointer.
+  `XCURSOR_THEME`, `XCURSOR_PATH` and `Xcursor.theme` must all be set.
+- **st's zoom keys are unreachable on this keyboard.** `Ctrl+Shift+Page Up/Down`
+  needs `Fn+Up/Down` on an Apple keyboard; set the font explicitly instead.
+- **i3's modifier is `Mod4` = the ⌘ key** (`/etc/i3/config`). With no terminal
+  open, ordinary keys produce no visible response, so a perfectly working
+  keyboard reads as dead. `⌘+Enter` opens `st`. Before declaring input broken,
+  measure it: `timeout 60 cat /dev/input/eventN > /tmp/x.raw` then `wc -c`.
+  That bypasses X, udev and libinput entirely and gives a yes/no in one number.
+- **Only one `wpa_supplicant` may run.** OpenRC's `net` runlevel starts its own;
+  a second instance does not fail loudly — it logs `nl80211: kernel reports:
+  Match already configured` and starves the radio, so `iw scan` returns **zero**
+  networks and it reads as broken WiFi. Cooperate with a running instance rather
+  than `killall`-then-restart, which just races OpenRC's supervisor.
+- **`iw scan` returning 0 while a supplicant runs is normal** — the supplicant
+  owns scanning. Ask it instead: `wpa_cli -p /run/wpa_supplicant -i wlan0
+  scan_results`.
+- **`ctrl_interface=/run/wpa_supplicant` must be in the config**, or `wpa_cli`
+  cannot attach and every diagnostic is blind.
+- **udhcpc needs `-s /usr/share/udhcpc/default.script`.** Without it a lease
+  cannot be applied; give it generous retries, because the AP may not answer
+  DHCP for a few seconds after association.
+- **`/etc/localtime` is absent on a fresh card**, so the whole system runs UTC
+  and the bar clock is two hours behind Oslo in summer. The zoneinfo database is
+  already present — only the symlink is missing.
+- **wpa credentials are refreshed from the image every boot.** Installing them
+  only-if-absent stranded the card on a one-network config while the host file
+  had three, so the machine hunted for an out-of-range SSID. `~/wpa.conf` on the
+  host is the source of truth.
+
+### Host shell aliases (superseded 2026-08-04)
+
+CJ has removed the `cat`→`bat` and `ls`→`eza` aliases. Both had caused real
+damage: **`cat ~/file` piped through `bat` injects ANSI colour codes and
+box-drawing characters**, which corrupted a config being written to the machine
+over the serial console. If a heredoc arrives mangled, suspect a pager alias and
+use `command cat`.
