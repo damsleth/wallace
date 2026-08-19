@@ -1,0 +1,16 @@
+{
+  "seq": "3008",
+  "slug": "spmi-a1-physical-address-candidate",
+  "needs": "offline",
+  "state": "done",
+  "track": "usb",
+  "priority": "P0",
+  "desc": "Build the DT-only correction proved by ticket 3000: ADT raw /arm-io reg0 0x309198000 translates to CPU physical 0x509198000, while ticket 305's Linux DTB incorrectly used the raw value under identity-mapped /soc. Starting from the reviewed ticket-305 fixture, change only the a1 node name/reg to spmi@509198000 / <0x5 0x09198000 0x0 0x4000>, retain ps_nub_spmi_a1, re-enable only hpm2 SID 0x0c, and keep ANS/NVMe disabled. Produce two clean byte-identical DTB builds, decompile and prove the endpoint/power-domain/disabled-NVMe contract, pin all hashes, and run image preflight against the unchanged Image-usb2pd.buildA and initramfs. Offline only: no rig, MMIO, SPMI, storage, or enrollment. The corrected artifact requires independent exact review before attended ticket 305 resumes; tickets 1000/1002 are fallback only if this address-corrected candidate still stalls.",
+  "author": "sol",
+  "deps": [
+    "3000"
+  ],
+  "hashes": null,
+  "created": 1787144084,
+  "done_at": 1787144663
+}

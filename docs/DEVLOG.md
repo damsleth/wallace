@@ -292,6 +292,18 @@ the discipline around them.
   draft hpm2-only connector DT exists. CJ signed off the SPMI envelope
   2026-08-19 (see `SPMI_SAFETY.md` Entry 1); the attended PD/VBUS run is staged
   (305, see NEXT_STEPS §6).
+- Ticket 305 runs 1--4 did **not** touch the real a1 controller. The fixture
+  copied `/arm-io/nub-spmi-a1`'s raw child-bus address `0x309198000` into
+  Linux `/soc`, whose `ranges;` is identity. The captured ADT maps `/arm-io`
+  through parent base `0x200000000`, so the CPU physical address is
+  `0x509198000` -- exactly what the July m1n1 path obtained through
+  `adt_get_reg()` and used successfully. Ticket 3000 records the full
+  translation/MMU audit. Ticket 3008 corrects only the DT node/reg, retains
+  `ps_nub_spmi_a1`, hpm2 SID `0x0c`, and disabled NVMe, and produced two clean
+  byte-identical DTBs (`eaf8cceb...`). It still requires independent exact
+  review before attended ticket 305 resumes; Apple-specific init and
+  print-instrumentation work are fallback only if this corrected address
+  stalls.
 
 ## Corrections and dead ends
 
@@ -336,6 +348,11 @@ Do not repeat these without new evidence:
   exist; the tested descriptor/composite shapes did not bind usefully.
 - SBU serial, blind MMIO sweeps, generic HPM iteration, SID scans, or guessed
   ATC register buckets.
+- Treating ADT `/arm-io/nub-spmi-a1` raw `reg[0] = 0x309198000` as a Linux
+  CPU-physical `/soc` address, or treating ticket 305 runs 1--4 as proof that
+  the real a1 controller stalls. `/arm-io/ranges` translates it to
+  `0x509198000`; test the reviewed corrected DTB before proposing controller
+  initialization or MMIO instrumentation.
 - A G14 GPU configuration relabeled as T6040/G16.
 
 ## Milestone chronology
@@ -354,6 +371,7 @@ Do not repeat these without new evidence:
 | 2026-08-03 | One-core SD root reaches ttydc0/OpenRC; controlled two-core page-copy reproducer established; the barrier bisect refuted the ordering hypothesis, pointing at page lifetime or TLB invalidation |
 | 2026-08-04 | SD-root daily-driver baseline (Xorg/i3, WiFi, Norwegian layouts, self-healing card); **trackpad transport fixed live** — the v2 interface power request is accepted, firmware consumed, `Touch MT ready` (230); right-port USB regressed to a dwc3 core-init `-EINVAL` (108) and the PD controllers were identified as driverless SPMI `sn201202x` (231) |
 | 2026-08-18 | USB lane fully staged offline: dwc3 `-EINVAL` root cause (v1 phy-mode ordering) fixed and reviewed; the v2phy re-run image built and byte-reproduced fresh-vs-fresh (`80248306…`, 303) — the two-build protocol caught a real one-byte stale object in a reused dir; tps6598x SPMI transport passed exact-source review; draft hpm2-only PD connector DT compiled; everything now waits on binary review, CJ's SPMI-envelope sign-off, and rig time |
+| 2026-08-19 | USB2 data path verified live and no-child disambiguated to no VBUS; PD image runs then hung because the DT used raw `/arm-io` `0x309198000` as a CPU physical address. Offline audit 3000 proved `0x509198000`; candidate 3008 rebuilt that DT-only correction twice byte-identically (`eaf8cceb...`). Await independent exact review, then resume attended 305. |
 
 Detailed transcripts, hashes, retractions, and per-experiment stop conditions
 remain in dated files under `evidence/` and in Git history.

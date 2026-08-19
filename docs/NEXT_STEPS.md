@@ -166,8 +166,10 @@ nothing else changed in the safety scope.
 
 Tickets: **108** (USB2 data path — DONE, VBUS the sole gap), **303** (v2 rebuild,
 built + binary-reviewed), **231** (PD driver — reviewed and **CJ-signed-off**),
-**305** (attended PD/VBUS run, staged), **229** (R0 connector read,
-attended-only), **109+** (block read-only and beyond, blocked)
+**3000/3008** (a1 address correction — audited and byte-reproduced offline),
+**3009** (independent corrected-DTB review), **305** (attended PD/VBUS run,
+blocked on 3009), **229** (R0 connector read, attended-only), **109+** (block
+read-only and beyond, blocked)
 
 Both 2026-08-04 blockers are solved offline (mechanism and live-run detail in
 [DEVLOG.md](DEVLOG.md) "USB and Type-C"):
@@ -180,14 +182,21 @@ Both 2026-08-04 blockers are solved offline (mechanism and live-run detail in
 2. **VBUS — tps6598x SPMI transport written and reviewed** (231, `77fd00b`;
    review `evidence/2026-08-18-t6040-tps6598x-spmi-review.md`). A draft
    hpm2-only DT connector node exists
-   (`dts/t6040-j614s-dcuart-usb2-native-right-pd.dts`, compile-validated).
+   (`dts/t6040-j614s-dcuart-usb2-native-right-pd.dts`). Ticket 305 runs 1--4
+   accidentally put the ADT's raw `/arm-io` address `0x309198000` under
+   identity-mapped Linux `/soc`; they therefore never accessed the real a1
+   controller and do not prove an a1 hardware stall. Ticket 3000 proved the
+   translated CPU physical address is `0x509198000`. Ticket 3008 built the
+   corrected DTB twice from clean trees, byte-identical (`eaf8cceb...`), with
+   hpm2 as the sole PD endpoint and NVMe disabled.
 
 CJ **signed off the SPMI envelope 2026-08-19** — the exact permitted operations
 are in `docs/SPMI_SAFETY.md` (Entry 1, hpm2/right-port only via the DT gate).
-Remaining, in order: the attended PD/VBUS live run (305), including an R0
-connector-state read (229) to learn whether the right port already sources VBUS;
-then the PD-enabled image through the normal build/review cycle. SPMI stays
-deny-by-default; the only described endpoint is right-port `hpm2`.
+Remaining, in order: independent exact-artifact review (3009) of the corrected
+`eaf8cceb...` DTB; then the attended PD/VBUS live run (305), including an R0
+connector-state read (229) to learn whether the right port already sources
+VBUS; then the PD-enabled image through the normal build/review cycle. SPMI
+stays deny-by-default; the only described PD endpoint is right-port `hpm2`.
 
 ## 7. Parked tracks
 

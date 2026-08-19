@@ -80,7 +80,8 @@ build or drive the rig.
 - Never write PMU, charger, NVRAM, firmware, or an unknown SPMI endpoint.
 - SPMI is deny-by-default. Only an exact transaction permitted by
   `docs/SPMI_SAFETY.md` may run. The sole current endpoint is right-port
-  `/arm-io/nub-spmi-a1/hpm2` (Gen3, controller `0x309198000`, SID `0x0c`);
+  `/arm-io/nub-spmi-a1/hpm2` (Gen3, raw ADT reg `0x309198000`, translated CPU
+  physical `0x509198000`, SID `0x0c`);
   generic HPM iteration is forbidden.
 - Permitted SMC writes are `smc_reboot`, `smc_rtc`, and the upstream
   `gpio-macsmc` endpoint-power GPIOs `gP13` (WiFi/BT) and `gP19` (SD).

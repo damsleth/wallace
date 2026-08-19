@@ -59,7 +59,8 @@ register, which is called out above precisely so it stays that way.
 controller path: /arm-io/nub-spmi-a1
 compatible:      aapl,spmi
 generation:      3
-controller reg0: 0x309198000 / 0x4000
+controller raw /arm-io reg0: 0x309198000 / 0x4000
+controller CPU physical:    0x509198000 / 0x4000
 sole child:      /arm-io/nub-spmi-a1/hpm2
 child compatible: usbc,sn201202x,spmi
 SID:             0x0c
