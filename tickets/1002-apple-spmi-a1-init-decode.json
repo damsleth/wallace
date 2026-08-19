@@ -1,0 +1,15 @@
+{
+  "seq": "1002",
+  "slug": "apple-spmi-a1-init-decode",
+  "needs": "offline",
+  "state": "open",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "Offline RE (25F84 kexts, no rig): enumerate every MMIO write AppleSPMIController performs on an SPMI controller instance before its first FIFO use, and any a1/gen-specific branch -- the missing enable that iBoot leaves unset is most likely in that list, since 305 proved Linux's zero-init driver stalls on a1 while working on spmi0. Sources: com.apple.driver.AppleSPMIController (+ the AppleHPMARMSPMI provider path already partially decoded in the R3 boundary doc), the captured ADT's nub-spmi-a1 node (gen 3, no clock/power-gates props), and m1n1's working-but-macOS/iBoot-warm driver for contrast. DELIVERABLE: an evidence doc listing the init-write sequence (register, value, purpose) with disassembly addresses, plus a verdict on which write(s) our Linux driver must add (or which clock/bridge the block hangs without), and a draft minimal Linux patch if the answer is a small init sequence. Do NOT run anything on the rig under this ticket.",
+  "author": "fable",
+  "deps": [
+    "305"
+  ],
+  "hashes": null,
+  "created": 1787142273
+}

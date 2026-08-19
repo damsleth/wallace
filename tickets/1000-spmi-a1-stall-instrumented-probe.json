@@ -1,0 +1,15 @@
+{
+  "seq": "1000",
+  "slug": "spmi-a1-stall-instrumented-probe",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "Pinpoint the exact a1-controller access that stalls the machine (305 runs 1-5: first kernel MMIO to 0x309198000 hard-hangs; same driver works on nub-spmi0). ARTIFACT: a print-only debug patch on drivers/spmi/spmi-apple-controller.c -- dev_info() before/after the controller's first writel and first readl per instance (plus the probe's ioremap result), nothing else; no behavioral change. Serial printk is PROVEN working on this fixture (305 run 5 transcript 2df4d6bd), so one boot names the stalling access on ttydc0 even though the machine then hangs. FIXTURE: Image-usb2pd rebuild with the debug patch, DTB v3-equivalent (a1 ENABLED, power-domains as in 05e6acee), initramfs-sdroot-hardened, maxcpus=1, EXTRA_BOOTARGS console=ttydc0 initcall_debug. PASS = serial log shows which access (CMD writel vs STATUS readl, which controller instance) never returns. Expected outcome feeds 305. SAFETY: same signed-off envelope as 305; the hang itself is the known WDT-reset failure mode, recovery = sanctioned warm reboot, volatile only. STOP on anything beyond the known hang signature (SError dump, DART fault, firmware panic). Gates: print-only patch review by a non-builder, preflight, lease, CJ attending.",
+  "author": "fable",
+  "deps": [
+    "305"
+  ],
+  "hashes": null,
+  "created": 1787142273
+}

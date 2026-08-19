@@ -1,0 +1,15 @@
+{
+  "seq": "1001",
+  "slug": "hpm2-r0-m1n1-reverify",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "usb",
+  "priority": "P2",
+  "desc": "Re-prove that the a1 SPMI block still answers under m1n1 TODAY (iBoot-warm), separating '305's stall is Linux-specific' from 'the block changed since July'. Chainload the July-proven hpm2-status-r0 m1n1 object: locate and RE-PIN its artifact + hash from the ticket-093/094/095-era records BEFORE any run (do not rebuild unless the artifact is gone; a rebuild needs fresh review). Expect the July result shape: controller status readable, hpm2 SID 0x0c select + status 0x1a R0 read OK. PASS = R0 status read returns sane data (per the July transcripts). BONUS: the connector-state registers (0x1a/0x3f/0x40/0x5f) answer ticket 229's question -- is the right port already sourcing VBUS -- if the object's read set covers them. FAIL/STOP on exception, timeout, or any value outside the July-observed shapes. NOTE the rollback proxy CANNOT do this (proxy read32 of 0x309198000 raised an m1n1 exception on 2026-08-19 -- likely unmapped MMIO in the rollback build; recorded inconclusive). SAFETY: R0 reads only, allowlisted endpoint, attended per SPMI_SAFETY.",
+  "author": "fable",
+  "deps": [
+    "305"
+  ],
+  "hashes": null,
+  "created": 1787142273
+}
