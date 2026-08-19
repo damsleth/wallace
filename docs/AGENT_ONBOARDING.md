@@ -59,13 +59,9 @@ Use `--state wedged` if the proxy is not back at a quiescent
 
 ## Exact review
 
-Before `queue ready`, independently verify:
-
-- final hashes and source commits;
-- ADT-derived addresses;
-- no blind MMIO;
-- no prohibited PMU, charger, NVRAM, firmware, SMC, or SPMI operation;
-- explicit pass, stop, fixture, and recovery conditions.
-
-The complete hardware policy is in `~/Code/m1n1/AGENTS.md`; the only current
-SPMI exception is defined in [SPMI_SAFETY.md](SPMI_SAFETY.md).
+Before `queue ready`, independently verify hashes, source commits, ADT-derived
+addresses, no blind MMIO, no prohibited PMU/charger/NVRAM/firmware/SMC/SPMI
+operation, and explicit pass/stop/fixture/recovery conditions. The full
+checklist is in [COORDINATION.md](COORDINATION.md) ("Safety review"), the
+complete hardware policy in `~/Code/m1n1/AGENTS.md`, and the only current SPMI
+exception in [SPMI_SAFETY.md](SPMI_SAFETY.md).

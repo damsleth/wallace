@@ -4,19 +4,10 @@ Current as of 2026-08-19. This file keeps durable operating knowledge,
 milestones, corrections, and dead ends. Exact experiment evidence lives in
 `evidence/`; current work lives in [NEXT_STEPS.md](NEXT_STEPS.md).
 
-## Current state
-
-| Area | State |
-|---|---|
-| Boot | Enrolled, untethered Linux boot works |
-| Display | simpledrm/fbcon and Xorg with i3 or dwm |
-| Input | Keyboard works in X (i3 modifier is ⌘/Mod4). **Trackpad DONE (230, finger test PASSED 2026-08-19):** `0x40` is the MTP interface power request, J614s accepts only the 9-byte v2 form; the patched pair brings the pipeline to `Touch MT ready` and a real finger produced 37 950 events on `/dev/input/event0` — plus **haptic click** works (Taptic actuator up). Touch + force-click both live |
-| CPU | Five-core RAM-root desktop works; a controlled two-core page-copy reproducer faults, and the failure is confirmed **fail-stop** (kills processes, does not return wrong data) |
-| SMC | Battery, AC, charger, and temperature telemetry |
-| PCIe | Root complex, WiFi, Bluetooth, and SD reader work |
-| Storage | One-core SD root boots unattended to Xorg/i3 with WiFi; a static `fsck.exfat` repairs a dirty SD64 in place; persistence verified across four reboots; clean-shutdown validation pending |
-| NVMe | m1n1 reads work; Linux loses ANS at its first I/O CQ wrap, and the teardown is a use-after-free that kills `kblockd` and stalls **all** block I/O (227). Disabled in the daily DTB |
-| USB | Device mode works. **USB2 host data path DONE (108, 2026-08-19):** with the v2 PHY slice, dwc3 probes clean and both right xHCI root hubs come up healthy. **VBUS is the sole remaining gap** — the tps6598x SPMI transport for the `sn201202x` PD controllers is written and CJ-signed-off (231); the attended PD/VBUS live run is staged (305) |
+Live capability status is in [NEXT_STEPS.md](NEXT_STEPS.md) §0 (the single
+source of truth); this file records the durable *how* and *why* behind it —
+solved blockers, corrections, and dead ends. Per-experiment evidence lives in
+`evidence/`.
 
 ## Operating the rig
 
@@ -26,15 +17,12 @@ Only the lease holder runs a rig script, and only for an approved, ready
 ticket. Release `wedged` if recovery is incomplete or uncertain. The canonical
 protocol and commands are in [COORDINATION.md](COORDINATION.md).
 
-**Each concurrent session needs a DISTINCT lease handle.** On 2026-08-19 two
-sessions both ran as `fable`; `rig-lease.sh acquire fable` on an
-already-held-by-`fable` lease does **not** refuse — it silently *renews and
-relabels* it, so one session clobbered the other's active-run task label (and
-extended its expiry) without any warning. The per-agent guard only serializes
-agents whose handles differ ("refuses a live lease held by someone else"). CJ
-resolved it by renaming this session's handle to `opus` (it fell back to the
-Opus model). There are now three handles — `claude`, `fable`, `opus`; use your
-own, and never `acquire` under a handle another live session is using.
+**Each concurrent session needs a DISTINCT lease handle.** `rig-lease.sh
+acquire` on a lease already held by the same handle silently renews and relabels
+it (it does not refuse), so a colliding handle clobbers the other session's
+active-run record. Use your own handle; never `acquire` under one another live
+session is using. Canonical handle list and protocol in
+[COORDINATION.md](COORDINATION.md).
 
 ### DebugUSB/KIS discipline
 
@@ -96,19 +84,12 @@ the discipline around them.
 - Never repack a root filesystem from an extraction that lost device nodes or
   ownership.
 - **`$OUT/Image` is what boots, and nothing keeps it in sync with the named
-  `Image-<config>` artifacts.** It can silently be weeks old. `boot-dcuart.sh`
-  now refuses any kernel with zero occurrences of `pcie-apple` or `macsmc`
-  (override: `BOOT_SKIP_IMAGE_CHECK=1`). Verify by hand with:
-
-      command ls -l $OUT/Image                       # date must match the build
-      strings -a $OUT/Image | grep -m1 'Linux version'
-      strings -a $OUT/Image | grep -c pcie-apple     # 0 == no PCIe driver
-
-  (`ls`/`cat` were aliased to `eza`/`bat` on this host until 2026-08-04, which
-  broke mtime sorting and injected ANSI codes into files written over the serial
-  console; CJ has removed both aliases.) When grepping a binary for a driver marker, confirm the grep
-  works by also matching a control string — `strings … | head -1` will happily
-  hide the very line that disproves your theory.
+  `Image-<config>` artifacts** — it can silently be weeks old. `boot-dcuart.sh`
+  refuses a kernel with zero `pcie-apple` or `macsmc` (override
+  `BOOT_SKIP_IMAGE_CHECK=1`); the by-hand verification commands are in
+  [RUNBOOK.md](RUNBOOK.md) §5b. When grepping a binary for a driver marker,
+  confirm the grep works by also matching a control string — a wrong grep hides
+  the very line that disproves your theory.
 - **A whole missing *subsystem* means the wrong kernel, not broken hardware.**
   One absent device can be hardware; an empty `/sys/bus/pci/devices` cannot.
 
@@ -275,8 +256,8 @@ the discipline around them.
   pipeline raised `Touch interface ready` / `Touch MT ready` 260 ms after the
   first `open()`. A second open does not re-upload and stays healthy.
 - The earlier “firmware upload crashes the machine” attribution is withdrawn.
-- Remaining: a human finger during a watch window (ticket 230's second half),
-  then daily-image integration (ticket 301).
+- The finger test PASSED 2026-08-19 (touch + haptic click); ticket 230 closed.
+  Remaining is daily-image integration (ticket 301, see NEXT_STEPS §5).
 
 ### USB and Type-C
 
@@ -307,10 +288,10 @@ the discipline around them.
   right xHCI root hubs up and persistent, 0 DART faults, NVMe/SPMI provably
   absent from the kernel. No child device: VBUS remains the sole gap to
   enumeration (or the stick left the port; unresolved until CJ looks).
-- The tps6598x SPMI transport (231) passed exact-source review 2026-08-18;
-  a draft hpm2-only connector DT exists. Both gated on CJ signing off the
-  enumerated SPMI envelope (WAKEUP/reads/SSPS→S0 + INT_MASK1 write at
-  probe + INT_CLEAR1 W1C per event) and an attended run.
+- The tps6598x SPMI transport (231) passed exact-source review 2026-08-18; a
+  draft hpm2-only connector DT exists. CJ signed off the SPMI envelope
+  2026-08-19 (see `SPMI_SAFETY.md` Entry 1); the attended PD/VBUS run is staged
+  (305, see NEXT_STEPS §6).
 
 ## Corrections and dead ends
 

@@ -36,25 +36,20 @@ Standing constraints for autonomous work:
 Tickets: **205** (umbrella), **217** (offline artifact), **209** (approved
 rig run); **207** and **208** are done
 
-The dependency-free BusyBox reproducer reliably distinguishes one from two
-cores: the uninstrumented `maxcpus=2` kernel faulted twice in four runs
-(ticket 208). Ticket 207's bisect then **refuted the ordering hypothesis**:
-`smp_mb()` alone and a semantically irrelevant volatile read of the
-destination — with no barrier at all — each suppressed the fault completely.
-Any small perturbation before `copy_page()` hides it, so the race is not
-located in `copy_highpage`; that is where the fault is taken, not where the
-bug lives. The fault is a kernel-mode fault on a valid linear-map address,
-which points at page lifetime/refcount or TLB-invalidation completion.
+Established (mechanism detail and method in [DEVLOG.md](DEVLOG.md) "CPU" and
+`evidence/2026-08-03-t6040-205-smp-cow-investigation.md`):
 
-Round 18 settled the question that mattered most for daily use: **the bug is
-fail-stop, not silent corruption.** With the fork-heavy reproducer running in
-the background and a fault firing that killed it, twelve consecutive 64 KiB
-copy-and-compare verifications in the surviving process were byte-identical
-(`SAME=12, DIFFER=0`). The fault path — `die_kernel_fault` →
-`arm64_force_sig_fault` → `make_task_dead` — is fail-stop by construction. So
-`maxcpus>1` costs availability, not data. Bounded honestly: this does not prove
-a process *hit* by the fault writes nothing bad before dying, nor that a fault
-during page-cache writeback cannot reach storage.
+- the dependency-free BusyBox reproducer distinguishes one from two cores
+  (`maxcpus=2` faulted twice in four runs, ticket 208);
+- ticket 207's bisect **refuted the ordering hypothesis** — `smp_mb()` and a
+  semantically irrelevant volatile read each suppress the fault, so the race is
+  not in `copy_highpage`; the kernel-mode fault on a valid linear-map address
+  points at page lifetime/refcount or TLB-invalidation completion;
+- the bug is **fail-stop, not silent corruption** (round 18): with a fault
+  firing and killing a concurrent process, twelve consecutive 64 KiB
+  copy-and-compare checks were byte-identical. So `maxcpus>1` costs availability,
+  not data. Not proven: that a process *hit* by the fault writes nothing bad
+  before dying, or that a fault during page-cache writeback cannot reach storage.
 
 Do next:
 
@@ -155,23 +150,17 @@ tickets 215/216.
 
 ## 5. Trackpad: DONE — daily-image integration remains
 
-**Complete as of 2026-08-19** (ticket 230,
-`evidence/2026-08-19-t6040-trackpad-finger-test-PASS.md`). The post-upload
-command `0x40` is the MTP interface power request; J614s speaks only the 9-byte
-v2 two-phase form; the patched v2 pair brings the pad to `Touch MT ready`
-260 ms after `open()`. CJ's finger test then produced **37 950 events / 910 800
-bytes** on `/dev/input/event0` with a hex dump of real multi-touch reports, and
-**force-click haptics fire** (Taptic actuator up). Touch + haptics both live.
+**Complete as of 2026-08-19** (ticket 230, touch + haptic click; finger-test
+numbers and the `0x40`/v2 decode are in
+`evidence/2026-08-19-t6040-trackpad-finger-test-PASS.md` and
+[DEVLOG.md](DEVLOG.md) "Trackpad").
 
-Do next:
-
-1. Ticket 301: fold the patch (`t6040-dockchannel-hid-reset-contract.patch`)
-   and the `a1f4131d` firmware blob into the daily sdroot image, two-build
-   reproduce, preflight, new enrollable object — so the daily driver carries a
-   working trackpad without a special image.
-
-Any live attempt stays limited to the approved volatile HIDF blob
-`a1f4131d…`; nothing else changed in the safety scope.
+Do next — **ticket 301:** fold the patch
+(`t6040-dockchannel-hid-reset-contract.patch`) and the `a1f4131d` firmware blob
+into the daily sdroot image, two-build reproduce, preflight, new enrollable
+object, so the daily driver carries a working trackpad without a special image.
+Any live attempt stays limited to the approved volatile HIDF blob `a1f4131d…`;
+nothing else changed in the safety scope.
 
 ## 6. USB host/VBUS (active)
 
@@ -180,36 +169,25 @@ built + binary-reviewed), **231** (PD driver — reviewed and **CJ-signed-off**)
 **305** (attended PD/VBUS run, staged), **229** (R0 connector read,
 attended-only), **109+** (block read-only and beyond, blocked)
 
-Both blockers identified on 2026-08-04 are now solved offline; what remains
-is review and rig time:
+Both 2026-08-04 blockers are solved offline (mechanism and live-run detail in
+[DEVLOG.md](DEVLOG.md) "USB and Type-C"):
 
-1. **dwc3 `-EINVAL` — fixed and VERIFIED LIVE (2026-08-19).** v2 of the PHY
-   slice (`b7f02c3c…`) was rebuilt into the Jul-29 profile (303,
-   `buildB` `80248306…`, binary-reviewed PASS) and re-run: the eUSB2 host
-   sequence completed on first execution, dwc3 probed clean, both right
-   xHCI root hubs up and persistent, zero DART faults
-   (`evidence/2026-08-19-t6040-usb2-v2phy-rerun-root-hubs-restored.md`).
-   **The USB2 data path is done.** No child appeared — VBUS is the sole
-   remaining gap (or the S128 stick left the port since Aug 4; CJ settles
-   that by looking).
-2. **VBUS — driver written and reviewed, gated on CJ.** The tps6598x SPMI
-   transport (231, `77fd00b`) reuses the whole tipd state machine over a
-   paged select/window regmap bus matching the m1n1-live-proven protocol;
-   the exact-source review
-   (`evidence/2026-08-18-t6040-tps6598x-spmi-review.md`) found it sound and
-   enumerates the sign-off table — probe = WAKEUP + reads + SSPS→S0, plus
-   two new classes: `INT_MASK1` (0x16) write at probe, W1C `INT_CLEAR1`
-   (0x18) per event. A draft DT connector node exists
-   (`dts/t6040-j614s-dcuart-usb2-native-right-pd.dts`, hpm2 only,
-   compile-validated, not runnable).
+1. **dwc3 `-EINVAL` — fixed and VERIFIED LIVE (2026-08-19).** The v2 PHY slice
+   (303, `buildB` `80248306…`, binary-reviewed PASS) probes clean, both right
+   xHCI root hubs up and persistent, zero DART faults. **The USB2 data path is
+   done.** No child appeared — VBUS is the sole gap (or the S128 stick left the
+   port; CJ settles that by looking).
+2. **VBUS — tps6598x SPMI transport written and reviewed** (231, `77fd00b`;
+   review `evidence/2026-08-18-t6040-tps6598x-spmi-review.md`). A draft
+   hpm2-only DT connector node exists
+   (`dts/t6040-j614s-dcuart-usb2-native-right-pd.dts`, compile-validated).
 
-CJ **signed off the SPMI envelope 2026-08-19** (probe = WAKEUP + reads +
-SSPS→S0, `INT_MASK1` 0x16 write at probe, W1C `INT_CLEAR1` 0x18 per event,
-hpm2/right-port only via the DT gate). Remaining, in order: the attended
-PD/VBUS live run (305) — including an R0 connector-state read (229) to learn
-whether the right port already sources VBUS — then the PD-enabled image through
-the normal build/review cycle. SPMI stays deny-by-default under
-`SPMI_SAFETY.md`; the only described endpoint is right-port `hpm2`.
+CJ **signed off the SPMI envelope 2026-08-19** — the exact permitted operations
+are in `docs/SPMI_SAFETY.md` (Entry 1, hpm2/right-port only via the DT gate).
+Remaining, in order: the attended PD/VBUS live run (305), including an R0
+connector-state read (229) to learn whether the right port already sources VBUS;
+then the PD-enabled image through the normal build/review cycle. SPMI stays
+deny-by-default; the only described endpoint is right-port `hpm2`.
 
 ## 7. Parked tracks
 

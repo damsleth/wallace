@@ -18,92 +18,60 @@ work and [NEXT_STEPS.md](NEXT_STEPS.md) contains the current order.
 
 ## A. Proxy and recovery
 
-Complete:
-
-- DebugUSB/KIS reaches a stable m1n1 proxy.
-- Remote reboot and tethered chainload are routine.
-- All rig access is serialized through `scripts/rig-lease.sh`.
-- The recovery bar is a quiescent `Running proxy`, not merely a responsive
-  USB device.
-
-Keep this stable; it is infrastructure, not an active hardware target.
+Complete and stable infrastructure (DebugUSB/KIS proxy, remote reboot, tethered
+chainload, `rig-lease.sh` serialization). The recovery bar is a quiescent
+`Running proxy`, not merely a responsive USB device. Not an active target.
 
 ## B. Boot chain
 
-Complete:
+Complete: m1n1 boots Linux and provides the board DT; a self-contained raw
+object (m1n1 + kernel + DTB + initramfs + bootargs) cold-boots enrolled without
+a tether; builder/verifier enforce 16 KiB total size; a dual-mode loader keeps a
+short DebugUSB window before normal boot.
 
-- m1n1 boots Linux on T6040 and provides the board DT.
-- A self-contained raw object carries m1n1, kernel, DTB, initramfs, and
-  bootargs.
-- An enrolled object cold-boots without a tether.
-- The builder and verifier enforce the 16 KiB total-size requirement.
-- A dual-mode loader preserves a short DebugUSB window before normal boot.
-
-Optional follow-on:
-
-- design a fail-closed stage-2 loader so the enrolled stage changes rarely;
-- compare internal NVMe with SD storage;
-- use a raw partition or a supported filesystem. U-Boot does not read exFAT.
-
-This is an iteration improvement, not a prerequisite for the current system.
+Optional follow-on (iteration, not a prerequisite): a fail-closed stage-2 loader
+so the enrolled stage changes rarely; compare NVMe vs SD storage. U-Boot does
+not read exFAT, so SD stage 2 needs a raw partition or FAT32.
 
 ## C. Kernel and board description
 
-Working:
-
-- T6040 CPU topology, AIC, PMGR, watchdog, simple framebuffer, DockChannel
-  UART/HID, SMC, PCIe, SDHCI, WiFi, Bluetooth, cpufreq, and experimental NVMe
-  nodes exist on the Wallace branch.
-- All 14 CPUs enter the kernel.
-- A five-core RAM-root desktop schedules work on all five CPUs.
-- cpufreq reaches 4.512 GHz on the P cluster.
+Working: the full T6040 board (CPU topology, AIC, PMGR, watchdog, framebuffer,
+DockChannel UART/HID, SMC, PCIe, SDHCI, WiFi, BT, cpufreq, experimental NVMe) on
+the Wallace branch; all 14 CPUs enter the kernel; five-core RAM-root desktop;
+cpufreq 4.512 GHz on the P cluster.
 
 Open:
 
-- characterise the two-core page-copy fault and report it upstream (tickets
-  209/217); ticket 207 refuted the ordering hypothesis, and perturbations that
-  merely suppress the symptom are not fixes;
+- characterise the two-core page-copy fault and report it upstream (209/217);
+  207 refuted the ordering hypothesis, and perturbations that merely suppress the
+  symptom are not fixes;
 - prove stable 14-core userspace;
 - add a safe cpuidle/retention contract;
-- keep generated DTs and upstream-shaped patch series synchronized;
+- keep generated DTs and the upstream-shaped patch series synchronized;
 - upstream the narrow, proven changes.
 
 ## D. Local usable machine
 
-Working:
-
-- internal panel through simpledrm/fbcon;
-- Xorg with i3 or dwm;
-- internal keyboard with Norwegian layout;
-- DockChannel shell and watchdog;
-- battery, AC, charger, and temperature telemetry;
-- GL9755 SD read/write persistence.
+Working: internal panel (simpledrm/fbcon), Xorg i3/dwm, internal keyboard
+(Norwegian), DockChannel shell + watchdog, SMC telemetry, GL9755 SD
+read/write persistence, and the **trackpad** (touch + haptic click, 230).
 
 Open:
 
 - repair and validate clean SD-root shutdown;
 - complete SSH and graphical service integration;
-- enable panel backlight control; keyboard backlight already works;
-- bring up USB host: the USB2 data path is proven (108); VBUS remains, and the
-  reviewed, CJ-signed-off SPMI PD driver (231) sources it under a reversible
-  Type-C contract — attended run staged (305).
-
-Done:
-
-- **trackpad (touch + haptic click), 2026-08-19** (230): a real finger produced
-  37 950 events on `/dev/input/event0` and force-click haptics fire. Daily-image
-  integration is ticket 301.
+- enable panel backlight control (keyboard backlight already works);
+- bring up USB host: the USB2 data path is proven (108); VBUS remains, sourced by
+  the reviewed, CJ-signed-off SPMI PD driver (231) under a reversible Type-C
+  contract, attended run staged (305).
 
 The SD path replaces USB root as the immediate persistence route.
 
 ## E. WiFi and Bluetooth
 
-Functional:
-
-- PCIe links train with the correct T6040 PHY reset bit and endpoint power;
-- BCM4388 WiFi scans, associates, receives DHCP, and routes traffic;
-- BCM4388 Bluetooth exposes a working `hci0`;
-- the paired firmware mapping and BSS-info v116 support are recorded.
+Functional: PCIe links train with the correct T6040 PHY reset bit and endpoint
+power; BCM4388 WiFi associates/DHCP/routes and BT exposes a working `hci0`;
+paired firmware mapping and BSS-info v116 support recorded.
 
 Remaining work is cleanup, regression coverage, and upstream review. Do not
 reopen the old op-115 PLL theory; endpoint power and the reset bit were the
@@ -124,50 +92,25 @@ Do not adapt G14 tables by analogy. The staged test sequence remains in
 
 ## G. Power and remaining peripherals
 
-Partial:
-
-- SMC telemetry works;
-- cpufreq works;
-- watchdog and remote reboot paths exist.
-
-Open:
-
-- cpuidle and suspend;
-- panel backlight;
-- audio;
-- camera/ISP;
-- lid and power-button integration;
-- thermal and performance policy suitable for sustained daily use.
-
-The current `idle=nop` baseline is for bring-up, not a finished power model.
+Partial: SMC telemetry, cpufreq, watchdog, and remote reboot work. Open: cpuidle
+and suspend, panel backlight, audio, camera/ISP, lid/power-button integration,
+and a thermal/performance policy for sustained daily use. The current `idle=nop`
+baseline is for bring-up, not a finished power model.
 
 ## H. Persistent distro
 
-Current architecture:
+Architecture: enrolled raw m1n1 stage → small switch-root initramfs → exFAT SD
+partition holding `wallace-root.img` → ext4 loop image as the Alpine root.
 
-1. enrolled raw m1n1 stage;
-2. small switch-root initramfs;
-3. exFAT SD partition containing `wallace-root.img`;
-4. ext4 loop image as the Alpine root.
+Verified: SD read/write/sync/persistence, loop mount + `switch_root`, and
+ttydc0/OpenRC from the SD root at `maxcpus=1` with writes persisting across
+reboot.
 
-Verified:
+Required for completion: repair the currently dirty exFAT and ext4 filesystems;
+validate the shutdown pivot and post-shutdown clean checks; reliable SSH;
+WiFi/Bluetooth services; Xorg/i3 startup; repeated cold-boot validation.
 
-- SD read, write, sync, unmount, reboot, and hash persistence;
-- loop mount and `switch_root`;
-- ttydc0 and OpenRC work from the SD root at `maxcpus=1`;
-- writes persist across reboot.
-
-Required for completion:
-
-- repair the currently dirty exFAT and ext4 filesystems;
-- validate the shutdown pivot and post-shutdown clean checks;
-- reliable SSH;
-- WiFi/Bluetooth services;
-- Xorg/i3 startup;
-- clean shutdown and filesystem checks;
-- repeated cold-boot validation.
-
-Internal NVMe is a later replacement candidate. Linux reaches real filesystem
+Internal NVMe is a later replacement candidate — Linux reaches real filesystem
 I/O but still loses the controller at the first I/O CQ wrap.
 
 ## Completion criteria
