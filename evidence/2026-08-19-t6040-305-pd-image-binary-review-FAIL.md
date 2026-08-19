@@ -113,3 +113,48 @@ Two exits, either closes the FAIL:
 
 The rest of the image is sound; this is a one-line DT gate (or one Kconfig
 line), not a redesign.
+
+---
+
+## ADDENDUM 2026-08-19 — CJ widened the envelope; verdict → PASS
+
+The FAIL above was correct against the then-current sign-off. CJ then chose exit
+#2: **the 305 envelope now includes the abbey-pmic boot-policy/RTC NVRAM cells
+over SPMI**, and `SPMI_SAFETY.md` was rewritten to allow that bounded path
+(Entry 2). Brick-risk analysis that supported the decision (all primary-source,
+this session):
+
+- The abbey PMU is exposed to Linux **only** as an NVMEM provider —
+  `drivers/nvmem/apple-spmi-nvmem.c` is the sole binder of `apple,spmi-nvmem`,
+  it is not a regulator and has no voltage/rail path. Linux cannot set a rail
+  through it.
+- Only `nub_spmi0`/`pmu1` (abbeyL1, SID 0x0e) is in the Linux DT; `abbeyF1`/`F2`
+  (nub-spmi1/2) and `btm` (SID 0x0b) have **no** Linux DT node and **no** driver
+  (`grep '"...btm"'` in drivers/ is empty), so Linux never touches them.
+- The cells are boot-policy/RTC scratch (boot_stage, panic_count, rtc_offset,
+  shutdown_flag), written by iBoot/macOS every boot; worst-case corruption is a
+  DFU-recoverable boot-policy hiccup, not a voltage event or permanent brick.
+- This is the same stack production Asahi runs on every M1/M2 boot.
+
+So there is **no brick risk** in what buildA's Linux stack can actually reach.
+A blanket "allow nub-spmi0/1/2" would *not* be certifiable (raw register writes
+to an abbey SID could hit rail control = permanent damage), so the policy allows
+only the bounded nvmem path and keeps raw-register / voltage / `btm` / RESET
+prohibited.
+
+**Verdict: PASS** — buildA is in-envelope as-is under the widened policy; no DT
+change is required. One safeguard carried into the run procedure (ticket 305):
+the attended operator must confirm the probe-time nvmem **reads** look sane
+(boot_stage/panic_count/rtc_offset) **before** any Linux-initiated reboot
+exercises the abbey **write** path, because the cell offsets were
+project-measured, not inherited.
+
+**Reviewer discretion on byte-repro:** 305 was a single build. For this volatile,
+attended, warm-reboot-recoverable chainload I accept the single build — every
+component was individually reviewed and the run is non-persistent. The honesty
+note stays on the ticket; it is not a blocker for the attended run.
+
+**Optional-conservative DT gate (NOT required), handed to fable:** if a future
+image wants the PMU SPMI bus dark, the one-liner is
+`&nub_spmi0 { status = "disabled"; };` (bus-level; also covers future children).
+Under the widened envelope buildA does not need it.

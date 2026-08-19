@@ -1,32 +1,60 @@
 # T6040 SPMI safety policy
 
-Current policy as of 2026-08-03; maintainer approval last changed 2026-07-29.
+Current policy as of 2026-08-19; maintainer approval last changed 2026-08-19
+(CJ: abbey-pmic bounded NVMEM allowed; the tps6598x hpm2 driver envelope signed
+off — see the two new allowlist entries below).
 
 SPMI is a transport, not a single risk class. Transactions are deny-by-default,
-but an exact, ADT-verified non-PMU endpoint may be approved when its controller,
-SID, operation, bounds, fixture, and recovery behavior are all explicit.
+but an exact, ADT-verified endpoint may be approved when its controller, SID,
+operation, bounds, fixture, and recovery behavior are all explicit.
 
 ## Absolute prohibitions
 
-- Never write PMU, charger, battery-management, RTC/scratchpad, NVRAM,
-  firmware/flash, or other persistent state through SPMI or any other
-  transport.
+- Never write PMU **voltage/rail** control, charger, battery-management,
+  OTP/fuse, or firmware/flash state through SPMI or any other transport, and
+  never issue a **raw or un-modeled register write to a PMU SID**. The abbey
+  PMIC's register map includes rail control; a wrong-address write can
+  over-volt the SoC, which is permanent silicon damage, not a recoverable
+  state. **Named exception:** the abbey PMU's boot-policy/RTC NVRAM *scratch*
+  cells, addressed only through the upstream `apple,spmi-nvmem` driver's
+  declared `nvmem-layout` and its standard `apple,smc-rtc` / `apple,smc-reboot`
+  consumers (allowlist entry 2 below). Those are bounded scratch cells with no
+  rail/OTP path, are what iBoot and macOS write on every boot, and are the
+  production Asahi RTC/clean-reboot mechanism.
 - Never issue transactions to an unknown endpoint, scan SIDs, blind-probe
   logical registers, or derive a controller address from another SoC.
-- Never issue SPMI `RESET`, or an HPM firmware/update/unlock/flash command.
+- Never issue SPMI `RESET`, `SLEEP`, or `SHUTDOWN` to a PMU SID, or an HPM
+  firmware/update/unlock/flash command.
 - Never treat a controller-command MMIO write as harmless merely because the
   requested slave operation is a read. Every SPMI read is initiated by a write
   to the controller command FIFO.
 
 The captured J614s ADT keeps the system PMUs on `nub-spmi0`, `nub-spmi1`, and
-`nub-spmi2`. Those controllers and their `pmu,spmi`/`pmu,abbey` children remain
-completely out of scope. `aop-spmi0`, `nub-spmi3`, and `nub-spmi4` are also
-prohibited unless a future policy revision names an exact endpoint.
+`nub-spmi2` (children `spmi-abbeyL1`/`F1`/`F2`, `pmu,abbey`, SID `0x0e`; plus a
+`btm` child on `nub-spmi0`, SID `0x0b`). Of these, **only** the abbey PMU
+reached as a bounded `apple,spmi-nvmem` provider is in scope (entry 2); every
+other access to these controllers — raw register writes to an abbey SID beyond
+the declared nvmem cells, and the `btm` child (battery/thermal management, no
+Linux driver, unidentified) — stays out of scope. `nub-spmi1`/`nub-spmi2`
+(`abbeyF1`/`F2`) have no Linux DT node and no driver, so Linux never touches
+them; they remain prohibited for hand-rolled access. `aop-spmi0`, `nub-spmi3`,
+and `nub-spmi4` are prohibited unless a future policy revision names an exact
+endpoint.
 
-## Current non-PMU allowlist
+Why this changed (2026-08-19): the earlier blanket "PMUs completely out of
+scope" was written during blind bring-up, before the transport was understood.
+The abbey PMU is exposed to Linux **only** as an NVMEM provider
+(`drivers/nvmem/apple-spmi-nvmem.c` is the sole binder of `apple,spmi-nvmem`;
+it is not a regulator and has no voltage path), bound to a fixed cell layout
+(`rtc_offset`, `boot_stage`, `boot_error_count`, `panic_count`, `shutdown_flag`,
+`pm_setting`) that only the standard SMC RTC/reboot drivers consume. That is the
+same stack production Asahi runs on every M1/M2 boot. So the bounded nvmem path
+carries no brick risk and is allowed; the danger is raw/un-modeled register
+access to the PMIC (rail control), which stays prohibited.
 
-The sole endpoint eligible for reviewed experiments is the right-side Type-C
-manager:
+## Current allowlist
+
+### Entry 1 — right-side Type-C manager (hpm2)
 
 ```text
 controller path: /arm-io/nub-spmi-a1
@@ -41,10 +69,59 @@ port-number:     3
 port-location:   right
 ```
 
-The exact captured ADT is 606,208 bytes with SHA-256
-`7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84`.
 An experiment must fail closed unless every property above matches. It must
 address the path directly; generic HPM iteration is not an allowlist.
+
+**Signed-off driver envelope (CJ, 2026-08-19, ticket 305).** The reviewed
+`tps6598x` SPMI transport may drive hpm2 within exactly this envelope:
+probe-time `WAKEUP` + logical-register reads + `SSPS` to S0, the `INT_MASK1`
+(`0x16`) write at probe, and the W1C `INT_CLEAR1` (`0x18`) per event. This is
+the approved concrete R1/R2 instance for hpm2 — it supersedes, for this driver
+and endpoint only, the earlier R2 note that mask/clear handling "is not
+approved." No role-swap 4CC (`SWDF`/`SWUF`/`SWSr`/`SWSk`) is in this envelope;
+those remain R3 and separately gated.
+
+### Entry 2 — abbey PMU boot-policy/RTC NVRAM, bounded NVMEM only (CJ, 2026-08-19)
+
+```text
+controller path: /arm-io/nub-spmi0   (DT: nub_spmi0 / spmi@509014000)
+child:           spmi-abbeyL1  (DT: pmic@e, "apple,abbey-pmic","apple,spmi-nvmem")
+SID:             0x0e
+access:          the upstream apple,spmi-nvmem driver ONLY, through the DT
+                 nvmem-layout cells, consumed by apple,smc-rtc + apple,smc-reboot
+cells in scope:  rtc_offset, boot_stage, boot_error_count, panic_count,
+                 shutdown_flag  (pm_setting has no consumer and must stay unread)
+```
+
+Permitted because this is bounded scratch/NVRAM with no rail/OTP path, is the
+production Asahi RTC/clean-reboot mechanism, and its worst-case failure (a
+corrupt boot_stage/shutdown_flag) is DFU-recoverable, not permanent. Bounds:
+
+- Only via the upstream `apple,spmi-nvmem` provider and the standard SMC
+  consumers — **no** raw/hand-rolled SPMI writes to SID `0x0e`, and no access to
+  any abbey register outside the declared nvmem cells (rail control lives there).
+- **Read-before-write validation (required).** The cell *offsets* were
+  project-measured on this PMIC generation, not inherited from M1/M2. Before any
+  Linux-initiated write path (a `apple,smc-reboot` shutdown/reboot) is exercised
+  in an experiment, the attended operator must confirm the probe-time **reads**
+  are sane (`boot_stage` a small integer, `panic_count` small, `rtc_offset`
+  plausible). A wrong offset means a write would poke an unknown abbey register;
+  the reads validate the offsets, and only then may the write path be trusted.
+- `nub-spmi1`/`nub-spmi2` (`abbeyF1`/`abbeyF2`) are **not** in scope even though
+  they share SID `0x0e`: they have no Linux DT node and no driver. Do not add
+  DT nodes for them.
+
+### The two captured ADTs (topology verified identical)
+
+Both are 606,208 bytes and enumerate an **identical** SPMI topology (verified
+2026-08-19):
+
+```text
+7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84  j614s-usb-port-map-20260721.adt (policy-pinned)
+2fe477c613c67e44...                                               j614s-full-20260728.adt (this revision's enumeration)
+```
+
+An experiment must fail closed unless the endpoint properties above match.
 
 `nub-spmi-a0` is not allowlisted. It contains HPM0 (left-back/DebugUSB), HPM1
 (left-front), and HPM5 (class 11/port type 17). Touching it risks the recovery
@@ -126,9 +203,12 @@ W1C). Note that the class-10 host-transition path in R3 below reaches `0x18`
 and `0x16` on its own, so an R3 candidate inherits these R2 requirements
 whether or not it is labelled an interrupt experiment.
 
-No R2 interrupt-mask experiment has run. It was deliberately removed from
-ticket 095's SSPS-only binary. Create it only if the host-transition decode
-shows that mask ownership must change.
+No standalone R2 interrupt-mask *experiment* has run. **However**, CJ signed
+off (2026-08-19, ticket 305) the `tps6598x` driver's own use of `INT_MASK1`
+(`0x16`) write at probe and W1C `INT_CLEAR1` (`0x18`) per event, as part of the
+Entry-1 driver envelope above — that is the approved R2 instance for hpm2 via
+the reviewed driver. The "not approved" text here refers to the *generic
+hand-rolled* all-ones-clear / zero-mask sequence, which remains unapproved.
 
 ### Class R3: connector role, VBUS, and PHY transition
 
