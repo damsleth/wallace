@@ -10,36 +10,34 @@ operation, bounds, fixture, and recovery behavior are all explicit.
 
 ## Absolute prohibitions
 
-- Never write PMU **voltage/rail** control, charger, battery-management,
-  OTP/fuse, or firmware/flash state through SPMI or any other transport, and
-  never issue a **raw or un-modeled register write to a PMU SID**. The abbey
-  PMIC's register map includes rail control; a wrong-address write can
-  over-volt the SoC, which is permanent silicon damage, not a recoverable
-  state. **Named exception:** the abbey PMU's boot-policy/RTC NVRAM *scratch*
-  cells, addressed only through the upstream `apple,spmi-nvmem` driver's
-  declared `nvmem-layout` and its standard `apple,smc-rtc` / `apple,smc-reboot`
-  consumers (allowlist entry 2 below). Those are bounded scratch cells with no
-  rail/OTP path, are what iBoot and macOS write on every boot, and are the
-  production Asahi RTC/clean-reboot mechanism.
+- **The one permanent-brick vector:** never write a **voltage-rail / regulator
+  control register or an OTP/fuse** on the abbey PMIC (or any PMU), through SPMI
+  or any other transport. An out-of-range rail write is permanent silicon
+  damage, not a recoverable state — it is the only SPMI operation that cannot be
+  undone by DFU or a power cycle. Nothing in the Linux tree issues such a write
+  (the sole abbey driver is nvmem-only, below), which is exactly why the rest of
+  the PMU surface is low-risk; this one line keeps it that way. A deliberate
+  rail/OTP write needs a fresh, exact-register, maintainer-signed exception.
 - Never issue transactions to an unknown endpoint, scan SIDs, blind-probe
   logical registers, or derive a controller address from another SoC.
-- Never issue SPMI `RESET`, `SLEEP`, or `SHUTDOWN` to a PMU SID, or an HPM
-  firmware/update/unlock/flash command.
+- Never issue SPMI `RESET` to a PMU SID (it hard-resets the PMU — a power
+  event), or an HPM firmware/update/unlock/flash command. `SLEEP`/`SHUTDOWN` to
+  a PMU SID need an exact restoration contract first.
 - Never treat a controller-command MMIO write as harmless merely because the
   requested slave operation is a read. Every SPMI read is initiated by a write
   to the controller command FIFO.
 
-The captured J614s ADT keeps the system PMUs on `nub-spmi0`, `nub-spmi1`, and
-`nub-spmi2` (children `spmi-abbeyL1`/`F1`/`F2`, `pmu,abbey`, SID `0x0e`; plus a
-`btm` child on `nub-spmi0`, SID `0x0b`). Of these, **only** the abbey PMU
-reached as a bounded `apple,spmi-nvmem` provider is in scope (entry 2); every
-other access to these controllers — raw register writes to an abbey SID beyond
-the declared nvmem cells, and the `btm` child (battery/thermal management, no
-Linux driver, unidentified) — stays out of scope. `nub-spmi1`/`nub-spmi2`
-(`abbeyF1`/`F2`) have no Linux DT node and no driver, so Linux never touches
-them; they remain prohibited for hand-rolled access. `aop-spmi0`, `nub-spmi3`,
-and `nub-spmi4` are prohibited unless a future policy revision names an exact
-endpoint.
+The PMU SPMI controllers are **enabled** (CJ, 2026-08-19, risk accepted as
+extremely low). The captured J614s ADT keeps the system PMUs on `nub-spmi0`,
+`nub-spmi1`, and `nub-spmi2` (children `spmi-abbeyL1`/`F1`/`F2`, `pmu,abbey`,
+SID `0x0e`; plus a `btm` child on `nub-spmi0`, SID `0x0b`). These controllers
+and their abbey children are **in scope**: they may be described in the DT and
+addressed over SPMI for reads and for the boot-policy/RTC/NVMEM writes the
+standard drivers perform (allowlist entry 2). The bright line is the first
+prohibition above — no rail/OTP register writes. `aop-spmi0`, `nub-spmi3`, and
+`nub-spmi4` remain prohibited unless a future policy revision names an exact
+endpoint; the `btm` child has no Linux driver, so nothing binds it (leave it
+undescribed rather than guess its function).
 
 Why this changed (2026-08-19): the earlier blanket "PMUs completely out of
 scope" was written during blind bring-up, before the transport was understood.
@@ -48,9 +46,10 @@ The abbey PMU is exposed to Linux **only** as an NVMEM provider
 it is not a regulator and has no voltage path), bound to a fixed cell layout
 (`rtc_offset`, `boot_stage`, `boot_error_count`, `panic_count`, `shutdown_flag`,
 `pm_setting`) that only the standard SMC RTC/reboot drivers consume. That is the
-same stack production Asahi runs on every M1/M2 boot. So the bounded nvmem path
-carries no brick risk and is allowed; the danger is raw/un-modeled register
-access to the PMIC (rail control), which stays prohibited.
+same stack production Asahi runs on every M1/M2 boot. CJ's risk acceptance rests
+on that: with no rail-writing code in the tree, enabling the PMU buses adds no
+brick path; the residual severity lives entirely in the one prohibited class of
+register, which is called out above precisely so it stays that way.
 
 ## Current allowlist
 
@@ -93,23 +92,28 @@ cells in scope:  rtc_offset, boot_stage, boot_error_count, panic_count,
                  shutdown_flag  (pm_setting has no consumer and must stay unread)
 ```
 
-Permitted because this is bounded scratch/NVRAM with no rail/OTP path, is the
-production Asahi RTC/clean-reboot mechanism, and its worst-case failure (a
-corrupt boot_stage/shutdown_flag) is DFU-recoverable, not permanent. Bounds:
+The abbey PMU is in scope (CJ, 2026-08-19). The standard-driver path — the
+upstream `apple,spmi-nvmem` provider with the boot-policy/RTC scratch cells,
+consumed by `apple,smc-rtc`/`apple,smc-reboot` — is the immediately-used case
+and is exactly the production Asahi RTC/clean-reboot mechanism; its worst-case
+failure (a corrupt boot_stage/shutdown_flag) is DFU-recoverable, not permanent.
+Bounds that still apply:
 
-- Only via the upstream `apple,spmi-nvmem` provider and the standard SMC
-  consumers — **no** raw/hand-rolled SPMI writes to SID `0x0e`, and no access to
-  any abbey register outside the declared nvmem cells (rail control lives there).
-- **Read-before-write validation (required).** The cell *offsets* were
-  project-measured on this PMIC generation, not inherited from M1/M2. Before any
-  Linux-initiated write path (a `apple,smc-reboot` shutdown/reboot) is exercised
-  in an experiment, the attended operator must confirm the probe-time **reads**
-  are sane (`boot_stage` a small integer, `panic_count` small, `rtc_offset`
-  plausible). A wrong offset means a write would poke an unknown abbey register;
-  the reads validate the offsets, and only then may the write path be trusted.
-- `nub-spmi1`/`nub-spmi2` (`abbeyF1`/`abbeyF2`) are **not** in scope even though
-  they share SID `0x0e`: they have no Linux DT node and no driver. Do not add
-  DT nodes for them.
+- **The one hard line:** no voltage-rail/regulator or OTP/fuse register write
+  (first prohibition, top of doc). Everything else on the abbey — reads, and
+  the NVMEM/boot-policy writes — is permitted. Nothing in the tree issues a rail
+  write today; keep it that way.
+- **Read-before-write validation (required for the write path).** The cell
+  *offsets* were project-measured on this PMIC generation, not inherited from
+  M1/M2. Before a Linux-initiated write path (an `apple,smc-reboot`
+  shutdown/reboot) is first exercised, the attended operator must confirm the
+  probe-time **reads** are sane (`boot_stage` a small integer, `panic_count`
+  small, `rtc_offset` plausible). A wrong offset means a write would poke an
+  unknown abbey register; the reads validate the offsets, and only then may the
+  write path be trusted. `pm_setting` has no consumer — leave it unread/unwritten.
+- `nub-spmi1`/`nub-spmi2` (`abbeyF1`/`abbeyF2`) are in scope on the same terms
+  but have no Linux DT node or driver today, so nothing reaches them; describe
+  them in the DT only if a real consumer needs them.
 
 ### The two captured ADTs (topology verified identical)
 
