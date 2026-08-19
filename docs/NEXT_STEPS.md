@@ -180,30 +180,40 @@ Any live attempt stays limited to the approved volatile HIDF blob
 
 ## 6. USB host/VBUS (active)
 
-Tickets: **108** (enumeration, ran 2026-08-04), **231** (gap analysis),
+Tickets: **108** (enumeration re-run, staged), **303** (v2 rebuild, built),
+**231** (PD driver, reviewed), **229** (R0 connector read, attended-only),
 **109+** (block read-only and beyond, blocked)
 
-Two independent blockers are now precisely identified:
+Both blockers identified on 2026-08-04 are now solved offline; what remains
+is review and rig time:
 
-1. **dwc3 core init fails** on the right port with the Jul-29
-   `usb2-native-right` image pair: `dwc3-apple 392280000.usb: error -EINVAL:
-   failed to initialize core` — *earlier* than the 2026-07-21 smoke, which
-   reached xHCI root hubs. Suspected kernel/DTB mismatch (the image may lack
-   the matching eUSB2-native patch; `PHY_APPLE_ATC` is not set and `atc.c` is
-   M1-only). Next: root-cause the `-EINVAL` offline, then stage a matched
-   kernel+DTB pair.
-2. **VBUS has no owner:** ticket 231 refuted the CD321x/I2C plan — all four
-   PD controllers are SPMI `usbc,sn201202x,spmi` (hpm0/1 under `nub-spmi-a0`,
-   hpm2/5 under `nub-spmi-a1`) and no driver for that part exists in the
-   tree. The SPMI controller driver itself works. A bus-powered stick (and
-   equally a self-powered device, which must see VBUS before applying its
-   pull-up) cannot attach until VBUS is sourced.
+1. **dwc3 `-EINVAL` — root-caused and fixed.** v1 of the PHY slice could
+   never be powered on through dwc3's probe ordering; v2 (`b7f02c3c…`,
+   independently reviewed) fixes the probe default. Ticket 303 rebuilt the
+   Jul-29 integrated profile with only that change:
+   `Image-usb2-native-right-v2phy.buildB` (`80248306…`), config
+   byte-identical to the Jul-29 pin, two fresh-tree builds byte-identical,
+   preflight OK. **Next: exact binary review by a non-builder (fable
+   built), then re-run 108** with that image, the regenerated
+   `wifi-usb2-native-right` DTB (`6df8af39…`), the sdroot-hardened
+   initramfs, `maxcpus=1`. Expectation: xHCI root hubs; a child on the
+   bus-powered S128 stick only if VBUS is already live.
+2. **VBUS — driver written and reviewed, gated on CJ.** The tps6598x SPMI
+   transport (231, `77fd00b`) reuses the whole tipd state machine over a
+   paged select/window regmap bus matching the m1n1-live-proven protocol;
+   the exact-source review
+   (`evidence/2026-08-18-t6040-tps6598x-spmi-review.md`) found it sound and
+   enumerates the sign-off table — probe = WAKEUP + reads + SSPS→S0, plus
+   two new classes: `INT_MASK1` (0x16) write at probe, W1C `INT_CLEAR1`
+   (0x18) per event. A draft DT connector node exists
+   (`dts/t6040-j614s-dcuart-usb2-native-right-pd.dts`, hpm2 only,
+   compile-validated, not runnable).
 
-Per CJ's standing scope, the VBUS path is **offline R3 design first, then CJ
-sign-off** of the exact SPMI transaction sequence before anything runs.
-SPMI stays deny-by-default under `SPMI_SAFETY.md`; the only touched endpoint
-remains right-port `hpm2`, and R0 connector-state reads (229) inform the
-design.
+CJ's gates, in order: sign off the SPMI envelope table; attended R0
+connector-state read (229) to learn whether the right port already sources
+VBUS; then the PD-enabled image goes through the normal build/review cycle.
+SPMI stays deny-by-default under `SPMI_SAFETY.md`; the only described
+endpoint is right-port `hpm2`.
 
 ## 7. Parked tracks
 

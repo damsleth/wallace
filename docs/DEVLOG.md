@@ -287,7 +287,18 @@ the discipline around them.
   **before** the VBUS question: `dwc3-apple 392280000.usb: error -EINVAL:
   failed to initialize core` with the Jul-29 `usb2-native-right` image pair —
   a regression relative to the 2026-07-21 smoke, which reached xHCI root
-  hubs. Suspected kernel/DTB mismatch; root-cause offline before rerunning.
+  hubs. Root cause (2026-08-04): v1 of the PHY slice defaulted to
+  `PHY_MODE_INVALID`, and no dwc3 path can deliver `set_mode` before
+  `power_on` — the Jul-21 smoke worked only because its DTB had no `phys=`
+  at all. Fixed in v2 (probe defaults to host; independently reviewed).
+- The v2 re-run artifact is built and reproduced (303, 2026-08-18):
+  `Image-usb2-native-right-v2phy.buildB` `80248306…`, config byte-identical
+  to the Jul-29 pin, two fresh-tree builds byte-identical. Awaiting
+  non-builder binary review, then the 108 re-run.
+- The tps6598x SPMI transport (231) passed exact-source review 2026-08-18;
+  a draft hpm2-only connector DT exists. Both gated on CJ signing off the
+  enumerated SPMI envelope (WAKEUP/reads/SSPS→S0 + INT_MASK1 write at
+  probe + INT_CLEAR1 W1C per event) and an attended run.
 
 ## Corrections and dead ends
 
@@ -349,6 +360,7 @@ Do not repeat these without new evidence:
 | 2026-08-02 | SD read/write persistence and corrected trackpad reset attribution |
 | 2026-08-03 | One-core SD root reaches ttydc0/OpenRC; controlled two-core page-copy reproducer established; the barrier bisect refuted the ordering hypothesis, pointing at page lifetime or TLB invalidation |
 | 2026-08-04 | SD-root daily-driver baseline (Xorg/i3, WiFi, Norwegian layouts, self-healing card); **trackpad transport fixed live** — the v2 interface power request is accepted, firmware consumed, `Touch MT ready` (230); right-port USB regressed to a dwc3 core-init `-EINVAL` (108) and the PD controllers were identified as driverless SPMI `sn201202x` (231) |
+| 2026-08-18 | USB lane fully staged offline: dwc3 `-EINVAL` root cause (v1 phy-mode ordering) fixed and reviewed; the v2phy re-run image built and byte-reproduced fresh-vs-fresh (`80248306…`, 303) — the two-build protocol caught a real one-byte stale object in a reused dir; tps6598x SPMI transport passed exact-source review; draft hpm2-only PD connector DT compiled; everything now waits on binary review, CJ's SPMI-envelope sign-off, and rig time |
 
 Detailed transcripts, hashes, retractions, and per-experiment stop conditions
 remain in dated files under `evidence/` and in Git history.
