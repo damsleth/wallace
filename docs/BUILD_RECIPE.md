@@ -165,6 +165,15 @@ understood.
 - **The kbuild container clone must be synced** (`git fetch`, `reset --hard`,
   `clean -qfd`) or cherry-picks never reach the binary. Assert the driver is
   actually present in the built Image afterwards.
+- **Never reuse a BUILD_DIR across kbuild-script versions or patch-set
+  changes.** `git clean -qfd` does *not* remove gitignored files, so build
+  objects survive the reset — and a source file reverted by `reset --hard`
+  can leave a stale object that escapes make's dependency check. Found
+  2026-08-18: an Image built in a reused dir differed from a fresh-clone
+  build by one code byte inside `brcmf_inform_bss` (a leftover of a patch
+  the older script never applies) plus the 20-byte build ID. The two-build
+  reproducibility protocol caught it; fresh-vs-fresh is the only pair that
+  counts.
 - **`make olddefconfig` demotes/drops a `=y` symbol a later block re-disables,
   so config that must survive it is re-applied *after* olddefconfig** and then
   hard-asserted (`WIFI_ASSERT_AFTER_OLDDEFCONFIG`, `SD_GL9755_ASSERT_*`, and
