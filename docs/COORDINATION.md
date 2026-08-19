@@ -30,11 +30,10 @@ another live session is using; set `RIG_AGENT` to your own handle.
 | **claude** | **odd** (…, 227, 229, 231) |
 | **sol** | **even** (…, 228, 230, 232) |
 | **fable** | **300+ block**, any parity, stated explicitly in the description |
-| **opus** | lane **unassigned pending CJ** — until then, use the 300+ block, state the seq explicitly, and check it is free (and not fable's) immediately after `queue add` |
+| **opus** | **400+ block** (CJ, 2026-08-19), any parity, stated explicitly in the description |
 
 The odd/even split was CJ's ruling after three collisions in one session; the
-extra agents need their own range rather than a parity they would share. `opus`
-does not yet have a distinct number lane — coordinate before allocating.
+extra agents need their own range rather than a parity they would share.
 
 ## Scope of the lease
 
