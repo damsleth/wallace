@@ -13,12 +13,18 @@ slice (`b7f02c3c…`, the dwc3 `-EINVAL` fix, reviewed in
    fail-closed gate rejected it. The authoritative flag set lives in
    `evidence/2026-07-29-t6040-integrated-wifi-bt-usb2-dualmode-candidate.md`.
 2. **Today's kbuild script produces a different kernel for the same flags.**
-   Two weeks of deliberate script evolution (Bluetooth for the OBEX track,
-   NVMe built-in, cfg80211/mac80211 =y) means "same flags, current script"
-   yields a superset config — a much larger review delta, and NVMe in the
-   run image is an active hazard to the 108 observation (ticket 227's dead-
-   controller teardown kills all block I/O). Caught by ticket 303's config
+   Measured against the true Jul-29 baseline (`221666c6`), the current
+   script's config drifts by 23 lines, and the substance is **=m → =y
+   promotions**: `NVME_CORE`/`BLK_DEV_NVME`/`NVME_APPLE`, `SPMI_APPLE`, and
+   `NVMEM_APPLE_SPMI` all become built-in. NVMe **linked into the Image** is
+   an active hazard to the 108 observation (ticket 227's dead-controller
+   teardown kills all block I/O), and a built-in Apple SPMI controller would
+   let the new wifi.dts SPMI nodes probe. Caught by ticket 303's config
    byte-identity gate before any artifact was kept.
+   *(Corrected 2026-08-19 per the binary review's F1: an earlier revision
+   of this section blamed "Bluetooth added, NVMe built-in vs none" — that
+   was read off a diff against the clobbered Aug-4 config. BT=y was already
+   in the Jul-29 baseline, and the baseline's NVMe is `=m`, not unset.)*
 
 **Resolution:** build with the Jul-29 script itself —
 `scripts/t6040-kbuild.sh` at wallace commit `11f2547` ("integration: retain
@@ -61,15 +67,25 @@ frozen copy (`.xz`, `.build1`) are.**
 
 1. The v2 PHY slice hunk (probe default `PHY_MODE_USB_HOST` + comment).
 2. `arch/arm64/kernel/traps.c` (+5 lines, the 205-track oops improvement —
-   the only compiled-in kernel-tree change since Jul 29; the other tree
-   delta, `drivers/nvme/host/apple.c`, is **not compiled** under this
-   config: `# CONFIG_BLK_DEV_NVME is not set`).
+   the only kernel-tree change since Jul 29 that reaches the Image; the
+   other tree delta, `drivers/nvme/host/apple.c`, is compiled only into
+   `nvme-apple.ko` (`CONFIG_NVME_APPLE=m`), which is **absent from the
+   Image** (0 matching System.map symbols) and can never load — these
+   images have no module loading. *(Wording corrected 2026-08-19, F1: the
+   baseline has NVMe `=m`, not "not set".)*
 3. The version string's git sha (`-g4f2429104009` vs `-g298e42e8f64d`).
 
 ### Config gate
 
 Build A's generated `.config` is **byte-identical** to the pinned Jul-29
-baseline `221666c6…` — the profile is exact, no BT, no NVMe, no drift.
+baseline `221666c6…` — the profile is exact, zero drift. To state the
+baseline's contents correctly (F1): `BT=y` (part of the proven Aug-4-booted
+baseline, orthogonal to the USB observation); NVMe, `SPMI_APPLE`,
+`PWM_APPLE` and `NVMEM_APPLE_SPMI` are all `=m` — compiled as modules,
+**absent from the Image** (0 System.map symbols each), and unloadable in
+these images. Inert at runtime because the controllers cannot enter the
+running kernel, not because the subsystems are unbuilt (`SPMI=y`, `PWM=y`,
+`RTC_DRV_MACSMC=y` cores are in).
 
 ### DTB for the re-run
 
@@ -80,8 +96,11 @@ are unchanged since Jul 29; the included `t6040-j614s-dcuart-wifi.dts`
 gained 44 lines (SPMI RTC node, keyboard-backlight pwm-leds, internal NVMe
 node — the daily-driver v2/v3 work), and the delta contains **zero**
 `usb|dwc3|atcphy|phy` tokens. Under this image's config every one of those
-new nodes is driverless (no SPMI, no PWM, no NVMe support built) and
-therefore inert. Pin for the re-run: `6df8af39…`.
+new nodes is inert at runtime: their controllers (`SPMI_APPLE`,
+`PWM_APPLE`, `NVME_APPLE`, `NVMEM_APPLE_SPMI`) are `=m`, absent from the
+Image (0 System.map symbols, verified in the binary review), and these
+images cannot load modules — so no Apple SPMI bus ever instantiates and
+the nodes cannot probe. Pin for the re-run: `6df8af39…`.
 
 ## Artifacts — buildB/buildC are the deliverable; buildA is disqualified
 
