@@ -98,6 +98,56 @@ Approved follow-ons **213** (i3 desktop on the SD root) and **214**
 (WiFi/sshd/ntpd autostart, removing the serial tether) continue this track
 once 215/216 restore a clean root.
 
+## 2a. Stable enrolled SD stage 2 (active, offline-first)
+
+Tickets: **3010** (architecture, done), **3011** (PCIe/SD ownership, done), **3012**
+(one-shot proxy cookie), **3013** (SD U-Boot), **3014** (bundle tooling),
+**3015/3016** (compose + independent review), **3017** (read-only tethered
+first light), **3019** (physical-media preflight). Ticket **3018** adds USB
+only after the VBUS track has a bounded result; **3020** packages and validates
+the exact Linux handoff on a synthetic FAT image.
+
+The target is:
+
+```text
+iBoot -> enrolled aligned m1n1 -> short DTR proxy window -> U-Boot
+                                                        |-> SD -> Linux
+                                                        |-> USB -> Linux later
+                                                        `-> no media -> warm reboot -> Running proxy
+```
+
+The architectural contract is
+[recorded here](../evidence/2026-08-19-t6040-removable-stage2-architecture.md).
+The enrolled object changes rarely; Image, J614s DTB, initramfs and their
+manifest are the daily files. SD comes first. The current card's outer exFAT
+filesystem is not a U-Boot boot filesystem, and nothing here authorizes
+repartitioning it. Ticket 3019 must prefer a separately identified development
+card or stop for an exact maintainer choice.
+
+Do next, entirely offline:
+
+1. Implement and host-test the clear-before-use, one-shot warm-RAM proxy reason
+   (3012). Do not use NVRAM or invent a direct return from U-Boot.
+2. Apply ticket 3011's resolved boundary while building the SD target (3013):
+   m1n1 performs exact `gP19` power and the one common-PHY/link initialization;
+   U-Boot attaches only if the link is already up and owns DART1/PCI/MMC above
+   it. Link-down must not trigger a second port setup.
+3. Build the SD-only U-Boot target twice, then build and independently review
+   the aligned composed object (3013, 3015, 3016).
+4. Build the board-bound FAT32/FIT-or-manifest tooling on synthetic images
+   (3014). The daily profile stays `maxcpus=1`, ANS/NVMe disabled, trackpad
+   enabled, and Norwegian-layout compliant. Ticket 3020 then validates the
+   exact `booti` handoff and daily bundle without touching a card.
+5. Only then propose 3017 for cross-review and approval. It chainloads while the
+   rollback remains enrolled, reads only PCI/MMC/GPT identity from SD64, and is
+   expected to warm-reboot once back to the enrolled proxy because no valid FAT
+   bundle exists.
+
+Pass for this phase: one reviewed tethered run proves the GL9755/MMC path and a
+clean return to the enrolled rollback proxy, with no media write or enrollment.
+Physical bundle installation and untethered enrollment get separate tickets
+only after an exact removable target and hashes exist.
+
 ## 3. Isolate the Linux NVMe CQ-wrap assert
 
 Current facts:
@@ -202,9 +252,9 @@ stays deny-by-default; the only described PD endpoint is right-port `hpm2`.
 
 - **GPU:** wait for a maintainer-endorsed T6040/G16 kernel, firmware ABI, m1n1,
   and Mesa stack. Do not relabel G14 support.
-- **Standard stage 2:** ticket 191 may compare SD and NVMe storage designs
-  offline. U-Boot lacks exFAT support, so SD stage 2 would require a FAT32
-  partition; do not repartition the fixture without CJ.
+- **Internal-NVMe stage 2:** ticket 191 remains a separate parked design. It is
+  not the active removable SD-first path and remains blocked by the NVMe fault
+  track.
 - **Audio, camera, suspend, cpuidle, panel backlight:** retain as roadmap work;
   none blocks the current SD-root milestone.
 

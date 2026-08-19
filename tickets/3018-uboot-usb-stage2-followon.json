@@ -1,0 +1,17 @@
+{
+  "seq": "3018",
+  "slug": "uboot-usb-stage2-followon",
+  "needs": "offline",
+  "state": "open",
+  "track": "boot",
+  "priority": "P2",
+  "desc": "Extend the SD-first loader to USB mass storage only after Linux ticket 305 establishes the exact safe right-port VBUS/PD transition. Grounding: completed ticket 128's USB-oriented U-Boot target, NEXT_STEPS §6, ROADMAP §§B/D, and ticket 3010. Audit whether the proven transition belongs before U-Boot in m1n1 or in a narrowly ported U-Boot driver; draft the exact hpm2-only implementation and teardown/ownership contract, reuse the same bundle validator, and keep all work [UPSTREAM]-shaped where it touches upstream-owned ATC PHY tunables. Do not assume Linux driver state survives, generalize to other HPM/SIDs, guess ATC offsets, or run the rig; close no-go if 305 does not yield a bounded safe contract.",
+  "author": "sol",
+  "deps": [
+    "128",
+    "3010",
+    "305"
+  ],
+  "hashes": null,
+  "created": 1787149254
+}

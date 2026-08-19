@@ -1,0 +1,16 @@
+{
+  "seq": "3011",
+  "slug": "uboot-sd-ownership-audit",
+  "needs": "offline",
+  "state": "done",
+  "track": "boot",
+  "priority": "P0",
+  "desc": "Audit and decide the single-owner handoff for T6040 PCIe port 1, DART1, GL9755 SDHCI, clocks/resets, and the permitted gP19 endpoint-power GPIO before m1n1 enters U-Boot. Grounding: completed ticket 128, ROADMAP §§B/D/H, the GL9755 wiring in dts/t6040-j614s-dcuart-pcie.dts, and the PCIe double-initialization/SError correction recorded in DEVLOG. Trace current m1n1 pcie_init/shutdown and U-Boot pcie_apple/pci_mmc paths; deliver an ADT/DTS-derived register/resource matrix, a no-double-init contract, and narrowly scoped patch drafts or a no-go. No rig, blind MMIO, SPMI, or unallowlisted SMC writes.",
+  "author": "sol",
+  "deps": [
+    "3010"
+  ],
+  "hashes": null,
+  "created": 1787149187,
+  "done_at": 1787149683
+}

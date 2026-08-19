@@ -115,6 +115,12 @@ the discipline around them.
 - Alpine and Ubuntu RAM roots boot untethered.
 - The dual-mode loader provides a short USB-serial window and otherwise boots
   normally.
+- A T6040 U-Boot Image has already been entered through m1n1. The handoff armed
+  m1n1's 20-second watchdog; the WDT-less U-Boot candidate then warm-reset back
+  to the enrolled proxy exactly as intended (ticket 131,
+  `evidence/2026-07-25-t6040-uboot-stage2-banner-result.md`). This is a proven
+  recovery backstop for future removable stage-2 first lights, not yet a
+  no-media selection protocol.
 
 ### Display and keyboard
 
@@ -194,6 +200,14 @@ the discipline around them.
 - Apple firmware reports BSS-info version 116; the Wallace patch accepts it.
 - WiFi association, DHCP, routed traffic, and Bluetooth `hci0` are proven.
 - GL9755 enumerates on PCIe port 1.
+- **m1n1 PCIe initialization is once per power cycle, not once per m1n1
+  instance.** Ticket 168 ran `pcie_init()` through the proxy and then entered a
+  chainloaded m1n1 whose kboot path ran it again; the second initialization
+  synchronously aborted at `0x41705a000` in the port-2 PHY-IP window and
+  rebooted. A clean-boot retry worked. The in-instance `pcie_initialized` flag
+  cannot protect across chainloads. Therefore an SD-capable U-Boot may not
+  blindly run its active Apple PCIe setup after the current m1n1 kboot handoff;
+  the stage boundary must assign the reset/PHY sequence to one owner.
 
 ### SD
 

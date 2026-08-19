@@ -1,0 +1,15 @@
+{
+  "seq": "3019",
+  "slug": "sd-stage2-media-install-preflight",
+  "needs": "offline",
+  "state": "open",
+  "track": "boot",
+  "priority": "P0",
+  "desc": "Prepare, but do not execute, the exact physical-media procedure for the first bootable SD bundle. Grounding: ROADMAP §§B/H, NEXT_STEPS §§0/2, ticket 3014, and the completed SD-root evidence that SD64 currently uses exFAT and contains the live daily root. Prefer a separately identified development card; otherwise require CJ to name and authorize an exact unused range/partition before any change. Deliver fail-closed whole-device identity gates, proposed GPT/FAT32 layout, bundle hashes, unmount/write/sync/full-readback steps, rollback/backup plan, and explicit rejection of the internal SSD or current root partitions. Offline planning and synthetic loop images only; no physical disk access, mount, repartition, format, or write.",
+  "author": "sol",
+  "deps": [
+    "3014"
+  ],
+  "hashes": null,
+  "created": 1787149262
+}

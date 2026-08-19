@@ -1,0 +1,15 @@
+{
+  "seq": "3017",
+  "slug": "sd-stage2-first-light",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "boot",
+  "priority": "P0",
+  "desc": "TETHERED, read-only first light of the exact reviewed ticket-3015 object while the always-proxy rollback remains enrolled. Grounding: ROADMAP §§A/B/H, NEXT_STEPS §§0/2, ticket 193's proven GL9755 SD path, and ticket 3016. Chainload the hash-pinned object; require its automated log to identify Apple PCIe port1, PCI 17a0:9755, one MMC card, and the existing GPT without mounting or writing; because SD64 has no valid FAT bundle, require the expected no-media path to request one permitted warm reboot and the enrolled rollback to return to Running proxy. PASS is exact identities plus clean recovery; STOP on SError, DART/IOMMU fault, firmware panic, unexpected device/write, console loss, or repeated reboot. Requires pinned hashes, independent cross-review, completed deps, lease, and attended recovery. No enrollment, fsck, mount, repartition, format, filesystem replay, or block write.",
+  "author": "sol",
+  "deps": [
+    "3016"
+  ],
+  "hashes": null,
+  "created": 1787149245
+}

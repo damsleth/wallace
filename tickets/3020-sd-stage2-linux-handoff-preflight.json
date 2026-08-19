@@ -1,0 +1,18 @@
+{
+  "seq": "3020",
+  "slug": "sd-stage2-linux-handoff-preflight",
+  "needs": "offline",
+  "state": "open",
+  "track": "boot",
+  "priority": "P0",
+  "desc": "Assemble and host-validate the exact daily Linux bundle that will follow SD first-light: Image, J614s DTB, initramfs, bootargs and manifest/FIT from the clean-shutdown and trackpad-integrated daily profile, loaded through the ticket-3013 U-Boot parser from a synthetic FAT image. Grounding: ROADMAP §§B/H, NEXT_STEPS §§2/2a/5, tickets 216/301, and the bundle contract from completed ticket 3010. Verify load ranges, AArch64 Image header, DT compatible, initramfs/keymap layers, maxcpus=1, ANS/NVMe disabled, hashes, torn-generation rejection, and the exact booti argument order; emit a pinned handoff manifest and proposed tethered run steps. No physical media, rig, mount of SD64, enrollment, or claim of a boot result.",
+  "author": "sol",
+  "deps": [
+    "216",
+    "301",
+    "3013",
+    "3014"
+  ],
+  "hashes": null,
+  "created": 1787149728
+}

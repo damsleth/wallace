@@ -1,0 +1,16 @@
+{
+  "seq": "3015",
+  "slug": "sd-stage2-composed-object",
+  "needs": "offline",
+  "state": "open",
+  "track": "boot",
+  "priority": "P0",
+  "desc": "Build the first tethered-only composed candidate from the reviewed m1n1 proxy-cookie path and SD U-Boot target: 16-KiB-aligned m1n1 object with permanent short DTR proxy window, embedded U-Boot, deterministic config, and no Linux payload appended. Grounding: ROADMAP §B, NEXT_STEPS §§0/2, evidence/2026-07-25-t6040-enrolled-payload-rootcause.md's alignment result, and tickets 3012/3013. Two fresh builds must be byte-identical; strict raw-object verifier and image preflight must pass; pin object/member/source/config hashes and prove USB, NVMe, SPMI, interactive U-Boot shell, and unallowlisted writes are absent. It is not enrollable until later independent review and tethered tests.",
+  "author": "sol",
+  "deps": [
+    "3012",
+    "3013"
+  ],
+  "hashes": null,
+  "created": 1787149222
+}

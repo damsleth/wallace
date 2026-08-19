@@ -8,7 +8,7 @@ work and [NEXT_STEPS.md](NEXT_STEPS.md) contains the current order.
 | Stage | State | Remaining boundary |
 |---|---|---|
 | A. Stable proxy and recovery | Complete | Maintain the lease and DebugUSB discipline |
-| B. m1n1 Linux boot | Complete for the current raw-object path | Upstream cleanup and optional standard stage 2 |
+| B. m1n1 Linux boot | Raw-object path complete; removable stage 2 active | SD-capable U-Boot, proxy fallback, reviewed tethered first light |
 | C. Kernel DT and core boot | Functional | MM/SMP stability, cpuidle, upstreaming |
 | D. Local usable machine | Partial | Clean SD-root shutdown, panel backlight, USB-host VBUS (trackpad done 2026-08-19) |
 | E. WiFi and Bluetooth | Functional | Integration and upstreaming |
@@ -29,9 +29,38 @@ object (m1n1 + kernel + DTB + initramfs + bootargs) cold-boots enrolled without
 a tether; builder/verifier enforce 16 KiB total size; a dual-mode loader keeps a
 short DebugUSB window before normal boot.
 
-Optional follow-on (iteration, not a prerequisite): a fail-closed stage-2 loader
-so the enrolled stage changes rarely; compare NVMe vs SD storage. U-Boot does
-not read exFAT, so SD stage 2 needs a raw partition or FAT32.
+The active daily-driver target is now a stable removable stage-2 chain:
+
+```text
+iBoot -> enrolled, 16-KiB-aligned m1n1
+          |-> short DTR window -> Running proxy...
+          `-> embedded U-Boot
+                |-> valid SD daily bundle -> Linux
+                |-> valid USB daily bundle -> Linux (later, after VBUS)
+                `-> no valid media -> one-shot RAM reason + warm reboot
+                                      -> enrolled m1n1 -> Running proxy...
+```
+
+SD is first because the GL9755 and Linux SD root are proven. The daily bundle
+is Image + J614s DTB + initramfs + bootargs/manifest, not another enrolled m1n1
+object. The current SD64 outer filesystem is exFAT, which U-Boot does not read;
+a separately identified card or explicitly authorized small FAT32 boot
+partition is required before a physical-media write. No such write is implied
+by this roadmap.
+
+The early DTR window remains a permanent recovery edge. U-Boot does not return
+directly to m1n1; no-media fallback uses a versioned, one-shot cookie in
+reserved normal RAM and the permitted warm reboot so iBoot re-enters the
+enrolled m1n1 normally. PCIe/DART/GL9755 initialization must have exactly one
+owner. Ticket 3011 resolved that handoff: m1n1 powers the SD endpoint through
+the exact approved `gP19`, initializes the common PHY/link once, and U-Boot may
+only attach to an already-up link while owning DART1/PCI/MMC above it.
+
+Tickets 3010-3020 own the architecture, ownership audit, proxy cookie, SD
+U-Boot target, bundle tooling, composed-object review, read-only tethered first
+light, later USB extension, physical-media preflight, and the exact Linux
+handoff bundle. The full design and failure edges are recorded in
+[the removable stage-2 architecture](../evidence/2026-08-19-t6040-removable-stage2-architecture.md).
 
 ## C. Kernel and board description
 
@@ -99,8 +128,14 @@ baseline is for bring-up, not a finished power model.
 
 ## H. Persistent distro
 
-Architecture: enrolled raw m1n1 stage → small switch-root initramfs → exFAT SD
-partition holding `wallace-root.img` → ext4 loop image as the Alpine root.
+Current architecture: enrolled raw m1n1 stage → small switch-root initramfs →
+exFAT SD partition holding `wallace-root.img` → ext4 loop image as the Alpine
+root.
+
+Target architecture: the stable enrolled m1n1 delegates normal boot to the
+removable stage-2 chain in §B. The Linux bundle may live on a small FAT32 boot
+partition while the existing exFAT + ext4-loop root layout remains unchanged.
+This separates frequent kernel/DT/initramfs updates from 1TR enrollment.
 
 Verified: SD read/write/sync/persistence, loop mount + `switch_root`, and
 ttydc0/OpenRC from the SD root at `maxcpus=1` with writes persisting across

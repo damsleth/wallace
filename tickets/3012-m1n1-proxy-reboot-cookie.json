@@ -1,0 +1,15 @@
+{
+  "seq": "3012",
+  "slug": "m1n1-proxy-reboot-cookie",
+  "needs": "offline",
+  "state": "open",
+  "track": "boot",
+  "priority": "P0",
+  "desc": "Implement and host-test the no-media fallback contract in m1n1: U-Boot writes a versioned, checksummed, one-shot reason cookie in an explicitly reserved normal-RAM range and requests only the permitted smc_reboot; the next enrolled m1n1 validates and clears it before payload selection, prints Running proxy..., and enters uartproxy. Grounding: ROADMAP §A/B, NEXT_STEPS §0's always-proxy recovery rule, evidence/2026-07-25-t6040-enrolled-payload-rootcause.md's observed warm-RAM survival, and ticket 3010. Deliver m1n1/U-Boot headers, linker/DT reservation proof, cold/default/corrupt/replay unit tests, and fail-open-to-early-DTR recovery semantics. No NVRAM, PMU, charger, firmware, SPMI, rig, or claim that direct U-Boot return is supported.",
+  "author": "sol",
+  "deps": [
+    "3010"
+  ],
+  "hashes": null,
+  "created": 1787149196
+}

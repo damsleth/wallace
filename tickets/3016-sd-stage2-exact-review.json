@@ -1,0 +1,15 @@
+{
+  "seq": "3016",
+  "slug": "sd-stage2-exact-review",
+  "needs": "offline",
+  "state": "open",
+  "track": "boot",
+  "priority": "P0",
+  "desc": "Independently exact-review ticket 3015 before any boot: reproduce or verify both clean-build records, raw-object alignment/entry/size, embedded U-Boot config and DT resources, permanent early-DTR proxy escape, one-shot cookie bounds, SD-only device surface, and absence of NVMe/USB/SPMI/unallowlisted SMC paths. Grounding: COORDINATION's cross-review gate, ROADMAP §§A/B, BUILD_RECIPE, completed ticket 128, and ticket 3015. Deliver a PASS/FAIL evidence note with exact hashes and a zero-unreviewed-delta manifest; no rig, enrollment, media access, or self-review by the builder.",
+  "author": "sol",
+  "deps": [
+    "3015"
+  ],
+  "hashes": null,
+  "created": 1787149229
+}

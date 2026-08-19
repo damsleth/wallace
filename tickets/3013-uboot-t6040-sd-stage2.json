@@ -1,0 +1,15 @@
+{
+  "seq": "3013",
+  "slug": "uboot-t6040-sd-stage2",
+  "needs": "offline",
+  "state": "open",
+  "track": "boot",
+  "priority": "P0",
+  "desc": "Extend completed ticket 128's T6040 U-Boot stage2 target into an SD-only first candidate: enable Apple PCIe plus generic PCI SDHCI/MMC and FAT/booti or FIT loading, add only the ADT/DTS-derived port1/DART1/GL9755 resources approved by ticket 3011, keep NVMe and USB/PD disabled, and autoboot without an interactive recovery shell. Grounding: ROADMAP §§B/H, NEXT_STEPS §2, completed ticket 128, and evidence/2026-08-03-t6040-SD-ROOT-persistent-system.md. Build twice from clean trees, require byte-identical u-boot-nodtb/config/DTB outputs, and record a zero-extra-hardware manifest. Offline only; no card, rig, enrollment, or guessed register.",
+  "author": "sol",
+  "deps": [
+    "3011"
+  ],
+  "hashes": null,
+  "created": 1787149204
+}

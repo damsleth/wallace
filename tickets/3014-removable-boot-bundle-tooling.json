@@ -1,0 +1,16 @@
+{
+  "seq": "3014",
+  "slug": "removable-boot-bundle-tooling",
+  "needs": "offline",
+  "state": "open",
+  "track": "boot",
+  "priority": "P0",
+  "desc": "Define and implement host-only tooling for an atomic T6040 removable-media daily bundle: small FAT32 boot partition or dedicated development card, board-bound manifest/FIT containing Image+J614s DTB+initramfs+bootargs, SHA-256s, size bounds, generation/rollback metadata, and deterministic update/readback verification. Grounding: ROADMAP §§B/H, NEXT_STEPS §§2/5, ticket 3010, and the completed SD-root finding that the current SD64 outer filesystem is exFAT, which U-Boot cannot load. The produced daily profile must retain maxcpus=1, ANS/NVMe disabled, trackpad integration from 301, and Norwegian layout checks. Deliver tooling and synthetic-image tests only; do not inspect, repartition, format, mount, or write any physical card.",
+  "author": "sol",
+  "deps": [
+    "3010",
+    "301"
+  ],
+  "hashes": null,
+  "created": 1787149212
+}

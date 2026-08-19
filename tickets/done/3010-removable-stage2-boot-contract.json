@@ -1,0 +1,16 @@
+{
+  "seq": "3010",
+  "slug": "removable-stage2-boot-contract",
+  "needs": "offline",
+  "state": "done",
+  "track": "boot",
+  "priority": "P0",
+  "desc": "Define the fail-closed iBoot -> 16-KiB-aligned enrolled m1n1 -> early DTR proxy window -> embedded U-Boot -> SD-first daily bundle architecture, with USB later and no-valid-media one-shot warm-reboot-to-Running-proxy behavior. Grounding: ROADMAP §§B/H, NEXT_STEPS §§0/2/5/7, completed ticket 128 (U-Boot stage2 prep), and evidence/2026-08-03-t6040-SD-ROOT-persistent-system.md. Deliver an evidence-backed state machine, bundle/media contract, recovery invariants, and component ownership table; explicitly reject direct U-Boot-to-m1n1 return, exFAT boot assumptions, NVRAM persistence, blind MMIO, and enrollment before tethered review. Extend rather than duplicate ticket 191's internal-NVMe design.",
+  "author": "sol",
+  "deps": [
+    "128"
+  ],
+  "hashes": null,
+  "created": 1787149178,
+  "done_at": 1787149508
+}
