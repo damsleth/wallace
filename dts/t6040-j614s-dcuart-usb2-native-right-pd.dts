@@ -75,13 +75,20 @@
 	 * reg[0] = 0x309198000/0x4000. Same programming model as nub_spmi0
 	 * (t6040.dtsi), which the apple,spmi driver already handles.
 	 */
+	/*
+	 * RUN-5 DISCRIMINATOR (ticket 305): the a1 controller is temporarily
+	 * DISABLED. Runs 1-4 hang at tps6598x_module_init; with no SPMI PD
+	 * device to probe, a fifth hang would prove the module init itself is
+	 * at fault, while a clean boot proves the a1 access is the trigger.
+	 * Re-enable for the real experiment once the stall is understood.
+	 */
 	nub_spmi_a1: spmi@309198000 {
 		compatible = "apple,t6040-spmi", "apple,spmi";
 		reg = <0x3 0x09198000 0x0 0x4000>;
 		power-domains = <&ps_nub_spmi_a1>;
 		#address-cells = <2>;
 		#size-cells = <0>;
-		status = "okay";
+		status = "disabled";
 
 		/* ADT /arm-io/nub-spmi-a1/hpm2 — the RIGHT Type-C port. */
 		hpm2: usb-pd@c {
