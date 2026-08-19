@@ -1,0 +1,19 @@
+{
+  "seq": "305",
+  "slug": "right-pd-vbus-live",
+  "needs": "rig",
+  "state": "building",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "ATTENDED live run of the reviewed tps6598x SPMI PD driver on right-port hpm2: does Linux-managed PD (probe = WAKEUP + reads + SSPS-to-S0, port configured source/host) source VBUS so the confirmed-seated S128 stick enumerates on the already-verified xHCI root hubs (108)? GATES ALL MET: driver exact-source review (evidence/2026-08-18-t6040-tps6598x-spmi-review.md), CJ signed off the enumerated SPMI envelope 2026-08-19 in session (WAKEUP + reads + SSPS-S0 + INT_MASK1 write at probe + W1C INT_CLEAR1 per event, hpm2 ONLY via the DT gate), CJ present for the attended run, S128 confirmed seated, no-VBUS baseline established by the 108 re-run same day. FIXTURE: kernel = current kbuild script, integrated USB2-native profile + T6040_TYPEC_PD=1 (SPMI_APPLE=y so the bus instantiates -- this is the deliberate, signed-off difference from every previous image); DTB = t6040-j614s-dcuart-usb2-native-right-pd.dts (draft of e272cba + ans_nvme status=disabled override, because this kernel has NVMe=y and 227's teardown must not fire mid-experiment); initramfs-sdroot-hardened; maxcpus=1. Hashes pinned here after the build; exact binary review by a non-builder (opus/CJ) before boot. PROCEDURE: chainload, then from the ttydc0 shell capture dmesg for tps6598x-spmi probe (expect: WAKEUP, S0, VID/status reads, typec port registered, 500ms polling -- no IRQ in the DT by design), /sys/class/typec state, then watch /sys/bus/usb/devices for the S128 child; 10 s persistence + read-only identification ONLY (lsusb-level; NO mount, NO block read -- that is ticket 109). PASS = tps6598x binds hpm2 and reports sane status AND the S128 child enumerates and persists 10 s. PARTIAL = driver binds + sane status but no VBUS/child (then the gap is port config/PP_5V0 policy -- next decode target, do NOT poke 4CCs ad hoc). FALSIFIERS: probe -EIO on first select = paged regmap bus wrong (encoding), retcode !CMD on SSPS = command path wrong, DART/SError = stop. STOP on SError, DART fault, firmware panic, unexpected reset, console loss, any SPMI error outside the envelope, or any sign of a write beyond the signed-off set. RECOVERY: sanctioned warm reboot; everything volatile; the PD controller power-cycles back to its firmware defaults. NUMBERING NOTE: seq 305 in fable's declared 300+ block.",
+  "author": "fable",
+  "deps": [
+    "303"
+  ],
+  "created": 1787133008,
+  "evidence": [
+    "evidence/2026-08-18-t6040-tps6598x-spmi-review.md",
+    "evidence/2026-08-04-t6040-tps6598x-spmi-transport.md",
+    "evidence/2026-08-19-t6040-usb2-v2phy-rerun-root-hubs-restored.md"
+  ]
+}

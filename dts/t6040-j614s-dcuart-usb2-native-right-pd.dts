@@ -41,6 +41,17 @@
 #include "t6040-j614s-dcuart-wifi-usb2-native-right.dts"
 #include <dt-bindings/spmi/spmi.h>
 
+/*
+ * The PD-capable kernel is built by the current kbuild script, whose
+ * integrated profile promotes NVMe to =y (daily-v3). Ticket 227's
+ * dead-controller teardown kills all block I/O, which must not fire inside
+ * a Type-C PD experiment — force the node off in this fixture regardless
+ * of what the included wifi.dts says.
+ */
+&ans_nvme {
+	status = "disabled";
+};
+
 &soc {
 	/*
 	 * ADT /arm-io/nub-spmi-a1 (compatible aapl,spmi, generation 3),
