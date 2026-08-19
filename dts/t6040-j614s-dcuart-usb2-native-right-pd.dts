@@ -52,6 +52,23 @@
 	status = "disabled";
 };
 
+/*
+ * v2 (2026-08-19, run-1/run-2 hang fix): SPMI controllers need their pmgr
+ * domains. The nub power area is NOT reliably on at boot on T6040 (the
+ * kernel itself logs "always-on domain nub_ocla is not on at boot"), and
+ * neither nub_spmi0 (t6040.dtsi) nor the a1 node below carried
+ * power-domains — so the first spmi-apple MMIO into the ungated AHB hung
+ * the boot silently at ~0.15 s until the watchdog reset (runs 1 and 2,
+ * panel-photo diagnosis). M1 never hit this because its nub domain happens
+ * to be on at boot. v1 of this file called the omission deliberate; that
+ * reasoning ("pd_ignore_unused; m1n1 drove the block bare") was wrong —
+ * pd_ignore_unused only keeps ON domains on, and m1n1 ran with
+ * macOS-warm power.
+ */
+&nub_spmi0 {
+	power-domains = <&ps_nub_spmi0>;
+};
+
 &soc {
 	/*
 	 * ADT /arm-io/nub-spmi-a1 (compatible aapl,spmi, generation 3),
@@ -61,6 +78,7 @@
 	nub_spmi_a1: spmi@309198000 {
 		compatible = "apple,t6040-spmi", "apple,spmi";
 		reg = <0x3 0x09198000 0x0 0x4000>;
+		power-domains = <&ps_nub_spmi_a1>;
 		#address-cells = <2>;
 		#size-cells = <0>;
 		status = "okay";
