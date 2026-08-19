@@ -77,6 +77,28 @@ tk_seqmax() {  # highest seq across active + done + archive (so numbers are neve
   done
   echo "$m"
 }
+tk_agent_base() {  # agent -> per-agent allocation block base (empty => legacy global max+1)
+  # Each agent allocates only inside its own 1000-wide block so concurrent adds
+  # by DIFFERENT agents can never collide. Sub-1000 numbers are the legacy
+  # (pre-2026-08-19) space and are frozen. See docs/COORDINATION.md.
+  case "$1" in
+    fable)  echo 1000 ;;
+    opus)   echo 2000 ;;
+    sol)    echo 3000 ;;
+    terra)  echo 4000 ;;
+    claude) echo 5000 ;;
+    *)      echo ""   ;;
+  esac
+}
+tk_block_max() {  # base -> highest seq already used in [base, base+999] (0 if none)
+  local base="$1" m=0 f b n
+  for f in "$TICKETS_DIR"/*.json "$TICKETS_DONE"/*.json "$TICKETS_ARCHIVE"/*.json; do
+    [ -e "$f" ] || continue
+    b="$(basename "$f")"; n=$((10#${b%%-*}))
+    [ "$n" -ge "$base" ] && [ "$n" -lt "$((base + 1000))" ] && [ "$n" -gt "$m" ] && m=$n
+  done
+  echo "$m"
+}
 tk_deps_done() { # ticket file -> success only when every dependency is in tickets/done
   local f="$1" dep df
   for dep in $(jq -r '.deps[]? // empty' "$f"); do
@@ -239,7 +261,18 @@ cmd_queue() {
         *) shift;;
       esac; done
       [ "$needs" = rig ] || [ "$needs" = offline ] || die "--needs must be rig|offline"
-      local seq state; seq="$(printf '%03d' "$(( $(tk_seqmax) + 1 ))")"
+      # Allocate inside the caller's own block (fable 1000+, opus 2000+, sol
+      # 3000+, terra 4000+, claude 5000+) so different agents never collide.
+      # An unrecognised agent falls back to the legacy global max+1.
+      local seq state base bmax
+      base="$(tk_agent_base "$agent")"
+      if [ -n "$base" ]; then
+        bmax="$(tk_block_max "$base")"
+        [ "$bmax" -lt "$base" ] && seq="$base" || seq="$((bmax + 1))"
+      else
+        seq="$(( $(tk_seqmax) + 1 ))"
+      fi
+      seq="$(printf '%03d' "$seq")"
       [ "$needs" = rig ] && state=proposed || state=open
       local f="$TICKETS_DIR/$seq-$slug.json"
       jq -n --arg seq "$seq" --arg slug "$slug" --arg needs "$needs" --arg state "$state" \

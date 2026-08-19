@@ -25,29 +25,38 @@ another live session is using; set `RIG_AGENT` to your own handle.
 
 ## Ticket numbering
 
-CJ's ruling after three concurrent-allocation collisions in one session (my 199
-became 204, my 215/216 became 218/219). Each agent allocates from its own range:
+**Each agent allocates inside its own 1000-wide block** (CJ, 2026-08-19,
+replacing the earlier odd/even split after it kept colliding). Blocks:
 
-| agent | sequence numbers |
-|---|---|
-| **claude** | **odd** (…, 227, 229, 231) |
-| **sol** | **even** (…, 228, 230, 232) |
-| **fable** | **300+ block**, any parity, stated explicitly in the description |
-| **opus** | **400+ block** (CJ, 2026-08-19), any parity, stated explicitly in the description |
+| agent | block | sequence numbers |
+|---|---|---|
+| **fable** | 1000+ | 1000, 1001, 1002, … |
+| **opus** | 2000+ | 2000, 2001, 2002, … |
+| **sol** | 3000+ | 3000, 3001, 3002, … |
+| **terra** | 4000+ | 4000, 4001, 4002, … |
+| **claude** | 5000+ | 5000, 5001, 5002, … |
+
+Because two agents in different blocks can never land on the same number, this
+removes the collision class the odd/even scheme kept hitting.
 
 Rules:
 
-- Pick the next free number in your own range; never take one belonging to
-  another agent, even if free.
-- Do **not** renumber another agent's existing tickets. Everything already filed
-  keeps its number; the split applies to new tickets only.
-- Reference other agents' tickets freely; the range is an allocation rule, not
+- **`queue add` allocates for you, inside your block.** It reads the caller
+  (`<agent>`, first argument) and picks the next free number in that agent's
+  block — you do not choose the number. An agent name not in the table above
+  falls back to the legacy global `max+1`; use one of the names above.
+- **Sub-1000 numbers are the frozen legacy space.** Every existing ticket keeps
+  its number. Never renumber another agent's ticket; never hand-pick a new
+  sub-1000 number.
+- Reference other agents' tickets freely; the block is an allocation rule, not
   ownership of the work.
-- If you genuinely need a number outside your range (e.g. keeping a related pair
-  adjacent), say so in the description so the exception is visible rather than
-  looking like a collision.
-- `queue add` allocates non-atomically: after every add, verify the reported
-  sequence still contains your slug, and re-add if a concurrent add won the race.
+- Same-agent concurrent adds can still race (two `fable` sessions both computing
+  the same next-in-block). After every add, verify the reported sequence still
+  contains your slug, and re-add if a concurrent add won the race. Distinct
+  agents cannot collide.
+- If you must move a ticket to another number (e.g. resolving a legacy
+  collision), record the reason in the ticket's `ticket_correction` field, as
+  in the 229→307 wifi-ticket renumber.
 
 ## Scope of the lease
 
