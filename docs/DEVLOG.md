@@ -291,10 +291,12 @@ the discipline around them.
   `PHY_MODE_INVALID`, and no dwc3 path can deliver `set_mode` before
   `power_on` — the Jul-21 smoke worked only because its DTB had no `phys=`
   at all. Fixed in v2 (probe defaults to host; independently reviewed).
-- The v2 re-run artifact is built and reproduced (303, 2026-08-18):
-  `Image-usb2-native-right-v2phy.buildB` `80248306…`, config byte-identical
-  to the Jul-29 pin, two fresh-tree builds byte-identical. Awaiting
-  non-builder binary review, then the 108 re-run.
+- The v2 re-run artifact was built and reproduced (303, 2026-08-18;
+  `buildB` `80248306…`), binary-reviewed PASS (2026-08-19), and **run: the
+  v2 fix is verified live** — eUSB2 host sequence complete, dwc3 clean,
+  right xHCI root hubs up and persistent, 0 DART faults, NVMe/SPMI provably
+  absent from the kernel. No child device: VBUS remains the sole gap to
+  enumeration (or the stick left the port; unresolved until CJ looks).
 - The tps6598x SPMI transport (231) passed exact-source review 2026-08-18;
   a draft hpm2-only connector DT exists. Both gated on CJ signing off the
   enumerated SPMI envelope (WAKEUP/reads/SSPS→S0 + INT_MASK1 write at

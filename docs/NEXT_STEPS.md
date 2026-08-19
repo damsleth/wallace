@@ -187,17 +187,15 @@ Tickets: **108** (enumeration re-run, staged), **303** (v2 rebuild, built),
 Both blockers identified on 2026-08-04 are now solved offline; what remains
 is review and rig time:
 
-1. **dwc3 `-EINVAL` — root-caused and fixed.** v1 of the PHY slice could
-   never be powered on through dwc3's probe ordering; v2 (`b7f02c3c…`,
-   independently reviewed) fixes the probe default. Ticket 303 rebuilt the
-   Jul-29 integrated profile with only that change:
-   `Image-usb2-native-right-v2phy.buildB` (`80248306…`), config
-   byte-identical to the Jul-29 pin, two fresh-tree builds byte-identical,
-   preflight OK. **Next: exact binary review by a non-builder (fable
-   built), then re-run 108** with that image, the regenerated
-   `wifi-usb2-native-right` DTB (`6df8af39…`), the sdroot-hardened
-   initramfs, `maxcpus=1`. Expectation: xHCI root hubs; a child on the
-   bus-powered S128 stick only if VBUS is already live.
+1. **dwc3 `-EINVAL` — fixed and VERIFIED LIVE (2026-08-19).** v2 of the PHY
+   slice (`b7f02c3c…`) was rebuilt into the Jul-29 profile (303,
+   `buildB` `80248306…`, binary-reviewed PASS) and re-run: the eUSB2 host
+   sequence completed on first execution, dwc3 probed clean, both right
+   xHCI root hubs up and persistent, zero DART faults
+   (`evidence/2026-08-19-t6040-usb2-v2phy-rerun-root-hubs-restored.md`).
+   **The USB2 data path is done.** No child appeared — VBUS is the sole
+   remaining gap (or the S128 stick left the port since Aug 4; CJ settles
+   that by looking).
 2. **VBUS — driver written and reviewed, gated on CJ.** The tps6598x SPMI
    transport (231, `77fd00b`) reuses the whole tipd state machine over a
    paged select/window regmap bus matching the m1n1-live-proven protocol;
