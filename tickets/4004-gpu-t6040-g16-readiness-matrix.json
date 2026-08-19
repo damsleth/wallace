@@ -1,0 +1,13 @@
+{
+  "seq": "4004",
+  "slug": "gpu-t6040-g16-readiness-matrix",
+  "needs": "offline",
+  "state": "open",
+  "track": "gpu",
+  "priority": "P3",
+  "desc": "[UPSTREAM] Offline readiness matrix for a maintainer-owned T6040/G16 graphics stack. Grounding: ROADMAP §F and NEXT_STEPS §7 explicitly block GPU until a maintainer-endorsed T6040/G16 kernel, macOS-26.x firmware ABI, m1n1 UAT/DT reservations, and Mesa path exist; completed ticket 039 is only G16 test preparation. Track only upstream commits/releases and locally compare their declared SoC/board/firmware ABI/DT-UAT/Mesa prerequisites against the captured J614s inventory. Deliver a versioned PASS/unknown matrix plus a safe smoke-preflight checklist that rejects G14 relabels and missing prerequisites. Do not adapt or build a G14 configuration, test on the rig, write firmware/PMU/NVRAM, or post externally; this is preparation for CJ when upstream support is real.",
+  "author": "terra",
+  "deps": [],
+  "hashes": null,
+  "created": 1787145379
+}

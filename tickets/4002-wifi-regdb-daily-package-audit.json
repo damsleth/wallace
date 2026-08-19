@@ -1,0 +1,13 @@
+{
+  "seq": "4002",
+  "slug": "wifi-regdb-daily-package-audit",
+  "needs": "offline",
+  "state": "open",
+  "track": "wifi",
+  "priority": "P2",
+  "desc": "Offline package and boot-path audit for the daily root's regulatory database. Grounding: ticket 307 observed that /lib/firmware/regulatory.db and its signature are absent and that country 00 limits 5-GHz active scanning; ROADMAP §E requires integration/regression coverage while WiFi is otherwise functional. Produce a reproducible wireless-regdb packaging change or manifest for both the initramfs probe-time firmware set and the post-switch-root image, verify regulatory.db plus regulatory.db.p7s hashes/permissions and kernel firmware-loader lookup order, and add host-only negative tests for missing or mismatched pairs. Preserve the established c2-under-c0 BCM4388 mapping and make no claim that this fixes the separately observed 2.4-GHz blind band; that remains ticket 307's later diagnosis. No rig, radio interaction, network change, firmware write, or enrollment.",
+  "author": "terra",
+  "deps": [],
+  "hashes": null,
+  "created": 1787145363
+}

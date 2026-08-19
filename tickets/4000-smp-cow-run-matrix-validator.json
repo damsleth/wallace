@@ -1,0 +1,13 @@
+{
+  "seq": "4000",
+  "slug": "smp-cow-run-matrix-validator",
+  "needs": "offline",
+  "state": "open",
+  "track": "smp",
+  "priority": "P0",
+  "desc": "Offline evidence validator for the fault-characterisation runs. Grounding: NEXT_STEPS §1 requires fresh-boot, four-run, constant-topology evidence and tickets 207/208 established that timing perturbations suppress rather than fix the fail-stop CoW fault; ticket 217 supplies the storage-free artifact. Implement a host-side manifest/schema checker that binds each transcript to exact Image/DTB/initramfs/config/System.map hashes, verifies a unique fresh-boot run ID, parses the boot-log logical-CPU→MPIDR/MIDR map and oops CPU, and rejects mixed topology/workload/storage or missing first-fault data. Deliver fixtures from the completed 207/208 evidence and an evidence-ready CSV/JSON format for ticket 209 and the [UPSTREAM] draft 3002. It must report missing data as unknown, never infer a fix, and performs no rig, build, storage, or hardware access.",
+  "author": "terra",
+  "deps": [],
+  "hashes": null,
+  "created": 1787145347
+}

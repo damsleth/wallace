@@ -1,0 +1,15 @@
+{
+  "seq": "4003",
+  "slug": "daily-trackpad-first-open-review",
+  "needs": "offline",
+  "state": "open",
+  "track": "integration",
+  "priority": "P1",
+  "desc": "Independently exact-review the daily SD-root output of ticket 301 before it is offered for any boot or enrollment. Grounding: NEXT_STEPS §5 records ticket 230 as live-PASS for touch and haptics, ticket 301 owns packaging the v2 reset contract, and completed ticket 214 proved probe-time firmware must be in the initramfs rather than only the switched root. Verify two clean identical build records; the reset-contract patch/order and a1f4131d blob hashes; initramfs membership before switch_root; DockChannel/HID and Norwegian keymap layers; first-open versus second-open behavior in the packaged script; and that the daily DT still disables ANS/NVMe. Produce a zero-unreviewed-delta manifest and fail closed on an absent/late/wrong blob. Offline review only: no rig, volatile upload, storage mutation, SPMI, PMU, firmware write, enrollment, or claim of an unrun finger test.",
+  "author": "terra",
+  "deps": [
+    "301"
+  ],
+  "hashes": null,
+  "created": 1787145371
+}
