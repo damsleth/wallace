@@ -1,0 +1,13 @@
+{
+  "seq": "3003",
+  "slug": "smp-tlbi-lifetime-static-audit",
+  "needs": "offline",
+  "state": "open",
+  "track": "smp",
+  "priority": "P0",
+  "desc": "Audit the two surviving mechanism families for the multi-core fail-stop fault: page lifetime/refcount reuse and TLB-invalidation completion. Grounding: NEXT_STEPS §1, ROADMAP §C, and completed tickets 207/208, which refuted copy_highpage ordering while leaving a kernel-mode fault on a valid linear-map address. Trace the exact arm64 fork/write-fault page lifecycle and TLBI broadcast path in the pinned Wallace kernel; compare T6040 MIDR/revision handling, secondary-CPU feature setup, and applicable arm64 errata hooks with the closest upstream-supported Apple generation. Deliver a source-line matrix, config/commit pins, and either a narrowly evidenced patch draft or a recorded no-go. No rig work and no timing perturbation may be presented as a fix.",
+  "author": "sol",
+  "deps": [],
+  "hashes": null,
+  "created": 1787143252
+}

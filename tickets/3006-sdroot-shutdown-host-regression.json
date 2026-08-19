@@ -1,0 +1,13 @@
+{
+  "seq": "3006",
+  "slug": "sdroot-shutdown-host-regression",
+  "needs": "offline",
+  "state": "open",
+  "track": "storage",
+  "priority": "P1",
+  "desc": "Add host-only regression coverage for the staged SD-root shutdown pivot before ticket 216 runs. Grounding: NEXT_STEPS §2, ROADMAP §H, and ticket 216's requirement that ext4 unmount, the loop detach, and exFAT unmount before the final power action. Exercise the current scripts with mocked mount/loop/service commands and inject a failure at every phase; assert that no path reports PASS while either filesystem remains mounted, that sync and identity gates precede mutation, and that the check-only postcondition is requested only after detach/unmount. Deliver tests, expected traces, and an evidence note. No fixture access, filesystem mutation, enrollment, or rig lease.",
+  "author": "sol",
+  "deps": [],
+  "hashes": null,
+  "created": 1787143254
+}

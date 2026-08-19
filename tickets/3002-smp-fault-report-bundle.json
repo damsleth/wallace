@@ -1,0 +1,15 @@
+{
+  "seq": "3002",
+  "slug": "smp-fault-report-bundle",
+  "needs": "offline",
+  "state": "open",
+  "track": "smp",
+  "priority": "P1",
+  "desc": "[UPSTREAM DRAFT ONLY — CJ posts when reporting resumes] Package the multi-core fail-stop fault into a maintainer-ready report after ticket 217 pins the storage-free artifact. Grounding: NEXT_STEPS §1 and ROADMAP §C. Include the dependency-free reproducer, exact Image/DTB/initramfs hashes, logical-CPU to MPIDR/MIDR map, fresh-boot run matrix, full uninstrumented oops, and the completed 207/208 negative result showing that smp_mb and an irrelevant read merely perturb the race. State the bounded fail-stop evidence without claiming page-cache safety, and do not propose the refuted copy_highpage barrier as a fix. Deliver report text plus an attachment/hash manifest; never post externally.",
+  "author": "sol",
+  "deps": [
+    "217"
+  ],
+  "hashes": null,
+  "created": 1787143252
+}

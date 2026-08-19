@@ -1,0 +1,16 @@
+{
+  "seq": "3001",
+  "slug": "spmi-a1-proven-delta-candidate",
+  "needs": "offline",
+  "state": "open",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "Turn only the source-proven result of tickets 1002 and 3000 into a reviewable Linux a1-controller candidate. Grounding: NEXT_STEPS §6 and ticket 305's first-MMIO stall. If the audits identify an exact Apple init or mapping delta, draft the minimal patch, build twice from clean trees, require byte-identical Image/DTB outputs, run image preflight, and record a zero-other-delta manifest plus exact source/disassembly citations. If they identify no safe delta, close with a no-go matrix rather than guessing. Offline only; no rig access, no blind MMIO, no PMU/charger/NVRAM/firmware write, and no expansion beyond the allowlisted hpm2 path. A later rig ticket must add this dependency and receive cross-review before boot.",
+  "author": "sol",
+  "deps": [
+    "1002",
+    "3000"
+  ],
+  "hashes": null,
+  "created": 1787143251
+}

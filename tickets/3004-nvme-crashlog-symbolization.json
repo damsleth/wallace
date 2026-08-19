@@ -1,0 +1,15 @@
+{
+  "seq": "3004",
+  "slug": "nvme-crashlog-symbolization",
+  "needs": "offline",
+  "state": "open",
+  "track": "nvme",
+  "priority": "P1",
+  "desc": "After ticket 201 preserves one complete modern RTKit crashlog, symbolize and annotate it against the exact paired 25F84 ANS firmware and the host nvme-apple call path. Grounding: NEXT_STEPS §3 and ticket 201's Ccst/CasC/Crtk/Ccdp capture contract. Resolve every firmware PC that is covered by the hashed image, correlate assert 7454 and hardware status bit 2 with the raw error registers and queue state, and produce a decision table for the already-approved threaded-IRQ discriminator 210 and m1n1 admin-traffic test 195. Record unknowns explicitly; do not infer from silence or request any physical-memory read. Offline only.",
+  "author": "sol",
+  "deps": [
+    "201"
+  ],
+  "hashes": null,
+  "created": 1787143253
+}

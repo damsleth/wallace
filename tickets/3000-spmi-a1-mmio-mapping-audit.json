@@ -1,0 +1,15 @@
+{
+  "seq": "3000",
+  "slug": "spmi-a1-mmio-mapping-audit",
+  "needs": "offline",
+  "state": "open",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "Static no-rig audit of the a1-controller access boundary isolated by ticket 305 run 5: Linux hard-stalls on its first MMIO to ADT-derived 0x309198000 while the July m1n1 hpm2 path worked and the rollback-proxy exception is explicitly inconclusive. Grounding: NEXT_STEPS §6 and ticket 305. Compare the captured ADT reg/size and generation, Linux DT resource plus ioremap attributes, and the exact July-proven versus rollback m1n1 MMU mappings/MAIR; prove each VA-to-PA translation and artifact hash. Deliver an evidence table and a verdict distinguishing unmapped object, size/attribute mismatch, or a genuinely mapped hardware stall. Offline only: no MMIO access, no guessed offsets, and no hardware or firmware write. Feed tickets 1000 and 1002.",
+  "author": "sol",
+  "deps": [
+    "305"
+  ],
+  "hashes": null,
+  "created": 1787143251
+}

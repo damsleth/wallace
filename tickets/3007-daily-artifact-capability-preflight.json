@@ -1,0 +1,16 @@
+{
+  "seq": "3007",
+  "slug": "daily-artifact-capability-preflight",
+  "needs": "offline",
+  "state": "open",
+  "track": "integration",
+  "priority": "P2",
+  "desc": "Create a cross-artifact preflight for the next SD-root daily-driver object after clean shutdown and trackpad integration land. Grounding: NEXT_STEPS §§0,2,5,6, ROADMAP §H, and the DEVLOG stale-Image lesson. Given Image, config, DTB, initramfs, and raw object, fail closed unless hashes agree; pcie-apple/macsmc and the proven USB2 host slice are present; the trackpad reset-contract marker and approved blob are packaged; WiFi/BT firmware and shutdown pivot exist; Norwegian keymap/locale/Xorg layers pass; and ANS/NVMe nodes remain disabled until tickets 206/227 are resolved. Emit a machine-readable capability manifest without claiming unrun hardware support. Offline only; this complements rather than replaces t6040-image-preflight.sh.",
+  "author": "sol",
+  "deps": [
+    "216",
+    "301"
+  ],
+  "hashes": null,
+  "created": 1787143254
+}

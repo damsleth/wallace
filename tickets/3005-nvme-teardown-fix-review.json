@@ -1,0 +1,15 @@
+{
+  "seq": "3005",
+  "slug": "nvme-teardown-fix-review",
+  "needs": "offline",
+  "state": "open",
+  "track": "nvme",
+  "priority": "P1",
+  "desc": "Independently exact-review the dead-controller teardown fix produced by ticket 227 before any live regression is proposed. Grounding: NEXT_STEPS §3 and ticket 227's reproduced blk_mq_timeout_work use-after-free, which kills the shared block workqueue after ANS dies. Prove from source and call graphs that timeout/reset work is canceled or drained before nvme_uninit_ctrl frees the queue, exercise any host-buildable fault-injection or KUnit coverage, build twice from clean trees, and pin patch/Image/config/System.map hashes with a zero-new-hardware-operation manifest. Offline only; this ticket does not enable NVMe in the daily DTB and does not authorize storage I/O.",
+  "author": "sol",
+  "deps": [
+    "227"
+  ],
+  "hashes": null,
+  "created": 1787143253
+}
