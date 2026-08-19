@@ -2,7 +2,7 @@
   "seq": "3009",
   "slug": "spmi-a1-physfix-binary-review",
   "needs": "offline",
-  "state": "open",
+  "state": "done",
   "track": "usb",
   "priority": "P0",
   "desc": "Independently exact-review the ticket-3008 corrected PD DTB before any rig use. Grounding: NEXT_STEPS §6 and evidence/2026-08-19-t6040-3000-spmi-a1-address-translation-audit.md. Reviewer must not be sol: hash the two eaf8cceb... builds and prove byte identity; decompile the exact artifact; verify /soc/spmi@509198000 reg <0x5 0x09198000 0 0x4000>, ps_nub_spmi_a1, exactly one hpm2 SID 0x0c PD endpoint, source/host connector, no stale spmi@309198000, and ans_nvme disabled; re-pin unchanged Image-usb2pd.buildA and initramfs hashes; reconcile the fixture with both SPMI_SAFETY entries and ticket-305 stop conditions. Record PASS/FAIL evidence. PASS unblocks an attended 305 resume; no rig, build, MMIO, SPMI, enrollment, or storage access.",
@@ -11,5 +11,11 @@
     "3008"
   ],
   "hashes": null,
-  "created": 1787144681
+  "created": 1787144681,
+  "reviewed_by": "opus",
+  "review": "PASS 2026-08-19 (opus, non-sol, non-builder): byte-identical eaf8cceb DTB, correct a1 reg 0x509198000, zero stale 0x309198000, single hpm2 SID 0x0c source/host, NVMe disabled, abbey nvmem bounded with pm_setting unread; in-envelope Entries 1+2; reused Image/initramfs hashes match. Unblocks attended 305 resume on the eaf8cceb DTB only (not dd57776e).",
+  "evidence": [
+    "evidence/2026-08-19-t6040-3009-spmi-a1-physfix-binary-review-PASS.md"
+  ],
+  "done_at": 1787146073
 }
