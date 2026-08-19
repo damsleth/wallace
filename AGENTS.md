@@ -10,7 +10,7 @@ M4 Pro (T6040 "Brava Chop", Mac16,8 / J614s)**. This repo holds the current
 plans, documentation, host-side scripts, kernel patches, tickets, and evidence.
 The code lives in sibling repos under `~/Code/`.
 
-**Working on 2026-08-04:** the SD root is a working daily-driver baseline —
+**Working on 2026-08-19:** the SD root is a working daily-driver baseline —
 persistent ext4 on the card (verified across four reboots), Xorg + i3 at 2x HiDPI,
 Norwegian console and X layouts, Adwaita cursors, Europe/Oslo time, WiFi
 associating with DHCP and routed traffic, Bluetooth `hci0`, keyboard working in X
@@ -18,12 +18,17 @@ associating with DHCP and routed traffic, Bluetooth `hci0`, keyboard working in 
 cursor theme and WiFi config from the image, so the card cannot drift behind the
 repo. NVMe is disabled in the daily DTB: its dead-controller teardown is a
 use-after-free that kills `kblockd` and takes SD down with it (227), on top of the
-first-CQ-wrap firmware assert (206). The trackpad transport is fixed as of 2026-08-04: the
-post-upload command `0x40` is the MTP interface power request, J614s speaks only
-the 9-byte v2 form, and the patched driver's v2 pair is accepted live — firmware
-consumed, `Touch MT ready` (230); only CJ's finger-on-pad confirmation remains.
-Ticket 205's multi-core fault is confirmed fail-stop. USB host/VBUS, GPU
-acceleration, panel backlight, audio, camera and suspend remain open.
+first-CQ-wrap firmware assert (206). **The trackpad is DONE (230, finger test
+PASSED 2026-08-19):** the post-upload `0x40` is the MTP interface power request,
+J614s speaks only the 9-byte v2 form, and the patched v2 pair brings the pad to
+`Touch MT ready`; a real finger produced 37 950 events on `/dev/input/event0`,
+and **haptic click works** too (Taptic actuator up) — touch + force-click both
+live. **USB2 host data path is DONE (108, 2026-08-19):** dwc3 probes and the
+right xHCI root hubs come up healthy; VBUS is the sole remaining gap, and the
+tps6598x SPMI PD driver for it is written and CJ-signed-off (231), with the
+attended PD/VBUS live run staged (305). Ticket 205's multi-core fault is
+confirmed fail-stop (so `maxcpus=1`). GPU acceleration, panel backlight, audio,
+camera and suspend remain open.
 
 **Current objective (CJ, 2026-08-03):** a practical daily driver with SD, USB
 read/write, NVMe read/write, WiFi, Bluetooth, and trackpad all working

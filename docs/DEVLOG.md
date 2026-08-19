@@ -1,6 +1,6 @@
 # T6040 / J614s development log and operating notes
 
-Current as of 2026-08-04. This file keeps durable operating knowledge,
+Current as of 2026-08-19. This file keeps durable operating knowledge,
 milestones, corrections, and dead ends. Exact experiment evidence lives in
 `evidence/`; current work lives in [NEXT_STEPS.md](NEXT_STEPS.md).
 
@@ -10,13 +10,13 @@ milestones, corrections, and dead ends. Exact experiment evidence lives in
 |---|---|
 | Boot | Enrolled, untethered Linux boot works |
 | Display | simpledrm/fbcon and Xorg with i3 or dwm |
-| Input | Keyboard works in X (i3 modifier is ⌘/Mod4). Trackpad transport **fixed live 2026-08-04** (230): `0x40` is the MTP interface power request, J614s accepts only the 9-byte v2 form, and the patched pair brings the touch pipeline to `Touch MT ready`; finger-on-pad confirmation pending |
+| Input | Keyboard works in X (i3 modifier is ⌘/Mod4). **Trackpad DONE (230, finger test PASSED 2026-08-19):** `0x40` is the MTP interface power request, J614s accepts only the 9-byte v2 form; the patched pair brings the pipeline to `Touch MT ready` and a real finger produced 37 950 events on `/dev/input/event0` — plus **haptic click** works (Taptic actuator up). Touch + force-click both live |
 | CPU | Five-core RAM-root desktop works; a controlled two-core page-copy reproducer faults, and the failure is confirmed **fail-stop** (kills processes, does not return wrong data) |
 | SMC | Battery, AC, charger, and temperature telemetry |
 | PCIe | Root complex, WiFi, Bluetooth, and SD reader work |
 | Storage | One-core SD root boots unattended to Xorg/i3 with WiFi; a static `fsck.exfat` repairs a dirty SD64 in place; persistence verified across four reboots; clean-shutdown validation pending |
 | NVMe | m1n1 reads work; Linux loses ANS at its first I/O CQ wrap, and the teardown is a use-after-free that kills `kblockd` and stalls **all** block I/O (227). Disabled in the daily DTB |
-| USB | Device mode works; host role does not — right-port run fails at dwc3 core init (`-EINVAL`, 108), and VBUS has no owner: all four PD controllers are SPMI `sn201202x` with no in-tree driver (231) |
+| USB | Device mode works. **USB2 host data path DONE (108, 2026-08-19):** with the v2 PHY slice, dwc3 probes clean and both right xHCI root hubs come up healthy. **VBUS is the sole remaining gap** — the tps6598x SPMI transport for the `sn201202x` PD controllers is written and CJ-signed-off (231); the attended PD/VBUS live run is staged (305) |
 
 ## Operating the rig
 
@@ -25,6 +25,16 @@ milestones, corrections, and dead ends. Exact experiment evidence lives in
 Only the lease holder runs a rig script, and only for an approved, ready
 ticket. Release `wedged` if recovery is incomplete or uncertain. The canonical
 protocol and commands are in [COORDINATION.md](COORDINATION.md).
+
+**Each concurrent session needs a DISTINCT lease handle.** On 2026-08-19 two
+sessions both ran as `fable`; `rig-lease.sh acquire fable` on an
+already-held-by-`fable` lease does **not** refuse — it silently *renews and
+relabels* it, so one session clobbered the other's active-run task label (and
+extended its expiry) without any warning. The per-agent guard only serializes
+agents whose handles differ ("refuses a live lease held by someone else"). CJ
+resolved it by renaming this session's handle to `opus` (it fell back to the
+Opus model). There are now three handles — `claude`, `fable`, `opus`; use your
+own, and never `acquire` under a handle another live session is using.
 
 ### DebugUSB/KIS discipline
 

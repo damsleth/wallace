@@ -1,6 +1,6 @@
 # T6040 Linux bring-up — next steps
 
-Current as of 2026-08-04. This file states priorities and stop conditions.
+Current as of 2026-08-19. This file states priorities and stop conditions.
 Exact work items, hashes, dependencies, and approval state live in
 `tickets/*.json`.
 
@@ -13,11 +13,11 @@ unambiguously:
 | capability | state |
 |---|---|
 | SD read/write | reader and persistence proven; fixture needs `fsck.exfat` repair |
-| USB read/write | device mode only; right-port host run now fails at dwc3 core init (`-EINVAL`, 108) — earlier than the July root-hub smoke; VBUS gap identified: PD controllers are SPMI `sn201202x` with no in-tree driver (231) |
+| USB read/write | device mode works; **USB2 host data path DONE 2026-08-19** (108) — dwc3 probes, right xHCI root hubs healthy. VBUS is the sole gap; the tps6598x SPMI PD driver is written and CJ-signed-off (231), attended run staged (305) |
 | NVMe read/write | m1n1 reads stable; Linux asserts at the first CQ wrap; writes unproven |
 | WiFi | works, including DHCP and routed traffic |
 | Bluetooth | `hci0` present and working |
-| Trackpad | **transport fixed live 2026-08-04** (230): v2 power request accepted, firmware consumed, `Touch MT ready`; CJ's finger-on-pad confirmation pending, then daily-image integration (301) |
+| Trackpad | **DONE 2026-08-19** (230): finger test PASSED — 37 950 events on `/dev/input/event0` and haptic click works. Daily-image integration remains (301) |
 
 **Upstream reporting is explicitly deferred** — CJ: "we are not doing any
 upstream reporting just now." Sections below that call an upstream report the
@@ -153,36 +153,32 @@ Neither ticket permits repartitioning, formatting, fsck, or unrelated card
 changes. Ticket 200 must also respect the dirty-filesystem gate owned by
 tickets 215/216.
 
-## 5. Trackpad: transport fixed; finger confirmation and daily integration remain
+## 5. Trackpad: DONE — daily-image integration remains
 
-**Resolved at the transport level on 2026-08-04** (ticket 230,
-`evidence/2026-08-04-t6040-trackpad-v2-power-request-accepted.md`). The
-post-upload command `0x40` is the MTP interface power request; J614s speaks
-only the 9-byte v2 two-phase form; the patched driver's v2 pair is accepted
-live — the coprocessor consumed the CBOR firmware (DMA through `mtp_dart`
-positively confirmed) and raised `Touch interface ready` / `Touch MT ready`
-260 ms after the first `open()` of event0.
+**Complete as of 2026-08-19** (ticket 230,
+`evidence/2026-08-19-t6040-trackpad-finger-test-PASS.md`). The post-upload
+command `0x40` is the MTP interface power request; J614s speaks only the 9-byte
+v2 two-phase form; the patched v2 pair brings the pad to `Touch MT ready`
+260 ms after `open()`. CJ's finger test then produced **37 950 events / 910 800
+bytes** on `/dev/input/event0` with a hex dump of real multi-touch reports, and
+**force-click haptics fire** (Taptic actuator up). Touch + haptics both live.
 
 Do next:
 
-1. **CJ, at the machine:** run
-   `busybox sh /bin/t6040-input-report watch /dev/input/event0 60` on any
-   image carrying `TRACKPAD_RESET_CONTRACT=1` and touch the pad. `events>0`
-   plus the hex dump completes ticket 230's pass condition. If a real finger
-   yields `events=0`, the gap is above the transport and
-   `magicmouse_raw_event_mtp`'s `46 + N*30` length filter is the next decode
-   target.
-2. Ticket 301 (blocked on 1): fold the patch and the `a1f4131d` blob into the
-   daily sdroot image, two-build reproduce, preflight, new enrollable object.
+1. Ticket 301: fold the patch (`t6040-dockchannel-hid-reset-contract.patch`)
+   and the `a1f4131d` firmware blob into the daily sdroot image, two-build
+   reproduce, preflight, new enrollable object — so the daily driver carries a
+   working trackpad without a special image.
 
 Any live attempt stays limited to the approved volatile HIDF blob
 `a1f4131d…`; nothing else changed in the safety scope.
 
 ## 6. USB host/VBUS (active)
 
-Tickets: **108** (enumeration re-run, staged), **303** (v2 rebuild, built),
-**231** (PD driver, reviewed), **229** (R0 connector read, attended-only),
-**109+** (block read-only and beyond, blocked)
+Tickets: **108** (USB2 data path — DONE, VBUS the sole gap), **303** (v2 rebuild,
+built + binary-reviewed), **231** (PD driver — reviewed and **CJ-signed-off**),
+**305** (attended PD/VBUS run, staged), **229** (R0 connector read,
+attended-only), **109+** (block read-only and beyond, blocked)
 
 Both blockers identified on 2026-08-04 are now solved offline; what remains
 is review and rig time:
@@ -207,11 +203,13 @@ is review and rig time:
    (`dts/t6040-j614s-dcuart-usb2-native-right-pd.dts`, hpm2 only,
    compile-validated, not runnable).
 
-CJ's gates, in order: sign off the SPMI envelope table; attended R0
-connector-state read (229) to learn whether the right port already sources
-VBUS; then the PD-enabled image goes through the normal build/review cycle.
-SPMI stays deny-by-default under `SPMI_SAFETY.md`; the only described
-endpoint is right-port `hpm2`.
+CJ **signed off the SPMI envelope 2026-08-19** (probe = WAKEUP + reads +
+SSPS→S0, `INT_MASK1` 0x16 write at probe, W1C `INT_CLEAR1` 0x18 per event,
+hpm2/right-port only via the DT gate). Remaining, in order: the attended
+PD/VBUS live run (305) — including an R0 connector-state read (229) to learn
+whether the right port already sources VBUS — then the PD-enabled image through
+the normal build/review cycle. SPMI stays deny-by-default under
+`SPMI_SAFETY.md`; the only described endpoint is right-port `hpm2`.
 
 ## 7. Parked tracks
 

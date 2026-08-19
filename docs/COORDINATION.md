@@ -1,21 +1,27 @@
-# Coordination: three agents, one rig
+# Coordination: multiple agents, one rig
 
-Current as of 2026-08-04. `claude`, `sol` and `fable` share one Git worktree and
-one physical M4 Pro. CJ is the approval gate and tie-breaker.
+Current as of 2026-08-19. Several autonomous sessions — `claude`, `sol`,
+`fable`, and `opus` — share one Git worktree and one physical M4 Pro. CJ is the
+approval gate and tie-breaker.
 
-## RIG SERIALIZED — fable holds it for ticket 230 (CJ, 2026-08-04)
+## Rig arbitration: normal lease (the 230 serialization is over)
 
-CJ has ruled that the rig is **serialized**, not time-sliced, while ticket 230
-(`trackpad-v2-power-request-live`) runs. **claude stays off the rig entirely
-until 230 lands** and does offline USB-host work in the meantime. This is a
-standing instruction, not a lease convention: do not acquire the lease "briefly"
-to check something.
+Ticket 230 (`trackpad-v2-power-request-live`) **landed 2026-08-19** (finger test
+PASSED — touch + haptic click), so the temporary serialization for it is
+retired. The rig is back to **normal lease arbitration**: acquire
+`scripts/rig-lease.sh` for an approved, ready ticket; hold it only for the run;
+release healthy (or wedged). No session is barred from the rig.
 
-Why it matters here: 230 is a live HIDF upload under CJ's ticket-126 volatile
-exception, and a concurrent chainload would both invalidate its transcript and
-risk taking the console away mid-run.
+## Distinct lease handles are mandatory (CJ, 2026-08-19)
 
-When 230 completes, the rig returns to normal lease arbitration.
+Each concurrent session **must** hold the lease under its own handle. On
+2026-08-19 two sessions both ran as `fable`, and `rig-lease.sh acquire fable`
+on a lease already held by `fable` did not refuse — it silently **renewed and
+relabelled** it, clobbering the other session's active-run task record. The
+per-agent guard only serializes agents whose handles differ. Current handles:
+`claude`, `sol`, `fable`, `opus` (this last renamed from `fable` on 2026-08-19
+because the session runs on the Opus model). Never `acquire` under a handle
+another live session is using; set `RIG_AGENT` to your own handle.
 
 ## Ticket numbering with a third agent
 
@@ -24,9 +30,11 @@ When 230 completes, the rig returns to normal lease arbitration.
 | **claude** | **odd** (…, 227, 229, 231) |
 | **sol** | **even** (…, 228, 230, 232) |
 | **fable** | **300+ block**, any parity, stated explicitly in the description |
+| **opus** | lane **unassigned pending CJ** — until then, use the 300+ block, state the seq explicitly, and check it is free (and not fable's) immediately after `queue add` |
 
-The odd/even split was CJ's ruling after three collisions in one session; a
-third agent needs its own range rather than a parity it would share.
+The odd/even split was CJ's ruling after three collisions in one session; the
+extra agents need their own range rather than a parity they would share. `opus`
+does not yet have a distinct number lane — coordinate before allocating.
 
 ## Scope of the lease
 

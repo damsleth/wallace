@@ -1,6 +1,6 @@
 # T6040 / J614s Linux roadmap
 
-Current as of 2026-08-04. This is the stage map; tickets contain the executable
+Current as of 2026-08-19. This is the stage map; tickets contain the executable
 work and [NEXT_STEPS.md](NEXT_STEPS.md) contains the current order.
 
 ## Project state
@@ -10,7 +10,7 @@ work and [NEXT_STEPS.md](NEXT_STEPS.md) contains the current order.
 | A. Stable proxy and recovery | Complete | Maintain the lease and DebugUSB discipline |
 | B. m1n1 Linux boot | Complete for the current raw-object path | Upstream cleanup and optional standard stage 2 |
 | C. Kernel DT and core boot | Functional | MM/SMP stability, cpuidle, upstreaming |
-| D. Local usable machine | Partial | Clean SD-root shutdown, trackpad, panel backlight, USB host |
+| D. Local usable machine | Partial | Clean SD-root shutdown, panel backlight, USB-host VBUS (trackpad done 2026-08-19) |
 | E. WiFi and Bluetooth | Functional | Integration and upstreaming |
 | F. GPU acceleration | Blocked on a real T6040/G16 stack | Maintainer-endorsed kernel, firmware ABI, m1n1, and Mesa support |
 | G. Power and peripherals | Partial | Audio, camera, suspend, cpuidle, lid/power integration |
@@ -83,10 +83,16 @@ Open:
 
 - repair and validate clean SD-root shutdown;
 - complete SSH and graphical service integration;
-- confirm trackpad motion under a finger (transport fixed 2026-08-04: the
-  post-upload command is a v2 power request, now accepted live);
 - enable panel backlight control; keyboard backlight already works;
-- bring up USB host only after a reversible Type-C/VBUS contract exists.
+- bring up USB host: the USB2 data path is proven (108); VBUS remains, and the
+  reviewed, CJ-signed-off SPMI PD driver (231) sources it under a reversible
+  Type-C contract — attended run staged (305).
+
+Done:
+
+- **trackpad (touch + haptic click), 2026-08-19** (230): a real finger produced
+  37 950 events on `/dev/input/event0` and force-click haptics fire. Daily-image
+  integration is ticket 301.
 
 The SD path replaces USB root as the immediate persistence route.
 
