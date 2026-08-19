@@ -1,0 +1,69 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * DRAFT — DO NOT BUILD INTO A RUN CANDIDATE YET.
+ *
+ * T6040 J614s: the usb2-native-right fixture plus the right-port Type-C PD
+ * controller (SN201202x on Apple SPMI), bound to the tps6598x SPMI transport
+ * (patches/0001-usb-typec-tps6598x-add-SPMI-transport-for-T6040-SN20.patch,
+ * T6040_TYPEC_PD=1).
+ *
+ * Gates before this may be compiled into a candidate or booted (tickets
+ * 231/303, evidence/2026-08-18-t6040-tps6598x-spmi-review.md):
+ *   1. CJ signs off the enumerated SPMI transaction envelope — probe does
+ *      WAKEUP + reads + SSPS-to-S0, PLUS the two new classes: INT_MASK1
+ *      (0x16) write at probe and W1C INT_CLEAR1 (0x18) per event (the
+ *      tipd-owns-events model). SPMI_SAFETY.md keeps every SPMI experiment
+ *      ATTENDED and review-gated.
+ *   2. Exact-artifact review of the composed image by a non-builder.
+ *
+ * Scope guard, per SPMI_SAFETY.md: this file describes EXACTLY ONE HPM —
+ * right-port hpm2 on nub-spmi-a1 (ADT identity: controller 0x309198000,
+ * generation 3; child SID 0x0c, rid 2, port-number 3). The a0 bus and the
+ * other three PD controllers are deliberately not described; the tps6598x
+ * SPMI driver binds by compatible, so the DT is the entire endpoint gate.
+ *
+ * Deliberate omissions, each a decision not an oversight:
+ *  - No interrupts property: the ADT routes HPM interrupts through paths we
+ *    have not reviewed; tipd falls back to 500 ms polling (core.c
+ *    POLL_INTERVAL), which the attended first run prefers anyway — every
+ *    event surfaces as a logged poll cycle, not an async path.
+ *  - No ports/OF-graph under the connector: the fixture forces host mode
+ *    (apple,force-host-mode), there is no role switch to wire;
+ *    fwnode_usb_role_switch_get() returns NULL and probe proceeds.
+ *  - power-role "source", data-role "host": the minimal statement of what
+ *    the run intends (source VBUS to a bus-powered stick), not "dual" —
+ *    keeps the typec class from ever asking for a swap.
+ *  - No power-domains on the controller: the rig boots with
+ *    pd_ignore_unused, and m1n1's live R0/R2 runs drove this block without
+ *    any pmgr transition. Revisit if the SPMI controller reads as gated.
+ */
+
+#include "t6040-j614s-dcuart-wifi-usb2-native-right.dts"
+#include <dt-bindings/spmi/spmi.h>
+
+&soc {
+	/*
+	 * ADT /arm-io/nub-spmi-a1 (compatible aapl,spmi, generation 3),
+	 * reg[0] = 0x309198000/0x4000. Same programming model as nub_spmi0
+	 * (t6040.dtsi), which the apple,spmi driver already handles.
+	 */
+	nub_spmi_a1: spmi@309198000 {
+		compatible = "apple,t6040-spmi", "apple,spmi";
+		reg = <0x3 0x09198000 0x0 0x4000>;
+		#address-cells = <2>;
+		#size-cells = <0>;
+		status = "okay";
+
+		/* ADT /arm-io/nub-spmi-a1/hpm2 — the RIGHT Type-C port. */
+		hpm2: usb-pd@c {
+			compatible = "usbc,sn201202x,spmi";
+			reg = <0xc SPMI_USID>;
+
+			typec_right: connector {
+				compatible = "usb-c-connector";
+				power-role = "source";
+				data-role = "host";
+			};
+		};
+	};
+};
