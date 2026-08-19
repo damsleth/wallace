@@ -9,5 +9,10 @@
   "author": "claude",
   "deps": [],
   "hashes": null,
-  "created": 1785752187
+  "created": 1785752187,
+  "archived": {
+    "at": 1787140175,
+    "by": "opus",
+    "reason": "premise disproved: the config-knob bisect refuted itself (rodata/TLB_RANGE/HW_AFDBM all irrelevant; baseline boots the same at maxcpus=5), the 'maxcpus>=6' threshold reverts to ticket 121's original characterisation, and the SMP fault understanding now lives in 205/223 + DEVLOG"
+  }
 }

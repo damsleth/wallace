@@ -2,7 +2,7 @@
   "seq": "213",
   "slug": "sdroot-i3-on-panel",
   "needs": "rig",
-  "state": "MILESTONE-i3-autostarts-on-persistent-root",
+  "state": "done",
   "track": "bringup",
   "priority": "P1",
   "desc": "Bring the graphical desktop up on the persistent SD root (204) at maxcpus=1, which is the only clean core count. The root already has xorg-server, xf86-input-libinput, i3wm, i3status, st, dmenu, fonts, /etc/i3/config, /etc/i3status.conf and /root/.xinitrc (setxkbmap no; exec i3). Verify: X starts on the panel via startx, i3 bar shows WiFi/battery/AC/disk/clock, Super+Return opens st, Super+d opens dmenu, Norwegian keymap is active, and the keyboard backlight responds to brightnessctl. This is the last step to a genuinely usable machine at 1 core and does not depend on 205 at all. ACHIEVED 2026-08-03: after a COLD REBOOT with no console interaction, Xorg + i3bar + i3status come up automatically from the persistent SD root. i3 4.24 loaded /etc/i3/config, workspace 1 focused at 3024x1867 (native panel minus the 23px bar), root on /dev/loop0. Two bugs fixed: (1) startx/xinit exits immediately and takes X with it -- launch /usr/libexec/Xorg and i3 directly instead; (2) as an inittab ::once: entry the script races ahead of openrc hostname so xauth built display name \"(none):0\" and i3 could not authenticate -- the script now sets the hostname itself. Requires maxcpus=1 until ticket 205 is fixed. Doc: evidence/2026-08-03-t6040-GRAPHICAL-DESKTOP-MILESTONE.md",
@@ -12,5 +12,6 @@
   "created": 1785744315,
   "runnable": false,
   "approved_by": "cj",
-  "approved_at": 1785746507
+  "approved_at": 1785746507,
+  "done_at": 1787140160
 }
