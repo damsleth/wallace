@@ -15,5 +15,10 @@
     "121"
   ],
   "hashes": null,
-  "created": 1784838415
+  "created": 1784838415,
+  "archived": {
+    "at": 1787140534,
+    "by": "opus",
+    "reason": "superseded: self-described 'former usable-machine experiment ladder'; the single integrated all-proven-features J614s DT it proposed is realized as the daily sdroot DTB"
+  }
 }

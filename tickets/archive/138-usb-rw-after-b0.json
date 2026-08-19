@@ -1,0 +1,19 @@
+{
+  "seq": "138",
+  "slug": "usb-rw-after-b0",
+  "needs": "offline",
+  "state": "open",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "Get the USB stick readable AND writable from the booted M4 — the next capability after B0. Blocked on the Type-C host link: the port has full hardware (usb-drd2 -> atc-phy2 -> acio2 -> hpm2 SN201202x on SPMI) but Linux has no atc-phy,t6040 driver and no HPM/Type-C path, so DWC3 brings up xHCI with no PHY provider and nothing enumerates (tickets 063/064). Routes: (a) reviewed HPM/ATC host-transition in m1n1 — currently NO-GO pending new primary evidence for the rollback path (tickets 096/097); (b) upstream atc-phy + tipd drivers (ticket 023); (c) U-Boot as stage 2 with its own USB stack (ticket 128), which may or may not include an ATC PHY driver — that is 128's pivotal question. Once a device enumerates, read and write are symmetric at the SCSI/block layer, so this single unlock delivers both. Deliverable: a decision on which route to pursue, with evidence.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1785010596,
+  "note": "2026-07-26: the blocker is VBUS/ATC, and forced host mode is ALREADY PROVEN INSUFFICIENT. The 2026-07-21 right-port smoke (evidence/2026-07-21-t6040-usb-host-right-smoke-result.md) brought up DARTs, xHCI at 0x392280000 IRQ 42, buses 1 and 2, and registered uas+usb-storage — but produced ONLY the two root hubs, no child device, empty /proc/partitions. The stick is bus-powered, so with no VBUS it cannot enumerate regardless of kernel work, and that DT deliberately enabled no ATC PHY. Do NOT rebuild that image unchanged. Two hypotheses remain: absent VBUS (needs the HPM role path, whose sequence is NOT yet decoded — see 096) or missing ATC/ACE PHY setup (offline DT work). THE CHEAPEST DISCRIMINATOR NEEDS NO CODE AND NO WRITES: put a SELF-POWERED device or powered hub on the right port and re-run the existing image (ticket 065). If it enumerates, the gap is purely VBUS; if it is still root hubs only, the gap is ATC/ACE PHY and HPM work would not have helped. Maintainer-only, since it needs a cable change.",
+  "archived": {
+    "at": 1787140534,
+    "by": "opus",
+    "reason": "route decision resolved: USB host read/write is pursued via the DT + tps6598x SPMI PD line (170/231/305) and the USB2 host data path is up (108); the 'no atc-phy,t6040 driver' framing is stale"
+  }
+}

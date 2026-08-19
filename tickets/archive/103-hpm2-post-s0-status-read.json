@@ -16,5 +16,10 @@
   "created": 1784927435,
   "runnable": false,
   "approved_by": "maintainer",
-  "approved_at": 1784928481
+  "approved_at": 1784928481,
+  "archived": {
+    "at": 1787140534,
+    "by": "opus",
+    "reason": "plan-approved but blocked; live SPMI reads now go through 178/229-hpm2 under the signed-off envelope. HPM-4CC role-swap host-transition approach superseded by the DT + tps6598x SPMI PD line (ticket 170 redirect -> 231 reviewed driver -> 305 run); the R3 safety boundary stays canonical in docs/SPMI_SAFETY.md."
+  }
 }

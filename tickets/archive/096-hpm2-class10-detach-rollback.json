@@ -1,0 +1,28 @@
+{
+  "seq": "096",
+  "slug": "hpm2-class10-detach-rollback",
+  "needs": "offline",
+  "state": "r3-withdrawn-swdf-data-role-only",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "R3 right-port (HPM2) detach/rollback design. Status 2026-08-03: R3 remains NO-GO. Static decode found no VBUS primitive anywhere in Apple's class-10 stack (proof by exhaustion over the kernelcache: only the SWDF/SWUF 4CCs exist, encoded as UTF-16 halfwords; no SWSr/SWSk, no issued GAID, no flash/OTP path — ticket 176 confirmed). SWDF/SWUF are DATA-role swaps, so whether VBUS drops on leaving DFP is unproven and must be measured; the 'r3-fully-specified' state was withdrawn 2026-07-29. The 0x18 W1C clear and the blind 0x50 write have no inverse, and no mask/detect restoration path exists. Both irreversible ops are volatile (power-cycle recoverable): this is a completeness verdict, not a danger claim. To close: prove a saved register-0x50 word can be safely written back, decide the 0x18 W1C position, and validate — or design away — the cross-layer teardown order. Do not build or run tickets 102-108 on this evidence. Full decode journal and method notes: see the linked evidence.",
+  "author": "codex",
+  "deps": [
+    "095"
+  ],
+  "hashes": null,
+  "created": 1784909164,
+  "evidence": [
+    "evidence/2026-08-04-t6040-r3-boundary-closure-design.md",
+    "evidence/2026-08-03-t6040-096-hpm2-detach-rollback-record.md",
+    "evidence/2026-07-25-t6040-hpm2-rollback-evidence.md",
+    "evidence/2026-07-25-t6040-hpm2-roleswap-evidence.md",
+    "evidence/2026-07-25-t6040-r3-risk-calibration.md",
+    "evidence/2026-07-24-t6040-hpm2-detach-static-slice.md"
+  ],
+  "archived": {
+    "at": 1787140534,
+    "by": "opus",
+    "reason": "R3 detach/rollback design concluded NO-GO (no VBUS primitive in Apple's class-10 stack). HPM-4CC role-swap host-transition approach superseded by the DT + tps6598x SPMI PD line (ticket 170 redirect -> 231 reviewed driver -> 305 run); the R3 safety boundary stays canonical in docs/SPMI_SAFETY.md."
+  }
+}
