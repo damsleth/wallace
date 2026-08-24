@@ -1,0 +1,3 @@
+It is impossible to run Linux with SPTM enabled because SPTM manages the page table. Using the SPTM API to manage the page table requires a level of modification comparable to implementing a new architecture.
+
+Memory-mapped hardware cannot distinguish whether it is accessed by SPTM or EL2 code. SPTM can only protect hardware from direct access from EL2 by preventing the creation of page table entries that map it. Any difference in behavior between SPTM access and direct object startup is due to incomplete or faulty initialization. Therefore, any conclusion that memory-mapped hardware is inaccessible from EL2 but accessible from SPTM is incorrect.
