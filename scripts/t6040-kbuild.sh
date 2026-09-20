@@ -45,7 +45,7 @@ apt-get install -y -qq build-essential bc bison flex libssl-dev libelf-dev \
 
 BUILD_DIR="${BUILD_DIR:-/build/linux}"
 
-if [ ! -d "$BUILD_DIR/.git" ]; then
+if [ ! -e "$BUILD_DIR/.git" ]; then
     echo "== clone (case-correct checkout) =="
     git clone --local --shared /src "$BUILD_DIR"
 fi
@@ -56,9 +56,18 @@ cd "$BUILD_DIR"
 # never entered the binary (DT files are copied fresh, so the DTB was right
 # and only the driver was missing). Fetch + hard-reset to the host branch;
 # patches re-apply onto the then-pristine tree right below.
-git fetch -q origin "$BRANCH"
-git checkout -q "$BRANCH"
-git reset --hard -q "origin/$BRANCH"
+if [ "${BUILD_WORKTREE:-0}" = 1 ]; then
+    source_head=$(git -C /src rev-parse HEAD)
+    build_head=$(git rev-parse HEAD)
+    if [ "$source_head" != "$build_head" ]; then
+        echo "ERROR: worktree HEAD $build_head does not match source $source_head" >&2
+        exit 1
+    fi
+else
+    git fetch -q origin "$BRANCH"
+    git checkout -q "$BRANCH"
+    git reset --hard -q "origin/$BRANCH"
+fi
 # reset --hard reverts tracked files but leaves patch-CREATED (untracked)
 # sources behind, which fools the patches' "already applied" greps while
 # their tracked Makefile/Kconfig hunks are gone — the nbcon assert caught
@@ -2101,6 +2110,20 @@ if [ "${1:-}" = "image" ]; then
     if [ "${NVME_THREADED_IRQ:-0}" = "1" ]; then
         image_name="${image_name}-threaded-irq"
         map_name="${map_name}-threaded-irq"
+    fi
+
+    # Reproducible integration builds often combine an already-used feature
+    # name with a new, reviewed contract.  Let the caller publish under a
+    # distinct non-clobbering suffix instead of setting KBUILD_OVERWRITE=1.
+    if [ -n "${ARTIFACT_SUFFIX:-}" ]; then
+        case "$ARTIFACT_SUFFIX" in
+            *[!a-zA-Z0-9._-]*|"")
+                echo "ERROR: ARTIFACT_SUFFIX must use only [a-zA-Z0-9._-]" >&2
+                exit 1
+                ;;
+        esac
+        image_name="${image_name}-${ARTIFACT_SUFFIX}"
+        map_name="${map_name}-${ARTIFACT_SUFFIX}"
     fi
 
     # Ticket 154: assert the PAGE SIZE from the built arm64 Image header, before the

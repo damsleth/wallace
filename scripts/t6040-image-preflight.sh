@@ -8,12 +8,13 @@
 #
 # Usage:
 #   scripts/t6040-image-preflight.sh --kernel <Image> [--initramfs <cpio.gz>] \
-#       [--object <raw-object.bin>] [--bootargs '<args>'] [--m1n1 <m1n1.bin>]
+#       [--object <raw-object.bin>] [--bootargs '<args>'] [--m1n1 <m1n1.bin>] \
+#       [--stage2-loader]
 #
 # Exit 0 only if every applicable invariant holds. See docs/BUILD_RECIPE.md.
 set -uo pipefail
 
-KERNEL="" INITRAMFS="" OBJECT="" BOOTARGS="" M1N1=""
+KERNEL="" INITRAMFS="" OBJECT="" BOOTARGS="" M1N1="" STAGE2_LOADER=0
 while [ $# -gt 0 ]; do
     case "$1" in
         --kernel) KERNEL=$2; shift 2 ;;
@@ -21,6 +22,7 @@ while [ $# -gt 0 ]; do
         --object) OBJECT=$2; shift 2 ;;
         --bootargs) BOOTARGS=$2; shift 2 ;;
         --m1n1) M1N1=$2; shift 2 ;;
+        --stage2-loader) STAGE2_LOADER=1; shift ;;
         *) echo "unknown argument: $1" >&2; exit 2 ;;
     esac
 done
@@ -139,8 +141,20 @@ if [ -n "$M1N1" ]; then
     fi
     if [ "$(strings -a "$M1N1" | grep -c 'Waiting for proxy connection')" -eq 0 ]; then
         pass "window-free m1n1 (boots straight through)"
+    elif [ "$STAGE2_LOADER" -eq 1 ]; then
+        pass "stage-2 loader has the reviewed permanent proxy escape window"
     else
         warn "this m1n1 waits for a proxy -- correct for a rollback object only"
+    fi
+    if [ "$STAGE2_LOADER" -eq 1 ]; then
+        for marker in 'stage2: consumed one-shot no-media proxy cookie' \
+                      'stage2: exact gP19 endpoint power enabled'; do
+            if [ "$(strings -a "$M1N1" | grep -Fc "$marker")" -eq 1 ]; then
+                pass "stage-2 marker: $marker"
+            else
+                fail "missing unique stage-2 marker: $marker"
+            fi
+        done
     fi
 fi
 
@@ -204,7 +218,11 @@ PY
                     else
                         fail "object does NOT embed $what"
                     fi ;;
-                NOFIND) warn "could not locate an embedded initramfs to inspect" ;;
+                NOFIND) if [ "$STAGE2_LOADER" -eq 1 ]; then
+                            pass "stage-2 loader intentionally has no embedded initramfs"
+                        else
+                            warn "could not locate an embedded initramfs to inspect"
+                        fi ;;
             esac
         done <<EOF
 $EMBEDDED

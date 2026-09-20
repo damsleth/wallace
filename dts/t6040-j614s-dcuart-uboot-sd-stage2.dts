@@ -1,0 +1,32 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * J614s U-Boot-only SD stage 2.  m1n1 owns exact gP19 endpoint power and
+ * common PCIe PHY/link initialization.  U-Boot may attach to the already-up
+ * port 1 link, enumerate the GL9755, own DART1/MMC, and read a FAT bundle.
+ */
+
+#include "t6040-j614s-dcuart-pcie.dts"
+
+/ {
+	model = "Apple MacBook Pro (M4 Pro) J614s [U-Boot SD stage 2]";
+};
+
+&pcie0 {
+	apple,preinitialized-only;
+	/delete-property/ pinctrl-0;
+	/delete-property/ pinctrl-names;
+};
+
+&port00 { status = "disabled"; };
+&port01 {
+	status = "okay";
+	/delete-property/ reset-gpios;
+};
+&port02 { status = "disabled"; };
+&port03 { status = "disabled"; };
+
+&pcie0_dart_0 { status = "disabled"; };
+&pcie0_dart_1 { status = "okay"; };
+
+/* The preinitialized-only driver never requests GPIO/pinctrl resources. */
+&pinctrl_ap { status = "disabled"; };

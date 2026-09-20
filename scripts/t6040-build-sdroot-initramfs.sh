@@ -40,6 +40,19 @@ printf '%s  %s\n' "$KEYMAP_SHA256" "$KEYMAP" | shasum -a 256 -c -
 install -d -m 0755 "$TMP/etc"
 install -m 0644 "$KEYMAP" "$TMP/etc/wallace-no.bmap"
 
+# Proven J614s volatile trackpad firmware. Ticket 230 confirmed real finger
+# events and haptic click with this exact blob plus the v2 power contract.
+# This is loaded into coprocessor RAM only; it is never flashed persistently.
+TRACKPAD_FIRMWARE=${TRACKPAD_FIRMWARE:-$OUT/t6040-paired-fw-25F84/vendorfw/apple/tpmtfw-j614s.bin}
+TRACKPAD_FIRMWARE_SHA256=a1f4131d0cb7caf6fa15b19f47725458a6d7b0e3a34f15169339d5541663d9e2
+[ -f "$TRACKPAD_FIRMWARE" ] || {
+    echo "missing paired J614s trackpad firmware: $TRACKPAD_FIRMWARE" >&2
+    exit 1
+}
+printf '%s  %s\n' "$TRACKPAD_FIRMWARE_SHA256" "$TRACKPAD_FIRMWARE" | shasum -a 256 -c -
+install -d -m 0755 "$TMP/lib/firmware/apple"
+install -m 0644 "$TRACKPAD_FIRMWARE" "$TMP/lib/firmware/apple/tpmtfw-j614s.bin"
+
 # Carry the SD-root helpers so /init can install them onto a root that is merely
 # out of date, instead of stranding the machine in a rescue shell. The card no
 # longer has to be kept in lockstep with this repo by hand.
@@ -86,6 +99,7 @@ fi
 python3 "$ROOT/scripts/reproducible-newc.py" "$TMP" | gzip -n -9 >"$DEST"
 
 for item in init shutdown bin/busybox sbin/fsck.exfat etc/wallace-no.bmap \
+    lib/firmware/apple/tpmtfw-j614s.bin \
     opt/wallace/t6040-sdroot-early-console opt/wallace/t6040-sdroot-inittab \
     lib/firmware/brcm/brcmfmac4388c0-pcie.apple,mriya-WLMT-u.bin \
     lib/firmware/brcm/brcmbt4388c2-apple,mriya-u.bin; do

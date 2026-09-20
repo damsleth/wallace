@@ -13,6 +13,9 @@ explains why each one exists.
         --object     $OUT/<name>.raw-object.bin \
         --bootargs   '<the exact bootargs>'
 
+For the reviewed removable-media stage-2 loader, which intentionally embeds no
+Linux image and keeps the proxy escape hatch, add `--stage2-loader`.
+
 Exit 0 means every applicable invariant holds. **Nothing gets enrolled, handed
 to CJ, or booted on the rig until this passes.**
 
@@ -85,13 +88,22 @@ wrong artifact — not a power rail.
 
 - Size a whole multiple of **16 KiB**, or iBoot never runs it.
 - Entry point `0x800`.
-- **Window-free m1n1** for anything CJ enrolls as a daily driver
+- **Window-free m1n1** for an object that directly embeds the daily Linux image
   (`strings -a m1n1.bin | grep -c 'Waiting for proxy connection'` → `0`).
   An always-proxy build is correct *only* for the rollback object.
-- Verify with `t6040-raw-object-verify.py --strict`. If you pass an
+- The reviewed removable-media stage-2 object is the narrow exception: it keeps
+  a three-second host-DTR proxy escape before dispatching U-Boot, and consumes a
+  one-shot no-media cookie after U-Boot's watchdog warm reset. It contains no
+  Linux image itself. Run preflight with `--stage2-loader`; this exception does
+  not make an unbounded proxy wait acceptable for other daily objects.
+- Verify a direct Linux object with `t6040-raw-object-verify.py --strict`. If you pass an
   uncompressed `Image`, use `--kernel-output` and verify against that member —
   the packer compresses internally, so verifying against the raw file fails on
   the kernel hash.
+- Build the removable-media loader with
+  `t6040-build-removable-stage2-object.py`, retain its component manifest, and
+  run image preflight with `--stage2-loader`; the direct-Linux verifier does not
+  parse the m1n1 + DTB + arm64 U-Boot stream.
 
 ### 5. Initramfs contents
 
