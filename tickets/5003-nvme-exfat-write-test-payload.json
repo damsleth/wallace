@@ -18,9 +18,9 @@
     "m1n1-raw.elf": "5bee616c39fb745393cc4d961fe148189b1c084ef722b51d25c07941cc2a396f",
     "m1n1.bin": "7de07c714ebe8b26a408ab0a4719d10d2d208eb120eaac7d3aea03f0e36daf2a",
     "t6040-nvme.dtb": "a96d04a7c37355ed13ac6e4ac90ec319ecc3e755d584ea2b414a7ad80498845b",
-    "bootargs": "maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel printk.devkmsg=on nvmewrite=write console=ttydc0 console=tty0 rdinit=/init (verify run: nvmewrite=verify)",
+    "bootargs": "maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel printk.devkmsg=on console=ttydc0 console=tty0 nvmewrite=write|verify rdinit=/init (exact boot-dcuart CMDLINE; preflight OK both modes)",
     "payload_dir": "/Users/damsleth/Code/linux-build-out/nvme-exfat-write-20261025/payload",
-    "notes": "Image = NVME_EXFAT build1 (Mythos config PASS, evidence/2026-10-25-review-5003-nvmeexfat-kernel.md); build2 byte-compare pending at pin time. DTB/m1n1 = 6001 run 3. initramfs-write-a == -b. Preflight OK (proxy-m1n1 WARN expected for chainload). Host deadline 180 s; checker scripts/t6040-check-nvme-write-transcript.py."
+    "notes": "Image = NVME_EXFAT build1 (Mythos config PASS, evidence/2026-10-25-review-5003-nvmeexfat-kernel.md); build2 byte-compare pending at pin time. DTB/m1n1 = 6001 run 3. initramfs-write-a == -b. Preflight OK (proxy-m1n1 WARN expected for chainload). Host deadline 180 s; checker scripts/t6040-check-nvme-write-transcript.py. Run with scripts/t6040-run-nvme-write.sh (enforced 300 s post-handoff deadline -> macvdmtool reboot). Exact-artifact review: Mythos PASS-with-notes, evidence/2026-10-25-review-5003-payload-exact.md."
   },
   "created": 1792879898,
   "evidence": [
