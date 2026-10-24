@@ -42,3 +42,14 @@ CJ frees the device: for example, quit whatever app is driving
 `ioreg` shows no `deviceinterfaced` client on `Debug USB`. Then the next
 holder runs the normal recovery boot, `rig-lease.sh recovered`, and
 re-attempts 305 unchanged.
+
+## Follow-up (same evening)
+
+After kisd was stopped, the M4 no longer presented "Debug USB" to the host
+(no registry entry), so the `deviceinterfaced` claim could not be re-checked.
+A second bounded recovery (`T6040_KEEPALIVE=1 … reboot`) failed at
+**`Failed to send VDM`** on the debug-USB switch. Per the
+2026-07-24 recovery checklist that stops further VDM attempts; the next
+escalation is a physical power cycle of the M4. Lease released wedged again.
+kisd showed no exclusive-access error this time, only "Waiting for device",
+because no Debug USB device was present.
