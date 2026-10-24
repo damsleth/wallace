@@ -255,8 +255,20 @@ the discipline around them.
   phase logic, and the “wrong submission doorbell window” explanation have
   been tested or refuted.
 - Hard-IRQ completion, live admin traffic, and other remaining execution-order
-  differences are candidates, not established causes.
-- Linux NVMe writes remain blocked.
+  differences were candidates; none turned out to be the cause.
+- **Linux reads work (6001 run 3, 2026-10-24).** The assert was the IOQ size:
+  the 0x1210 fields are zero-based, and the driver wrote 64 for 64-entry rings
+  (upstream and m1n1 write 63). With 63, 16,384 direct 16 KiB reads ran
+  through about 256 CQ wraps at `maxcpus=1`, byte-identical across four passes,
+  zero writes, clean full dmesg
+  ([evidence](../evidence/2026-10-24-t6001-run3-16384-reads-no-cq-wrap-assert.md)).
+  Sustained reads, multi-CPU and the 227 teardown UAF are unproven.
+- The `APPLE SSD AP1024Z` (`apple-nvme`) exposes one controller with **three
+  namespaces**: n1 1,954,210,120 sectors (the 1 TB disk, p1–p3), and Apple
+  auxiliary n2 at 6,144 sectors (3 MiB) and n3 at 262,144 (128 MiB). Gates must
+  pin this topology rather than reject a second namespace.
+- Linux NVMe writes remain unproven (211) and NVMe stays disabled in the daily
+  DTB.
 
 ### Trackpad
 
@@ -323,6 +335,19 @@ the discipline around them.
   attended ticket 305 retains its fixture and execution gates. Apple-specific init and
   print-instrumentation work are fallback only if this corrected address
   stalls.
+- **305 run 6 (2026-10-24): a1 SPMI works.** At `0x509198000` both
+  `apple-spmi` controllers bound with no hang, SError or DART fault, the first
+  time Linux drove the real a1 controller. hpm2 enumerates as SPMI device
+  `1-0c`, but `tps6598x-spmi` probe returned a silent `-ENODEV`: no typec
+  class, no VBUS
+  ([evidence](../evidence/2026-10-24-t6040-305-run6-a1-physfix-probes-hpm2-enodev.md)).
+- `spmi-apple` implements only `read_cmd`/`write_cmd`. Without `.cmd`,
+  `spmi_cmd()` returns `-EINVAL` before any MMIO, so the 0001 probe's
+  unchecked WAKEUP never reached the bus. `t6040-spmi-wakeup-and-tipd-probe-diag.patch`
+  (f430d1f) adds a WAKEUP-only `.cmd` (opcode 0x13, word `0x00008c13` for SID
+  0x0c, matching m1n1) and fails closed. Review PASS-with-notes
+  ([review](../evidence/2026-10-24-t6040-pdwake-patch-independent-review.md));
+  hardware proof is pending. VBUS is still not proven.
 
 ## October upstream operating knowledge
 
@@ -369,6 +394,9 @@ Do not repeat these without new evidence:
   local m1n1 write 63. This is specific new evidence for ticket 6000/6001, not a
   reason to repeat generic depth/batching/doorbell experiments. Hardware
   validation is pending; neither NVMe reads nor writes are newly signed off.
+  **Resolved for reads, 2026-10-24:** 6001 run 3 with the zero-based size
+  passed about 256 CQ wraps, so this was the Linux CQ-wrap cause. Writes are
+  still unproven.
 
 - **A latched SMC power rail as the cause of a missing SD reader (2026-08-03).**
   The reader, the card, and the rail were all fine. `$OUT/Image` was the Jul 24
@@ -424,7 +452,21 @@ Do not repeat these without new evidence:
   CPU-physical `/soc` address, or treating ticket 305 runs 1--4 as proof that
   the real a1 controller stalls. `/arm-io/ranges` translates it to
   `0x509198000`; test the reviewed corrected DTB before proposing controller
-  initialization or MMIO instrumentation.
+  initialization or MMIO instrumentation. **Confirmed by 305 run 6
+  (2026-10-24):** a1 binds and works at `0x509198000`.
+- Treating `spmi_command_wakeup()` as sent on Apple SPMI (2026-10-24). Before
+  f430d1f, `spmi-apple` had no `.cmd`, so the call returned `-EINVAL` silently.
+  The 2026-08-18 review recorded WAKEUP as sanctioned without checking that the
+  controller could emit it. Check the return value of every bus command.
+- Losing the evidence log (2026-10-24). `/dev/kmsg` is rate-limited by default
+  (`printk_devkmsg=ratelimit`); 6001 run 3's tester PASS line was dropped
+  (`init: 60 output lines suppressed`), so the formal checker could not pass.
+  Boot payloads whose verdict goes through `/dev/kmsg` with
+  `printk.devkmsg=on`, or keep their output below the limit. Never run
+  `dmesg -c` before preserving the full ring buffer: 305 run 6 lost its full
+  boot dmesg that way. Match upper-case fault tokens (`BUG:`, `SError`,
+  `panic`) case-sensitively: a case-insensitive `BUG:` matched
+  `printk: debug:` (from `ignore_loglevel`) and false-stopped 6001 run 2.
 - A G14 GPU configuration relabeled as T6040/G16.
 
 ## Milestone chronology
@@ -444,6 +486,7 @@ Do not repeat these without new evidence:
 | 2026-08-04 | SD-root daily-driver baseline (Xorg/i3, WiFi, Norwegian layouts, self-healing card); **trackpad transport fixed live** — the v2 interface power request is accepted, firmware consumed, `Touch MT ready` (230); right-port USB regressed to a dwc3 core-init `-EINVAL` (108) and the PD controllers were identified as driverless SPMI `sn201202x` (231) |
 | 2026-08-18 | USB lane fully staged offline: dwc3 `-EINVAL` root cause (v1 phy-mode ordering) fixed and reviewed; the v2phy re-run image built and byte-reproduced fresh-vs-fresh (`80248306…`, 303) — the two-build protocol caught a real one-byte stale object in a reused dir; tps6598x SPMI transport passed exact-source review; draft hpm2-only PD connector DT compiled; everything now waits on binary review, CJ's SPMI-envelope sign-off, and rig time |
 | 2026-08-19 | USB2 data path verified live and no-child disambiguated to no VBUS; PD image runs then hung because the DT used raw `/arm-io` `0x309198000` as a CPU physical address. Offline audit 3000 proved `0x509198000`; candidate 3008 rebuilt that DT-only correction twice byte-identically (`eaf8cceb...`). Await independent exact review, then resume attended 305. |
+| 2026-10-24 | **Linux NVMe reads work**: 16,384 direct reads through ~256 CQ wraps at `maxcpus=1` with the zero-based ANS2 IOQ size (6001 run 3). 305 run 6: a1 SPMI binds at `0x509198000`; hpm2 probe `-ENODEV` traced to the missing `spmi-apple` `.cmd`, WAKEUP fix reviewed. SD-root shutdown fixed in a host harness (3006) |
 
 Detailed transcripts, hashes, retractions, and per-experiment stop conditions
 remain in dated files under `evidence/` and in Git history.

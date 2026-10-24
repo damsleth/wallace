@@ -1,6 +1,6 @@
 # T6040 Linux bring-up — next steps
 
-Current as of 2026-10-24 (no new local hardware validation in the October review). This file states priorities and stop conditions.
+Current as of 2026-10-24 (Linux NVMe reads validated on hardware; 305 run 6 reached a1 SPMI). This file states priorities and stop conditions.
 Exact work items, hashes, dependencies, and approval state live in
 `tickets/*.json`.
 
@@ -13,7 +13,7 @@ unambiguously:
 | capability | state |
 |---|---|
 | SD read/write | reader and persistence proven; fixture needs `fsck.exfat` repair |
-| USB read/write | device mode works; **USB2 host data path DONE 2026-08-19** (108) — dwc3 probes, right xHCI root hubs healthy. VBUS is the sole gap; the tps6598x SPMI PD driver is written and CJ-signed-off (231), attended run staged (305) |
+| USB read/write | device mode works; **USB2 host data path DONE 2026-08-19** (108) — dwc3 probes, right xHCI root hubs healthy. VBUS is the sole gap; the tps6598x SPMI PD driver is CJ-signed-off (231). 305 run 6: a1 SPMI binds, PD probe `-ENODEV` (WAKEUP never sent); fix reviewed, build pending |
 | NVMe read/write | **Linux reads work (6001 run 3, 2026-10-24):** 16,384 direct reads through ~256 CQ wraps at `maxcpus=1`, no assert, with the zero-based ANS2 IOQ size; writes unproven (211) |
 | WiFi | works, including DHCP and routed traffic |
 | Bluetooth | `hci0` present and working |
@@ -33,23 +33,21 @@ Standing constraints for autonomous work:
 
 ## Immediate experiment: ANS2 queue-size contract
 
-In September, CJ confirmed no firmware, enrolled-loader, or SD-fixture changes
-since August 19. Reconfirm fixture identity before the next run; that statement
-is not an October firmware inventory.
-The [August–September IRC review](../evidence/2026-09-20-asahi-dev-review.md)
-identified a concrete NVMe mismatch: the local Linux driver writes 64 into the
-ANS2 zero-based IOQ-size fields at 0x1210, while allocating/wrapping 64 entries.
-The upstream ANS2 implementation writes 63 after registering the queue bases.
-This is a **candidate explanation**, not a hardware-validated fix.
+**Resolved for reads (6001 run 3, 2026-10-24).** The local Linux driver wrote
+64 into the zero-based ANS2 IOQ-size fields at 0x1210 for 64-entry rings;
+upstream and m1n1 write 63. With the 6000 fix, 16,384 direct 16 KiB reads ran
+through about 256 CQ wraps at `maxcpus=1`: data byte-identical over four
+passes, +16,384 reads and zero writes on n1, auxiliary n2/n3 unchanged, clean
+full dmesg ([run 3](../evidence/2026-10-24-t6001-run3-16384-reads-no-cq-wrap-assert.md)).
+Runs 1 and 2 stopped on payload defects, not hardware: the gate rejected the
+SSD's three namespaces, then the log watchdog matched `BUG:` in `debug:`
+([run 1](../evidence/2026-10-24-t6001-run1-gate-parked-three-namespaces.md),
+[run 2](../evidence/2026-10-24-t6001-run2-tester-false-stop.md)).
 
-Ticket 6000 is complete: two clean byte-identical builds, preflight and
-independent exact-artifact review all pass;
-[exact payload and run plan](../evidence/2026-09-21-nvme-ans2-ioq-candidate.md).
-Ticket 6001 is proposed for a RAM-only, `maxcpus=1`, read-only DebugUSB test with
-16,384 direct 16 KiB reads, repeated-data comparison and device-counter checks.
-CJ asked to build and get ready, and will signal when the M4 is waiting for
-its payload. No rig access until then; no enrollment, block-device filesystem mounts or
-NVMe writes. SD/USB/trackpad integration and SMP work remain open as below.
+The formal transcript checker is not green: `/dev/kmsg` ratelimiting dropped
+the tester's PASS line. A formal re-run needs `printk.devkmsg=on`, which
+changes the bootargs and therefore needs a small re-review. Not established:
+writes (211), sustained reads, multi-CPU, the 227 teardown UAF.
 
 ## October upstream findings and offline follow-ons
 
@@ -205,40 +203,29 @@ clean return to the enrolled rollback proxy, with no media write or enrollment.
 Physical bundle installation and untethered enrollment get separate tickets
 only after an exact removable target and hashes exist.
 
-## 3. Isolate the Linux NVMe CQ-wrap assert
+## 3. NVMe after the CQ-wrap fix: formal re-run, then writes
 
-Current facts:
+The Linux CQ-wrap assert was the non-zero-based IOQ size (see Immediate
+experiment). Raw m1n1 reads were already stable; Linux reads now pass at
+`maxcpus=1`. NVMe stays disabled in the daily DTB until writes are proven.
 
-- raw m1n1 reads survive several queue wraps;
-- Linux enumerates namespaces and mounts the exFAT partition briefly;
-- Linux asserts at its first I/O CQ wrap;
-- queue depth, one outstanding I/O, tag value, CQ IRQ enable, batching, phase,
-  and several address hypotheses have been tested or refuted;
-- hard-IRQ completion remains an unmatched difference, not a proven cause.
+Order:
 
-Order (conditional follow-ons; 6001 comes first):
+1. **6001 formal re-run (optional):** the same payload with
+   `printk.devkmsg=on`, after a small bootargs re-review, so the checker sees
+   the PASS line. Preserve the full dmesg before anything clears it.
+2. **211 (approved, not yet ready):** the write soak, only within CJ's
+   recorded authorization: writes via the mounted exFAT `linux` filesystem
+   (label *and* GPT type verified) and raw writes to `p3` only, never raw
+   writes to `/dev/nvme0n1` or any APFS partition. It needs an exact payload,
+   review and its own ready/approval cycle (196/211 own the write work).
+3. Sustained reads, multi-CPU NVMe and the 227 teardown UAF remain open.
 
-0. **6001:** run the already reviewed zero-based IOQ-size candidate under its
-   existing execution gate. Preserve that result before selecting a follow-on.
-1. **201:** capture and hash one complete modern RTKit crashlog with the
-   logging-only decoder patch only after its outer-bounds review is resolved.
-   It was excluded from candidate 6000. Preserve the first transcript; do not
-   retry an unchanged run.
-2. **203:** produce two byte-identical builds of the per-driver threaded-IRQ
-   discriminator and independently review the exact object.
-3. **210 (approved):** run the reviewed discriminator against the assert.
-   Hard-IRQ completion remains an unproven discriminator; boot the SD
-   root at `maxcpus=1` once ticket 215 has restored a clean root, then drive
-   sustained reads until the assert fires or the time box passes.
-4. **195:** test live admin traffic in m1n1 only after its artifact and plan
-   satisfy the normal gate.
-5. **196/211:** defer NVMe writes until the CQ-wrap failure is understood or
-   safely avoided. Ticket 211 then owns the write soak, and only within CJ's
-   recorded authorization: writes via the mounted filesystem and raw writes
-   to `p3` only — never raw writes to `/dev/nvme0n1` or any APFS partition.
-
-Do not revive the refuted “wrong MMIO window,” non-zero tag, batching, or
-simple queue-depth explanations without new evidence.
+Parked: 201 (RTKit crashlog decoder), 203/210 (threaded-IRQ discriminator) and
+195 (live admin traffic in m1n1) were follow-ons for the assert. Revive them
+only if an assert reappears with the zero-based size. Do not revive the
+refuted “wrong MMIO window,” non-zero tag, batching, or simple queue-depth
+explanations without new evidence.
 
 ## 4. Keep the strict SD fixture sequence honest
 
@@ -308,6 +295,26 @@ PD/VBUS live run (305), including an R0
 connector-state read (229) to learn whether the right port already sources
 VBUS; then the PD-enabled image through the normal build/review cycle. SPMI
 stays deny-by-default; the only described PD endpoint is right-port `hpm2`.
+
+**305 run 6 (2026-10-24,
+[evidence](../evidence/2026-10-24-t6040-305-run6-a1-physfix-probes-hpm2-enodev.md)):**
+at `0x509198000` both SPMI controllers bound, with no hang, SError or DART
+fault; runs 1–4 hung only on the raw address. hpm2 appeared as `1-0c`, but
+`tps6598x-spmi` probe returned a silent `-ENODEV`; no typec class, no VBUS, no
+child. **305 PASS not met.** Confirmed from source: `spmi-apple` has no
+`.cmd`, so `spmi_command_wakeup()` returns `-EINVAL` without touching the bus,
+and the probe ignored that result. That an un-woken part then reads VID 0 and
+causes the `-ENODEV` is consistent with 093 but not yet hardware-proven.
+
+Fix: `patches/t6040-spmi-wakeup-and-tipd-probe-diag.patch` (f430d1f) adds a
+WAKEUP-only `.cmd` (every other opcode `-EOPNOTSUPP`), fails the probe closed on
+WAKEUP error, waits 10 ms and logs the power state and VID. Within SPMI_SAFETY
+Entry 1; independent review PASS-with-notes
+([review](../evidence/2026-10-24-t6040-pdwake-patch-independent-review.md)).
+Next: two byte-identical `pdwake` builds and artifact review, then an attended
+run. Expect `after WAKEUP: power-state … state=0x07`; `state=0x00` with VID 0
+points at the select/window protocol instead. The host must first free the
+Debug USB device from `deviceinterfaced` ([RUNBOOK](RUNBOOK.md) §2).
 
 ## 7. Parked tracks
 

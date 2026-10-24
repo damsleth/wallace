@@ -21,8 +21,9 @@ Live status, the six-capability table, and current priorities are in
 `docs/NEXT_STEPS.md` — the single source of truth; do not restate status here.
 In brief: SD-root daily-driver baseline works at `maxcpus=1`; trackpad DONE
 (touch + haptics, 230); USB2 host data path DONE with VBUS the sole gap (108,
-PD driver signed off 231/305); NVMe disabled in the daily DTB (206/227); multi-core
-fault 205 is fail-stop; GPU, backlight, audio, camera, suspend open.
+PD driver signed off 231/305); NVMe disabled in the daily DTB (206/227), though
+Linux NVMe reads now work at `maxcpus=1` (6001 run 3; writes unproven);
+multi-core fault 205 is fail-stop; GPU, backlight, audio, camera, suspend open.
 
 **Before blaming hardware, verify the kernel.** `$OUT/Image` is what boots and
 is *not* updated by the named `Image-<config>` artifacts, so it can be weeks

@@ -1,6 +1,6 @@
 # T6040 runbook
 
-Current as of 2026-08-03. This file contains operational commands only.
+Current as of 2026-10-24. This file contains operational commands only.
 Read [COORDINATION.md](COORDINATION.md) before a rig run and
 [DEVLOG.md](DEVLOG.md) for failure history.
 
@@ -29,6 +29,21 @@ for `Running proxy`. Confirm the proxy:
 
 Do not leave a manual `cat /tmp/m1n1` running while proxyclient owns the PTY;
 it will steal reply bytes.
+
+**Host prerequisite (macOS 15.8.1, 2026-10-24).** `deviceinterfaced` can claim
+the M4's "Debug USB" device (`05ac:1881`). Symptom: kisd repeats
+`could not open device for exclusive access (error 0xe00002c5)`, no proxy
+reply, and `ioreg` shows `IOUserClientCreator = "pid …, deviceinterfaced"` on
+`Debug USB`. Workaround, **run by CJ, not an agent**: start kisd first and
+leave it retrying, then
+
+    sudo kill -9 $(pgrep -x deviceinterfaced)
+
+kisd then takes the device, and the respawned daemon does not reclaim it while
+kisd holds it. `launchctl kill` is refused under SIP. If a recovery reboot
+fails with `Failed to send VDM`, stop VDM attempts; the next step is a
+physical power cycle of the M4.
+[Evidence](../evidence/2026-10-24-t6040-305-attempt-kis-blocked-by-deviceinterfaced.md).
 
 ## 3. Chainload
 

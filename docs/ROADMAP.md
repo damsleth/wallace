@@ -1,6 +1,6 @@
 # T6040 / J614s Linux roadmap
 
-Reviewed 2026-10-24; local hardware milestones remain unchanged. This is the stage map; tickets contain the executable
+Reviewed 2026-10-24; Linux NVMe reads now pass at `maxcpus=1` (6001 run 3). This is the stage map; tickets contain the executable
 work and [NEXT_STEPS.md](NEXT_STEPS.md) contains the current order.
 
 ## Project state
@@ -107,7 +107,8 @@ Open:
 - enable panel backlight control (keyboard backlight already works);
 - bring up USB host: the USB2 data path is proven (108); VBUS remains, sourced by
   the reviewed, CJ-signed-off SPMI PD driver (231) under a reversible Type-C
-  contract, attended run staged (305).
+  contract. 305 run 6 (2026-10-24) reached the real a1 SPMI controller; the
+  PD probe failed because WAKEUP was never sent, and that fix is reviewed.
 
 The SD path replaces USB root as the immediate persistence route.
 
@@ -160,8 +161,10 @@ Required for completion: repair the currently dirty exFAT and ext4 filesystems;
 validate the shutdown pivot and post-shutdown clean checks; reliable SSH;
 WiFi/Bluetooth services; Xorg/i3 startup; repeated cold-boot validation.
 
-Internal NVMe is a later replacement candidate — Linux reaches real filesystem
-I/O but still loses the controller at the first I/O CQ wrap.
+Internal NVMe is a later replacement candidate. Linux reads pass through
+repeated CQ wraps at `maxcpus=1` since the zero-based IOQ-size fix (6001 run
+3, 2026-10-24); writes (211), sustained use and multi-CPU are unproven, and
+NVMe stays disabled in the daily DTB.
 
 ## Completion criteria
 
