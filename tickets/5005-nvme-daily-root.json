@@ -1,0 +1,15 @@
+{
+  "seq": "5005",
+  "slug": "nvme-daily-root",
+  "needs": "offline",
+  "state": "open",
+  "track": "storage",
+  "priority": "P0",
+  "desc": "Daily driver rooted on the internal-SSD exFAT 'linux' partition (p3, 170 GiB, pinned by 5001), per CJ 2026-10-25. Pattern = proven SD-root: exFAT holds an ext4 wallace-root.img loop-mounted as /, with the 3006-fixed /run tmpfs + PID-1 shutdown pivot. Steps: (1) 5003 write test PASS (write + reboot verify); (2) host-built ext4 root image from Astra's staged Alpine Wi-Fi/BT/OBEX daily root (scripts/t6040-stage-usb-daily-root.py) + Norwegian keymap at all layers, sized ~16 GiB, compressed; (3) one-shot installer initramfs that applies the 5003 gates, then streams the image onto p3 as wallace-root.img and verifies its sha256; (4) nvme-root init = sdroot init with the SD/GL9755 gates replaced by the 5003 NVMe/p3 pins, tested in the 3006 harness (exFAT on a 4 KiB loop device); (5) daily kernel = daily301 feature set (trackpad, WiFi/BT, cpufreq, PPP) + NVME + NVME_IOQ_SIZE + EXFAT, two identical builds, preflight; (6) attended boot, 3 cold boots with clean poweroff + fsck postcheck. maxcpus=1 until 205 is solved; USB PD added once 305 passes.",
+  "author": "claude",
+  "deps": [
+    "5003"
+  ],
+  "hashes": null,
+  "created": 1792882735
+}
