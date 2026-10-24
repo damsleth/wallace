@@ -1,0 +1,18 @@
+{
+  "seq": "5002",
+  "slug": "tipd-spmi-connector-state-diag",
+  "needs": "offline",
+  "state": "open",
+  "track": "usb",
+  "priority": "P1",
+  "desc": "Offline: build the R0-only connector-state diagnostic sketched in evidence/2026-10-24-t6040-hpm2-source-vbus-re.md §5.3/§6, for use ONLY if 305 run 7 reaches S0 but shows no VBUS (PARTIAL). Adds dev_info readbacks of STATUS 0x1a, PD status 0x40, data status 0x5f, PORTINFO 0x28 and the unnamed 0x5d/0x2c after probe, decoding PLUG_PRESENT, PORTROLE, PP_5V0 switch and VBUS status. Reads only; no new transaction class; Entry 1 unchanged. Deliver patch, two identical builds, independent review. Do not start before run 7 shows PARTIAL.",
+  "author": "claude",
+  "deps": [
+    "305"
+  ],
+  "hashes": null,
+  "created": 1792879897,
+  "evidence": [
+    "evidence/2026-10-24-t6040-hpm2-source-vbus-re.md"
+  ]
+}

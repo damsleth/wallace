@@ -1,0 +1,18 @@
+{
+  "seq": "5003",
+  "slug": "nvme-exfat-write-test-payload",
+  "needs": "offline",
+  "state": "open",
+  "track": "nvme",
+  "priority": "P1",
+  "desc": "Offline: build the ticket-211 stage-1 write payload once probe 5001 has pinned the rebuilt exFAT 'linux' partition (label, GPT type EBD0A0A2-B9E5-4433-87C0-68B6B72699C7, start/size). Same kernel/DTB/m1n1 as 6001 run 3. Init: 6001 topology+identity gates, then exact partition pins (abort on any mismatch, never by partition number); n1, other partitions, n2/n3 read-only; fsck.exfat -n before; mount the partition rw; write a deterministic 1 GiB pattern file, fsync, sha256; umount; fsck.exfat -n; remount ro; re-verify sha256; log block stats; printk.devkmsg=on. Plus host checker and a second-boot verify mode. Two identical builds, preflight, independent review. Writes confined to that one exFAT partition per CJ's 2026-08-03 rule.",
+  "author": "claude",
+  "deps": [
+    "5001"
+  ],
+  "hashes": null,
+  "created": 1792879898,
+  "evidence": [
+    "evidence/2026-10-24-t6001-run3-16384-reads-no-cq-wrap-assert.md"
+  ]
+}

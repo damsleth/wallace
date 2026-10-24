@@ -1,0 +1,16 @@
+{
+  "seq": "5004",
+  "slug": "spmi-safety-doc-corrections",
+  "needs": "offline",
+  "state": "open",
+  "track": "usb",
+  "priority": "P2",
+  "desc": "Offline doc fix for CJ review: evidence/2026-10-24-t6040-hpm2-source-vbus-re.md §8 says SPMI_SAFETY's R3 register list (0x23, 0x24, 0x55) and the HAL-class note (Type3 not Type5) are stale, and that Apple's SPMI write path stages payload at window 0xa0. Draft the corrections to docs/SPMI_SAFETY.md as a proposed diff in evidence for CJ to approve; do not change permissions.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1792879898,
+  "evidence": [
+    "evidence/2026-10-24-t6040-hpm2-source-vbus-re.md"
+  ]
+}
