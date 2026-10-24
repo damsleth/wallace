@@ -70,7 +70,19 @@ if [ "$CLONE_SRC" != /src ]; then
 fi
 if [ ! -e "$BUILD_DIR/.git" ]; then
     echo "== clone (case-correct checkout) =="
-    git clone --local --shared "$CLONE_SRC" "$BUILD_DIR"
+    if [ "$CLONE_SRC" != /src ]; then
+        # git ignores --shared for a shallow source and copies every object.
+        # Instead borrow the mirror's object store read-only (alternates) and
+        # copy its shallow boundary; the checkout and build output are fresh.
+        git init -q "$BUILD_DIR"
+        echo "$CLONE_SRC/objects" >"$BUILD_DIR/.git/objects/info/alternates"
+        [ ! -f "$CLONE_SRC/shallow" ] || cp "$CLONE_SRC/shallow" "$BUILD_DIR/.git/shallow"
+        git -C "$BUILD_DIR" remote add origin "$CLONE_SRC"
+        git -C "$BUILD_DIR" update-ref "refs/remotes/origin/$BRANCH" "$mirror_head"
+        git -C "$BUILD_DIR" checkout -q -b "$BRANCH" "$mirror_head"
+    else
+        git clone --local --shared "$CLONE_SRC" "$BUILD_DIR"
+    fi
 fi
 cd "$BUILD_DIR"
 # The clone is made ONCE; without a fetch, host-side commits made after it

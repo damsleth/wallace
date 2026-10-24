@@ -1,0 +1,350 @@
+#!/bin/busybox sh
+# Fail-closed /init for the NVMe daily root (ticket 5005), generated from
+# t6040-sdroot-init by t6040-gen-nvmeroot-init.py; only the storage gates
+# differ. The exFAT "linux" partition (nvme0n1p3) holds wallace-root.img,
+# a 16 GiB ext4 image used as /. A small tmpfs survives switch_root so a SIGQUIT restart action
+# can pivot away from the loop root, detach it, and unmount exFAT cleanly.
+
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export PATH
+BB=/bin/busybox
+PART=/dev/nvme0n1p3
+ROOT_UUID=988d97b4-06ba-40d7-8f70-7899bb6fa297
+ROOT_BYTES=17179869184
+LOOP=""
+
+say() {
+    echo "sdroot: $*" >/dev/kmsg 2>/dev/null
+    echo "sdroot: $*"
+}
+
+# Everything the rescue shell wants to know about why the card is absent.
+# Printed before dropping the shell, because the shell may be unusable.
+diag() {
+    say "--- diagnostics ---"
+    say "partitions:"; "$BB" cat /proc/partitions 2>/dev/null
+    for h in /sys/class/mmc_host/*; do
+        [ -d "$h" ] || continue
+        say "mmc_host $("$BB" basename "$h"): slots=$("$BB" ls "$h" 2>/dev/null | "$BB" tr '\n' ' ')"
+    done
+    say "block devices: $("$BB" ls /sys/class/block 2>/dev/null | "$BB" tr '\n' ' ')"
+    say "pci devices: $("$BB" ls /sys/bus/pci/devices 2>/dev/null | "$BB" tr '\n' ' ')"
+    # Is there a keyboard at all? A rescue shell that ignores keys is usually
+    # missing an input device, not a controlling terminal.
+    say "input devices: $("$BB" ls /dev/input 2>/dev/null | "$BB" tr '\n' ' ')"
+    for i in /sys/class/input/input*; do
+        [ -r "$i/name" ] || continue
+        say "  $("$BB" basename "$i"): $("$BB" cat "$i/name" 2>/dev/null)"
+    done
+    say "--- end diagnostics ---"
+}
+
+# The rescue shell must be usable from the built-in keyboard, which means a
+# real controlling terminal. Inheriting init's stdin gives /dev/console with
+# no ctty -- busybox then prints "can't access tty: job control turned off"
+# and ignores every keypress. setsid -c on a VT fixes both.
+rescue_shell() {
+    # apple-pmgr-pwrstate emits a continuous sync_state() stream for seconds
+    # after init starts; at the default loglevel it scrolls the prompt away and
+    # makes the shell look dead. Console loglevel 1 keeps the VT usable while
+    # /dev/kmsg (and thus the serial log) still records everything.
+    echo 1 >/proc/sys/kernel/printk 2>/dev/null || true
+
+    # ALWAYS provide a shell on the serial console as well as on the panel.
+    # On 2026-08-04 a rescue shell bound only to /dev/tty1 locked the remote
+    # operator out completely: the enrolled object is window-free so there is no
+    # proxy to chainload through, and the only input path was the physical
+    # keyboard. dockchannel RX works in poll mode -- shells have been driven
+    # over /tmp/m1n1 for a whole session -- so this costs nothing and is the
+    # difference between "debuggable remotely" and "wait for someone to walk up
+    # to the machine".
+    if [ -c /dev/ttydc0 ]; then
+        setsid -c "$BB" sh -i </dev/ttydc0 >/dev/ttydc0 2>&1 &
+        say "remote rescue shell on /dev/ttydc0 (serial)"
+    else
+        say "WARNING: no /dev/ttydc0; no remote shell is available"
+    fi
+
+    for t in /dev/tty1 /dev/tty0 /dev/console; do
+        [ -c "$t" ] || continue
+        say "rescue shell on $t (keyboard should work here)"
+        setsid -c "$BB" sh -i <"$t" >"$t" 2>&1 && return
+        "$BB" setsid -c "$BB" sh -i <"$t" >"$t" 2>&1 && return
+    done
+    say "no usable VT found; falling back to an inherited-stdin shell"
+    exec "$BB" sh -i
+}
+
+stop() {
+    say "STOP: $*"
+    say "No further card writes will be attempted; use the diagnostic shell."
+    diag
+    rescue_shell
+    exec "$BB" sh -i
+}
+
+mount_core() {
+    "$BB" mount -t proc none /proc || return 1
+    "$BB" mount -t sysfs none /sys || return 1
+    "$BB" mount -t devtmpfs none /dev || return 1
+}
+
+cleanup_root() {
+    "$BB" sync
+    "$BB" umount /newroot/mnt/sd 2>/dev/null || true
+    "$BB" umount /newroot/dev 2>/dev/null || true
+    "$BB" umount /newroot/proc 2>/dev/null || true
+    "$BB" umount /newroot/sys 2>/dev/null || true
+    "$BB" umount /newroot/run/initramfs/sd 2>/dev/null || true
+    "$BB" umount /newroot/run/initramfs 2>/dev/null || true
+    "$BB" umount /newroot/run 2>/dev/null || true
+    "$BB" umount /newroot 2>/dev/null || true
+    [ -z "$LOOP" ] || "$BB" losetup -d "$LOOP" 2>/dev/null || true
+    "$BB" umount /sd 2>/dev/null || true
+}
+
+mount_core || stop "cannot mount proc, sysfs, and devtmpfs"
+
+# Norwegian console keymap, loaded before ANY shell can be spawned -- including
+# the rescue shell reached by stop(). This is a hard project requirement: the
+# machine has a Norwegian keyboard, and under the default US map |, \, @, $,
+# [], {} and the Norwegian letters are wrong or unreachable.
+#
+# The keymap is kernel state on the VT, so loading it here also covers the
+# console after switch_root; only X needs its own XkbLayout.
+# busybox provides loadkmap (binary keymap on stdin), not kbd's loadkeys.
+if [ -f /etc/wallace-no.bmap ]; then
+    if "$BB" loadkmap < /etc/wallace-no.bmap 2>/dev/null; then
+        say "Norwegian console keymap loaded"
+    else
+        say "WARNING: loadkmap failed; console stays US"
+    fi
+else
+    say "WARNING: /etc/wallace-no.bmap missing; console stays US"
+fi
+
+# Internal SSD: wait for the namespace, then apply the probe-5001 pins
+# (evidence/2026-10-25-t6040-5001-exfat-linux-identity.md) before any write.
+n=0
+while [ ! -b "$PART" ] && [ "$n" -lt 30 ]; do
+    "$BB" sleep 1
+    n=$((n + 1))
+done
+[ -b "$PART" ] || stop "$PART did not appear after ${n}s"
+n=0
+while { [ ! -b /dev/nvme0n2 ] || [ ! -b /dev/nvme0n3 ]; } && [ "$n" -lt 10 ]; do
+    "$BB" sleep 1
+    n=$((n + 1))
+done
+ns_size() { "$BB" cat "/sys/block/$1/size" 2>/dev/null; }
+[ ! -e /dev/nvme1 ] || stop "unexpected second NVMe controller"
+[ "$(ns_size nvme0n1)" = 1954210120 ] && [ "$(ns_size nvme0n2)" = 6144 ] &&
+    [ "$(ns_size nvme0n3)" = 262144 ] && [ ! -e /dev/nvme0n4 ] ||
+    stop "unexpected NVMe namespace topology"
+case "$("$BB" cat /sys/class/nvme/nvme0/transport):$("$BB" cat /sys/class/nvme/nvme0/model)" in
+    apple-nvme:APPLE\ SSD\ AP1024Z*) ;;
+    *) stop "unexpected NVMe controller identity" ;;
+esac
+# Every partition and namespace except the root container is read-only.
+for d in /dev/nvme0n1p1 /dev/nvme0n1p2 /dev/nvme0n1p4 /dev/nvme0n2 /dev/nvme0n3; do
+    [ -b "$d" ] || stop "missing $d"
+    "$BB" blockdev --setro "$d" || stop "cannot set $d read-only"
+done
+[ ! -e /dev/nvme0n1p5 ] || stop "unexpected fifth partition"
+nhex() { "$BB" dd if="$1" bs=1 skip="$2" count="$3" 2>/dev/null | "$BB" hexdump -v -e '1/1 "%02x"'; }
+[ "$("$BB" cat /sys/block/nvme0n1/nvme0n1p3/start)" = 1586917376 ] || stop "p3 start mismatch"
+[ "$("$BB" cat /sys/block/nvme0n1/nvme0n1p3/size)" = 356806656 ] || stop "p3 size mismatch"
+[ "$("$BB" cat /sys/block/nvme0n1/queue/logical_block_size)" = 4096 ] || stop "unexpected logical block size"
+# GPT entry array at LBA 2 (byte 8192); p3 is slot 2 (+256).
+[ "$(nhex /dev/nvme0n1 8448 16)" = a2a0d0ebe5b9334487c068b6b72699c7 ] || stop "p3 GPT type is not Microsoft Basic Data"
+[ "$(nhex /dev/nvme0n1 8464 16)" = dba60dea3529cb49a996b982dd646f24 ] || stop "p3 GPT unique GUID mismatch"
+[ "$(nhex /dev/nvme0n1 8480 16)" = 00ced20b00000000ff5b7b0e00000000 ] || stop "p3 GPT LBA range mismatch"
+[ "$("$BB" dd if="$PART" bs=1 skip=3 count=8 2>/dev/null)" = "EXFAT   " ] || stop "p3 is not exFAT"
+[ "$(nhex "$PART" 100 4)" = af2cdd6a ] || stop "exFAT serial is not 0x6add2caf"
+[ "$(nhex "$PART" 7733248 12)" = 83056c0069006e0075007800 ] || stop 'exFAT label is not "linux"'
+say "NVMe exFAT linux partition pinned (p3, serial 6add2caf)"
+
+# exFAT VolumeFlags is the little-endian word at byte 106; bit 1 means dirty.
+# Refuse RW mounting after a panic or unclean shutdown.
+read_flags() {
+    _f=$("$BB" dd if="$PART" bs=1 skip=106 count=2 2>/dev/null | "$BB" od -An -tu2)
+    echo "${_f##* }"
+}
+
+FLAGS=$(read_flags)
+[ -n "$FLAGS" ] || stop "could not read exFAT VolumeFlags"
+
+# Repair with a real filesystem check rather than clearing the dirty bit: an
+# unclean shutdown mid-write can leave genuine metadata inconsistency, and
+# masking the flag would mount a container we already know is suspect.
+# CJ approved carrying fsck.exfat in the initramfs for exactly this (2026-08-03).
+if [ $((FLAGS & 2)) -ne 0 ]; then
+    say "linux exFAT is dirty (VolumeFlags=$FLAGS); running fsck.exfat"
+    [ -x /sbin/fsck.exfat ] || stop "dirty exFAT but /sbin/fsck.exfat is missing"
+    /sbin/fsck.exfat -y "$PART"
+    rc=$?
+    say "fsck.exfat exit=$rc"
+    FLAGS=$(read_flags)
+    [ -n "$FLAGS" ] || stop "could not re-read exFAT VolumeFlags after fsck"
+    say "VolumeFlags after fsck=$FLAGS"
+fi
+
+# The gate is unconditional: whether the volume was clean to begin with or was
+# just repaired, it must be clean HERE or we do not mount it read-write.
+[ $((FLAGS & 2)) -eq 0 ] || stop "linux exFAT still dirty (VolumeFlags=$FLAGS) after repair; do not use RW"
+
+"$BB" mkdir -p /sd /newroot
+"$BB" mount -t exfat -o ro "$PART" /sd || stop "linux exFAT did not mount read-only"
+IMG=/sd/wallace-root.img
+if [ ! -f "$IMG" ]; then
+    "$BB" umount /sd 2>/dev/null || true
+    stop "$IMG is missing"
+fi
+IMG_BYTES=$("$BB" stat -c %s "$IMG" 2>/dev/null || true)
+if [ "$IMG_BYTES" != "$ROOT_BYTES" ]; then
+    "$BB" umount /sd 2>/dev/null || true
+    stop "$IMG has size '${IMG_BYTES:-unknown}', expected $ROOT_BYTES"
+fi
+
+LOOP=$("$BB" losetup -f 2>/dev/null || true)
+[ -n "$LOOP" ] || { "$BB" umount /sd 2>/dev/null || true; stop "no free loop device"; }
+"$BB" losetup -r "$LOOP" "$IMG" || { "$BB" umount /sd 2>/dev/null || true; stop "cannot attach $IMG read-only"; }
+
+UUID_DEV=$("$BB" findfs "UUID=$ROOT_UUID" 2>/dev/null || true)
+if [ "$UUID_DEV" != "$LOOP" ]; then
+    "$BB" losetup -d "$LOOP" 2>/dev/null || true
+    "$BB" umount /sd 2>/dev/null || true
+    stop "root UUID resolved to '${UUID_DEV:-nothing}', expected $LOOP"
+fi
+
+# ext4 s_state is the little-endian word at superblock offset 58. Require
+# EXT4_VALID_FS before allowing a writable root; do not replay a journal here.
+STATE=$("$BB" dd if="$LOOP" bs=1 skip=1082 count=2 2>/dev/null | "$BB" od -An -tu2)
+STATE=${STATE##* }
+[ -n "$STATE" ] || { cleanup_root; stop "could not read ext4 filesystem state"; }
+[ "$STATE" -eq 1 ] || { cleanup_root; stop "ext4 root is not clean (s_state=$STATE); inspect/repair before RW use"; }
+
+# The complete nested identity has now been proven without a write. Tear down
+# the read-only view before reopening the same reviewed objects read-write.
+"$BB" losetup -d "$LOOP" || { cleanup_root; stop "cannot detach read-only $LOOP"; }
+LOOP=""
+"$BB" umount /sd || stop "linux exFAT read-only identity mount would not unmount"
+"$BB" mount -t exfat -o rw "$PART" /sd || stop "linux exFAT did not mount read-write"
+LOOP=$("$BB" losetup -f 2>/dev/null || true)
+[ -n "$LOOP" ] || { "$BB" umount /sd 2>/dev/null || true; stop "no free loop device"; }
+"$BB" losetup "$LOOP" "$IMG" || { "$BB" umount /sd 2>/dev/null || true; stop "cannot attach $IMG"; }
+UUID_DEV=$("$BB" findfs "UUID=$ROOT_UUID" 2>/dev/null || true)
+[ "$UUID_DEV" = "$LOOP" ] || { cleanup_root; stop "ext4 UUID changed after read-write attach"; }
+
+"$BB" mount -t ext4 -o rw "$LOOP" /newroot || { cleanup_root; stop "cannot mount the ext4 root"; }
+
+# Self-heal the helpers WE ship rather than refusing to boot without them.
+#
+# These are project scripts carried in this very initramfs under /opt/wallace,
+# so "the card does not have the newest copy" is not a reason to strand the
+# machine in a rescue shell -- it happened on 2026-08-04 with a perfectly good
+# root, purely because t6040-sdroot-early-console post-dated the last time the
+# apply script had been run. Installing them also means the card no longer has
+# to be kept in lockstep by hand.
+install_helper() {  # install_helper <path-on-newroot> <name-in-/opt/wallace>
+    src=/opt/wallace/$2
+    dst=/newroot$1
+    [ -s "$src" ] || return 1
+    "$BB" mkdir -p "$(dirname "$dst")" || return 1
+    "$BB" cp "$src" "$dst" || return 1
+    "$BB" chmod 0755 "$dst" || return 1
+    say "installed $1 from the initramfs"
+}
+
+for pair in \
+    "/usr/local/sbin/t6040-sdroot-early-console t6040-sdroot-early-console" \
+    "/usr/local/sbin/t6040-sdroot-openrc       t6040-sdroot-openrc" \
+    "/usr/local/sbin/t6040-sdroot-powerctl     t6040-sdroot-powerctl" \
+    "/usr/local/sbin/t6040-startx              t6040-sdroot-startx" \
+    "/usr/local/sbin/t6040-sdroot-net          t6040-sdroot-net" \
+    "/etc/inittab                              t6040-sdroot-inittab"; do
+    # shellcheck disable=SC2086
+    set -- $pair
+    # Refresh unconditionally, not just when absent. These are OUR scripts, and
+    # the card silently drifting behind the repo is precisely what produced the
+    # 2026-08-04 failures: a missing early-console helper stranded a good root,
+    # and a stale t6040-startx left X in the US layout because its setxkbmap
+    # call was silenced. Copying every boot keeps the card in lockstep with the
+    # initramfs by construction, so neither can happen again.
+    install_helper "$1" "$2" || { cleanup_root; stop "cannot install $1 onto the new root"; }
+done
+
+# WiFi credentials, refreshed EVERY boot: CJ maintains ~/wpa.conf on the host and
+# that is the source of truth. Installing only-if-absent silently stranded the
+# card on a one-network config while the host file had three, so the machine kept
+# hunting for an out-of-range SSID (2026-08-04).
+if [ -s /opt/wallace/wpa_supplicant.conf ]; then
+    "$BB" mkdir -p /newroot/etc/wpa_supplicant &&
+    "$BB" cp /opt/wallace/wpa_supplicant.conf /newroot/etc/wpa_supplicant/wpa_supplicant.conf &&
+    "$BB" chmod 0600 /newroot/etc/wpa_supplicant/wpa_supplicant.conf &&
+    say "installed wpa_supplicant.conf from the initramfs"
+fi
+
+# Xcursor theme, installed once if the card has none.
+if [ ! -d /newroot/usr/share/icons/Adwaita/cursors ] && [ -d /opt/wallace/icons/Adwaita ]; then
+    "$BB" mkdir -p /newroot/usr/share/icons &&
+    "$BB" cp -a /opt/wallace/icons/Adwaita /newroot/usr/share/icons/ &&
+    say "installed the Adwaita cursor theme"
+fi
+
+# Local time. Without /etc/localtime the whole system sits in UTC, so the i3 bar
+# clock reads two hours behind Oslo in summer. The zoneinfo database is already
+# on the card; only the symlink was missing (2026-08-04).
+if [ ! -e /newroot/etc/localtime ] &&
+   [ -e /newroot/usr/share/zoneinfo/Europe/Oslo ]; then
+    "$BB" ln -sf /usr/share/zoneinfo/Europe/Oslo /newroot/etc/localtime &&
+    echo "Europe/Oslo" > /newroot/etc/timezone &&
+    say "set timezone Europe/Oslo"
+fi
+
+# These genuinely cannot be repaired from here.
+for required in /sbin/init /bin/busybox; do
+    [ -s "/newroot$required" ] || { cleanup_root; stop "new root is missing $required"; }
+done
+
+# Preserve only the shutdown tools. The original initramfs root is discarded
+# by switch_root; this tmpfs remains mounted inside the real root.
+#
+# /run itself must already be a mountpoint when OpenRC starts. OpenRC 0.63.2's
+# init.sh mounts a fresh tmpfs over /run whenever it is not, which hides
+# /run/initramfs: powerctl then refuses and the ::restart exec has nothing to
+# run (the 2026-08-19 boot shows "Mounting /run"; ticket 3006). Mount /run with
+# OpenRC's own options, and keep the shutdown tmpfs a separate mount below it
+# because pivot_root needs a mountpoint.
+"$BB" mkdir -p /newroot/run /newroot/mnt/sd
+"$BB" mount -t tmpfs -o mode=0755,nosuid,nodev,nr_inodes=800k,size=20%,strictatime \
+    none /newroot/run || { cleanup_root; stop "cannot mount /run"; }
+"$BB" mkdir -p /newroot/run/initramfs
+"$BB" mount -t tmpfs -o mode=0755,size=4m none /newroot/run/initramfs \
+    || { cleanup_root; stop "cannot mount the shutdown tmpfs"; }
+# dev and proc exist in advance: OpenRC's mount-ro can remount this tmpfs
+# read-only before the shutdown program pivots into it.
+"$BB" mkdir -p /newroot/run/initramfs/bin /newroot/run/initramfs/oldroot \
+    /newroot/run/initramfs/sd /newroot/run/initramfs/dev /newroot/run/initramfs/proc
+"$BB" cp /bin/busybox /newroot/run/initramfs/bin/busybox \
+    || { cleanup_root; stop "cannot preserve busybox for shutdown"; }
+"$BB" cp /shutdown /newroot/run/initramfs/shutdown \
+    || { cleanup_root; stop "cannot preserve the shutdown program"; }
+echo "$LOOP" >/newroot/run/initramfs/loopdev
+echo reboot >/newroot/run/initramfs/action
+
+# Keep the exFAT mount outside the loop-root subtree. A bind mount exposes it
+# as /mnt/sd during normal operation; shutdown removes that view before pivot.
+"$BB" mount --move /sd /newroot/run/initramfs/sd \
+    || { cleanup_root; stop "cannot move the linux exFAT under the shutdown tmpfs"; }
+"$BB" mount --bind /newroot/run/initramfs/sd /newroot/mnt/sd \
+    || { cleanup_root; stop "cannot expose the linux exFAT at /mnt/sd"; }
+
+"$BB" mkdir -p /newroot/dev /newroot/proc /newroot/sys
+"$BB" mount -t devtmpfs none /newroot/dev || { cleanup_root; stop "newroot devtmpfs failed"; }
+"$BB" mount -t proc none /newroot/proc || { cleanup_root; stop "newroot proc failed"; }
+"$BB" mount -t sysfs none /newroot/sys || { cleanup_root; stop "newroot sysfs failed"; }
+[ -c /newroot/dev/ttydc0 ] || { cleanup_root; stop "newroot ttydc0 is missing"; }
+
+say "switching to the verified SD root"
+exec "$BB" switch_root /newroot /sbin/init
