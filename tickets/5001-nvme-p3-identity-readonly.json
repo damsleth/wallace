@@ -20,8 +20,10 @@
   "created": 1792877286,
   "payload": "/Users/damsleth/Code/linux-build-out/nvme-p3id-20261024/payload",
   "bootargs": "maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel printk.devkmsg=on console=ttydc0 console=tty0 rdinit=/init",
-  "runnable": false,
+  "runnable": true,
   "approved_by": "cj",
-  "approved_at": 1792877333,
-  "v2_2026_10_25": "Rewritten after the Sonnet FAIL (evidence/2026-10-24-review-5001-nvme-p3-identity.md): no blkid (not in BusyBox) - exFAT found by OEM \"EXFAT   \" and label read from the root-directory 0x83 entry via boot-sector geometry; every line < 300 chars (kmsg 1024 limit); 6001 transport/model gate restored; partition number not assumed (CJ rebuilt a 64 GB \"linux\" exFAT); STOP if no exFAT found. Parsing tested on a real GPT+exFAT loop image under the initramfs BusyBox 1.35 (evidence/2026-10-25-t6040-5001-probe-v2-test/). Needs re-review."
+  "approved_at": 1792880191,
+  "v2_2026_10_25": "Rewritten after the Sonnet FAIL (evidence/2026-10-24-review-5001-nvme-p3-identity.md): no blkid (not in BusyBox) - exFAT found by OEM \"EXFAT   \" and label read from the root-directory 0x83 entry via boot-sector geometry; every line < 300 chars (kmsg 1024 limit); 6001 transport/model gate restored; partition number not assumed (CJ rebuilt a 64 GB \"linux\" exFAT); STOP if no exFAT found. Parsing tested on a real GPT+exFAT loop image under the initramfs BusyBox 1.35 (evidence/2026-10-25-t6040-5001-probe-v2-test/). Needs re-review.",
+  "reviewed_by": "sonnet-review",
+  "ready_at": 1792880191
 }
