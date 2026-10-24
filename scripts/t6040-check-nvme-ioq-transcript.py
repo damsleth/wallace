@@ -32,6 +32,14 @@ else:
         if any(e[i] != b[i] for i in (*range(4, 8), *range(11, 17))):
             errors.append('write/discard/flush statistics changed')
         if e[8] != 0: errors.append('I/O remains in flight')
+if 'NVME-READONLY namespaces n1=1954210120 n2=6144 n3=262144 sectors' not in s:
+    errors.append('missing pinned namespace topology')
+aux_before = re.findall(r'aux stats before: ([0-9 ]+)\| ([0-9 ]+)', s)
+aux_after = re.findall(r'aux stats after: ([0-9 ]+)\| ([0-9 ]+)', s)
+if len(aux_before) != 1 or len(aux_after) != 1:
+    errors.append('missing/duplicate auxiliary-namespace statistics')
+elif aux_before != aux_after:
+    errors.append('auxiliary namespace statistics changed (n2/n3 must see no I/O)')
 if errors:
     raise SystemExit('STOP / NOT VALIDATED:\n' + '\n'.join(errors))
 print('PASS: 16,384 direct reads, repeated data match, device counters verified, no writes/discards/flushes or recognized faults.')

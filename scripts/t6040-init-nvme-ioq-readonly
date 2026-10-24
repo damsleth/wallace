@@ -32,7 +32,17 @@ $BB cat /proc/cmdline >/dev/kmsg
 i=0
 while [ ! -b /dev/nvme0n1 ] && [ "$i" -lt 30 ]; do $BB sleep 1; i=$((i+1)); done
 [ -b /dev/nvme0n1 ] || { say 'STOP: namespace absent after 30 seconds'; park; }
-[ ! -e /dev/nvme0n2 ] && [ ! -e /dev/nvme1 ] || { say 'STOP: unexpected namespace/controller'; park; }
+# Exactly the J614s AP1024Z topology seen live on 2026-10-24 (ticket 6001 run 1):
+# one controller, the 1 TB namespace, and Apple's 3 MiB and 128 MiB auxiliary
+# namespaces. Anything else stops before a single test read.
+ns_size() { $BB cat "/sys/block/$1/size" 2>/dev/null; }
+[ ! -e /dev/nvme1 ] || { say 'STOP: unexpected second controller'; park; }
+i=0
+while { [ ! -b /dev/nvme0n2 ] || [ ! -b /dev/nvme0n3 ]; } && [ "$i" -lt 10 ]; do $BB sleep 1; i=$((i+1)); done
+[ "$(ns_size nvme0n1)" = 1954210120 ] && [ "$(ns_size nvme0n2)" = 6144 ] &&
+    [ "$(ns_size nvme0n3)" = 262144 ] && [ ! -e /dev/nvme0n4 ] ||
+    { say "STOP: unexpected namespace topology n1=$(ns_size nvme0n1) n2=$(ns_size nvme0n2) n3=$(ns_size nvme0n3)"; park; }
+say 'namespaces n1=1954210120 n2=6144 n3=262144 sectors'
 transport=$($BB cat /sys/class/nvme/nvme0/transport)
 model=$($BB cat /sys/class/nvme/nvme0/model)
 case "$transport:$model" in apple-nvme:APPLE*) ;; *) say "STOP: unexpected identity $transport:$model"; park ;; esac
@@ -42,11 +52,16 @@ for p in /dev/nvme0n1p*; do
     [ -b "$p" ] || continue
     $BB blockdev --setro "$p" || { say 'STOP: cannot set partition read-only'; park; }
 done
+for n in nvme0n2 nvme0n3; do
+    $BB blockdev --setro "/dev/$n" || { say "STOP: cannot set $n read-only"; park; }
+done
 say "block stats before: $($BB cat /sys/block/nvme0n1/stat)"
+say "aux stats before: $($BB cat /sys/block/nvme0n2/stat) | $($BB cat /sys/block/nvme0n3/stat)"
 # All test output reaches both kernel consoles and survives in the printk ring.
 /sbin/nvme-readonly-test >/dev/kmsg 2>&1
 rc=$?
 say "test exit=$rc block stats after: $($BB cat /sys/block/nvme0n1/stat)"
+say "aux stats after: $($BB cat /sys/block/nvme0n2/stat) | $($BB cat /sys/block/nvme0n3/stat)"
 # PASS requires tester success AND a clean full kernel transcript reviewed on host.
 [ "$rc" -eq 0 ] || say 'STOP: test failed; do not retry this boot'
 park

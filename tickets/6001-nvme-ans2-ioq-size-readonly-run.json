@@ -2,7 +2,7 @@
   "seq": "6001",
   "slug": "nvme-ans2-ioq-size-readonly-run",
   "needs": "rig",
-  "state": "run1-gate-parked-needs-gate-fix",
+  "state": "approved",
   "track": "nvme",
   "priority": "P1",
   "desc": "One tethered RAM-only maxcpus=1 ANS2 IOQ-size test: 16384 direct reads and byte comparison, no block-device filesystem mounts or disk writes. Wait for CJ M4-ready signal; exact manifest and independent review required. Unique transcript, no retry on fault; no enrollment.",
@@ -13,17 +13,18 @@
   "hashes": {
     "image": "6eef9eef130d805d71e2800f63c58813979041ee7589eb5d90116340bcd3bb7d",
     "dtb": "a96d04a7c37355ed13ac6e4ac90ec319ecc3e755d584ea2b414a7ad80498845b",
-    "initramfs": "38a7d90ad8dd58e703eec56437fff486f842b95ecd20fe2605b1658d9cafe707"
+    "initramfs": "c76063acac8d2f30f534a77a70dbe3bcebcb5a9c3c968fbd17e1877e3349a3cc"
   },
   "created": 1789998662,
-  "manifest": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/manifest.json",
+  "manifest": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20261024/manifest.json (sha256 84b0275f828ea983b7d9a2a0ef3fba33d42e4db795d7f2c0203595e55751a128)",
   "manifest_sha256": "14ba160062bb75b9a234b20ab34874304c75ab75f0fc2f87c8fc49e32cfb10b0",
   "evidence": [
     "evidence/2026-09-21-nvme-ans2-ioq-candidate.md",
     "evidence/2026-09-21-nvme-ans2-ioq-candidate/manifest.json",
     "evidence/2026-09-21-nvme-ans2-ioq-candidate/independent-review.json",
     "evidence/2026-10-24-asahi-dev-review.md",
-    "evidence/2026-10-24-t6001-run1-gate-parked-three-namespaces.md"
+    "evidence/2026-10-24-t6001-run1-gate-parked-three-namespaces.md",
+    "evidence/2026-10-24-t6001-gatefix-run2-payload.md"
   ],
   "runnable": false,
   "execution_gate": "CJ will signal M4 ready and waiting for payload; no signal received, no hardware access.",
@@ -32,7 +33,6 @@
   "review_2026_10_24": "October same-board NVMe success supports this existing experiment. Keep exact hashes, no-mount/read-only scope and M4-ready execution gate unchanged. Do not combine with an upstream refresh.",
   "approved_by": "cj",
   "approved_at": 1792874777,
-  "reviewed_by": "nvme_review",
-  "ready_at": 1792874854,
-  "run1_2026_10_24": "Parked at its identity gate before any read: the gate rejects nvme0n2, but this SSD exposes n1 (1954210120 sectors) plus Apple auxiliary n2 (6144) and n3 (262144). No fault. Initramfs gate must pin this topology; rebuild + independent review before run 2."
+  "run1_2026_10_24": "Parked at its identity gate before any read: the gate rejects nvme0n2, but this SSD exposes n1 (1954210120 sectors) plus Apple auxiliary n2 (6144) and n3 (262144). No fault. Initramfs gate must pin this topology; rebuild + independent review before run 2.",
+  "gatefix_2026_10_24": "Run 2 payload: identical Image/DTB/m1n1 to the reviewed 20260920 payload; only /init (91d94421, pins n1=1954210120, n2=6144, n3=262144 sectors, no nvme0n4/nvme1, n2/n3 set ro + stats logged) and the transcript checker (78889c1d, requires the topology line and unchanged aux stats) changed. Initramfs c76063ac, two builds identical. Needs independent delta review, then queue ready."
 }
