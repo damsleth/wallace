@@ -1,0 +1,7 @@
+PASS object=3dae381212ce53c84b41d681edc0426a624d02afa92c841bff9fb170b2b9703a size=25870336 entry=0x800
+0x0010c000       155 variable   chosen.bootargs  15afa9661d2b8fd3b069abc768bf1b033bf1dc7a70b23327c6a6e8a549402af3
+0x0010c09b  17775623 kernel     gzip             b5d33b3335475e36ac14158fc01514e506956fb1448c2296cf84890f5d8b7b27  pages=16K
+0x011ffca2     60693 dtb        raw              c5c3b4c38b24748f95e06fd3cc39b348326783a58feb7029d9273a5b23dd7e72
+0x0120e9b7   6935229 initramfs  gzip             f089ffa7f1e2982e5661dd25b2aca9fd8d12795de17e33e656e7562680a035f7
+0x018abc74       908 terminator zero             41ced6daa116dc5db0ce8745f6380ddaffc5d997e9fc7f5604ec0031961c832c
+runtime payload reserve: 79786249 bytes

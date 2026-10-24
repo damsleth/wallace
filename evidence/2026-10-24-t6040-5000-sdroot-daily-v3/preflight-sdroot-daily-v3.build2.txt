@@ -1,0 +1,28 @@
+kernel: Image-alpine-sdroot-daily-v2.build2
+  PASS  kernel contains pcie-apple
+  PASS  kernel contains macsmc
+  PASS  kernel contains dockchannel-hid
+  PASS  kernel version string readable: Linux version 7.1.3-g1c1acd21b13a-dirty (wallace@t6040-kbu
+initramfs: initramfs-sdroot-daily-v3.build2.cpio.gz
+  PASS  Norwegian keymap present (etc/wallace-no.bmap)
+  PASS  init loads the keymap (loadkmap call in ./init)
+  PASS  member init
+  PASS  member bin/busybox
+  PASS  member fsck.exfat (SD repair available)
+  PASS  firmware brcmfmac4388c0-pcie.apple,mriya-WLMT-u.bin
+  PASS  firmware brcmbt4388c2-apple,mriya-u.bin
+bootargs: maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused fbcon=font:TER16x32 ignore_loglevel console=ttydc0 console=tty0 rdinit=/init
+  PASS  last console is tty0 (panel keeps /dev/console)
+  PASS  ttydc0 present (serial logging works)
+  PASS  maxcpus=1 (ticket 205 fail-stop limit respected)
+m1n1: m1n1-sdroot-hardened.bin
+  PASS  window-free m1n1 (boots straight through)
+object: m1n1-alpine-sdroot-daily-v3.build2.bin
+  PASS  16 KiB aligned (1579 pages, 25870336 bytes)
+  PASS  object embeds ./init
+  PASS  object embeds ./bin/busybox
+  PASS  object embeds ./etc/wallace-no.bmap
+  PASS  object embeds ./sbin/fsck.exfat
+  PASS  object embeds loadkmap-call-in-init
+
+preflight: OK

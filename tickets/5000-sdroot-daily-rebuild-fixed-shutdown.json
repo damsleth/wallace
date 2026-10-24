@@ -2,7 +2,7 @@
   "seq": "5000",
   "slug": "sdroot-daily-rebuild-fixed-shutdown",
   "needs": "offline",
-  "state": "open",
+  "state": "built-awaiting-independent-review",
   "track": "storage",
   "priority": "P1",
   "desc": "Rebuild the daily SD-root initramfs and boot object from the 3006-fixed scripts/t6040-sdroot-init and t6040-sdroot-shutdown, so ticket 216 can test a shutdown path that can actually complete. Object bdd8cc86 (216's pin) carries the pre-fix init block and shutdown program, which score 0/23 in scripts/t6040-test-sdroot-shutdown.sh; its init/inittab pins were already stale against HEAD. Deliver: harness PASS on the exact committed scripts, two byte-identical builds, t6040-image-preflight.sh PASS (Norwegian keymap at all layers), maxcpus=1, ANS/NVMe still disabled, then independent exact-artifact review and new 216 hashes for CJ. Coordinate with 301/4003: any daily SD-root object, trackpad-integrated or not, must carry the fixed scripts. Offline only: no card access, enrollment or rig lease.",
@@ -10,9 +10,21 @@
   "deps": [
     "3006"
   ],
-  "hashes": null,
+  "hashes": {
+    "m1n1-alpine-sdroot-daily-v3.bin": "3dae381212ce53c84b41d681edc0426a624d02afa92c841bff9fb170b2b9703a",
+    "initramfs-sdroot-daily-v3.cpio.gz": "f089ffa7f1e2982e5661dd25b2aca9fd8d12795de17e33e656e7562680a035f7",
+    "Image-alpine-sdroot-daily-v2 (unchanged)": "3e129466d612d176b0d52ddd2a004ed89a920b8e2f3a38f39504cda4059d04f2",
+    "kernel member gz (unchanged)": "b5d33b3335475e36ac14158fc01514e506956fb1448c2296cf84890f5d8b7b27",
+    "t6040-j614s-dcuart-wifi-cpufreq-sdroot.dtb (unchanged)": "c5c3b4c38b24748f95e06fd3cc39b348326783a58feb7029d9273a5b23dd7e72",
+    "m1n1-sdroot-hardened.bin (unchanged)": "97a304880e35e268e846273c23ed38bddf1a837ca431590a855e03e56d5e8c9f"
+  },
   "created": 1792866714,
   "evidence": [
-    "evidence/2026-10-24-t6040-3006-sdroot-shutdown-regression.md"
-  ]
+    "evidence/2026-10-24-t6040-3006-sdroot-shutdown-regression.md",
+    "evidence/2026-10-24-t6040-5000-sdroot-daily-v3-offline-build.md",
+    "evidence/2026-10-24-t6040-5000-sdroot-daily-v3/"
+  ],
+  "owner": "claude",
+  "bootargs": "maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused fbcon=font:TER16x32 ignore_loglevel console=ttydc0 console=tty0 rdinit=/init",
+  "review_needed": "Independent exact-artifact review (not claude): DT status gates, firmware manifest, embedded init/shutdown (= 3006 harness 23/23 set), strict verifier, preflight, console-order change. Then CJ re-pins 216."
 }
