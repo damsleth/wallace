@@ -26,7 +26,7 @@
     "evidence/2026-10-24-t6001-run1-gate-parked-three-namespaces.md",
     "evidence/2026-10-24-t6001-gatefix-run2-payload.md"
   ],
-  "runnable": false,
+  "runnable": true,
   "execution_gate": "CJ will signal M4 ready and waiting for payload; no signal received, no hardware access.",
   "offline_review_by": "/root/nvme_review",
   "offline_review_result": "PASS",
@@ -34,5 +34,7 @@
   "approved_by": "cj",
   "approved_at": 1792874777,
   "run1_2026_10_24": "Parked at its identity gate before any read: the gate rejects nvme0n2, but this SSD exposes n1 (1954210120 sectors) plus Apple auxiliary n2 (6144) and n3 (262144). No fault. Initramfs gate must pin this topology; rebuild + independent review before run 2.",
-  "gatefix_2026_10_24": "Run 2 payload: identical Image/DTB/m1n1 to the reviewed 20260920 payload; only /init (91d94421, pins n1=1954210120, n2=6144, n3=262144 sectors, no nvme0n4/nvme1, n2/n3 set ro + stats logged) and the transcript checker (78889c1d, requires the topology line and unchanged aux stats) changed. Initramfs c76063ac, two builds identical. Needs independent delta review, then queue ready."
+  "gatefix_2026_10_24": "Run 2 payload: identical Image/DTB/m1n1 to the reviewed 20260920 payload; only /init (91d94421, pins n1=1954210120, n2=6144, n3=262144 sectors, no nvme0n4/nvme1, n2/n3 set ro + stats logged) and the transcript checker (78889c1d, requires the topology line and unchanged aux stats) changed. Initramfs c76063ac, two builds identical. Needs independent delta review, then queue ready.",
+  "reviewed_by": "cj",
+  "ready_at": 1792875596
 }
