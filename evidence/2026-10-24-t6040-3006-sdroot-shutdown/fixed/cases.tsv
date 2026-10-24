@@ -1,0 +1,23 @@
+clean-bare-poweroff	bare	powerctl	poweroff	-
+clean-bare-reboot	bare	powerctl	reboot	-
+clean-openrc-poweroff	openrc	powerctl	poweroff	-
+clean-openrc-reboot	openrc	powerctl	reboot	-
+clean-mountro-poweroff	openrc+mountro	powerctl	poweroff	-
+clean-mountro-reboot	openrc+mountro	powerctl	reboot	-
+clean-mountro-sigquit	openrc+mountro	sigquit	reboot	-
+bad-action	openrc	sigquit	bogus	-
+inject-01	openrc	powerctl	poweroff	umount+/mnt/sd 1
+inject-02	openrc	powerctl	poweroff	pivot_root+.+oldroot 1
+inject-03	openrc	powerctl	poweroff	mount+-t+proc* 1
+inject-04	openrc	powerctl	poweroff	mount+-t+devtmpfs* 1
+inject-05	openrc	powerctl	poweroff	umount+/oldroot/dev/shm 1
+inject-06	openrc	powerctl	poweroff	umount+/oldroot/dev 1
+inject-07	openrc	powerctl	poweroff	umount+/oldroot/proc 1
+inject-08	openrc	powerctl	poweroff	umount+/oldroot/sys 1
+inject-09	openrc	powerctl	poweroff	umount+/oldroot/run 1
+inject-10	openrc	powerctl	poweroff	mount+-o+remount,ro+/oldroot 1
+inject-11	openrc	powerctl	poweroff	umount+/oldroot 1
+inject-12	openrc	powerctl	poweroff	losetup+-d* 1
+inject-13	openrc	powerctl	poweroff	umount+/sd 1
+inject-14	openrc	powerctl	poweroff	grep+-Eq*/proc/mounts 0
+inject-15	openrc	powerctl	poweroff	losetup+/dev/loop* 0

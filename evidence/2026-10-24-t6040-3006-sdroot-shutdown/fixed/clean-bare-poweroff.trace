@@ -1,0 +1,64 @@
+ROOTLOOP /dev/loop1
+replica: switching to the verified SD root
+REPLICA switch_root
+openrc-stub[sysinit/bare]: no OpenRC mounts
+openrc-stub[boot/bare]: ignored
+openrc-stub[default/bare]: READY
+openrc-stub[shutdown/bare]: no mount-ro in the shutdown runlevel
+bb: sh /run/initramfs/shutdown
+bb: cat /run/initramfs/action
+  rc=0
+bb: sync
+  rc=0
+bb: awk -v m=/mnt/sd $2 == m { f = 1 } END { exit !f } /proc/mounts
+  rc=0
+bb: umount /mnt/sd
+  rc=0
+bb: pivot_root . oldroot
+  rc=0
+bb: mount -t proc none /proc
+  rc=0
+bb: mount -t devtmpfs none /dev
+  rc=0
+bb: awk $2 ~ /^\/oldroot\// { print $2 } /proc/mounts
+bb: tac
+  rc=0
+  rc=0
+bb: awk -v m=/oldroot/sys $2 == m { f = 1 } END { exit !f } /proc/mounts
+  rc=0
+bb: umount /oldroot/sys
+  rc=0
+bb: awk -v m=/oldroot/proc $2 == m { f = 1 } END { exit !f } /proc/mounts
+  rc=0
+bb: umount /oldroot/proc
+  rc=0
+bb: awk -v m=/oldroot/dev $2 == m { f = 1 } END { exit !f } /proc/mounts
+  rc=0
+bb: umount /oldroot/dev
+  rc=0
+bb: awk -v m=/oldroot/run $2 == m { f = 1 } END { exit !f } /proc/mounts
+  rc=0
+bb: umount /oldroot/run
+  rc=0
+bb: mount -o remount,ro /oldroot
+  rc=0
+bb: sync
+  rc=0
+bb: umount /oldroot
+  rc=0
+bb: cat /loopdev
+  rc=0
+bb: losetup -d /dev/loop1
+  rc=0
+bb: sync
+  rc=0
+bb: umount /sd
+  rc=0
+bb: sync
+  rc=0
+bb: grep -Eq  /(sd|oldroot)( |/) /proc/mounts
+  rc=1
+bb: losetup /dev/loop1
+  rc=1
+bb: poweroff -f
+TERMINAL poweroff

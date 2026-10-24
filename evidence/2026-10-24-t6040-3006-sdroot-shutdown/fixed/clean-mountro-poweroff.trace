@@ -1,0 +1,105 @@
+ROOTLOOP /dev/loop1
+replica: switching to the verified SD root
+REPLICA switch_root
+openrc-stub[sysinit/openrc+mountro]: /run is already a mountpoint; not mounting
+openrc-stub[sysinit/openrc+mountro]: mounted /dev/mqueue
+openrc-stub[sysinit/openrc+mountro]: mounted /dev/pts
+openrc-stub[sysinit/openrc+mountro]: mounted /dev/shm
+openrc-stub[sysinit/openrc+mountro]: mounted /sys/kernel/security
+openrc-stub[sysinit/openrc+mountro]: mounted /sys/kernel/debug
+openrc-stub[sysinit/openrc+mountro]: mounted /sys/kernel/config
+openrc-stub[sysinit/openrc+mountro]: mounted /sys/fs/pstore
+openrc-stub[sysinit/openrc+mountro]: mounted /sys/fs/bpf
+openrc-stub[boot/openrc+mountro]: ignored
+openrc-stub[default/openrc+mountro]: READY
+openrc-stub[shutdown/openrc+mountro]: umount -r /mnt/sd: ok (unmounted)
+openrc-stub[shutdown/openrc+mountro]: umount -r /run/initramfs: ok (remounted-ro)
+openrc-stub[shutdown/openrc+mountro]: umount -r /: ok (remounted-ro)
+openrc-stub[shutdown/openrc+mountro]: umount -r /run/initramfs/sd: failed
+bb: sh /run/initramfs/shutdown
+bb: cat /run/initramfs/action
+  rc=0
+bb: sync
+  rc=0
+bb: awk -v m=/mnt/sd $2 == m { f = 1 } END { exit !f } /proc/mounts
+  rc=1
+bb: pivot_root . oldroot
+  rc=0
+bb: mount -t proc none /proc
+  rc=0
+bb: mount -t devtmpfs none /dev
+  rc=0
+bb: awk $2 ~ /^\/oldroot\// { print $2 } /proc/mounts
+bb: tac
+  rc=0
+  rc=0
+bb: awk -v m=/oldroot/sys/fs/bpf $2 == m { f = 1 } END { exit !f } /proc/mounts
+  rc=0
+bb: umount /oldroot/sys/fs/bpf
+  rc=0
+bb: awk -v m=/oldroot/sys/fs/pstore $2 == m { f = 1 } END { exit !f } /proc/mounts
+  rc=0
+bb: umount /oldroot/sys/fs/pstore
+  rc=0
+bb: awk -v m=/oldroot/sys/kernel/config $2 == m { f = 1 } END { exit !f } /proc/mounts
+  rc=0
+bb: umount /oldroot/sys/kernel/config
+  rc=0
+bb: awk -v m=/oldroot/sys/kernel/debug $2 == m { f = 1 } END { exit !f } /proc/mounts
+  rc=0
+bb: umount /oldroot/sys/kernel/debug
+  rc=0
+bb: awk -v m=/oldroot/sys/kernel/security $2 == m { f = 1 } END { exit !f } /proc/mounts
+  rc=0
+bb: umount /oldroot/sys/kernel/security
+  rc=0
+bb: awk -v m=/oldroot/dev/shm $2 == m { f = 1 } END { exit !f } /proc/mounts
+  rc=0
+bb: umount /oldroot/dev/shm
+  rc=0
+bb: awk -v m=/oldroot/dev/pts $2 == m { f = 1 } END { exit !f } /proc/mounts
+  rc=0
+bb: umount /oldroot/dev/pts
+  rc=0
+bb: awk -v m=/oldroot/dev/mqueue $2 == m { f = 1 } END { exit !f } /proc/mounts
+  rc=0
+bb: umount /oldroot/dev/mqueue
+  rc=0
+bb: awk -v m=/oldroot/sys $2 == m { f = 1 } END { exit !f } /proc/mounts
+  rc=0
+bb: umount /oldroot/sys
+  rc=0
+bb: awk -v m=/oldroot/proc $2 == m { f = 1 } END { exit !f } /proc/mounts
+  rc=0
+bb: umount /oldroot/proc
+  rc=0
+bb: awk -v m=/oldroot/dev $2 == m { f = 1 } END { exit !f } /proc/mounts
+  rc=0
+bb: umount /oldroot/dev
+  rc=0
+bb: awk -v m=/oldroot/run $2 == m { f = 1 } END { exit !f } /proc/mounts
+  rc=0
+bb: umount /oldroot/run
+  rc=0
+bb: mount -o remount,ro /oldroot
+  rc=0
+bb: sync
+  rc=0
+bb: umount /oldroot
+  rc=0
+bb: cat /loopdev
+  rc=0
+bb: losetup -d /dev/loop1
+  rc=0
+bb: sync
+  rc=0
+bb: umount /sd
+  rc=0
+bb: sync
+  rc=0
+bb: grep -Eq  /(sd|oldroot)( |/) /proc/mounts
+  rc=1
+bb: losetup /dev/loop1
+  rc=1
+bb: poweroff -f
+TERMINAL poweroff

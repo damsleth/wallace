@@ -128,6 +128,16 @@ unclean. Do not mount the root read/write again before ticket 215.
 
 Do next:
 
+**Ticket 3006 (2026-10-24):** the staged shutdown pivot could never have
+completed on the device. OpenRC hides `/run/initramfs`, the remount lacked
+`/proc`, and OpenRC submounts pin the old root. The scripts are fixed and the
+host harness `scripts/t6040-test-sdroot-shutdown.sh` (baseline 0/23, fixed
+23/23) is now the gate for this path
+([evidence](../evidence/2026-10-24-t6040-3006-sdroot-shutdown-regression.md)).
+**216's object `bdd8cc86…` is invalid until rebuilt** from the fixed scripts
+(ticket 5000). Any daily SD-root object (301/4003 trackpad
+integration included) must carry them.
+
 1. Exact-review ticket 215's pinned repair image and automatic-only repair script.
 2. Repair and repeat read-only checks for SD64 and the ext4 image.
 3. Exact-review ticket 216's identity gates, early console, and shutdown pivot.

@@ -98,6 +98,7 @@ cleanup_root() {
     "$BB" umount /newroot/sys 2>/dev/null || true
     "$BB" umount /newroot/run/initramfs/sd 2>/dev/null || true
     "$BB" umount /newroot/run/initramfs 2>/dev/null || true
+    "$BB" umount /newroot/run 2>/dev/null || true
     "$BB" umount /newroot 2>/dev/null || true
     [ -z "$LOOP" ] || "$BB" losetup -d "$LOOP" 2>/dev/null || true
     "$BB" umount /sd 2>/dev/null || true
@@ -316,12 +317,23 @@ done
 
 # Preserve only the shutdown tools. The original initramfs root is discarded
 # by switch_root; this tmpfs remains mounted inside the real root.
-"$BB" mkdir -p /newroot/run/initramfs/bin /newroot/run/initramfs/oldroot \
-    /newroot/run/initramfs/sd /newroot/mnt/sd
+#
+# /run itself must already be a mountpoint when OpenRC starts. OpenRC 0.63.2's
+# init.sh mounts a fresh tmpfs over /run whenever it is not, which hides
+# /run/initramfs: powerctl then refuses and the ::restart exec has nothing to
+# run (the 2026-08-19 boot shows "Mounting /run"; ticket 3006). Mount /run with
+# OpenRC's own options, and keep the shutdown tmpfs a separate mount below it
+# because pivot_root needs a mountpoint.
+"$BB" mkdir -p /newroot/run /newroot/mnt/sd
+"$BB" mount -t tmpfs -o mode=0755,nosuid,nodev,nr_inodes=800k,size=20%,strictatime \
+    none /newroot/run || { cleanup_root; stop "cannot mount /run"; }
+"$BB" mkdir -p /newroot/run/initramfs
 "$BB" mount -t tmpfs -o mode=0755,size=4m none /newroot/run/initramfs \
     || { cleanup_root; stop "cannot mount the shutdown tmpfs"; }
+# dev and proc exist in advance: OpenRC's mount-ro can remount this tmpfs
+# read-only before the shutdown program pivots into it.
 "$BB" mkdir -p /newroot/run/initramfs/bin /newroot/run/initramfs/oldroot \
-    /newroot/run/initramfs/sd
+    /newroot/run/initramfs/sd /newroot/run/initramfs/dev /newroot/run/initramfs/proc
 "$BB" cp /bin/busybox /newroot/run/initramfs/bin/busybox \
     || { cleanup_root; stop "cannot preserve busybox for shutdown"; }
 "$BB" cp /shutdown /newroot/run/initramfs/shutdown \

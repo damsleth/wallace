@@ -1,0 +1,32 @@
+ROOTLOOP /dev/loop1
+replica: switching to the verified SD root
+REPLICA switch_root
+openrc-stub[sysinit/bare]: no OpenRC mounts
+openrc-stub[boot/bare]: ignored
+openrc-stub[default/bare]: READY
+openrc-stub[shutdown/bare]: no mount-ro in the shutdown runlevel
+bb: sh /run/initramfs/shutdown
+bb: cat /run/initramfs/action
+  rc=0
+bb: sync
+  rc=0
+bb: umount /mnt/sd
+  rc=0
+bb: pivot_root . oldroot
+  rc=0
+bb: mkdir -p /dev
+  rc=0
+bb: mount -t devtmpfs none /dev
+  rc=0
+bb: umount /oldroot/dev/pts
+  rc=1
+bb: umount /oldroot/dev
+  rc=0
+bb: umount /oldroot/proc
+  rc=0
+bb: umount /oldroot/sys
+  rc=0
+bb: mount -o remount,ro /oldroot
+  rc=1
+bb: sh -i
+TERMINAL rescue-shell

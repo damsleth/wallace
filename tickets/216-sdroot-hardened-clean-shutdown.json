@@ -39,11 +39,12 @@
   "stop": "Any dirty or identity gate, hash mismatch, mount/pivot/unmount failure, repair request, PCIe/DART/kernel fault, or lost console.",
   "evidence": [
     "evidence/2026-08-03-t6040-SD-ROOT-persistent-system.md",
-    "evidence/2026-08-03-t6040-alpine-sdroot-daily-v2-offline-build.md"
+    "evidence/2026-08-03-t6040-alpine-sdroot-daily-v2-offline-build.md",
+    "evidence/2026-10-24-t6040-3006-sdroot-shutdown-regression.md"
   ],
   "created": 1785743994,
   "runnable": false,
   "approved_by": "cj",
   "approved_at": 1785744006,
-  "review_blocker": "Blocked on ticket 215 and independent exact review of object bdd8cc865081a2041e587d1bb30495ca0bb65da305552dd4b6679cba66c5f5a5: DTB disabled-node gates, paired firmware manifest, shutdown mount topology, PID-1 SIGQUIT/restart path, embedded scripts, userspace payload, and strict complete-object verification. The maintainer will separately create the third boot partition and install the object after review."
+  "review_blocker": "Blocked on ticket 215 and independent exact review of object bdd8cc865081a2041e587d1bb30495ca0bb65da305552dd4b6679cba66c5f5a5: DTB disabled-node gates, paired firmware manifest, shutdown mount topology, PID-1 SIGQUIT/restart path, embedded scripts, userspace payload, and strict complete-object verification. The maintainer will separately create the third boot partition and install the object after review. 2026-10-24 (claude, 3006): the pinned object cannot complete its shutdown path. Host regression scores its init block, shutdown and powerctl 0/23 (OpenRC hides /run/initramfs; remount lacks /proc; OpenRC submounts pin the old root). Ticket 5000 rebuilds it from the fixed scripts; do not review or run bdd8cc86."
 }

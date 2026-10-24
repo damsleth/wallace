@@ -2,7 +2,7 @@
   "seq": "3006",
   "slug": "sdroot-shutdown-host-regression",
   "needs": "offline",
-  "state": "in-progress",
+  "state": "done",
   "track": "storage",
   "priority": "P1",
   "desc": "Add host-only regression coverage for the staged SD-root shutdown pivot before ticket 216 runs. Grounding: NEXT_STEPS §2, ROADMAP §H, and ticket 216's requirement that ext4 unmount, the loop detach, and exFAT unmount before the final power action. Exercise the current scripts with mocked mount/loop/service commands and inject a failure at every phase; assert that no path reports PASS while either filesystem remains mounted, that sync and identity gates precede mutation, and that the check-only postcondition is requested only after detach/unmount. Deliver tests, expected traces, and an evidence note. No fixture access, filesystem mutation, enrollment, or rig lease.",
@@ -11,5 +11,11 @@
   "hashes": null,
   "created": 1787143254,
   "owner": "claude",
-  "claim_note": "claude 2026-10-24: host-only harness for the shutdown pivot plus OpenRC 0.63.2 interaction; live transcript shows OpenRC mounts tmpfs over /run, hiding /run/initramfs. Fix lands in scripts/ only; no image build, no 216 hash/approval change."
+  "claim_note": "claude 2026-10-24: host-only harness for the shutdown pivot plus OpenRC 0.63.2 interaction; live transcript shows OpenRC mounts tmpfs over /run, hiding /run/initramfs. Fix lands in scripts/ only; no image build, no 216 hash/approval change.",
+  "evidence": [
+    "evidence/2026-10-24-t6040-3006-sdroot-shutdown-regression.md",
+    "evidence/2026-10-24-t6040-3006-sdroot-shutdown/"
+  ],
+  "result": "Harness scripts/t6040-test-sdroot-shutdown.sh (real exFAT/ext4/loop mounts in a podman PID+mount namespace, OpenRC 0.63.2 mounts and mount-ro replayed, 15 single-phase injections). Baseline scripts 0/23: OpenRC tmpfs over /run hides /run/initramfs; remount needs /proc; OpenRC submounts pin /oldroot. Fixed init+shutdown 23/23. Follow-on 5000 rebuilds the daily object; 216 object bdd8cc86 invalid.",
+  "done_at": 1792866750
 }

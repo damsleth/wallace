@@ -1,0 +1,18 @@
+{
+  "seq": "5000",
+  "slug": "sdroot-daily-rebuild-fixed-shutdown",
+  "needs": "offline",
+  "state": "open",
+  "track": "storage",
+  "priority": "P1",
+  "desc": "Rebuild the daily SD-root initramfs and boot object from the 3006-fixed scripts/t6040-sdroot-init and t6040-sdroot-shutdown, so ticket 216 can test a shutdown path that can actually complete. Object bdd8cc86 (216's pin) carries the pre-fix init block and shutdown program, which score 0/23 in scripts/t6040-test-sdroot-shutdown.sh; its init/inittab pins were already stale against HEAD. Deliver: harness PASS on the exact committed scripts, two byte-identical builds, t6040-image-preflight.sh PASS (Norwegian keymap at all layers), maxcpus=1, ANS/NVMe still disabled, then independent exact-artifact review and new 216 hashes for CJ. Coordinate with 301/4003: any daily SD-root object, trackpad-integrated or not, must carry the fixed scripts. Offline only: no card access, enrollment or rig lease.",
+  "author": "claude",
+  "deps": [
+    "3006"
+  ],
+  "hashes": null,
+  "created": 1792866714,
+  "evidence": [
+    "evidence/2026-10-24-t6040-3006-sdroot-shutdown-regression.md"
+  ]
+}

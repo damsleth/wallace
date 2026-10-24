@@ -1,0 +1,48 @@
+harness: clean-bare-poweroff: terminal=poweroff trigger_rc=143 ext4/exfat=0/0 rootloop=no fsck=clean(exfat-flags=0)
+harness: clean-bare-reboot: terminal=reboot trigger_rc=143 ext4/exfat=0/0 rootloop=no fsck=clean(exfat-flags=0)
+harness: clean-openrc-poweroff: terminal=poweroff trigger_rc=143 ext4/exfat=0/0 rootloop=no fsck=clean(exfat-flags=0)
+harness: clean-openrc-reboot: terminal=reboot trigger_rc=143 ext4/exfat=0/0 rootloop=no fsck=clean(exfat-flags=0)
+harness: clean-mountro-poweroff: terminal=poweroff trigger_rc=143 ext4/exfat=0/0 rootloop=no fsck=clean(exfat-flags=0)
+harness: clean-mountro-reboot: terminal=reboot trigger_rc=143 ext4/exfat=0/0 rootloop=no fsck=clean(exfat-flags=0)
+harness: clean-mountro-sigquit: terminal=reboot trigger_rc=- ext4/exfat=0/0 rootloop=no fsck=clean(exfat-flags=0)
+harness: bad-action: terminal=rescue-shell trigger_rc=- ext4/exfat=1/2 rootloop=yes fsck=-
+harness: inject-01: terminal=rescue-shell trigger_rc=143 ext4/exfat=1/2 rootloop=yes fsck=-
+harness: inject-02: terminal=rescue-shell trigger_rc=143 ext4/exfat=1/1 rootloop=yes fsck=-
+harness: inject-03: terminal=rescue-shell trigger_rc=143 ext4/exfat=1/1 rootloop=yes fsck=-
+harness: inject-04: terminal=rescue-shell trigger_rc=143 ext4/exfat=1/1 rootloop=yes fsck=-
+harness: inject-05: terminal=rescue-shell trigger_rc=143 ext4/exfat=1/1 rootloop=yes fsck=-
+harness: inject-06: terminal=rescue-shell trigger_rc=143 ext4/exfat=1/1 rootloop=yes fsck=-
+harness: inject-07: terminal=rescue-shell trigger_rc=143 ext4/exfat=1/1 rootloop=yes fsck=-
+harness: inject-08: terminal=rescue-shell trigger_rc=143 ext4/exfat=1/1 rootloop=yes fsck=-
+harness: inject-09: terminal=rescue-shell trigger_rc=143 ext4/exfat=1/1 rootloop=yes fsck=-
+harness: inject-10: terminal=rescue-shell trigger_rc=143 ext4/exfat=1/1 rootloop=yes fsck=-
+harness: inject-11: terminal=rescue-shell trigger_rc=143 ext4/exfat=1/1 rootloop=yes fsck=-
+harness: inject-12: terminal=rescue-shell trigger_rc=143 ext4/exfat=0/1 rootloop=yes fsck=-
+harness: inject-13: terminal=rescue-shell trigger_rc=143 ext4/exfat=0/1 rootloop=no fsck=-
+harness: inject-14: terminal=rescue-shell trigger_rc=143 ext4/exfat=0/0 rootloop=no fsck=clean(exfat-flags=0)
+harness: inject-15: terminal=rescue-shell trigger_rc=143 ext4/exfat=0/0 rootloop=no fsck=clean(exfat-flags=0)
+PASS	clean-bare-poweroff	poweroff	-
+PASS	clean-bare-reboot	reboot	-
+PASS	clean-openrc-poweroff	poweroff	-
+PASS	clean-openrc-reboot	reboot	-
+PASS	clean-mountro-poweroff	poweroff	-
+PASS	clean-mountro-reboot	reboot	-
+PASS	clean-mountro-sigquit	reboot	-
+PASS	bad-action	rescue-shell	-
+PASS	inject-01	rescue-shell	-
+PASS	inject-02	rescue-shell	-
+PASS	inject-03	rescue-shell	-
+PASS	inject-04	rescue-shell	-
+PASS	inject-05	rescue-shell	-
+PASS	inject-06	rescue-shell	-
+PASS	inject-07	rescue-shell	-
+PASS	inject-08	rescue-shell	-
+PASS	inject-09	rescue-shell	-
+PASS	inject-10	rescue-shell	-
+PASS	inject-11	rescue-shell	-
+PASS	inject-12	rescue-shell	-
+PASS	inject-13	rescue-shell	-
+PASS	inject-14	rescue-shell	-
+PASS	inject-15	rescue-shell	-
+results: /Users/damsleth/Code/linux-build-out/t6040-3006-runs/fixed
+fixed exit=0

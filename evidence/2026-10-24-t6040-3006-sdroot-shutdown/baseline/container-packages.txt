@@ -1,0 +1,5 @@
+busybox-1.37.0-r20
+coreutils-9.7-r1
+e2fsprogs-1.47.2-r2
+exfatprogs-1.2.9-r0
+util-linux-2.41.6-r1

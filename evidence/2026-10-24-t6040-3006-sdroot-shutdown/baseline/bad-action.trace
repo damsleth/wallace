@@ -1,0 +1,15 @@
+ROOTLOOP /dev/loop1
+replica: switching to the verified SD root
+REPLICA switch_root
+openrc-stub[sysinit/openrc]: mounted tmpfs on /run
+openrc-stub[sysinit/openrc]: mounted /dev/mqueue
+openrc-stub[sysinit/openrc]: mounted /dev/pts
+openrc-stub[sysinit/openrc]: mounted /dev/shm
+openrc-stub[sysinit/openrc]: mounted /sys/kernel/security
+openrc-stub[sysinit/openrc]: mounted /sys/kernel/debug
+openrc-stub[sysinit/openrc]: mounted /sys/kernel/config
+openrc-stub[sysinit/openrc]: mounted /sys/fs/pstore
+openrc-stub[sysinit/openrc]: mounted /sys/fs/bpf
+openrc-stub[boot/openrc]: ignored
+openrc-stub[default/openrc]: READY
+openrc-stub[shutdown/openrc]: no mount-ro in the shutdown runlevel

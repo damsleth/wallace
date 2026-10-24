@@ -1,0 +1,32 @@
+ROOTLOOP /dev/loop1
+replica: switching to the verified SD root
+REPLICA switch_root
+openrc-stub[sysinit/openrc]: /run is already a mountpoint; not mounting
+openrc-stub[sysinit/openrc]: mounted /dev/mqueue
+openrc-stub[sysinit/openrc]: mounted /dev/pts
+openrc-stub[sysinit/openrc]: mounted /dev/shm
+openrc-stub[sysinit/openrc]: mounted /sys/kernel/security
+openrc-stub[sysinit/openrc]: mounted /sys/kernel/debug
+openrc-stub[sysinit/openrc]: mounted /sys/kernel/config
+openrc-stub[sysinit/openrc]: mounted /sys/fs/pstore
+openrc-stub[sysinit/openrc]: mounted /sys/fs/bpf
+openrc-stub[boot/openrc]: ignored
+openrc-stub[default/openrc]: READY
+openrc-stub[shutdown/openrc]: no mount-ro in the shutdown runlevel
+bb: sh /run/initramfs/shutdown
+bb: cat /run/initramfs/action
+  rc=0
+bb: sync
+  rc=0
+bb: awk -v m=/mnt/sd $2 == m { f = 1 } END { exit !f } /proc/mounts
+  rc=0
+bb: umount /mnt/sd
+  rc=0
+bb: pivot_root . oldroot
+  rc=0
+bb: mount -t proc none /proc
+  rc=0
+bb: mount -t devtmpfs none /dev
+INJECT rc=1: mount -t devtmpfs none /dev
+bb: sh -i
+TERMINAL rescue-shell

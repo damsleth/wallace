@@ -1,0 +1,14 @@
+ROOTLOOP /dev/loop1
+replica: switching to the verified SD root
+REPLICA switch_root
+openrc-stub[sysinit/openrc+mountro]: mounted tmpfs on /run
+openrc-stub[sysinit/openrc+mountro]: mounted /dev/mqueue
+openrc-stub[sysinit/openrc+mountro]: mounted /dev/pts
+openrc-stub[sysinit/openrc+mountro]: mounted /dev/shm
+openrc-stub[sysinit/openrc+mountro]: mounted /sys/kernel/security
+openrc-stub[sysinit/openrc+mountro]: mounted /sys/kernel/debug
+openrc-stub[sysinit/openrc+mountro]: mounted /sys/kernel/config
+openrc-stub[sysinit/openrc+mountro]: mounted /sys/fs/pstore
+openrc-stub[sysinit/openrc+mountro]: mounted /sys/fs/bpf
+openrc-stub[boot/openrc+mountro]: ignored
+openrc-stub[default/openrc+mountro]: READY

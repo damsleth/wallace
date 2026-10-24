@@ -1,5 +1,6 @@
 #!/run/initramfs/bin/busybox sh
 # BusyBox init execs this as PID 1 for its SIGQUIT restart action.
+# Host regression: scripts/t6040-test-sdroot-shutdown.sh (ticket 3006).
 BB=/run/initramfs/bin/busybox
 ROOT=/run/initramfs
 
@@ -9,6 +10,8 @@ fail() {
     say "Filesystems remain mounted; manual recovery is required."
     exec "$BB" sh -i </dev/console >/dev/console 2>&1
 }
+# Exact match on the mount-point column of /proc/mounts.
+mounted() { $BB awk -v m="$1" '$2 == m { f = 1 } END { exit !f }' /proc/mounts; }
 
 [ "$$" -eq 1 ] || fail "shutdown program is not PID 1"
 ACTION=$($BB cat "$ROOT/action" 2>/dev/null || echo reboot)
@@ -16,21 +19,28 @@ case "$ACTION" in reboot|poweroff) ;; *) fail "invalid action '$ACTION'" ;; esac
 
 say "syncing and detaching the SD root for $ACTION"
 $BB sync
-$BB umount /mnt/sd || fail "cannot unmount the /mnt/sd bind mount"
+# OpenRC's mount-ro service may already have removed this bind view.
+if mounted /mnt/sd; then
+    $BB umount /mnt/sd || fail "cannot unmount the /mnt/sd bind mount"
+fi
 
 cd "$ROOT" || fail "cannot enter shutdown tmpfs"
 $BB pivot_root . oldroot || fail "pivot_root back to shutdown tmpfs failed"
 cd /
 BB=/bin/busybox
 
-$BB mkdir -p /dev
+# Both directories were created by /init; this tmpfs may now be read-only.
+$BB mount -t proc none /proc || fail "cannot mount shutdown proc"
 $BB mount -t devtmpfs none /dev || fail "cannot mount shutdown devtmpfs"
 say "running from shutdown tmpfs"
 
-$BB umount /oldroot/dev/pts 2>/dev/null || true
-$BB umount /oldroot/dev || fail "cannot unmount old-root devtmpfs"
-$BB umount /oldroot/proc || fail "cannot unmount old-root proc"
-$BB umount /oldroot/sys || fail "cannot unmount old-root sysfs"
+# Everything mounted below the old root by /init and OpenRC (/run, /dev/shm,
+# /dev/pts, securityfs, ...) has to go before the root itself. Newest first,
+# re-checking each point so stacked mounts are peeled one at a time.
+for m in $($BB awk '$2 ~ /^\/oldroot\// { print $2 }' /proc/mounts | $BB tac); do
+    mounted "$m" || continue
+    $BB umount "$m" || fail "cannot unmount $m"
+done
 $BB mount -o remount,ro /oldroot || fail "cannot remount ext4 root read-only"
 $BB sync
 $BB umount /oldroot || fail "cannot unmount ext4 root"
@@ -42,6 +52,14 @@ fi
 $BB sync
 $BB umount /sd || fail "cannot cleanly unmount SD64 exFAT"
 $BB sync
+
+# Report success only if neither filesystem is mounted and the loop is gone.
+if $BB grep -Eq ' /(sd|oldroot)( |/)' /proc/mounts; then
+    fail "SD64 or the ext4 root is still mounted"
+fi
+if [ -n "$LOOP" ] && $BB losetup "$LOOP" >/dev/null 2>&1; then
+    fail "$LOOP is still attached"
+fi
 say "SD64 and its ext4 root are cleanly unmounted"
 
 case "$ACTION" in

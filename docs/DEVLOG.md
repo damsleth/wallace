@@ -219,6 +219,11 @@ the discipline around them.
 - At `maxcpus=1`, the loop root reaches ttydc0 and OpenRC and retains writes.
 - Panic testing left exFAT and ext4 unclean. Ticket 215 owns repair; ticket 216
   owns the staged PID-1 shutdown pivot and post-shutdown clean checks.
+- **The clean-shutdown pivot is gated by a host harness** (ticket 3006):
+  `scripts/t6040-test-sdroot-shutdown.sh` runs the real init block, inittab,
+  powerctl and shutdown program under real exFAT/ext4/loop mounts with OpenRC
+  0.63.2's mounts replayed. It needs no rig or card. `/run` must be init's own
+  tmpfs, or OpenRC mounts over it and hides `/run/initramfs`.
 - Repair is a real `fsck.exfat`, never clearing exFAT `VolumeFlags` bit 1: an
   unclean shutdown mid-write can leave genuine metadata inconsistency, and
   masking the flag would mount a container already known to be suspect
@@ -381,6 +386,16 @@ Do not repeat these without new evidence:
   64 KiB copy-and-compare verifications were byte-identical. The bug is
   fail-stop in that test. Do not claim observed silent corruption, or extend
   this bounded result into proof of safety for faulting processes/writeback.
+- **The staged SD-root clean shutdown as working (corrected 2026-10-24).** It
+  never ran on the device, and three defects each defeat it. OpenRC mounts a
+  tmpfs over a plain `/run` (powerctl refuses; a raw SIGQUIT halts with both
+  filesystems mounted). BusyBox 1.35 `mount -o remount` needs `/proc/mounts`,
+  which the pivot never mounted. OpenRC's `/dev/*`, `/sys/*` and `/run`
+  submounts make the old root EBUSY. Fixed scripts and the harness are in
+  [3006 evidence](../evidence/2026-10-24-t6040-3006-sdroot-shutdown-regression.md).
+  Object `bdd8cc86…` predates the fix. Also: **Alpine 3.22's BusyBox
+  1.37.0-r20 silently ignores `::restart`** (aports `c792a061` fixed it in
+  3.23+), so never build an SD root from a 3.22 rootfs.
 - **`console=ttydc0` as the cause of a dead keyboard.** The flag is fine and the
   known-good desktop recipe includes it; what matters is *ordering*. All
   `console=` entries receive printk, but the **last** becomes `/dev/console`,

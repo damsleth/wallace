@@ -1,0 +1,23 @@
+FAIL	clean-bare-poweroff	rescue-shell	terminal=rescue-shell, want poweroff; ext4/exfat mounts left: 1/1; root loop still attached; fsck=-
+FAIL	clean-bare-reboot	rescue-shell	terminal=rescue-shell, want reboot; ext4/exfat mounts left: 1/1; root loop still attached; fsck=-
+FAIL	clean-openrc-poweroff	refused	terminal=refused, want poweroff; ext4/exfat mounts left: 1/2; root loop still attached; fsck=-
+FAIL	clean-openrc-reboot	refused	terminal=refused, want reboot; ext4/exfat mounts left: 1/2; root loop still attached; fsck=-
+FAIL	clean-mountro-poweroff	refused	terminal=refused, want poweroff; ext4/exfat mounts left: 1/2; root loop still attached; fsck=-
+FAIL	clean-mountro-reboot	refused	terminal=refused, want reboot; ext4/exfat mounts left: 1/2; root loop still attached; fsck=-
+FAIL	clean-mountro-sigquit	init-halted	terminal=init-halted, want reboot; ext4/exfat mounts left: -/-; root loop still attached; fsck=-
+FAIL	bad-action	init-halted	terminal=init-halted, want rescue-shell
+FAIL	inject-01	refused	injection did not fire; terminal=refused, want rescue-shell
+FAIL	inject-02	refused	injection did not fire; terminal=refused, want rescue-shell
+FAIL	inject-03	refused	injection did not fire; terminal=refused, want rescue-shell
+FAIL	inject-04	refused	injection did not fire; terminal=refused, want rescue-shell
+FAIL	inject-05	refused	injection did not fire; terminal=refused, want rescue-shell
+FAIL	inject-06	refused	injection did not fire; terminal=refused, want rescue-shell
+FAIL	inject-07	refused	injection did not fire; terminal=refused, want rescue-shell
+FAIL	inject-08	refused	injection did not fire; terminal=refused, want rescue-shell
+FAIL	inject-09	refused	injection did not fire; terminal=refused, want rescue-shell
+FAIL	inject-10	refused	injection did not fire; terminal=refused, want rescue-shell
+FAIL	inject-11	refused	injection did not fire; terminal=refused, want rescue-shell
+FAIL	inject-12	refused	injection did not fire; terminal=refused, want rescue-shell
+FAIL	inject-13	refused	injection did not fire; terminal=refused, want rescue-shell
+FAIL	inject-14	refused	injection did not fire; terminal=refused, want rescue-shell
+FAIL	inject-15	refused	injection did not fire; terminal=refused, want rescue-shell
