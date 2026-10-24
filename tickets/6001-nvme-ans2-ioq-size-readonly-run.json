@@ -2,7 +2,7 @@
   "seq": "6001",
   "slug": "nvme-ans2-ioq-size-readonly-run",
   "needs": "rig",
-  "state": "approved",
+  "state": "run2-tester-false-stop-needs-tester-fix",
   "track": "nvme",
   "priority": "P1",
   "desc": "One tethered RAM-only maxcpus=1 ANS2 IOQ-size test: 16384 direct reads and byte comparison, no block-device filesystem mounts or disk writes. Wait for CJ M4-ready signal; exact manifest and independent review required. Unique transcript, no retry on fault; no enrollment.",
@@ -24,9 +24,10 @@
     "evidence/2026-09-21-nvme-ans2-ioq-candidate/independent-review.json",
     "evidence/2026-10-24-asahi-dev-review.md",
     "evidence/2026-10-24-t6001-run1-gate-parked-three-namespaces.md",
-    "evidence/2026-10-24-t6001-gatefix-run2-payload.md"
+    "evidence/2026-10-24-t6001-gatefix-run2-payload.md",
+    "evidence/2026-10-24-t6001-run2-tester-false-stop.md"
   ],
-  "runnable": true,
+  "runnable": false,
   "execution_gate": "CJ will signal M4 ready and waiting for payload; no signal received, no hardware access.",
   "offline_review_by": "/root/nvme_review",
   "offline_review_result": "PASS",
