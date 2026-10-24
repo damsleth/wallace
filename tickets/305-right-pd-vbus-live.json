@@ -37,5 +37,15 @@
   "approved_at": 1787138075,
   "reviewed_by": "opus",
   "ready_at": 1787138075,
-  "review_2026_10_24": "October upstream base-M4 USB success does not validate T6040 VBUS. Ticket 3009 is completed with corrected-DTB PASS; use its pinned correction and existing execution/safety contract. Historical raw-address stall interpretation is superseded by 3000/3008/3009, not evidence of a real a1 controller stall."
+  "review_2026_10_24": "October upstream base-M4 USB success does not validate T6040 VBUS. Ticket 3009 is completed with corrected-DTB PASS; use its pinned correction and existing execution/safety contract. Historical raw-address stall interpretation is superseded by 3000/3008/3009, not evidence of a real a1 controller stall.",
+  "run7_candidate_2026_10_24": {
+    "Image-macsmc-hid-type-fix-nbcon-ppp-usb2-native-right-pdwake.build{1,2}": "fb8cd3c403c63760a3d84eb2f12c1f9ea301a27251c97ef9c65617a0ac6beb0c",
+    "System.map (both)": "b10cd6d8ecc309df76de1fc87cc5945eea29ea760c321be3f660a4b940193e8d",
+    "config (both, == config-usb2pd.buildA)": "51aa40f0df95a6938d7067f107f7b4aa0d614bea6c2c269a4e1b10a9e745b2d1",
+    "patch": "patches/t6040-spmi-wakeup-and-tipd-probe-diag.patch 25a8b50d (commit f430d1f)",
+    "review": "evidence/2026-10-24-t6040-pdwake-patch-independent-review.md PASS-with-notes; artifact checks done by builder: builds byte-identical, config identical to buildA, 4 diag strings + apple_spmi_cmd present",
+    "dtb": "physfix eaf8cceb (unchanged)",
+    "initramfs": "initramfs-sdroot-hardened 4cc65133 (unchanged)",
+    "status": "awaiting CJ approval of run 7 with this kernel; SD card out, S128 in right port, attended"
+  }
 }
