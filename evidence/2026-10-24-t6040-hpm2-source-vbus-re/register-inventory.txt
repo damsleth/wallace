@@ -1,0 +1,922 @@
+# per-function HPM register accesses: 'mov w1, #reg' followed by a vtable/bl call (AppleHPM __text, 25F84)
+AppleHPMIECS::MetaClass::alloc() const
+   0xfffffe00094fae14  reg=0x108 len=None via=_OSObject_typed_operator_new
+AppleHPMIECS::publishHPMDevices()
+   0xfffffe00094fb5ac  reg= 0x18 len=None via=_snprintf
+AppleHPMIECS::setRouteString(unsigned long long)
+   0xfffffe00094fbbb0  reg= 0x40 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMIECS::hpmIECSWrite(unsigned long long, unsigned int, IOMemoryDescriptor*, unsigned long long, unsigned int)
+   0xfffffe00094fbe38  reg=  0x4 len=None via=None
+   0xfffffe00094fbeb8  reg=  0x2 len=None via=None
+   0xfffffe00094fbef8  reg=  0x1 len=None via=None
+AppleHPMIECS::hpmIECSRead(unsigned long long, unsigned int, IOMemoryDescriptor*, unsigned long long*, unsigned int)
+   0xfffffe00094fc1a0  reg=  0x4 len=None via=None
+   0xfffffe00094fc220  reg=  0x2 len=None via=None
+AppleHPMInterfaceType1::MetaClass::alloc() const
+   0xfffffe00094fc570  reg=0x14a0 len=None via=_OSObject_typed_operator_new
+AppleHPMInterfaceType1::setPowerStateHPM(unsigned char)
+   0xfffffe00094fcb70  reg= 0x20 len=0x1 via=None
+   0xfffffe00094fcbd4  reg=  0x8 len=None via=None
+AppleHPMInterfaceType1::configureDP()
+   0xfffffe00094fd168  reg=  0x1 len=None via=None
+AppleHPMInterfaceType1::setSOPVID(unsigned int)
+   0xfffffe00094fd358  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMInterfaceType1::setSOPPID(unsigned int)
+   0xfffffe00094fd408  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMInterfaceType1::setSOPpVID(unsigned int)
+   0xfffffe00094fd6e4  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMInterfaceType1::setSOPpPID(unsigned int)
+   0xfffffe00094fd798  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMInterfaceType17::MetaClass::alloc() const
+   0xfffffe00094fdc60  reg=0x14c0 len=None via=_OSObject_typed_operator_new
+AppleHPMInterfaceType17::start(IOService*)
+   0xfffffe00094fe098  reg= 0x16 len=None via=None
+AppleHPMInterfaceType17::appLoadedHandler(IOInterruptEventSource*, int)
+   0xfffffe00094fe2ac  reg= 0x16 len=None via=None
+   0xfffffe00094fe2d0  reg= 0x14 len=None via=None
+AppleHPMARMI2C::MetaClass::alloc() const
+   0xfffffe00094fe7e0  reg=0x140 len=None via=_OSObject_typed_operator_new
+AppleHPMARMI2C::publishHPMDevices()
+   0xfffffe00094ff2c8  reg= 0x18 len=None via=_snprintf
+   0xfffffe00094ff43c  reg=  0xf len=0x5 via=None
+   0xfffffe00094ff474  reg=  0x1 len=None via=None
+   0xfffffe00094ff4d8  reg=  0x1 len=None via=None
+   0xfffffe00094ff50c  reg=  0x1 len=0x5 via=None
+   0xfffffe00094ff540  reg=  0x1 len=None via=None
+   0xfffffe00094ff574  reg=  0x5 len=0x11 via=None
+   0xfffffe00094ff644  reg= 0x2c len=0x2 via=None
+   0xfffffe00094ff878  reg= 0x2d len=0xd via=None
+   0xfffffe00094ff8cc  reg= 0x2d len=0x13 via=None
+   0xfffffe00094ff9f0  reg=  0x8 len=None via=None
+AppleHPMARMI2C::writeRegsGated(unsigned char, unsigned char const*, unsigned long long)
+   0xfffffe00094ffec0  reg=  0x2 len=None via=None
+AppleHPMARMI2C::readRegsGated(unsigned char, unsigned char*, unsigned long long)
+   0xfffffe000950000c  reg=  0x1 len=None via=None
+AppleHPMARMI2C::hpmIECSWrite(unsigned long long, unsigned int, void*, unsigned long long, unsigned int)
+   0xfffffe00095000a4  reg=  0x3 len=None via=IOBufferMemoryDescriptor::withCapacity(unsigned long, unsign
+AppleHPMARMI2C::hpmIECSRead(unsigned long long, unsigned int, void*, unsigned long long*, unsigned int)
+   0xfffffe0009500350  reg=  0x3 len=None via=IOBufferMemoryDescriptor::withCapacity(unsigned long, unsign
+AppleHPMBusController::MetaClass::alloc() const
+   0xfffffe000950084c  reg= 0xb8 len=None via=_OSObject_typed_operator_new
+AppleHPMBusController::publishBelow(IORegistryEntry*)
+   0xfffffe0009500d18  reg=  0x2 len=None via=IODTFindMatchingEntries(IORegistryEntry*, unsigned int, char
+AppleHPMBusController::controllerInterruptAction(IOInterruptEventSource*, int)
+   0xfffffe0009500f1c  reg= 0x10 len=0x4 via=AppleHPMBusController::readRegs(unsigned char, unsigned char
+   0xfffffe0009500f74  reg=0x842b len=None via=None
+AppleHPMBusController::readRegs(unsigned char, unsigned char*, unsigned long long)
+   0xfffffe0009501044  reg=  0x1 len=None via=None
+AppleHPMBusController::setModeMessage(modeDataStruct*)
+   0xfffffe00095010d8  reg=0x8435 len=0x10 via=None
+AppleHPMBusController::writeRegs(unsigned char, unsigned char const*, unsigned long long)
+   0xfffffe0009501734  reg=  0x2 len=None via=None
+AppleHPMCommandGate::MetaClass::alloc() const
+   0xfffffe0009501af0  reg= 0x50 len=None via=_OSObject_typed_operator_new
+AppleHPMDeviceHALType4::MetaClass::alloc() const
+   0xfffffe0009501eb4  reg= 0xa8 len=None via=_OSObject_typed_operator_new
+AppleHPMDeviceHALType4::getMuxConfig(HPMType1Misc*)
+   0xfffffe0009502348  reg= 0x2a len=None via=None
+AppleHPMDeviceHALType4::ackDPIRQ()
+   0xfffffe0009502428  reg= 0x50 len=None via=None
+   0xfffffe0009502478  reg= 0x50 len=0x40 via=None
+AppleHPMDeviceHALType4::resetDataControl()
+   0xfffffe0009502528  reg= 0x50 len=None via=None
+   0xfffffe000950257c  reg= 0x50 len=None via=None
+AppleHPMDeviceHALType4::getSMPTEStatus(HPMSMPTESidStatus*)
+   0xfffffe0009502628  reg= 0x5b len=None via=None
+AppleHPMDevice::MetaClass::alloc() const
+   0xfffffe0009502994  reg= 0x90 len=None via=_OSObject_typed_operator_new
+AppleHPMDevice::setI2CAddress(unsigned int)
+   0xfffffe0009502bd4  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMDevice::setRID(unsigned char)
+   0xfffffe0009502c90  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMDevice::setVersion(unsigned int)
+   0xfffffe0009502d48  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMDevice::setVendorID(unsigned int)
+   0xfffffe0009502df4  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMDevice::setDeviceID(unsigned int)
+   0xfffffe0009502ea0  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMDevice::setBoardID(unsigned int)
+   0xfffffe0009502f4c  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMDevice::setRouteString(unsigned long long)
+   0xfffffe00095030f0  reg= 0x40 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMDevice::setRevision(unsigned char)
+   0xfffffe000950319c  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMDevice::setRevisionID(unsigned char)
+   0xfffffe0009503248  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMDevice::hpmForceMode(unsigned char, unsigned int, unsigned int)
+   0xfffffe0009503560  reg=0x843f len=None via=None
+   0xfffffe00095035d8  reg=0x843f len=None via=None
+AppleHPMDevice::hpmForceUpdateMode(unsigned char)
+   0xfffffe0009503884  reg=0x843f len=None via=None
+AppleHPMDevice::hpmEnableOptions(unsigned int)
+   0xfffffe000950390c  reg=0x8453 len=0x4 via=None
+AppleHPMAIDType1::MetaClass::alloc() const
+   0xfffffe0009503b70  reg=0x1c8 len=None via=_OSObject_typed_operator_new
+AppleHPMAIDType1::acquireBus(unsigned char)
+   0xfffffe0009503d18  reg=  0x1 len=None via=None
+AppleHPMAIDType1::releaseBus(unsigned char)
+   0xfffffe0009503ef0  reg=  0x1 len=None via=None
+AppleHPMAIDType1::sendBreak(unsigned char)
+   0xfffffe0009503fc4  reg=  0x1 len=None via=None
+AppleHPMAIDType1::sendBusReset(unsigned char)
+   0xfffffe000950409c  reg=  0x1 len=None via=None
+AppleHPMAIDType1::startTransfer(unsigned char, IOPortTransportAIDBus::AIDTransferRequest*, IOPortTransportAIDBus::AIDTransferCompletion*)
+   0xfffffe000950431c  reg=  0x1 len=None via=None
+AppleHPMBusDevice::MetaClass::alloc() const
+   0xfffffe0009504620  reg= 0x90 len=None via=_OSObject_typed_operator_new
+AppleHPMBusDevice::withRegistryEntry(IORegistryEntry*, IOService*)
+   0xfffffe0009504758  reg= 0x90 len=None via=_OSObject_typed_operator_new
+AppleHPMInterfaceType10::MetaClass::alloc() const
+   0xfffffe0009504ae4  reg=0x14a0 len=None via=_OSObject_typed_operator_new
+AppleHPMInterfaceType10::message(unsigned int, IOService*, void*)
+   0xfffffe00095055a4  reg= 0x14 len=None via=None
+AppleHPMInterfaceType10::forcePortEvaluation()
+   0xfffffe00095056f8  reg= 0x14 len=None via=None
+AppleHPMInterfaceType10::forceUSB23On()
+   0xfffffe0009506060  reg=  0x1 len=None via=None
+   0xfffffe000950607c  reg=0x2710 len=None via=AppleHPMInterfaceType10::startUSBTimer(unsigned int)
+AppleHPMInterfaceType10::overrideHPMMode(bool, bool, unsigned int, unsigned int)
+   0xfffffe00095067d4  reg=  0x1 len=None via=None
+AppleHPMInterfaceType10::setSOPVID(unsigned int)
+   0xfffffe0009506894  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMInterfaceType10::setSOPPID(unsigned int)
+   0xfffffe0009506944  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMInterfaceType10::setSOPpVID(unsigned int)
+   0xfffffe0009506c20  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMInterfaceType10::setSOPpPID(unsigned int)
+   0xfffffe0009506cd8  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMInterfaceType10::configureUSBRemoteWakeup(IOAccessoryUSBRemoteWakeupMode)
+   0xfffffe0009507120  reg=  0x8 len=None via=None
+AppleHPMInterfaceType10::setInterruptMask()
+   0xfffffe0009507250  reg= 0x16 len=None via=None
+AppleHPMInterfaceType16::MetaClass::alloc() const
+   0xfffffe000950747c  reg=0x14d0 len=None via=_OSObject_typed_operator_new
+AppleHPMInterfaceType16::setInterruptMask()
+   0xfffffe0009507b18  reg= 0x16 len=None via=None
+AppleHPMInterfaceType16::processInterruptEvents()
+   0xfffffe0009507e08  reg=0x843f len=0x2 via=None
+AppleHPMInterfaceType16::sendDataControl2()
+   0xfffffe00095081f0  reg=0x843f len=0x2 via=None
+AppleHPMInterfaceType16::configureUSB2PortObject(IOPortTransportStateUSB2*, bool)
+   0xfffffe00095083a8  reg=  0x1 len=None via=_IOLog
+   0xfffffe0009508400  reg=  0x2 len=None via=IOPort::isTransportProvisioned(IOPortTransportStateTransport
+AppleHPMUserClient::MetaClass::alloc() const
+   0xfffffe0009508900  reg= 0xf0 len=None via=_OSObject_typed_operator_new
+AppleHPMUserClient::clientClose()
+   0xfffffe0009509004  reg=  0x1 len=None via=None
+AppleHPMUserClient::IECSAtomicCommand(IOExternalMethodArguments*)
+   0xfffffe0009509e9c  reg=  0x4 len=None via=IOMemoryDescriptor::withAddressRange(unsigned long long, uns
+   0xfffffe0009509f08  reg=  0x4 len=None via=IOMemoryDescriptor::withAddressRange(unsigned long long, uns
+   0xfffffe0009509f78  reg=  0x4 len=None via=IOMemoryDescriptor::withAddressRange(unsigned long long, uns
+AppleTCControllerSingleTransport::MetaClass::alloc() const
+   0xfffffe000950a960  reg=0x1108 len=None via=_OSObject_typed_operator_new
+AppleTCControllerSingleTransport::start(IOService*)
+   0xfffffe000950bc20  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleTCControllerSingleTransport::configureDPPortObjectStatic(IOPortTransportStateDisplayPort*)
+   0xfffffe000950c084  reg=  0x2 len=None via=IOPortTransportStateDisplayPort::setRole(IOPortTransportStat
+   0xfffffe000950c094  reg=  0x4 len=None via=IOPortTransportStateDisplayPort::setMaxLaneCount(unsigned ch
+   0xfffffe000950c0a4  reg=  0x5 len=None via=IOPort::isTransportProvisioned(IOPortTransportStateTransport
+AppleTCControllerSingleTransport::evaluateHpd()
+   0xfffffe000950c254  reg=  0x1 len=None via=None
+AppleTCControllerSingleTransport::processStatusRegisters()
+   0xfffffe000950c688  reg=  0x1 len=None via=None
+AppleTCControllerSingleTransport::setPinConfiguration(unsigned int)
+   0xfffffe000950c93c  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe000950c9a4  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe000950ca0c  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe000950ca74  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe000950cae4  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe000950cb4c  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleTCControllerType15::MetaClass::alloc() const
+   0xfffffe000950ceb4  reg=0x1118 len=None via=_OSObject_typed_operator_new
+AppleTCControllerType15::setInterruptMask()
+   0xfffffe000950d30c  reg= 0x16 len=0xb via=None
+AppleTCControllerType15::processInterruptEvents(unsigned char*, unsigned short)
+   0xfffffe000950d7e8  reg= 0x1a len=0x4 via=None
+   0xfffffe000950d868  reg= 0x5f len=0x5 via=None
+   0xfffffe000950d920  reg= 0x40 len=0x5 via=None
+   0xfffffe000950d9a4  reg= 0x5e len=0x12 via=None
+   0xfffffe000950d9e8  reg= 0x5e len=0x16 via=None
+   0xfffffe000950dce4  reg=  0x3 len=None via=AppleTCController::stopAnalyticsTimer()
+   0xfffffe000950dd38  reg=  0x2 len=None via=_IOLog
+AppleTCControllerType15::hpmInterruptAction(IOInterruptEventSource*, int)
+   0xfffffe000950df40  reg= 0x14 len=0xb via=None
+AppleTCControllerType15::forcePortEvaluation()
+   0xfffffe000950e098  reg= 0x14 len=0x9 via=None
+AppleHPMLDCMType2::MetaClass::alloc() const
+   0xfffffe000950e33c  reg=0x168 len=None via=_OSObject_typed_operator_new
+AppleHPMLDCMType2::feature()
+   0xfffffe000950e488  reg=0x168 len=None via=_OSObject_typed_operator_new
+AppleHPMDeviceHALType5::MetaClass::alloc() const
+   0xfffffe000950e748  reg= 0xa8 len=None via=_OSObject_typed_operator_new
+AppleHPMDeviceHALType5::getBRDataControl(HPMBRDataControl*)
+   0xfffffe000950ea44  reg= 0x50 len=None via=None
+AppleHPMDeviceHALType5::writeDataControl2(HPMType1DataControl2*)
+   0xfffffe000950ebc0  reg= 0x55 len=0x2 via=None
+AppleHPMDeviceHALType5::getUSBStatus(HPMType1USBStatus*)
+   0xfffffe000950ec60  reg= 0x24 len=None via=None
+AppleHPMDeviceHALType5::getUSBConfig(HPMType1USBConfig*)
+   0xfffffe000950ed1c  reg= 0x23 len=None via=None
+AppleHPMDeviceHALType5::setUSBConfig(HPMType1USBConfig*)
+   0xfffffe000950eea4  reg= 0x23 len=0x4 via=None
+AppleHPMDeviceHALType2::MetaClass::alloc() const
+   0xfffffe000950f0e0  reg= 0xa8 len=None via=_OSObject_typed_operator_new
+AppleHPMLDCMType3::MetaClass::alloc() const
+   0xfffffe000950f59c  reg=0x168 len=None via=_OSObject_typed_operator_new
+AppleHPMLDCMType3::feature()
+   0xfffffe000950f6e8  reg=0x168 len=None via=_OSObject_typed_operator_new
+AppleHPMLDCMType3::enableLDCMInt()
+   0xfffffe000950f814  reg= 0x16 len=0xb via=None
+   0xfffffe000950f864  reg= 0x16 len=0xb via=None
+AppleHPMLDCMType3::setMitigationsEnabled(bool)
+   0xfffffe000950f978  reg=  0x1 len=None via=AppleHPMLDCM::enableLDCMMitigation(bool)
+AppleHPMLDCM::MetaClass::alloc() const
+   0xfffffe000950fbdc  reg=0x168 len=None via=_OSObject_typed_operator_new
+AppleHPMLDCM::start(IOService*)
+   0xfffffe000950ff7c  reg=  0xf len=0x4 via=None
+   0xfffffe000950ffdc  reg= 0x10 len=None via=_snprintf
+   0xfffffe000950ffe8  reg=  0x8 len=None via=OSString::withCString(char const*, unsigned long)
+AppleHPMLDCM::refreshLDCMState()
+   0xfffffe0009510420  reg=  0x1 len=None via=None
+AppleHPMLDCM::ldcmInterruptAction()
+   0xfffffe0009510550  reg=  0x1 len=None via=None
+   0xfffffe00095105e4  reg=  0x1 len=None via=0x940
+AppleHPMLDCM::feature()
+   0xfffffe0009510624  reg=0x168 len=None via=_OSObject_typed_operator_new
+AppleHPMLDCM::setMitigationsEnabled(bool)
+   0xfffffe000951070c  reg=  0x1 len=None via=AppleHPMLDCM::enableLDCMMitigation(bool)
+AppleHPMLDCM::enableLDCMMitigation(bool)
+   0xfffffe00095107ec  reg=  0x1 len=None via=None
+AppleHPMLDCM::setUserOverrideActive(bool)
+   0xfffffe0009510840  reg=  0x1 len=None via=AppleHPMLDCM::enableLDCMMitigation(bool)
+AppleHPMLDCM::copyData(OSData**, unsigned long long)
+   0xfffffe00095108d8  reg= 0x37 len=None via=OSData::withBytes(void const*, unsigned int)
+   0xfffffe0009510960  reg=  0x1 len=None via=None
+   0xfffffe00095109e8  reg=0x7918 len=None via=AppleHPMLDCM::startLDCMStatusTimer(unsigned int)
+AppleHPMLDCM::getLDCMStatusRegister(unsigned char*, unsigned char)
+   0xfffffe0009510b28  reg= 0x74 len=None via=None
+   0xfffffe0009510ba0  reg= 0x74 len=None via=None
+AppleHPMLDCM::getWaveFormData(unsigned char*, unsigned short)
+   0xfffffe0009510d24  reg=  0x1 len=None via=None
+   0xfffffe0009510d98  reg=  0x1 len=None via=None
+AppleHPMLDCM::enableLDCMInt()
+   0xfffffe0009510e88  reg= 0x16 len=0xb via=None
+   0xfffffe0009510ed8  reg= 0x16 len=0xb via=None
+AppleHPMLDCM::copyCachedData(OSData**)
+   0xfffffe0009511010  reg=0x19c8 len=None via=OSData::withBytes(void const*, unsigned int)
+AppleHPMLDCM::clearCachedData()
+   0xfffffe0009511060  reg=0x19c8 len=None via=_bzero
+   0xfffffe0009511070  reg=0x7918 len=None via=AppleHPMLDCM::startLDCMStatusTimer(unsigned int)
+AppleHPMLDCM::copyWaveform(OSData**)
+   0xfffffe00095110b8  reg=0x480 len=None via=OSData::withBytes(void const*, unsigned int)
+AppleHPMLDCM::isVoltageDetected()
+   0xfffffe000951118c  reg= 0x6a len=0x38 via=None
+   0xfffffe00095111b8  reg=0x4240 len=None via=_clock_interval_to_deadline
+   0xfffffe0009511244  reg= 0x6a len=0x38 via=None
+AppleHPMLDCM::disableOVPInterrupt()
+   0xfffffe000951137c  reg= 0x73 len=0x40 via=None
+   0xfffffe0009511410  reg=  0x1 len=None via=None
+AppleHPMInterface::MetaClass::alloc() const
+   0xfffffe0009511664  reg=0x1480 len=None via=_OSObject_typed_operator_new
+AppleHPMInterface::genericStart(IOService*)
+   0xfffffe00095122ac  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMInterface::free()
+   0xfffffe00095126d8  reg= 0x40 len=None via=_IOFreeData
+   0xfffffe00095126ec  reg= 0x40 len=None via=_IOFreeData
+   0xfffffe0009512700  reg= 0x40 len=None via=_IOFreeData
+   0xfffffe0009512714  reg= 0x40 len=None via=_IOFreeData
+AppleHPMInterface::commonStartPhase2()
+   0xfffffe0009512bcc  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMInterface::initInterruptManager()
+   0xfffffe000951335c  reg=  0x2 len=None via=IOPort::copyFeature(IOPortFeatureType) const
+AppleHPMInterface::initSingleHPM()
+   0xfffffe0009513d5c  reg=  0x2 len=None via=IOPort::copyFeature(IOPortFeatureType) const
+AppleHPMInterface::message(unsigned int, IOService*, void*)
+   0xfffffe0009514810  reg= 0x14 len=None via=None
+AppleHPMInterface::setProperties(OSObject*)
+   0xfffffe0009514a0c  reg=  0x1 len=None via=None
+AppleHPMInterface::hpmInterruptAction(IOInterruptEventSource*, int)
+   0xfffffe0009514fc4  reg= 0x14 len=None via=None
+AppleHPMInterface::setInterruptMask()
+   0xfffffe0009515220  reg= 0x16 len=None via=None
+AppleHPMInterface::processInterruptEvents()
+   0xfffffe0009515820  reg=  0x1 len=None via=None
+   0xfffffe0009515c84  reg=  0x3 len=None via=_IOLog
+   0xfffffe0009515ccc  reg=  0x2 len=None via=_IOLog
+AppleHPMInterface::getBootFlags()
+   0xfffffe0009515dac  reg= 0x2d len=0x40 via=None
+AppleHPMInterface::runHChk()
+   0xfffffe0009515ec8  reg=  0x8 len=None via=None
+AppleHPMInterface::getFWVersion()
+   0xfffffe0009515fc4  reg=  0xf len=0x4 via=None
+AppleHPMInterface::processStatusRegisters()
+   0xfffffe00095166ac  reg=  0x1 len=None via=None
+AppleHPMInterface::setCurrentModeFlags()
+   0xfffffe00095167fc  reg=  0x3 len=0x40 via=None
+   0xfffffe0009516bc4  reg=  0x1 len=None via=None
+   0xfffffe0009516cb8  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe00095173d8  reg=  0x8 len=None via=None
+AppleHPMInterface::processModeFlags()
+   0xfffffe00095178e4  reg= 0x10 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe0009517950  reg= 0x10 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe0009517b7c  reg= 0x10 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe0009517be8  reg= 0x10 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe0009517fb0  reg=0x130 len=None via=None
+   0xfffffe0009518198  reg=0x130 len=None via=None
+AppleHPMInterface::sendDpStatusUpdates()
+   0xfffffe0009518330  reg=0x8058 len=None via=None
+AppleHPMInterface::setPowerState(unsigned long, IOService*)
+   0xfffffe0009518974  reg=  0x1 len=None via=None
+   0xfffffe00095189b8  reg=  0x3 len=None via=None
+   0xfffffe0009518a30  reg=  0x1 len=None via=None
+   0xfffffe0009518a54  reg=0x83e8 len=None via=None
+   0xfffffe0009518ae0  reg=0x7918 len=None via=AppleHPMLDCM::startLDCMStatusTimer(unsigned int)
+AppleHPMInterface::setPowerStateHPM(unsigned char)
+   0xfffffe0009518cf8  reg= 0x20 len=0x1 via=None
+   0xfffffe0009518dbc  reg=  0x8 len=None via=None
+AppleHPMInterface::forcePortEvaluation()
+   0xfffffe0009518fe0  reg= 0x14 len=None via=None
+AppleHPMInterface::writeReg(unsigned short, unsigned char*, unsigned char)
+   0xfffffe0009519684  reg= 0x43 len=None via=_snprintf
+AppleHPMInterface::setPinConfiguration()
+   0xfffffe0009519acc  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe0009519b34  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe0009519b9c  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe0009519c04  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe0009519c74  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe0009519cdc  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMInterface::usbRemoteWakeupTriggered()
+   0xfffffe0009519f08  reg= 0x14 len=None via=None
+AppleHPMInterface::configureUSBRemoteWakeup(IOAccessoryUSBRemoteWakeupMode)
+   0xfffffe000951a0d4  reg=  0x8 len=None via=None
+AppleHPMInterface::callPlatformFunction(OSSymbol const*, bool, void*, void*, void*, void*)
+   0xfffffe000951a708  reg=  0x2 len=None via=_IOLog
+AppleHPMInterface::repeaterReset(unsigned char)
+   0xfffffe000951a918  reg=  0x8 len=None via=None
+AppleHPMInterface::ignoreVbusLoss(unsigned int)
+   0xfffffe000951aa40  reg=  0x8 len=None via=None
+AppleHPMInterface::usbDataMonitor(unsigned int, int*)
+   0xfffffe000951ab04  reg=  0x8 len=None via=None
+   0xfffffe000951abfc  reg=  0x8 len=None via=None
+AppleHPMInterface::usbDataDetect(unsigned int, bool*)
+   0xfffffe000951ae08  reg=  0x8 len=None via=None
+   0xfffffe000951af00  reg=  0x8 len=None via=None
+AppleHPMInterface::usbDataConnect(unsigned int, bool)
+   0xfffffe000951b12c  reg=  0x8 len=None via=None
+   0xfffffe000951b388  reg=  0x8 len=None via=None
+AppleHPMInterface::disablePort(bool)
+   0xfffffe000951b41c  reg= 0x28 len=0x40 via=None
+   0xfffffe000951b558  reg= 0x20 len=0x1 via=None
+   0xfffffe000951b5b8  reg=  0x8 len=None via=None
+   0xfffffe000951b668  reg=  0x8 len=None via=None
+AppleHPMInterface::exitPDMode(unsigned int)
+   0xfffffe000951b754  reg= 0x47 len=0x40 via=None
+   0xfffffe000951b8a8  reg=  0x8 len=None via=None
+AppleHPMInterface::printConnectedTransports()
+   0xfffffe000951baa4  reg= 0x40 len=None via=_snprintf
+AppleHPMInterface::rtPanicHandler()
+   0xfffffe000951c340  reg= 0x5d len=0x6 via=None
+   0xfffffe000951c39c  reg=  0x8 len=None via=None
+   0xfffffe000951c3fc  reg=  0x6 len=None via=_IOFreeData
+AppleHPMInterface::incrementRTPanicCount()
+   0xfffffe000951c584  reg=0x130 len=None via=None
+AppleHPMInterface::getRetimerNode()
+   0xfffffe000951c624  reg=  0x8 len=None via=_snprintf
+AppleHPMInterface::enableOptions(unsigned int)
+   0xfffffe000951cb30  reg=0x130 len=None via=None
+AppleHPMInterface::isDeviceKartCapable()
+   0xfffffe000951cd48  reg= 0x48 len=0x40 via=None
+AppleHPMInterface::isCableKartCapable()
+   0xfffffe000951cfec  reg= 0x49 len=0x40 via=None
+   0xfffffe000951d020  reg= 0x49 len=0x40 via=None
+   0xfffffe000951d110  reg=  0x8 len=None via=None
+   0xfffffe000951d148  reg= 0x49 len=0x40 via=None
+AppleHPMInterface::challengeCrypto(unsigned long long, unsigned char const*, unsigned long long, unsigned char*, unsigned long long, unsigned long long*)
+   0xfffffe000951d834  reg=  0x9 len=None via=None
+   0xfffffe000951d890  reg=  0x8 len=0x40 via=None
+   0xfffffe000951d8d8  reg=  0x8 len=0x40 via=None
+   0xfffffe000951dee4  reg=  0x9 len=0x40 via=None
+AppleHPMInterface::configureBasePort()
+   0xfffffe000951e0cc  reg=  0x5 len=None via=IOAccessoryManagerUSBC::setDisplayPortPinAssignment(IOPortUS
+AppleHPMInterface::configureDPPortObject(IOPortTransportStateDisplayPort*, bool)
+   0xfffffe000951e3f4  reg=  0x5 len=None via=IOPort::isTransportProvisioned(IOPortTransportStateTransport
+AppleHPMInterface::configureUSB2PortObject(IOPortTransportStateUSB2*, bool)
+   0xfffffe000951e8c8  reg=  0x2 len=None via=IOPort::isTransportProvisioned(IOPortTransportStateTransport
+AppleHPMInterface::createUSB3PortObject(IOPortTransportStateUSB3**, unsigned int)
+   0xfffffe000951ed3c  reg=  0x3 len=None via=None
+AppleHPMInterface::removeUSB3PortObject(IOPortTransportStateUSB3**, bool)
+   0xfffffe000951efa0  reg=  0x3 len=None via=IOPort::isTransportProvisioned(IOPortTransportStateTransport
+AppleHPMInterface::configureUSB3PortObject(IOPortTransportStateUSB3*, bool)
+   0xfffffe000951f148  reg=  0x1 len=None via=IOPortTransportStateUSB3::setSuperSpeedSignaling(IOPortTrans
+   0xfffffe000951f15c  reg=  0x3 len=None via=IOPort::isTransportProvisioned(IOPortTransportStateTransport
+   0xfffffe000951f4a0  reg=  0x2 len=None via=IOPortTransportStateUSB::setDataRole(IOPortTransportStateUSB
+AppleHPMInterface::removeTBTPortObject()
+   0xfffffe000951fbc4  reg=  0x4 len=None via=IOPort::isTransportProvisioned(IOPortTransportStateTransport
+AppleHPMInterface::configureTBTPortObject()
+   0xfffffe000951fef0  reg=  0x4 len=None via=IOPort::isTransportProvisioned(IOPortTransportStateTransport
+AppleHPMInterface::roleSwap(unsigned char)
+   0xfffffe000952208c  reg=  0x1 len=None via=None
+AppleHPMInterface::setLDCMState(IOPortLDCMState)
+   0xfffffe00095227fc  reg=  0x2 len=None via=None
+AppleHPMInterface::setLDCMPin(IOPortUSBCLDCMPin)
+   0xfffffe0009522f0c  reg=  0x2 len=None via=None
+   0xfffffe0009522f9c  reg=  0x1 len=None via=IOPort::setLDCMMeasurementStatus(IOPortLDCMMeasurementStatus
+AppleHPMInterface::ldcmInterruptAction()
+   0xfffffe00095236f4  reg=  0x2 len=None via=IOPort::setLDCMMeasurementStatus(IOPortLDCMMeasurementStatus
+AppleHPMInterface::setLdcmOVPStatus()
+   0xfffffe00095237f4  reg=  0x2 len=None via=IOPort::setLDCMMeasurementStatus(IOPortLDCMMeasurementStatus
+AppleHPMInterface::triggerAnalytics()
+   0xfffffe0009523de0  reg=  0x4 len=None via=OSData::withBytes(void const*, unsigned int)
+   0xfffffe0009523f74  reg=  0x4 len=None via=OSData::withBytes(void const*, unsigned int)
+   0xfffffe0009524288  reg= 0x10 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe00095242f4  reg= 0x10 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe00095243b0  reg=  0x4 len=None via=OSData::withBytes(void const*, unsigned int)
+   0xfffffe00095244d0  reg= 0x10 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe000952453c  reg= 0x10 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe00095245f8  reg=  0x4 len=None via=OSData::withBytes(void const*, unsigned int)
+AppleHPMInterface::assignLDCMHandle(void*, IOService*, IONotifier*)
+   0xfffffe0009524a3c  reg=0x7918 len=None via=AppleHPMLDCM::startLDCMStatusTimer(unsigned int)
+AppleHPMInterface::reconfigureSSAM(unsigned char, unsigned int, bool)
+   0xfffffe0009525224  reg= 0x53 len=0x40 via=None
+   0xfffffe0009525274  reg=  0x1 len=None via=IOPortTransportProtocolCCUSBPDSSAM::setSignalingPair(IOPortT
+   0xfffffe0009525354  reg=  0x8 len=None via=None
+   0xfffffe00095253b8  reg=  0x2 len=None via=IOPortTransportProtocolCCUSBPDSSAM::setSignalingPair(IOPortT
+   0xfffffe00095253cc  reg=  0x3 len=None via=IOPortTransportProtocolCCUSBPDSSAM::setSignalingPair(IOPortT
+AppleHPMInterface::forceUSBDeviceMode(unsigned int)
+   0xfffffe00095254ec  reg=  0x8 len=None via=None
+   0xfffffe0009525554  reg=  0x8 len=None via=None
+AppleHPMInterface::handleAppleUVDMEnumUpdated()
+   0xfffffe0009525688  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMInterfaceType14::MetaClass::alloc() const
+   0xfffffe0009525af8  reg=0x14b0 len=None via=_OSObject_typed_operator_new
+AppleHPMInterfaceType14::roleswapTimeoutCallback(IOTimerEventSource*)
+   0xfffffe0009525eb8  reg=  0x1 len=None via=AppleHPMInterface::roleSwap(unsigned char)
+AppleTCControllerType12::MetaClass::alloc() const
+   0xfffffe000952653c  reg=0x1118 len=None via=_OSObject_typed_operator_new
+AppleTCControllerType12::removeUSB3PortObject(IOPortTransportStateUSB3**, bool)
+   0xfffffe0009526e84  reg=  0x3 len=None via=IOPort::isTransportProvisioned(IOPortTransportStateTransport
+AppleTCControllerType12::configureUSB3PortObject(IOPortTransportStateUSB3*, bool)
+   0xfffffe0009527044  reg=  0x1 len=None via=IOPortTransportStateUSB3::setSuperSpeedSignaling(IOPortTrans
+   0xfffffe0009527058  reg=  0x3 len=None via=IOPort::isTransportProvisioned(IOPortTransportStateTransport
+   0xfffffe0009527190  reg=  0x2 len=None via=IOPortTransportStateUSB::setDataRole(IOPortTransportStateUSB
+AppleHPMARMSPMI::MetaClass::alloc() const
+   0xfffffe0009527534  reg=0x160 len=None via=_OSObject_typed_operator_new
+AppleHPMARMSPMI::writeRegs(unsigned char, unsigned char const*, unsigned long long)
+   0xfffffe0009528298  reg= 0xa0 len=None via=None
+AppleHPMARMSPMI::readRegs(unsigned char, unsigned char*, unsigned long long)
+   0xfffffe00095286a8  reg= 0x1f len=0x12 via=None
+   0xfffffe0009528764  reg= 0x20 len=None via=None
+AppleHPMARMSPMI::readRegs(unsigned char, unsigned char*, unsigned long long*)
+   0xfffffe00095289bc  reg= 0x1f len=0x12 via=None
+   0xfffffe0009528a80  reg= 0x20 len=None via=None
+AppleHPMARMSPMI::hpmIECSWrite(unsigned long long, unsigned int, void*, unsigned long long, unsigned int)
+   0xfffffe0009528ae8  reg=  0x3 len=None via=IOBufferMemoryDescriptor::withCapacity(unsigned long, unsign
+AppleHPMARMSPMI::hpmIECSRead(unsigned long long, unsigned int, void*, unsigned long long*, unsigned int)
+   0xfffffe0009528d7c  reg=  0x3 len=None via=IOBufferMemoryDescriptor::withCapacity(unsigned long, unsign
+AppleHPMARMSPMI::publishHPMDevices()
+   0xfffffe00095290c8  reg=  0x2 len=None via=None
+   0xfffffe0009529108  reg=  0xf len=0x4 via=None
+   0xfffffe000952913c  reg=  0x1 len=None via=None
+   0xfffffe00095291a4  reg=  0x1 len=None via=None
+   0xfffffe00095291d0  reg=  0x1 len=0x4 via=None
+   0xfffffe0009529204  reg=  0x1 len=None via=None
+   0xfffffe0009529234  reg=  0x5 len=0x11 via=None
+   0xfffffe0009529268  reg=  0x1 len=None via=None
+   0xfffffe0009529294  reg= 0x2c len=0x1 via=None
+   0xfffffe00095292c8  reg=  0x1 len=None via=None
+   0xfffffe0009529300  reg= 0x2d len=0x34 via=None
+   0xfffffe0009529334  reg=  0x1 len=None via=None
+   0xfffffe0009529414  reg=  0x8 len=None via=None
+   0xfffffe0009529a5c  reg= 0x18 len=None via=_snprintf
+AppleHPMARMSPMI::sendHPMReset()
+   0xfffffe0009529da8  reg=  0x1 len=None via=None
+   0xfffffe0009529df8  reg=  0x3 len=0x4 via=None
+AppleHPMARMSPMI::enterRTPC()
+   0xfffffe000952a2f8  reg=  0x2 len=None via=None
+AppleHPMARMSPMI::exitRTPC()
+   0xfffffe000952a414  reg=  0x2 len=None via=None
+   0xfffffe000952a4a4  reg=  0x2 len=None via=None
+AppleHPMARMSPMI::waitForSPMIWake()
+   0xfffffe000952a514  reg=0x4240 len=None via=_clock_interval_to_deadline
+AppleHPMARMSPMI::failureRegisterDump()
+   0xfffffe000952a758  reg=  0x3 len=0x40 via=None
+   0xfffffe000952a7c0  reg= 0x2d len=0x40 via=None
+AppleTCControllerType10::MetaClass::alloc() const
+   0xfffffe000952aa20  reg=0x1118 len=None via=_OSObject_typed_operator_new
+AppleTCControllerType10::message(unsigned int, IOService*, void*)
+   0xfffffe000952b5d8  reg= 0x14 len=0x9 via=None
+AppleTCControllerType10::forcePortEvaluation()
+   0xfffffe000952b798  reg= 0x14 len=0x9 via=None
+   0xfffffe000952b86c  reg= 0x14 len=0x9 via=None
+AppleTCControllerType10::forceUSB23On(unsigned int)
+   0xfffffe000952c164  reg=  0x1 len=None via=None
+   0xfffffe000952c180  reg=0x2710 len=None via=AppleTCControllerType10::startUSBTimer(unsigned int)
+AppleTCControllerType10::overrideHPMMode(bool, bool, unsigned int, unsigned int)
+   0xfffffe000952c6f0  reg=  0x1 len=None via=None
+AppleTCControllerType10::setSOPVID(unsigned int)
+   0xfffffe000952c7b0  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleTCControllerType10::setSOPPID(unsigned int)
+   0xfffffe000952c860  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleTCControllerType10::setSOPpVID(unsigned int)
+   0xfffffe000952cb3c  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleTCControllerType10::setSOPpPID(unsigned int)
+   0xfffffe000952cbf0  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleTCControllerType10::configureUSBRemoteWakeup(IOAccessoryUSBRemoteWakeupMode)
+   0xfffffe000952cff4  reg=  0x8 len=None via=None
+AppleHCPM::MetaClass::alloc() const
+   0xfffffe000952d230  reg= 0xf8 len=None via=_OSObject_typed_operator_new
+AppleHCPM::publishUint32Property(unsigned int, char const*)
+   0xfffffe000952d3f4  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHCPM::publishStringVersionProperty(unsigned int, char const*, bool)
+   0xfffffe000952d5b0  reg=  0xf len=None via=_snprintf
+AppleHCPM::hcpmGetVersions(unsigned int&, unsigned int&, unsigned int&, unsigned int&, unsigned int&)
+   0xfffffe000952d848  reg= 0x10 len=None via=None
+AppleHCPM::hcpmReadRegister(unsigned short, unsigned long long, unsigned char*)
+   0xfffffe000952d8f0  reg=  0x1 len=None via=None
+AppleHCPM::hcpmWriteRegister(unsigned short, unsigned long long, unsigned char*)
+   0xfffffe000952d94c  reg=  0x2 len=None via=None
+AppleHCPM::hcpmCmdClear()
+   0xfffffe000952d99c  reg= 0x68 len=None via=None
+AppleHCPM::hcpmGetCmdResp(unsigned char*)
+   0xfffffe000952da10  reg= 0x6c len=None via=None
+AppleHCPM::hcpmExecCmd(unsigned int, unsigned long long, unsigned char*)
+   0xfffffe000952da88  reg=0x200 len=None via=None
+   0xfffffe000952dabc  reg= 0x68 len=None via=None
+AppleHCPM::hcpmSimulateIECSReadRegImpl(unsigned short, void*, unsigned int&)
+   0xfffffe000952dcb0  reg=0x4456 len=None via=None
+   0xfffffe000952de08  reg= 0x20 len=None via=None
+   0xfffffe000952de7c  reg=0x8006 len=None via=None
+AppleHCPM::hcpmSimulateCommandWrite(void*, unsigned long long)
+   0xfffffe000952e248  reg=0x4456 len=None via=None
+   0xfffffe000952e290  reg=0x4456 len=None via=None
+   0xfffffe000952e3f4  reg= 0x68 len=None via=None
+AppleTCControllerType14::MetaClass::alloc() const
+   0xfffffe000952e7b8  reg=0x1118 len=None via=_OSObject_typed_operator_new
+AppleTCControllerType14::setInterruptMask()
+   0xfffffe000952eadc  reg= 0x16 len=0xb via=None
+   0xfffffe000952eb40  reg= 0x16 len=0xb via=None
+AppleTCControllerType14::hpmInterruptAction(IOInterruptEventSource*, int)
+   0xfffffe000952ec84  reg= 0x14 len=0xb via=None
+AppleTCControllerType14::processInterruptEvents(unsigned char*, unsigned short)
+   0xfffffe000952f1d4  reg= 0x1a len=0x4 via=None
+   0xfffffe000952f270  reg= 0x5f len=0x5 via=None
+   0xfffffe000952f330  reg= 0x40 len=0x5 via=None
+   0xfffffe000952f3cc  reg= 0x5e len=0x12 via=None
+   0xfffffe000952f6ec  reg=  0x3 len=None via=AppleTCController::stopAnalyticsTimer()
+   0xfffffe000952f748  reg=  0x2 len=None via=_IOLog
+AppleHPMInterfaceType18::MetaClass::alloc() const
+   0xfffffe000952f9d4  reg=0x14f0 len=None via=_OSObject_typed_operator_new
+AppleHPMInterfaceType18::setInterruptMask()
+   0xfffffe00095300f0  reg= 0x16 len=None via=None
+AppleHPMInterfaceType18::processDPSIDStatusRegister()
+   0xfffffe000953057c  reg= 0x49 len=0x40 via=None
+AppleHPMInterfaceType18::startCableDiscoveryTimeoutTimer()
+   0xfffffe00095309fc  reg=0x3e8 len=None via=None
+AppleTCControllerType2::MetaClass::alloc() const
+   0xfffffe0009530f10  reg=0x1120 len=None via=_OSObject_typed_operator_new
+AppleTCControllerType2::configureDP()
+   0xfffffe0009531400  reg=  0x1 len=None via=None
+AppleHPMInterfaceType15::MetaClass::alloc() const
+   0xfffffe00095316f4  reg=0x14b8 len=None via=_OSObject_typed_operator_new
+AppleHPMInterfaceType15::roleswapTimeoutCallback(IOTimerEventSource*)
+   0xfffffe0009531ab4  reg=  0x1 len=None via=AppleHPMInterface::roleSwap(unsigned char)
+AppleHPMInterfaceType15::processInterruptEvents()
+   0xfffffe0009532144  reg= 0x53 len=0x9 via=None
+   0xfffffe00095323c0  reg=  0x1 len=None via=None
+   0xfffffe0009532844  reg=  0x3 len=None via=_IOLog
+   0xfffffe0009532884  reg=  0x2 len=None via=None
+AppleHPMInterfaceType15::repeaterReset(unsigned char)
+   0xfffffe00095329bc  reg=  0x8 len=None via=None
+AppleHPMInterfaceType3::MetaClass::alloc() const
+   0xfffffe0009532c28  reg=0x14b0 len=None via=_OSObject_typed_operator_new
+AppleHPMInterfaceType3::roleswapTimeoutCallback(IOTimerEventSource*)
+   0xfffffe000953308c  reg=  0x1 len=None via=AppleHPMInterface::roleSwap(unsigned char)
+AppleTCController::MetaClass::alloc() const
+   0xfffffe0009533718  reg=0x10f8 len=None via=_OSObject_typed_operator_new
+AppleTCController::genericStart(IOService*)
+   0xfffffe00095342cc  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleTCController::free()
+   0xfffffe00095346d4  reg=  0x4 len=None via=_IOFreeData
+   0xfffffe00095346e8  reg=  0x5 len=None via=_IOFreeData
+   0xfffffe00095346fc  reg= 0x40 len=None via=_IOFreeData
+   0xfffffe0009534710  reg=  0x5 len=None via=_IOFreeData
+AppleTCController::commonStartPhase1()
+   0xfffffe00095347e0  reg=  0x1 len=0x4 via=None
+AppleTCController::commonStartPhase2()
+   0xfffffe0009534b94  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleTCController::initInterruptManager()
+   0xfffffe00095352ec  reg=  0x2 len=None via=IOPort::copyFeature(IOPortFeatureType) const
+AppleTCController::initSingleHPM()
+   0xfffffe0009535ce8  reg=  0x2 len=None via=IOPort::copyFeature(IOPortFeatureType) const
+AppleTCController::message(unsigned int, IOService*, void*)
+   0xfffffe0009536790  reg= 0x14 len=0x9 via=None
+AppleTCController::setProperties(OSObject*)
+   0xfffffe00095369b4  reg=  0x1 len=None via=None
+AppleTCController::hpmInterruptAction(IOInterruptEventSource*, int)
+   0xfffffe0009536f3c  reg= 0x14 len=0x9 via=None
+AppleTCController::getSecondaryMuxConfig()
+   0xfffffe0009537094  reg= 0x29 len=0x3f via=None
+AppleTCController::setInterruptMask()
+   0xfffffe00095371e4  reg= 0x5d len=0x6 via=None
+   0xfffffe0009537214  reg=  0x6 len=None via=_IOFreeData
+   0xfffffe0009537240  reg= 0x16 len=0x8 via=None
+AppleTCController::processInterruptEvents(unsigned char*, unsigned short)
+   0xfffffe00095377bc  reg=  0xf len=0x4 via=None
+   0xfffffe0009537968  reg= 0x1a len=0x4 via=None
+   0xfffffe0009537a04  reg= 0x5f len=0x5 via=None
+   0xfffffe0009537ad4  reg= 0x40 len=0x5 via=None
+   0xfffffe0009537b94  reg= 0x5e len=0x12 via=None
+   0xfffffe0009537e8c  reg=  0x3 len=None via=AppleTCController::stopAnalyticsTimer()
+   0xfffffe0009537ee8  reg=  0x2 len=None via=_IOLog
+AppleTCController::getBootFlags()
+   0xfffffe0009537fc0  reg= 0x2d len=0x40 via=None
+AppleTCController::getFWVersion()
+   0xfffffe00095380a0  reg=  0xf len=0x4 via=None
+AppleTCController::processStatusRegisters()
+   0xfffffe0009538778  reg=  0x1 len=None via=None
+AppleTCController::setCurrentModeFlags(unsigned int, unsigned int)
+   0xfffffe0009538ba0  reg=  0x1 len=None via=None
+   0xfffffe0009538c8c  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe0009539340  reg=  0x3 len=0x4 via=None
+   0xfffffe0009539414  reg=  0x3 len=0x4 via=None
+   0xfffffe000953948c  reg=  0x8 len=None via=None
+AppleTCController::processModeFlags()
+   0xfffffe00095397b0  reg= 0x48 len=0x25 via=None
+   0xfffffe0009539820  reg= 0x25 len=None via=_IOFreeData
+   0xfffffe0009539954  reg= 0x10 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe00095399c0  reg= 0x10 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe0009539a80  reg= 0x49 len=0x25 via=None
+   0xfffffe0009539af0  reg= 0x25 len=None via=_IOFreeData
+   0xfffffe0009539c18  reg= 0x10 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe0009539c84  reg= 0x10 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe0009539fbc  reg=0x130 len=None via=None
+   0xfffffe000953a1a4  reg=0x130 len=None via=None
+AppleTCController::sendDpStatusUpdates()
+   0xfffffe000953a328  reg=0x8058 len=None via=None
+AppleTCController::clearDpIRQ()
+   0xfffffe000953a564  reg= 0x50 len=0x4 via=None
+   0xfffffe000953a580  reg=  0x4 len=None via=_IOFreeData
+AppleTCController::resetDataControl()
+   0xfffffe000953a6d0  reg= 0x50 len=0x4 via=None
+   0xfffffe000953a788  reg= 0x50 len=0x4 via=None
+   0xfffffe000953a7a4  reg=  0x4 len=None via=_IOFreeData
+AppleTCController::setPowerState(unsigned long, IOService*)
+   0xfffffe000953aa98  reg=  0x1 len=None via=None
+   0xfffffe000953aad4  reg=  0x3 len=None via=None
+   0xfffffe000953ab18  reg=0x83e8 len=None via=None
+   0xfffffe000953aba8  reg=0x7918 len=None via=AppleHPMLDCM::startLDCMStatusTimer(unsigned int)
+AppleTCController::setPowerStateHPM(unsigned char)
+   0xfffffe000953ad48  reg= 0x20 len=0x1 via=None
+   0xfffffe000953adac  reg=  0x8 len=None via=None
+AppleTCController::forcePortEvaluation()
+   0xfffffe000953afa0  reg= 0x14 len=0x9 via=None
+AppleTCController::writeReg(unsigned short, unsigned char*, unsigned char)
+   0xfffffe000953b580  reg= 0x43 len=None via=_snprintf
+AppleTCController::setPinConfiguration(unsigned int)
+   0xfffffe000953b9fc  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe000953ba64  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe000953bacc  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe000953bb34  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe000953bba4  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe000953bc0c  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleTCController::usbRemoteWakeupTriggered()
+   0xfffffe000953bde0  reg= 0x14 len=0x9 via=None
+   0xfffffe000953be34  reg= 0x18 len=0x9 via=None
+AppleTCController::configureUSBRemoteWakeup(IOAccessoryUSBRemoteWakeupMode)
+   0xfffffe000953bfc4  reg=  0x8 len=None via=None
+AppleTCController::callPlatformFunction(OSSymbol const*, bool, void*, void*, void*, void*)
+   0xfffffe000953c578  reg=  0x2 len=None via=_IOLog
+AppleTCController::repeaterReset(unsigned char)
+   0xfffffe000953c764  reg=  0x8 len=None via=None
+AppleTCController::usbDataMonitor(unsigned int, int*)
+   0xfffffe000953c828  reg=  0x8 len=None via=None
+   0xfffffe000953c920  reg=  0x8 len=None via=None
+AppleTCController::usbDataDetect(unsigned int, bool*)
+   0xfffffe000953cb0c  reg=  0x8 len=None via=None
+   0xfffffe000953cc04  reg=  0x8 len=None via=None
+AppleTCController::usbDataConnect(unsigned int, bool)
+   0xfffffe000953ce10  reg=  0x8 len=None via=None
+   0xfffffe000953d04c  reg=  0x8 len=None via=None
+AppleTCController::disablePort(bool)
+   0xfffffe000953d0e0  reg= 0x28 len=0x40 via=None
+   0xfffffe000953d214  reg= 0x20 len=0x1 via=None
+   0xfffffe000953d270  reg=  0x8 len=None via=None
+   0xfffffe000953d320  reg=  0x8 len=None via=None
+AppleTCController::exitPDMode(unsigned int)
+   0xfffffe000953d408  reg= 0x47 len=0x31 via=None
+   0xfffffe000953d558  reg=  0x8 len=None via=None
+AppleTCController::printConnectedTransports()
+   0xfffffe000953d710  reg= 0x40 len=None via=_snprintf
+AppleTCController::rtPanicHandler()
+   0xfffffe000953df7c  reg= 0x5d len=0x6 via=None
+   0xfffffe000953dfd8  reg=  0x8 len=None via=None
+   0xfffffe000953e038  reg=  0x6 len=None via=_IOFreeData
+AppleTCController::incrementRTPanicCount()
+   0xfffffe000953e1b0  reg=0x130 len=None via=None
+AppleTCController::getRetimerNode()
+   0xfffffe000953e250  reg=  0x8 len=None via=_snprintf
+AppleTCController::enableOptions(unsigned int)
+   0xfffffe000953e750  reg=0x130 len=None via=None
+AppleTCController::isDeviceKartCapable()
+   0xfffffe000953e964  reg= 0x48 len=0x25 via=None
+AppleTCController::isCableKartCapable()
+   0xfffffe000953ebf0  reg= 0x49 len=0x25 via=None
+   0xfffffe000953ec20  reg= 0x49 len=0x25 via=None
+   0xfffffe000953ed04  reg=  0x8 len=None via=None
+   0xfffffe000953ed3c  reg= 0x49 len=0x25 via=None
+AppleTCController::challengeCrypto(unsigned long long, unsigned char const*, unsigned long long, unsigned char*, unsigned long long, unsigned long long*)
+   0xfffffe000953f3e0  reg=  0x9 len=None via=None
+   0xfffffe000953f42c  reg=  0x8 len=0x4 via=None
+   0xfffffe000953f474  reg=  0x8 len=0x4 via=None
+   0xfffffe000953fa54  reg=  0x9 len=0x40 via=None
+AppleTCController::configureBasePort()
+   0xfffffe000953fc24  reg=  0x5 len=None via=IOAccessoryManagerUSBC::setDisplayPortPinAssignment(IOPortUS
+AppleTCController::configureDPPortObject(IOPortTransportStateDisplayPort*, bool)
+   0xfffffe000953ff04  reg=  0x2 len=None via=IOPortTransportStateDisplayPort::setMaxLaneCount(unsigned ch
+   0xfffffe000953ff2c  reg=  0x5 len=None via=IOPort::isTransportProvisioned(IOPortTransportStateTransport
+AppleTCController::configureUSB2PortObject(IOPortTransportStateUSB2*, bool)
+   0xfffffe00095403bc  reg=  0x2 len=None via=IOPort::isTransportProvisioned(IOPortTransportStateTransport
+AppleTCController::createUSB3PortObject(IOPortTransportStateUSB3**, unsigned int)
+   0xfffffe0009540808  reg=  0x3 len=None via=None
+AppleTCController::removeUSB3PortObject(IOPortTransportStateUSB3**, bool)
+   0xfffffe0009540a3c  reg=  0x3 len=None via=IOPort::isTransportProvisioned(IOPortTransportStateTransport
+AppleTCController::configureUSB3PortObject(IOPortTransportStateUSB3*, bool)
+   0xfffffe0009540be8  reg=  0x1 len=None via=IOPortTransportStateUSB3::setSuperSpeedSignaling(IOPortTrans
+   0xfffffe0009540bfc  reg=  0x3 len=None via=IOPort::isTransportProvisioned(IOPortTransportStateTransport
+   0xfffffe0009540f2c  reg=  0x2 len=None via=IOPortTransportStateUSB::setDataRole(IOPortTransportStateUSB
+AppleTCController::removeTBTPortObject()
+   0xfffffe000954139c  reg=  0x4 len=None via=IOPort::isTransportProvisioned(IOPortTransportStateTransport
+AppleTCController::configureTBTPortObject()
+   0xfffffe0009541578  reg=  0x1 len=None via=IOPortTransportStateCIO::setGeneration(IOPortTransportStateC
+   0xfffffe00095415fc  reg=  0x4 len=None via=IOPort::isTransportProvisioned(IOPortTransportStateTransport
+AppleTCController::setLDCMState(IOPortLDCMState)
+   0xfffffe0009543608  reg=  0x2 len=None via=None
+AppleTCController::setLDCMPin(IOPortUSBCLDCMPin)
+   0xfffffe0009543b78  reg=  0x1 len=None via=OSMetaClass::getClassName() const
+   0xfffffe0009543cdc  reg=  0x2 len=None via=None
+   0xfffffe0009543d5c  reg=  0x1 len=None via=IOPort::setLDCMMeasurementStatus(IOPortLDCMMeasurementStatus
+AppleTCController::ldcmInterruptAction()
+   0xfffffe000954442c  reg=  0x2 len=None via=IOPort::setLDCMMeasurementStatus(IOPortLDCMMeasurementStatus
+AppleTCController::setLdcmOVPStatus()
+   0xfffffe0009544518  reg=  0x2 len=None via=IOPort::setLDCMMeasurementStatus(IOPortLDCMMeasurementStatus
+AppleTCController::triggerAnalytics()
+   0xfffffe000954493c  reg= 0x49 len=0x25 via=None
+   0xfffffe0009544a28  reg= 0x25 len=None via=_IOFreeData
+   0xfffffe0009544a94  reg=  0x4 len=None via=OSData::withBytes(void const*, unsigned int)
+   0xfffffe0009544b8c  reg=  0x2 len=None via=IOPortTransportComponentCC::componentWithAddress(IOPortTrans
+   0xfffffe0009544bf4  reg=  0x3 len=None via=None
+   0xfffffe0009544c48  reg= 0x48 len=0x25 via=None
+   0xfffffe0009544d34  reg= 0x25 len=None via=_IOFreeData
+   0xfffffe0009544d98  reg=  0x4 len=None via=OSData::withBytes(void const*, unsigned int)
+   0xfffffe0009544fc8  reg= 0x10 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe0009545034  reg= 0x10 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe00095450e4  reg=  0x4 len=None via=OSData::withBytes(void const*, unsigned int)
+   0xfffffe00095451fc  reg= 0x10 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe0009545268  reg= 0x10 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+   0xfffffe0009545318  reg=  0x4 len=None via=OSData::withBytes(void const*, unsigned int)
+AppleTCController::assignLDCMHandle(void*, IOService*, IONotifier*)
+   0xfffffe0009545700  reg=0x7918 len=None via=AppleHPMLDCM::startLDCMStatusTimer(unsigned int)
+AppleTCController::runHChk()
+   0xfffffe0009545b70  reg=  0x8 len=None via=None
+AppleTCController::getTCCPID()
+   0xfffffe0009545c80  reg= 0x47 len=0x31 via=None
+AppleTCController::handleAppleUVDMEnumUpdated()
+   0xfffffe0009545d70  reg=  0x8 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMARM::MetaClass::alloc() const
+   0xfffffe00095461f4  reg=0x118 len=None via=_OSObject_typed_operator_new
+AppleHPMARM::get4ccLockStatus()
+   0xfffffe00095465e8  reg=0x566e len=None via=None
+AppleHPMARM::set4ccLock(unsigned char)
+   0xfffffe00095466d4  reg=0x566e len=None via=None
+AppleHPMARM::startSMCDelayUVDM()
+   0xfffffe0009546750  reg=0x4150 len=None via=None
+AppleTCControllerType11::MetaClass::alloc() const
+   0xfffffe0009546c6c  reg=0x1110 len=None via=_OSObject_typed_operator_new
+AppleTCControllerType11::message(unsigned int, IOService*, void*)
+   0xfffffe0009547268  reg= 0x14 len=0x9 via=None
+AppleTCControllerType11::forcePortEvaluation()
+   0xfffffe00095474b4  reg=  0x9 len=None via=_IOFreeData
+AppleTCControllerType11::processModeFlags()
+   0xfffffe00095476c4  reg= 0x49 len=0x25 via=None
+AppleTCControllerType11::setSOPpVID(unsigned int)
+   0xfffffe0009547810  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleTCControllerType11::setSOPpPID(unsigned int)
+   0xfffffe00095478c0  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleTCControllerType11::clearSOPpVID()
+   0xfffffe000954796c  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleTCControllerType11::clearSOPpPID()
+   0xfffffe0009547a10  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleTCControllerType11::setInterruptMask()
+   0xfffffe0009547b84  reg= 0x16 len=0x8 via=None
+AppleHPMInterfaceType11::MetaClass::alloc() const
+   0xfffffe0009547eb0  reg=0x1498 len=None via=_OSObject_typed_operator_new
+AppleHPMInterfaceType11::message(unsigned int, IOService*, void*)
+   0xfffffe00095484b4  reg= 0x14 len=None via=None
+AppleHPMInterfaceType11::forcePortEvaluation()
+   0xfffffe00095485e8  reg= 0x14 len=None via=None
+AppleHPMInterfaceType11::setSOPpVID(unsigned int)
+   0xfffffe0009548794  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMInterfaceType11::setSOPpPID(unsigned int)
+   0xfffffe0009548844  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMInterfaceType11::clearSOPpVID()
+   0xfffffe00095488f0  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMInterfaceType11::clearSOPpPID()
+   0xfffffe0009548994  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMInterfaceType11::setInterruptMask()
+   0xfffffe0009548afc  reg= 0x16 len=None via=None
+AppleHPMDeviceHALType3::MetaClass::alloc() const
+   0xfffffe0009548ef8  reg= 0xa8 len=None via=_OSObject_typed_operator_new
+AppleHPMDeviceHALType3::getMuxConfig(HPMType1Misc*)
+   0xfffffe0009549314  reg= 0x2a len=None via=None
+AppleHPMDeviceHALType3::getSMPTEStatus(HPMSMPTESidStatus*)
+   0xfffffe00095493f8  reg= 0x5b len=None via=None
+AppleTCControllerType1::MetaClass::alloc() const
+   0xfffffe0009549764  reg=0x1118 len=None via=_OSObject_typed_operator_new
+AppleTCControllerType1::setPowerStateHPM(unsigned char)
+   0xfffffe0009549c84  reg= 0x20 len=0x1 via=None
+   0xfffffe0009549ce4  reg=  0x8 len=None via=None
+AppleTCControllerType1::configureDP()
+   0xfffffe000954a2bc  reg=  0x1 len=None via=None
+AppleTCControllerType1::setSOPVID(unsigned int)
+   0xfffffe000954a4a0  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleTCControllerType1::setSOPPID(unsigned int)
+   0xfffffe000954a550  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleTCControllerType1::setSOPpVID(unsigned int)
+   0xfffffe000954a82c  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleTCControllerType1::setSOPpPID(unsigned int)
+   0xfffffe000954a8e0  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPMDeviceHAL::MetaClass::alloc() const
+   0xfffffe000954ada8  reg= 0xa0 len=None via=_OSObject_typed_operator_new
+AppleHPMDeviceHAL::getDID(unsigned char*, unsigned char*)
+   0xfffffe000954b254  reg=  0x1 len=None via=None
+AppleHPMDeviceHAL::getMuxConfig(HPMType1Misc*)
+   0xfffffe000954b328  reg= 0x29 len=None via=None
+AppleHPMDeviceHAL::getDataStatus(HPMType1DataStatus*)
+   0xfffffe000954b40c  reg= 0x5f len=None via=None
+AppleHPMDeviceHAL::getStatus(HPMType1Status*)
+   0xfffffe000954b870  reg= 0x1a len=None via=None
+AppleHPMDeviceHAL::getPDStatus(HPMType1PDStatus*)
+   0xfffffe000954baec  reg= 0x40 len=None via=None
+AppleHPMDeviceHAL::getCFVidStatus(HPMType1CFVidStatus*)
+   0xfffffe000954bcbc  reg= 0x5e len=None via=None
+AppleHPMDeviceHAL::getRXSOPData(HPMType1RXSOPandSOPpData*)
+   0xfffffe000954be30  reg= 0x48 len=None via=None
+AppleHPMDeviceHAL::getRXSOPpData(HPMType1RXSOPandSOPpData*)
+   0xfffffe000954bf60  reg= 0x49 len=None via=None
+AppleHPMDeviceHAL::ackDPIRQ()
+   0xfffffe000954c074  reg= 0x50 len=0x40 via=None
+AppleHPMDeviceHAL::resetDataControl()
+   0xfffffe000954c11c  reg= 0x50 len=None via=None
+   0xfffffe000954c16c  reg= 0x50 len=None via=None
+AppleHPMDeviceHAL::setHPMInterruptMask(unsigned char, HPMType1Interrupts*)
+   0xfffffe000954c220  reg= 0x16 len=None via=None
+AppleHPMDeviceHAL::getRxMIDBSOPStar(HPMType1RxMIDBSOPStar*)
+   0xfffffe000954cb00  reg= 0x4a len=None via=None
+AppleHPMDeviceHAL::getDPSIDStatus(HPMType1DPSIDStatus*)
+   0xfffffe000954ce64  reg= 0x58 len=None via=None
+AppleHPM::MetaClass::alloc() const
+   0xfffffe000954d26c  reg= 0xf0 len=None via=_OSObject_typed_operator_new
+AppleHPMEmbedded::MetaClass::alloc() const
+   0xfffffe000954d514  reg= 0xf0 len=None via=_OSObject_typed_operator_new
+AppleHPM::poweredStart()
+   0xfffffe000954d9a4  reg=  0x8 len=None via=None
+AppleHPM::setRID(unsigned char)
+   0xfffffe000954db98  reg= 0x20 len=None via=OSNumber::withNumber(unsigned long long, unsigned int)
+AppleHPM::setupPowerManagement()
+   0xfffffe000954dc8c  reg=  0x1 len=None via=IOPMrootDomain::createPMAssertion(unsigned long long, unsign
+AppleHPM::startPowerSavingsTimer()
+   0xfffffe000954e098  reg=0x4b40 len=None via=None
+AppleHPM::exitPowerSavings(bool)
+   0xfffffe000954e220  reg=  0x1 len=None via=None
+   0xfffffe000954e248  reg=  0x1 len=None via=IOService::changePowerStateTo(unsigned long)
+AppleHPM::wakeForActivity()
+   0xfffffe000954e30c  reg=  0x1 len=None via=None
+AppleHPM::wake()
+   0xfffffe000954e768  reg=  0x1 len=None via=None
+AppleHPM::hpmIECSWrite(unsigned long long, unsigned int, void*, unsigned long long, unsigned int)
+   0xfffffe000954ea68  reg=  0x3 len=None via=IOBufferMemoryDescriptor::withCapacity(unsigned long, unsign
+AppleHPM::hpmIECSRead(unsigned long long, unsigned int, void*, unsigned long long*, unsigned int)
+   0xfffffe000954ebdc  reg=  0x3 len=None via=IOBufferMemoryDescriptor::withCapacity(unsigned long, unsign
+AppleHPM::hpmEnterExitFirmwareUpdateMode(unsigned int)
+   0xfffffe0009550530  reg=0x4200 len=0x4 via=None
+AppleHPM::hpmAtomic4CC(unsigned char, IOMemoryDescriptor*, IOMemoryDescriptor*, IOMemoryDescriptor*, IOMemoryDescriptor*, IOMemoryDescriptor*, unsigned short, unsigned short, unsigned long long, unsigned long long, unsigned int)
+   0xfffffe0009550bd0  reg=  0x4 len=None via=_IOFreeData
+   0xfffffe0009550bf0  reg=  0x4 len=None via=_IOFreeData
+   0xfffffe0009550c10  reg=  0x4 len=None via=_IOFreeData
+AppleHPM::atomic4CC(unsigned char, unsigned char*, unsigned char*, unsigned char*, unsigned char*, unsigned char*, unsigned short, unsigned short, unsigned long long, unsigned long long, unsigned int)
+   0xfffffe0009550d0c  reg=0xca00 len=None via=_clock_interval_to_absolutetime_interval
+   0xfffffe0009550edc  reg=  0x1 len=None via=None
+AppleTCControllerAssignableTransport::MetaClass::alloc() const
+   0xfffffe0009551d78  reg=0x10f8 len=None via=_OSObject_typed_operator_new
+AppleTCControllerAssignableTransport::start(IOService*)
+   0xfffffe0009552258  reg=  0x1 len=None via=None
+AppleTCControllerAssignableTransport::configureTBTPortObject()
+   0xfffffe0009552594  reg=  0x1 len=None via=IOPortTransportStateCIO::setGeneration(IOPortTransportStateC
+   0xfffffe0009552618  reg=  0x4 len=None via=IOPort::isTransportProvisioned(IOPortTransportStateTransport
+   0xfffffe000955268c  reg=  0x1 len=None via=None
+AppleTCControllerAssignableTransport::removeUSB3PortObject(IOPortTransportStateUSB3**, bool)
+   0xfffffe0009552974  reg=  0x3 len=None via=IOPort::isTransportProvisioned(IOPortTransportStateTransport
+AppleTCControllerAssignableTransport::configureUSB3PortObject(IOPortTransportStateUSB3*, bool)
+   0xfffffe0009552b2c  reg=  0x1 len=None via=IOPortTransportStateUSB3::setSuperSpeedSignaling(IOPortTrans
+   0xfffffe0009552b40  reg=  0x3 len=None via=IOPort::isTransportProvisioned(IOPortTransportStateTransport
+   0xfffffe0009552c78  reg=  0x2 len=None via=IOPortTransportStateUSB::setDataRole(IOPortTransportStateUSB
