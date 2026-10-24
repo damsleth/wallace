@@ -1,0 +1,27 @@
+--- a/drivers/nvme/host/apple.c	2026-10-25 01:30:49.759098755 +0200
++++ b/drivers/nvme/host/apple.c	2026-10-25 01:30:49.778273827 +0200
+@@ -336,13 +336,23 @@
+ 	u32 tag = nvme_tag_from_cid(cmd->common.command_id);
+ 	struct apple_nvmmu_tcb *tcb = &q->tcbs[tag];
+ 
++	/*
++	 * T6040 ANS2 rejects a Flush whose TCB is built this way ("cmd
++	 * parsing error ... fast decode err 0x7"). Start from a zeroed TCB
++	 * and give a data-less command both DMA directions, as m1n1's
++	 * nvme_exec_command does.
++	 */
++	memset(tcb, 0, sizeof(*tcb));
+ 	tcb->opcode = cmd->common.opcode;
+ 	tcb->prp1 = cmd->common.dptr.prp1;
+ 	tcb->prp2 = cmd->common.dptr.prp2;
+ 	tcb->length = cmd->rw.length;
+ 	tcb->command_id = tag;
+ 
+-	if (nvme_is_write(cmd))
++	if (!cmd->common.dptr.prp1)
++		tcb->dma_flags = APPLE_ANS_TCB_DMA_FROM_DEVICE |
++				 APPLE_ANS_TCB_DMA_TO_DEVICE;
++	else if (nvme_is_write(cmd))
+ 		tcb->dma_flags = APPLE_ANS_TCB_DMA_TO_DEVICE;
+ 	else
+ 		tcb->dma_flags = APPLE_ANS_TCB_DMA_FROM_DEVICE;

@@ -430,6 +430,13 @@ if [ "${NVME_IOQ_SIZE:-0}" = "1" ]; then
     git apply --check /out/t6040-nvme-ans2-ioq-size.patch
     git apply /out/t6040-nvme-ans2-ioq-size.patch
 fi
+# Opt-in: build the NVMMU TCB like m1n1 (zeroed; data-less commands get both
+# DMA directions) so ANS2 accepts Flush (211 write run 1, ticket 5006).
+if [ "${NVME_FLUSH_TCB:-0}" = "1" ]; then
+    [ "${NVME_IOQ_SIZE:-0}" = 1 ] || { echo "NVME_FLUSH_TCB requires NVME_IOQ_SIZE=1" >&2; exit 1; }
+    git apply --check /out/t6040-nvme-apple-flush-tcb.patch
+    git apply /out/t6040-nvme-apple-flush-tcb.patch
+fi
 if [ "${NVME_THREADED_IRQ:-0}" = "1" ]; then
     echo "== apply Apple NVMe threaded-IRQ discriminator =="
     threaded_irq_patch=/out/t6040-nvme-threaded-irq-discriminator.patch
@@ -1678,8 +1685,13 @@ if [ "${NVME_IOQ_SIZE:-0}" = "1" ]; then
     ./scripts/config --file .config \
         -e ARM64_16K_PAGES -d ARM64_4K_PAGES \
         -e PCI -e PCI_MSI -e PCIE_APPLE -e PINCTRL_APPLE_GPIO \
-        -e MFD_MACSMC -e APPLE_RTKIT -e APPLE_SART -e NVME_APPLE \
-        -d SPMI -d NVMEM_APPLE_SPMI -d RTC_DRV_MACSMC
+        -e MFD_MACSMC -e APPLE_RTKIT -e APPLE_SART -e NVME_APPLE
+    # The read/write test kernels keep SPMI off; the daily+NVMe union
+    # (ticket 5005, WIFI=1) needs the WiFi set's SPMI/NVMEM/RTC unchanged.
+    if [ "${WIFI:-0}" != "1" ]; then
+        ./scripts/config --file .config \
+            -d SPMI -d NVMEM_APPLE_SPMI -d RTC_DRV_MACSMC
+    fi
     # Ticket 5003: the exFAT write test needs a filesystem driver; nothing else.
     if [ "${NVME_EXFAT:-0}" = "1" ]; then
         ./scripts/config --file .config -e EXFAT_FS
