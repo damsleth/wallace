@@ -1,0 +1,15 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+export HOME=/root
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export TERM=${TERM:-linux}
+if ! printf '%s  %s\n' \
+    606ecd98f83b72983f3cd35976df939dc9c7187283703736a81e89b65aee85a8 \
+    /etc/wallace-no.bmap | /bin/busybox sha256sum -c - >/dev/null 2>&1 ||
+   ! /bin/busybox loadkmap </etc/wallace-no.bmap; then
+    echo 'usb-root: Norwegian keymap unavailable; console shell withheld'
+    while :; do /bin/busybox sleep 3600; done
+fi
+printf '\nWallace USB-root integration candidate\n'
+cd /root || exit 1
+exec /bin/sh -l

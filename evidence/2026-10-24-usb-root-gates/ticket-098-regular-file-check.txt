@@ -1,0 +1,15 @@
+format=t6040-usb-root-metadata-v1
+partition_number=1
+disk_guid=192409a8-fe11-4cbf-9182-14eb737b69a6
+partuuid=e4731abe-3566-4c3a-8019-c8828ca27a5a
+filesystem_uuid=912d5c4e-7475-4875-a178-52ce5119a703
+partition_first_lba=2048
+partition_last_lba=2097118
+media_bytes=1073741824
+layout_bytes=1073741824
+gpt_copies=verified
+filesystem_type=ext4
+filesystem_label=t6040root
+ext4_state=clean
+metadata_gate=PASS
+image_sha256=1c493fad1d1b44520d9265c5946c8ac00b867b3d47fac93f88d1f55cde25060e

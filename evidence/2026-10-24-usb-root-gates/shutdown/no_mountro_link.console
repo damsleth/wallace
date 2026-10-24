@@ -1,0 +1,38 @@
+
+ * /proc is already mounted
+ * Mounting /run ... [ ok ]
+ * /run/openrc: creating directory
+ * /run/lock: creating directory
+ * /run/lock: correcting owner
+Service 'acpid' needs non existent service 'dev'
+Service 'hwdrivers' needs non existent service 'dev'
+Service 'machine-id' needs non existent service 'dev'
+Service 'watchdog' needs non existent service 'dev'
+ * Remounting devtmpfs on /dev ... [ ok ]
+ * Mounting /dev/mqueue ... [ ok ]
+ * Mounting /dev/pts ... [ ok ]
+ * Mounting /dev/shm ... [ ok ]
+ * Loading modules ... [ ok ]
+ * Mounting misc binary format filesystem ... [ ok ]
+ * Mounting security filesystem ... [ ok ]
+ * Mounting debug filesystem ... [ ok ]
+ * Mounting trace filesystem ... [ ok ]
+ * Mounting config filesystem ... [ ok ]
+ * Mounting fuse control filesystem ... [ ok ]
+ * Mounting SELinux filesystem ... [ ok ]
+ * Mounting persistent storage (pstore) filesystem ... [ ok ]
+ * Mounting efivarfs filesystem ... [ ok ]
+ * Mounting bpf filesystem ... [ ok ]
+   OpenRC 0.63.2 is starting up Linux 6.12.7-200.fc41.aarch64 (aarch64)
+
+ * Caching service dependencies ... [ ok ]
+ * Checking local filesystems  ... [ ok ]
+ * Remounting filesystems ... [ ok ]
+ * Mounting local filesystems ... [ ok ]
+ * Creating user login records ... [ ok ]
+ * Cleaning /tmp directory ... [ ok ]
+ * Setting hostname to wallace from /etc/hostname ... [ ok ]
+ * Unmounting loop devices
+ * Unmounting filesystems
+ * Terminating remaining processes ... [ ok ]
+ * Killing remaining processes ... [ ok ]

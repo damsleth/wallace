@@ -1,0 +1,3 @@
+MOUNT -t devtmpfs none /dev
+INJECT initial_dev
+TERMINAL no-shell

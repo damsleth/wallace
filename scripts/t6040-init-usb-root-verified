@@ -1,0 +1,118 @@
+#!/bin/busybox sh
+# SPDX-License-Identifier: MIT
+# Source candidate for ticket6005. Does not replace the pinned 305 payload.
+# Requires the selector, static metadata/e2fsck helpers, pinned identity and
+# keymap in its initramfs, plus the root-side contracts checked below.
+BB=/bin/busybox
+USBROOT_BB=$BB
+export USBROOT_BB
+PATH=/bin:/sbin:/usr/bin:/usr/sbin
+export PATH
+say() { echo "usb-root: $*"; }
+early_stop() {
+    say "STOP: $*; no shell before the Norwegian keymap"
+    while :; do $BB sleep 3600; done
+}
+
+$BB mkdir -p /proc /sys /dev /newroot /tmp || early_stop "bootstrap directories failed"
+$BB mount -t devtmpfs none /dev || early_stop "bootstrap devtmpfs failed"
+
+# This must precede every shell, including startup-failure rescue shells.
+if ! printf '%s  %s\n' \
+    606ecd98f83b72983f3cd35976df939dc9c7187283703736a81e89b65aee85a8 \
+    /etc/wallace-no.bmap | $BB sha256sum -c - >/dev/null 2>&1 ||
+   ! $BB loadkmap </etc/wallace-no.bmap; then
+    early_stop "Norwegian keymap missing/mismatched/unloadable"
+fi
+say "Norwegian console keymap loaded"
+
+stop() {
+    say "STOP: $*; no alternate root or automatic repair"
+    # The map is already loaded. Give both consoles a controlling terminal.
+    if [ -c /dev/ttydc0 ]; then
+        $BB setsid -c $BB sh -i </dev/ttydc0 >/dev/ttydc0 2>&1 &
+    fi
+    echo 1 >/proc/sys/kernel/printk 2>/dev/null || true
+    if [ -c /dev/tty1 ]; then
+        exec $BB setsid -c $BB sh -i </dev/tty1 >/dev/tty1 2>&1
+    fi
+    while :; do $BB sleep 3600; done
+}
+
+$BB mount -t proc none /proc || stop "proc mount failed"
+$BB mount -t sysfs none /sys || stop "sysfs mount failed"
+[ "$$" -eq 1 ] || stop "not PID1"
+[ "$( $BB cat /sys/devices/system/cpu/online )" = 0 ] || stop "one online CPU required"
+for tool in /sbin/t6040-usb-root-metadata /sbin/e2fsck; do
+    [ -x "$tool" ] || stop "missing $tool"
+done
+[ -r /opt/wallace/t6040-usb-root-select.sh ] || stop "selector missing"
+. /opt/wallace/t6040-usb-root-select.sh
+
+# Discovery can be asynchronous. Only selector status3 is retried, before any
+# metadata read; a matched device's GPT/ext4/fsck failure is terminal.
+n=0 result=
+while :; do
+    rc=0
+    result=$(usb_root_select /sys /dev /etc/wallace-usb-root.identity \
+        /sbin/t6040-usb-root-metadata disk 2>/tmp/usb-root-gate-error) || rc=$?
+    case "$rc" in
+        0) break ;;
+        3) [ "$n" -lt 30 ] || { $BB cat /tmp/usb-root-gate-error; stop "stick discovery timed out"; }
+           $BB sleep 1; n=$((n + 1)) ;;
+        *) $BB cat /tmp/usb-root-gate-error; stop "identity/metadata gate rejected root" ;;
+    esac
+done
+printf '%s\n' "$result"
+dev=$(printf '%s\n' "$result" | $BB sed -n 's/^usb_root_device=//p')
+partuuid=$(printf '%s\n' "$result" | $BB sed -n 's/^partuuid=//p')
+[ -b "$dev" ] && [ -n "$partuuid" ] || stop "invalid selector output"
+# -n is mandatory: this ticket never repairs a filesystem or replays a journal.
+/sbin/e2fsck -f -n "$dev" || stop "read-only fsck failed"
+$BB mount -t ext4 -o ro,noload "$dev" /newroot || stop "read-only root inspection failed"
+root_ok=1
+[ -x /newroot/bin/busybox ] &&
+    [ "$( $BB readlink /newroot/sbin/init )" = /bin/busybox ] &&
+    [ -x /newroot/sbin/openrc ] &&
+    [ -x /newroot/sbin/openrc-run ] &&
+    [ "$( $BB cat /newroot/etc/wallace-root-partuuid 2>/dev/null )" = "$partuuid" ] &&
+    [ "$( $BB cat /newroot/etc/wallace-root-profile 2>/dev/null )" = usb-daily-6005-v1 ] || root_ok=0
+printf '%s  %s\n' \
+    606ecd98f83b72983f3cd35976df939dc9c7187283703736a81e89b65aee85a8 \
+    /newroot/etc/wallace-no.bmap | $BB sha256sum -c - >/dev/null 2>&1 || root_ok=0
+[ -x /newroot/etc/init.d/t6040-keymap ] &&
+    [ "$( $BB readlink /newroot/etc/runlevels/boot/t6040-keymap )" = /etc/init.d/t6040-keymap ] || root_ok=0
+$BB grep -Eq '^keymap="no"$' /newroot/etc/conf.d/keymaps || root_ok=0
+$BB grep -Eq '^[[:space:]]*Option[[:space:]]+"XkbLayout"[[:space:]]+"no"[[:space:]]*$' \
+    /newroot/etc/X11/xorg.conf.d/00-keyboard.conf || root_ok=0
+$BB grep -Fxq '::sysinit:/sbin/openrc sysinit' /newroot/etc/inittab || root_ok=0
+$BB grep -Fxq '::wait:/sbin/openrc default' /newroot/etc/inittab || root_ok=0
+$BB grep -Fxq '::shutdown:/usr/local/sbin/t6040-usb-root-openrc shutdown' /newroot/etc/inittab || root_ok=0
+[ -x /newroot/usr/local/sbin/t6040-usb-root-openrc ] || root_ok=0
+# Direct ext4 root uses OpenRC's root-RO shutdown, not the SD loop/exFAT pivot.
+# The later shutdown/three-cold-boot ticket must demonstrate this end to end.
+[ -x /newroot/etc/init.d/mount-ro ] &&
+    [ "$( $BB readlink /newroot/etc/runlevels/shutdown/mount-ro )" = /etc/init.d/mount-ro ] || root_ok=0
+$BB umount /newroot || stop "read-only root view stayed busy"
+[ "$root_ok" -eq 1 ] || stop "root OpenRC/keymap/shutdown contract failed"
+
+# Repeat identity checks after the RO view. The reviewed live fixture must stay
+# connected throughout handoff; this is not an atomic hot-unplug guarantee.
+again=$(usb_root_select /sys /dev /etc/wallace-usb-root.identity \
+    /sbin/t6040-usb-root-metadata disk) || stop "identity changed after inspection"
+[ "$again" = "$result" ] || stop "root identity changed during inspection"
+$BB mount -t ext4 -o rw "$dev" /newroot || stop "verified root RW mount failed"
+# Fresh devtmpfs is the proven SD-root handoff pattern; check every operation.
+if ! $BB mkdir -p /newroot/dev /newroot/proc /newroot/sys ||
+   ! $BB mount -t devtmpfs none /newroot/dev ||
+   ! $BB mount -t proc none /newroot/proc ||
+   ! $BB mount -t sysfs none /newroot/sys; then
+    $BB umount /newroot/sys 2>/dev/null || true
+    $BB umount /newroot/proc 2>/dev/null || true
+    $BB umount /newroot/dev 2>/dev/null || true
+    $BB mount -o remount,ro /newroot || stop "handoff failed and root did not become RO"
+    $BB umount /newroot || stop "handoff failed and root stayed mounted"
+    stop "virtual filesystem handoff failed"
+fi
+say "switching to verified right-port USB root $dev"
+exec $BB switch_root /newroot /sbin/init

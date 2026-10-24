@@ -1,0 +1,15 @@
+#!/sbin/openrc-run
+# SPDX-License-Identifier: MIT
+description="Load the pinned Norwegian console keymap"
+depend() {
+    need devfs
+    before t6040-wifi-ready
+}
+start() {
+    ebegin "$description"
+    printf '%s  %s\n' \
+        606ecd98f83b72983f3cd35976df939dc9c7187283703736a81e89b65aee85a8 \
+        /etc/wallace-no.bmap | /bin/busybox sha256sum -c - >/dev/null 2>&1 &&
+        /bin/busybox loadkmap </etc/wallace-no.bmap
+    eend $?
+}

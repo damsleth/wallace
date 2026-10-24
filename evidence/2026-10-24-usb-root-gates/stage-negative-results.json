@@ -1,0 +1,37 @@
+[
+  {
+    "case": "nonempty",
+    "rejected_before_extract": true,
+    "returncode": 2
+  },
+  {
+    "case": "symlink",
+    "rejected_before_extract": true,
+    "returncode": 2
+  },
+  {
+    "case": "bad_uuid",
+    "rejected_before_extract": true,
+    "returncode": 2
+  },
+  {
+    "case": "bad_base",
+    "rejected_before_extract": true,
+    "returncode": 1
+  },
+  {
+    "case": "bad_map",
+    "rejected_before_extract": true,
+    "returncode": 1
+  },
+  {
+    "case": "bad_firmware",
+    "rejected_before_extract": true,
+    "returncode": 1
+  },
+  {
+    "case": "bad_wpa",
+    "rejected_before_extract": true,
+    "returncode": 2
+  }
+]

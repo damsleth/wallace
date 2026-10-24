@@ -1,0 +1,4 @@
+MOUNT -t devtmpfs none /dev
+KEYMAP_LOAD
+INJECT load_keymap
+TERMINAL no-shell

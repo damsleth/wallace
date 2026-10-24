@@ -1,0 +1,345 @@
+{
+  "scope": "native helper + regular synthetic metadata images + fake sysfs only; no fsck/kernel/initramfs/rig result",
+  "platform": "Darwin arm64",
+  "metadata_binary_sha256": "01c6329c27249bf403ce3c1f761d53886133441b0c8af7133d4efce2e1a63be0",
+  "compiler_flags": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+  "cases": [
+    {
+      "case": "clean GPT/ext4 metadata",
+      "verdict": "PASS",
+      "exit": 0,
+      "reason": "",
+      "output": "format=t6040-usb-root-metadata-v1\npartition_number=1\ndisk_guid=192409a8-fe11-4cbf-9182-14eb737b69a6\npartuuid=e4731abe-3566-4c3a-8019-c8828ca27a5a\nfilesystem_uuid=912d5c4e-7475-4875-a178-52ce5119a703\npartition_first_lba=2048\npartition_last_lba=16350\nmedia_bytes=8388608\nlayout_bytes=8388608\ngpt_copies=verified\nfilesystem_type=ext4\nfilesystem_label=t6040root\next4_state=clean\nmetadata_gate=PASS"
+    },
+    {
+      "case": "ext4 dirty",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: ext4 is dirty, errored or needs journal replay",
+      "output": ""
+    },
+    {
+      "case": "ext4 error bit",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: ext4 is dirty, errored or needs journal replay",
+      "output": ""
+    },
+    {
+      "case": "journal replay pending",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: ext4 is dirty, errored or needs journal replay",
+      "output": ""
+    },
+    {
+      "case": "filesystem UUID mismatch",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: ext4 magic, revision or UUID mismatch",
+      "output": ""
+    },
+    {
+      "case": "non-Linux partition type",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: partition type or PARTUUID mismatch",
+      "output": ""
+    },
+    {
+      "case": "extra partition",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: unexpected additional GPT partition",
+      "output": ""
+    },
+    {
+      "case": "backup disagrees but valid CRC",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: GPT copies or disk GUID disagree",
+      "output": ""
+    },
+    {
+      "case": "partition extent changed",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: unexpected root extent or GPT attributes",
+      "output": ""
+    },
+    {
+      "case": "filesystem overflows partition",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: ext4 size exceeds root partition",
+      "output": ""
+    },
+    {
+      "case": "primary header CRC",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: GPT header CRC mismatch",
+      "output": ""
+    },
+    {
+      "case": "primary partition CRC",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: GPT partition-array CRC mismatch",
+      "output": ""
+    },
+    {
+      "case": "backup header CRC",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: GPT header CRC mismatch",
+      "output": ""
+    },
+    {
+      "case": "backup partition CRC",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: GPT partition-array CRC mismatch",
+      "output": ""
+    },
+    {
+      "case": "hybrid MBR",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: invalid protective MBR or hybrid partition table",
+      "output": ""
+    },
+    {
+      "case": "wrong pinned disk GUID",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: unknown or repeated option",
+      "output": ""
+    },
+    {
+      "case": "disk GUID differs",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: GPT copies or disk GUID disagree",
+      "output": ""
+    },
+    {
+      "case": "partition GUID differs",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: partition type or PARTUUID mismatch",
+      "output": ""
+    },
+    {
+      "case": "capacity mismatch",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: media length differs from pinned capacity",
+      "output": ""
+    },
+    {
+      "case": "symlink rejected",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: input has the wrong type or is a symlink",
+      "output": ""
+    },
+    {
+      "case": "directory rejected",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: input has the wrong type or is a symlink",
+      "output": ""
+    },
+    {
+      "case": "regular file cannot use disk mode",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: input has the wrong type or is a symlink",
+      "output": ""
+    },
+    {
+      "case": "truncated media",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: media length differs from pinned capacity",
+      "output": ""
+    },
+    {
+      "case": "no stick",
+      "verdict": "PASS",
+      "exit": 3,
+      "reason": "usb-root-select: STOP: expected one matching right-port stick, found 0",
+      "output": ""
+    },
+    {
+      "case": "valid right-port stick independent of sd order",
+      "verdict": "PASS",
+      "exit": 0,
+      "reason": "",
+      "output": "format=t6040-usb-root-metadata-v1\npartition_number=1\ndisk_guid=192409a8-fe11-4cbf-9182-14eb737b69a6\npartuuid=e4731abe-3566-4c3a-8019-c8828ca27a5a\nfilesystem_uuid=912d5c4e-7475-4875-a178-52ce5119a703\npartition_first_lba=2048\npartition_last_lba=16350\nmedia_bytes=8388608\nlayout_bytes=8388608\ngpt_copies=verified\nfilesystem_type=ext4\nfilesystem_label=t6040root\next4_state=clean\nmetadata_gate=PASS\nusb_root_device=/Users/damsleth/Code/wallace/.tmp/usb-root-6005-uock9jsc/dev/sdb1"
+    },
+    {
+      "case": "wrong stick serial",
+      "verdict": "PASS",
+      "exit": 3,
+      "reason": "usb-root-select: STOP: expected one matching right-port stick, found 0",
+      "output": ""
+    },
+    {
+      "case": "wrong USB vendor",
+      "verdict": "PASS",
+      "exit": 3,
+      "reason": "usb-root-select: STOP: expected one matching right-port stick, found 0",
+      "output": ""
+    },
+    {
+      "case": "extra hub route",
+      "verdict": "PASS",
+      "exit": 3,
+      "reason": "usb-root-select: STOP: expected one matching right-port stick, found 0",
+      "output": ""
+    },
+    {
+      "case": "non-removable device",
+      "verdict": "PASS",
+      "exit": 3,
+      "reason": "usb-root-select: STOP: expected one matching right-port stick, found 0",
+      "output": ""
+    },
+    {
+      "case": "sysfs capacity mismatch before metadata",
+      "verdict": "PASS",
+      "exit": 3,
+      "reason": "usb-root-select: STOP: expected one matching right-port stick, found 0",
+      "output": ""
+    },
+    {
+      "case": "already mounted partition",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-select: STOP: matching disk/partition is already mounted",
+      "output": ""
+    },
+    {
+      "case": "already mounted whole disk",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-select: STOP: matching disk/partition is already mounted",
+      "output": ""
+    },
+    {
+      "case": "stale kernel partition start",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-select: STOP: kernel partition extent differs from verified GPT",
+      "output": ""
+    },
+    {
+      "case": "stale kernel partition size",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-select: STOP: kernel partition extent differs from verified GPT",
+      "output": ""
+    },
+    {
+      "case": "ambiguous duplicate USB identity",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-select: STOP: expected one matching right-port stick, found 2",
+      "output": ""
+    },
+    {
+      "case": "unrelated second stick ignored",
+      "verdict": "PASS",
+      "exit": 0,
+      "reason": "",
+      "output": "format=t6040-usb-root-metadata-v1\npartition_number=1\ndisk_guid=192409a8-fe11-4cbf-9182-14eb737b69a6\npartuuid=e4731abe-3566-4c3a-8019-c8828ca27a5a\nfilesystem_uuid=912d5c4e-7475-4875-a178-52ce5119a703\npartition_first_lba=2048\npartition_last_lba=16350\nmedia_bytes=8388608\nlayout_bytes=8388608\ngpt_copies=verified\nfilesystem_type=ext4\nfilesystem_label=t6040root\next4_state=clean\nmetadata_gate=PASS\nusb_root_device=/Users/damsleth/Code/wallace/.tmp/usb-root-6005-uock9jsc/dev/sdb1"
+    },
+    {
+      "case": "reject root selector root=/dev/sdb1",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-select: STOP: root= must match the pinned PARTUUID",
+      "output": ""
+    },
+    {
+      "case": "reject root selector root=LABEL=t6040root",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-select: STOP: root= must match the pinned PARTUUID",
+      "output": ""
+    },
+    {
+      "case": "reject root selector root=PARTUUID=192409a8-fe11-4cbf-9182-14eb737b69a6",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-select: STOP: root= must match the pinned PARTUUID",
+      "output": ""
+    },
+    {
+      "case": "reject root selector root=PARTUUID=e4731abe-3566-4c3a-8019-c8828ca27a5a root=PARTUUID=e4731abe-3566-4c3a-8019-c8828ca27a5a",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-select: STOP: need exactly one root= selector",
+      "output": ""
+    },
+    {
+      "case": "reject root selector absent",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-select: STOP: need exactly one root= selector",
+      "output": ""
+    },
+    {
+      "case": "duplicate identity field",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-select: STOP: duplicate identity field usb_serial",
+      "output": ""
+    },
+    {
+      "case": "unknown identity field",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-select: STOP: unknown identity field unexpected",
+      "output": ""
+    },
+    {
+      "case": "unpinned serial",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-select: STOP: empty identity field usb_serial",
+      "output": ""
+    },
+    {
+      "case": "left-port stick rejected",
+      "verdict": "PASS",
+      "exit": 3,
+      "reason": "usb-root-select: STOP: expected one matching right-port stick, found 0",
+      "output": ""
+    },
+    {
+      "case": "matching metadata on NVMe and SD is never selected",
+      "verdict": "PASS",
+      "exit": 3,
+      "reason": "usb-root-select: STOP: expected one matching right-port stick, found 0",
+      "output": ""
+    },
+    {
+      "case": "dirty matching USB root rejected before mount",
+      "verdict": "PASS",
+      "exit": 1,
+      "reason": "usb-root-metadata: STOP: ext4 is dirty, errored or needs journal replay",
+      "output": ""
+    },
+    {
+      "case": "partition symlink points at different disk",
+      "verdict": "PASS",
+      "exit": 3,
+      "reason": "usb-root-select: STOP: expected one matching right-port stick, found 0",
+      "output": ""
+    }
+  ],
+  "passed": 48
+}

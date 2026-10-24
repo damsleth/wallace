@@ -1,0 +1,5 @@
+b42c8808c70d560f5c9494c7a63afe67b2085cceaed6264498fef0f0a9afdcb1  /in/test.sh
+bcf2445a46bffe173bf6c35ddec05cf2c9207d0797578c0569afe9d4dede0ec8  /in/shutdown
+97d52efa149563c8d886e3670e2496d4140d3c54138017afd3a105e0397fae2e  /candidate/bin/busybox
+ddd6488b376a8677c451ef7b3d11abb4432e1631955adf8dea874161092e5ef2  /candidate/etc/init.d/mount-ro
+d2fecbbee2836929c9e77ee2a73e890cbdafce836973aa204b6830acce1113b1  /candidate/sbin/openrc

@@ -31,6 +31,39 @@ Standing constraints for autonomous work:
 - SD repair is a real `fsck.exfat`, not clearing the dirty flag (CJ, same).
 - Chainload rather than enroll; the always-proxy rollback object stays enrolled.
 
+## Permanent right-port USB-root goal (CJ, 2026-10-24)
+
+The intended daily root is now a small USB-C stick left in the right port,
+booted by the enrolled m1n1/kernel/initramfs through OpenRC. SD remains a
+checksum-verified read/write fallback. This does not change any current
+capability result above or bypass the 6001/305 execution gates.
+
+Completion requires three consecutive cold boots with clean poweroff and
+post-poweroff fsck, root-stick write/sync/reboot/checksum persistence,
+6001's 16,384 direct 16 KiB NVMe reads plus separately gated checksum-verified
+writes only to label-and-GPT-type-verified exFAT `linux`, DHCP/routed WiFi after
+cold boot, M1↔M4 OBEX, daily trackpad touch/haptics and SD fallback R/W.
+All must pass in **one preflight-clean image**, with Norwegian layout and no
+SPMI/SMC/PMU access outside SPMI_SAFETY. None of this full-image acceptance has
+run. Retain maxcpus=1. USB U-Boot3018 and stable SMP205 are stretch objectives.
+The existing SD-first U-Boot work below can continue as fallback/stage2 work;
+U-Boot is not a prerequisite for the direct-m1n1 USB-root objective.
+
+**6005 (offline, in progress)** prepares a separate verified USB-root init and
+identity/GPT/ext4 gates ([implementation and test evidence](../evidence/2026-10-24-usb-root-verified-init.md)).
+48 metadata/selection cases pass natively on Linux/aarch64 and under macOS
+sanitizers; 41 intercepted PID1 startup cases and six real OpenRC/ext4 shutdown
+cases pass in the contained host harness. Two separate root-profile staging
+archives match. These are host results; actual USB handoff/poweroff/cold boots,
+physical identity and final initramfs qualification remain untested.
+The legacy USB init accepts an arbitrary resolved root without USB identity
+and lacks the keymap load. Keep its old payloads historical; do not use it for
+a refreshed RW-root candidate. The new separate staging profile supplies the
+Norwegian root config, shutdown gate and daily services; the historical098
+image remains unchanged and does not satisfy the goal.
+305→109→110/111→112/113 remain the hardware/flash/root progression, with exact
+new artifacts and separate erase/enrollment review. 6001 remains next on hardware.
+
 ## Immediate experiment: ANS2 queue-size contract
 
 **Resolved for reads (6001 run 3, 2026-10-24).** The local Linux driver wrote
@@ -58,21 +91,23 @@ work. They do not change the local capability table or authorize writes.
 
 - **6001 remains the next hardware experiment.** The linux-next controller-state
   regression is distinct from our CQ-wrap assert; preserve the prepared payload.
-- **6002 (offline, P1):** pin the corrected late-October asahi revision and Yuka
-  DT/input/NVMe/WiFi references; map minimal deltas and single-CPU regression
-  gates before proposing a separate integration build. This audit can proceed
-  while 6001 waits for the rig.
+- **6002 complete (offline audit):** [pinned map and candidate plan](../evidence/2026-10-24-upstream-convergence-audit.md). Corrected Asahi
+  `asahi-7.2.12-2` is `2bb9d16f967f11e533a851b13b148a708d59b4f3`.
+  **6004 (offline, P1)** assembles the separate LC1 source candidate, retaining
+  local J614s DT, split NVMe and v2 input. Resolve PMGR and duplicate FIFO
+  provider conflicts before a separate build ticket. No baseline replacement
+  or live readiness is implied; 6001 remains first on hardware.
 - **6003 (offline, P2):** plan a separate M4 Pro tracing environment with paired
   host/target revisions and recovery. Login-screen tracing is useful; post-login
   hangs and unexplained AMCC interrupt suppression remain.
-- Continue SD repair/shutdown, daily trackpad integration and scoped right-port
-  VBUS work. Base-M4 USB does not solve M4 Pro's TB5 ATCPHY.
 - **Official Asahi M4 page (docs `c15c4937`, 2026-10-03):** T604x has no
   installer and no `linux-asahi` entry; DT, AICv3 and NVMe are WIP and every
   MacBook Pro peripheral is TBA. The `linux-asahi (7.4)` DT/AICv3/watchdog/I2C/
   GPIO entries are base M4 (T8132) only. Nothing to adopt, and the local
   capability table stands on Wallace evidence
   ([reading](../evidence/2026-10-24-asahi-m4-feature-support-page.md)).
+- Continue SD repair/shutdown, daily trackpad integration and scoped right-port
+  VBUS work. Base-M4 USB does not solve M4 Pro's TB5 ATCPHY.
 - Keep fault 205 open: secondary-start improvements and KVM SEIS fixes do not
   prove runtime MM/COW correctness. Defer experimental p3s/4K-process MM work.
 
@@ -124,8 +159,6 @@ The SD reader and root image work at `maxcpus=1`: `switch_root`, ttydc0, OpenRC,
 and persistence were observed. Later SMP panic tests left exFAT and ext4
 unclean. Do not mount the root read/write again before ticket 215.
 
-Do next:
-
 **Ticket 3006 (2026-10-24):** the staged shutdown pivot could never have
 completed on the device. OpenRC hides `/run/initramfs`, the remount lacked
 `/proc`, and OpenRC submounts pin the old root. The scripts are fixed and the
@@ -135,6 +168,8 @@ host harness `scripts/t6040-test-sdroot-shutdown.sh` (baseline 0/23, fixed
 **216's object `bdd8cc86…` is invalid until rebuilt** from the fixed scripts
 (ticket 5000). Any daily SD-root object (301/4003 trackpad
 integration included) must carry them.
+
+Do next:
 
 1. Exact-review ticket 215's pinned repair image and automatic-only repair script.
 2. Repair and repeat read-only checks for SD64 and the ext4 image.

@@ -438,3 +438,43 @@ NVME_APPLE and SART; for refreshed USB stacks audit USB4/CIO dependencies.
 These are review inputs, not newly implemented preflight checks. Existing
 Norwegian-layout, actual-Image and two-build requirements remain mandatory.
 See the October review for rebase regressions and their later corrections.
+
+### Pinned LC1 source plan (6002 audit, no build performed)
+
+The [audit](../evidence/2026-10-24-upstream-convergence-audit.md) pins corrected
+Asahi `2bb9d16f967f11e533a851b13b148a708d59b4f3`. Ticket 6004 prepares an
+ordered patch series before a separate build ticket. Its config must resolve
+the duplicate APPLE_DOCKCHANNEL provider: the Asahi SoC FIFO/HID helper stack
+and Wallace mailbox/TTY stack cannot be selected under the same symbol.
+Keep the proven mailbox input/console contract in the first candidate.
+
+On that pin use both `idle=nop` and `arm64.nowfxt`: the first skips WFI idle,
+the second suppresses WFIT/WFET feature use in delay loops. The local cpufreq
+1000UL fix is already present, while AIC locked-sysreg guards still need a
+separate port. Do not reapply the monolithic local idle patch or assume it
+contains the AIC guards. PMGR functional policy has a real context conflict.
+These are source-review gates, not implemented new preflight checks.
+
+Use isolated staging and explicit Image names. Preserve 6001's directory,
+manifest and execution gate. Start with RAM-root, one CPU, ANS/SPMI/USB disabled;
+only a later separately reviewed profile enables read-only NVMe. Keep local
+split MMIO/SD port01/input-v2 DT behavior; no wider resource maps or new firmware
+are licensed by the rebase. All existing keymap, exact-Image, schema, two-build,
+preflight and independent-artifact review requirements still apply.
+
+### Verified USB-root source candidate (6005, not a qualified image)
+
+The [USB-root gate evidence](../evidence/2026-10-24-usb-root-verified-init.md)
+records a separate `t6040-init-usb-root-verified` source. Existing builders do
+not select it. It requires the pinned Norwegian map before every shell,
+selector library, reviewed physical-stick identity, static metadata helper
+and static e2fsck. The historical098 root needs Norwegian root config and an
+OpenRC shutdown mount-ro link; a metadata PASS alone does not qualify it.
+The target helper build also requires `linux-headers` for `linux/fs.h`; Alpine
+build-base alone is insufficient. Its first native build and48 regular-file
+cases pass. The current init additionally passes41 intercepted startup cases;
+the separately staged root has six real OpenRC/ext4 host shutdown passes and
+two identical root archives. Actual USB handoff, BusyBox-init power dispatch,
+final static tools/identity packaging and two clean helper/initramfs builds
+with preflight remain. Host namespace results do not qualify a live boot.
+Do not publish a boot object or alter305/6001 payloads from this source phase.

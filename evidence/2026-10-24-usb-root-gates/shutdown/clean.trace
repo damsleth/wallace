@@ -1,0 +1,133 @@
+PID=1
+namespace=pid:[4026532649]
+BB md5sum /proc/self/environ
+BB md5sum /proc/self/environ
+BB mount -t tmpfs -o mode=0755,nosuid,nodev,nr_inodes=800k,size=20%,strictatime tmpfs /run
+BB grep -Eq [[:space:]]+xenfs$ /proc/filesystems
+BB awk $1 == "listenaddress" && $2 !~ /^(0.0.0.0|\[::\])/ { print $2 }
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB grep -q devtmpfs /proc/filesystems
+BB mount -n -t devtmpfs -o remount,noexec,nosuid,mode=0755,size=10M dev /dev
+BB ln -snf /proc/kcore /dev/core
+BB grep -Eq [[:space:]]+mqueue$ /proc/filesystems
+BB mount -n -t mqueue -o noexec,nosuid,nodev mqueue /dev/mqueue
+BB grep -Eq [[:space:]]+devpts$ /proc/filesystems
+BB mount -n -t devpts -o noexec,nosuid,gid=5,mode=0620 devpts /dev/pts
+BB grep -Eq [[:space:]]+tmpfs$ /proc/filesystems
+BB mount -n -t tmpfs -o noexec,nosuid,nodev,mode=1777 shm /dev/shm
+BB grep -qw cgroup2 /proc/filesystems
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB dmesg -n1
+HARNESS_SKIP dmesg -n1
+BB grep -qw cgroup2 /proc/filesystems
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB sed -e s/\#.*//g -e /^[[:space:]]*$/d
+BB modprobe -q uinput
+HARNESS_SKIP modprobe -q uinput
+BB modprobe -q uhid
+HARNESS_SKIP modprobe -q uhid
+BB sed -e s/\#.*//g -e /^[[:space:]]*$/d
+BB grep -qw cgroup2 /proc/filesystems
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB grep -qs binfmt_misc /proc/filesystems
+BB grep -qs binfmt_misc /proc/filesystems
+BB mount -t binfmt_misc -o nodev,noexec,nosuid binfmt_misc /proc/sys/fs/binfmt_misc
+BB grep -qw cgroup2 /proc/filesystems
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB grep -Eq [[:space:]]+sysfs$ /proc/filesystems
+BB grep -qs securityfs /proc/filesystems
+BB mount -n -t securityfs -o nodev,noexec,nosuid securityfs /sys/kernel/security
+BB grep -qs debugfs /proc/filesystems
+BB mount -n -t debugfs -o nodev,noexec,nosuid debugfs /sys/kernel/debug
+BB grep -qs tracefs /proc/filesystems
+BB mount -n -t tracefs -o nodev,noexec,nosuid tracefs /sys/kernel/tracing
+BB grep -qs configfs /proc/filesystems
+BB mount -n -t configfs -o nodev,noexec,nosuid configfs /sys/kernel/config
+BB grep -qs fusectl /proc/filesystems
+BB mount -n -t fusectl -o nodev,noexec,nosuid fusectl /sys/fs/fuse/connections
+BB grep -qs selinuxfs /proc/filesystems
+BB mount -t selinuxfs selinuxfs /sys/fs/selinux
+BB grep -qs pstore$ /proc/filesystems
+BB mount -t pstore pstore -o nodev,noexec,nosuid /sys/fs/pstore
+BB mount -n -t efivarfs -o nodev,noexec,nosuid efivarfs /sys/firmware/efi/efivars
+BB grep -qs bpf$ /proc/filesystems
+BB mount -n -t bpf -o nodev,noexec,nosuid bpf /sys/fs/bpf
+BB grep -qw cgroup2 /proc/filesystems
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB cat /proc/cmdline
+BB rm -f /.test.369
+BB fsck -A -p -T -t noafs,noceph,nocifs,nocoda,nodavfs,nofuse,nofuse.glusterfs,nofuse.sshfs,nogfs,noglusterfs,nolustre,noncpfs,nonfs,nonfs4,noocfs2,noshfs,nosmbfs,noopts=_netdev -R
+BB grep -qw cgroup2 /proc/filesystems
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB rm -f /fastboot /forcefsck
+BB mount -o defaults,noatime -t ext4 -o remount PARTUUID=e4731abe-3566-4c3a-8019-c8828ca27a5a /
+BB grep -qw cgroup2 /proc/filesystems
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB mount -at noproc,afs,ceph,cifs,coda,davfs,fuse,fuse.glusterfs,fuse.sshfs,gfs,glusterfs,lustre,ncpfs,nfs,nfs4,ocfs2,shfs,smbfs -O no_netdev
+BB grep -qw cgroup2 /proc/filesystems
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB rm -rf /usr/libexec/rc/console/*
+BB readlink -f /var/lock
+BB readlink -f /var/run
+BB mktemp -d
+BB mount --bind / /tmp/tmp.aECLhI
+BB rm -rf /tmp/tmp.aECLhI/run/lock
+BB umount /tmp/tmp.aECLhI
+BB rmdir /tmp/tmp.aECLhI
+BB chgrp utmp /var/run/utmp
+BB chmod 0664 /var/run/utmp
+BB chgrp utmp /var/log/wtmp
+BB chmod 0664 /var/log/wtmp
+BB chmod a+rwt /tmp
+BB rm -rf -- .X*-lock esrv* kio* jpsock.* .fam* .esd* orbit-* ssh-* ksocket-* .*-unix
+BB rm -rf /tmp/.ICE-unix /tmp/.X11-unix
+BB mkdir -p /tmp/.ICE-unix /tmp/.X11-unix
+BB chmod 1777 /tmp/.ICE-unix /tmp/.X11-unix
+BB dmesg 
+HARNESS_SKIP dmesg 
+BB chmod 640 /var/log/dmesg
+BB grep -qw cgroup2 /proc/filesystems
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB hostname wallace
+BB grep -qw cgroup2 /proc/filesystems
+OPENRC_READY
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB grep -qw cgroup2 /proc/filesystems
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB grep -qw cgroup2 /proc/filesystems
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB grep -qw cgroup2 /proc/filesystems
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB grep -qw cgroup2 /proc/filesystems
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB halt -w
+BB grep -qw cgroup2 /proc/filesystems
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB sed s:/lib\(32\|64\)\?/:/lib(32|64)?/:g
+BB sync 
+BB grep -qw cgroup2 /proc/filesystems
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB grep -qw cgroup2 /proc/filesystems
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB grep -qw cgroup2 /proc/filesystems
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB grep -qw cgroup2 /proc/filesystems
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB grep -qw cgroup2 /proc/filesystems
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB sleep 0
+BB sleep 0
+BB grep -qw cgroup2 /proc/filesystems
+BB grep -qs /sys/fs/cgroup /proc/1/mountinfo
+BB sync 
+BB sed s:/lib\(32\|64\)\?/:/lib(32|64)?/:g
+BB umount -r /
+BB grep -qw cgroup2 /proc/filesystems
+BB sync 
+BB mount -o remount,ro /
+BB awk $5 == "/" { n++; split($6,a,","); ro=0; for(i in a) if(a[i]=="ro") ro=1;
+    ext4=0; for(i=7;i<=NF;i++) if($i=="-" && $(i+1)=="ext4") ext4=1;
+    ok=ro && ext4 } END { exit !(n==1 && ok) } /proc/self/mountinfo
+SHUTDOWN_RETURN 0
+FINAL_ROOT 588 586 7:0 / / ro,noatime - ext4 /dev/loop0 ro,seclabel
+TERMINAL-success

@@ -372,10 +372,47 @@ Wallace hardware results. Offline integration/tracing plans are 6002/6003.
 - Additional USB/CIO config dependencies and regmap lockdep fixes matter on a
   refreshed stack. They do not establish T6040 high-speed PHY support.
 
+### October convergence audit (6002, offline)
+
+[Property/patch map, immutable pins and regression sequence](../evidence/2026-10-24-upstream-convergence-audit.md).
+Corrected Asahi `asahi-7.2.12-2` resolves to
+`2bb9d16f967f11e533a851b13b148a708d59b4f3`; it already has the cpufreq
+`1000UL` fix and `idle=nop`. Its delay path still uses WFIT/WFET unless
+`arm64.nowfxt` clears the feature; `idle=nop` alone does not cover that path.
+The raw-boot AIC skip lives in local commit `08c0e68f…`, **not** in the
+current `flokli-code.patch` file, despite the harness comment.
+
+The pinned NVMe core allows NEW → RESETTING. Mainline reverted the separate
+namespace-init regression in `5755f1bd0217ffe3c5cf85467bf6b0680f398265`;
+the mail's suggested CONNECTING workaround was retracted. None fixes the
+local CQ-wrap assert by implication. Yuka's current M4 driver/DT uses one
+widened reg9 aperture; keep Wallace's proven split and firmware gates. Its
+full board DT selects SD port02/DART2, conflicting with our captured bridge1
+and proven port01 path. Treat these as separate migrations, not cleanup.
+
+Both Asahi's and Yuka's retrieved old HID drivers still send the four-byte
+v1 power request; HID v4 is keyboard-only. Preserve local nine-byte v2,
+bounded HIDF upload, typed devices and ttydc0/nbcon. New Asahi has a SoC FIFO
+provider with the same APPLE_DOCKCHANNEL config symbol as our mailbox provider;
+source assembly must select exactly one. Ticket 6004 owns that offline work.
+Historical `parts/21-dt-nvme` and `t604x-old-dchid-working` refs were unavailable;
+surviving component pins are not the exact externally tested branch.
+
 ## Corrections and dead ends
 
 Do not repeat these without new evidence:
 
+- **USB-root source gates are not a hardware boot result (6005, October24).**
+  The new, separately named init originally ignored bootstrap/devtmpfs and
+  handoff-directory failures and rejected valid quoted Xorg layout syntax.
+  These are fixed:41 intercepted PID1 startup cases pass. Six contained
+  real-OpenRC/ext4 shutdown cases pass, including failure stops; the host
+  shutdown fixture uses a shell PID1 and blocks power actions, so it does not
+  establish BusyBox-init power dispatch or three actual cold boots. A clean
+  fsck after killing a failed test namespace is not a successful shutdown.
+  The historical098 root remains unchanged; the separate root profile has
+  two matching archives, but physical109 identity and final initramfs review
+  remain open. [Evidence](../evidence/2026-10-24-usb-root-verified-init.md).
 - **October cross-generation and cross-failure shortcuts.** Base-M4 USB is not
   M4 Pro/TB5 support; secondary-start improvements are not a demonstrated fix
   for fault 205; KVM SEIS workarounds address guests; M5 ANS/SART4 domains must
@@ -385,6 +422,16 @@ Do not repeat these without new evidence:
 - **New upstream submission means tested J614s replacement.** October's HID
   wake failure and board-specific display domains disprove that shortcut.
   Compare, pin and validate before replacing working local components.
+- **The staged SD-root clean shutdown as working (corrected 2026-10-24).** It
+  never ran on the device, and three defects each defeat it. OpenRC mounts a
+  tmpfs over a plain `/run` (powerctl refuses; a raw SIGQUIT halts with both
+  filesystems mounted). BusyBox 1.35 `mount -o remount` needs `/proc/mounts`,
+  which the pivot never mounted. OpenRC's `/dev/*`, `/sys/*` and `/run`
+  submounts make the old root EBUSY. Fixed scripts and the harness are in
+  [3006 evidence](../evidence/2026-10-24-t6040-3006-sdroot-shutdown-regression.md).
+  Object `bdd8cc86…` predates the fix. Also: **Alpine 3.22's BusyBox
+  1.37.0-r20 silently ignores `::restart`** (aports `c792a061` fixed it in
+  3.23+), so never build an SD root from a 3.22 rootfs.
 
 - **Treating software queue-depth agreement as proof of the ANS2 firmware ring
   size (reopened 2026-09-20).** The earlier wrap investigation did not establish
@@ -414,16 +461,6 @@ Do not repeat these without new evidence:
   64 KiB copy-and-compare verifications were byte-identical. The bug is
   fail-stop in that test. Do not claim observed silent corruption, or extend
   this bounded result into proof of safety for faulting processes/writeback.
-- **The staged SD-root clean shutdown as working (corrected 2026-10-24).** It
-  never ran on the device, and three defects each defeat it. OpenRC mounts a
-  tmpfs over a plain `/run` (powerctl refuses; a raw SIGQUIT halts with both
-  filesystems mounted). BusyBox 1.35 `mount -o remount` needs `/proc/mounts`,
-  which the pivot never mounted. OpenRC's `/dev/*`, `/sys/*` and `/run`
-  submounts make the old root EBUSY. Fixed scripts and the harness are in
-  [3006 evidence](../evidence/2026-10-24-t6040-3006-sdroot-shutdown-regression.md).
-  Object `bdd8cc86…` predates the fix. Also: **Alpine 3.22's BusyBox
-  1.37.0-r20 silently ignores `::restart`** (aports `c792a061` fixed it in
-  3.23+), so never build an SD root from a 3.22 rootfs.
 - **`console=ttydc0` as the cause of a dead keyboard.** The flag is fine and the
   known-good desktop recipe includes it; what matters is *ordering*. All
   `console=` entries receive printk, but the **last** becomes `/dev/console`,

@@ -1,0 +1,2 @@
+MOUNT -t devtmpfs none /dev
+TERMINAL no-shell

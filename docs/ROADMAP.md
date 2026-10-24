@@ -24,6 +24,10 @@ plans an isolated integration candidate; **6003** plans M4 Pro hardware tracing.
 Stage C benefits from submitted t604x DTs and HID references; stage E from
 BRCM4388 upstreaming; stage H from independent J614s NVMe read evidence.
 Ticket **6001** remains the first storage experiment, with writes still gated.
+The completed [6002 audit](../evidence/2026-10-24-upstream-convergence-audit.md)
+pins the corrected Asahi base and maps local DT/input/storage conflicts;
+**6004** prepares its separate LC1 source series. No refreshed build or local
+capability has passed on the strength of that audit.
 
 Stages F/G gain a tracing route, but no T6040 GPU, panel-brightness, audio,
 camera or suspend completion is demonstrated. M4 Pro ATCPHY/TB5 remains separate

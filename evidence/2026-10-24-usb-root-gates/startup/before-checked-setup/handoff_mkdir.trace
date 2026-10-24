@@ -1,0 +1,19 @@
+MOUNT -t devtmpfs none /dev
+KEYMAP_LOAD
+MOUNT -t proc none /proc
+MOUNT -t sysfs none /sys
+METADATA 1 --disk /dev/sda --disk-guid 192409a8-fe11-4cbf-9182-14eb737b69a6 --partuuid e4731abe-3566-4c3a-8019-c8828ca27a5a --fsuuid 912d5c4e-7475-4875-a178-52ce5119a703 --media-bytes 1073741824 --layout-bytes 1073741824 --device-number 8:0
+FSCK -f -n /dev/sda1
+MOUNT -t ext4 -o ro,noload /dev/sda1 /newroot
+ROOT_RO
+UMOUNT /newroot
+INSPECT_DONE
+METADATA 2 --disk /dev/sda --disk-guid 192409a8-fe11-4cbf-9182-14eb737b69a6 --partuuid e4731abe-3566-4c3a-8019-c8828ca27a5a --fsuuid 912d5c4e-7475-4875-a178-52ce5119a703 --media-bytes 1073741824 --layout-bytes 1073741824 --device-number 8:0
+MOUNT -t ext4 -o rw /dev/sda1 /newroot
+ROOT_RW
+INJECT handoff_mkdir
+MOUNT -t devtmpfs none /newroot/dev
+MOUNT -t proc none /newroot/proc
+MOUNT -t sysfs none /newroot/sys
+HANDOFF /newroot /sbin/init
+TERMINAL switch-root

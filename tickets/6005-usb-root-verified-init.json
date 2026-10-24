@@ -1,0 +1,70 @@
+{
+  "seq": "6005",
+  "slug": "usb-root-verified-init",
+  "needs": "offline",
+  "state": "in-progress",
+  "track": "storage",
+  "priority": "P1",
+  "desc": "Implement an offline fail-closed USB-root boot path: require exact removable right-port USB ancestry and stick identity, independently verify GPT/ext4 metadata read-only, reject dirty or ambiguous roots, and load Norwegian keymap before shells. Test synthetic regular files, mocked startup failures and real OpenRC/direct-ext4 shutdown on VM-owned temporary loop images. Preserve 305/6001 payloads and active SD shutdown work; no target access, physical block-device access, flashing, image enrollment or new SPMI/SMC transactions.",
+  "author": "astra",
+  "deps": [],
+  "hashes": {
+    "scripts/t6040-usb-root-metadata.c": "86ac8b0f17c3363aaf243f8b8861793baec9209d8dd86c5b3a7ae421bffbb994",
+    "scripts/t6040-usb-root-select.sh": "458b4c39a7edef53163082872185b8ef54ed76e77a702a044d9434f46233706c",
+    "scripts/t6040-init-usb-root-verified": "6b68b410f4a7ec5dfcdf2aa7617b26fc540802265f4873cf375f59797b3a921a",
+    "scripts/t6040-usb-root.identity.example": "276b36d0f2c1f823a9c311332fec68725047b57786b3459ad7bae4a71afb555d",
+    "scripts/t6040-test-usb-root-gates.py": "039f1a0547d020d4f7f20f07434a1ee34e243b5c7f2eeb7a75c765f88d096e29",
+    "scripts/t6040-test-usb-root-startup.sh": "48029ee497e29f8b3524f496e6a7afa614c485e39e6c9c8e6f8c49ce2b84e7a4",
+    "scripts/t6040-test-usb-root-startup-ns.sh": "47089dac91860218ed3eed14da3db40d78657bf6dee43c11472241dec01136ac",
+    "scripts/t6040-stage-usb-daily-root.py": "25dbe3837e67677f0ce476bd77b1ea98b2a2caa7bc3767114ba095c3d059e44d",
+    "scripts/t6040-usb-root-keymap.initd": "4aff8bf60a00b5d474afe146196f516ff48579c1de3e5cbd54b14244141ab996",
+    "scripts/t6040-usb-root-wifi-ready.initd": "58b6d4b43df21eadf732c5dc40b7fcc26017177db39d850dc939eb6349ccd8f2",
+    "scripts/t6040-usb-root-autologin-daily": "633eb7e53de56e543f505231c7289e7ef72e8a72ec25c5120768dec85cc03b7a",
+    "scripts/t6040-usb-root-openrc": "bcf2445a46bffe173bf6c35ddec05cf2c9207d0797578c0569afe9d4dede0ec8",
+    "scripts/t6040-test-usb-root-shutdown.sh": "163d8dc7e6ffa52a8ec6ca770f9a9fa827018684915d87f4eb81d9837dc77df3",
+    "scripts/t6040-test-usb-root-shutdown-ns.sh": "b42c8808c70d560f5c9494c7a63afe67b2085cceaed6264498fef0f0a9afdcb1",
+    "evidence/2026-10-24-usb-root-gates/manifest.json": "2523fed38542bac10fa6643385a87b976d2cf212b4377e40ba5c00736955d607",
+    "evidence/2026-10-24-usb-root-verified-init.md": "0904f67fc8c5e72c478d41c3be724613d87df6dedad99effa00a5076a7aeb8d6"
+  },
+  "created": 1792865796,
+  "claimed_by": "astra",
+  "evidence": [
+    "evidence/2026-10-24-usb-root-verified-init.md",
+    "evidence/2026-10-24-usb-root-gates/manifest.json",
+    "evidence/2026-10-24-usb-root-gates/linux-tests.json",
+    "evidence/2026-10-24-usb-root-gates-sanitizer-tests.json",
+    "evidence/2026-10-24-usb-root-gates/startup/profile/results.tsv",
+    "evidence/2026-10-24-usb-root-gates/shutdown/results.tsv",
+    "evidence/2026-10-24-usb-root-gates/daily-root-builds.json"
+  ],
+  "progress": {
+    "metadata_and_selector_cases": 48,
+    "platforms": [
+      "Linux/aarch64 native static helper",
+      "macOS/arm64 ASan+UBSan"
+    ],
+    "historical098_image_sha256_verified": true,
+    "source_init_added": true,
+    "init_handoff_tested": false,
+    "shutdown_tested": "Contained host OpenRC + ext4, shell PID1; actual target poweroff pending",
+    "initramfs_packaged": false,
+    "physical_stick_identity_pinned": false,
+    "helper_fresh_builds": 1,
+    "remaining": "Native static tools closure/reproducibility, root dev-provider and kernel/module review, physical109 identity, fresh initramfs packaging/preflight, actual BusyBox handoff/power dispatch and separate exact-artifact live review.",
+    "init_startup_control_flow_cases": 41,
+    "real_openrc_ext4_shutdown_cases": 6,
+    "root_staging_reproduced": 2,
+    "staging_failure_gates": 7,
+    "static_e2fsck_package_inspected": "e2fsprogs-static1.47.2-r2 has libraries only; no executable packaged"
+  },
+  "acceptance_criteria": [
+    "Pin a fail-closed selector and bounded read-only GPT/ext4 helper against synthetic fixtures and the preserved098 regular-file image; no actual device access.",
+    "Keep the Norwegian map before all shells in a separately named init, with identity, e2fsck -f -n and ro,noload inspection before the first RW mount.",
+    "Exercise actual init startup/error/handoff and direct-ext4 OpenRC shutdown in a contained host harness before claiming readiness; no changes to live305/6001 payloads.",
+    "Prepare fresh root staging and initramfs packaging with known static tools, reviewed109 stick identity, two-build hashes and preflight before a separate exact-artifact live review."
+  ],
+  "host_test_scope": {
+    "allowed": "VM-owned loop devices over newly created files in the contained test scratch tree only; real ext4 and OpenRC, no physical target or removable disk.",
+    "power_actions": "Forbidden/intercepted in the harness; no reboot/poweroff syscall may reach the host."
+  }
+}

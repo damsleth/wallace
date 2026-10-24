@@ -1,0 +1,18 @@
+#!/sbin/openrc-run
+# SPDX-License-Identifier: MIT
+description="Wait for the J614s WiFi interface before starting its sole supplicant"
+depend() {
+    need devfs
+    after bootmisc modules
+    before wpa_supplicant dhcpcd
+}
+start() {
+    ebegin "$description"
+    local n=0
+    while [ ! -d /sys/class/net/wlan0 ] && [ "$n" -lt 30 ]; do
+        sleep 1
+        n=$((n + 1))
+    done
+    [ -d /sys/class/net/wlan0 ]
+    eend $?
+}

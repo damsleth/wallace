@@ -1,0 +1,16 @@
+# Source template only. Unset fields deliberately make the selector fail.
+# Fill from independently reviewed 109/110/111 evidence, never /dev ordering.
+# GUIDs below are ticket098's historical image for metadata regression only.
+# A refreshed daily root needs its own image/GUID manifest and flash review.
+format=t6040-usb-root-identity-v1
+disk_guid=192409a8-fe11-4cbf-9182-14eb737b69a6
+partuuid=e4731abe-3566-4c3a-8019-c8828ca27a5a
+fsuuid=912d5c4e-7475-4875-a178-52ce5119a703
+media_bytes=UNSET_FROM_REVIEWED_STICK_IDENTITY
+layout_bytes=1073741824
+usb_vendor=UNSET_FROM_109
+usb_product=UNSET_FROM_109
+usb_serial=UNSET_FROM_109
+usb_route=UNSET_FROM_109
+usb_controller=392280000.usb
+removable=1

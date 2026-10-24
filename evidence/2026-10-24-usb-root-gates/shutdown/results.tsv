@@ -1,0 +1,6 @@
+clean	PASS	0	0	
+no_mountro_link	PASS	0	0	
+openrc_failure	PASS	137	0	
+remount_failure	PASS	137	0	
+bad_mountinfo	PASS	137	0	
+no_map_failure	PASS	137	0	

@@ -15,5 +15,9 @@
   "created": 1784927435,
   "runnable": false,
   "approved_by": "maintainer",
-  "approved_at": 1784928481
+  "approved_at": 1784928481,
+  "review_2026_10_24": "Current permanent USB-root goal requires the verified-init/identity/keymap/shutdown preparation in6005 and refreshed exact image review. Historical098 metadata PASS is not daily-image qualification. Preserve existing plan approval, but no RW run using the legacy arbitrary-root init; 305/109/110/111 and exact artifact review still apply.",
+  "evidence": [
+    "evidence/2026-10-24-usb-root-verified-init.md"
+  ]
 }

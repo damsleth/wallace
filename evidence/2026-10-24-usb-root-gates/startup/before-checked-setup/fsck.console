@@ -1,0 +1,9 @@
+usb-root: Norwegian console keymap loaded
+format=t6040-usb-root-metadata-v1
+partuuid=e4731abe-3566-4c3a-8019-c8828ca27a5a
+filesystem_uuid=912d5c4e-7475-4875-a178-52ce5119a703
+partition_first_lba=2048
+partition_last_lba=2097118
+metadata_gate=PASS
+usb_root_device=/dev/sda1
+usb-root: STOP: read-only fsck failed; no alternate root or automatic repair

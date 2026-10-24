@@ -1,0 +1,5 @@
+MOUNT -t devtmpfs none /dev
+KEYMAP_LOAD
+MOUNT -t proc none /proc
+INJECT initial_proc
+TERMINAL rescue keymap=yes
