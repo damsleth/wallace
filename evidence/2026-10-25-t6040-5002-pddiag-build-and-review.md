@@ -92,7 +92,7 @@ changes no configuration.
 
 | String / symbol | Count |
 |---|---|
-| `diag[%s]: STATUS` | 2 (probe + event sites share the helper; format string appears twice after inlining) |
+| `diag[%s]: STATUS` | 2 (the decoded-status line and the `STATUS read failed %d` error line of the same helper) |
 | `diag[event]: INT_EVENT1` | 1 |
 | `INT_MASK1 readback` | 1 |
 | `reg 0x5d` | 1 |
