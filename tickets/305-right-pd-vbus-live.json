@@ -40,7 +40,8 @@
       "initramfs": "4cc65133… sdroot-hardened (unchanged)",
       "contents": "pdwake + t6040-spmi-apple-zero-write-encoding.patch (233e9909…) + t6040-tipd-connector-state-diag.patch (4bb22141…, R0 reads only)",
       "evidence": "evidence/2026-10-25-t6040-5002-pddiag-build-and-review.md",
-      "gate": "independent exact-artifact review + CJ attendance; same run-7 cmdline and fixture"
+      "gate": "independent exact-artifact review + CJ attendance; same run-7 cmdline and fixture",
+      "cross_review": "PASS-with-notes (Opus, cb9e7dd, evidence/2026-10-25-review-5002-pddiag-cross.md). Notes carried for run 8: (a) each non-zero event logs ~11 extra R0 reads, so an event storm would be loud but harmless; stop the run if dmesg floods; (b) PD_STATUS 0x40 is read as 5 bytes, which is the paired AppleHPM length (processInterruptEvents @0x9537ad8), not a tipd natural length; (c) 0x5d/0x2c lengths come from the kext (6 and 1), unverified live."
     }
   },
   "runnable": true,
