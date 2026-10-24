@@ -5,13 +5,15 @@
   "state": "proposed",
   "track": "storage",
   "priority": "P0",
-  "desc": "m1n1 proxy NVMe Flush probe (scripts/t6040-nvme-flush-probe.py): identity gate, nvme_init, read LBA0, flush nsid 1 then 0xFFFFFFFF, re-read LBA0 (must be identical), shutdown. No data write path: the proxy has no NVMe write opcode; Flush carries no data. Decides the Linux flush fix after 211 write1 BAD_CMD (evidence/2026-10-25-t6040-211-write1-flush-badcmd.md): nsid1 OK -> TCB-level fix in apple.c (zeroed TCB, m1n1 encoding); only broadcast OK -> NSID fix; both fail -> write-through plan B with hard-reset verify. Runs on the enrolled rollback proxy, no boot.",
+  "desc": "m1n1 proxy NVMe Flush probe (scripts/t6040-nvme-flush-probe.py): identity gate, nvme_init, read LBA0, flush nsid 1 then 0xFFFFFFFF, re-read LBA0 (must be identical), shutdown. No data write path: the proxy has no NVMe write opcode; Flush carries no data. Decides the Linux flush fix after 211 write1 BAD_CMD (evidence/2026-10-25-t6040-211-write1-flush-badcmd.md): nsid1 OK -> TCB-level fix in apple.c (zeroed TCB, m1n1 encoding); only broadcast OK -> NSID fix; both fail -> write-through plan B with hard-reset verify. Fixture (Mythos review must-fix): chainload the NVMe-fixed m1n1 7de07c71 over the rollback (scripts/t6040-run-nvme-flush-probe.sh, hash-verified), wait for its proxy, then probe. Never nvme_init on the rollback m1n1 a61fd099 (July-25 SError path). No kernel boot.",
   "author": "claude",
   "deps": [],
   "hashes": {
     "script t6040-nvme-flush-probe.py": "56c8003885dc7616e15dd05cc7fc0a048d9244712fdb5c338850c362589adf03",
     "imported gate t6040-nvme-probe.py": "4ef48fbc524d9ad813960773e5ba579e8ccf230e324423ac03c3cbe4337250d2",
-    "target": "enrolled rollback proxy m1n1 (no boot, no chainload)"
+    "fixture t6040-run-nvme-flush-probe.sh": "a41eaaf38ea1107e24f1590286755322312a4a0ff8a472070dd797d20b1a0fba",
+    "chainloaded m1n1": "7de07c714ebe8b26a408ab0a4719d10d2d208eb120eaac7d3aea03f0e36daf2a",
+    "review": "Mythos PASS w/ fixture must-fix (fixed), evidence/2026-10-25-review-5006-flush-probe.md"
   },
   "created": 1792884527
 }
