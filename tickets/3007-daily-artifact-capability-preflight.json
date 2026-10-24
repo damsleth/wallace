@@ -12,5 +12,9 @@
     "301"
   ],
   "hashes": null,
-  "created": 1787143254
+  "created": 1787143254,
+  "review_2026_10_24": "For a future refreshed candidate, audit matching Image/config/DT/firmware and builtin RTKIT/NVME_APPLE/SART when storage is enabled. Audit USB4/CIO config dependencies for selected upstream stack; do not enable NVMe in daily profile merely to satisfy diagnostics. Pin corrected late-October revision and retain Norwegian layers.",
+  "evidence": [
+    "evidence/2026-10-24-asahi-dev-review.md"
+  ]
 }

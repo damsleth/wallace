@@ -1,6 +1,6 @@
 # T6040 / J614s development log and operating notes
 
-Current as of 2026-08-19. This file keeps durable operating knowledge,
+Reviewed through 2026-10-24. This file keeps durable operating knowledge,
 milestones, corrections, and dead ends. Exact experiment evidence lives in
 `evidence/`; current work lives in [NEXT_STEPS.md](NEXT_STEPS.md).
 
@@ -134,7 +134,8 @@ the discipline around them.
   wrong.
 - Both HID interfaces register evdev nodes once the correct kernel is booted:
   `input0: Apple DockChannel Multi-touch` and `input1: Apple DockChannel
-  Keyboard`. The trackpad gap is therefore event delivery, not enumeration.
+  Keyboard`. Before ticket 230, the trackpad gap was event delivery; touch
+  and haptics are now proven, with daily integration remaining.
 - `hid-generic … device has no listeners, quitting` right after
   `Initializing comm interface <4- "actuator">` is **benign** — that is the
   actuator interface, a non-input HID interface with nothing to claim it. Do not
@@ -168,8 +169,7 @@ the discipline around them.
   the surviving process were byte-identical (`SAME=12, DIFFER=0`, loop
   completed). That matches the fault path by construction —
   `die_kernel_fault` → `arm64_force_sig_fault` → `make_task_dead`. So
-  `maxcpus>1` costs availability, not data, and storage written during earlier
-  multi-core sessions is not suspect. Bounded honestly: it does not prove that a
+  the observed outcome is fail-stop. This does not prove that a
   process *hit* by the fault writes nothing bad before dying, nor that a fault
   during page-cache writeback cannot reach storage.
   Method note — the test must be cheap enough to survive itself: 64 KiB units
@@ -314,14 +314,47 @@ the discipline around them.
   `adt_get_reg()` and used successfully. Ticket 3000 records the full
   translation/MMU audit. Ticket 3008 corrects only the DT node/reg, retains
   `ps_nub_spmi_a1`, hpm2 SID `0x0c`, and disabled NVMe, and produced two clean
-  byte-identical DTBs (`eaf8cceb...`). It still requires independent exact
-  review before attended ticket 305 resumes; Apple-specific init and
+  byte-identical DTBs (`eaf8cceb...`). Independent exact review 3009 passed;
+  attended ticket 305 retains its fixture and execution gates. Apple-specific init and
   print-instrumentation work are fallback only if this corrected address
   stalls.
+
+## October upstream operating knowledge
+
+Source: [34-day IRC review](../evidence/2026-10-24-asahi-dev-review.md), with
+saved transcript and source hashes. These are external observations, not new
+Wallace hardware results. Offline integration/tracing plans are 6002/6003.
+
+- October 5 J614s NVMe enumeration and benchmark success required built-in
+  RTKIT/NVME_APPLE/SART. Verify actual kernel/config/modules before blaming ANS.
+- October 3 namespace loss was bisected to `c20bba234f3e` controller-state
+  handling; the earlier reg9 theory was retracted. Keep distinct from CQ wrap.
+- M4 Pro MacBook display topology is disp0 + dispext0/1; mini differs. Live ADT
+  takes precedence over template ADT when deciding whether board nodes exist.
+- The October 8 upstream-style HID DT failed wakeup; Yuka's rebased older
+  `t604x-old-dchid-working` branch worked. Preserve proven v2 input behavior.
+- m1n1 WFI bootargs fix 689 and chainload repair 719 are merged. Refresh paired
+  target/host versions together; SPTM support alone is insufficient for M4.
+- M4 HV login-screen tracing is usable, but post-login hangs persist. AMCC
+  interrupt masking is a workaround with unknown mapping/cache implications.
+- Early asahi 7.2 rebase GPU/import/USB regressions received later fixes. Resolve
+  corrected tag SHAs; the first 7.2.12-1 tag briefly pointed at the wrong base.
+- Additional USB/CIO config dependencies and regmap lockdep fixes matter on a
+  refreshed stack. They do not establish T6040 high-speed PHY support.
 
 ## Corrections and dead ends
 
 Do not repeat these without new evidence:
+
+- **October cross-generation and cross-failure shortcuts.** Base-M4 USB is not
+  M4 Pro/TB5 support; secondary-start improvements are not a demonstrated fix
+  for fault 205; KVM SEIS workarounds address guests; M5 ANS/SART4 domains must
+  not be copied into T6040. No blanket DAPF/PCIe bypass belongs in the daily
+  baseline. p3s game success did not establish MM reliability: a nondeterministic
+  GCC failure remained on October 24.
+- **New upstream submission means tested J614s replacement.** October's HID
+  wake failure and board-specific display domains disprove that shortcut.
+  Compare, pin and validate before replacing working local components.
 
 - **Treating software queue-depth agreement as proof of the ANS2 firmware ring
   size (reopened 2026-09-20).** The earlier wrap investigation did not establish
@@ -346,7 +379,8 @@ Do not repeat these without new evidence:
 - **Silent memory corruption from the SMP page-copy bug.** Round 18 refuted it:
   with a fault firing and killing a concurrent process, twelve consecutive
   64 KiB copy-and-compare verifications were byte-identical. The bug is
-  fail-stop. Do not describe `maxcpus>1` as a data-integrity hazard.
+  fail-stop in that test. Do not claim observed silent corruption, or extend
+  this bounded result into proof of safety for faulting processes/writeback.
 - **`console=ttydc0` as the cause of a dead keyboard.** The flag is fine and the
   known-good desktop recipe includes it; what matters is *ordering*. All
   `console=` entries receive printk, but the **last** becomes `/dev/console`,

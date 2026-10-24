@@ -54,6 +54,14 @@ build or drive the rig.
    (read the "Corrections and dead ends" section before proposing an experiment).
 7. `docs/ROADMAP.md` — stage-level scope.
 
+## Latest research
+
+The [October 24 IRC review](evidence/2026-10-24-asahi-dev-review.md) covers
+September 21–October 24 and preserves the transcript separately from temporary
+HTML logs. Read it before proposing an upstream refresh or M4 tracing work.
+Tickets 6002/6003 hold the offline follow-ons; local validation and execution
+gates remain in NEXT_STEPS and the queue.
+
 ## The repos
 
 | Path | What | Role here |

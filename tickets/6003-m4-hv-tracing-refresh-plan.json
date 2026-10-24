@@ -1,0 +1,22 @@
+{
+  "seq": "6003",
+  "slug": "m4-hv-tracing-refresh-plan",
+  "needs": "offline",
+  "state": "open",
+  "track": "tracing",
+  "priority": "P2",
+  "desc": "Offline plan for a separate pinned M4 Pro SPTM/emulation tracing environment: dependency and host/target compatibility audit, DAPF and ATCPHY trace scope, AMCC/post-login limitations, recovery and safety review. Preserve enrolled rollback and NVMe test payload; no hardware execution or enrollment.",
+  "author": "astra",
+  "deps": [],
+  "hashes": null,
+  "created": 1792861498,
+  "acceptance_criteria": [
+    "Pin complete SPTM/emulation dependency stack and paired host proxyclient/target, including WFI and chainload fixes.",
+    "Record boot-volume firmware and extracted Mach-O SPTM/TXM/kernelcache requirements; document login-screen limitations and unexplained AMCC suppression.",
+    "Compare existing T6040 ATCPHY and DAPF trace work; propose narrow ADT-backed capture and recovery boundaries under existing hardware safety policy.",
+    "Deliver an offline plan only. Any artifacts and live tracing require subsequent scoped review; preserve enrolled rollback and 6001 payload."
+  ],
+  "evidence": [
+    "evidence/2026-10-24-asahi-dev-review.md"
+  ]
+}

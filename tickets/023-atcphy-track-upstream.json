@@ -5,7 +5,7 @@
   "state": "open",
   "track": "usb",
   "priority": "P2",
-  "desc": "[UPSTREAM + paired static decode] Track explicit T6040 ATC PHY + SN201202x HPM support. Paired kexts prove the 44-bank ATC map, direct eUSB2 host branch, SPMI Gen3, and HALType5/AppleTCControllerType10 selection. Live exact-endpoint results now prove inactive selector (093), WAKEUP + power state 0x07 (094), and SSPS + S0 state 0x00 (095). No interrupt-mask experiment ran. This is not yet a host-link recipe: the address-0x14 mutation has no proved inverse, and cached command, interrupt ownership, power/config, disconnect, VBUS removal, and repeater/ATC rollback remain unresolved under 096. PMU/charger/NVRAM/firmware, unknown endpoints, other HPMs, and unreviewed PHY writes remain prohibited. Track upstream independently of the decomposed Wallace host-link experiments.",
+  "desc": "Track explicit T6040 ATCPHY/TB5 enablement. October 23 base-M4 USB uses t8122,atcphy, while M4 Pro has a different TB5 PHY and remains under investigation. Compare public traces/patches before duplicating work; offline tracing preparation is 6003. Keep this separate from the proven Wallace USB2 data path and attended hpm2/VBUS ticket 305 under SPMI_SAFETY Entry 1. No inferred permission for new endpoints, MMIO or PHY writes.",
   "author": "claude",
   "deps": [],
   "hashes": {
@@ -27,5 +27,9 @@
     "apple_hpm_hal5_set_usb_config_bytes_sha256": "db11df27faeb72b9bd7e5ecfa90e5868f9bc9058505bd927249d7502af0b6251"
   },
   "last_checked": "2026-07-24",
-  "created": 1784039024
+  "created": 1784039024,
+  "evidence": [
+    "evidence/2026-10-24-asahi-dev-review.md",
+    "evidence/2026-10-24-ticket-context-before-refresh.json"
+  ]
 }

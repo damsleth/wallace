@@ -13,5 +13,9 @@
   "hashes": {
     "patches/t6040-rtkit-modern-crashlog-debug.patch": "849f06144da0dc867e766f6c0d8f1854a2f44238d9a99e3493e12c3e233c2669"
   },
-  "created": 1785701599
+  "created": 1785701599,
+  "review_2026_10_24": "Conditional follow-on after 6001. September candidate review excluded the modern crash decoder because outer bounds validation remained unresolved; complete parser/bounds review before any readiness claim.",
+  "evidence": [
+    "evidence/2026-10-24-asahi-dev-review.md"
+  ]
 }

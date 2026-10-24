@@ -8,7 +8,7 @@ Ticket location is authoritative workflow state:
 
 Use `scripts/rig-lease.sh queue` to create, approve, ready, and complete
 tickets. `queue add` allocates the sequence number inside the calling agent's
-own block (fable 1000+, opus 2000+, sol 3000+, terra 4000+, claude 5000+), so
+own block (fable 1000+, opus 2000+, sol 3000+, terra 4000+, claude 5000+, astra 6000+), so
 different agents never collide. Same-agent concurrent adds can still race, so
 immediately verify every newly allocated sequence. A rig ticket is runnable only
 after approval, exact hashes, completed dependencies, independent artifact
@@ -42,3 +42,13 @@ placement decides whether the ticket is active, completed, or archived.
 Archived tickets must include `archived.at`, `archived.by`, and a concrete
 reason. Do not put long append-only progress journals in `desc`; move that
 material into evidence and leave a short current summary plus links.
+
+## October 24 follow-ups
+
+- **6001:** existing exact-artifact read-only NVMe run; execution gate unchanged.
+- **6002:** offline upstream DT/driver convergence audit and regression plan.
+- **6003:** offline M4 Pro tracing-stack refresh plan.
+
+Existing 205/206/301/023 tasks carry updated current descriptions; prior
+narratives are preserved in `evidence/2026-10-24-ticket-context-before-refresh.json`.
+The queue is the todo store; no parallel `.plans/` tracker is introduced.

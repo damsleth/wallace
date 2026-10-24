@@ -32,7 +32,7 @@ kernel tree; uncommitted kernel code is not part of the build.
 | cpuidle/suspend | T6040 retention and locked-sysreg contract |
 | panel backlight | Correct DCP/DWI ownership and bindings |
 | keyboard backlight | Working through `fpwm0` and `pwm-leds`; keep regression coverage |
-| trackpad | Correct post-HIDF reset/interface contract |
+| trackpad | v2 power request and touch/haptics proven (230); daily integration (301) and upstream comparison (6002) |
 | USB host | Reversible HPM role/VBUS plus ATC/eUSB2/xHCI sequence |
 | NVMe | Fix the Linux first-I/O-CQ-wrap firmware assert |
 | GPU | Explicit G16-compatible kernel, firmware ABI, m1n1, and Mesa support |
@@ -56,3 +56,12 @@ The original 2026-07-10 extraction commands and placeholder audit are retained
 in Git history. Current ADT-derived results are documented in `evidence/`,
 especially the Linux DT series, PCIe endpoint-power, SD preflight, and NVMe
 port write-ups.
+
+## October upstream comparison (ticket 6002)
+
+Compare submitted M4 Pro/Max DTs and `t604x-old-dchid-working` against the live
+J614s ADT. Preserve MacBook disp0 + dispext0/1; mini display domains differ.
+Check power-domain edges, IRQs, NVMe/SART split mappings and input reset/power
+contracts independently. Template ADTs and base-M4 USB nodes are insufficient
+board evidence. Track standard `gpio-reserved-ranges` without importing other
+SoCs' reserved pin numbers. [Review](../evidence/2026-10-24-asahi-dev-review.md).

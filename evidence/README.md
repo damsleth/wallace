@@ -33,3 +33,13 @@ replacement for this evidence collection.
 New or materially revised tickets should use a top-level `evidence` array for
 repository-relative paths instead of burying paths in an append-only `desc`.
 Historical tickets may retain their older prose references until touched.
+
+## Latest upstream research
+
+[October review](2026-10-24-asahi-dev-review.md) covers all 4,008 chat messages
+from September 21 through the October 24 16:00 UTC snapshot. The accompanying
+`2026-10-24-asahi-dev-review-messages.txt` preserves message text, dates, authors
+and IDs; `2026-10-24-asahi-dev-review-sources.json` records original HTML hashes
+and counts. The transcript excludes joins/quits and HTML formatting. It remains
+usable if the temporary HTML files are removed. No local hardware milestone
+was established by this research.

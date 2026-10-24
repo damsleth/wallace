@@ -254,3 +254,17 @@ boot stage; it is not a substitute for the panel in every experiment.
 | serial open waits for carrier | use `/dev/cu.*`, not `/dev/tty.*` |
 | environment assignment was separated by semicolons | put assignments on the same command |
 | 1TR has no sudo | run the command directly |
+
+## October refresh and tracing boundary
+
+The next prepared storage run remains ticket 6001 with its exact manifest and
+CJ-ready gate. Ticket 6002 plans an isolated upstream integration candidate;
+6003 plans a separate M4 Pro SPTM/emulation tracing environment. Neither is a
+live procedure. Reconfirm fixture/boot-volume firmware before a later run;
+September's unchanged-fixture statement is historical.
+
+Use matched host proxyclient/target revisions, retain the enrolled rollback,
+and include the chainload signature repair when refreshing m1n1. Login-screen
+tracing can be useful despite post-login hangs; AMCC suppression is not a
+validated cache fix. No commands from IRC supersede the lease, exact review,
+or SPMI/SMC scope. See [the review](../evidence/2026-10-24-asahi-dev-review.md).

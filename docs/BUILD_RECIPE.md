@@ -427,3 +427,14 @@ use `command cat`.
   `xfs_growfs /var` inside the build VM. `/sysroot` is a read-only mount and
   rejects growth; `/var` is the writable mount of the same filesystem. Confirm
   `df` inside kbuild shows the new capacity before beginning a fresh checkout.
+
+### October refresh candidates (planning notes, 2026-10-24)
+
+Ticket 6002 owns the offline compatibility audit. Preserve the exact 6001
+payload; any kernel refresh is a separate candidate. Resolve corrected tag
+SHAs, record the target boot-volume firmware, and pair kernel/DT/firmware and
+m1n1/proxyclient revisions. For RAM-only NVMe tests check built-in RTKIT,
+NVME_APPLE and SART; for refreshed USB stacks audit USB4/CIO dependencies.
+These are review inputs, not newly implemented preflight checks. Existing
+Norwegian-layout, actual-Image and two-build requirements remain mandatory.
+See the October review for rebase regressions and their later corrections.

@@ -1,6 +1,6 @@
 # T6040 / J614s Linux roadmap
 
-Current as of 2026-08-19. This is the stage map; tickets contain the executable
+Reviewed 2026-10-24; local hardware milestones remain unchanged. This is the stage map; tickets contain the executable
 work and [NEXT_STEPS.md](NEXT_STEPS.md) contains the current order.
 
 ## Project state
@@ -15,6 +15,21 @@ work and [NEXT_STEPS.md](NEXT_STEPS.md) contains the current order.
 | F. GPU acceleration | Blocked on a real T6040/G16 stack | Maintainer-endorsed kernel, firmware ABI, m1n1, and Mesa support |
 | G. Power and peripherals | Partial | Audio, camera, suspend, cpuidle, lid/power integration |
 | H. Persistent distro | Partial | One-core SD root works; a static `fsck.exfat` now ships in the initramfs to repair the dirty fixture, and clean-shutdown validation is pending |
+
+## October convergence plan
+
+The [October IRC review](../evidence/2026-10-24-asahi-dev-review.md) adds two
+offline work items: **6002** compares pinned upstream DT/driver references and
+plans an isolated integration candidate; **6003** plans M4 Pro hardware tracing.
+Stage C benefits from submitted t604x DTs and HID references; stage E from
+BRCM4388 upstreaming; stage H from independent J614s NVMe read evidence.
+Ticket **6001** remains the first storage experiment, with writes still gated.
+
+Stages F/G gain a tracing route, but no T6040 GPU, panel-brightness, audio,
+camera or suspend completion is demonstrated. M4 Pro ATCPHY/TB5 remains separate
+from base-M4 USB. Stage C still requires the original fault-205 stress result;
+startup and KVM progress cannot close it. SD-first stage B remains active;
+installer UI work does not provide a supported T6040 installation path.
 
 ## A. Proxy and recovery
 
@@ -71,13 +86,13 @@ cpufreq 4.512 GHz on the P cluster.
 
 Open:
 
-- characterise the two-core page-copy fault and report it upstream (209/217);
+- characterise the two-core page-copy fault and preserve a report draft (209/217);
   207 refuted the ordering hypothesis, and perturbations that merely suppress the
   symptom are not fixes;
 - prove stable 14-core userspace;
 - add a safe cpuidle/retention contract;
 - keep generated DTs and the upstream-shaped patch series synchronized;
-- upstream the narrow, proven changes.
+- prepare narrow, proven changes for upstream; posting remains deferred.
 
 ## D. Local usable machine
 

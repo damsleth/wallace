@@ -21,10 +21,12 @@
   "evidence": [
     "evidence/2026-09-21-nvme-ans2-ioq-candidate.md",
     "evidence/2026-09-21-nvme-ans2-ioq-candidate/manifest.json",
-    "evidence/2026-09-21-nvme-ans2-ioq-candidate/independent-review.json"
+    "evidence/2026-09-21-nvme-ans2-ioq-candidate/independent-review.json",
+    "evidence/2026-10-24-asahi-dev-review.md"
   ],
   "runnable": false,
   "execution_gate": "CJ will signal M4 ready and waiting for payload; no signal received, no hardware access.",
   "offline_review_by": "/root/nvme_review",
-  "offline_review_result": "PASS"
+  "offline_review_result": "PASS",
+  "review_2026_10_24": "October same-board NVMe success supports this existing experiment. Keep exact hashes, no-mount/read-only scope and M4-ready execution gate unchanged. Do not combine with an upstream refresh."
 }

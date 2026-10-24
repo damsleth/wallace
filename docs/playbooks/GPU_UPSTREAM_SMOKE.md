@@ -147,3 +147,11 @@ First divergence:
 Recovery:
   <sanctioned reboot result>
 ```
+
+## October 24 review
+
+No new candidate passes the admission gate on the evidence reviewed. M4 Pro
+login-screen hardware tracing is now practical (offline plan 6003), but GPU
+tracing and existing-generation driver rebase fixes do not demonstrate a
+T6040/G16 Linux stack. Ticket 4004 remains open. See
+[the October review](../../evidence/2026-10-24-asahi-dev-review.md).

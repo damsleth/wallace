@@ -5,7 +5,7 @@
   "state": "open",
   "track": "hid",
   "priority": "P2",
-  "desc": "Fold the proven v2 power-request fix into the daily-driver image. Ticket 230 proved live (evidence/2026-08-04-t6040-trackpad-v2-power-request-accepted.md) that patches/t6040-dockchannel-hid-reset-contract.patch makes the J614s MTP coprocessor accept the interface power request, consume the CBOR firmware, and raise Touch MT ready. Once CJ confirms finger motion (the open half of 230), rebuild the daily sdroot kernel with TRACKPAD_RESET_CONTRACT=1 (+ TRACKPAD_FW=1 HID_TYPE_FIX=1 DOCKCHANNEL=1 and the existing daily profile), add the a1f4131d tpmtfw blob to the sdroot initramfs so first-open upload works on the daily image, two-build reproduce, preflight, and hand CJ a new enrollable window-free object. Blocked on 230's finger confirmation. NUMBERING NOTE: filed manually as seq 301 in fable's declared 300+ block per CJ/claude coordination instruction of 2026-08-04 (claude odd / sol even continue below 300); rig-lease.sh queue add cannot take an explicit sequence, so this record was written directly.",
+  "desc": "Integrate the proven J614s v2 interface power-request patch and approved a1f4131d HIDF blob into the daily SD-root image. Ticket 230 finger test passed August 19 (touch and haptics); no longer waiting for finger confirmation. Reproduce twice, run Norwegian-layout and artifact preflights, and preserve current rollback/enrollment gates. Compare Yuka t604x-old-dchid-working and upstream-style HID DT via 6002 before replacing the proven implementation; the new DT failed to wake the M4 Pro coprocessor on October 8. No additional SMC-key authorization follows from IRC suggestions.",
   "author": "fable",
   "deps": [
     "230"
@@ -13,6 +13,8 @@
   "created": 1785840501,
   "evidence": [
     "evidence/2026-08-04-t6040-trackpad-v2-power-request-accepted.md",
-    "evidence/2026-08-04-t6040-trackpad-post-upload-reset-contract.md"
+    "evidence/2026-08-04-t6040-trackpad-post-upload-reset-contract.md",
+    "evidence/2026-10-24-asahi-dev-review.md",
+    "evidence/2026-10-24-ticket-context-before-refresh.json"
   ]
 }

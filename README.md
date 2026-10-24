@@ -10,7 +10,7 @@ This is experimental bring-up work, not a ready-to-install distribution. There
 is no public installer image yet, and the machine is not ready to replace macOS
 as a dependable daily driver.
 
-## Status — 2026-08-19
+## Status, reviewed 2026-10-24
 
 Linux boots both tethered and untethered. The current useful baseline is a
 **persistent Alpine system on the SD card** with a graphical desktop: Xorg and
@@ -31,9 +31,9 @@ staged for the VBUS run (ticket 231/305).
 
 That race is now characterised as **fail-stop**: it kills processes rather than
 returning wrong data. With a fault firing and killing a concurrent process,
-twelve consecutive copy-and-compare verifications came back byte-identical. So
-running above one core is a stability limit, not a data-integrity risk, and
-storage written by earlier multi-core sessions is not suspect.
+twelve consecutive copy-and-compare verifications came back byte-identical. Those observations establish a fail-stop outcome for that test. They do not
+prove what happens to a faulting process or page-cache writeback; the daily
+profile stays at `maxcpus=1`.
 
 The project has therefore moved beyond “can Linux boot?” The work now is making
 the existing hardware support stable, maintainable, and suitable for upstream
@@ -43,14 +43,14 @@ review.
 
 | Component | What works | What remains |
 |---|---|---|
-| Boot | A self-contained, enrolled m1n1 object cold-boots Linux without a host-supplied payload | The current raw-object path is project-specific; a conventional stage-2 or EFI-style flow is optional future work |
-| CPU and cpufreq | All 14 cores enter the kernel; a five-core RAM-root desktop and frequency scaling are proven. The multi-core fault is confirmed fail-stop, so it costs availability but not data integrity | Multi-core page-copy workloads can fault in the kernel. A minimal reproducer exists; the simple missing-barrier theory has been refuted, leaving page lifetime/refcount or TLB invalidation as leading areas to investigate |
+| Boot | A self-contained, enrolled m1n1 object cold-boots Linux without a host-supplied payload | An SD-first removable U-Boot stage 2 is active offline work (3010–3020), with a permanent proxy recovery path |
+| CPU and cpufreq | All 14 cores enter the kernel; a five-core RAM-root desktop and frequency scaling are proven. The observed multi-core failure is fail-stop; broader writeback safety remains unproven | Multi-core page-copy workloads can fault in the kernel. A minimal reproducer exists; the simple missing-barrier theory has been refuted, leaving page lifetime/refcount or TLB invalidation as leading areas to investigate |
 | Display | simpledrm/fbcon and Xorg with i3 or dwm work on the internal panel | No GPU acceleration or panel-backlight control |
 | Input | The internal keyboard works in X (Norwegian layout, ⌘ as the i3 modifier) and the keyboard backlight works. **The trackpad works:** a real finger produced 37 950 events on `/dev/input/event0` in a 60 s window, and **force-click haptics fire** (Taptic actuator). The fix was the post-upload MTP interface power request — J614s accepts only the 9-byte v2 form (ticket 230, 2026-08-19) | Fold the patch and firmware blob into the daily image (301); gestures/tuning are userspace config |
 | SMC and power | Battery, AC, charger, and temperature telemetry work | cpuidle, suspend, lid/power integration, and production power policy remain incomplete |
 | PCIe | The T6040 root complex, link training, and approved endpoint-power paths work | Upstream cleanup and broader regression coverage |
 | WiFi and Bluetooth | BCM4388 WiFi associates, receives DHCP, and routes traffic (verified 2026-08-04 on an open 5 GHz network, with `ping` and `curl` working); Bluetooth exposes a working `hci0` | Only one `wpa_supplicant` may run or the radio is starved; `regulatory.db` is missing so the domain stays `country 00` |
-| SD storage | **Signed off.** The GL9755 reader enumerates as `mmc0`, a dirty exFAT volume is repaired in place by a bundled static `fsck.exfat`, and the ext4 loop root mounts read-write. A 64 KiB random file hashed identically across four reboots | Clean-shutdown validation, and repeated cold boots without the tether |
+| SD storage | Read/write persistence demonstrated. The GL9755 reader enumerates as `mmc0`, the repair image carries static `fsck.exfat`, and the ext4 loop root has mounted read-write. A 64 KiB random file hashed identically across four reboots | Repair the dirty fixture (215), validate clean shutdown (216), and repeat cold boots without the tether |
 | Persistent root | At `maxcpus=1`, an ext4 loop image on the SD card boots unattended to Xorg and i3, associates with WiFi, and retains writes across reboots. `/init` self-heals the card's helper scripts, keymap, timezone, cursor theme and WiFi config from the image, so the card can no longer drift behind the repo | Clean shutdown and repeated cold-boot validation |
 | Internal NVMe | Raw m1n1 reads survive several completion-queue wraps; Linux enumerates namespaces and briefly mounts exFAT | Linux triggers a firmware assert at the first I/O completion-queue wrap; Linux writes are not verified |
 | USB | Device mode works; the **USB2 host data path works** — with the v2 PHY slice, dwc3 probes and the right-port xHCI root hubs come up healthy (ticket 108, 2026-08-19) | **VBUS is the sole gap** for a bus-powered device. A reviewed, CJ-signed-off tps6598x SPMI transport drives the SoC's `sn201202x` PD controllers; the attended VBUS run is staged (231/305). USB3/Thunderbolt (atcphy) is later work |
@@ -80,21 +80,24 @@ live in [docs/ROADMAP.md](docs/ROADMAP.md).
 NVMe, WiFi, Bluetooth and the trackpad all working unambiguously. Upstream
 reporting is explicitly deferred until that is reached.
 
-1. **Trackpad — done (2026-08-19).** Touch and force-click haptics both work;
-   the remaining item is folding the patch and firmware blob into the daily
-   image (ticket 301).
-2. **USB host / VBUS.** The USB2 data path works (108); VBUS is the only gap.
-   The tps6598x SPMI PD driver is written and CJ-signed-off (231); the attended
-   VBUS run is staged (305).
-3. **NVMe.** Two independent faults: the first-CQ-wrap firmware assert (206), and
-   a teardown use-after-free where `blk_mq_timeout_work` runs against a freed
-   queue and kills `kblockd`, taking all block I/O — including SD — down with it
-   (227). The daily driver runs with ANS disabled until both are fixed.
-4. **Clean shutdown** for the SD root, then repeated cold-boot validation.
-5. The two-core page-copy fault (205) remains the ceiling on multi-core use. It
-   is fail-stop, so it costs availability rather than data.
-6. Continue upstream-oriented work on GPU, power management, audio, and camera
-   support as credible hardware-specific implementations become available.
+1. Run the prepared **read-only NVMe queue-size experiment (6001)** when the
+   M4 is ready. Its two-build artifact and independent review are complete;
+   the first-CQ-wrap fix remains unvalidated on hardware.
+2. Compare the new upstream references in **6002**: M4 Pro/Max device trees,
+   input, NVMe and BRCM4388, against a pinned late-October kernel. Another J614s
+   reported working NVMe, but its result does not establish write safety here.
+3. Finish SD filesystem repair and clean shutdown, daily trackpad integration,
+   and the attended right-port VBUS test. The corrected PD DTB has passed its
+   independent review (3009).
+4. Keep the runtime SMP fault (205) open. Improved CPU startup and KVM work
+   do not establish that our MM/COW failure is fixed.
+5. Prepare a separate M4 Pro hardware-tracing plan (6003). This can help with
+   ATCPHY and DAPF; GPU, panel brightness, audio, camera and suspend remain open.
+
+The [October review](evidence/2026-10-24-asahi-dev-review.md) records all
+4,008 messages from September 21 through the October 24 snapshot, including
+later corrections. [NEXT_STEPS](docs/NEXT_STEPS.md) holds the live priorities
+and gates. This documentation refresh records no new local hardware results.
 
 ## Where the work lives
 

@@ -14,5 +14,9 @@
     "j614s_adt_sha256": "7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84"
   },
   "last_checked": "2026-07-23",
-  "created": 1784039024
+  "created": 1784039024,
+  "review_2026_10_24": "October M4 Pro login-screen tracing is an investigation opportunity (6003), not a T6040 DCP/macOS-26 ABI completion. MacBook uses disp0 plus dispext0/1; compare live ADT and upstream DT in 6002.",
+  "evidence": [
+    "evidence/2026-10-24-asahi-dev-review.md"
+  ]
 }

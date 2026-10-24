@@ -9,5 +9,9 @@
   "author": "terra",
   "deps": [],
   "hashes": null,
-  "created": 1787145379
+  "created": 1787145379,
+  "review_2026_10_24": "October review finds no demonstrated T6040/G16 Linux stack. New M4 HV tracing (6003) can help investigation; existing-GPU rebase fixes and login-screen GPU tracing are not a live-candidate admission pass.",
+  "evidence": [
+    "evidence/2026-10-24-asahi-dev-review.md"
+  ]
 }
