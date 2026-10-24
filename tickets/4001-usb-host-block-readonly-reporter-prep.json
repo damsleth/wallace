@@ -2,12 +2,20 @@
   "seq": "4001",
   "slug": "usb-host-block-readonly-reporter-prep",
   "needs": "offline",
-  "state": "open",
+  "state": "built-awaiting-independent-review",
   "track": "storage",
   "priority": "P1",
   "desc": "Prepare and exact-review the host-side read-only reporter that ticket 109 needs after ticket 305 restores VBUS and the seated S128 enumerates. Grounding: NEXT_STEPS §6 says ticket 109 follows PD/VBUS enumeration; ticket 109 requires USB-ID/capacity/sysfs-ancestry identity plus fixed GPT/header/partition-sector hashes while asserting no NVMe device. Deliver a fail-closed script and mocked tests that require the right-port USB ancestry, expected removable capacity and declared S128 identity before any read; it may read only the named fixed ranges and emits hashes plus its own version/hash. Reject missing/ambiguous devices, internal/NVMe ancestry, mounts, writable opens, unexpected partitions, and all mutation paths. This is an offline artifact only—no rig, device, mount, fsck, partition, flash, or storage access—and still needs independent artifact review before ticket 109 runs.",
   "author": "terra",
   "deps": [],
-  "hashes": null,
-  "created": 1787145355
+  "hashes": {
+    "scripts/t6040-usb-block-report.sh": "89b3911e2fbdde38b13b95ba0cf456ec94b9711131eb002e7d6a9df703ca9b80",
+    "scripts/t6040-test-usb-block-report.sh": "da223657340678f551ed93750e84b360aeb74937ef592911ee9e43f92f5ebbfe"
+  },
+  "created": 1787145355,
+  "owner": "claude",
+  "evidence": [
+    "evidence/2026-10-24-t6040-4001-usb-block-reporter.md",
+    "evidence/2026-10-24-t6040-s128-host-declared-identity.md"
+  ]
 }
