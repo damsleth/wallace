@@ -8,10 +8,13 @@ p.add_argument('transcript', type=Path)
 a = p.parse_args()
 s = a.transcript.read_text(errors='replace')
 errors = []
-for pattern in (r'assert', r'SError', r'I/O error', r'timed out', r'timeout:',
-                r'timeout while', r'controller is down', r'crashed', r'panic',
-                r'translation fault', r'BUG:', r'Oops:', r'NVME-READONLY STOP'):
+for pattern in (r'assert', r'I/O error', r'timed out', r'timeout:', r'timeout while',
+                r'controller is down', r'crashed', r'translation fault'):
     if re.search(pattern, s, re.I): errors.append('stop condition: ' + pattern)
+# Case-sensitive: re.I made BUG: match "debug:" and panic match "PANICLOG".
+for pattern in (r'SError', r'panic', r'BUG:', r'Oops:', r'RTKit: Exception',
+                r'NVME-READONLY STOP', r'NVME-READONLY kernel stop'):
+    if re.search(pattern, s): errors.append('stop condition: ' + pattern)
 if len(re.findall(r'NVME-READONLY START bytes=67108864 chunk=16384 passes=4 ', s)) != 1:
     errors.append('expected exactly one test start')
 if len(re.findall(r'NVME-READONLY PASS direct_reads=16384 bytes=268435456 repeated_bytes_match=yes', s)) != 1:

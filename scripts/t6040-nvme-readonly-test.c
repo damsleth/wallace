@@ -31,10 +31,22 @@ static void check_log(void)
     ssize_t n;
     while ((n = read(kmsg, line, sizeof(line) - 1)) > 0) {
         line[n] = 0;
-        const char *bad[] = {"assert", "SError", "I/O error", "timed out", "timeout:", "timeout while",
-            "controller is down", "crashed", "panic", "translation fault", "BUG:", "Oops:"};
+        /* Case-insensitive: lower-case kernel/RTKit fault phrases. */
+        const char *bad[] = {"assert", "I/O error", "timed out", "timeout:", "timeout while",
+            "controller is down", "crashed", "translation fault"};
+        /*
+         * Case-sensitive: case-insensitive "BUG:" matched "printk: debug:"
+         * (from ignore_loglevel) and "panic" would match ANS's benign
+         * "element=PANICLOG not yet written" (ticket 6001 run 2).
+         */
+        const char *exact[] = {"SError", "panic", "BUG:", "Oops:", "RTKit: Exception"};
         for (unsigned i = 0; i < sizeof(bad) / sizeof(*bad); i++)
             if (strcasestr(line, bad[i])) {
+                fprintf(stderr, "NVME-READONLY kernel stop: %s", line);
+                exit(1);
+            }
+        for (unsigned i = 0; i < sizeof(exact) / sizeof(*exact); i++)
+            if (strstr(line, exact[i])) {
                 fprintf(stderr, "NVME-READONLY kernel stop: %s", line);
                 exit(1);
             }

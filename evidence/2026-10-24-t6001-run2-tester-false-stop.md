@@ -38,3 +38,22 @@ case-sensitively. Lower-case fault phrases stay case-insensitive (`assert`,
 strings at 4f24291 are all lower-case, so nothing is lost. The tester must be
 rebuilt (static aarch64), then the initramfs twice, a new manifest, and
 review before run 3.
+
+## Run-3 payload (built)
+
+- Tester rebuilt in the kbuild container with GCC 12.2.0 (Debian),
+  `-O2 -static -Wall -Wextra -Werror`, from source named
+  `t6040-nvme-readonly-test.c`. The same command on the **original** source
+  reproduces the reviewed binary `0ffb3e55…` byte-for-byte, so the flags
+  match. The fixed source (`9372f143…`) builds `aef24ab9…` twice,
+  identically.
+- Initramfs built twice from the pinned base and the fixed tester:
+  `524d94c3…`, identical. Candidate `linux-build-out/nvme-ioq-20261024b/`,
+  manifest `c34f4391…`. Against the gate-fixed manifest `84b0275f…`, exactly
+  initramfs, checker (`0481319f…`) and tester source changed. Image, DTB and
+  m1n1 are unchanged. The reviewed launcher's verify-only pass: all 241 files
+  verified, preflight OK.
+- Checker against synthetic transcripts: passes with both real false
+  positives present (`printk: debug:` and `PANICLOG`). It stops on a kernel
+  panic, a kernel `BUG:`, an RTKit "co-processor has crashed" and an RTKit
+  exception dump.

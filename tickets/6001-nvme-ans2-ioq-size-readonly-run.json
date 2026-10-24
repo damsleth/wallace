@@ -2,7 +2,7 @@
   "seq": "6001",
   "slug": "nvme-ans2-ioq-size-readonly-run",
   "needs": "rig",
-  "state": "run2-tester-false-stop-needs-tester-fix",
+  "state": "approved",
   "track": "nvme",
   "priority": "P1",
   "desc": "One tethered RAM-only maxcpus=1 ANS2 IOQ-size test: 16384 direct reads and byte comparison, no block-device filesystem mounts or disk writes. Wait for CJ M4-ready signal; exact manifest and independent review required. Unique transcript, no retry on fault; no enrollment.",
@@ -13,10 +13,10 @@
   "hashes": {
     "image": "6eef9eef130d805d71e2800f63c58813979041ee7589eb5d90116340bcd3bb7d",
     "dtb": "a96d04a7c37355ed13ac6e4ac90ec319ecc3e755d584ea2b414a7ad80498845b",
-    "initramfs": "c76063acac8d2f30f534a77a70dbe3bcebcb5a9c3c968fbd17e1877e3349a3cc"
+    "initramfs": "524d94c39ea15050d42e99d39eb18614d6610a4bd788ce672c2a73abbbdd2a44"
   },
   "created": 1789998662,
-  "manifest": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20261024/manifest.json (sha256 84b0275f828ea983b7d9a2a0ef3fba33d42e4db795d7f2c0203595e55751a128)",
+  "manifest": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20261024b/manifest.json (sha256 c34f43912a129d94aa84386af3d65d7ef131b29ca2c9b8393e9a0b4a19ef915e)",
   "manifest_sha256": "14ba160062bb75b9a234b20ab34874304c75ab75f0fc2f87c8fc49e32cfb10b0",
   "evidence": [
     "evidence/2026-09-21-nvme-ans2-ioq-candidate.md",
@@ -36,6 +36,5 @@
   "approved_at": 1792874777,
   "run1_2026_10_24": "Parked at its identity gate before any read: the gate rejects nvme0n2, but this SSD exposes n1 (1954210120 sectors) plus Apple auxiliary n2 (6144) and n3 (262144). No fault. Initramfs gate must pin this topology; rebuild + independent review before run 2.",
   "gatefix_2026_10_24": "Run 2 payload: identical Image/DTB/m1n1 to the reviewed 20260920 payload; only /init (91d94421, pins n1=1954210120, n2=6144, n3=262144 sectors, no nvme0n4/nvme1, n2/n3 set ro + stats logged) and the transcript checker (78889c1d, requires the topology line and unchanged aux stats) changed. Initramfs c76063ac, two builds identical. Needs independent delta review, then queue ready.",
-  "reviewed_by": "cj",
-  "ready_at": 1792875596
+  "testerfix_2026_10_24": "Run 3 payload: delta from gatefix manifest 84b0275f is exactly tester source (9372f143) + rebuilt tester (aef24ab9, two builds identical; original source rebuilds the reviewed 0ffb3e55 with the same flags), checker (0481319f), initramfs 524d94c3 (two builds identical). Upper-case tokens (SError, panic, BUG:, Oops:, RTKit: Exception) now case-sensitive. Needs review, then queue ready."
 }
