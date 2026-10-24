@@ -1,0 +1,135 @@
+#!/bin/busybox sh
+# NVMe write test on the exFAT "linux" partition only (tickets 211/5003).
+# Pins come from read-only probe 5001
+# (evidence/2026-10-25-t6040-5001-exfat-linux-identity.md). Any mismatch
+# stops before the first write. Mode from the kernel command line:
+#   nvmewrite=write   write a 1 GiB file, fsync, hash, unmount, fsck -n,
+#                     remount read-only, re-hash
+#   nvmewrite=verify  after a reboot: remount read-only, re-hash against the
+#                     stored hash, fsck -n
+# Every other partition and namespace is read-only; their counters must
+# not change.
+BB=/bin/busybox
+PATH=/bin:/sbin
+export PATH
+early_stop() { echo "NVME-WRITE STOP: $*"; while :; do $BB sleep 60; done; }
+$BB mount -t proc proc /proc || early_stop proc
+$BB mount -t sysfs sysfs /sys || early_stop sysfs
+$BB mount -t devtmpfs devtmpfs /dev || early_stop devtmpfs
+$BB mkdir -p /run /mnt/linux || early_stop directories
+$BB mount -t tmpfs tmpfs /run || early_stop tmpfs
+# Keyboard must be configured before either console can get a shell.
+if ! $BB loadkmap </etc/wallace-no.bmap >/dev/tty0; then
+    echo 'NVME-WRITE STOP: Norwegian keymap failed' >/dev/kmsg
+    while :; do $BB sleep 60; done
+fi
+say() { echo "NVME-WRITE $*" >/dev/kmsg; }
+park() {
+    $BB umount /mnt/linux 2>/dev/null
+    say 'PARKED: no further automated storage operations'
+    $BB setsid -c $BB sh -i </dev/ttydc0 >/dev/ttydc0 2>&1 &
+    while :; do $BB setsid -c $BB sh -i </dev/tty1 >/dev/tty1 2>&1; $BB sleep 1; done
+}
+stop() { say "STOP: $*"; park; }
+if [ -c /dev/watchdog0 ]; then
+    $BB watchdog -T 30 -t 10 /dev/watchdog0 &
+else
+    stop 'watchdog missing'
+fi
+
+MODE=
+for a in $($BB cat /proc/cmdline); do
+    case "$a" in nvmewrite=*) MODE=${a#nvmewrite=} ;; esac
+done
+case "$MODE" in write|verify) ;; *) stop "missing nvmewrite=write|verify" ;; esac
+say "mode=$MODE; maxcpus=1; writes only to the pinned exFAT linux partition"
+
+# --- controller, namespace and identity gate (as 6001 run 3) ---------------
+ns_size() { $BB cat "/sys/block/$1/size" 2>/dev/null; }
+i=0
+while [ ! -b /dev/nvme0n1p3 ] && [ "$i" -lt 30 ]; do $BB sleep 1; i=$((i+1)); done
+[ ! -e /dev/nvme1 ] || stop 'unexpected second controller'
+i=0
+while { [ ! -b /dev/nvme0n2 ] || [ ! -b /dev/nvme0n3 ]; } && [ "$i" -lt 10 ]; do $BB sleep 1; i=$((i+1)); done
+[ "$(ns_size nvme0n1)" = 1954210120 ] && [ "$(ns_size nvme0n2)" = 6144 ] &&
+    [ "$(ns_size nvme0n3)" = 262144 ] && [ ! -e /dev/nvme0n4 ] ||
+    stop 'unexpected namespace topology'
+case "$($BB cat /sys/class/nvme/nvme0/transport):$($BB cat /sys/class/nvme/nvme0/model)" in
+    apple-nvme:APPLE\ SSD\ AP1024Z*) ;;
+    *) stop 'unexpected controller identity' ;;
+esac
+
+# --- everything except the target partition read-only ----------------------
+P=nvme0n1p3
+DEV=/dev/$P
+for d in /dev/nvme0n1p1 /dev/nvme0n1p2 /dev/nvme0n1p4 /dev/nvme0n2 /dev/nvme0n3; do
+    [ -b "$d" ] || stop "missing $d"
+    $BB blockdev --setro "$d" || stop "cannot set $d read-only"
+done
+[ ! -e /dev/nvme0n1p5 ] || stop 'unexpected fifth partition'
+[ "$($BB cat /sys/block/nvme0n1/$P/ro)" = 0 ] || stop "$P is read-only"
+others() {
+    for n in nvme0n1/nvme0n1p1 nvme0n1/nvme0n1p2 nvme0n1/nvme0n1p4 nvme0n2 nvme0n3; do
+        $BB cat "/sys/block/$n/stat"
+    done | $BB tr -s ' ' | $BB sha256sum
+}
+OTHERS_BEFORE=$(others)
+
+# --- exact partition pins (probe 5001) --------------------------------------
+hex() { $BB dd if="$1" bs=1 skip="$2" count="$3" 2>/dev/null | $BB hexdump -v -e '1/1 "%02x"'; }
+[ "$($BB cat /sys/block/nvme0n1/$P/start)" = 1586917376 ] || stop 'p3 start mismatch'
+[ "$($BB cat /sys/block/nvme0n1/$P/size)" = 356806656 ] || stop 'p3 size mismatch'
+LBS=$($BB cat /sys/block/nvme0n1/queue/logical_block_size)
+[ "$LBS" = 4096 ] || stop "logical block size $LBS, expected 4096"
+E=$((LBS * 2 + 2 * 128))   # GPT entry array starts at LBA 2; p3 is slot 2
+[ "$(hex /dev/nvme0n1 $E 16)" = a2a0d0ebe5b9334487c068b6b72699c7 ] || stop 'p3 GPT type is not Microsoft Basic Data'
+[ "$(hex /dev/nvme0n1 $((E + 16)) 16)" = dba60dea3529cb49a996b982dd646f24 ] || stop 'p3 GPT unique GUID mismatch'
+[ "$(hex /dev/nvme0n1 $((E + 32)) 16)" = 00ced20b00000000ff5b7b0e00000000 ] || stop 'p3 GPT LBA range mismatch'
+[ "$($BB dd if=$DEV bs=1 skip=3 count=8 2>/dev/null)" = "EXFAT   " ] || stop 'p3 is not exFAT'
+[ "$(hex $DEV 100 4)" = af2cdd6a ] || stop 'exFAT serial is not 0x6add2caf'
+# Root directory: heap 1792, root cluster 5, 128 KiB clusters, 4 KiB sectors.
+[ "$(hex $DEV 7733248 12)" = 83056c0069006e0075007800 ] || stop 'exFAT label is not "linux"'
+say "pins OK: p3 start=1586917376 size=356806656 type=EBD0A0A2 guid=EA0DA6DB serial=6add2caf label=linux"
+
+fsck_n() {
+    out=$(/sbin/fsck.exfat -n "$DEV" 2>&1); rc=$?
+    say "fsck.exfat -n ($1) rc=$rc: $(echo "$out" | $BB tail -1 | $BB cut -c1-200)"
+    [ "$rc" -eq 0 ] || stop "exFAT not clean ($1)"
+}
+pstat() { $BB cat /sys/block/nvme0n1/$P/stat | $BB tr -s ' '; }
+fsck_n before
+say "p3 stats before: $(pstat)"
+D=/mnt/linux/wallace-write-test
+up() { $BB cut -d' ' -f1 /proc/uptime; }
+
+if [ "$MODE" = write ]; then
+    $BB mount -t exfat -o rw "$DEV" /mnt/linux || stop 'mount rw failed'
+    [ ! -e "$D" ] || stop "$D already exists; use nvmewrite=verify"
+    $BB mkdir "$D" || stop 'mkdir failed'
+    t0=$(up)
+    $BB dd if=/dev/urandom of="$D/pattern.bin" bs=1M count=1024 conv=fsync 2>/dev/null || stop 'write failed'
+    $BB sync
+    t1=$(up)
+    say "wrote 1073741824 bytes in $t0..$t1 s (uptime)"
+    H=$($BB sha256sum "$D/pattern.bin"); H=${H%% *}
+    echo "$H  pattern.bin" >"$D/pattern.sha256" && $BB sync || stop 'hash file write failed'
+    say "write sha256=$H"
+    $BB umount /mnt/linux || stop 'umount after write failed'
+    fsck_n after-write
+fi
+
+# Read back from the device (read-only mount; page cache is gone after umount).
+$BB mount -t exfat -o ro "$DEV" /mnt/linux || stop 'mount ro failed'
+[ -f "$D/pattern.bin" ] && [ -f "$D/pattern.sha256" ] || stop 'test file missing'
+EXP=$($BB cut -d' ' -f1 "$D/pattern.sha256")
+t0=$(up)
+GOT=$($BB sha256sum "$D/pattern.bin"); GOT=${GOT%% *}
+t1=$(up)
+say "read back 1073741824 bytes in $t0..$t1 s; sha256=$GOT expected=$EXP"
+$BB umount /mnt/linux || stop 'umount after read failed'
+[ "$GOT" = "$EXP" ] || stop 'data mismatch'
+fsck_n final
+say "p3 stats after: $(pstat)"
+[ "$(others)" = "$OTHERS_BEFORE" ] || stop 'a read-only partition or namespace saw I/O'
+say "PASS mode=$MODE bytes=1073741824 sha256=$GOT others_unchanged=yes"
+park
