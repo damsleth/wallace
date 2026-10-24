@@ -21,7 +21,8 @@
     "scripts/t6040-sdroot-fsck.sh": "f6192dbea2d89a72ad4ddbeccc1a3978680be8c07b01485f4d1673955a243c14",
     "scripts/t6040-sdroot-fsck-init": "8fcd4f1d15c99b62897713514fa622c97ecde384d068da535ae76b641cab77f8",
     "scripts/t6040-build-sdroot-fsck-initramfs.sh": "7fe5bf10a772e1a02bd118682c4268b575fc1c1b0476e2fa28e4012a44609e72",
-    "etc/wallace-no.bmap": "606ecd98f83b72983f3cd35976df939dc9c7187283703736a81e89b65aee85a8"
+    "etc/wallace-no.bmap": "606ecd98f83b72983f3cd35976df939dc9c7187283703736a81e89b65aee85a8",
+    "m1n1-sdroot-repair-v4.bin (PROPOSED, console=tty0 last)": "6ae7244e0dba756fa6c28af34a17853397289467d207904ac3729f11fa8a187b"
   },
   "bootargs": "maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel console=ttydc0 rdinit=/init",
   "command": "Minimal /init runs exactly once: T6040_SD_FSCK_APPROVED=SD64 T6040_SD_FSCK_MODE=repair /usr/local/sbin/t6040-sdroot-fsck",
@@ -31,7 +32,8 @@
     "evidence/2026-08-03-t6040-SD-ROOT-persistent-system.md",
     "evidence/2026-08-03-t6040-sdroot-repair-v2-offline-review.md",
     "evidence/2026-08-04-t6040-215-repair-v2-independent-review.md",
-    "evidence/2026-08-04-t6040-rig-blocked-enrolled-object-has-no-proxy.md"
+    "evidence/2026-08-04-t6040-rig-blocked-enrolled-object-has-no-proxy.md",
+    "evidence/2026-10-24-t6040-215-repair-v3-independent-review-and-v4.md"
   ],
   "created": 1785743968,
   "runnable": false,
@@ -39,5 +41,6 @@
   "approved_at": 1785798722,
   "review_blocker": "Independent exact review must verify the repair/check modes, pre-mutation PCI/MMC/nested-root identity and assessment gates, minimal init, pinned package and archive members, automatic-only policy, SD-only DTB scope, complete raw-object manifest, final post-unmount exFAT check, and stop conditions before queue ready. Queue approval must acknowledge the corrected v2 object hash.",
   "reviewed_by": "fable",
-  "ready_at": 1785798722
+  "ready_at": 1785798722,
+  "review_2026_10_24": "claude: independent review of v3 MEMBERS PASS (identity gates, automatic-only repair, SD-only DTB with gP19 only, PMU SPMI/NVMe/WiFi disabled). But v3 bootargs end in console=ttydc0 and FAIL the current image preflight, so v3 must not boot. v4 6ae7244e = identical members with console=tty0 last; two compositions byte-identical; strict verifier + preflight OK. Needs non-claude object-level review of v4 and CJ acknowledgement of the v4 hash before queue ready."
 }

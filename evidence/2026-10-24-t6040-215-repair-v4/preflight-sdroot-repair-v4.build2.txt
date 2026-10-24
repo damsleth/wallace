@@ -1,0 +1,28 @@
+kernel: Image-sd-gl9755
+  PASS  kernel contains pcie-apple
+  PASS  kernel contains macsmc
+  PASS  kernel contains dockchannel-hid
+  PASS  kernel version string readable: Linux version 7.1.3-gcd5da1d058e3-dirty (wallace@t6040-kbu
+initramfs: initramfs-bootstrap-sdroot-fsck-v3.build2.cpio.gz
+  PASS  Norwegian keymap present (etc/wallace-no.bmap)
+  PASS  init loads the keymap (loadkmap call in ./init)
+  PASS  member init
+  PASS  member bin/busybox
+  PASS  member fsck.exfat (SD repair available)
+  PASS  firmware brcmfmac4388c0-pcie.apple,mriya-WLMT-u.bin
+  PASS  firmware brcmbt4388c2-apple,mriya-u.bin
+bootargs: maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused fbcon=font:TER16x32 ignore_loglevel console=ttydc0 console=tty0 rdinit=/init
+  PASS  last console is tty0 (panel keeps /dev/console)
+  PASS  ttydc0 present (serial logging works)
+  PASS  maxcpus=1 (ticket 205 fail-stop limit respected)
+m1n1: m1n1-sdroot-hardened.bin
+  PASS  window-free m1n1 (boots straight through)
+object: m1n1-sdroot-repair-v4.build2.bin
+  PASS  16 KiB aligned (2255 pages, 36945920 bytes)
+  PASS  object embeds ./init
+  PASS  object embeds ./bin/busybox
+  PASS  object embeds ./etc/wallace-no.bmap
+  WARN  object does NOT embed ./sbin/fsck.exfat (no in-place SD repair)
+  PASS  object embeds loadkmap-call-in-init
+
+preflight: OK
