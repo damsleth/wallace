@@ -14,7 +14,7 @@ unambiguously:
 |---|---|
 | SD read/write | reader and persistence proven; fixture needs `fsck.exfat` repair |
 | USB read/write | device mode works; **USB2 host data path DONE 2026-08-19** (108) — dwc3 probes, right xHCI root hubs healthy. VBUS is the sole gap; the tps6598x SPMI PD driver is written and CJ-signed-off (231), attended run staged (305) |
-| NVMe read/write | m1n1 reads stable; Linux asserts at the first CQ wrap; writes unproven |
+| NVMe read/write | **Linux reads work (6001 run 3, 2026-10-24):** 16,384 direct reads through ~256 CQ wraps at `maxcpus=1`, no assert, with the zero-based ANS2 IOQ size; writes unproven (211) |
 | WiFi | works, including DHCP and routed traffic |
 | Bluetooth | `hci0` present and working |
 | Trackpad | **DONE 2026-08-19** (230): finger test PASSED — 37 950 events on `/dev/input/event0` and haptic click works. Daily-image integration remains (301) |
