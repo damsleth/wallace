@@ -513,6 +513,20 @@ if [ "${T6040_TYPEC_PD:-0}" = "1" ]; then
             git apply --check "$wake_patch" || true
             exit 1
         fi
+        # spmi-apple sent ZERO_WRITE as opcode 0x80 plus a data word, so every
+        # SN201202x register select chose register 0 (305 run 7). Use m1n1's
+        # single-word encoding.
+        zw_patch=/out/t6040-spmi-apple-zero-write-encoding.patch
+        if git apply --check "$zw_patch" 2>/dev/null; then
+            git apply "$zw_patch"
+            echo "t6040-spmi-apple-zero-write-encoding.patch applied OK"
+        elif git apply -R --check "$zw_patch" 2>/dev/null; then
+            echo "t6040-spmi-apple-zero-write-encoding.patch already applied"
+        else
+            echo "ERROR: t6040-spmi-apple-zero-write-encoding.patch does not apply:"
+            git apply --check "$zw_patch" || true
+            exit 1
+        fi
     fi
 elif [ "${T6040_TYPEC_PD_WAKEUP:-0}" = "1" ]; then
     echo "ERROR: T6040_TYPEC_PD_WAKEUP=1 requires T6040_TYPEC_PD=1"
@@ -1618,8 +1632,19 @@ if [ "${NVME_IOQ_SIZE:-0}" = "1" ]; then
         -e PCI -e PCI_MSI -e PCIE_APPLE -e PINCTRL_APPLE_GPIO \
         -e MFD_MACSMC -e APPLE_RTKIT -e APPLE_SART -e NVME_APPLE \
         -d SPMI -d NVMEM_APPLE_SPMI -d RTC_DRV_MACSMC
+    # Ticket 5003: the exFAT write test needs a filesystem driver; nothing else.
+    if [ "${NVME_EXFAT:-0}" = "1" ]; then
+        ./scripts/config --file .config -e EXFAT_FS
+    fi
+elif [ "${NVME_EXFAT:-0}" = "1" ]; then
+    echo "ERROR: NVME_EXFAT=1 requires NVME_IOQ_SIZE=1" >&2
+    exit 1
 fi
 make ARCH=arm64 olddefconfig >/dev/null
+if [ "${NVME_EXFAT:-0}" = "1" ]; then
+    echo "== assert exFAT is BUILTIN for the NVMe write test =="
+    grep -q '^CONFIG_EXFAT_FS=y$' .config
+fi
 if [ "${CPUFREQ_ASSERT_AFTER_OLDDEFCONFIG:-0}" = "1" ]; then
     ./scripts/config --file .config \
         -e CPU_FREQ -e ARM_APPLE_SOC_CPUFREQ -e PM_OPP \

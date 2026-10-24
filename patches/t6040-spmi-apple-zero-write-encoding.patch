@@ -1,0 +1,56 @@
+diff --git a/drivers/spmi/spmi-apple-controller.c b/drivers/spmi/spmi-apple-controller.c
+index e00967c..34a31c3 100644
+--- a/drivers/spmi/spmi-apple-controller.c
++++ b/drivers/spmi/spmi-apple-controller.c
+@@ -90,6 +90,38 @@ static int spmi_read_cmd(struct spmi_controller *ctrl, u8 opc, u8 sid,
+ 	return 0;
+ }
+ 
++/* SPMI register-zero-write: the 7-bit payload travels in the opcode. */
++#define APPLE_SPMI_OPC_ZERO_WRITE 0x80
++
++static int apple_spmi_zero_write(struct spmi_controller *ctrl, u8 sid, u8 data)
++{
++	struct apple_spmi *spmi = spmi_controller_get_drvdata(ctrl);
++	u8 opc = APPLE_SPMI_OPC_ZERO_WRITE | (data & 0x7f);
++	u32 rsp;
++	int ret;
++
++	/*
++	 * One command word and no data word: opcode 0x80 | value, with the
++	 * value repeated in bits 31:24, as m1n1 does (proven on J614s hpm2).
++	 * Sending 0x80 plus a separate data word writes 0 instead.
++	 */
++	writel(opc | sid << 8 | BIT(15) | (u32)data << 24,
++	       spmi->regs + SPMI_CMD_REG);
++
++	ret = apple_spmi_wait_rx_not_empty(ctrl);
++	if (ret)
++		return ret;
++
++	rsp = readl(spmi->regs + SPMI_RSP_REG);
++	if ((rsp & 0xff) != opc || ((rsp >> 8) & 0x7f) != sid || !(rsp & BIT(15))) {
++		dev_err(&ctrl->dev, "zero-write to SID %u: unexpected reply 0x%08x\n",
++			sid, rsp);
++		return -EIO;
++	}
++
++	return 0;
++}
++
+ static int spmi_write_cmd(struct spmi_controller *ctrl, u8 opc, u8 sid,
+ 			  u16 saddr, const u8 *buf, size_t len)
+ {
+@@ -98,6 +130,12 @@ static int spmi_write_cmd(struct spmi_controller *ctrl, u8 opc, u8 sid,
+ 	size_t i = 0, j;
+ 	int ret;
+ 
++	if (opc == APPLE_SPMI_OPC_ZERO_WRITE) {
++		if (len != 1 || buf[0] > 0x7f)
++			return -EINVAL;
++		return apple_spmi_zero_write(ctrl, sid, buf[0]);
++	}
++
+ 	writel(spmi_cmd, spmi->regs + SPMI_CMD_REG);
+ 
+ 	while (i < len) {
