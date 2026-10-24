@@ -2,7 +2,7 @@
   "seq": "6001",
   "slug": "nvme-ans2-ioq-size-readonly-run",
   "needs": "rig",
-  "state": "approved",
+  "state": "run3-reads-PASS-formal-checker-blocked-by-devkmsg-ratelimit",
   "track": "nvme",
   "priority": "P1",
   "desc": "One tethered RAM-only maxcpus=1 ANS2 IOQ-size test: 16384 direct reads and byte comparison, no block-device filesystem mounts or disk writes. Wait for CJ M4-ready signal; exact manifest and independent review required. Unique transcript, no retry on fault; no enrollment.",
@@ -25,9 +25,10 @@
     "evidence/2026-10-24-asahi-dev-review.md",
     "evidence/2026-10-24-t6001-run1-gate-parked-three-namespaces.md",
     "evidence/2026-10-24-t6001-gatefix-run2-payload.md",
-    "evidence/2026-10-24-t6001-run2-tester-false-stop.md"
+    "evidence/2026-10-24-t6001-run2-tester-false-stop.md",
+    "evidence/2026-10-24-t6001-run3-16384-reads-no-cq-wrap-assert.md"
   ],
-  "runnable": true,
+  "runnable": false,
   "execution_gate": "CJ will signal M4 ready and waiting for payload; no signal received, no hardware access.",
   "offline_review_by": "/root/nvme_review",
   "offline_review_result": "PASS",
@@ -38,5 +39,6 @@
   "gatefix_2026_10_24": "Run 2 payload: identical Image/DTB/m1n1 to the reviewed 20260920 payload; only /init (91d94421, pins n1=1954210120, n2=6144, n3=262144 sectors, no nvme0n4/nvme1, n2/n3 set ro + stats logged) and the transcript checker (78889c1d, requires the topology line and unchanged aux stats) changed. Initramfs c76063ac, two builds identical. Needs independent delta review, then queue ready.",
   "testerfix_2026_10_24": "Run 3 payload: delta from gatefix manifest 84b0275f is exactly tester source (9372f143) + rebuilt tester (aef24ab9, two builds identical; original source rebuilds the reviewed 0ffb3e55 with the same flags), checker (0481319f), initramfs 524d94c3 (two builds identical). Upper-case tokens (SError, panic, BUG:, Oops:, RTKit: Exception) now case-sensitive. Needs review, then queue ready.",
   "reviewed_by": "sonnet-review",
-  "ready_at": 1792876803
+  "ready_at": 1792876803,
+  "run3_2026_10_24": "16,384 direct reads complete, exit 0, +16384 reads/+524288 sectors, zero writes, aux unchanged, no assert/fault in full dmesg; CQ wrapped ~256 times (previous Linux asserted at first wrap). Formal checker missing the PASS line only because /dev/kmsg ratelimit dropped it (init: 60 lines suppressed); fix = printk.devkmsg=on for a formal re-run."
 }
