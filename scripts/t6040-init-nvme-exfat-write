@@ -89,6 +89,11 @@ E=$((LBS * 2 + 2 * 128))   # GPT entry array starts at LBA 2; p3 is slot 2
 [ "$(hex $DEV 100 4)" = af2cdd6a ] || stop 'exFAT serial is not 0x6add2caf'
 # Root directory: heap 1792, root cluster 5, 128 KiB clusters, 4 KiB sectors.
 [ "$(hex $DEV 7733248 12)" = 83056c0069006e0075007800 ] || stop 'exFAT label is not "linux"'
+if [ "$MODE" = write ]; then
+    bs=$($BB dd if=$DEV bs=512 count=1 2>/dev/null | $BB sha256sum)
+    [ "${bs%% *}" = bb426fe05c2faaf1a3c4d174aed5ed90b69ba1c9771833f02fc5913616cc8ec8 ] ||
+        stop 'p3 boot sector changed since probe 5001'
+fi
 say "pins OK: p3 start=1586917376 size=356806656 type=EBD0A0A2 guid=EA0DA6DB serial=6add2caf label=linux"
 
 fsck_n() {
@@ -97,6 +102,9 @@ fsck_n() {
     [ "$rc" -eq 0 ] || stop "exFAT not clean ($1)"
 }
 pstat() { $BB cat /sys/block/nvme0n1/$P/stat | $BB tr -s ' '; }
+# Field 7 of a block stat line is sectors written.
+wsec() { set -- $($BB cat "$1"); echo "$7"; }
+DISK_W0=$(wsec /sys/block/nvme0n1/stat); P_W0=$(wsec /sys/block/nvme0n1/$P/stat)
 fsck_n before
 say "p3 stats before: $(pstat)"
 D=/mnt/linux/wallace-write-test
@@ -118,7 +126,9 @@ if [ "$MODE" = write ]; then
     fsck_n after-write
 fi
 
-# Read back from the device (read-only mount; page cache is gone after umount).
+# Read back from the device: drop every cached page and buffer first.
+$BB sync
+echo 3 >/proc/sys/vm/drop_caches || stop 'drop_caches failed'
 $BB mount -t exfat -o ro "$DEV" /mnt/linux || stop 'mount ro failed'
 [ -f "$D/pattern.bin" ] && [ -f "$D/pattern.sha256" ] || stop 'test file missing'
 EXP=$($BB cut -d' ' -f1 "$D/pattern.sha256")
@@ -131,5 +141,9 @@ $BB umount /mnt/linux || stop 'umount after read failed'
 fsck_n final
 say "p3 stats after: $(pstat)"
 [ "$(others)" = "$OTHERS_BEFORE" ] || stop 'a read-only partition or namespace saw I/O'
+DISK_DW=$(( $(wsec /sys/block/nvme0n1/stat) - DISK_W0 ))
+P_DW=$(( $(wsec /sys/block/nvme0n1/$P/stat) - P_W0 ))
+say "sectors written: disk=$DISK_DW p3=$P_DW"
+[ "$DISK_DW" = "$P_DW" ] || stop 'writes outside p3 on nvme0n1'
 say "PASS mode=$MODE bytes=1073741824 sha256=$GOT others_unchanged=yes"
 park

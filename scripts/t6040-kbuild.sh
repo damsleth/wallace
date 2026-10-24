@@ -54,9 +54,23 @@ fi
 
 BUILD_DIR="${BUILD_DIR:-/build/linux}"
 
+# KBUILD_CLONE_SRC: optional git mirror on the build VM's native disk. Cloning
+# the shallow /src copies the whole pack over virtiofs (~15 min); a local
+# mirror takes seconds. The tree is still a fresh clone, and the mirror must
+# hold exactly the host branch head or the build stops.
+CLONE_SRC="${KBUILD_CLONE_SRC:-/src}"
+if [ "$CLONE_SRC" != /src ]; then
+    mirror_head=$(git -C "$CLONE_SRC" rev-parse "$BRANCH" 2>/dev/null || true)
+    host_head=$(git -C /src rev-parse "$BRANCH")
+    if [ "$mirror_head" != "$host_head" ]; then
+        echo "ERROR: $CLONE_SRC has $BRANCH at '${mirror_head:-nothing}', host has $host_head" >&2
+        exit 1
+    fi
+    echo "== clone source: $CLONE_SRC ($BRANCH = $mirror_head, matches /src) =="
+fi
 if [ ! -e "$BUILD_DIR/.git" ]; then
     echo "== clone (case-correct checkout) =="
-    git clone --local --shared /src "$BUILD_DIR"
+    git clone --local --shared "$CLONE_SRC" "$BUILD_DIR"
 fi
 cd "$BUILD_DIR"
 # The clone is made ONCE; without a fetch, host-side commits made after it
@@ -527,8 +541,30 @@ if [ "${T6040_TYPEC_PD:-0}" = "1" ]; then
             git apply --check "$zw_patch" || true
             exit 1
         fi
+        # Ticket 5002: R0-only connector-state readbacks (STATUS, MODE,
+        # power state, SYSTEM_CONF, POWER/PD/DATA status, INT_MASK1 readback,
+        # 0x5d, 0x2c) at probe and on every non-zero event, so a bind that
+        # reaches S0 without VBUS can be classified from dmesg. No new
+        # transaction class; Entry 1 unchanged.
+        if [ "${T6040_TYPEC_PD_DIAG:-0}" = "1" ]; then
+            echo "== apply tipd connector-state diagnostic (R0 reads only, ticket 5002) =="
+            diag_patch=/out/t6040-tipd-connector-state-diag.patch
+            if git apply --check "$diag_patch" 2>/dev/null; then
+                git apply "$diag_patch"
+                echo "t6040-tipd-connector-state-diag.patch applied OK"
+            elif git apply -R --check "$diag_patch" 2>/dev/null; then
+                echo "t6040-tipd-connector-state-diag.patch already applied"
+            else
+                echo "ERROR: t6040-tipd-connector-state-diag.patch does not apply:"
+                git apply --check "$diag_patch" || true
+                exit 1
+            fi
+        fi
+    elif [ "${T6040_TYPEC_PD_DIAG:-0}" = "1" ]; then
+        echo "ERROR: T6040_TYPEC_PD_DIAG=1 requires T6040_TYPEC_PD_WAKEUP=1"
+        exit 1
     fi
-elif [ "${T6040_TYPEC_PD_WAKEUP:-0}" = "1" ]; then
+elif [ "${T6040_TYPEC_PD_WAKEUP:-0}" = "1" ] || [ "${T6040_TYPEC_PD_DIAG:-0}" = "1" ]; then
     echo "ERROR: T6040_TYPEC_PD_WAKEUP=1 requires T6040_TYPEC_PD=1"
     exit 1
 fi

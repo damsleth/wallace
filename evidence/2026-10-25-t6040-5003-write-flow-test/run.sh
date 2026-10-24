@@ -7,9 +7,8 @@ run() { # mode
   ( BB=/t/bb/bin/busybox; DEV=$L; P=x; MODE=$1
     say() { echo "  $*"; }; stop() { echo "  STOP: $*"; $BB umount /mnt/linux 2>/dev/null; exit 3; }
     park() { echo "  PARKED"; $BB umount /mnt/linux 2>/dev/null; exit 0; }
-    pstat() { cat /sys/block/${L#/dev/}/stat | tr -s ' '; }
     others() { echo same; }; OTHERS_BEFORE=same
-    . /t/flow.sh; echo "  (fell through)" ); echo "  exit=$?"
+    sed "s#/sys/block/nvme0n1/\$P/stat#/sys/block/${L#/dev/}/stat#g; s#/sys/block/nvme0n1/stat#/sys/block/${L#/dev/}/stat#g" /t/flow.sh > /tmp/flow2.sh; fsck_n() { out=$(/sbin/fsck.exfat -n "$DEV" 2>&1); rc=$?; say "fsck.exfat -n ($1) rc=$rc: $(echo "$out" | tail -1)"; [ $rc -eq 0 ] || stop "exFAT not clean ($1)"; }; . /tmp/flow2.sh; echo "  (fell through)" ); echo "  exit=$?"
 }
 echo "== write"; run write
 echo "== write again (must refuse)"; run write

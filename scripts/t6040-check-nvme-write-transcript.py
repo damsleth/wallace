@@ -12,11 +12,15 @@ a = p.parse_args()
 s = a.transcript.read_text(errors='replace')
 errors = []
 for pattern in (r'assert', r'I/O error', r'timed out', r'timeout:', r'timeout while',
-                r'controller is down', r'crashed', r'translation fault', r'EXFAT-fs.*error'):
+                r'controller is down', r'crashed', r'translation fault', r'EXFAT-fs.*error',
+                r'Reset failure', r'ANS did not'):
     if re.search(pattern, s, re.I): errors.append('stop condition: ' + pattern)
 # Case-sensitive: re.I would match "debug:" and ANS's benign "PANICLOG".
 for pattern in (r'SError', r'panic', r'BUG:', r'Oops:', r'RTKit: Exception', r'NVME-WRITE STOP'):
     if re.search(pattern, s): errors.append('stop condition: ' + pattern)
+dw = re.findall(r'sectors written: disk=(\d+) p3=(\d+)', s)
+if len(dw) != 1 or dw[0][0] != dw[0][1]:
+    errors.append('whole-disk write sectors missing or differ from p3')
 if f'NVME-WRITE mode={a.mode};' not in s:
     errors.append(f'missing mode={a.mode} start line')
 if 'NVME-WRITE pins OK: p3 start=1586917376 size=356806656 type=EBD0A0A2 guid=EA0DA6DB serial=6add2caf label=linux' not in s:
