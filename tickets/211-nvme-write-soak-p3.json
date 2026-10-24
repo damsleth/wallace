@@ -8,14 +8,28 @@
   "desc": "BLOCKED until 206/210 gives a non-asserting NVMe path. Then complete the storage milestone on internal storage: (1) mount /dev/nvme0n1p3 exFAT, write a file, fsync, reboot, verify; (2) raw dd soak to /dev/nvme0n1p3 ONLY with md5 verify. CJ authorized 2026-08-02: writes via the mounted filesystem AND raw writes to p3 only -- NEVER raw writes to /dev/nvme0n1 or any APFS partition. Compare throughput against the SD card (58.2 GiB SDXC, already working) so we know what NVMe actually buys.",
   "author": "claude",
   "deps": [],
-  "hashes": null,
+  "hashes": {
+    "Image": "4fadb8d37808878b5ebcacd652d4f7f3657930dbf54bd66e91a48172cccfafcc",
+    "System.map": "48f2d81d9b4a17c2d60353587dbbb274460be8ba5ed41a6eedd2d5efe5e44344",
+    "config": "1b19dabafc21c9103f3b1e42fc0bb97f3eb3e1f24aef747e1818cec00648e863",
+    "initramfs.cpio.gz": "dccf3de9f1bf9f2dd7f5aedeba3c81405bb04af226005cbf74858c27d2975d00",
+    "m1n1-raw.elf": "5bee616c39fb745393cc4d961fe148189b1c084ef722b51d25c07941cc2a396f",
+    "m1n1.bin": "7de07c714ebe8b26a408ab0a4719d10d2d208eb120eaac7d3aea03f0e36daf2a",
+    "t6040-nvme.dtb": "a96d04a7c37355ed13ac6e4ac90ec319ecc3e755d584ea2b414a7ad80498845b",
+    "bootargs": "maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel printk.devkmsg=on console=ttydc0 console=tty0 nvmewrite=write|verify rdinit=/init (exact boot-dcuart CMDLINE; preflight OK both modes)",
+    "payload_dir": "/Users/damsleth/Code/linux-build-out/nvme-exfat-write-20261025/payload",
+    "notes": "Image = NVME_EXFAT build1 (Mythos config PASS, evidence/2026-10-25-review-5003-nvmeexfat-kernel.md); build2 byte-compare pending at pin time. DTB/m1n1 = 6001 run 3. initramfs-write-a == -b. Preflight OK (proxy-m1n1 WARN expected for chainload). Host deadline 180 s; checker scripts/t6040-check-nvme-write-transcript.py. Run with scripts/t6040-run-nvme-write.sh (enforced 300 s post-handoff deadline -> macvdmtool reboot). Exact-artifact review: Mythos PASS-with-notes, evidence/2026-10-25-review-5003-payload-exact.md.",
+    "stage": "stage 1 exFAT filesystem write test (5003 payload), write + verify"
+  },
   "created": 1785744315,
-  "runnable": false,
+  "runnable": true,
   "approved_by": "cj",
   "approved_at": 1785746507,
   "safety_correction_2026_10_24": "2026-10-24 SAFETY CORRECTION (claude): CJ wiped the old exFAT partition. On the current disk nvme0n1 has only p1-p3, and p3 is presumably the Apple RecoveryOS container, NOT exFAT. Never target a partition by number: any write must first match exFAT label \"linux\" AND GPT type EBD0A0A2-B9E5-4433-87C0-68B6B72699C7 AND the start/size pinned by read-only probe 5001, aborting on mismatch. Raw dd is not part of the plan until CJ re-authorizes it against the new partition.",
   "plan_2026_10_25": "Superseding plan (CJ rebuilt a 64 GB exFAT \"linux\" partition on 2026-10-25; old p3 numbering void). Stage 0 = probe 5001 (read-only) pins label, GPT type EBD0A0A2-B9E5-4433-87C0-68B6B72699C7, start/size. Stage 1 = filesystem write test (ticket 5003 builds it): gate on exactly those pins + 6001 topology/identity gates; mount the partition rw; write a deterministic pattern file (e.g. 1 GiB), fsync, sha256, umount, fsck.exfat -n, remount ro, re-verify; then a fresh-boot re-verify. Stage 2 = raw dd soak ONLY if CJ re-authorizes against the new partition. Prereq satisfied: Linux NVMe reads pass (6001 run 3).",
   "evidence": [
     "evidence/2026-10-24-t6001-run3-16384-reads-no-cq-wrap-assert.md"
-  ]
+  ],
+  "reviewed_by": "mythos",
+  "ready_at": 1792884013
 }

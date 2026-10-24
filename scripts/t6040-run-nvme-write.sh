@@ -14,7 +14,7 @@ P=nvme-exfat-write-20261025/payload
 DEADLINE=${DEADLINE:-300}
 [ ! -e "$RUN" ] || { echo "refusing to reuse $RUN" >&2; exit 2; }
 mkdir -p "$RUN"
-(cd "$O/$P" && shasum -a 256 -c SHA256SUMS) >"$RUN/payload-check.txt" 2>&1 ||
+(cd "$O" && shasum -a 256 -c "$P/SHA256SUMS") >"$RUN/payload-check.txt" 2>&1 ||
     { echo "payload hash check failed" >&2; exit 1; }
 cd "$WALLACE"
 env -u EXTRA_BOOTARGS RIG_AGENT=claude RIG_ENFORCE=1 M1N1DEVICE=/tmp/m1n1 \
