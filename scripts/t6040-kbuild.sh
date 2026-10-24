@@ -1922,7 +1922,10 @@ if [ "${NVME_IOQ_SIZE:-0}" = "1" ]; then
                APPLE_RTKIT APPLE_WATCHDOG APPLE_DOCKCHANNEL_HID APPLE_DOCKCHANNEL_TTY; do
         grep -q "^CONFIG_${sym}=y$" .config || { echo "Missing IOQ-test builtin: $sym" >&2; exit 1; }
     done
-    for sym in SPMI NVMEM_APPLE_SPMI RTC_DRV_MACSMC ARM64_SME; do
+    ioq_forbidden="SPMI NVMEM_APPLE_SPMI RTC_DRV_MACSMC ARM64_SME"
+    # The daily+NVMe union (ticket 5005) keeps the WiFi set's SPMI/RTC.
+    [ "${WIFI:-0}" != "1" ] || ioq_forbidden="ARM64_SME"
+    for sym in $ioq_forbidden; do
         if grep -qE "^CONFIG_${sym}=[ym]$" .config; then
             echo "Forbidden IOQ-test config: $sym" >&2; exit 1
         fi
