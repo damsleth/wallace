@@ -1,0 +1,78 @@
+diff --git a/drivers/nvme/host/apple.c b/drivers/nvme/host/apple.c
+index 1a92a3492b26..9f5e007c1f05 100644
+--- a/drivers/nvme/host/apple.c
++++ b/drivers/nvme/host/apple.c
+@@ -45,6 +45,7 @@
+ #define APPLE_ANS_IOSQ_REGISTER      0x1200
+ #define APPLE_ANS_IOCQ_REGISTER      0x1208
+ #define APPLE_ANS_MAX_PEND_CMDS_CTRL 0x1210
++#define APPLE_ANS_IOQ_SIZE 0x1210
+ 
+ #define APPLE_ANS_BOOT_STATUS	 0x1300
+ #define APPLE_ANS_BOOT_STATUS_OK 0xde71ce55
+@@ -1098,6 +1099,19 @@ static void apple_nvme_reset_work(struct work_struct *work)
+ 		writel(0, anv->mmio_coproc + APPLE_ANS_COPROC_CPU_CONTROL);
+ 	}
+ 
++	/*
++	 * A running coprocessor that this RTKit instance never booted was
++	 * left live by an earlier boot stage (e.g. iBoot through a loader
++	 * without NVMe support). Its endpoint/shared-memory state is not
++	 * ours to wake into; force a stop so the clean boot path below runs.
++	 */
++	if (!apple_rtkit_is_running(anv->rtk) &&
++	    (readl(anv->mmio_coproc + APPLE_ANS_COPROC_CPU_CONTROL) &
++	     APPLE_ANS_COPROC_CPU_CONTROL_RUN)) {
++		dev_warn(anv->dev, "ANS left running by boot stage; forcing clean reset\n");
++		writel(0, anv->mmio_coproc + APPLE_ANS_COPROC_CPU_CONTROL);
++	}
++
+ 	/*
+ 	 * Only do the soft-reset if the CPU is not running, which means either we
+ 	 * or the previous stage shut it down cleanly.
+@@ -1159,10 +1173,11 @@ static void apple_nvme_reset_work(struct work_struct *work)
+ 		//writel(APPLE_ANS_LINEAR_SQ_EN,
+ 		//	anv->mmio_nvme + APPLE_ANS_LINEAR_SQ_CTRL);
+ 
+-		/* Allow as many pending command as possible for both queues */
+-		writel(anv->hw->max_queue_depth
+-			| (anv->hw->max_queue_depth << 16), anv->mmio_nvme
+-			+ APPLE_ANS_MAX_PEND_CMDS_CTRL);
++		/* On older ANS this register limits pending commands. */
++		if (!anv->hw->need_ioq_register)
++			writel(anv->hw->max_queue_depth
++				| (anv->hw->max_queue_depth << 16), anv->mmio_nvme
++				+ APPLE_ANS_MAX_PEND_CMDS_CTRL);
+ 
+ 		/* Setup the NVMMU for the maximum admin and IO queue depth */
+ 		writel(anv->hw->max_queue_depth - 1,
+@@ -1237,6 +1252,10 @@ static void apple_nvme_reset_work(struct work_struct *work)
+ 			anv->mmio_nvme + APPLE_ANS_IOCQ_REGISTER);
+ 		writeq(anv->ioq.sq_dma_addr,
+ 			anv->mmio_nvme + APPLE_ANS_IOSQ_REGISTER);
++		/* ANS2 ignores Create Queue qsize; 0x1210 is zero-based IOQ size. */
++		writel((anv->hw->max_queue_depth - 1)
++			| ((anv->hw->max_queue_depth - 1) << 16),
++			anv->mmio_nvme + APPLE_ANS_IOQ_SIZE);
+ 	}
+ 	nr_io_queues = 1;
+ 	//ret = nvme_set_queue_count(&anv->ctrl, &nr_io_queues);
+ .../devicetree/bindings/arm/apple/apple,pmgr.yaml  |   1 +
+ .../devicetree/bindings/iommu/apple,sart.yaml      |  29 ++-
+ .../devicetree/bindings/mailbox/apple,mailbox.yaml |   1 +
+ .../devicetree/bindings/nvme/apple,nvme-ans.yaml   |   1 +
+ .../bindings/power/apple,pmgr-pwrstate.yaml        |   1 +
+ MAINTAINERS                                        |   2 +
+ arch/arm64/boot/dts/apple/t6040-pmgr.dtsi          |   7 +
+ arch/arm64/boot/dts/apple/t6040.dtsi               | 188 +++++++++++++++++--
+ drivers/cpufreq/apple-soc-cpufreq.c                |   2 +-
+ .../apple-dockchannel-hid/apple_dockchannel_hid.c  | 150 ++++++++++++++-
+ drivers/mailbox/apple-dockchannel.c                | 208 ++++++++++++++++++---
+ .../broadcom/brcm80211/brcmfmac/fwil_types.h       |   2 +-
+ drivers/nvme/host/apple.c                          |  27 ++-
+ drivers/pmdomain/apple/pmgr-pwrstate.c             |  13 +-
+ drivers/soc/apple/sart.c                           | 175 +++++++++++++++--
+ drivers/tty/Kconfig                                |   9 +
+ drivers/tty/Makefile                               |   1 +
+ include/linux/mailbox/apple-dockchannel.h          |  24 +++
+ 18 files changed, 779 insertions(+), 62 deletions(-)

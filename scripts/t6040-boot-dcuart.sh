@@ -82,9 +82,11 @@ BOOT_IDLE="${BOOT_IDLE:-nop}"
 CMDLINE="maxcpus=$BOOT_MAXCPUS idle=$BOOT_IDLE nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 $KERNEL_LOG_ARGS${EXTRA_BOOTARGS:+ $EXTRA_BOOTARGS} rdinit=/init"
 
 echo "== chainload fresh m1n1 over $M1 =="
-CHAINLOAD_LOG="$OUT/dcuart-chainload.log"
+LOG_DIR="${LOG_DIR:-$OUT}"
+mkdir -p "$LOG_DIR"
+CHAINLOAD_LOG="$LOG_DIR/dcuart-chainload.log"
 chainloaded=0
-for attempt in 1 2; do
+for ((attempt=1; attempt<=${CHAINLOAD_ATTEMPTS:-2}; attempt++)); do
     if M1N1DEVICE=$M1 timeout 180 "$PY" proxyclient/tools/chainload.py \
         -r "$M1N1_BIN" > "$CHAINLOAD_LOG" 2>&1; then
         chainloaded=1
@@ -95,26 +97,26 @@ for attempt in 1 2; do
     tail -12 "$CHAINLOAD_LOG"
 done
 if [ "$chainloaded" -ne 1 ]; then
-    CONLOG="$OUT/dcuart-console.log"
+    CONLOG="$LOG_DIR/dcuart-console.log"
     attach_reader
     exit 1
 fi
 
 echo "== upload kernel + hand off =="
-BOOTLOG="$OUT/dcuart-boot.log"
+BOOTLOG="$LOG_DIR/dcuart-boot.log"
 M1N1DEVICE=$M1 timeout 300 "$PY" proxyclient/tools/linux.py \
     "$OUT/$IMAGE" "$OUT/$DTB" "$OUT/$INITRAMFS" --compression none \
     --no-tty -b "$CMDLINE" 2>&1 | tee "$BOOTLOG" | tail -8 || true
 
 if ! grep -q "Ready to boot" "$BOOTLOG"; then
     echo "ERROR: linux.py failed before the kernel handoff"
-    CONLOG="$OUT/dcuart-console.log"
+    CONLOG="$LOG_DIR/dcuart-console.log"
     attach_reader
     exit 1
 fi
 
 echo "== handoff done; attaching raw console reader to $M1 =="
-CONLOG="$OUT/dcuart-console.log"
+CONLOG="$LOG_DIR/dcuart-console.log"
 : > "$CONLOG"
 attach_reader
 echo "== first ${BOOT_WAIT:-30}s of Linux dockchannel output =="

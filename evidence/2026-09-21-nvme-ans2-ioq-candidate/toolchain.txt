@@ -1,0 +1,13 @@
+bc	1.07.1-3
+binutils	2.40-2
+bison	2:3.8.2+dfsg-1+b1
+build-essential	12.9
+cpio	2.13+dfsg-7.1
+flex	2.6.4-8.2
+gcc	4:12.2.0-3
+git	1:2.39.5-0+deb12u3
+kmod	30+20221128-1
+libelf-dev:arm64	0.188-2.1
+libssl-dev:arm64	3.0.20-1~deb12u2
+make	4.3-4.1
+python3	3.11.2-1+b1

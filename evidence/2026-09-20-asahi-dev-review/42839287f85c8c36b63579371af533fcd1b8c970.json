@@ -1,0 +1,44 @@
+{
+  "commit": {
+    "id": "42839287f85c8c36b63579371af533fcd1b8c970",
+    "short_id": "42839287",
+    "created_at": "2026-09-06T20:33:06.000+02:00",
+    "parent_ids": [
+      "9dbada7ebff2bb68f4f1e44450c728b86805703b"
+    ],
+    "title": "nvme: apple: add t8132 (M4) ANS2 NVMe support",
+    "message": "nvme: apple: add t8132 (M4) ANS2 NVMe support\n\nAdd support for ANS2 NVMe on the Apple t8132 (M4) SoC.\n\nThis variant requires the IO queues to be registered using additional\nMMIO writes. The qsize of the create_{cq,sq} command is now ignored, and\ninstead a write to mmio_nvme+0x1210 (which was previously known as\nAPPLE_ANS_MAX_PEND_CMDS_CTRL) sets the IO queue sizes.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+    "author_name": "Yureka Lilian",
+    "author_email": "yureka@cyberchaos.dev",
+    "authored_date": "2026-08-11T22:41:25.000+02:00",
+    "committer_name": "Yureka Lilian",
+    "committer_email": "yureka@cyberchaos.dev",
+    "committed_date": "2026-09-06T20:33:06.000+02:00",
+    "trailers": {},
+    "extended_trailers": {},
+    "web_url": "https://cyberchaos.dev/yuka/linux/-/commit/42839287f85c8c36b63579371af533fcd1b8c970",
+    "stats": {
+      "additions": 30,
+      "deletions": 4,
+      "total": 34
+    },
+    "status": null,
+    "project_id": 256,
+    "last_pipeline": null
+  },
+  "diff": [
+    {
+      "diff": "@@ -42,7 +42,11 @@\n #define APPLE_ANS_ACQ_DB  0x1004\n #define APPLE_ANS_IOCQ_DB 0x100c\n \n-#define APPLE_ANS_MAX_PEND_CMDS_CTRL 0x1210\n+#define APPLE_ANS_T8132_IOQ_CMDS 0x1200\n+#define APPLE_ANS_T8132_IOQ_CQES 0x1208\n+#define APPLE_ANS_T8132_IOQ_SIZE 0x1210\n+\n+#define APPLE_ANS_T8103_MAX_PEND_CMDS_CTRL 0x1210\n \n #define APPLE_ANS_BOOT_STATUS\t 0x1300\n #define APPLE_ANS_BOOT_STATUS_OK 0xde71ce55\n@@ -184,6 +188,7 @@ struct apple_nvme_iod {\n \n struct apple_nvme_hw {\n \tbool has_lsq_nvmmu;\n+\tbool needs_ioq_register;\n \tu32 max_queue_depth;\n };\n \n@@ -1133,9 +1138,11 @@ static void apple_nvme_reset_work(struct work_struct *work)\n \t\t\tanv->mmio_nvme + APPLE_ANS_LINEAR_SQ_CTRL);\n \n \t\t/* Allow as many pending command as possible for both queues */\n-\t\twritel(anv->hw->max_queue_depth\n-\t\t\t| (anv->hw->max_queue_depth << 16), anv->mmio_nvme\n-\t\t\t+ APPLE_ANS_MAX_PEND_CMDS_CTRL);\n+\t\tif (!anv->hw->needs_ioq_register) {\n+\t\t\twritel(anv->hw->max_queue_depth\n+\t\t\t\t| (anv->hw->max_queue_depth << 16), anv->mmio_nvme\n+\t\t\t\t+ APPLE_ANS_T8103_MAX_PEND_CMDS_CTRL);\n+\t\t}\n \n \t\t/* Setup the NVMMU for the maximum admin and IO queue depth */\n \t\twritel(anv->hw->max_queue_depth - 1,\n@@ -1190,6 +1197,16 @@ static void apple_nvme_reset_work(struct work_struct *work)\n \tif (ret)\n \t\tgoto out_remove_cq;\n \n+\tif (anv->hw->needs_ioq_register) {\n+\t\twriteq(anv->ioq.cq_dma_addr,\n+\t\t\tanv->mmio_nvme + APPLE_ANS_T8132_IOQ_CQES);\n+\t\twriteq(anv->ioq.sq_dma_addr,\n+\t\t\tanv->mmio_nvme + APPLE_ANS_T8132_IOQ_CMDS);\n+\t\twritel((anv->hw->max_queue_depth - 1)\n+\t\t\t| ((anv->hw->max_queue_depth - 1) << 16), anv->mmio_nvme\n+\t\t\t+ APPLE_ANS_T8132_IOQ_SIZE);\n+\t}\n+\n \tapple_nvme_init_queue(&anv->ioq);\n \tnr_io_queues = 1;\n \tret = nvme_set_queue_count(&anv->ctrl, &nr_io_queues);\n@@ -1699,17 +1716,26 @@ static DEFINE_SIMPLE_DEV_PM_OPS(apple_nvme_pm_ops, apple_nvme_suspend,\n \n static const struct apple_nvme_hw apple_nvme_t8015_hw = {\n \t.has_lsq_nvmmu = false,\n+\t.needs_ioq_register = false,\n \t.max_queue_depth = 16,\n };\n \n static const struct apple_nvme_hw apple_nvme_t8103_hw = {\n \t.has_lsq_nvmmu = true,\n+\t.needs_ioq_register = false,\n+\t.max_queue_depth = 64,\n+};\n+\n+static const struct apple_nvme_hw apple_nvme_t8132_hw = {\n+\t.has_lsq_nvmmu = true,\n+\t.needs_ioq_register = true,\n \t.max_queue_depth = 64,\n };\n \n static const struct of_device_id apple_nvme_of_match[] = {\n \t{ .compatible = \"apple,t8015-nvme-ans2\", .data = &apple_nvme_t8015_hw },\n \t{ .compatible = \"apple,t8103-nvme-ans2\", .data = &apple_nvme_t8103_hw },\n+\t{ .compatible = \"apple,t8132-nvme-ans2\", .data = &apple_nvme_t8132_hw },\n \t{ .compatible = \"apple,nvme-ans2\", .data = &apple_nvme_t8103_hw },\n \t{},\n };\n",
+      "collapsed": false,
+      "too_large": false,
+      "new_path": "drivers/nvme/host/apple.c",
+      "old_path": "drivers/nvme/host/apple.c",
+      "a_mode": "100644",
+      "b_mode": "100644",
+      "new_file": false,
+      "renamed_file": false,
+      "deleted_file": false,
+      "generated_file": null
+    }
+  ]
+}

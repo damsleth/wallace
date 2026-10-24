@@ -1,0 +1,203 @@
+{
+  "scope": "2026-08-19 through partial 2026-09-20; August 18 absent",
+  "logs": [
+    {
+      "file": ".tmp/logs/asahi-dev-2026-08-19.html",
+      "sha256": "18ab71ed5ab12ff65c0cf6a2b29f51b7b75207430da90af443696a992af1cc35",
+      "messages": 120,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-08-20.html",
+      "sha256": "8b6d4bb856159631cc1447303284a565daed74c6da44a5225ab9bab08282b062",
+      "messages": 58,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-08-21.html",
+      "sha256": "3759f4473236fb72207c141eb23076c7c67afcfcaa590e35df7f73e56fcf27ac",
+      "messages": 152,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-08-22.html",
+      "sha256": "d687f101024bb30d41bcf01d0260ea6bd217ac8a351bd30ba1997da9e18fcd80",
+      "messages": 18,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-08-23.html",
+      "sha256": "27f8159176795b5619e04ed03870093bcb57b862a903a6df9724b04800e41611",
+      "messages": 43,
+      "actions": 2
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-08-24.html",
+      "sha256": "ca5275d74f374b8ad732c7537f6c6135ba0341095753aa731ac03df6e9ae5315",
+      "messages": 95,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-08-25.html",
+      "sha256": "d6442fffdbc001067cc3bcf251913c991ac4f45da1eee09d1132c69c3f3f5a7f",
+      "messages": 123,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-08-26.html",
+      "sha256": "516b236e4c8aabda03c817917858c6ea4089b556e2acaf53a33150dce4f94bbe",
+      "messages": 20,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-08-27.html",
+      "sha256": "46cb10602c130576d64c6e7224f735fb5662f81372d74a6bb81af6f40e9f0530",
+      "messages": 133,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-08-28.html",
+      "sha256": "f87562111284a22037734b3ed306e3771a1d983d343024fce8144a77e650e2da",
+      "messages": 178,
+      "actions": 5
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-08-29.html",
+      "sha256": "8845ea8ecaeed618379285f7e3a1f5e9d67b508c9fa6a95d9cffdf142c9be630",
+      "messages": 146,
+      "actions": 1
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-08-30.html",
+      "sha256": "a15319255c8f6c8cb37fa41e81b08286ab71967aefb88045ec478de66209f1e7",
+      "messages": 127,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-08-31.html",
+      "sha256": "cd80a29620289e46e086f96cc477a8e82989b979fdc7236931930785b9fe7126",
+      "messages": 75,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-09-01.html",
+      "sha256": "6359712519079a9dc521d87a79eaf0cd9b4e1d121e57e6b814b8e35d6104d108",
+      "messages": 166,
+      "actions": 2
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-09-02.html",
+      "sha256": "9387f251288f0acbe3fb1a4f948fee606c9d25781ff035236a9181a4ec5f921c",
+      "messages": 45,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-09-03.html",
+      "sha256": "b3fb9da51b569599b6500b242f8523432a9c93599f8494c80e21985d209d2ad5",
+      "messages": 125,
+      "actions": 1
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-09-04.html",
+      "sha256": "c450e570ae451eecb834117b3142764805cd33a1eb16eba0696bb1b7ad3b2e24",
+      "messages": 60,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-09-05.html",
+      "sha256": "9f4dad47ac3bce2cc9b353f2b7385bf81cee9ef176a7b232cdaf11149a53cdf0",
+      "messages": 36,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-09-06.html",
+      "sha256": "142a6c134c4f05cd64a8989aae03b88e5c57828166780e1d85d22ab1b3f24ed3",
+      "messages": 84,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-09-07.html",
+      "sha256": "a5eaeeeb5d93b270ea94d38e0a5588350e18ddfaa88fb95f5f4783368b3e65ca",
+      "messages": 3,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-09-08.html",
+      "sha256": "7eb2754811817a2d80f2ed9c9cde8f8275b19efb2d8a97e8c275fd7df3d7d078",
+      "messages": 160,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-09-09.html",
+      "sha256": "84bd7e1b5787412469b9ec5fb0fa6edbe7ba9c256fc7fcd2aaffd1fe292590be",
+      "messages": 53,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-09-10.html",
+      "sha256": "07d9ab23d41c752168c91d7b4fd2c3536289426988e3d0b9d262cd24ec9318c8",
+      "messages": 37,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-09-11.html",
+      "sha256": "e7557ed6052354c131a83236f5d7f488f625e7bc1cddaeb8cc44bd36efcec88a",
+      "messages": 62,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-09-12.html",
+      "sha256": "41538878b22e3740f9d4691c15379ec9b168ebfa02652f7193566a0d7b6cf358",
+      "messages": 9,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-09-13.html",
+      "sha256": "80c6c5af0dbeb073862433969cd2712b3242a5876cd5b3a4b3c976c12ea4a30b",
+      "messages": 21,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-09-14.html",
+      "sha256": "bbf7dd2160e0ea97442a63d3733fabc2b2e2c1b8fa2babf5523d58dacd3d66eb",
+      "messages": 9,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-09-15.html",
+      "sha256": "da1a62003d27a3a54341bcbf47fa48da2b9f6a31c4eb4007ecfe52ebd1832f16",
+      "messages": 40,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-09-16.html",
+      "sha256": "34da39f7d05b35d6acd2763387758f432d90d80a1279c3189f5d4589008ac3e9",
+      "messages": 172,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-09-17.html",
+      "sha256": "416db008053182a6d4c204501db11a0e9047068a2a8f99832e328a55012f009b",
+      "messages": 28,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-09-18.html",
+      "sha256": "f0764274b96858f5141e81700b1321ccdc2f1136c506e68b5cd9a11cd4b427f0",
+      "messages": 134,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-09-19.html",
+      "sha256": "d8b79c7d410f77807d9602f9305b86a506a3b604192b027ea24c28188a1aedaa",
+      "messages": 191,
+      "actions": 0
+    },
+    {
+      "file": ".tmp/logs/asahi-dev-2026-09-20.html",
+      "sha256": "fbdd6ce6046fcfb3d1e392060df1f1480b03b010047a8c1a5059cca4b8a7088b",
+      "messages": 49,
+      "actions": 0
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+kernel: ../linux-build-out/nvme-ioq-20260920/payload/Image
+  [32mPASS[0m  kernel contains pcie-apple
+  [32mPASS[0m  kernel contains macsmc
+  [32mPASS[0m  kernel contains dockchannel-hid
+  [32mPASS[0m  kernel version string readable: Linux version 7.1.3-g4f2429104009-dirty (wallace@t6040-kbu
+initramfs: ../linux-build-out/nvme-ioq-20260920/payload/initramfs.cpio.gz
+  [32mPASS[0m  Norwegian keymap present (etc/wallace-no.bmap)
+  [32mPASS[0m  init loads the keymap (loadkmap call in ./init)
+  [32mPASS[0m  member init
+  [32mPASS[0m  member bin/busybox
+  [32mPASS[0m  member fsck.exfat (SD repair available)
+  [32mPASS[0m  firmware brcmfmac4388c0-pcie.apple,mriya-WLMT-u.bin
+  [32mPASS[0m  firmware brcmbt4388c2-apple,mriya-u.bin
+bootargs: maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel console=ttydc0 console=tty0 rdinit=/init
+  [32mPASS[0m  last console is tty0 (panel keeps /dev/console)
+  [32mPASS[0m  ttydc0 present (serial logging works)
+  [32mPASS[0m  maxcpus=1 (ticket 205 fail-stop limit respected)
+m1n1: ../linux-build-out/nvme-ioq-20260920/payload/m1n1.bin
+  [32mPASS[0m  proxy-enabled m1n1 for tethered split payload (not an enrolled object)
+
+preflight: OK

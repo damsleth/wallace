@@ -1,0 +1,26 @@
+{
+  "seq": "6000",
+  "slug": "nvme-ans2-ioq-size-candidate",
+  "needs": "offline",
+  "state": "done",
+  "track": "nvme",
+  "priority": "P1",
+  "desc": "Build and independently review RAM-only read-only ANS2 zero-based IO queue-size candidate; hardware run waits for CJ readiness",
+  "author": "astra",
+  "deps": [],
+  "hashes": {
+    "image": "6eef9eef130d805d71e2800f63c58813979041ee7589eb5d90116340bcd3bb7d",
+    "dtb": "a96d04a7c37355ed13ac6e4ac90ec319ecc3e755d584ea2b414a7ad80498845b",
+    "initramfs": "38a7d90ad8dd58e703eec56437fff486f842b95ecd20fe2605b1658d9cafe707"
+  },
+  "created": 1789932810,
+  "reviewed_by": "/root/nvme_review",
+  "manifest_sha256": "14ba160062bb75b9a234b20ab34874304c75ab75f0fc2f87c8fc49e32cfb10b0",
+  "evidence": [
+    "evidence/2026-09-21-nvme-ans2-ioq-candidate.md",
+    "evidence/2026-09-21-nvme-ans2-ioq-candidate/manifest.json",
+    "evidence/2026-09-21-nvme-ans2-ioq-candidate/independent-review.json"
+  ],
+  "result": "PASS: two clean byte-identical kernel builds, paired identical initramfs, preflight and independent exact review complete. No hardware run.",
+  "done_at": 1790063004
+}

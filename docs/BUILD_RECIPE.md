@@ -377,3 +377,53 @@ damage: **`cat ~/file` piped through `bat` injects ANSI colour codes and
 box-drawing characters**, which corrupted a config being written to the machine
 over the serial console. If a heredoc arrives mangled, suspect a pager alias and
 use `command cat`.
+
+### Isolated ANS2 IOQ-size build (2026-09-20/21)
+
+- **Container overlay nearly full:** preserve old artifacts; use a mounted
+  case-sensitive APFS sparse image under linux-build-out. Verify the container
+  sees distinct `Case`/`case` inodes before checkout. Each build gets a fresh
+  source/output directory on that volume; no objects copied between builds.
+- **`git clone --local --shared` copies a large pack anyway:** the source is
+  shallow and Git ignores local sharing for this clone form. For this offline
+  build, initialize a fresh repository, point its object alternates at the
+  read-only `/src/.git/objects`, copy the shallow boundary, and check out the
+  exact source HEAD. `BUILD_WORKTREE=1` verifies HEAD before applying patches.
+  This shares immutable source objects only, never compiled output.
+- **Global `/out` publications can collide:** stage the canonical harness and
+  patches inside the experiment directory. Retain both the canonical harness
+  and a derived copy with literal `/out` paths relocated into that staging
+  directory. Hash both; set a distinct artifact suffix for each clean build.
+- **Tethered proxy payloads intentionally wait for a proxy:** use preflight
+  `--proxy-payload` for split Image/DTB/initramfs plus the chainloaded m1n1.
+  This flag rejects enrolled `--object` and `--stage2-loader` combinations;
+  the daily embedded-image window-free rule is unchanged.
+- The candidate uses `NVME_IOQ_SIZE=1` with final built-in/disabled config
+  assertions. The modern crashlog decoder is excluded: review found that its
+  local section checks do not fix the legacy parser's outer bounds checks.
+  Decoder hardening remains a separate task; preserve the raw console on failure.
+
+- **APT says an InRelease is not valid yet:** VM time can lag the repository
+  timestamp. Do not turn off APT date validation. For repeat builds with the
+  existing toolchain, `KBUILD_SKIP_DEPS=1` verifies all required packages through
+  dpkg before skipping refresh/install; otherwise correct the VM clock first.
+
+- **Shared-filesystem builds report `Too many open files`:** this recurred
+  after restarting the VM; reducing jobs did not resolve it. Preserve the failed
+  logs and build in native Linux storage, not the host APFS/virtiofs directory.
+  The build VM disk was grown from 60 to 80 GiB to keep prior builds intact.
+  Do not count an interrupted/incremental retry as the second clean build.
+  Compare the final Image/System.map/config/DTB bytes with the first build.
+- **Build VM clock lags after host sleep:** restart the idle build VM before a
+  fresh build. A machine launched under a short-lived command session may be
+  reaped when that session closes, even with nohup. Start the VM using a
+  detached session (`subprocess.Popen(..., start_new_session=True)`) and wait
+  for an actual connection before using the container. This is build-host
+  process handling, not a target-device operation.
+
+- **`podman machine set --disk-size 80` enlarges the disk but not this existing
+  CoreOS root partition:** after verifying the build VM's `/dev/vda4` is its
+  final XFS partition, grow it with `growpart /dev/vda 4`, then run
+  `xfs_growfs /var` inside the build VM. `/sysroot` is a read-only mount and
+  rejects growth; `/var` is the writable mount of the same filesystem. Confirm
+  `df` inside kbuild shows the new capacity before beginning a fresh checkout.

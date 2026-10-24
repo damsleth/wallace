@@ -39,9 +39,18 @@ APPLE=arch/arm64/boot/dts/apple
 
 echo "== deps =="
 export DEBIAN_FRONTEND=noninteractive
-apt-get update -qq
-apt-get install -y -qq build-essential bc bison flex libssl-dev libelf-dev \
-    python3 cpio kmod git >/dev/null
+if [ "${KBUILD_SKIP_DEPS:-0}" = 1 ]; then
+    # Reuse a verified toolchain for the second reproducibility build.
+    for package in build-essential bc bison flex libssl-dev libelf-dev python3 cpio kmod git; do
+        dpkg-query -W -f='${Status}' "$package" | grep -qx 'install ok installed' || {
+            echo "Missing build dependency: $package" >&2; exit 1;
+        }
+    done
+else
+    apt-get update -qq
+    apt-get install -y -qq build-essential bc bison flex libssl-dev libelf-dev \
+        python3 cpio kmod git >/dev/null
+fi
 
 BUILD_DIR="${BUILD_DIR:-/build/linux}"
 
@@ -388,6 +397,12 @@ if [ -f /out/t6040-nvme-apple-force-clean-ans-boot.patch ]; then
         echo "ERROR: t6040-nvme-apple-force-clean-ans-boot.patch does not apply" >&2
         exit 1
     fi
+fi
+# Opt-in read-only ANS2 queue-size experiment; no change to daily builds.
+if [ "${NVME_IOQ_SIZE:-0}" = "1" ]; then
+    [ "${NVME:-0}" = 1 ] || { echo "NVME_IOQ_SIZE requires NVME=1" >&2; exit 1; }
+    git apply --check /out/t6040-nvme-ans2-ioq-size.patch
+    git apply /out/t6040-nvme-ans2-ioq-size.patch
 fi
 if [ "${NVME_THREADED_IRQ:-0}" = "1" ]; then
     echo "== apply Apple NVMe threaded-IRQ discriminator =="
@@ -1576,6 +1591,14 @@ if [ "${T6040_WIFI_FW_BUILTIN:-0}" = "1" ]; then
         --set-str EXTRA_FIRMWARE "$wifi_fw_list" \
         --set-str EXTRA_FIRMWARE_DIR "$wifi_fw_root"
 fi
+if [ "${NVME_IOQ_SIZE:-0}" = "1" ]; then
+    # Marker-complete diagnostic kernel; DT keeps unrelated endpoints disabled.
+    ./scripts/config --file .config \
+        -e ARM64_16K_PAGES -d ARM64_4K_PAGES \
+        -e PCI -e PCI_MSI -e PCIE_APPLE -e PINCTRL_APPLE_GPIO \
+        -e MFD_MACSMC -e APPLE_RTKIT -e APPLE_SART -e NVME_APPLE \
+        -d SPMI -d NVMEM_APPLE_SPMI -d RTC_DRV_MACSMC
+fi
 make ARCH=arm64 olddefconfig >/dev/null
 if [ "${CPUFREQ_ASSERT_AFTER_OLDDEFCONFIG:-0}" = "1" ]; then
     ./scripts/config --file .config \
@@ -1788,6 +1811,18 @@ if [ "${TYPEC_PD_ASSERT_AFTER_OLDDEFCONFIG:-0}" = "1" ]; then
         echo "  TYPEC PD WARN: CONFIG_SPMI_APPLE not builtin -- driver compiles but has no SPMI bus to bind"
 fi
 grep -qE "CONFIG_ARM64_SME=y" .config && echo "WARN: SME still enabled!" || echo "SME disabled OK"
+
+if [ "${NVME_IOQ_SIZE:-0}" = "1" ]; then
+    for sym in ARM64_16K_PAGES PCIE_APPLE MFD_MACSMC NVME_APPLE APPLE_SART \
+               APPLE_RTKIT APPLE_WATCHDOG APPLE_DOCKCHANNEL_HID APPLE_DOCKCHANNEL_TTY; do
+        grep -q "^CONFIG_${sym}=y$" .config || { echo "Missing IOQ-test builtin: $sym" >&2; exit 1; }
+    done
+    for sym in SPMI NVMEM_APPLE_SPMI RTC_DRV_MACSMC ARM64_SME; do
+        if grep -qE "^CONFIG_${sym}=[ym]$" .config; then
+            echo "Forbidden IOQ-test config: $sym" >&2; exit 1
+        fi
+    done
+fi
 
 NPROC="${NPROC:-$(nproc)}"
 echo "== build parallelism: $NPROC job(s) =="

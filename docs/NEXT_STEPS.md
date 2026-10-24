@@ -1,6 +1,6 @@
 # T6040 Linux bring-up — next steps
 
-Current as of 2026-08-19. This file states priorities and stop conditions.
+Current as of 2026-09-22 (hardware baseline unchanged since 2026-08-19). This file states priorities and stop conditions.
 Exact work items, hashes, dependencies, and approval state live in
 `tickets/*.json`.
 
@@ -30,6 +30,24 @@ Standing constraints for autonomous work:
   partition on the internal SSD may be written (CJ, 2026-08-03).
 - SD repair is a real `fsck.exfat`, not clearing the dirty flag (CJ, same).
 - Chainload rather than enroll; the always-proxy rollback object stays enrolled.
+
+## Immediate experiment: ANS2 queue-size contract
+
+CJ confirmed no firmware, enrolled-loader, or SD-fixture changes since August 19.
+The [August–September IRC review](../evidence/2026-09-20-asahi-dev-review.md)
+identified a concrete NVMe mismatch: the local Linux driver writes 64 into the
+ANS2 zero-based IOQ-size fields at 0x1210, while allocating/wrapping 64 entries.
+The upstream ANS2 implementation writes 63 after registering the queue bases.
+This is a **candidate explanation**, not a hardware-validated fix.
+
+Ticket 6000 is complete: two clean byte-identical builds, preflight and
+independent exact-artifact review all pass;
+[exact payload and run plan](../evidence/2026-09-21-nvme-ans2-ioq-candidate.md).
+Ticket 6001 is proposed for a RAM-only, `maxcpus=1`, read-only DebugUSB test with
+16,384 direct 16 KiB reads, repeated-data comparison and device-counter checks.
+CJ asked to build and get ready, and will signal when the M4 is waiting for
+its payload. No rig access until then; no enrollment, block-device filesystem mounts or
+NVMe writes. SD/USB/trackpad integration and SMP work remain open as below.
 
 ## 1. Characterise and report the MM/SMP copy race
 

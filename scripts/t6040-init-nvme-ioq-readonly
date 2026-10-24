@@ -1,0 +1,52 @@
+#!/bin/busybox sh
+# RAM-only NVMe queue-wrap test. No automount, swap, udev or disk fsck.
+BB=/bin/busybox
+PATH=/bin:/sbin
+export PATH
+early_stop() { echo "NVME-READONLY STOP: $*"; while :; do $BB sleep 60; done; }
+$BB mount -t proc proc /proc || early_stop proc
+$BB mount -t sysfs sysfs /sys || early_stop sysfs
+$BB mount -t devtmpfs devtmpfs /dev || early_stop devtmpfs
+$BB mkdir -p /run || early_stop run-directory
+$BB mount -t tmpfs tmpfs /run || early_stop tmpfs
+# Keyboard must be configured before either console can get a shell.
+if ! $BB loadkmap </etc/wallace-no.bmap >/dev/tty0; then
+    echo 'NVME-READONLY STOP: Norwegian keymap failed' >/dev/kmsg
+    while :; do $BB sleep 60; done
+fi
+say() { echo "NVME-READONLY $*" >/dev/kmsg; }
+park() {
+    say 'PARKED: no further automated storage operations; preserve transcript before recovery'
+    # These are operator rescue shells, not an automatic test retry.
+    $BB setsid -c $BB sh -i </dev/ttydc0 >/dev/ttydc0 2>&1 &
+    while :; do $BB setsid -c $BB sh -i </dev/tty1 >/dev/tty1 2>&1; $BB sleep 1; done
+}
+if [ -c /dev/watchdog0 ]; then
+    $BB watchdog -T 30 -t 10 /dev/watchdog0 &
+else
+    say 'STOP: watchdog missing'; park
+fi
+say 'RAM-only diagnostic; maxcpus=1; no block-device filesystem will be mounted'
+$BB cat /proc/cmdline >/dev/kmsg
+# No second namespace or unrelated disk is expected in this DT fixture.
+i=0
+while [ ! -b /dev/nvme0n1 ] && [ "$i" -lt 30 ]; do $BB sleep 1; i=$((i+1)); done
+[ -b /dev/nvme0n1 ] || { say 'STOP: namespace absent after 30 seconds'; park; }
+[ ! -e /dev/nvme0n2 ] && [ ! -e /dev/nvme1 ] || { say 'STOP: unexpected namespace/controller'; park; }
+transport=$($BB cat /sys/class/nvme/nvme0/transport)
+model=$($BB cat /sys/class/nvme/nvme0/model)
+case "$transport:$model" in apple-nvme:APPLE*) ;; *) say "STOP: unexpected identity $transport:$model"; park ;; esac
+say "identity transport=$transport model=$model"
+$BB blockdev --setro /dev/nvme0n1 || { say 'STOP: cannot set namespace read-only'; park; }
+for p in /dev/nvme0n1p*; do
+    [ -b "$p" ] || continue
+    $BB blockdev --setro "$p" || { say 'STOP: cannot set partition read-only'; park; }
+done
+say "block stats before: $($BB cat /sys/block/nvme0n1/stat)"
+# All test output reaches both kernel consoles and survives in the printk ring.
+/sbin/nvme-readonly-test >/dev/kmsg 2>&1
+rc=$?
+say "test exit=$rc block stats after: $($BB cat /sys/block/nvme0n1/stat)"
+# PASS requires tester success AND a clean full kernel transcript reviewed on host.
+[ "$rc" -eq 0 ] || say 'STOP: test failed; do not retry this boot'
+park

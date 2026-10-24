@@ -9,12 +9,12 @@
 # Usage:
 #   scripts/t6040-image-preflight.sh --kernel <Image> [--initramfs <cpio.gz>] \
 #       [--object <raw-object.bin>] [--bootargs '<args>'] [--m1n1 <m1n1.bin>] \
-#       [--stage2-loader]
+#       [--stage2-loader | --proxy-payload]
 #
 # Exit 0 only if every applicable invariant holds. See docs/BUILD_RECIPE.md.
 set -uo pipefail
 
-KERNEL="" INITRAMFS="" OBJECT="" BOOTARGS="" M1N1="" STAGE2_LOADER=0
+KERNEL="" INITRAMFS="" OBJECT="" BOOTARGS="" M1N1="" STAGE2_LOADER=0 PROXY_PAYLOAD=0
 while [ $# -gt 0 ]; do
     case "$1" in
         --kernel) KERNEL=$2; shift 2 ;;
@@ -23,6 +23,7 @@ while [ $# -gt 0 ]; do
         --bootargs) BOOTARGS=$2; shift 2 ;;
         --m1n1) M1N1=$2; shift 2 ;;
         --stage2-loader) STAGE2_LOADER=1; shift ;;
+        --proxy-payload) PROXY_PAYLOAD=1; shift ;;
         *) echo "unknown argument: $1" >&2; exit 2 ;;
     esac
 done
@@ -31,6 +32,10 @@ FAIL=0
 pass() { printf '  \033[32mPASS\033[0m  %s\n' "$1"; }
 fail() { printf '  \033[31mFAIL\033[0m  %s\n' "$1"; FAIL=$((FAIL + 1)); }
 warn() { printf '  \033[33mWARN\033[0m  %s\n' "$1"; }
+
+if [ "$PROXY_PAYLOAD" -eq 1 ] && { [ -n "$OBJECT" ] || [ "$STAGE2_LOADER" -eq 1 ]; }; then
+    fail "--proxy-payload is only for tethered split payloads, never enrolled objects"
+fi
 
 # --- kernel -----------------------------------------------------------------
 if [ -n "$KERNEL" ]; then
@@ -141,6 +146,8 @@ if [ -n "$M1N1" ]; then
     fi
     if [ "$(strings -a "$M1N1" | grep -c 'Waiting for proxy connection')" -eq 0 ]; then
         pass "window-free m1n1 (boots straight through)"
+    elif [ "$PROXY_PAYLOAD" -eq 1 ]; then
+        pass "proxy-enabled m1n1 for tethered split payload (not an enrolled object)"
     elif [ "$STAGE2_LOADER" -eq 1 ]; then
         pass "stage-2 loader has the reviewed permanent proxy escape window"
     else

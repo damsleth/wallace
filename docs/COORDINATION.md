@@ -35,6 +35,7 @@ replacing the earlier odd/even split after it kept colliding). Blocks:
 | **sol** | 3000+ | 3000, 3001, 3002, … |
 | **terra** | 4000+ | 4000, 4001, 4002, … |
 | **claude** | 5000+ | 5000, 5001, 5002, … |
+| **astra** | 6000+ | 6000, 6001, 6002, … |
 
 Because two agents in different blocks can never land on the same number, this
 removes the collision class the odd/even scheme kept hitting.

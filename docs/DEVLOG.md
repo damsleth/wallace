@@ -323,6 +323,15 @@ the discipline around them.
 
 Do not repeat these without new evidence:
 
+- **Treating software queue-depth agreement as proof of the ANS2 firmware ring
+  size (reopened 2026-09-20).** The earlier wrap investigation did not establish
+  how firmware interprets register 0x1210. The upstream ANS2 implementation
+  explicitly identifies it as zero-based IOQ sizes and says Create Queue qsize
+  is ignored. Our Linux driver writes 64 there for 64-entry rings; upstream and
+  local m1n1 write 63. This is specific new evidence for ticket 6000/6001, not a
+  reason to repeat generic depth/batching/doorbell experiments. Hardware
+  validation is pending; neither NVMe reads nor writes are newly signed off.
+
 - **A latched SMC power rail as the cause of a missing SD reader (2026-08-03).**
   The reader, the card, and the rail were all fine. `$OUT/Image` was the Jul 24
   build, containing *zero* occurrences of `pcie-apple` and `macsmc` — no PCIe

@@ -1,0 +1,30 @@
+{
+  "seq": "6001",
+  "slug": "nvme-ans2-ioq-size-readonly-run",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "nvme",
+  "priority": "P1",
+  "desc": "One tethered RAM-only maxcpus=1 ANS2 IOQ-size test: 16384 direct reads and byte comparison, no block-device filesystem mounts or disk writes. Wait for CJ M4-ready signal; exact manifest and independent review required. Unique transcript, no retry on fault; no enrollment.",
+  "author": "astra",
+  "deps": [
+    "6000"
+  ],
+  "hashes": {
+    "image": "6eef9eef130d805d71e2800f63c58813979041ee7589eb5d90116340bcd3bb7d",
+    "dtb": "a96d04a7c37355ed13ac6e4ac90ec319ecc3e755d584ea2b414a7ad80498845b",
+    "initramfs": "38a7d90ad8dd58e703eec56437fff486f842b95ecd20fe2605b1658d9cafe707"
+  },
+  "created": 1789998662,
+  "manifest": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/manifest.json",
+  "manifest_sha256": "14ba160062bb75b9a234b20ab34874304c75ab75f0fc2f87c8fc49e32cfb10b0",
+  "evidence": [
+    "evidence/2026-09-21-nvme-ans2-ioq-candidate.md",
+    "evidence/2026-09-21-nvme-ans2-ioq-candidate/manifest.json",
+    "evidence/2026-09-21-nvme-ans2-ioq-candidate/independent-review.json"
+  ],
+  "runnable": false,
+  "execution_gate": "CJ will signal M4 ready and waiting for payload; no signal received, no hardware access.",
+  "offline_review_by": "/root/nvme_review",
+  "offline_review_result": "PASS"
+}

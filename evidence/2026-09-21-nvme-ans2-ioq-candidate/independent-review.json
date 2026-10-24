@@ -1,0 +1,18 @@
+{
+  "reviewer": "/root/nvme_review",
+  "result": "PASS",
+  "scope": "Independent exact-artifact offline safety/correctness and reproducibility review; no hardware run",
+  "manifest_sha256": "14ba160062bb75b9a234b20ab34874304c75ab75f0fc2f87c8fc49e32cfb10b0",
+  "files_verified": 241,
+  "checks": [
+    "Builds A/E Image,System.map,config,DTB byte-identical",
+    "Both final initramfs archives byte-identical",
+    "Disassembly and actual Image bytes contain zero-based ANS2 size write",
+    "DT preserves reviewed ANS addresses and disables unrelated endpoints",
+    "Static RAM-only test, Norwegian keymap and read-only/fault gates verified",
+    "m1n1 binary matches raw ELF; ANS shutdown/watchdog paths verified",
+    "Launch manifest, lease gate, single attempt and unique logs reviewed",
+    "Final verification-only launch and preflight pass"
+  ],
+  "hardware_run": "not performed; ticket6001 proposed and non-runnable until CJ ready signal"
+}

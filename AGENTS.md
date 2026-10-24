@@ -32,7 +32,7 @@ or `macsmc`. Full check in `docs/RUNBOOK.md` §5b.
 
 **Ticket numbering:** each agent allocates inside its own 1000-wide block, so
 different agents never collide (fable 1000+, opus 2000+, sol 3000+, terra 4000+,
-claude 5000+; sub-1000 numbers are frozen legacy). `queue add` picks the number
+claude 5000+, astra 6000+; sub-1000 numbers are frozen legacy). `queue add` picks the number
 from the caller's block for you. Canonical table and rules in
 `docs/COORDINATION.md`.
 

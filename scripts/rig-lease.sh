@@ -87,6 +87,7 @@ tk_agent_base() {  # agent -> per-agent allocation block base (empty => legacy g
     sol)    echo 3000 ;;
     terra)  echo 4000 ;;
     claude) echo 5000 ;;
+    astra)  echo 6000 ;;
     *)      echo ""   ;;
   esac
 }
@@ -262,7 +263,7 @@ cmd_queue() {
       esac; done
       [ "$needs" = rig ] || [ "$needs" = offline ] || die "--needs must be rig|offline"
       # Allocate inside the caller's own block (fable 1000+, opus 2000+, sol
-      # 3000+, terra 4000+, claude 5000+) so different agents never collide.
+      # 3000+, terra 4000+, claude 5000+, astra 6000+) so agents never collide.
       # An unrecognised agent falls back to the legacy global max+1.
       local seq state base bmax
       base="$(tk_agent_base "$agent")"

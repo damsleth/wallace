@@ -1,0 +1,48 @@
+From: CJ Damsleth <kim@damsleth.no>
+Subject: [PATCH] nvme: apple: program zero-based ANS2 IO queue sizes
+
+Port the queue-size contract from Yuka's ANS2 support commit
+42839287f85c8c36b63579371af533fcd1b8c970 to the Wallace two-base driver.
+ANS2 ignores Create Queue qsize and uses 0x1210 for SQ/CQ sizes. Match
+our 64-entry allocations with 63, after registering the queue bases.
+Preserve the older hardware pending-command limit and all T6040 gates.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+--- a/drivers/nvme/host/apple.c
++++ b/drivers/nvme/host/apple.c
+@@ -45,6 +45,7 @@
+ #define APPLE_ANS_IOSQ_REGISTER      0x1200
+ #define APPLE_ANS_IOCQ_REGISTER      0x1208
+ #define APPLE_ANS_MAX_PEND_CMDS_CTRL 0x1210
++#define APPLE_ANS_IOQ_SIZE 0x1210
+ 
+ #define APPLE_ANS_BOOT_STATUS	 0x1300
+ #define APPLE_ANS_BOOT_STATUS_OK 0xde71ce55
+@@ -1159,10 +1160,11 @@
+ 		//writel(APPLE_ANS_LINEAR_SQ_EN,
+ 		//	anv->mmio_nvme + APPLE_ANS_LINEAR_SQ_CTRL);
+ 
+-		/* Allow as many pending command as possible for both queues */
+-		writel(anv->hw->max_queue_depth
+-			| (anv->hw->max_queue_depth << 16), anv->mmio_nvme
+-			+ APPLE_ANS_MAX_PEND_CMDS_CTRL);
++		/* On older ANS this register limits pending commands. */
++		if (!anv->hw->need_ioq_register)
++			writel(anv->hw->max_queue_depth
++				| (anv->hw->max_queue_depth << 16), anv->mmio_nvme
++				+ APPLE_ANS_MAX_PEND_CMDS_CTRL);
+ 
+ 		/* Setup the NVMMU for the maximum admin and IO queue depth */
+ 		writel(anv->hw->max_queue_depth - 1,
+@@ -1237,6 +1239,10 @@
+ 			anv->mmio_nvme + APPLE_ANS_IOCQ_REGISTER);
+ 		writeq(anv->ioq.sq_dma_addr,
+ 			anv->mmio_nvme + APPLE_ANS_IOSQ_REGISTER);
++		/* ANS2 ignores Create Queue qsize; 0x1210 is zero-based IOQ size. */
++		writel((anv->hw->max_queue_depth - 1)
++			| ((anv->hw->max_queue_depth - 1) << 16),
++			anv->mmio_nvme + APPLE_ANS_IOQ_SIZE);
+ 	}
+ 	nr_io_queues = 1;
+ 	//ret = nvme_set_queue_count(&anv->ctrl, &nr_io_queues);
