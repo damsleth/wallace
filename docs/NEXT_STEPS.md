@@ -69,6 +69,12 @@ work. They do not change the local capability table or authorize writes.
   hangs and unexplained AMCC interrupt suppression remain.
 - Continue SD repair/shutdown, daily trackpad integration and scoped right-port
   VBUS work. Base-M4 USB does not solve M4 Pro's TB5 ATCPHY.
+- **Official Asahi M4 page (docs `c15c4937`, 2026-10-03):** T604x has no
+  installer and no `linux-asahi` entry; DT, AICv3 and NVMe are WIP and every
+  MacBook Pro peripheral is TBA. The `linux-asahi (7.4)` DT/AICv3/watchdog/I2C/
+  GPIO entries are base M4 (T8132) only. Nothing to adopt, and the local
+  capability table stands on Wallace evidence
+  ([reading](../evidence/2026-10-24-asahi-m4-feature-support-page.md)).
 - Keep fault 205 open: secondary-start improvements and KVM SEIS fixes do not
   prove runtime MM/COW correctness. Defer experimental p3s/4K-process MM work.
 

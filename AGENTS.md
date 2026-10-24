@@ -60,7 +60,9 @@ The [October 24 IRC review](evidence/2026-10-24-asahi-dev-review.md) covers
 September 21–October 24 and preserves the transcript separately from temporary
 HTML logs. Read it before proposing an upstream refresh or M4 tracing work.
 Tickets 6002/6003 hold the offline follow-ons; local validation and execution
-gates remain in NEXT_STEPS and the queue.
+gates remain in NEXT_STEPS and the queue. The official
+[Asahi M4 feature-support status](evidence/2026-10-24-asahi-m4-feature-support-page.md)
+(docs `c15c4937`) lists T604x as DT/AICv3/NVMe WIP and everything else TBA.
 
 ## The repos
 
