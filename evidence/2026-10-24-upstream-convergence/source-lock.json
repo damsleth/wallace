@@ -1,0 +1,2470 @@
+{
+  "audit_date": "2026-10-24",
+  "wallace_head": "fa99387a39c51f17677e03146b8290048277db48",
+  "kernel_base": "4f2429104009e3964ddcc326d8490ac25bfb1a5c",
+  "kernel_source_mount": "/Volumes/linux/repo (read-only host image attachment; no target access)",
+  "asahi": {
+    "tag": "asahi-7.2.12-2",
+    "annotated_tag": "6882df38eec9690e112d3e3f62ed6b5974ac07f4",
+    "commit": "2bb9d16f967f11e533a851b13b148a708d59b4f3",
+    "tree": "dc2d3044740e7c13308778d16c4b0669ffc44745",
+    "corrected_tag1_commit": "83b6d853f25cb95075aa16851418c4c4e7a37e2c",
+    "signature": "GitHub API verification=true; not an independent local GPG verification",
+    "stable_base": "cc9de5d4b5ab6459f5774946aa3195ad51236fa8"
+  },
+  "mainline_snapshot": "5b0764a53235d3c77e1ed674e836e1b3fe1a4b1f",
+  "nvme_regression": {
+    "bad": "c20bba234f3e1dcd81f7a2ec21ea7bf01a4cf35f",
+    "revert": "5755f1bd0217ffe3c5cf85467bf6b0680f398265",
+    "asahi_state": "NEW -> RESETTING allowed; c20bba is not in bounded core-path history",
+    "mainline_state": "revert in core-path history; NEW -> RESETTING allowed"
+  },
+  "yuka_refs": {
+    "b4/apple-dts-m4-dt-style-check": "f81008981c813b27ad944878c590dff6705e2004",
+    "b4/apple-m4-pro-max-initial-devicetrees": "7edc05e30bf7a9da5e4e61bd94ca098445b15af9",
+    "b4/apple-m5-initial-devicetrees": "ea6579a3e346e2251072014eeae1e4f7bdb81589",
+    "b4/apple-pcie-pwren": "abef21221f00d750f04b86c5a7d9c34e4d838a61",
+    "b4/apple-s5l-a18-pro": "fa385316853a6375e7c2eaa79ea35a6315367838",
+    "dcuart": "afe53f6687ebd72796f8bb176ac2dfb30f159c04",
+    "dcuart-old": "8c9fb4ca834101d5dbf31c76bbeb980e52dcd5ea",
+    "dcuart-t8142": "afe53f6687ebd72796f8bb176ac2dfb30f159c04",
+    "dockchannel": "ba89d30070d42082a5eca95419e72f1e132b0893",
+    "feature/t604x-usb-broken": "2849873b1db0b59ca38e2f831a8052dcfed81309",
+    "flounder": "38ff68627120b204b30d030e5f4dd7d1ee33acc3",
+    "master": "4e5c08fe6477752cecc28814af86028d376d0dee",
+    "neo": "4f4f525c2cce2a47b3362cfeb750cc5a84a0eb2b",
+    "neo-pcie": "2a5270b13ad768383228f886aec149e56c1a08fe",
+    "parts/01-dt-base": "d393bb87ef9a1e3b919642cfc3824d352915cefd",
+    "parts/02-dt-style": "0ee44236ca0e96d1eeb432e1fc607f1150d4b10e",
+    "parts/03-dt-new": "5ed4bca493aeb35ab8860ff8646e4171ff705095",
+    "parts/04-dt-more": "0880225c96f587ce7645fd3ca8e51769bccbfccd",
+    "parts/20-nvme": "09116ec06ce4aba5e34f0266dad74c3678aa30c3",
+    "parts/30-pinctrl": "45c8f47730016dfbd009e232a24cf6a5af894fe8",
+    "parts/40-old-dchid": "55e130fd72dbd21cf0896a73664eaa8029b9f792",
+    "parts/41-dt-old-dchid": "cb64e51073fc6837d25f3b83c0d965c2ab020626",
+    "parts/50-usb": "15d2d2eb69890a602bfbc9d4a497236d99b6ebe7",
+    "parts/51-dt-usb": "46c23aca15af40348e30449ba28b3f8bcdbdabe8",
+    "parts/99-misc": "c5252145c2d347666e4d171ceacb2ce2401f87db",
+    "t8132": "4997a9ba7053434082dcca4ee6d52dd7b07190d1",
+    "t8132-debug-putc": "8c86bd8c76bbe02dbf20f3e0f8fb0c311be30faf"
+  },
+  "missing_historical_refs": [
+    "parts/21-dt-nvme",
+    "t604x-old-dchid-working"
+  ],
+  "sources": [
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/6001-before.json",
+      "sha256": "d4d8ffad77bbe35fe6667fcb636384d4374a5e0ce17567eb126a9c6f0af37912",
+      "bytes": 1157,
+      "urls": [],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/adt-summary.json",
+      "sha256": "d075dfbf87806596205f614b3c600f89167cb38d91a1bc6d0004875fc4600435",
+      "bytes": 93003,
+      "urls": [],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/apply-checks.json",
+      "sha256": "d6eb60097959c157b77bf44ca26d2816229875df475410d6ce306e47d2eb3a21",
+      "bytes": 3425,
+      "urls": [],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--Documentation__devicetree__bindings__iommu__apple,sart.yaml",
+      "sha256": "90b9f74750f4c7e3578daa7b8519bc7455ba9f13a7bbeef79dd1b153bfe7df12",
+      "bytes": 1561,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/Documentation/devicetree/bindings/iommu/apple,sart.yaml?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--Documentation__devicetree__bindings__nvme__apple,nvme-ans.yaml",
+      "sha256": "d93422fb44530d3bf4c4709202f956f16438ac4afc399546b8ebfb0f204a93a7",
+      "bytes": 2814,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/Documentation/devicetree/bindings/nvme/apple,nvme-ans.yaml?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--Makefile",
+      "sha256": "77d977b5a40efd0338d6aca5d4fa932db44c76635b96b103b3b338e829484a22",
+      "bytes": 79788,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/Makefile?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--arch__arm64__boot__dts__apple__Makefile",
+      "sha256": "158e95c49af40250601916e18aecebd3b779a4807dda507b3a4ede6c221b94c6",
+      "bytes": 4805,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/arch/arm64/boot/dts/apple/Makefile?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--arch__arm64__configs__asahi.config",
+      "sha256": "10a68bfa7a8c29d999a49c54174bdf6a663606b6cd4672c21896cc473e5827ce",
+      "bytes": 2023,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/arch/arm64/configs/asahi.config?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--arch__arm64__kernel__cpufeature.c",
+      "sha256": "6b36d94732d8810bf0bc35383d2649d81f3f3cbaa956e4abaf38a2aac70544ed",
+      "bytes": 147447,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/arch/arm64/kernel/cpufeature.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--arch__arm64__kernel__idle.c",
+      "sha256": "c9ac8d3c236e0c7a5b4f3a1b0c179e26cda21622e4300b702b61908ddd25f3c0",
+      "bytes": 1430,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/arch/arm64/kernel/idle.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--arch__arm64__lib__delay.c",
+      "sha256": "42bc206ab39f4766f060885d114ed541197970722e9205c706360f6fc84dee4c",
+      "bytes": 2130,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/arch/arm64/lib/delay.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__base__regmap__regcache.c",
+      "sha256": "20a6dba6b9558e7585a95a4007d15a4f230b774bf9b84d9a9f74ea01702d66d9",
+      "bytes": 20461,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/base/regmap/regcache.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__cpufreq__apple-soc-cpufreq.c",
+      "sha256": "91984236b0845e43c10a189fd380f2d0e4560fdb29d13b65ff248e075bae4b8a",
+      "bytes": 10077,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/cpufreq/apple-soc-cpufreq.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__hid__Kconfig",
+      "sha256": "21d566ca75a9e4d0823b7cd41cea97b7a083793931ae330d65f9a67101a88d4c",
+      "bytes": 44693,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/hid/Kconfig?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__hid__dockchannel-hid__dockchannel-hid.c",
+      "sha256": "9539d50dfb0eedb0d09bd5717df34dfd99d098c0dd1d20a0b67f4fc80e341dfa",
+      "bytes": 28910,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/hid/dockchannel-hid/dockchannel-hid.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__irqchip__irq-apple-aic.c",
+      "sha256": "d52ff497371f81b94af730792c9ea9fb2bf24d99cf7df6e8985351dd331c2287",
+      "bytes": 29815,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/irqchip/irq-apple-aic.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__net__wireless__broadcom__brcm80211__brcmfmac__fwil_types.h",
+      "sha256": "b829feba2107405853d3d0434d5f7a3882e0b2524d8904abef0d8bbf38fabe0d",
+      "bytes": 49775,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__net__wireless__broadcom__brcm80211__brcmfmac__pcie.c",
+      "sha256": "e2e7051e8fe58935f26eed3fc086b3faedb544d471a0718b7ef82846577e8079",
+      "bytes": 89226,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__nvme__host__apple.c",
+      "sha256": "aa43ad90647d595d2e44e6e1b65b8f627b782c20fc7a9d0f1213dfa3766ed339",
+      "bytes": 48105,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/nvme/host/apple.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__nvme__host__core.c",
+      "sha256": "fcc0d2736f67566e63a39f809d90734e64cef4778fb867db792c68b8e49c5ad6",
+      "bytes": 151319,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/nvme/host/core.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__pmdomain__apple__pmgr-pwrstate.c",
+      "sha256": "a09148952eb78c516f6484889a013b86b757552cf6ce5dde54c96f794d8acfdf",
+      "bytes": 10880,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/pmdomain/apple/pmgr-pwrstate.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__soc__apple__Kconfig",
+      "sha256": "606a9771e2dbe6bacf294b0f2e4a45e97e0454a3da5cb923a44c8ee5cb48c776",
+      "bytes": 3596,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/soc/apple/Kconfig?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__soc__apple__dockchannel.c",
+      "sha256": "83cc73986312a06d99f7e5828a078964a581be00dc5826195e4622d5c6a7bede",
+      "bytes": 10418,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/soc/apple/dockchannel.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__soc__apple__sart.c",
+      "sha256": "9de8b3fc7116e1f6718b4272f61dca213d1e96f06c3f471b69248b8320f108ff",
+      "bytes": 10212,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/soc/apple/sart.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi-commit.json",
+      "sha256": "2a1371654082a3086125ab7d2b6d7f8b4163807548f822042e6ebd9304ba3538",
+      "bytes": 4574,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/commits/2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi-tag.json",
+      "sha256": "fbe21575e534ae4da1082f1d28c7df58a0ea3f61db21d9017bfbc09c12c49825",
+      "bytes": 1517,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/git/tags/6882df38eec9690e112d3e3f62ed6b5974ac07f4"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi-tag1.json",
+      "sha256": "c647f000ca3c19995a6b6e338bd89ff305ae7957985ea95476c3b8abfec789eb",
+      "bytes": 1560,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/git/tags/6d131de2f2d20f24c9a324208b27f3983e16bdc6"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/idreg-override.c",
+      "sha256": "304251aede163cab648147a37ec4cb581253ad306a3d3fe8161c025225314061",
+      "bytes": 10812,
+      "urls": [
+        "https://api.github.com/repos/AsahiLinux/linux/contents/arch/arm64/kernel/pi/idreg-override.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/linux-status-before.txt",
+      "sha256": "c94f2382fdab9e7512bffa46d6c104211b298ded80689fa2518913a7ce377392",
+      "bytes": 914,
+      "urls": [],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/lore-hid.mbox.gz",
+      "sha256": "e7a0434141b2f4b71e8c7e46be5554190e2e05a12a2a91432812386cbb5624eb",
+      "bytes": 70283,
+      "urls": [
+        "https://lore.kernel.org/all/20260925-apple-mtp-keyboard-final-v4-0-304c267518f4@gmail.com/t.mbox.gz"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/lore-regression.mbox.gz",
+      "sha256": "6cf92f8ab5d617f632e4eb18abdb5e55ddb0dd994fba9471ad636b495d6433ca",
+      "bytes": 15659,
+      "urls": [
+        "https://lore.kernel.org/all/94912d46-381d-4988-800a-6ef3b595233f@cyberchaos.dev/t.mbox.gz"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/lore-wifi.mbox.gz",
+      "sha256": "1a468d78ce9adc771f1403e1ee759bb7bd1a34923203b89f9069500337b3daf9",
+      "bytes": 76973,
+      "urls": [
+        "https://lore.kernel.org/all/20260925-brcm4388-submit-v1-0-b5cbc2cde2fb@gmail.com/t.mbox.gz"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/new-regression.json",
+      "sha256": "89e6380a414f57543489d8d5255bf513a356f8098cff865ce16f0c0997f7b2e7",
+      "bytes": 5555,
+      "urls": [
+        "https://api.github.com/repos/torvalds/linux/commits/c20bba234f3e"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-dt--arch__arm64__boot__dts__apple__t6040-j614s.dts",
+      "sha256": "011f3275d72be678477960e5b46f2ee68111419ec0a7b01a92c45a2a3d46f8b7",
+      "bytes": 624,
+      "urls": [
+        "https://cyberchaos.dev/yuka/linux/-/raw/0880225c96f587ce7645fd3ca8e51769bccbfccd/arch/arm64/boot/dts/apple/t6040-j614s.dts"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-dt--arch__arm64__boot__dts__apple__t6040.dtsi",
+      "sha256": "7cee2e988148bc4d25ba4558a52ddda5da1c532f4e24f03915c3b151bf72e2ec",
+      "bytes": 1628,
+      "urls": [
+        "https://cyberchaos.dev/yuka/linux/-/raw/0880225c96f587ce7645fd3ca8e51769bccbfccd/arch/arm64/boot/dts/apple/t6040.dtsi"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-dt--arch__arm64__boot__dts__apple__t6041-pmgr.dtsi",
+      "sha256": "c8e083de919ec08361d043e0cbed82a07d35cbe45933b6061d757bfe3cd5234c",
+      "bytes": 59809,
+      "urls": [
+        "https://cyberchaos.dev/yuka/linux/-/raw/0880225c96f587ce7645fd3ca8e51769bccbfccd/arch/arm64/boot/dts/apple/t6041-pmgr.dtsi"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-dt--arch__arm64__boot__dts__apple__t6041.dtsi",
+      "sha256": "475e34538bb9ac71238edf5149979dab47cf3d76620786455fa0aed1b72f592a",
+      "bytes": 23126,
+      "urls": [
+        "https://cyberchaos.dev/yuka/linux/-/raw/0880225c96f587ce7645fd3ca8e51769bccbfccd/arch/arm64/boot/dts/apple/t6041.dtsi"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-dt--arch__arm64__boot__dts__apple__t604x-j614-j616.dtsi",
+      "sha256": "6b147e93ec4b4c9b3e208e1ed0c8e77da4119183d6a6bf5dd7e53d3652e24260",
+      "bytes": 2068,
+      "urls": [
+        "https://cyberchaos.dev/yuka/linux/-/raw/0880225c96f587ce7645fd3ca8e51769bccbfccd/arch/arm64/boot/dts/apple/t604x-j614-j616.dtsi"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-hid--drivers__hid__dockchannel-hid__dockchannel-hid.c",
+      "sha256": "b1ba832804d32e269ff22b540be53744e3a26b782266cbf32ad17016a9864426",
+      "bytes": 28930,
+      "urls": [
+        "https://cyberchaos.dev/yuka/linux/-/raw/55e130fd72dbd21cf0896a73664eaa8029b9f792/drivers/hid/dockchannel-hid/dockchannel-hid.c"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-hid--drivers__soc__apple__dockchannel.c",
+      "sha256": "654e0245704440b6fe2ed0ed85495b0e78011e5c3485e8a27964a1a93ae161e4",
+      "bytes": 10424,
+      "urls": [
+        "https://cyberchaos.dev/yuka/linux/-/raw/55e130fd72dbd21cf0896a73664eaa8029b9f792/drivers/soc/apple/dockchannel.c"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-hid-dt--arch__arm64__boot__dts__apple__t604x-j614-j616.dtsi",
+      "sha256": "96b36f81f403210b98897944a05252b742da3c21bf980cc39e1de9bbfaeffba9",
+      "bytes": 2470,
+      "urls": [
+        "https://cyberchaos.dev/yuka/linux/-/raw/cb64e51073fc6837d25f3b83c0d965c2ab020626/arch/arm64/boot/dts/apple/t604x-j614-j616.dtsi"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-nvme--drivers__nvme__host__apple.c",
+      "sha256": "95b8a28a781fea45ad727c26ce0e9452af00a0379e12f214017d6edc82ffb6aa",
+      "bytes": 47190,
+      "urls": [
+        "https://cyberchaos.dev/yuka/linux/-/raw/6acd61216911155b04fd98ca5599c3e74450010b/drivers/nvme/host/apple.c"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-nvme--drivers__soc__apple__sart.c",
+      "sha256": "98d1fc03b748b0d6a18655ff0f7849befd54d68c1b60b2076a7671d29d6b6e4b",
+      "bytes": 10328,
+      "urls": [
+        "https://cyberchaos.dev/yuka/linux/-/raw/6acd61216911155b04fd98ca5599c3e74450010b/drivers/soc/apple/sart.c"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-submitted-dt--arch__arm64__boot__dts__apple__t6040-j614s.dts",
+      "sha256": "e99a8620fe75b98cb5e26489d2eb336289efbbdcb0b9c5c85e32941237352cd0",
+      "bytes": 525,
+      "urls": [
+        "https://cyberchaos.dev/yuka/linux/-/raw/7edc05e30bf7a9da5e4e61bd94ca098445b15af9/arch/arm64/boot/dts/apple/t6040-j614s.dts"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-submitted-dt--arch__arm64__boot__dts__apple__t6040.dtsi",
+      "sha256": "7cee2e988148bc4d25ba4558a52ddda5da1c532f4e24f03915c3b151bf72e2ec",
+      "bytes": 1628,
+      "urls": [
+        "https://cyberchaos.dev/yuka/linux/-/raw/7edc05e30bf7a9da5e4e61bd94ca098445b15af9/arch/arm64/boot/dts/apple/t6040.dtsi"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-submitted-dt--arch__arm64__boot__dts__apple__t6041-pmgr.dtsi",
+      "sha256": "f05ef21420cf49c0e102fac08306b35af6fef0847d7bb85ca08cbab5e367eb43",
+      "bytes": 59790,
+      "urls": [
+        "https://cyberchaos.dev/yuka/linux/-/raw/7edc05e30bf7a9da5e4e61bd94ca098445b15af9/arch/arm64/boot/dts/apple/t6041-pmgr.dtsi"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/torvalds-ref.json",
+      "sha256": "b3d2acc7190feca7d298f2e55cf382e210223b9ca6ff67f65b72bd9adfb032eb",
+      "bytes": 339,
+      "urls": [
+        "https://api.github.com/repos/torvalds/linux/git/ref/heads/master"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/yuka-diff-01334b613f75dbb2ee1bbb8ff705d3af8bf923de.json",
+      "sha256": "bbcbc0dfa1c384ca59530c44167ea064692216887a02452809493e21513d21e6",
+      "bytes": 692,
+      "urls": [
+        "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/commits/01334b613f75dbb2ee1bbb8ff705d3af8bf923de/diff"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/yuka-diff-2888926b6342cd4acc74015d59d5304e7dc329ed.json",
+      "sha256": "e3cdbc8d48d38b13b1316db68d093d19c0c3d4edc99de80b4629882ffe1d827f",
+      "bytes": 2955,
+      "urls": [
+        "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/commits/2888926b6342cd4acc74015d59d5304e7dc329ed/diff"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/yuka-diff-419adc71f0d8fedd8666fa60123b7262d4c82390.json",
+      "sha256": "d87f1469a149bab122e08a2c4fa4392b08bc2e15f2d7f2bac040eaaed4d7ef7e",
+      "bytes": 1057,
+      "urls": [
+        "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/commits/419adc71f0d8fedd8666fa60123b7262d4c82390/diff"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/yuka-diff-42839287f85c8c36b63579371af533fcd1b8c970.json",
+      "sha256": "5bb597865f596799254fcbf98d463ad9ea420d80e3c624ed4fe7b384dd3de85f",
+      "bytes": 3241,
+      "urls": [
+        "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/commits/42839287f85c8c36b63579371af533fcd1b8c970/diff"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/yuka-diff-501a16a59f79c8defe62e99dac055d220f982589.json",
+      "sha256": "e3fc28b6b7d176f65ab029f9b903a8107ba95631024b889887ac20d08376fc5f",
+      "bytes": 3292,
+      "urls": [
+        "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/commits/501a16a59f79c8defe62e99dac055d220f982589/diff"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/yuka-diff-55e130fd72dbd21cf0896a73664eaa8029b9f792.json",
+      "sha256": "1f20e25b4902878637ec409398ff9ad95934fa76710e0e67e8b58890ed18b4c5",
+      "bytes": 965,
+      "urls": [
+        "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/commits/55e130fd72dbd21cf0896a73664eaa8029b9f792/diff"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/yuka-diff-6acd61216911155b04fd98ca5599c3e74450010b.json",
+      "sha256": "97b409beea806cea0e0f7ffe571cd4193a157ea1e97b8f005ad39527382ecd24",
+      "bytes": 3429,
+      "urls": [
+        "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/commits/6acd61216911155b04fd98ca5599c3e74450010b/diff"
+      ],
+      "representation": "retrieved bytes or local analysis"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/mainline--drivers__nvme__host__apple.c",
+      "sha256": "dea5f7c8a074e0967144041928eef5b1b233a6b4b5502d8c74ecf1b4958d383d",
+      "bytes": 46222,
+      "urls": [
+        "https://api.github.com/repos/torvalds/linux/contents/drivers/nvme/host/apple.c?ref=5b0764a53235d3c77e1ed674e836e1b3fe1a4b1f"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/mainline--drivers__net__wireless__broadcom__brcm80211__brcmfmac__pcie.c",
+      "sha256": "a9a99eec9b72e01c9d9847e36ce4fe653c81ccf12c7bb5ca1b4b47bca00007fd",
+      "bytes": 77605,
+      "urls": [
+        "https://api.github.com/repos/torvalds/linux/contents/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c?ref=5b0764a53235d3c77e1ed674e836e1b3fe1a4b1f"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/mainline--drivers__nvme__host__core.c",
+      "sha256": "23a76b38225222c668cbd59f21d7d53afcd009ef78e2f0ec1432514f2adb9f7c",
+      "bytes": 152266,
+      "urls": [
+        "https://api.github.com/repos/torvalds/linux/contents/drivers/nvme/host/core.c?ref=5b0764a53235d3c77e1ed674e836e1b3fe1a4b1f"
+      ],
+      "representation": "decoded source"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/mainline--arch__arm64__boot__dts__apple__Makefile",
+      "sha256": "c13cfb8bdfa172eb3967cfe21bbb9db3a3d28a8c0717159a536f36692f0211ab",
+      "bytes": 4848,
+      "urls": [
+        "https://api.github.com/repos/torvalds/linux/contents/arch/arm64/boot/dts/apple/Makefile?ref=5b0764a53235d3c77e1ed674e836e1b3fe1a4b1f"
+      ],
+      "representation": "decoded source"
+    }
+  ],
+  "local_inputs": [
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-rtkit-modern-crashlog-debug.patch",
+      "sha256": "849f06144da0dc867e766f6c0d8f1854a2f44238d9a99e3493e12c3e233c2669"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-hid-reset-contract.patch",
+      "sha256": "6eba591f8e5de69e6115ab7f90811b60680cb4e42a4a7f25df11cccd02667aff"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-pmgr-ans-no-auto.patch",
+      "sha256": "361e965edea2f320efaa55eda67791282097bf6575115868654c66436cbfe9ba"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-tx-poll-debug.patch",
+      "sha256": "af8015a59ba6f6293c427b653863bef1a8d331780bd6c997e44c53b1c76ee445"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/0001-phy-apple-add-experimental-T6040-USB2-only-slice.patch",
+      "sha256": "b7f02c3cb06b0ed6e490d473a2efd99f61b8cd1ab089a0a09f72ecdec7b60a30"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t8140-sart-power-bindings.patch",
+      "sha256": "e5dc09d57e36a7853988e6ff3773e274a84f82a588ff899c567b6c2355e9e495"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t8140-ans-bindings.patch",
+      "sha256": "a135b930c166dadffd20e996ca611007f68c775601ef9fe3b5015cbe7d6c09d6"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-earlycon-debug.patch",
+      "sha256": "c70a9b2c215be2212d7794f8895b707fc54759c99baf7b9e20c68a7b4facd725"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/uboot-t6040-noio-prep.patch",
+      "sha256": "7555aec41d86d6edb58a3e593199ed4b81b40be1316700c7c03ddf1d183963b5"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-atomic-tx.patch",
+      "sha256": "a217182c4abb85d7c77c10083c617cb36677b16c454cd2d9fe7ab69339cef51a"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t8140-sart-handshake-only-debug.patch",
+      "sha256": "e0d0f646750cfcc5ae8e00649597aa98f87bbbed9c7c16d76f540f1f341a30f1"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-rx-rearm.patch",
+      "sha256": "83d07766678acd271ef3be9b9cbb93e35fb186bfe162b329de634d91fe2f3b01"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t8140-sart-deferred-probe-debug.patch",
+      "sha256": "c9bf54b0b0de52fcbca962d0cf80f5c22822533261ead0ddae7c1cf80ddc3f8a"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-fixes.patch",
+      "sha256": "814d085f68d1fd5501abbb53e944b460bdda2dec51292cedca6fb66bdc364cd4"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-nbcon.patch",
+      "sha256": "b245c837793e16ed3241c893393f7c0e1b9a9fefd1391c4ba04842da0b969d6d"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-nvme-apple-force-clean-ans-boot.patch",
+      "sha256": "399578f56d4ec6ae1d865be68878b68dad6868d1a56015b085cd088592994904"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/m1n1-early-proxy-unconditional.patch",
+      "sha256": "1d7ad83ad7651e5b62ce7bf0199685c5d2b34d0dc69578f6f957ecaf10b8b032"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-trackpad-fw.patch",
+      "sha256": "f7a3eb883c0d393e899128c91740f7405b6e9626ac58746ae37562032732a779"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/m1n1-minilzlib-vli-bytes-max.patch",
+      "sha256": "0f360a3798cbc49588ac392c623372d39670b82a3fbfb25783dd37ec88b95498"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-apple-cpufreq-freq-mult-overflow.patch",
+      "sha256": "e16321de361808b37243d452ab4def57744c8887a9b3b350eed940695cb59fc8"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-nvme-force-continue-debug.patch",
+      "sha256": "c2e3ee56bd37bf34a2bcef1bf104b40551aa6cdca5c1006fe53ac8657363bfb9"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t8140-sart-trace-debug.patch",
+      "sha256": "ccfcf49f677ad03b8f7eebfb040ff122aabdc81dc22bf80c556b8d314f070654"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-nvme-pmgr-snapshot-debug.patch",
+      "sha256": "3f6aad017859acb3554e10c00f2497e5683865c68204e5775399eec5030bb7a4"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-nvme-init-trace-debug.patch",
+      "sha256": "4a731f1f0a78c333c4fc44d1b820d719f2a9c5b2014cd261b11095c3e6cc6dcd"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-pmgr-t6041-quirks.patch",
+      "sha256": "f69f5965918b6124a9a666b0b05d219525445b39eac70e66cea1d750ff1ba0f3"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-irq-guard-debug.patch",
+      "sha256": "2d2b8218f967dadd85eaa926bffa7d97097a90b6a79bc1782f0a09baae72acd2"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-brcmfmac-bss-info-v116.patch",
+      "sha256": "b9edb064814dae3aeb0fb9ca4fc8a4d0e11fb42e351b8f8eb2a23035b1d355c5"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-nvme-sptm-debug.patch",
+      "sha256": "8c9bfa90193b9c32048a55035f8208bf46928458d32bcf89f8be9aba361803e9"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-remove-mtpdbg.patch",
+      "sha256": "71b8820d51b75fbf4faaf08bc86c176b2d821d14c6bcf847425633f12ffb9ee9"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/flokli-code.patch",
+      "sha256": "22f1cbe674bafb409a506bfb6ebafb2f0cc540e39f54a0685220af6c3b8948ac"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/0001-usb-typec-tps6598x-add-SPMI-transport-for-T6040-SN20.patch",
+      "sha256": "9dcb4606e6385815dafa29f2690cf5cc29021d07387da78b55a09d4385b28350"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-pmgr-functional.patch",
+      "sha256": "2692f5172d7d4e12e7839d365ca1d982f1b99efc844988051b6f550f4e0d3013"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-tty-driver.patch",
+      "sha256": "016b2eec240ab74712cc51a2a6cd35ffd7577490ba941593af1ef831cfedf479"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-nvme-threaded-irq-discriminator.patch",
+      "sha256": "c3524c888cb056f9fe136b254bac136ab115a8fcffd83a3bb5b79bb19f1b4fe3"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/m1n1-dualmode-window.patch",
+      "sha256": "37292bfc3b685e7d1a4d49e46b12fa89452c4cc2f97210e4d82539eca383448a"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-pmgr-force-active-debug.patch",
+      "sha256": "98bcf9a353ca066373b38dbfb4eedc65d3e457f8669b6a878a718ddb974f2198"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/m1n1-fb-console-always.patch",
+      "sha256": "5b62f0e5a03e2b2e851fc804248571aa864b9faa4908d8f6063409e297a6669b"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-nvme-register-trace-debug.patch",
+      "sha256": "b6cb2477fce8f74e31c53286a8e24ac719f7607204340eaf84432bdadb4d5e3c"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-nvme-ans-read-debug.patch",
+      "sha256": "b12c8ea239f2bad186ef475c04ac08aa73718a3377dfa875bebb993223c44147"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-nvme-ans2-ioq-size.patch",
+      "sha256": "c1adc415a5df84877379e917e888beb32597c0704f6613b239302649dd2f89e8"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t8140-sart-power-managed.patch",
+      "sha256": "583a35cf556b9705b891b02c95b26b7dbfaf89ae3b0e3114a9a8b95202dead81"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-hid-type.patch",
+      "sha256": "8692c4554f2db232fa57ee4fbc2e3ac529b1a8d36c44629612a478c30d8a455c"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-poll.patch",
+      "sha256": "627d0805f103f56ad20cc24785d4e747740e774c1660604611298adf6bcd0e63"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-aic-hcr-debug.patch",
+      "sha256": "33f65edfacd0b5628c2c4c6af0b80dfc32c5c0c9e8205850abd6f8f618545eb4"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t8140-sart-defer-scan.patch",
+      "sha256": "963378bdcd4b7147b648411783fb0dd23e1ce6c67e996d186f4c4f58252758b8"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-fifo-telemetry-debug.patch",
+      "sha256": "29a8d9dad3090a11698ea1e94dd1ee83df95e553010762f4beae6d0bd803063d"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-pmgr-t6041-bindings.patch",
+      "sha256": "73a577d46b538b72633aae1104d501c6ca4ff550651947fbea2a9985d71c8389"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-hid-state-trace.patch",
+      "sha256": "f966cedbc61322118d1d492726143d72364a1c3479ab2a72c9bdc08d43fbaf0b"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-dwc3-apple-force-host.patch",
+      "sha256": "84cef2d3be3969bef9b8e4d9aa3683c6774592621acfe3167fd42d0f8a8168cb"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/uboot-t6040-stage2-prep.patch",
+      "sha256": "814ffa47d6ab4b8f050505b879bb21bc730c57c3d89fb75af36a27061b7695c7"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/m1n1-payload-unmask.patch",
+      "sha256": "71a843ce5c5e8498f7cee10ccb3d4560f60504cc9f055c66310fba9e25f7e500"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/patches/t6040-nvme-trace-debug.patch",
+      "sha256": "df908c981c4479b398f212b5619e98d206ef8e07d83566195c9160c08bd8c958"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-usb-host-right.dts",
+      "sha256": "5ddc0a65438fc9df7de4513c3e20db43ef6102ccc15e20f551247c390e96ba99"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-wifi-cpufreq.dts",
+      "sha256": "e597b46111beab192cf402661e2d5c768613351b6847e338622b8a337167dc7f"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-macsmc.dts",
+      "sha256": "ba0de6d2680ae766fb030df135c606ecf3a373db62d83ca28be4f2028e914b6a"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-wifi-nosmc.dts",
+      "sha256": "4a611082d0e5853fb8c9f6eb89ea8fdc3bbb831e2e90c12e311787dc7058e879"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-sd.dts",
+      "sha256": "b6d4effbe506c5818f3e0fcc6e6de1ed6e1ac400b50304007a61102ef84acc05"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-usb-host.dts",
+      "sha256": "610c9a12595a42ec65cfedae461800cf33a6b2188547a50747a2b5226dbbbec7"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-cpufreq.dtsi",
+      "sha256": "b1fe832c3586da3f8e2e614af579d2b686e07ea42c7bbb76f08c74fee52ff6f8"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-nvme-ans-hold.dts",
+      "sha256": "02de1ef0ce5c9203d1b0a51d0f4cb661b13faae0a9ab486a73e2d53be5a1dcda"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-smc-gpio-nopwren.dts",
+      "sha256": "17364856812eec2e9eb3e062c7d84d1a8d930b033a6a107ef04740073683378a"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-uboot-sd-stage2.dts",
+      "sha256": "82e45f6b0753d5599ed23129f4166047695a55a2f5b054840d061da6745de2b0"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-ans-sart.dts",
+      "sha256": "aae9c9b14d36646856e7d7f36ec2f679ed4f5c43d75b37bb34448592a60f61e2"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-nvme-force-continue.dts",
+      "sha256": "f5ac5d629e4fcbdd4de3bf5ee32db7f69cc46615e5d3a1f04b79db713525fff3"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-smc.dts",
+      "sha256": "3c751ba3754b8d001aaecbecc8a5bf229796d56072a5fb722743cad916a37a62"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart.dts",
+      "sha256": "a8048e982b63fe19a346318ef7c51f076a3df70b7b9b0fea153ea9446142ae6f"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-cpufreq.dts",
+      "sha256": "317a0c3b2c75d15ddb9a81b36a0729fadfb6f47d975ad81bff4b48c8bad8d2ff"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-onepercluster.dts",
+      "sha256": "c8f0fcc0cc8d8b4a43ab7a9a54030ab980e662dd6e5bb2dfc26e3bdf0cb39c2c"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-c2probe.dts",
+      "sha256": "1b540c944554ba357d7235ad4f8241ee15e2bfd6a2327a3649d8ace091ea1719"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-wifi-nonvme.dts",
+      "sha256": "0cc466b759c9fd3efefc25312e82fac7e106624c8aab667def1cf092a3a2b836"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-irq.dts",
+      "sha256": "42163c28f73f2f407d3152c5e33678c19c86f894a38d3b3f1edeb7cd47d1dd52"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-irq-txpoll.dts",
+      "sha256": "faa9ae47fcd2cc98f9105ad04ca54835d91f44223a38be8288bac60b29141c48"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-p2clusters.dts",
+      "sha256": "54f224462b0c963f827f7dd1a34d080d9aa57320f18f55b196c6f8dd5b785c72"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/README.md",
+      "sha256": "dbed4f7b4974ae989a25bf933971e8b17ed0f549c7e93a34acc861eb7a043581"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-pcie.dts",
+      "sha256": "ecf6df1ff634621c66be43689f3a46f8bc6ef182b24300c80b0325c52630fd58"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-wifi.dts",
+      "sha256": "60bddf64d8a16d79113cd904a826b37286cac733feb1bd868d6ae82d177506b4"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-pwren-wifi-only.dts",
+      "sha256": "2830c065e83f786801c979172eecac28e5e6aafbb65a2c58a80604a1a2b9d187"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-smc-nogpio.dts",
+      "sha256": "d0d8883e140567bb1fb3aa867a4e31bb186b0bea7f204a09cdaea6ad6d760e7a"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-usb3-right-data-path.dtsi",
+      "sha256": "3a56ff3ae15bb7d8f1419987f2b68674200a8ec7e8f4d0caad7404ede840a23b"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-usb2-native-right-pd.dts",
+      "sha256": "46cbb243c560a7c5bd33a5543060e6eda4901f4b00869ed965b972dd952db35c"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-nvme.dts",
+      "sha256": "365aca3891a87070defc6f0ba36570ff47be0b24429275f43f4d0696c6d2abda"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-wifi-usb2-native-right.dts",
+      "sha256": "f045e2e13b685a2409d025b476d327fa53c5781b486f8cb687d2188aa8f00301"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-usb3-right-data-path-staging.dts",
+      "sha256": "372eec8782d45cab9e57fbd6d9894699ea39a840b0ac5aa58e1ac18ebf535054"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-uboot-stage2.dts",
+      "sha256": "72b58e626170ee84b68f7d0823799559112f3a2061615f25828ded78c3299413"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040.dtsi",
+      "sha256": "edfe80b145fa0ba1f2ca0a24d1ac2b25a839f1065c0bed9610f9563bc32d9f06"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-usb2-native-right.dts",
+      "sha256": "00af1ecc2eaf6c963df30e4b0495788796eb0e04ecfea80264c7836ade5a4521"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-nvme-pmgr-force-active.dts",
+      "sha256": "2e1746da7f24a6b516479b20df054eac0e59dbd3d7f37a899a22818d88c7d841"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-irq816.dts",
+      "sha256": "f6657c0901fd6fcced6038dfa4273582f9160cf61bf9239949525bc5cbbb586c"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-ponly.dts",
+      "sha256": "f1dbff73c7392d4fd519b733ac0719b19f0f324e5cf8b45342c4364beeb2f445"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-usb-host-left-front.dts",
+      "sha256": "0f7ab8972943a8826498e61780b590bc958f106c36ebeebfff5d857490445aeb"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-wifi-cpufreq-sdroot.dts",
+      "sha256": "0706d4222baa65584fd7a719be69c2f3f35c31b903226434e9ab4836f1b3d29d"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-ans-mailbox.dts",
+      "sha256": "6ba73cdfd40970c6c01ba1d965418c6bf2cb6f5df02e411a8b09a93c5fda9480"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-pwren-sd-only.dts",
+      "sha256": "3b2b8dfd626976ff99d2a41b00ec1d949af28c7d1a1ee23f5c8d11c8aa6aa2a6"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-nvme-ans-read.dts",
+      "sha256": "5093efb56309f333178de16154026ddd98fb7bd533c1e8885ff4bee4d1717361"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-nvme-pmgr-snapshot.dts",
+      "sha256": "235c2d9a5eed6df74aeb9bc03abebe29eef2a4f061dc90898d56afbea6e08b05"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/scripts/t6040-kbuild.sh",
+      "sha256": "de179323460eb8a16506cdf6d7e38de88b2cbd53137889d97a9d6ec68762ad72"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/scripts/t6040-cow-repro.sh",
+      "sha256": "25a62b522ea83234393e7205e1d968ed40983b23359ca187545899f99804d209"
+    },
+    {
+      "path": "/Volumes/linux/repo/drivers/nvme/host/apple.c",
+      "sha256": "44969a88c0b60b8629533d6b1c7f6d32756d0b4e52f7f2c92497ea64e3949abe",
+      "snapshot": "evidence/2026-10-24-upstream-convergence/local-source/drivers/nvme/host/apple.c"
+    },
+    {
+      "path": "/Volumes/linux/repo/drivers/irqchip/irq-apple-aic.c",
+      "sha256": "df05a150f8b13958631d26a94f0e3dafe2d036262579e3632cd1892a334d1433",
+      "snapshot": "evidence/2026-10-24-upstream-convergence/local-source/drivers/irqchip/irq-apple-aic.c"
+    },
+    {
+      "path": "/Volumes/linux/repo/drivers/pmdomain/apple/pmgr-pwrstate.c",
+      "sha256": "71a3130dff9f9a0118c9e3de278468eb102cc2b685495e531abac5c8e1887d48",
+      "snapshot": "evidence/2026-10-24-upstream-convergence/local-source/drivers/pmdomain/apple/pmgr-pwrstate.c"
+    },
+    {
+      "path": "/Volumes/linux/repo/arch/arm64/boot/dts/apple/t6040.dtsi",
+      "sha256": "edfe80b145fa0ba1f2ca0a24d1ac2b25a839f1065c0bed9610f9563bc32d9f06",
+      "snapshot": "evidence/2026-10-24-upstream-convergence/local-source/arch/arm64/boot/dts/apple/t6040.dtsi"
+    },
+    {
+      "path": "/Volumes/linux/repo/arch/arm64/boot/dts/apple/t6040-pmgr.dtsi",
+      "sha256": "02e6060225aa7712604fca98331c02c2d2b14acca1c7d90d7c6216ee18767fc0",
+      "snapshot": "evidence/2026-10-24-upstream-convergence/local-source/arch/arm64/boot/dts/apple/t6040-pmgr.dtsi"
+    },
+    {
+      "path": "/Volumes/linux/repo/arch/arm64/boot/dts/apple/t6040-j614s.dts",
+      "sha256": "7e7903821a578feece9a1ffa4bc3c15450e4e30b9f92ff9cb90a9bbc8a57feb9",
+      "snapshot": "evidence/2026-10-24-upstream-convergence/local-source/arch/arm64/boot/dts/apple/t6040-j614s.dts"
+    },
+    {
+      "path": "/Volumes/linux/repo/arch/arm64/boot/dts/apple/t6040-j614s-dcuart.dts",
+      "sha256": "a8048e982b63fe19a346318ef7c51f076a3df70b7b9b0fea153ea9446142ae6f",
+      "snapshot": "evidence/2026-10-24-upstream-convergence/local-source/arch/arm64/boot/dts/apple/t6040-j614s-dcuart.dts"
+    },
+    {
+      "path": "/Volumes/linux/repo/arch/arm64/boot/dts/apple/t6040-j614s-kbd.dts",
+      "sha256": "20833109b99f3610f1bc4a36c17a6baeff834634fec1b85fc7e9c0de5734f31c",
+      "snapshot": "evidence/2026-10-24-upstream-convergence/local-source/arch/arm64/boot/dts/apple/t6040-j614s-kbd.dts"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/scripts/t6040-build-sdroot-initramfs.sh",
+      "sha256": "9d0a1b944e4991765625953b99b2b401a8636060025ae374708ce3c9e7619701"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/scripts/t6040-make-initramfs.sh",
+      "sha256": "31034b3822dc9d05e8a30432030bf63df314a6a69eb138ba3722b0523f89f6fd"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/scripts/t6040-init-dcuart-trackpad-230",
+      "sha256": "d33bd5dadcdbd22387e9e66e4898e52797d7da3f9a68657df366116c05303351"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/scripts/t6040-image-preflight.sh",
+      "sha256": "794a76bdf81d7bc31668600188aaa1331cd02f3681f06ebf126344df8131838f"
+    },
+    {
+      "path": "/Users/damsleth/Code/wallace/scripts/t6040-nvme-readonly-test.c",
+      "sha256": "287160efe3a48b92541bb7fa24a1180db38da507af07b150f7e45e819f2d7434"
+    },
+    {
+      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/adt.py",
+      "sha256": "b1d0c1af0ea83f73b9e6003efb9b42a4892cb35be8efb9c7566d3512c1846a3f",
+      "role": "offline parser; no proxyclient/rig connection"
+    }
+  ],
+  "mail_series": {
+    "wifi": [
+      {
+        "message_id": "<20260925-brcm4388-submit-v1-1-b5cbc2cde2fb@gmail.com>",
+        "subject": "[PATCH 01/13] wifi: brcmfmac: pcie: Report the detected chip ID to\n the bus",
+        "date": "Fri, 25 Sep 2026 23:43:36 +1000",
+        "body_sha256": "1c32d6bd633424d24d9f667accda857b498de88fe8a41cf8d6cd58931ca17b0c"
+      },
+      {
+        "message_id": "<20260925-brcm4388-submit-v1-0-b5cbc2cde2fb@gmail.com>",
+        "subject": "[PATCH 00/13] wifi: brcmfmac: Add BCM4388 support",
+        "date": "Fri, 25 Sep 2026 23:43:35 +1000",
+        "body_sha256": "dd4b13bfae6ca8f4fde0e13148af1b78f0f330ac328383d8a38d51bac655b0f5"
+      },
+      {
+        "message_id": "<20260925-brcm4388-submit-v1-2-b5cbc2cde2fb@gmail.com>",
+        "subject": "[PATCH 02/13] wifi: brcmfmac: Match complete firmware capability\n names",
+        "date": "Fri, 25 Sep 2026 23:43:37 +1000",
+        "body_sha256": "4800c83c7e76b6635b0078556875442d2706ad1ecff81eb4ae8c507684f73256"
+      },
+      {
+        "message_id": "<20260925-brcm4388-submit-v1-3-b5cbc2cde2fb@gmail.com>",
+        "subject": "[PATCH 03/13] wifi: brcmfmac: Fall back to RSSI-only default join\n preferences",
+        "date": "Fri, 25 Sep 2026 23:43:38 +1000",
+        "body_sha256": "871bc7646e5a95e6c3bd9cfcc2be9160d2179f202a8644eafde055f4c175a678"
+      },
+      {
+        "message_id": "<20260925-brcm4388-submit-v1-4-b5cbc2cde2fb@gmail.com>",
+        "subject": "[PATCH 04/13] wifi: brcmfmac: Support newer PCIe core startup and\n interrupts",
+        "date": "Fri, 25 Sep 2026 23:43:39 +1000",
+        "body_sha256": "06388215cc354098fe3b6b228c8e60c1296308e02241e152c8d57b7590622c15"
+      },
+      {
+        "message_id": "<20260925-brcm4388-submit-v1-5-b5cbc2cde2fb@gmail.com>",
+        "subject": "[PATCH 05/13] wifi: brcmfmac: Negotiate PCIe mailbox transport\n with firmware",
+        "date": "Fri, 25 Sep 2026 23:43:40 +1000",
+        "body_sha256": "7c51b37ca5e324a635134a9ab4a69a001c44f7c5511914f5931fe79c8b6008f7"
+      },
+      {
+        "message_id": "<20260925-brcm4388-submit-v1-6-b5cbc2cde2fb@gmail.com>",
+        "subject": "[PATCH 06/13] wifi: brcmfmac: Load signed PCIe firmware images",
+        "date": "Fri, 25 Sep 2026 23:43:41 +1000",
+        "body_sha256": "048c37fe81d391b39fadb52cca78e554ed458533d0dffc84c32d919e74e93818"
+      },
+      {
+        "message_id": "<20260925-brcm4388-submit-v1-7-b5cbc2cde2fb@gmail.com>",
+        "subject": "[PATCH 07/13] wifi: brcmfmac: Use event_msgs_ext for event masks",
+        "date": "Fri, 25 Sep 2026 23:43:42 +1000",
+        "body_sha256": "8b1dad544799dcf57cc56331182d30fa14fadd0ad66271994def5abf0289ce53"
+      },
+      {
+        "message_id": "<20260925-brcm4388-submit-v1-8-b5cbc2cde2fb@gmail.com>",
+        "subject": "[PATCH 08/13] wifi: brcmfmac: Handle larger firmware band lists",
+        "date": "Fri, 25 Sep 2026 23:43:43 +1000",
+        "body_sha256": "2cae06d76024cb5a3ca292210910dc17ae5d8dfb1ccb48421e0e86a914000a90"
+      },
+      {
+        "message_id": "<20260925-brcm4388-submit-v1-9-b5cbc2cde2fb@gmail.com>",
+        "subject": "[PATCH 09/13] wifi: brcmfmac: Accept newer BSS information\n versions",
+        "date": "Fri, 25 Sep 2026 23:43:44 +1000",
+        "body_sha256": "076a311c8d6f2f78c14035fe03570f6fd031149b60d0a369af4cf180cdd93b69"
+      },
+      {
+        "message_id": "<20260925-brcm4388-submit-v1-10-b5cbc2cde2fb@gmail.com>",
+        "subject": "[PATCH 10/13] wifi: brcmfmac: Support versioned scan parameter\n layouts",
+        "date": "Fri, 25 Sep 2026 23:43:45 +1000",
+        "body_sha256": "d0d2bd2e91b68ff0a41579505d46e7ee37c2373500777cfc5d4b9d08ed072eea"
+      },
+      {
+        "message_id": "<20260925-brcm4388-submit-v1-11-b5cbc2cde2fb@gmail.com>",
+        "subject": "[PATCH 11/13] wifi: brcmfmac: Support versioned join requests",
+        "date": "Fri, 25 Sep 2026 23:43:46 +1000",
+        "body_sha256": "5f587f54438d369d69e244f84ea949d2103ee697918bbe4e5d6390e70109a0e5"
+      },
+      {
+        "message_id": "<20260925-brcm4388-submit-v1-12-b5cbc2cde2fb@gmail.com>",
+        "subject": "[PATCH 12/13] wifi: brcmfmac: Handle extended PMK command payloads",
+        "date": "Fri, 25 Sep 2026 23:43:47 +1000",
+        "body_sha256": "56f1c283c1638f85c307a6d51f7e04542d401e216cf24afde228f53a59bc8e07"
+      },
+      {
+        "message_id": "<20260925-brcm4388-submit-v1-13-b5cbc2cde2fb@gmail.com>",
+        "subject": "[PATCH 13/13] wifi: brcmfmac: Add BCM4388 support",
+        "date": "Fri, 25 Sep 2026 23:43:48 +1000",
+        "body_sha256": "e08677f977a335bd618a3b22d1163d679059c48856ef89e78d0f26868adfdc62"
+      },
+      {
+        "message_id": "<d28a1cfd-1bcc-4319-bbbf-7189a1ff8dc3@broadcom.com>",
+        "subject": "Re: [PATCH 00/13] wifi: brcmfmac: Add BCM4388 support",
+        "date": "Wed, 7 Oct 2026 14:54:04 +0200",
+        "body_sha256": "739087adc89eb8e8f62640c8e2e005ef51f5e2c0feee772ce86836c56675fc31"
+      }
+    ],
+    "hid": [
+      {
+        "message_id": "<20260925-apple-mtp-keyboard-final-v4-1-304c267518f4@gmail.com>",
+        "subject": "[PATCH v4 01/10] dt-bindings: mailbox: apple: Add M3 ASC mailbox\n compatibles",
+        "date": "Fri, 25 Sep 2026 22:09:28 +1000",
+        "body_sha256": "0952b3d465129e22c1a84a8f929eca95c2121a5d410ce890e2c69df97fc50265"
+      },
+      {
+        "message_id": "<20260925-apple-mtp-keyboard-final-v4-0-304c267518f4@gmail.com>",
+        "subject": "[PATCH v4 00/10] Add support for Apple Silicon DockChannel\n internal keyboards",
+        "date": "Fri, 25 Sep 2026 22:09:27 +1000",
+        "body_sha256": "8d0c6d3736963f4341be45e154b97c04a2f73f151c497e79eb0f8f46ba554c02"
+      },
+      {
+        "message_id": "<20260925-apple-mtp-keyboard-final-v4-2-304c267518f4@gmail.com>",
+        "subject": "[PATCH v4 02/10] dt-bindings: mailbox: apple: Add DockChannel\n mailbox",
+        "date": "Fri, 25 Sep 2026 22:09:29 +1000",
+        "body_sha256": "9bb2fc03153d991a45a402c80b6cac707d870eddf418199690fc406a3a1bd8bd"
+      },
+      {
+        "message_id": "<20260925-apple-mtp-keyboard-final-v4-4-304c267518f4@gmail.com>",
+        "subject": "[PATCH v4 04/10] dt-bindings: input: apple: Add DockChannel HID\n transport",
+        "date": "Fri, 25 Sep 2026 22:09:31 +1000",
+        "body_sha256": "441ed8a449c745c7324a38c57e2554cd26ac115a11bbee2507c087aca6a8c76e"
+      },
+      {
+        "message_id": "<20260925-apple-mtp-keyboard-final-v4-5-304c267518f4@gmail.com>",
+        "subject": "[PATCH v4 05/10] mailbox: apple: Add DockChannel FIFO controller",
+        "date": "Fri, 25 Sep 2026 22:09:32 +1000",
+        "body_sha256": "8de7ce45ecf5fbd11061246362f0ce70b76765422c5da80feb1d3559c30f9975"
+      },
+      {
+        "message_id": "<20260925-apple-mtp-keyboard-final-v4-3-304c267518f4@gmail.com>",
+        "subject": "[PATCH v4 03/10] dt-bindings: iommu: apple,dart: Add M3\n compatibles",
+        "date": "Fri, 25 Sep 2026 22:09:30 +1000",
+        "body_sha256": "a3ba3d44da4a1d92b63011d8e74f91bdee9814bfe69c99f4d162ef641792b111"
+      },
+      {
+        "message_id": "<20260925-apple-mtp-keyboard-final-v4-7-304c267518f4@gmail.com>",
+        "subject": "[PATCH v4 07/10] HID: apple: Add support for DockChannel HID\n keyboards",
+        "date": "Fri, 25 Sep 2026 22:09:34 +1000",
+        "body_sha256": "012d21b75a751c795283ca5f8ed58f539db63f5440a4aa0773b5c7c8a78b96b0"
+      },
+      {
+        "message_id": "<20260925-apple-mtp-keyboard-final-v4-6-304c267518f4@gmail.com>",
+        "subject": "[PATCH v4 06/10] soc: apple: rtkit: Add tracekit endpoint",
+        "date": "Fri, 25 Sep 2026 22:09:33 +1000",
+        "body_sha256": "9d1c2be15d0d904af77c9165b83699b13fb4694738ef8944b46a584731697054"
+      },
+      {
+        "message_id": "<20260925-apple-mtp-keyboard-final-v4-8-304c267518f4@gmail.com>",
+        "subject": "[PATCH v4 08/10] HID: apple: Add DockChannel HID transport driver",
+        "date": "Fri, 25 Sep 2026 22:09:35 +1000",
+        "body_sha256": "5cb35bb4cd59124f384436223b148a8f6cb94b1f6ce9cf32a4345753dbe70ae3"
+      },
+      {
+        "message_id": "<20260925-apple-mtp-keyboard-final-v4-9-304c267518f4@gmail.com>",
+        "subject": "[PATCH v4 09/10] arm64: dts: apple: Add MTP DockChannel HID nodes",
+        "date": "Fri, 25 Sep 2026 22:09:36 +1000",
+        "body_sha256": "040c3bd5a4a7ff08f84634014ebbebc77d89be1ec674e79e7aa514c6ed35b0d5"
+      },
+      {
+        "message_id": "<20260925-apple-mtp-keyboard-final-v4-10-304c267518f4@gmail.com>",
+        "subject": "[PATCH v4 10/10] arm64: dts: apple: Enable DockChannel HID on M2\n and M3 laptops",
+        "date": "Fri, 25 Sep 2026 22:09:37 +1000",
+        "body_sha256": "28613d86d3eec1563436540ed7c5e12ff27d427891b4278d93ba0215e4d14bb4"
+      },
+      {
+        "message_id": "<20260925121638.9F4B51F000FF@smtp.kernel.org>",
+        "subject": "Re: [PATCH v4 04/10] dt-bindings: input: apple: Add DockChannel HID\n transport",
+        "date": "Fri, 25 Sep 2026 12:16:38 +0000",
+        "body_sha256": "91c405714225a2b61b1589b1d51f1ac4fbdd5dd156f308f0d587dc5108c44944"
+      },
+      {
+        "message_id": "<20260925121851.4E4F41F000FF@smtp.kernel.org>",
+        "subject": "Re: [PATCH v4 05/10] mailbox: apple: Add DockChannel FIFO\n controller",
+        "date": "Fri, 25 Sep 2026 12:18:50 +0000",
+        "body_sha256": "efbe5caf065f71e02a499d63dfa1e2688c97e1042fca30a6a8a404944325fc60"
+      },
+      {
+        "message_id": "<179130212273.2406323.10596921268948570337.robh@kernel.org>",
+        "subject": "Re: [PATCH v4 02/10] dt-bindings: mailbox: apple: Add DockChannel\n mailbox",
+        "date": "Tue, 6 Oct 2026 10:55:23 -0500",
+        "body_sha256": "39b0148e41bfe9187d8127705a343a76e9b2ce1da9382dd9ac3e6e07bf00afca"
+      },
+      {
+        "message_id": "<20261006160049.GA2406717-robh@kernel.org>",
+        "subject": "Re: [PATCH v4 04/10] dt-bindings: input: apple: Add DockChannel HID\n transport",
+        "date": "Tue, 6 Oct 2026 11:00:49 -0500",
+        "body_sha256": "1fdcfda8fdd1e77f14e3d39239f0d1582cc873a35631598c54c504092d6c5d78"
+      },
+      {
+        "message_id": "<2687bc3e-b73a-415c-8c68-8249e1fe4e6b@cyberchaos.dev>",
+        "subject": "Re: [PATCH v4 04/10] dt-bindings: input: apple: Add DockChannel HID\n transport",
+        "date": "Tue, 6 Oct 2026 20:09:47 +0200",
+        "body_sha256": "dc8d8ba3d4bbf011698d2c4621f2a1685587ea9b78e23647a1e214477136fa0a"
+      },
+      {
+        "message_id": "<20261006185039.GE2194299-robh@kernel.org>",
+        "subject": "Re: [PATCH v4 04/10] dt-bindings: input: apple: Add DockChannel HID\n transport",
+        "date": "Tue, 6 Oct 2026 13:50:39 -0500",
+        "body_sha256": "7490430e6979e9da00b2639c73a170083f82e2a028d8503f590b93fa76d289ab"
+      }
+    ],
+    "regression": [
+      {
+        "message_id": "<20260915095827.698928-1-mlombard@redhat.com>",
+        "subject": "[PATCH] nvme: do not reset controllers in NVME_CTRL_NEW state",
+        "date": "Tue, 15 Sep 2026 11:58:27 +0200",
+        "body_sha256": "b554b21c5b0bb8ee8ef35727d810ebaf7206138cb4e3ac425e514c7105857e72"
+      },
+      {
+        "message_id": "<e6146839-0a52-45d0-8b95-9ae0f7807493@flourine.local>",
+        "subject": "Re: [PATCH] nvme: do not reset controllers in NVME_CTRL_NEW state",
+        "date": "Tue, 15 Sep 2026 15:11:56 +0200",
+        "body_sha256": "2b3ace9ec4d82f27b7bbc0e40b287066c3ac69dc15e35fc2fbc0a2104e79b67c"
+      },
+      {
+        "message_id": "<DLFXS43UXYEC.MEIQ5NBK049N@arkamax.eu>",
+        "subject": "Re: [PATCH] nvme: do not reset controllers in NVME_CTRL_NEW state",
+        "date": "Tue, 15 Sep 2026 15:49:36 +0200",
+        "body_sha256": "6d95d0dc860f9a0d59c0162c54aeea035ad36b95721bb66b6a08909d15ceba5b"
+      },
+      {
+        "message_id": "<10649bfb-a250-4352-a858-4e9b03457ae0@flourine.local>",
+        "subject": "Re: [PATCH] nvme: do not reset controllers in NVME_CTRL_NEW state",
+        "date": "Tue, 15 Sep 2026 16:49:31 +0200",
+        "body_sha256": "2a7627689c99e8d5d462613b6394aa126bc5dca46bb39613ad1f0e72c8a0fc35"
+      },
+      {
+        "message_id": "<aql1Xmn24bdQIFSA@kbusch-mbp>",
+        "subject": "Re: [PATCH] nvme: do not reset controllers in NVME_CTRL_NEW state",
+        "date": "Tue, 15 Sep 2026 10:42:06 -0600",
+        "body_sha256": "8a6e84cca116e7231a3cb55c20bb2dca83316a6db5003cb1678af12690353b95"
+      },
+      {
+        "message_id": "<aqxD9livO4SaNKvR@kbusch-mbp>",
+        "subject": "Re: [PATCH] nvme: do not reset controllers in NVME_CTRL_NEW state",
+        "date": "Thu, 17 Sep 2026 13:48:06 -0600",
+        "body_sha256": "794339aa6bbb53899f58354dbc659f26c6c9157dadc470df56fbc93f4a536d72"
+      },
+      {
+        "message_id": "<94912d46-381d-4988-800a-6ef3b595233f@cyberchaos.dev>",
+        "subject": "Re: [PATCH] nvme: do not reset controllers in NVME_CTRL_NEW state",
+        "date": "Sat, 3 Oct 2026 13:55:01 +0200",
+        "body_sha256": "d02ea8a987b218db2f389d15e574cdad6d314a4600a1d98fb31da8626c70700a"
+      },
+      {
+        "message_id": "<DLV7F9W5HSFS.1D5WQW59ZEHEL@arkamax.eu>",
+        "subject": "Re: [PATCH] nvme: do not reset controllers in NVME_CTRL_NEW state",
+        "date": "Sat, 03 Oct 2026 14:33:00 +0200",
+        "body_sha256": "b486ff4a117ec746986eb1184641257d176e56f2a6d8ddf2908efa3c5fd4e175"
+      },
+      {
+        "message_id": "<DLV87HMYWE6U.BG10862VYDK@arkamax.eu>",
+        "subject": "Re: [PATCH] nvme: do not reset controllers in NVME_CTRL_NEW state",
+        "date": "Sat, 03 Oct 2026 15:09:51 +0200",
+        "body_sha256": "8edb47ea71f2c97c0e06783f33fb6ce23d401f94773cd1b3292a1776b9ed7908"
+      },
+      {
+        "message_id": "<a8975c9a-b0c8-41cf-90e4-a770666e975a@cyberchaos.dev>",
+        "subject": "Re: [PATCH] nvme: do not reset controllers in NVME_CTRL_NEW state",
+        "date": "Sat, 3 Oct 2026 16:22:09 +0200",
+        "body_sha256": "7bd664d35d74ed7c7403c0ffd06792256164d2326856f04b578b744963886c8e"
+      },
+      {
+        "message_id": "<asOgs1Qm0Mq_ZqT0@kbusch-mbp>",
+        "subject": "Re: [PATCH] nvme: do not reset controllers in NVME_CTRL_NEW state",
+        "date": "Mon, 5 Oct 2026 15:05:55 +0200",
+        "body_sha256": "5837ef154d1135b16c2b09341afa7b861149171bef117e5e00e21bc0a447a063"
+      }
+    ]
+  },
+  "retrieval_attempts": [
+    {
+      "file": "asahi-tag1.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/git/tags/6d131de2f2d20f24c9a324208b27f3983e16bdc6",
+      "status": 200,
+      "sha256": "c647f000ca3c19995a6b6e338bd89ff305ae7957985ea95476c3b8abfec789eb",
+      "bytes": 1560
+    },
+    {
+      "file": "asahi-commit.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/commits/2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "2a1371654082a3086125ab7d2b6d7f8b4163807548f822042e6ebd9304ba3538",
+      "bytes": 4574
+    },
+    {
+      "file": "asahi-commits.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/commits?sha=2bb9d16f967f11e533a851b13b148a708d59b4f3&per_page=100",
+      "status": 200,
+      "sha256": "adefdd67fe21a1020010c94168f0a0bcc325beafe0b742b0187ab5bb2a707d2f",
+      "bytes": 386565
+    },
+    {
+      "file": "yuka-branches.json",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/branches?per_page=100",
+      "status": 200,
+      "sha256": "7ee80621b258bba122501ac0ee37d9d742e727bb2749b22b1438cef9a22041d6",
+      "bytes": 30263
+    },
+    {
+      "file": "new-regression.json",
+      "url": "https://api.github.com/repos/torvalds/linux/commits/c20bba234f3e",
+      "status": 200,
+      "sha256": "89e6380a414f57543489d8d5255bf513a356f8098cff865ce16f0c0997f7b2e7",
+      "bytes": 5555
+    },
+    {
+      "file": "lore-regression.txt",
+      "url": "https://lore.kernel.org/all/94912d46-381d-4988-800a-6ef3b595233f@cyberchaos.dev/raw",
+      "status": 200,
+      "sha256": "db0f4045f6ca6335d5066502d6e69396b52c6cac111a77e08d7a7722de05316c",
+      "bytes": 5700
+    },
+    {
+      "file": "lore-wifi.txt",
+      "url": "https://lore.kernel.org/asahi/20260925-brcm4388-submit-v1-0-b5cbc2cde2fb@gmail.com/raw",
+      "status": 200,
+      "sha256": "0ea18c05715ec9ec3582058896563acd2ecf713bb724e5acbd535c619dd7ded9",
+      "bytes": 7790
+    },
+    {
+      "file": "lore-hid.txt",
+      "url": "https://lore.kernel.org/asahi/20260925-apple-mtp-keyboard-final-v4-0-304c267518f4@gmail.com/raw",
+      "status": 200,
+      "sha256": "d1cbd5801480dd48a15215631f7cc54915e8f788387c34956ae74023fdf84235",
+      "bytes": 10932
+    },
+    {
+      "file": "torvalds-ref.json",
+      "url": "https://api.github.com/repos/torvalds/linux/git/ref/heads/master",
+      "status": 200,
+      "sha256": "b3d2acc7190feca7d298f2e55cf382e210223b9ca6ff67f65b72bd9adfb032eb",
+      "bytes": 339
+    },
+    {
+      "file": "asahi--Makefile",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/2bb9d16f967f11e533a851b13b148a708d59b4f3/Makefile",
+      "status": 429,
+      "sha256": "ed34c600de6e952234b278d7c8b8d05ec4790c0e1dec2ea2a86e5b3bfaa5b0a1",
+      "bytes": 313
+    },
+    {
+      "file": "asahi--drivers__nvme__host__apple.c",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/2bb9d16f967f11e533a851b13b148a708d59b4f3/drivers/nvme/host/apple.c",
+      "status": 429,
+      "sha256": "ed34c600de6e952234b278d7c8b8d05ec4790c0e1dec2ea2a86e5b3bfaa5b0a1",
+      "bytes": 313
+    },
+    {
+      "file": "asahi--drivers__nvme__host__core.c",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/2bb9d16f967f11e533a851b13b148a708d59b4f3/drivers/nvme/host/core.c",
+      "status": 429,
+      "sha256": "ed34c600de6e952234b278d7c8b8d05ec4790c0e1dec2ea2a86e5b3bfaa5b0a1",
+      "bytes": 313
+    },
+    {
+      "file": "asahi--drivers__soc__apple__sart.c",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/2bb9d16f967f11e533a851b13b148a708d59b4f3/drivers/soc/apple/sart.c",
+      "status": 429,
+      "sha256": "ed34c600de6e952234b278d7c8b8d05ec4790c0e1dec2ea2a86e5b3bfaa5b0a1",
+      "bytes": 313
+    },
+    {
+      "file": "asahi--arch__arm64__kernel__idle.c",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/2bb9d16f967f11e533a851b13b148a708d59b4f3/arch/arm64/kernel/idle.c",
+      "status": 429,
+      "sha256": "ed34c600de6e952234b278d7c8b8d05ec4790c0e1dec2ea2a86e5b3bfaa5b0a1",
+      "bytes": 313
+    },
+    {
+      "file": "asahi--drivers__irqchip__irq-apple-aic.c",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/2bb9d16f967f11e533a851b13b148a708d59b4f3/drivers/irqchip/irq-apple-aic.c",
+      "status": 429,
+      "sha256": "ed34c600de6e952234b278d7c8b8d05ec4790c0e1dec2ea2a86e5b3bfaa5b0a1",
+      "bytes": 313
+    },
+    {
+      "file": "asahi--drivers__pmdomain__apple__pmgr-pwrstate.c",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/2bb9d16f967f11e533a851b13b148a708d59b4f3/drivers/pmdomain/apple/pmgr-pwrstate.c",
+      "status": 429,
+      "sha256": "ed34c600de6e952234b278d7c8b8d05ec4790c0e1dec2ea2a86e5b3bfaa5b0a1",
+      "bytes": 313
+    },
+    {
+      "file": "asahi--drivers__cpufreq__apple-soc-cpufreq.c",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/2bb9d16f967f11e533a851b13b148a708d59b4f3/drivers/cpufreq/apple-soc-cpufreq.c",
+      "status": 429,
+      "sha256": "ed34c600de6e952234b278d7c8b8d05ec4790c0e1dec2ea2a86e5b3bfaa5b0a1",
+      "bytes": 313
+    },
+    {
+      "file": "asahi--drivers__hid__apple-dockchannel-hid__apple_dockchannel_hid.c",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/2bb9d16f967f11e533a851b13b148a708d59b4f3/drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c",
+      "status": 404,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed",
+      "bytes": 14
+    },
+    {
+      "file": "asahi--drivers__mailbox__apple-dockchannel.c",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/2bb9d16f967f11e533a851b13b148a708d59b4f3/drivers/mailbox/apple-dockchannel.c",
+      "status": 404,
+      "sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed",
+      "bytes": 14
+    },
+    {
+      "file": "asahi--drivers__net__wireless__broadcom__brcm80211__brcmfmac__fwil_types.h",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/2bb9d16f967f11e533a851b13b148a708d59b4f3/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h",
+      "status": 429,
+      "sha256": "ed34c600de6e952234b278d7c8b8d05ec4790c0e1dec2ea2a86e5b3bfaa5b0a1",
+      "bytes": 313
+    },
+    {
+      "file": "asahi--drivers__net__wireless__broadcom__brcm80211__brcmfmac__pcie.c",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/2bb9d16f967f11e533a851b13b148a708d59b4f3/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c",
+      "status": 429,
+      "sha256": "ed34c600de6e952234b278d7c8b8d05ec4790c0e1dec2ea2a86e5b3bfaa5b0a1",
+      "bytes": 313
+    },
+    {
+      "file": "asahi--arch__arm64__boot__dts__apple__Makefile",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/2bb9d16f967f11e533a851b13b148a708d59b4f3/arch/arm64/boot/dts/apple/Makefile",
+      "status": 429,
+      "sha256": "ed34c600de6e952234b278d7c8b8d05ec4790c0e1dec2ea2a86e5b3bfaa5b0a1",
+      "bytes": 313
+    },
+    {
+      "file": "asahi--Documentation__devicetree__bindings__nvme__apple,nvme-ans.yaml",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/2bb9d16f967f11e533a851b13b148a708d59b4f3/Documentation/devicetree/bindings/nvme/apple,nvme-ans.yaml",
+      "status": 429,
+      "sha256": "ed34c600de6e952234b278d7c8b8d05ec4790c0e1dec2ea2a86e5b3bfaa5b0a1",
+      "bytes": 313
+    },
+    {
+      "file": "asahi--Documentation__devicetree__bindings__iommu__apple,sart.yaml",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/2bb9d16f967f11e533a851b13b148a708d59b4f3/Documentation/devicetree/bindings/iommu/apple,sart.yaml",
+      "status": 429,
+      "sha256": "ed34c600de6e952234b278d7c8b8d05ec4790c0e1dec2ea2a86e5b3bfaa5b0a1",
+      "bytes": 313
+    },
+    {
+      "file": "yuka-history-parts_04-dt-more.json",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/commits?ref_name=parts%2F04-dt-more&per_page=100",
+      "status": 200,
+      "sha256": "f745e2aaf534a68d32c5f0c797d7359393eaecd3ed8fbf79c2164483c3a4cf54",
+      "bytes": 95691
+    },
+    {
+      "file": "yuka-history-parts_20-nvme.json",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/commits?ref_name=parts%2F20-nvme&per_page=100",
+      "status": 200,
+      "sha256": "c736b52c430fb117693f137dfb5b4d12d59da68947a6f262f5ab5783642db110",
+      "bytes": 200208
+    },
+    {
+      "file": "yuka-history-parts_21-dt-nvme.json",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/commits?ref_name=parts%2F21-dt-nvme&per_page=100",
+      "status": 200,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    {
+      "file": "yuka-history-parts_40-old-dchid.json",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/commits?ref_name=parts%2F40-old-dchid&per_page=100",
+      "status": 200,
+      "sha256": "71416dbae1260eb0428f7b3eaf955397704747296541fc622eb70ed0d7e46547",
+      "bytes": 191845
+    },
+    {
+      "file": "yuka-history-parts_41-dt-old-dchid.json",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/commits?ref_name=parts%2F41-dt-old-dchid&per_page=100",
+      "status": 200,
+      "sha256": "86bbd61d74816a0542446c66a13a592d8853e1cc7e0fa6c6476037cc372ca353",
+      "bytes": 87324
+    },
+    {
+      "file": "yuka-history-t604x-old-dchid-working.json",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/commits?ref_name=t604x-old-dchid-working&per_page=100",
+      "status": 200,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    {
+      "file": "yuka-history-b4_apple-m4-pro-max-initial-devicetrees.json",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/commits?ref_name=b4%2Fapple-m4-pro-max-initial-devicetrees&per_page=100",
+      "status": 200,
+      "sha256": "3b2f11f51eabec96a297b4160e0237b84bc983c2151f933d5e6ab6b74ec24107",
+      "bytes": 163955
+    },
+    {
+      "file": "api-asahi--Makefile.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/Makefile?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "901990c21d63227afb318ca7abf53a1919ef9e48123ea55db65b8c90bf77647f",
+      "bytes": 110860
+    },
+    {
+      "file": "api-asahi--drivers__nvme__host__apple.c.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/nvme/host/apple.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "54fa87f6422bdd86ab6262e49962d655e997fb2740b68f7d9bb515670fa2b52b",
+      "bytes": 67307
+    },
+    {
+      "file": "api-asahi--drivers__nvme__host__core.c.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/nvme/host/core.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "cae7bf370cf3a4c014cea66d089ad75026ca7439090fca647a9309ad3018857b",
+      "bytes": 209509
+    },
+    {
+      "file": "api-asahi--drivers__soc__apple__sart.c.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/soc/apple/sart.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "b94f1f5fbc28a7917b5ad2add81c6e4eb7932f5e16ad7d2e018f812f62e78494",
+      "bytes": 15092
+    },
+    {
+      "file": "api-asahi--arch__arm64__kernel__idle.c.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/arch/arm64/kernel/idle.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": "error",
+      "sha256": "35281279d8e2164cee8666d6f8aad891326911e887ab1b2ab778c8ac6d09dc6c",
+      "bytes": 70
+    },
+    {
+      "file": "api-asahi--drivers__irqchip__irq-apple-aic.c.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/irqchip/irq-apple-aic.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "fe1fb67329f4f424610f76719f4a30a078d79ba08c44f0f4002195afbe7e6705",
+      "bytes": 42155
+    },
+    {
+      "file": "api-asahi--drivers__pmdomain__apple__pmgr-pwrstate.c.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/pmdomain/apple/pmgr-pwrstate.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "cde6ea0db54449f3c5685663500e74313d608bc514ae9aaf3ffccffd5ae3abe6",
+      "bytes": 16107
+    },
+    {
+      "file": "api-asahi--drivers__cpufreq__apple-soc-cpufreq.c.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/cpufreq/apple-soc-cpufreq.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "d13c2d9f6df29ff1a02659056cd1563bb4c3ed15a40680312f877395cdc1b263",
+      "bytes": 14985
+    },
+    {
+      "file": "api-asahi--drivers__net__wireless__broadcom__brcm80211__brcmfmac__fwil_types.h.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "9d239c4a43fa25c102947231735d1db8fd289a07ea195dcdce10e9ac84dde434",
+      "bytes": 69832
+    },
+    {
+      "file": "api-asahi--drivers__net__wireless__broadcom__brcm80211__brcmfmac__pcie.c.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "b0f584566090f98adac17b47597cac661a0f1c7f14139914334b5ba521ef955c",
+      "bytes": 124142
+    },
+    {
+      "file": "api-asahi--arch__arm64__boot__dts__apple__Makefile.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/arch/arm64/boot/dts/apple/Makefile?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "7da6c341c059c8d1bb5960d873c42bd24eb4789dd92512def27abd0fe1664010",
+      "bytes": 7705
+    },
+    {
+      "file": "api-asahi--Documentation__devicetree__bindings__nvme__apple,nvme-ans.yaml.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/Documentation/devicetree/bindings/nvme/apple,nvme-ans.yaml?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "84de11dbd38dec594b53b8deca5a80482637316f5be4c7d6e5a31d0276105419",
+      "bytes": 5118
+    },
+    {
+      "file": "api-asahi--Documentation__devicetree__bindings__iommu__apple,sart.yaml.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/Documentation/devicetree/bindings/iommu/apple,sart.yaml?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "aa140d69f1cdd9818c682d7e3691b7720c17d8661d6238aed401930a7ae8786f",
+      "bytes": 3372
+    },
+    {
+      "file": "api-asahi--drivers__hid.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/hid?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "5961bcaf6412859ccb135c5341fe055f01b3c8013e780bb996736f2976c6bddb",
+      "bytes": 197476
+    },
+    {
+      "file": "api-asahi--drivers__soc__apple.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/soc/apple?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "17e5b3b4f6f29020f30bc6ba3c17005ce9db911f1e94848cd7128de19ec06dd0",
+      "bytes": 14245
+    },
+    {
+      "file": "api-asahi--arch__arm64__configs__asahi.config.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/arch/arm64/configs/asahi.config?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "7fe155af175f5647e12cee6e94e96242aaab153afc6fa755ceece9fb63c49e8a",
+      "bytes": 3859
+    },
+    {
+      "file": "tree-nvme.json",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/tree?path=drivers%2Fhid%2Fapple-dockchannel-hid&ref=6acd61216911155b04fd98ca5599c3e74450010b&per_page=100",
+      "status": 404,
+      "sha256": "2e3fda99cb68a69505c4d6d885b097b7e7b39621290604b1c75e074ef5279b7a",
+      "bytes": 52
+    },
+    {
+      "file": "tree-dt.json",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/tree?path=arch%2Farm64%2Fboot%2Fdts%2Fapple&ref=0880225c96f587ce7645fd3ca8e51769bccbfccd&per_page=100",
+      "status": 200,
+      "sha256": "bcdadc356b4c6b3429c94a7ce6f25b9f48d3f29f278c0880b222f51d5a21225d",
+      "bytes": 15627
+    },
+    {
+      "file": "tree-hid.json",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/tree?path=drivers%2Fhid%2Fapple-dockchannel-hid&ref=55e130fd72dbd21cf0896a73664eaa8029b9f792&per_page=100",
+      "status": 404,
+      "sha256": "2e3fda99cb68a69505c4d6d885b097b7e7b39621290604b1c75e074ef5279b7a",
+      "bytes": 52
+    },
+    {
+      "file": "tree-hid-dt.json",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/tree?path=arch%2Farm64%2Fboot%2Fdts%2Fapple&ref=cb64e51073fc6837d25f3b83c0d965c2ab020626&per_page=100",
+      "status": 200,
+      "sha256": "a7736920238f043296d94032920623568bd451d9c1b4fc0cd00ae482e900c8b8",
+      "bytes": 15627
+    },
+    {
+      "file": "lore-wifi.mbox.gz",
+      "url": "https://lore.kernel.org/all/20260925-brcm4388-submit-v1-0-b5cbc2cde2fb@gmail.com/t.mbox.gz",
+      "status": 200,
+      "sha256": "1a468d78ce9adc771f1403e1ee759bb7bd1a34923203b89f9069500337b3daf9",
+      "bytes": 76973
+    },
+    {
+      "file": "lore-hid.mbox.gz",
+      "url": "https://lore.kernel.org/all/20260925-apple-mtp-keyboard-final-v4-0-304c267518f4@gmail.com/t.mbox.gz",
+      "status": 200,
+      "sha256": "e7a0434141b2f4b71e8c7e46be5554190e2e05a12a2a91432812386cbb5624eb",
+      "bytes": 70283
+    },
+    {
+      "file": "lore-regression.mbox.gz",
+      "url": "https://lore.kernel.org/all/94912d46-381d-4988-800a-6ef3b595233f@cyberchaos.dev/t.mbox.gz",
+      "status": 200,
+      "sha256": "6cf92f8ab5d617f632e4eb18abdb5e55ddb0dd994fba9471ad636b495d6433ca",
+      "bytes": 15659
+    },
+    {
+      "file": "api-asahi--arch__arm64__kernel__idle.c.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/arch/arm64/kernel/idle.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "ca96ea69e2c76dceb77d2b5c5995a638d2b2a97311170fe81ded5ecbda4d35c6",
+      "bytes": 2993
+    },
+    {
+      "file": "api-asahi--arch__arm64__lib__delay.c.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/arch/arm64/lib/delay.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "d7601be3c7dec5993941f2b2502ae356dd77f47de4c2cd47124c6bad9deed606",
+      "bytes": 3946
+    },
+    {
+      "file": "api-asahi--drivers__hid__dockchannel-hid.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/hid/dockchannel-hid?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "9e9d9eed2115b90c6d2b00c7b6d77b21d98ce245935de7c6cb118e47f48944d1",
+      "bytes": 3245
+    },
+    {
+      "file": "api-asahi--drivers__soc__apple__dockchannel.c.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/soc/apple/dockchannel.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "2913c40f19fe83bb89f210ffcd90388355186fd3163896f96db7916dcec222fc",
+      "bytes": 15427
+    },
+    {
+      "file": "api-asahi--drivers__hid__Kconfig.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/hid/Kconfig?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "6f9e8c20deb38e17c9684d6ede1df8bc21f58ca77e6df7c2c800c929b1812f28",
+      "bytes": 62573
+    },
+    {
+      "file": "api-asahi--drivers__hid__dockchannel-hid__Kconfig.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/hid/dockchannel-hid/Kconfig?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "c2cf30ee42cc7a1cee84df0ab816d28dd4d39781818e79565678af59f58597b4",
+      "bytes": 1703
+    },
+    {
+      "file": "api-asahi--drivers__soc__apple__Kconfig.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/soc/apple/Kconfig?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "83fc306ce817590ee0c4857bcf9b28a1f130b9c0d9305cbfc5e8b4a84fab23bb",
+      "bytes": 5984
+    },
+    {
+      "file": "api-asahi--arch__arm64__boot__dts__apple__t6040.dtsi.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/arch/arm64/boot/dts/apple/t6040.dtsi?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 404,
+      "sha256": "e45906ce02e79f16fb87a838d86bb4e497e37a9591f97608fa013bbcd8b9cbc2",
+      "bytes": 127
+    },
+    {
+      "file": "api-asahi--arch__arm64__boot__dts__apple__t6041.dtsi.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/arch/arm64/boot/dts/apple/t6041.dtsi?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 404,
+      "sha256": "e45906ce02e79f16fb87a838d86bb4e497e37a9591f97608fa013bbcd8b9cbc2",
+      "bytes": 127
+    },
+    {
+      "file": "api-asahi--drivers__base__regmap__regcache.c.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/base/regmap/regcache.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "2aacffc0da8d12a8bd803531547ca13c303cb789e54836b28e149334a9b8b507",
+      "bytes": 29256
+    },
+    {
+      "file": "api-mainline--drivers__nvme__host__apple.c.json",
+      "url": "https://api.github.com/repos/torvalds/linux/contents/drivers/nvme/host/apple.c?ref=5b0764a53235d3c77e1ed674e836e1b3fe1a4b1f",
+      "status": 200,
+      "sha256": "7f967dc156f4f0448505c391822bdd3a1d1bfbeb6a9c4bccc6de161292ef40d1",
+      "bytes": 64703
+    },
+    {
+      "file": "api-mainline--drivers__nvme__host__core.c.json",
+      "url": "https://api.github.com/repos/torvalds/linux/contents/drivers/nvme/host/core.c?ref=5b0764a53235d3c77e1ed674e836e1b3fe1a4b1f",
+      "status": 200,
+      "sha256": "24a673ac852c2dc772fc76de229a97e55ffc106bae0409c9c6428861484853e5",
+      "bytes": 210801
+    },
+    {
+      "file": "api-mainline--arch__arm64__boot__dts__apple__Makefile.json",
+      "url": "https://api.github.com/repos/torvalds/linux/contents/arch/arm64/boot/dts/apple/Makefile?ref=5b0764a53235d3c77e1ed674e836e1b3fe1a4b1f",
+      "status": 200,
+      "sha256": "05611fe52afad2915a95b8a011e8a7ee530c993174528148b436921e131545c4",
+      "bytes": 7749
+    },
+    {
+      "file": "api-mainline--drivers__net__wireless__broadcom__brcm80211__brcmfmac__pcie.c.json",
+      "url": "https://api.github.com/repos/torvalds/linux/contents/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c?ref=5b0764a53235d3c77e1ed674e836e1b3fe1a4b1f",
+      "status": 200,
+      "sha256": "7488774faa736409d325a91068b7561944d8fa26a176016c38b46ea1820cb3bf",
+      "bytes": 108120
+    },
+    {
+      "file": "api-wallace--drivers__nvme__host__apple.c.json",
+      "url": "https://api.github.com/repos/damsleth/linux/contents/drivers/nvme/host/apple.c?ref=4f2429104009e3964ddcc326d8490ac25bfb1a5c",
+      "status": 404,
+      "sha256": "1ab195eb3720b78c8f64fd327d350611fe0162a972e8de6e6d6e3fee83e3a5aa",
+      "bytes": 162
+    },
+    {
+      "file": "api-wallace--drivers__nvme__host__core.c.json",
+      "url": "https://api.github.com/repos/damsleth/linux/contents/drivers/nvme/host/core.c?ref=4f2429104009e3964ddcc326d8490ac25bfb1a5c",
+      "status": 404,
+      "sha256": "1ab195eb3720b78c8f64fd327d350611fe0162a972e8de6e6d6e3fee83e3a5aa",
+      "bytes": 162
+    },
+    {
+      "file": "api-wallace--arch__arm64__boot__dts__apple__Makefile.json",
+      "url": "https://api.github.com/repos/damsleth/linux/contents/arch/arm64/boot/dts/apple/Makefile?ref=4f2429104009e3964ddcc326d8490ac25bfb1a5c",
+      "status": 404,
+      "sha256": "1ab195eb3720b78c8f64fd327d350611fe0162a972e8de6e6d6e3fee83e3a5aa",
+      "bytes": 162
+    },
+    {
+      "file": "api-wallace--drivers__net__wireless__broadcom__brcm80211__brcmfmac__pcie.c.json",
+      "url": "https://api.github.com/repos/damsleth/linux/contents/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c?ref=4f2429104009e3964ddcc326d8490ac25bfb1a5c",
+      "status": 404,
+      "sha256": "1ab195eb3720b78c8f64fd327d350611fe0162a972e8de6e6d6e3fee83e3a5aa",
+      "bytes": 162
+    },
+    {
+      "file": "yuka-dt--t6040.dtsi",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/files/arch%2Farm64%2Fboot%2Fdts%2Fapple%2Ft6040.dtsi/raw?ref=0880225c96f587ce7645fd3ca8e51769bccbfccd",
+      "status": "error",
+      "sha256": "693919be92a592d0ab39d3a80a50801930732ee20d6dee5aaf1c0eb0cda7c5ff",
+      "bytes": 28
+    },
+    {
+      "file": "yuka-dt--t6041.dtsi",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/files/arch%2Farm64%2Fboot%2Fdts%2Fapple%2Ft6041.dtsi/raw?ref=0880225c96f587ce7645fd3ca8e51769bccbfccd",
+      "status": "error",
+      "sha256": "693919be92a592d0ab39d3a80a50801930732ee20d6dee5aaf1c0eb0cda7c5ff",
+      "bytes": 28
+    },
+    {
+      "file": "yuka-dt--t604x.dtsi",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/files/arch%2Farm64%2Fboot%2Fdts%2Fapple%2Ft604x.dtsi/raw?ref=0880225c96f587ce7645fd3ca8e51769bccbfccd",
+      "status": "error",
+      "sha256": "693919be92a592d0ab39d3a80a50801930732ee20d6dee5aaf1c0eb0cda7c5ff",
+      "bytes": 28
+    },
+    {
+      "file": "yuka-dt--t6041-pmgr.dtsi",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/files/arch%2Farm64%2Fboot%2Fdts%2Fapple%2Ft6041-pmgr.dtsi/raw?ref=0880225c96f587ce7645fd3ca8e51769bccbfccd",
+      "status": "error",
+      "sha256": "693919be92a592d0ab39d3a80a50801930732ee20d6dee5aaf1c0eb0cda7c5ff",
+      "bytes": 28
+    },
+    {
+      "file": "yuka-dt--t604x-j614-j616.dtsi",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/files/arch%2Farm64%2Fboot%2Fdts%2Fapple%2Ft604x-j614-j616.dtsi/raw?ref=0880225c96f587ce7645fd3ca8e51769bccbfccd",
+      "status": "error",
+      "sha256": "693919be92a592d0ab39d3a80a50801930732ee20d6dee5aaf1c0eb0cda7c5ff",
+      "bytes": 28
+    },
+    {
+      "file": "yuka-dt--t6040-j614s.dts",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/files/arch%2Farm64%2Fboot%2Fdts%2Fapple%2Ft6040-j614s.dts/raw?ref=0880225c96f587ce7645fd3ca8e51769bccbfccd",
+      "status": 200,
+      "sha256": "011f3275d72be678477960e5b46f2ee68111419ec0a7b01a92c45a2a3d46f8b7",
+      "bytes": 624
+    },
+    {
+      "file": "yuka-hid-dt--t604x.dtsi",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/files/arch%2Farm64%2Fboot%2Fdts%2Fapple%2Ft604x.dtsi/raw?ref=cb64e51073fc6837d25f3b83c0d965c2ab020626",
+      "status": 404,
+      "sha256": "63f7f67ea6ef81dc7bf3bd7868cd068f6d025d70981a0f6685843007c3009a36",
+      "bytes": 32
+    },
+    {
+      "file": "yuka-hid-dt--t604x-j614-j616.dtsi",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/files/arch%2Farm64%2Fboot%2Fdts%2Fapple%2Ft604x-j614-j616.dtsi/raw?ref=cb64e51073fc6837d25f3b83c0d965c2ab020626",
+      "status": "error",
+      "sha256": "693919be92a592d0ab39d3a80a50801930732ee20d6dee5aaf1c0eb0cda7c5ff",
+      "bytes": 28
+    },
+    {
+      "file": "yuka-submitted-dt--t6040.dtsi",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/files/arch%2Farm64%2Fboot%2Fdts%2Fapple%2Ft6040.dtsi/raw?ref=7edc05e30bf7a9da5e4e61bd94ca098445b15af9",
+      "status": "error",
+      "sha256": "693919be92a592d0ab39d3a80a50801930732ee20d6dee5aaf1c0eb0cda7c5ff",
+      "bytes": 28
+    },
+    {
+      "file": "yuka-submitted-dt--t604x.dtsi",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/files/arch%2Farm64%2Fboot%2Fdts%2Fapple%2Ft604x.dtsi/raw?ref=7edc05e30bf7a9da5e4e61bd94ca098445b15af9",
+      "status": "error",
+      "sha256": "693919be92a592d0ab39d3a80a50801930732ee20d6dee5aaf1c0eb0cda7c5ff",
+      "bytes": 28
+    },
+    {
+      "file": "yuka-submitted-dt--t6041-pmgr.dtsi",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/files/arch%2Farm64%2Fboot%2Fdts%2Fapple%2Ft6041-pmgr.dtsi/raw?ref=7edc05e30bf7a9da5e4e61bd94ca098445b15af9",
+      "status": "error",
+      "sha256": "693919be92a592d0ab39d3a80a50801930732ee20d6dee5aaf1c0eb0cda7c5ff",
+      "bytes": 28
+    },
+    {
+      "file": "yuka-submitted-dt--t6040-j614s.dts",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/files/arch%2Farm64%2Fboot%2Fdts%2Fapple%2Ft6040-j614s.dts/raw?ref=7edc05e30bf7a9da5e4e61bd94ca098445b15af9",
+      "status": "error",
+      "sha256": "693919be92a592d0ab39d3a80a50801930732ee20d6dee5aaf1c0eb0cda7c5ff",
+      "bytes": 28
+    },
+    {
+      "file": "yuka-nvme--drivers__nvme__host__apple.c",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/files/drivers%2Fnvme%2Fhost%2Fapple.c/raw?ref=6acd61216911155b04fd98ca5599c3e74450010b",
+      "status": 200,
+      "sha256": "95b8a28a781fea45ad727c26ce0e9452af00a0379e12f214017d6edc82ffb6aa",
+      "bytes": 47190
+    },
+    {
+      "file": "yuka-nvme--drivers__soc__apple__sart.c",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/files/drivers%2Fsoc%2Fapple%2Fsart.c/raw?ref=6acd61216911155b04fd98ca5599c3e74450010b",
+      "status": 200,
+      "sha256": "98d1fc03b748b0d6a18655ff0f7849befd54d68c1b60b2076a7671d29d6b6e4b",
+      "bytes": 10328
+    },
+    {
+      "file": "yuka-hid--drivers__hid__dockchannel-hid__dockchannel-hid.c",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/files/drivers%2Fhid%2Fdockchannel-hid%2Fdockchannel-hid.c/raw?ref=55e130fd72dbd21cf0896a73664eaa8029b9f792",
+      "status": 200,
+      "sha256": "b1ba832804d32e269ff22b540be53744e3a26b782266cbf32ad17016a9864426",
+      "bytes": 28930
+    },
+    {
+      "file": "yuka-hid--drivers__hid__dockchannel-hid__dockchannel_hid.c",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/files/drivers%2Fhid%2Fdockchannel-hid%2Fdockchannel_hid.c/raw?ref=55e130fd72dbd21cf0896a73664eaa8029b9f792",
+      "status": 404,
+      "sha256": "63f7f67ea6ef81dc7bf3bd7868cd068f6d025d70981a0f6685843007c3009a36",
+      "bytes": 32
+    },
+    {
+      "file": "yuka-hid--drivers__soc__apple__dockchannel.c",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/files/drivers%2Fsoc%2Fapple%2Fdockchannel.c/raw?ref=55e130fd72dbd21cf0896a73664eaa8029b9f792",
+      "status": 200,
+      "sha256": "654e0245704440b6fe2ed0ed85495b0e78011e5c3485e8a27964a1a93ae161e4",
+      "bytes": 10424
+    },
+    {
+      "file": "yuka-diff-6acd61216911155b04fd98ca5599c3e74450010b.json",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/commits/6acd61216911155b04fd98ca5599c3e74450010b/diff",
+      "status": 200,
+      "sha256": "97b409beea806cea0e0f7ffe571cd4193a157ea1e97b8f005ad39527382ecd24",
+      "bytes": 3429
+    },
+    {
+      "file": "yuka-diff-2888926b6342cd4acc74015d59d5304e7dc329ed.json",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/commits/2888926b6342cd4acc74015d59d5304e7dc329ed/diff",
+      "status": 200,
+      "sha256": "e3cdbc8d48d38b13b1316db68d093d19c0c3d4edc99de80b4629882ffe1d827f",
+      "bytes": 2955
+    },
+    {
+      "file": "yuka-diff-501a16a59f79c8defe62e99dac055d220f982589.json",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/commits/501a16a59f79c8defe62e99dac055d220f982589/diff",
+      "status": 200,
+      "sha256": "e3fc28b6b7d176f65ab029f9b903a8107ba95631024b889887ac20d08376fc5f",
+      "bytes": 3292
+    },
+    {
+      "file": "yuka-diff-419adc71f0d8fedd8666fa60123b7262d4c82390.json",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/commits/419adc71f0d8fedd8666fa60123b7262d4c82390/diff",
+      "status": 200,
+      "sha256": "d87f1469a149bab122e08a2c4fa4392b08bc2e15f2d7f2bac040eaaed4d7ef7e",
+      "bytes": 1057
+    },
+    {
+      "file": "yuka-diff-01334b613f75dbb2ee1bbb8ff705d3af8bf923de.json",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/commits/01334b613f75dbb2ee1bbb8ff705d3af8bf923de/diff",
+      "status": 200,
+      "sha256": "bbcbc0dfa1c384ca59530c44167ea064692216887a02452809493e21513d21e6",
+      "bytes": 692
+    },
+    {
+      "file": "yuka-diff-55e130fd72dbd21cf0896a73664eaa8029b9f792.json",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/commits/55e130fd72dbd21cf0896a73664eaa8029b9f792/diff",
+      "status": 200,
+      "sha256": "1f20e25b4902878637ec409398ff9ad95934fa76710e0e67e8b58890ed18b4c5",
+      "bytes": 965
+    },
+    {
+      "file": "yuka-diff-42839287f85c8c36b63579371af533fcd1b8c970.json",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/commits/42839287f85c8c36b63579371af533fcd1b8c970/diff",
+      "status": 200,
+      "sha256": "5bb597865f596799254fcbf98d463ad9ea420d80e3c624ed4fe7b384dd3de85f",
+      "bytes": 3241
+    },
+    {
+      "file": "api-asahi--drivers__hid__dockchannel-hid__dockchannel-hid.c.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/hid/dockchannel-hid/dockchannel-hid.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "1f2ed0425e867101feab59f700ecbb6ffc23267e6ce6eb6e81073ea443648208",
+      "bytes": 40993
+    },
+    {
+      "file": "api-asahi--arch__arm64__kernel__cpufeature.c.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/arch/arm64/kernel/cpufeature.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "81fd79afb2c0bddbafbd8735112a30ffa26a94ec4515a1f6375bf38315db460f",
+      "bytes": 204215
+    },
+    {
+      "file": "api-asahi--arch__arm64__kernel__idreg-override.c.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/arch/arm64/kernel/idreg-override.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 404,
+      "sha256": "e45906ce02e79f16fb87a838d86bb4e497e37a9591f97608fa013bbcd8b9cbc2",
+      "bytes": 127
+    },
+    {
+      "file": "api-asahi--drivers__irqchip__irq-apple-aic.c.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/contents/drivers/irqchip/irq-apple-aic.c?ref=2bb9d16f967f11e533a851b13b148a708d59b4f3",
+      "status": 200,
+      "sha256": "fe1fb67329f4f424610f76719f4a30a078d79ba08c44f0f4002195afbe7e6705",
+      "bytes": 42155
+    },
+    {
+      "file": "raw-yuka-dt--arch__arm64__boot__dts__apple__t6040.dtsi",
+      "url": "https://cyberchaos.dev/yuka/linux/-/raw/0880225c96f587ce7645fd3ca8e51769bccbfccd/arch/arm64/boot/dts/apple/t6040.dtsi",
+      "status": 200,
+      "sha256": "7cee2e988148bc4d25ba4558a52ddda5da1c532f4e24f03915c3b151bf72e2ec",
+      "bytes": 1628
+    },
+    {
+      "file": "raw-yuka-dt--arch__arm64__boot__dts__apple__t6041.dtsi",
+      "url": "https://cyberchaos.dev/yuka/linux/-/raw/0880225c96f587ce7645fd3ca8e51769bccbfccd/arch/arm64/boot/dts/apple/t6041.dtsi",
+      "status": 200,
+      "sha256": "475e34538bb9ac71238edf5149979dab47cf3d76620786455fa0aed1b72f592a",
+      "bytes": 23126
+    },
+    {
+      "file": "raw-yuka-dt--arch__arm64__boot__dts__apple__t604x.dtsi",
+      "url": "https://cyberchaos.dev/yuka/linux/-/raw/0880225c96f587ce7645fd3ca8e51769bccbfccd/arch/arm64/boot/dts/apple/t604x.dtsi",
+      "status": 404,
+      "sha256": "e232491fc7e4fcc2b8412d8675ea556525b0f7f475b88ec5a5420d5019597b9b",
+      "bytes": 2613
+    },
+    {
+      "file": "raw-yuka-dt--arch__arm64__boot__dts__apple__t6041-pmgr.dtsi",
+      "url": "https://cyberchaos.dev/yuka/linux/-/raw/0880225c96f587ce7645fd3ca8e51769bccbfccd/arch/arm64/boot/dts/apple/t6041-pmgr.dtsi",
+      "status": 200,
+      "sha256": "c8e083de919ec08361d043e0cbed82a07d35cbe45933b6061d757bfe3cd5234c",
+      "bytes": 59809
+    },
+    {
+      "file": "raw-yuka-dt--arch__arm64__boot__dts__apple__t604x-j614-j616.dtsi",
+      "url": "https://cyberchaos.dev/yuka/linux/-/raw/0880225c96f587ce7645fd3ca8e51769bccbfccd/arch/arm64/boot/dts/apple/t604x-j614-j616.dtsi",
+      "status": 200,
+      "sha256": "6b147e93ec4b4c9b3e208e1ed0c8e77da4119183d6a6bf5dd7e53d3652e24260",
+      "bytes": 2068
+    },
+    {
+      "file": "raw-yuka-dt--arch__arm64__boot__dts__apple__t6040-j614s.dts",
+      "url": "https://cyberchaos.dev/yuka/linux/-/raw/0880225c96f587ce7645fd3ca8e51769bccbfccd/arch/arm64/boot/dts/apple/t6040-j614s.dts",
+      "status": 200,
+      "sha256": "011f3275d72be678477960e5b46f2ee68111419ec0a7b01a92c45a2a3d46f8b7",
+      "bytes": 624
+    },
+    {
+      "file": "raw-yuka-hid-dt--arch__arm64__boot__dts__apple__t604x.dtsi",
+      "url": "https://cyberchaos.dev/yuka/linux/-/raw/cb64e51073fc6837d25f3b83c0d965c2ab020626/arch/arm64/boot/dts/apple/t604x.dtsi",
+      "status": 404,
+      "sha256": "e232491fc7e4fcc2b8412d8675ea556525b0f7f475b88ec5a5420d5019597b9b",
+      "bytes": 2613
+    },
+    {
+      "file": "raw-yuka-hid-dt--arch__arm64__boot__dts__apple__t604x-j614-j616.dtsi",
+      "url": "https://cyberchaos.dev/yuka/linux/-/raw/cb64e51073fc6837d25f3b83c0d965c2ab020626/arch/arm64/boot/dts/apple/t604x-j614-j616.dtsi",
+      "status": 200,
+      "sha256": "96b36f81f403210b98897944a05252b742da3c21bf980cc39e1de9bbfaeffba9",
+      "bytes": 2470
+    },
+    {
+      "file": "raw-yuka-submitted-dt--arch__arm64__boot__dts__apple__t6040.dtsi",
+      "url": "https://cyberchaos.dev/yuka/linux/-/raw/7edc05e30bf7a9da5e4e61bd94ca098445b15af9/arch/arm64/boot/dts/apple/t6040.dtsi",
+      "status": 200,
+      "sha256": "7cee2e988148bc4d25ba4558a52ddda5da1c532f4e24f03915c3b151bf72e2ec",
+      "bytes": 1628
+    },
+    {
+      "file": "raw-yuka-submitted-dt--arch__arm64__boot__dts__apple__t604x.dtsi",
+      "url": "https://cyberchaos.dev/yuka/linux/-/raw/7edc05e30bf7a9da5e4e61bd94ca098445b15af9/arch/arm64/boot/dts/apple/t604x.dtsi",
+      "status": 404,
+      "sha256": "e232491fc7e4fcc2b8412d8675ea556525b0f7f475b88ec5a5420d5019597b9b",
+      "bytes": 2613
+    },
+    {
+      "file": "raw-yuka-submitted-dt--arch__arm64__boot__dts__apple__t6041-pmgr.dtsi",
+      "url": "https://cyberchaos.dev/yuka/linux/-/raw/7edc05e30bf7a9da5e4e61bd94ca098445b15af9/arch/arm64/boot/dts/apple/t6041-pmgr.dtsi",
+      "status": 200,
+      "sha256": "f05ef21420cf49c0e102fac08306b35af6fef0847d7bb85ca08cbab5e367eb43",
+      "bytes": 59790
+    },
+    {
+      "file": "raw-yuka-submitted-dt--arch__arm64__boot__dts__apple__t6040-j614s.dts",
+      "url": "https://cyberchaos.dev/yuka/linux/-/raw/7edc05e30bf7a9da5e4e61bd94ca098445b15af9/arch/arm64/boot/dts/apple/t6040-j614s.dts",
+      "status": 200,
+      "sha256": "e99a8620fe75b98cb5e26489d2eb336289efbbdcb0b9c5c85e32941237352cd0",
+      "bytes": 525
+    },
+    {
+      "file": "raw-yuka-nvme--drivers__nvme__host__apple.c",
+      "url": "https://cyberchaos.dev/yuka/linux/-/raw/6acd61216911155b04fd98ca5599c3e74450010b/drivers/nvme/host/apple.c",
+      "status": 200,
+      "sha256": "95b8a28a781fea45ad727c26ce0e9452af00a0379e12f214017d6edc82ffb6aa",
+      "bytes": 47190
+    },
+    {
+      "file": "raw-yuka-nvme--drivers__soc__apple__sart.c",
+      "url": "https://cyberchaos.dev/yuka/linux/-/raw/6acd61216911155b04fd98ca5599c3e74450010b/drivers/soc/apple/sart.c",
+      "status": 200,
+      "sha256": "98d1fc03b748b0d6a18655ff0f7849befd54d68c1b60b2076a7671d29d6b6e4b",
+      "bytes": 10328
+    },
+    {
+      "file": "raw-yuka-hid--drivers__hid__dockchannel-hid__dockchannel-hid.c",
+      "url": "https://cyberchaos.dev/yuka/linux/-/raw/55e130fd72dbd21cf0896a73664eaa8029b9f792/drivers/hid/dockchannel-hid/dockchannel-hid.c",
+      "status": 200,
+      "sha256": "b1ba832804d32e269ff22b540be53744e3a26b782266cbf32ad17016a9864426",
+      "bytes": 28930
+    },
+    {
+      "file": "raw-yuka-hid--drivers__soc__apple__dockchannel.c",
+      "url": "https://cyberchaos.dev/yuka/linux/-/raw/55e130fd72dbd21cf0896a73664eaa8029b9f792/drivers/soc/apple/dockchannel.c",
+      "status": 200,
+      "sha256": "654e0245704440b6fe2ed0ed85495b0e78011e5c3485e8a27964a1a93ae161e4",
+      "bytes": 10424
+    },
+    {
+      "file": "tree-more-arch_arm64_boot_dts_apple.json",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/tree?path=arch%2Farm64%2Fboot%2Fdts%2Fapple&ref=0880225c96f587ce7645fd3ca8e51769bccbfccd&per_page=100&page=2",
+      "status": 200,
+      "sha256": "f7e3b1decfffe42b74739001e17d77e32103bccaf389b47c06c6be22e556d575",
+      "bytes": 15457
+    },
+    {
+      "file": "tree-more-drivers_hid.json",
+      "url": "https://cyberchaos.dev/api/v4/projects/yuka%2Flinux/repository/tree?path=drivers%2Fhid&ref=0880225c96f587ce7645fd3ca8e51769bccbfccd&per_page=100&page=2",
+      "status": 200,
+      "sha256": "6fe2ba358b459064b515a11922d24044f9cbe895b0eadc3c85db2360c9ae30bc",
+      "bytes": 13975
+    },
+    {
+      "file": "mainline-core-history.json",
+      "url": "https://api.github.com/repos/torvalds/linux/commits?sha=5b0764a53235d3c77e1ed674e836e1b3fe1a4b1f&path=drivers/nvme/host/core.c&per_page=100",
+      "status": 200,
+      "sha256": "85c29d67f1a8f5d7ccf3ecafadeaab3f6be81d603dfcf484c33d93d9965f18d8",
+      "bytes": 429171
+    },
+    {
+      "file": "asahi-core-history.json",
+      "url": "https://api.github.com/repos/AsahiLinux/linux/commits?sha=2bb9d16f967f11e533a851b13b148a708d59b4f3&path=drivers/nvme/host/core.c&per_page=100",
+      "status": 200,
+      "sha256": "0aac041a1a1030c76f3d4d354f99488e69dbb339457ebed63c48b9e9518a601a",
+      "bytes": 422042
+    }
+  ],
+  "limitations": [
+    "No kernel or DT compilation, schema validation or hardware run. apply-checks are isolated source-context checks, not a full series/build test.",
+    "Current component branch pins do not reconstruct the deleted October 8 working branch.",
+    "Mainline absence claims are limited to pinned inspected paths and target Makefile, not a claim that every preparatory change is absent."
+  ],
+  "local_support_commits": {
+    "a97a98ae": "a97a98ae00763fb8b9bfbb08622ea93a15a8aa80",
+    "79ddb8fc": "79ddb8fc3b49f224d35079dfac34f8b23079c361",
+    "25a68c4e": "25a68c4e9d774d4e0c7c9b59080c67e4d76d2b95",
+    "cf47872d": "cf47872d10c90537d92d2b6ed1687c7bf4b26aea",
+    "08c0e68f": "08c0e68f6e71b9666316cd1b57c480a1f67cf9ba",
+    "cf08fa59": "cf08fa59b5fa4063c2e8fb9301170551ed2d4152",
+    "38645fe8": "38645fe8da365a63d5f43dbacbe592376bc59e31",
+    "6b6d9b4b": "6b6d9b4bf73858758504e51cd85b0534f68c836b",
+    "8dc17800": "8dc17800b4dbc182e6a0bc5181833f34e8f528cb",
+    "1369af1f": "1369af1f63c5080f07cccb7938c0bffa9186cd63",
+    "cd5da1d0": "cd5da1d058e31ab1d3f933bd6c4206d6337c2cd5"
+  },
+  "saved_files": [
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/candidate-plan.json",
+      "sha256": "40ffb2ec94515d42cffec3067f228d0c0a33e1c7e7a40e03dc1778566238f269"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/config-comparison.json",
+      "sha256": "6b935bac41550e80f0155905acffa3a8d5198ce91b30bfef7b6568ee7230b29b"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/extract-adt.py",
+      "sha256": "85b468739bb313259d0347fd374c068c72470d2850ef2202bed22a1e2d632aaa"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/local-source/arch/arm64/boot/dts/apple/t6040-j614s-dcuart.dts",
+      "sha256": "a8048e982b63fe19a346318ef7c51f076a3df70b7b9b0fea153ea9446142ae6f"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/local-source/arch/arm64/boot/dts/apple/t6040-j614s-kbd.dts",
+      "sha256": "20833109b99f3610f1bc4a36c17a6baeff834634fec1b85fc7e9c0de5734f31c"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/local-source/arch/arm64/boot/dts/apple/t6040-j614s.dts",
+      "sha256": "7e7903821a578feece9a1ffa4bc3c15450e4e30b9f92ff9cb90a9bbc8a57feb9"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/local-source/arch/arm64/boot/dts/apple/t6040-pmgr.dtsi",
+      "sha256": "02e6060225aa7712604fca98331c02c2d2b14acca1c7d90d7c6216ee18767fc0"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/local-source/arch/arm64/boot/dts/apple/t6040.dtsi",
+      "sha256": "edfe80b145fa0ba1f2ca0a24d1ac2b25a839f1065c0bed9610f9563bc32d9f06"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/local-source/drivers/irqchip/irq-apple-aic.c",
+      "sha256": "df05a150f8b13958631d26a94f0e3dafe2d036262579e3632cd1892a334d1433"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/local-source/drivers/nvme/host/apple.c",
+      "sha256": "44969a88c0b60b8629533d6b1c7f6d32756d0b4e52f7f2c92497ea64e3949abe"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/local-source/drivers/pmdomain/apple/pmgr-pwrstate.c",
+      "sha256": "71a3130dff9f9a0118c9e3de278468eb102cc2b685495e531abac5c8e1887d48"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/patch-map.tsv",
+      "sha256": "251dfbd76963aae21af2cdf4b83f683876b7f54ab5dbdf0653fc707d6b569055"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/relevant-history.json",
+      "sha256": "bf1a6cde01d010aca169036328c5f4d34123e7994ce99ee1f2fdedac7d565d4b"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/6001-before.json",
+      "sha256": "d4d8ffad77bbe35fe6667fcb636384d4374a5e0ce17567eb126a9c6f0af37912"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/adt-summary.json",
+      "sha256": "d075dfbf87806596205f614b3c600f89167cb38d91a1bc6d0004875fc4600435"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/apply-checks.json",
+      "sha256": "d6eb60097959c157b77bf44ca26d2816229875df475410d6ce306e47d2eb3a21"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--Documentation__devicetree__bindings__iommu__apple,sart.yaml",
+      "sha256": "90b9f74750f4c7e3578daa7b8519bc7455ba9f13a7bbeef79dd1b153bfe7df12"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--Documentation__devicetree__bindings__nvme__apple,nvme-ans.yaml",
+      "sha256": "d93422fb44530d3bf4c4709202f956f16438ac4afc399546b8ebfb0f204a93a7"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--Makefile",
+      "sha256": "77d977b5a40efd0338d6aca5d4fa932db44c76635b96b103b3b338e829484a22"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--arch__arm64__boot__dts__apple__Makefile",
+      "sha256": "158e95c49af40250601916e18aecebd3b779a4807dda507b3a4ede6c221b94c6"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--arch__arm64__configs__asahi.config",
+      "sha256": "10a68bfa7a8c29d999a49c54174bdf6a663606b6cd4672c21896cc473e5827ce"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--arch__arm64__kernel__cpufeature.c",
+      "sha256": "6b36d94732d8810bf0bc35383d2649d81f3f3cbaa956e4abaf38a2aac70544ed"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--arch__arm64__kernel__idle.c",
+      "sha256": "c9ac8d3c236e0c7a5b4f3a1b0c179e26cda21622e4300b702b61908ddd25f3c0"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--arch__arm64__lib__delay.c",
+      "sha256": "42bc206ab39f4766f060885d114ed541197970722e9205c706360f6fc84dee4c"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__base__regmap__regcache.c",
+      "sha256": "20a6dba6b9558e7585a95a4007d15a4f230b774bf9b84d9a9f74ea01702d66d9"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__cpufreq__apple-soc-cpufreq.c",
+      "sha256": "91984236b0845e43c10a189fd380f2d0e4560fdb29d13b65ff248e075bae4b8a"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__hid__Kconfig",
+      "sha256": "21d566ca75a9e4d0823b7cd41cea97b7a083793931ae330d65f9a67101a88d4c"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__hid__dockchannel-hid__dockchannel-hid.c",
+      "sha256": "9539d50dfb0eedb0d09bd5717df34dfd99d098c0dd1d20a0b67f4fc80e341dfa"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__irqchip__irq-apple-aic.c",
+      "sha256": "d52ff497371f81b94af730792c9ea9fb2bf24d99cf7df6e8985351dd331c2287"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__net__wireless__broadcom__brcm80211__brcmfmac__fwil_types.h",
+      "sha256": "b829feba2107405853d3d0434d5f7a3882e0b2524d8904abef0d8bbf38fabe0d"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__net__wireless__broadcom__brcm80211__brcmfmac__pcie.c",
+      "sha256": "e2e7051e8fe58935f26eed3fc086b3faedb544d471a0718b7ef82846577e8079"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__nvme__host__apple.c",
+      "sha256": "aa43ad90647d595d2e44e6e1b65b8f627b782c20fc7a9d0f1213dfa3766ed339"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__nvme__host__core.c",
+      "sha256": "fcc0d2736f67566e63a39f809d90734e64cef4778fb867db792c68b8e49c5ad6"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__pmdomain__apple__pmgr-pwrstate.c",
+      "sha256": "a09148952eb78c516f6484889a013b86b757552cf6ce5dde54c96f794d8acfdf"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__soc__apple__Kconfig",
+      "sha256": "606a9771e2dbe6bacf294b0f2e4a45e97e0454a3da5cb923a44c8ee5cb48c776"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__soc__apple__dockchannel.c",
+      "sha256": "83cc73986312a06d99f7e5828a078964a581be00dc5826195e4622d5c6a7bede"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi--drivers__soc__apple__sart.c",
+      "sha256": "9de8b3fc7116e1f6718b4272f61dca213d1e96f06c3f471b69248b8320f108ff"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi-commit.json",
+      "sha256": "2a1371654082a3086125ab7d2b6d7f8b4163807548f822042e6ebd9304ba3538"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi-tag.json",
+      "sha256": "fbe21575e534ae4da1082f1d28c7df58a0ea3f61db21d9017bfbc09c12c49825"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/asahi-tag1.json",
+      "sha256": "c647f000ca3c19995a6b6e338bd89ff305ae7957985ea95476c3b8abfec789eb"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/idreg-override.c",
+      "sha256": "304251aede163cab648147a37ec4cb581253ad306a3d3fe8161c025225314061"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/linux-status-before.txt",
+      "sha256": "c94f2382fdab9e7512bffa46d6c104211b298ded80689fa2518913a7ce377392"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/lore-hid.mbox.gz",
+      "sha256": "e7a0434141b2f4b71e8c7e46be5554190e2e05a12a2a91432812386cbb5624eb"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/lore-regression.mbox.gz",
+      "sha256": "6cf92f8ab5d617f632e4eb18abdb5e55ddb0dd994fba9471ad636b495d6433ca"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/lore-wifi.mbox.gz",
+      "sha256": "1a468d78ce9adc771f1403e1ee759bb7bd1a34923203b89f9069500337b3daf9"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/mainline--arch__arm64__boot__dts__apple__Makefile",
+      "sha256": "c13cfb8bdfa172eb3967cfe21bbb9db3a3d28a8c0717159a536f36692f0211ab"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/mainline--drivers__net__wireless__broadcom__brcm80211__brcmfmac__pcie.c",
+      "sha256": "a9a99eec9b72e01c9d9847e36ce4fe653c81ccf12c7bb5ca1b4b47bca00007fd"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/mainline--drivers__nvme__host__apple.c",
+      "sha256": "dea5f7c8a074e0967144041928eef5b1b233a6b4b5502d8c74ecf1b4958d383d"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/mainline--drivers__nvme__host__core.c",
+      "sha256": "23a76b38225222c668cbd59f21d7d53afcd009ef78e2f0ec1432514f2adb9f7c"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/new-regression.json",
+      "sha256": "89e6380a414f57543489d8d5255bf513a356f8098cff865ce16f0c0997f7b2e7"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-dt--arch__arm64__boot__dts__apple__t6040-j614s.dts",
+      "sha256": "011f3275d72be678477960e5b46f2ee68111419ec0a7b01a92c45a2a3d46f8b7"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-dt--arch__arm64__boot__dts__apple__t6040.dtsi",
+      "sha256": "7cee2e988148bc4d25ba4558a52ddda5da1c532f4e24f03915c3b151bf72e2ec"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-dt--arch__arm64__boot__dts__apple__t6041-pmgr.dtsi",
+      "sha256": "c8e083de919ec08361d043e0cbed82a07d35cbe45933b6061d757bfe3cd5234c"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-dt--arch__arm64__boot__dts__apple__t6041.dtsi",
+      "sha256": "475e34538bb9ac71238edf5149979dab47cf3d76620786455fa0aed1b72f592a"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-dt--arch__arm64__boot__dts__apple__t604x-j614-j616.dtsi",
+      "sha256": "6b147e93ec4b4c9b3e208e1ed0c8e77da4119183d6a6bf5dd7e53d3652e24260"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-hid--drivers__hid__dockchannel-hid__dockchannel-hid.c",
+      "sha256": "b1ba832804d32e269ff22b540be53744e3a26b782266cbf32ad17016a9864426"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-hid--drivers__soc__apple__dockchannel.c",
+      "sha256": "654e0245704440b6fe2ed0ed85495b0e78011e5c3485e8a27964a1a93ae161e4"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-hid-dt--arch__arm64__boot__dts__apple__t604x-j614-j616.dtsi",
+      "sha256": "96b36f81f403210b98897944a05252b742da3c21bf980cc39e1de9bbfaeffba9"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-nvme--drivers__nvme__host__apple.c",
+      "sha256": "95b8a28a781fea45ad727c26ce0e9452af00a0379e12f214017d6edc82ffb6aa"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-nvme--drivers__soc__apple__sart.c",
+      "sha256": "98d1fc03b748b0d6a18655ff0f7849befd54d68c1b60b2076a7671d29d6b6e4b"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-submitted-dt--arch__arm64__boot__dts__apple__t6040-j614s.dts",
+      "sha256": "e99a8620fe75b98cb5e26489d2eb336289efbbdcb0b9c5c85e32941237352cd0"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-submitted-dt--arch__arm64__boot__dts__apple__t6040.dtsi",
+      "sha256": "7cee2e988148bc4d25ba4558a52ddda5da1c532f4e24f03915c3b151bf72e2ec"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/raw-yuka-submitted-dt--arch__arm64__boot__dts__apple__t6041-pmgr.dtsi",
+      "sha256": "f05ef21420cf49c0e102fac08306b35af6fef0847d7bb85ca08cbab5e367eb43"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/torvalds-ref.json",
+      "sha256": "b3d2acc7190feca7d298f2e55cf382e210223b9ca6ff67f65b72bd9adfb032eb"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/yuka-diff-01334b613f75dbb2ee1bbb8ff705d3af8bf923de.json",
+      "sha256": "bbcbc0dfa1c384ca59530c44167ea064692216887a02452809493e21513d21e6"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/yuka-diff-01334b613f75dbb2ee1bbb8ff705d3af8bf923de.patch",
+      "sha256": "ab049c7e2a0f6c2df49ee20b4dded4a8c7e4f561f3d31cfe8bdb9b817f7a0b03"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/yuka-diff-2888926b6342cd4acc74015d59d5304e7dc329ed.json",
+      "sha256": "e3cdbc8d48d38b13b1316db68d093d19c0c3d4edc99de80b4629882ffe1d827f"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/yuka-diff-2888926b6342cd4acc74015d59d5304e7dc329ed.patch",
+      "sha256": "58a5cbdcbaf466b050c5fdf2ef0930453149aa7972b85b454a8eae97fa2a353a"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/yuka-diff-419adc71f0d8fedd8666fa60123b7262d4c82390.json",
+      "sha256": "d87f1469a149bab122e08a2c4fa4392b08bc2e15f2d7f2bac040eaaed4d7ef7e"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/yuka-diff-419adc71f0d8fedd8666fa60123b7262d4c82390.patch",
+      "sha256": "34f1387e6ef26c8a6b0ed56f32d19717207528a446c55b416a725c74014941c6"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/yuka-diff-42839287f85c8c36b63579371af533fcd1b8c970.json",
+      "sha256": "5bb597865f596799254fcbf98d463ad9ea420d80e3c624ed4fe7b384dd3de85f"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/yuka-diff-42839287f85c8c36b63579371af533fcd1b8c970.patch",
+      "sha256": "1ebe86025ae5dd7391bbfd8cde8621bd33f3737426e9d55d735ce49e0ea56501"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/yuka-diff-501a16a59f79c8defe62e99dac055d220f982589.json",
+      "sha256": "e3fc28b6b7d176f65ab029f9b903a8107ba95631024b889887ac20d08376fc5f"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/yuka-diff-501a16a59f79c8defe62e99dac055d220f982589.patch",
+      "sha256": "4e6d451908002296107b2e4d4ee95f2e35d1ed82ba68134cf884b404893945ad"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/yuka-diff-55e130fd72dbd21cf0896a73664eaa8029b9f792.json",
+      "sha256": "1f20e25b4902878637ec409398ff9ad95934fa76710e0e67e8b58890ed18b4c5"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/yuka-diff-55e130fd72dbd21cf0896a73664eaa8029b9f792.patch",
+      "sha256": "756d725cfda30ee1f9dfa9f54a12cee7c74d66c7c3cad39d7cc0a09bfb30ea01"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/yuka-diff-6acd61216911155b04fd98ca5599c3e74450010b.json",
+      "sha256": "97b409beea806cea0e0f7ffe571cd4193a157ea1e97b8f005ad39527382ecd24"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/sources/yuka-diff-6acd61216911155b04fd98ca5599c3e74450010b.patch",
+      "sha256": "315977f3acd39cb8090cdf6eb375a4d6eb50745e45cda57d4b249f829816116f"
+    },
+    {
+      "file": "evidence/2026-10-24-upstream-convergence/static-checks.json",
+      "sha256": "be83e71bd1ec93dadb11a3d1bca8ba5a3d12d813a5024ac428f87ef47db67ff2"
+    }
+  ]
+}

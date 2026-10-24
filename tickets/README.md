@@ -46,8 +46,9 @@ material into evidence and leave a short current summary plus links.
 ## October 24 follow-ups
 
 - **6001:** existing exact-artifact read-only NVMe run; execution gate unchanged.
-- **6002:** offline upstream DT/driver convergence audit and regression plan.
+- **6002 (done):** [pinned upstream map and regression plan](../evidence/2026-10-24-upstream-convergence-audit.md).
 - **6003:** offline M4 Pro tracing-stack refresh plan.
+- **6004:** offline LC1 source assembly from 6002; build/live gates remain separate.
 
 Existing 205/206/301/023 tasks carry updated current descriptions; prior
 narratives are preserved in `evidence/2026-10-24-ticket-context-before-refresh.json`.

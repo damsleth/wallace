@@ -1,0 +1,15 @@
+ M arch/arm64/boot/dts/apple/t6040-pmgr.dtsi
+ M arch/arm64/boot/dts/apple/t6040.dtsi
+?? arch/arm64/boot/dts/apple/t6040-j614s-dcuart-cpufreq.dts
+?? arch/arm64/boot/dts/apple/t6040-j614s-dcuart-onepercluster.dts
+?? arch/arm64/boot/dts/apple/t6040-j614s-dcuart-p2clusters.dts
+?? arch/arm64/boot/dts/apple/t6040-j614s-dcuart-pcie.dts
+?? arch/arm64/boot/dts/apple/t6040-j614s-dcuart-ponly.dts
+?? arch/arm64/boot/dts/apple/t6040-j614s-dcuart-pwren-sd-only.dts
+?? arch/arm64/boot/dts/apple/t6040-j614s-dcuart-pwren-wifi-only.dts
+?? arch/arm64/boot/dts/apple/t6040-j614s-dcuart-smc-gpio-nopwren.dts
+?? arch/arm64/boot/dts/apple/t6040-j614s-dcuart-smc-nogpio.dts
+?? arch/arm64/boot/dts/apple/t6040-j614s-dcuart-wifi-nonvme.dts
+?? arch/arm64/boot/dts/apple/t6040-j614s-dcuart-wifi-nosmc.dts
+?? arch/arm64/boot/dts/apple/t6040-j614s-dcuart-wifi-usb2-native-right.dts
+?? arch/arm64/boot/dts/apple/t6040-j614s-dcuart-wifi.dts

@@ -1,0 +1,908 @@
+{
+  "asahi-core-history.json": [],
+  "yuka-history-parts_20-nvme.json": [
+    {
+      "id": "09116ec06ce4aba5e34f0266dad74c3678aa30c3",
+      "message": "soc: apple: sart: Add SARTv4 support\n\nAdd support for SARTv4 as found on Apple M5 Pro/Max (t6050) SoCs.\nIt has 50% more entries than its SARTv3 predecessor and is otherwise the\nsame.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "6acd61216911155b04fd98ca5599c3e74450010b"
+      ],
+      "date": "2026-10-11T10:51:40.000+02:00"
+    },
+    {
+      "id": "6acd61216911155b04fd98ca5599c3e74450010b",
+      "message": "nvme: apple: add t8132 (M4) ANS2 NVMe support\n\nAdd support for ANS2 NVMe on the Apple t8132 (M4) SoC.\n\nThis variant requires the IO queues to be registered using additional\nMMIO writes. The qsize of the create_{cq,sq} command is now ignored, and\ninstead a write to mmio_nvme+0x1210 (which was previously known as\nAPPLE_ANS_MAX_PEND_CMDS_CTRL) sets the IO queue sizes.\n\nReviewed-by: Sven Peter <sven@kernel.org>\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "cee9395acd8043be0644b25c34bfa86623f2b935"
+      ],
+      "date": "2026-10-09T20:23:42.000+02:00"
+    }
+  ],
+  "mainline-core-history.json": [
+    {
+      "id": "4375b45d7060a6a3f41e14a9181c5c913ea474a4",
+      "message": "Merge tag 'block-7.3-20261010' of git://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux\n\nPull block fixes from Jens Axboe:\n\n - NVMe fixes via Keith:\n     - Fix swapped ZRASF zone state values for full and read only\n     - nvme-multipath revalidate head zones after unfreezing the head\n       queue\n     - Revert \"nvme: do not reset controllers in NVME_CTRL_NEW state\",\n       which broke things\n     - nvmet fixes for invalid NSIDs on feature 82h and using the local\n       P2P device on metadata allocation failure\n\n - zloop: zero out only the unread tail of a short read\n\n* tag 'block-7.3-20261010' of git://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux:\n  Revert \"nvme: do not reset controllers in NVME_CTRL_NEW state\"\n  zloop: zero out only the unread tail of short reads\n  nvmet: use the local P2P device on metadata allocation failure\n  nvme-multipath: revalidate head zones after unfreezing the head queue\n  nvme: fix swapped ZRASF zone state values for full and read only\n  nvmet: return Invalid Field for invalid NSIDs feature 82h",
+      "parents": [
+        "b7c0316c1a062dbadd0d62f1b796dd3264915242",
+        "41cab3a71dc7be62114d91cc849424879062d324"
+      ],
+      "date": "2026-10-11T16:00:33Z"
+    },
+    {
+      "id": "5755f1bd0217ffe3c5cf85467bf6b0680f398265",
+      "message": "Revert \"nvme: do not reset controllers in NVME_CTRL_NEW state\"\n\nThis reverts commit c20bba234f3e1dcd81f7a2ec21ea7bf01a4cf35f.\n\nThe standard transport drivers were okay with the patch, but the Apple\ndriver needs a bit of work before it can handle the state transition\nrequirement.\n\nLink: https://lore.kernel.org/linux-nvme/94912d46-381d-4988-800a-6ef3b595233f@cyberchaos.dev/\nReported-by: Yureka Lilian <yureka@cyberchaos.dev>\nSigned-off-by: Keith Busch <kbusch@kernel.org>",
+      "parents": [
+        "4aa9c0f377a4de5e8fddce76b34ee4529639a1ff"
+      ],
+      "date": "2026-10-05T13:07:37Z"
+    },
+    {
+      "id": "3b7cab693ba2bab63774bf5b988e8a61b2ef0f32",
+      "message": "Merge tag 'block-7.3-20261002' of git://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux\n\nPull block fixes from Jens Axboe:\n\n - NVMe fixes via Keith:\n     - Fix an out-of-bounds write in nvmet_auth_challenge(), where\n       sizeof() on a void pointer undercounted the challenge header and\n       let a short AUTH_RECEIVE buffer pass the check\n     - nvme-multipath fixes for an ANA log bounds check underflow, the\n       command effects log lifetime for multipath heads, and only\n       setting BLK_FEAT_ZONED after the zone info is known.\n     - nvmet fixes for ns->enabled teardown ordering, rejecting I/O\n       after the percpu ns reference is killed, device path preservation\n       on allocation failure, and too-short SGL segments in pci-epf\n     - nvme-tcp: revert the per-socket dynamic lockdep keys, and delay\n       the socket reclassification\n     - A DMA pool alignment quirk for the Micron 4100AT\n     - Controller state/reset race fixes, and -Wformat-security\n       workarounds\n\n - blk-mq: set RQF_USE_SCHED when the operation is known, and allow\n   cached requests to be used for flush operations\n\n - Reject polled dio with user integrity metadata\n\n - Save the IRQ state in blkg_tryget_closest()\n\n - Set the zone write granularity in virtio_blk\n\n - ublk selftest fixes\n\n* tag 'block-7.3-20261002' of git://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux: (23 commits)\n  virtio_blk: set the zone write granularity\n  nvme-multipath: set BLK_FEAT_ZONED only after the zone info is known\n  nvme: fix command effects log lifetime for multipath heads\n  nvmet: don't allow I/O admission after percpu ns reference is killed\n  nvmet: defer setting ns->enabled to false in nvmet_ns_disable()\n  nvmet: copy the hostid into the ctrl before creating PR pc_refs\n  nvmet-auth: fix out-of-bounds write in nvmet_auth_challenge()\n  nvmet: pci-epf: reject too-short SGL segments\n  nvme-multipath: fix underflow in ANA log bounds checks\n  nvme: work around all -Wformat-security warnings\n  nvme: work around -Wformat-security warning\n  nvme: do not reset controllers in NVME_CTRL_NEW state\n  nvme-tcp: delay nvme_tcp_reclassify_socket()\n  Revert \"nvme-tcp: lockdep: use dynamic lockdep keys per socket instance\"\n  drbd: remove unused drbd_nl_mcgrps[] array\n  blk-mq: allow cached requests to be used for flush operations\n  blk-mq: set RQF_USE_SCHED when the operation is known\n  block: reject polled dio with user integrity metadata\n  selftests: ublk: fix unused_result error\n  blk-cgroup: save IRQ state in blkg_tryget_closest()\n  ...",
+      "parents": [
+        "3f1fe48a36b0b6722dc3fd421d93512bac138e9a",
+        "684b413b5483f57c890c171b9400076a0143b918"
+      ],
+      "date": "2026-10-02T19:25:40Z"
+    },
+    {
+      "id": "c20bba234f3e1dcd81f7a2ec21ea7bf01a4cf35f",
+      "message": "nvme: do not reset controllers in NVME_CTRL_NEW state\n\nDuring NVMe controller creation, the controller is exposed to sysfs via\nnvme_add_ctrl() while it is still in the NVME_CTRL_NEW state.\nThis creates a narrow race window where a userspace process can write to\nthe reset_controller sysfs node before the initialization thread\ntransitions the state to NVME_CTRL_CONNECTING.\n\nIf a reset is triggered during this window, the state machine allows the\ntransition from NVME_CTRL_NEW to NVME_CTRL_RESETTING, and the reset work\nis queued. However, the original creation thread continues its execution,\nsubsequently moving the state to NVME_CTRL_CONNECTING and finally to\nNVME_CTRL_LIVE.\n\nWhen the delayed reset work finally executes, it attempts to tear down\nthe controller and transition the state to NVME_CTRL_CONNECTING. Because\nthe state is now NVME_CTRL_LIVE, this transition fails, triggering a\nWARN_ON in the reset work.\n\nFix this by removing NVME_CTRL_NEW from the allowed prior states for\nthe NVME_CTRL_RESETTING transition.\n\nFixes: 8bfc3b4c6f9d (\"nvmet: switch loopback target state to connecting when resetting\")\nReported-by: syzbot+4a1d521d19d6321f5aad@syzkaller.appspotmail.com\nReviewed-by: Daniel Wagner <dwagner@suse.de>\nSigned-off-by: Maurizio Lombardi <mlombard@redhat.com>\nSigned-off-by: Keith Busch <kbusch@kernel.org>",
+      "parents": [
+        "447a7a3026eda85ac2738cbe6ee5ab066a39dad0"
+      ],
+      "date": "2026-09-25T15:06:20Z"
+    }
+  ],
+  "yuka-history-t604x-old-dchid-working.json": [],
+  "yuka-history-parts_04-dt-more.json": [
+    {
+      "id": "0880225c96f587ce7645fd3ca8e51769bccbfccd",
+      "message": "arm64: dts: t604x-j*: add PCIe WiFi, Ethernet & SD reader nodes\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "f594f5a43d3644b419142af7785f95a6ba0bf126"
+      ],
+      "date": "2026-10-19T10:24:13.000+02:00"
+    },
+    {
+      "id": "f594f5a43d3644b419142af7785f95a6ba0bf126",
+      "message": "arm64: dts: apple: t604x: Add PCIe device nodes\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "2628e7ca99ab19b568046cb59f9f5db6b8652758"
+      ],
+      "date": "2026-10-19T10:24:13.000+02:00"
+    },
+    {
+      "id": "2628e7ca99ab19b568046cb59f9f5db6b8652758",
+      "message": "dt-bindings: pci: apple,pcie: Add apple,t6041-pcie compatible\n\napple,t6041-pcie is compatible to apple,t6020-pcie.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "6140a713b1eb83d6220a320c49fa02a17d5fda00"
+      ],
+      "date": "2026-10-19T10:24:13.000+02:00"
+    },
+    {
+      "id": "475d66d5ffc09c48975f46048b513627f6b49c5d",
+      "message": "arm64: dts: t8132-j*: add PCIe WiFi & SD reader nodes\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "0d2c34c9e6d08cbfa7c36d3e0f11efc6c10f020f"
+      ],
+      "date": "2026-10-17T16:26:04.000+02:00"
+    },
+    {
+      "id": "0d2c34c9e6d08cbfa7c36d3e0f11efc6c10f020f",
+      "message": "arm64: dts: apple: t8132: Add PCIe device nodes\n",
+      "parents": [
+        "8bbadeff2de761c405d4451837f1704299478065"
+      ],
+      "date": "2026-10-17T16:26:04.000+02:00"
+    },
+    {
+      "id": "8bbadeff2de761c405d4451837f1704299478065",
+      "message": "dt-bindings: pci: apple,pcie: Add apple,t8132-pcie compatible\n\napple,t8132-pcie is compatible to apple,t6020-pcie.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "13578fd956d841e86925cb38be35f08dca72ffc6"
+      ],
+      "date": "2026-10-17T16:26:04.000+02:00"
+    },
+    {
+      "id": "13578fd956d841e86925cb38be35f08dca72ffc6",
+      "message": "dt-bindings: iommu: apple,dart: Add t6041-dart compatible\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "63b01c276fa02c7d824ac89725b4c9a1468efe4e"
+      ],
+      "date": "2026-10-17T16:26:04.000+02:00"
+    },
+    {
+      "id": "63b01c276fa02c7d824ac89725b4c9a1468efe4e",
+      "message": "dt-bindings: iommu: apple,dart: Add t8132-dart compatible\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "099ba7c15784a630b8af42284c0ebf0b9ab1409c"
+      ],
+      "date": "2026-10-17T16:26:04.000+02:00"
+    },
+    {
+      "id": "2888926b6342cd4acc74015d59d5304e7dc329ed",
+      "message": "arm64: dts: apple: t604x: Add NVMe nodes\n\nAdd the device nodes for the internal NVMe SSD on the Apple M4 Pro/Max\n(t6040/t6041) SoCs. Keep ps_apcie_phy_sw powered on matching t603x.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "46db5655da7936063d0d0fdb8ad70637a3d2e90d"
+      ],
+      "date": "2026-10-17T16:24:04.000+02:00"
+    },
+    {
+      "id": "8651866f42ec2011116a1d212496f9e9b78da2d8",
+      "message": "arm64: dts: apple: t8132: Add NVMe nodes\n\nAdd the device nodes for the internal NVMe SSD on the Apple M4 (t8132)\nSoC. Keep ps_apcie_phy_sw powered on matching t8122.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "71838a34084574b3a3e4905ad7f25e2daab06dc0"
+      ],
+      "date": "2026-10-17T12:53:12.000+02:00"
+    },
+    {
+      "id": "71838a34084574b3a3e4905ad7f25e2daab06dc0",
+      "message": "dt-bindings: nvme: apple: Add apple,t6050-nvme-ans2 compatible\n\n\"apple,t6050-nvme-ans2\" on the Apple M5 Pro/Max SoCs is compatible with\n\"apple,t8132-nvme-ans2\" so add the per-SoC compatible.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "191549a7220aaa13cf5a2eff0aa92aa306e93159"
+      ],
+      "date": "2026-10-17T12:53:12.000+02:00"
+    },
+    {
+      "id": "191549a7220aaa13cf5a2eff0aa92aa306e93159",
+      "message": "dt-bindings: nvme: apple: Add apple,t8142-nvme-ans2 compatible\n\n\"apple,t8142-nvme-ans2\" on the Apple M5 SoC is compatible with\n\"apple,t8132-nvme-ans2\" so add its per-SoC compatible.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "9e8b78d2ccc7f33d5c1f38932e084d73f2d8de11"
+      ],
+      "date": "2026-10-11T13:37:58.000+02:00"
+    },
+    {
+      "id": "9e8b78d2ccc7f33d5c1f38932e084d73f2d8de11",
+      "message": "dt-bindings: nvme: apple: Add apple,t6041-nvme-ans2 compatible\n\n\"apple,t6041-nvme-ans2\" on the Apple M4 Pro/Max SoCs is compatible with\n\"apple,t8132-nvme-ans2\" so add the per-SoC compatible.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "a1a7124a48430c5a85cc88ec7fa35651da4ec604"
+      ],
+      "date": "2026-10-11T13:37:58.000+02:00"
+    },
+    {
+      "id": "a1a7124a48430c5a85cc88ec7fa35651da4ec604",
+      "message": "dt-bindings: nvme: apple: Add apple,t8140-nvme-ans2 compatible\n\n\"apple,t8140-nvme-ans2\" on the Apple A18 Pro SoC is compatible\nwith \"apple,t8132-nvme-ans2\" so add its per-SoC compatible.\n",
+      "parents": [
+        "111981b788f1386d79d99a08ac8b7a32dcd0e585"
+      ],
+      "date": "2026-10-11T13:37:58.000+02:00"
+    },
+    {
+      "id": "111981b788f1386d79d99a08ac8b7a32dcd0e585",
+      "message": "dt-bindings: iommu: apple,sart: Add t8142 compatibles\n\nThe SART IOMMU in the Apple M5 SoC is compatible to \"apple,t6000-sart\".\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "933adccbba433dc194bfc358ad1aec97bb531287"
+      ],
+      "date": "2026-10-11T13:37:58.000+02:00"
+    },
+    {
+      "id": "933adccbba433dc194bfc358ad1aec97bb531287",
+      "message": "dt-bindings: iommu: apple,sart: Add t6041 compatibles\n\nThe SART IOMMU in the Apple M4 Pro/Max SoCs is compatible to\n\"apple,t6000-sart\".\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "977cf0c0f39b623681ffb6a03968243b08257cd2"
+      ],
+      "date": "2026-10-11T13:37:58.000+02:00"
+    },
+    {
+      "id": "977cf0c0f39b623681ffb6a03968243b08257cd2",
+      "message": "dt-bindings: iommu: apple,sart: Add t8140 compatibles\n\nThe SART IOMMU in the Apple A18 Pro SoC is compatible to\n\"apple,t6000-sart\".\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "a41c2e84ce711ec14a90ff75d1a10d13f5fec803"
+      ],
+      "date": "2026-10-11T13:37:58.000+02:00"
+    },
+    {
+      "id": "a41c2e84ce711ec14a90ff75d1a10d13f5fec803",
+      "message": "dt-bindings: iommu: apple,sart: Add t8132 compatibles\n\nThe SART IOMMU in the Apple M4 SoC is compatible to \"apple,t6000-sart\".\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "8f0e126e8eef00edb02d7e7040773d0e14856707"
+      ],
+      "date": "2026-10-11T13:37:57.000+02:00"
+    },
+    {
+      "id": "df4c2f5ef1050b762e8c52f74a90699d2ff2f70c",
+      "message": "dt-bindings: mailbox: apple,mailbox: Add t6041 compatible\n\nThe mailbox hardware remains unchanged on M4 Pro/Max SoCs so just add\nthe per-SoC compatible.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "b1bdb1e86f451036f9003147ba0b826972f810c0"
+      ],
+      "date": "2026-10-11T13:37:57.000+02:00"
+    },
+    {
+      "id": "b50346b65a7660b91a40721d0b881c0cf95f628e",
+      "message": "dt-bindings: mailbox: apple,mailbox: Add t8132 compatible\n\nThe mailbox hardware remains unchanged on M4 SoC so just add its\nper-SoC compatible.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "811df6ee2d52efc48e807acce908e67ee1edb256"
+      ],
+      "date": "2026-10-11T13:37:57.000+02:00"
+    },
+    {
+      "id": "861d81d1520aba675ac959ce28881fb8611f20d7",
+      "message": "dt-bindings: pinctrl: apple,pinctrl: Add t6050 compatible\n\nThe pin controller on the Apple Silicon T604x (M5 Pro/Max) SoCs is\ncompatible with t8103. Add \"apple,t6050-pinctrl\" as SoC specific\ncompatible under \"apple,t8103-pinctrl\".\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "cbd5543b86dc91ccff74b617a02c614303fa56bb"
+      ],
+      "date": "2026-10-11T13:37:57.000+02:00"
+    },
+    {
+      "id": "7fe488429ecbce416378b198507e562e7acad3bb",
+      "message": "dt-bindings: arm: power: apple,pmgr-pwrstate: Add t6050 compatible\n\nThe device power state management of the PMGR blocks on the Apple\nsilicon M5 Pro/Max SoCs (t604x) is compatible with the M1-M5 SoCs.\nAdd \"apple,t6050-pmgr-pwrstate\" as M5 Pro/Max specific compatible.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "3e8a0bcc58edf26210606da2f3d3eda9583e640b"
+      ],
+      "date": "2026-10-11T13:37:57.000+02:00"
+    },
+    {
+      "id": "9491f58575c0a9e046fb8e6388f2ce47bba93a45",
+      "message": "dts: apple: t8132: Fix some line-length-related dt-check-style issues\n\nThis fixes most `dt-check-style --mode=strict` issues related to line\nlength. Lines up to 82 columns are left as-is.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "928d36f8c6a239e2d4abf27c759c6f9e7890374b"
+      ],
+      "date": "2026-10-10T20:53:06.000+02:00"
+    },
+    {
+      "id": "928d36f8c6a239e2d4abf27c759c6f9e7890374b",
+      "message": "dts: apple: t8132: Fix ordering-related dt-check-style issues\n\nThis fixes most `dt-check-style --mode=strict` issues related to\nnode and property ordering in the t8132 device tres.\nThe cache-related properties are kept in their own sorting group,\nseparated by a newline from the rest, to improve human readability.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "b1a45ed77652e6f24b338b37a044d0ed6143621d"
+      ],
+      "date": "2026-10-10T20:53:06.000+02:00"
+    },
+    {
+      "id": "b1a45ed77652e6f24b338b37a044d0ed6143621d",
+      "message": "dts: apple: t8132: Fix blank-lines-related dt-check-style issues\n\nThis fixes all `dt-check-style --mode=strict` issues related to blank\nlines in the t8132 device tres.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "56f127b370dd95d58737e195add4e843e933fe0f"
+      ],
+      "date": "2026-10-10T20:53:06.000+02:00"
+    },
+    {
+      "id": "56f127b370dd95d58737e195add4e843e933fe0f",
+      "message": "arm64: dts: apple: Add minimal t604x (M4 Pro/Max) device trees\n\nAdded device trees for the following devices:\n- apple,j614s - MacBook Pro (14-inch, M4 Pro, 2024)\n- apple,j614c - MacBook Pro (14-inch, M4 Max, 2024)\n- apple,j616s - MacBook Pro (16-inch, M4 Pro, 2024)\n- apple,j616c - MacBook Pro (16-inch, M4 Max, 2024)\n- apple,j773s - Mac mini (M4 Pro, 2024)\n- apple,j575c - Mac Studio (M4 Max, 2025)\n\nCo-authored-by: Florian Klink <flokli@flokli.de>\nSigned-off-by: Florian Klink <flokli@flokli.de>\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "c99f6e352feeb9cce2c42b2c031d6de9c6dcddf4"
+      ],
+      "date": "2026-10-10T20:52:03.000+02:00"
+    },
+    {
+      "id": "bcc13607113aa3e2469f50fa04cd26ce5111b6db",
+      "message": "dt-bindings: i2c: apple,i2c: Add t6041 compatible\n\nThe i2c block on the Apple Silicon T604x (M4 Pro/Max) SoCs is compatible\nwith t8103. Add \"apple,t6041-i2c\" as SoC specific compatible under\n\"apple,t8103-i2c\".\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "54f43ee3550c5ff77eba932a4dc2d89c099c3a1d"
+      ],
+      "date": "2026-10-10T20:52:03.000+02:00"
+    },
+    {
+      "id": "54f43ee3550c5ff77eba932a4dc2d89c099c3a1d",
+      "message": "dt-bindings: pinctrl: apple,pinctrl: Add t6041 compatible\n\nThe pin controller on the Apple Silicon T604x (M4 Pro/Max) SoCs is\ncompatible with t8103. Add \"apple,t6041-pinctrl\" as SoC specific\ncompatible under \"apple,t8103-pinctrl\".\n",
+      "parents": [
+        "606765ca8d67fdc570a898b3c191c8c79f721569"
+      ],
+      "date": "2026-10-10T20:52:03.000+02:00"
+    },
+    {
+      "id": "606765ca8d67fdc570a898b3c191c8c79f721569",
+      "message": "dt-bindings: pwm: apple,s5l-fpwm: Add t6041 compatible\n\nThe PWM controller on Apple Silicon M4 Pro/Max SoCs is compatible with\nthe t8103 (M1) one. Add \"apple,t6041-fpwm\"as per-SoC compatibles for M4\nPro/Max.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "d7ca51a8d6d415b884377d756055726a0b3687c2"
+      ],
+      "date": "2026-10-10T20:52:03.000+02:00"
+    },
+    {
+      "id": "d7ca51a8d6d415b884377d756055726a0b3687c2",
+      "message": "dt-bindings: arm: apple: apple,pmgr: Add t6041 compatible\n\nThe PMGR blocks on the Apple Silicon M4 Pro/Max SoCs (t604x) are\ncompatible with the previous M1-M4 SoCs. Add \"apple,t6041-pmgr\" as M4\nPro/Max specific compatible.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "330bf8caaa7eb9ce72a43375990d2a6498ab4640"
+      ],
+      "date": "2026-10-10T20:52:03.000+02:00"
+    },
+    {
+      "id": "330bf8caaa7eb9ce72a43375990d2a6498ab4640",
+      "message": "dt-bindings: arm: power: apple,pmgr-pwrstate: Add t6041 compatible\n\nThe device power state management of the PMGR blocks on the Apple\nsilicon M4 Pro/Max SoCs (t604x) is compatible with the M1-M4 SoCs.\nAdd \"apple,t6041-pmgr-pwrstate\" as M4 Pro/Max specific compatible.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "b47c8d54bc86fa14608836f0f13e272a054782e4"
+      ],
+      "date": "2026-10-10T20:52:03.000+02:00"
+    },
+    {
+      "id": "d02e7717e327b34a31da6f906204972cc4a16be1",
+      "message": "dt-bindings: interrupt-controller: apple,aic2: Add t6041 compatible\n\nThe Apple t604x (M4 Pro/Max) SoCs use an AIC3 as interrupt controller,\nsame as the previous M3-M4 SoCs.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "eb701ad4a12617d7f9ef7eae550bab63589dedbc"
+      ],
+      "date": "2026-10-10T20:52:03.000+02:00"
+    },
+    {
+      "id": "eb701ad4a12617d7f9ef7eae550bab63589dedbc",
+      "message": "dt-bindings: watchdog: apple,wdt: Add t6041 compatible\n\nThe watchdog on the Apple t604x (M4 Pro/Max) SoCs is compatible with the\nM1-M4 SoCs. Add \"apple,t6041-wdt\" as SoC specific compatible.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "d393bb87ef9a1e3b919642cfc3824d352915cefd"
+      ],
+      "date": "2026-10-10T20:52:03.000+02:00"
+    },
+    {
+      "id": "d393bb87ef9a1e3b919642cfc3824d352915cefd",
+      "message": "dt-bindings: nvme: Add apple,t8132-nvme-ans2 compatible\n\nAdd a new base compatible for the ANS2 NVMe on the Apple t8132 (M4) SoC,\nwhich requires the IO queues to be registered using additional MMIO writes.\n\nAcked-by: Conor Dooley <conor.dooley@microchip.com>\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "a3944154b1cf4d27f5505e711a9413f24bdc35fb"
+      ],
+      "date": "2026-10-10T17:39:45.000+02:00"
+    },
+    {
+      "id": "2c06bb6e01d7240f75eea466a798f36f4dcb5046",
+      "message": "arm64: dts: apple: t8122: Add NVMe device nodes\n\nOn Apple Silicon, NVMe communication is mediated by a\ncoprocessor known as the ANS, and protected by its own\nIOMMU known as the SART.\n\nAdd the following nodes to the M3 (t8122) device tree:\n- Mailbox for the ANS coprocessor\n- SART (IOMMU for the ANS coprocessor)\n- The NVMe / ANS coprocessor itself\n\nSigned-off-by: Michael Reeves <michael.reeves077@gmail.com>\nSigned-off-by: Janne Grunau <j@jannau.net>\n",
+      "parents": [
+        "6dcf93ce421368d148d3e2b0ea1e106b1bd0c596"
+      ],
+      "date": "2026-10-10T17:36:26.000+02:00"
+    },
+    {
+      "id": "6dcf93ce421368d148d3e2b0ea1e106b1bd0c596",
+      "message": "arm64: dts: apple: t6031: Add NVMe device nodes\n\nApple silicon SoCs have a built-in NVMe host controller. Using it\nrequires device nodes for its IOMMU (SART), its mailbox and the ANS\ncoprocessor implementing the NVMe host controller.\nSince the NAND chips on the M3 Ultra are connected to its second die use\nt6031-nvme.dtsi for the NVMe device nodes.\n\nSigned-off-by: Janne Grunau <j@jannau.net>\n",
+      "parents": [
+        "3db21dd3bab609c9e1b5a3dc682940da011de09b"
+      ],
+      "date": "2026-10-10T17:36:26.000+02:00"
+    },
+    {
+      "id": "3db21dd3bab609c9e1b5a3dc682940da011de09b",
+      "message": "arm64: dts: apple: t6030: Add NVMe device nodes\n\nApple silicon SoCs have a built-in NVMe host controller. Using it\nrequires device nodes for its IOMMU (SART), its mailbox and the ANS\ncoprocessor implementing the NVMe host controller.\n\nSigned-off-by: Janne Grunau <j@jannau.net>\n",
+      "parents": [
+        "4a38c2437d8f7df856b1fa45905e727d10408f18"
+      ],
+      "date": "2026-10-10T17:36:26.000+02:00"
+    },
+    {
+      "id": "bd42e5f050678cc8b842a96c2f2b21b62b692bdd",
+      "message": "dt-bindings: iommu: apple,sart: Add Apple M3 compatibles\n\nSART on M3, M3 Pro and M3 Max/Ultra is compatible to SART on M1\nPro/Max/Ultra. Add their per-SoC compatibles \"apple,t8122-sart\",\n\"apple,t6030-sart\" and \"apple,t6031-sart\" to its dt-bindings.\n\nSigned-off-by: Michael Reeves <michael.reeves077@gmail.com>\nSigned-off-by: Janne Grunau <j@jannau.net>\nAcked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>\n",
+      "parents": [
+        "b3d9499a9a970ec396eb00912575598848f4fef8"
+      ],
+      "date": "2026-10-10T17:36:26.000+02:00"
+    }
+  ],
+  "yuka-history-parts_40-old-dchid.json": [
+    {
+      "id": "55e130fd72dbd21cf0896a73664eaa8029b9f792",
+      "message": "HID: dockchannel-hid: allow models without stm to proceed\n\nCo-authored-by: Michael Reeves <michael.reeves077@gmail.com>\nSigned-off-by: Michael Reeves <michael.reeves077@gmail.com>\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "01334b613f75dbb2ee1bbb8ff705d3af8bf923de"
+      ],
+      "date": "2026-10-11T15:10:27.000+02:00"
+    },
+    {
+      "id": "01334b613f75dbb2ee1bbb8ff705d3af8bf923de",
+      "message": "fixup! HID: Add Apple DockChannel HID transport driver\n",
+      "parents": [
+        "3bc571b010d836fe7a3a040931d56aa9d12cf259"
+      ],
+      "date": "2026-10-11T15:10:27.000+02:00"
+    },
+    {
+      "id": "3bc571b010d836fe7a3a040931d56aa9d12cf259",
+      "message": "fixup! soc: apple: Add DockChannel driver\n",
+      "parents": [
+        "342cb08652b375b05dbf6de5caacb0a7f85ab337"
+      ],
+      "date": "2026-10-11T13:53:06.000+02:00"
+    },
+    {
+      "id": "3be903b1afe18b140f702008c63051aab2892793",
+      "message": "HID: Add Apple DockChannel HID transport driver\n\nApple M2 devices have an MTP coprocessor embedded in the SoC that\nhandles HID for the integrated touchpad/keyboard, and communicates\nover the DockChannel interface. This driver implements this new\ninterface.\n\nSigned-off-by: Hector Martin <marcan@marcan.st>\n",
+      "parents": [
+        "70895c7f51b43ea80984670afcd83cc1cdc1fcbf"
+      ],
+      "date": "2026-10-09T20:26:21.000+02:00"
+    },
+    {
+      "id": "70895c7f51b43ea80984670afcd83cc1cdc1fcbf",
+      "message": "soc: apple: Add DockChannel driver\n\nDockChannel is a simple FIFO interface used to communicate between SoC\nblocks. Add a driver that represents the shared interrupt controller for\nthe DockChannel block, and then exposes probe and data transfer\nfunctions that child device drivers can use to instantiate individual\nFIFOs.\n\nSigned-off-by: Hector Martin <marcan@marcan.st>\n",
+      "parents": [
+        "d6f449191583bdc6087181248df7ba8bf544151e"
+      ],
+      "date": "2026-10-09T20:26:21.000+02:00"
+    },
+    {
+      "id": "c22e01bb5d53b809f7c303ce033af5db292ae014",
+      "message": "HID: magicmouse: Add MTP multi-touch device support\n\nApple M2 devices expose the multi-touch device over the HID over\nDockChannel transport, which we represent as the HOST bus type. The\nreport format is the same, except the legacy mouse header is gone and\nthere is no enable request needed.\n\nSigned-off-by: Hector Martin <marcan@marcan.st>\n",
+      "parents": [
+        "ba60769ff1d5990338b5e2a127f0e83a35a40a5b"
+      ],
+      "date": "2026-10-09T20:26:20.000+02:00"
+    }
+  ],
+  "yuka-history-parts_21-dt-nvme.json": [],
+  "yuka-history-b4_apple-m4-pro-max-initial-devicetrees.json": [
+    {
+      "id": "7edc05e30bf7a9da5e4e61bd94ca098445b15af9",
+      "message": "arm64: dts: apple: Add minimal t604x (M4 Pro/Max) device trees\n\nAdded device trees for the following devices:\n- apple,j614s - MacBook Pro (14-inch, M4 Pro, 2024)\n- apple,j614c - MacBook Pro (14-inch, M4 Max, 2024)\n- apple,j616s - MacBook Pro (16-inch, M4 Pro, 2024)\n- apple,j616c - MacBook Pro (16-inch, M4 Max, 2024)\n- apple,j773s - Mac mini (M4 Pro, 2024)\n- apple,j575c - Mac Studio (M4 Max, 2025)\n\nCo-authored-by: Florian Klink <flokli@flokli.de>\nSigned-off-by: Florian Klink <flokli@flokli.de>\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "da9430d037e3e37a8a6fca405e04c27e4477fd07"
+      ],
+      "date": "2026-10-11T22:44:01.000+02:00"
+    },
+    {
+      "id": "2e41d7f1891203659df97741fb09fc10f8510331",
+      "message": "dt-bindings: i2c: apple,i2c: Add t6041 compatible\n\nThe i2c block on the Apple Silicon T604x (M4 Pro/Max) SoCs is compatible\nwith t8103. Add \"apple,t6041-i2c\" as SoC specific compatible under\n\"apple,t8103-i2c\".\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "18a5a31acb13d5449a5e823e6a7b75ccc2ae03db"
+      ],
+      "date": "2026-10-11T22:44:01.000+02:00"
+    },
+    {
+      "id": "18a5a31acb13d5449a5e823e6a7b75ccc2ae03db",
+      "message": "dt-bindings: pinctrl: apple,pinctrl: Add t6041 compatible\n\nThe pin controller on the Apple Silicon T604x (M4 Pro/Max) SoCs is\ncompatible with t8103. Add \"apple,t6041-pinctrl\" as SoC specific\ncompatible under \"apple,t8103-pinctrl\".\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "a98e548d85c366f0e4b208041ff7493d87755653"
+      ],
+      "date": "2026-10-11T22:43:57.000+02:00"
+    },
+    {
+      "id": "a98e548d85c366f0e4b208041ff7493d87755653",
+      "message": "dt-bindings: pwm: apple,s5l-fpwm: Add t6041 compatible\n\nThe PWM controller on Apple Silicon M4 Pro/Max SoCs is compatible with\nthe t8103 (M1) one. Add \"apple,t6041-fpwm\"as per-SoC compatibles for M4\nPro/Max.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "106745cd075c5caeaa6f4e570df51eb3276f39d4"
+      ],
+      "date": "2026-10-10T19:17:58.000+02:00"
+    },
+    {
+      "id": "106745cd075c5caeaa6f4e570df51eb3276f39d4",
+      "message": "dt-bindings: arm: apple: apple,pmgr: Add t6041 compatible\n\nThe PMGR blocks on the Apple Silicon M4 Pro/Max SoCs (t604x) are\ncompatible with the previous M1-M4 SoCs. Add \"apple,t6041-pmgr\" as M4\nPro/Max specific compatible.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "890c06696a79566fc576312710997764668ac053"
+      ],
+      "date": "2026-10-10T19:17:58.000+02:00"
+    },
+    {
+      "id": "890c06696a79566fc576312710997764668ac053",
+      "message": "dt-bindings: arm: power: apple,pmgr-pwrstate: Add t6041 compatible\n\nThe device power state management of the PMGR blocks on the Apple\nsilicon M4 Pro/Max SoCs (t604x) is compatible with the M1-M4 SoCs.\nAdd \"apple,t6041-pmgr-pwrstate\" as M4 Pro/Max specific compatible.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "b57f455b2c8771355a123ff314836f2b5ccc7d24"
+      ],
+      "date": "2026-10-10T19:17:58.000+02:00"
+    },
+    {
+      "id": "c91a96a666902867a5343b087ebf779ae899e58b",
+      "message": "dt-bindings: interrupt-controller: apple,aic2: Add t6041 compatible\n\nThe Apple t604x (M4 Pro/Max) SoCs use an AIC3 as interrupt controller,\nsame as the previous M3-M4 SoCs.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "76bdbc728a3e50351282ec4df71feb4e05a859e4"
+      ],
+      "date": "2026-10-10T19:17:56.000+02:00"
+    },
+    {
+      "id": "76bdbc728a3e50351282ec4df71feb4e05a859e4",
+      "message": "dt-bindings: watchdog: apple,wdt: Add t6041 compatible\n\nThe watchdog on the Apple t604x (M4 Pro/Max) SoCs is compatible with the\nM1-M4 SoCs. Add \"apple,t6041-wdt\" as SoC specific compatible.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "1d98dacb1f087ca3c53bb8141b90b48a9b1ee0e3"
+      ],
+      "date": "2026-10-09T21:00:03.000+02:00"
+    },
+    {
+      "id": "1d98dacb1f087ca3c53bb8141b90b48a9b1ee0e3",
+      "message": "Initial Apple Silicon M4 Pro/Max device trees and dt-bindings\n\nHi,\n\nThis series adds initial device trees and dt-bindings for the Apple\nSilicon devices using the M4 Pro/Max (t6040/t6041) SoCs.\n\nThis series covers only a minimal amount of hardware, which is useful\nas a basis for future developments. The hardware added here has remained\nlargely unchanged between the M3 and M4 generations.\n\nThe dt-bindings changes should be mostly boring (in a good way!). The\ndevice trees themselves are roughly organized into the MacBook Pro\nmodels on one side (t604x-j614-j616) and the Mac mini and Mac Studio on\nthe other side (t604x-j575-j773). I'm hoping to re-use these dtsi files\nfor the M5 Pro/Max versions of these machines in the future.\nI applied some version of dt-check-style formatting to all new files\nwith the exception of the generated pmgr nodes.\n\nMerge strategy:\nSince there are no actual driver changes, we'd prefer to merge the\ndt-bindings changes through the apple-soc tree once Acked by the\nrespective maintainers.\n\nThanks,\n\nYureka\n\n# Describe the purpose of this series. The information you put here\n# will be used by the project maintainer to make a decision whether\n# your patches should be reviewed, and in what priority order. Please be\n# very detailed and link to any relevant discussions or sites that the\n# maintainer can review to better understand your proposed changes. If you\n# only have a single patch in your series, the contents of the cover\n# letter will be appended to the \"under-the-cut\" portion of the patch.\n\n# Lines starting with # will be removed from the cover letter. You can\n# use them to add notes or reminders to yourself. If you want to use\n# markdown headers in your cover letter, start the line with \">#\".\n\n# You can add trailers to the cover letter. Any email addresses found in\n# these trailers will be added to the addresses specified/generated\n# during the b4 send stage. You can also run \"b4 prep --auto-to-cc\" to\n# auto-populate the To: and Cc: trailers based on the code being\n# modified.\n\nTo: Sven Peter <sven@kernel.org>\nTo: Janne Grunau <j@jannau.net>\nTo: Neal Gompa <neal@gompa.dev>\nTo: Wim Van Sebroeck <wim@linux-watchdog.org>\nTo: Guenter Roeck <linux@roeck-us.net>\nTo: Rob Herring <robh@kernel.org>\nTo: Krzysztof Kozlowski <krzk+dt@kernel.org>\nTo: Conor Dooley <conor+dt@kernel.org>\nTo: Thomas Gleixner <tglx@kernel.org>\nTo: Radu Rendec <radu@rendec.net>\nTo: Lorenzo Pieralisi <lpieralisi@kernel.org>\nTo: Hector Martin <marcan@marcan.st>\nTo: Uwe Kleine-K\u00f6nig <ukleinek@kernel.org>\nTo: Sasha Finkelstein <k@chaosmail.tech>\nTo: Linus Walleij <linusw@kernel.org>\nTo: Mark Kettenis <kettenis@openbsd.org>\nTo: Andi Shyti <andi.shyti@kernel.org>\nCc: asahi@lists.linux.dev\nCc: linux-arm-kernel@lists.infradead.org\nCc: linux-watchdog@vger.kernel.org\nCc: devicetree@vger.kernel.org\nCc: linux-kernel@vger.kernel.org\nCc: linux-pwm@vger.kernel.org\nCc: linux-gpio@vger.kernel.org\nCc: linux-i2c@vger.kernel.org\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n\n---\nChanges in v2:\n- Remove accidental t6050 hunk from \"dt-bindings: interrupt-controller:\n  apple,aic2: Add t6041 compatible\"\n- Remove accidental acked-by & reviewed-by from \"dt-bindings: interrupt-controller: \n  apple,aic2: Add t6041 compatible\"\n- Fix missing \"0x\" hexadecimal prefix in cpu cache sizes\n- Use _fe power domains instead of their disabled _cpu counterparts in\n  Mac mini and Mac Studio framebuffer nodes\n- Link to v1: https://patch.msgid.link/20261010-apple-m4-pro-max-initial-devicetrees-v1-0-781fb3f2d9f6@cyberchaos.dev\n\n--- b4-submit-tracking ---\n# This section is used internally by b4 prep for tracking purposes.\n{\n  \"series\": {\n    \"revision\": 2,\n    \"change-id\": \"20261009-apple-m4-pro-max-initial-devicetrees-c3b23fa7a88e\",\n    \"prefixes\": [],\n    \"presubject\": \"\",\n    \"history\": {\n      \"v1\": [\n        \"20261010-apple-m4-pro-max-initial-devicetrees-v1-0-781fb3f2d9f6@cyberchaos.dev\"\n      ]\n    }\n  }\n}",
+      "parents": [
+        "a8ac6027e82415f431bbba49ab535c44f2edaf4d"
+      ],
+      "date": "2026-10-09T20:59:38.000+02:00"
+    },
+    {
+      "id": "ea3cef7b0a75c7a38de94b0e3395f7155cd242d3",
+      "message": "Merge patch series \"Initial Apple Silicon M4 device trees and dt-bindings\"\n\nYureka Lilian <yureka@cyberchaos.dev> says:\n\nThis series adds initial device trees and dt-bindings for the Apple\nSilicon devices using the M4 (t8132) SoC. For the most part it mirrors\nJanne's M3 (t8122) bringup series as it was merged in the 7.2 cycle.\n\nThis series covers only a minimal amount of hardware, which is useful\nas a basis for future developments. The hardware added here has remained\nlargely unchanged between the M3 and M4 generations.\n\nMost of the changes for bringing these M4 devices into a bootable state\nhave been happening in the m1n1 bootloader, which, compared to the M3\ngeneration, is no longer responsible for setting the configuration bits\n(\ud83d\udc14-bits) of the CPU, since these are now set and locked by iBoot.\n\nAdditionally, SMP boot depends on patches to avoid WFI and WFIT\ninstructions, such as the idle=nop patches I sent out just before v1.\n\nLink: https://patch.msgid.link/20260811-apple-m4-initial-devicetrees-v3-0-6bf32d45ad0b@cyberchaos.dev\nSigned-off-by: Sven Peter <sven@kernel.org>\n",
+      "parents": [
+        "db6fccb5a4222ceb9c102a68f0e98a1e40b299af",
+        "23850378ade76f4bdcb1033594d54307990cfcb9"
+      ],
+      "date": "2026-08-31T19:46:56.000+02:00"
+    },
+    {
+      "id": "23850378ade76f4bdcb1033594d54307990cfcb9",
+      "message": "arm64: dts: apple: Add minimal t8132 (M4) device trees\n\nAdded device trees for the following devices:\n- apple,j604 - MacBook Pro (14-inch, M4, 2024)\n- apple,j623 - iMac (24-inch, 2x USB-C, M4, 2024)\n- apple,j624 - iMac (24-inch, 4x USB-C, M4, 2024)\n- apple,j713 - MacBook Air (13-inch, M4, 2025)\n- apple,j715 - MacBook Air (15-inch, M4, 2025)\n- apple,j773g - Mac mini (M4, 2024)\n\nThe device trees have a minimal set of devices limited to CPU cores,\ninterrupt controller, power states, watchdog, serial, pin controller,\ni2c and framebuffer.\nThe device trees for the notebooks add a PWM controller for the keyboard\nLED illumination.\n\nUsing the macOS 26.6 iBoot/firmware, the Mac mini reliably boots on a\nsingle core using the stock kernel.\nBooting with smp requires avoiding the wfi and wfit instructions\nin the idle loop and `delay()` respectively, since those instructions\ncause a loss of architectural state on the secondary cores, and even\nthen boot is unreliable.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\nReviewed-by: Linus Walleij <linusw@kernel.org>\nLink: https://patch.msgid.link/20260811-apple-m4-initial-devicetrees-v3-9-6bf32d45ad0b@cyberchaos.dev\nSigned-off-by: Sven Peter <sven@kernel.org>\n",
+      "parents": [
+        "e23d2b23739e70f4e1202585aec38d2bb1267971"
+      ],
+      "date": "2026-08-31T16:33:21.000+02:00"
+    },
+    {
+      "id": "e23d2b23739e70f4e1202585aec38d2bb1267971",
+      "message": "dt-bindings: arm: apple: Add M4 based devices\n\nThe Apple devices with the t8132 SoC (M4) are very similar to their M3\npredecessors.\n\nIn addition to the MacBook Pro and the various MacBook Air and iMac\nvariants, a Mac mini is offered again with the M4.\n\nAcked-by: Rob Herring (Arm) <robh@kernel.org>\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\nLink: https://patch.msgid.link/20260811-apple-m4-initial-devicetrees-v3-8-6bf32d45ad0b@cyberchaos.dev\nSigned-off-by: Sven Peter <sven@kernel.org>\n",
+      "parents": [
+        "a581a2343c456617ea10fdb49dad129e06725a39"
+      ],
+      "date": "2026-08-31T16:33:21.000+02:00"
+    },
+    {
+      "id": "a581a2343c456617ea10fdb49dad129e06725a39",
+      "message": "dt-bindings: pwm: apple,s5l-fpwm: Add t8132 compatible\n\nThe PWM controller on the Apple silicon t8132 (M4) SoC is compatible\nwith t8103. Add \"apple,t8132-fpwm\" as SoC specific compatible under\n\"apple,s5l-fpwm\".\n\nAcked-by: Uwe Kleine-K\u00f6nig <ukleinek@kernel.org>\nAcked-by: Rob Herring (Arm) <robh@kernel.org>\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\nLink: https://patch.msgid.link/20260811-apple-m4-initial-devicetrees-v3-7-6bf32d45ad0b@cyberchaos.dev\nSigned-off-by: Sven Peter <sven@kernel.org>\n",
+      "parents": [
+        "12672a9c918070657d98fc687b2af90d8243dfa8"
+      ],
+      "date": "2026-08-31T16:33:21.000+02:00"
+    },
+    {
+      "id": "12672a9c918070657d98fc687b2af90d8243dfa8",
+      "message": "dt-bindings: i2c: apple,i2c: Add t8132 compatible\n\nThe i2c block on the Apple silicon t8132 (M4) SoC is compatible with\nt8103. Add \"apple,t8132-i2c\" as SoC specific compatible under\n\"apple,t8103-i2c\".\n\nAcked-by: Rob Herring (Arm) <robh@kernel.org>\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\nLink: https://patch.msgid.link/20260811-apple-m4-initial-devicetrees-v3-6-6bf32d45ad0b@cyberchaos.dev\nSigned-off-by: Sven Peter <sven@kernel.org>\n",
+      "parents": [
+        "7d0c3b4c41e277448584c3866e4e4b18965d814a"
+      ],
+      "date": "2026-08-31T16:33:21.000+02:00"
+    },
+    {
+      "id": "7d0c3b4c41e277448584c3866e4e4b18965d814a",
+      "message": "dt-bindings: pinctrl: apple,pinctrl: Add t8132 compatible\n\nThe pin controller on the Apple silicon t8132 (M4) SoC is compatible\nwith t8103. Add \"apple,t8132-pinctrl\" as SoC specific compatible under\n\"apple,t8103-pinctrl\".\n\nReviewed-by: Linus Walleij <linusw@kernel.org>\nAcked-by: Rob Herring (Arm) <robh@kernel.org>\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\nLink: https://patch.msgid.link/20260811-apple-m4-initial-devicetrees-v3-5-6bf32d45ad0b@cyberchaos.dev\nSigned-off-by: Sven Peter <sven@kernel.org>\n",
+      "parents": [
+        "bda617ad4171fbb0629c5840496fd9eec90bff99"
+      ],
+      "date": "2026-08-31T16:33:21.000+02:00"
+    },
+    {
+      "id": "bda617ad4171fbb0629c5840496fd9eec90bff99",
+      "message": "dt-bindings: power: apple,pmgr-pwrstate: Add t8132 compatible\n\nThe device power state management of the PMGR blocks on Apple's t8132\nSoC (M4) is compatible with t8103.\n\nAcked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\nLink: https://patch.msgid.link/20260811-apple-m4-initial-devicetrees-v3-4-6bf32d45ad0b@cyberchaos.dev\nSigned-off-by: Sven Peter <sven@kernel.org>\n",
+      "parents": [
+        "f8805ac96c9bf0638995bce24c20acd7096b2749"
+      ],
+      "date": "2026-08-31T16:33:21.000+02:00"
+    },
+    {
+      "id": "f8805ac96c9bf0638995bce24c20acd7096b2749",
+      "message": "dt-bindings: arm: apple: apple,pmgr: Add t8132 compatible\n\nThe PMGR blocks on Apple silicon M4 SoCs (t8132) are compatible with the\nM1/M2/M3 predecessors. Add \"apple,t8132-pmgr\" as M4 specific compatible.\n\nAcked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\nLink: https://patch.msgid.link/20260811-apple-m4-initial-devicetrees-v3-3-6bf32d45ad0b@cyberchaos.dev\nSigned-off-by: Sven Peter <sven@kernel.org>\n",
+      "parents": [
+        "1a8b7a1131af70b44788f5ed507b1dab911a0801"
+      ],
+      "date": "2026-08-31T16:33:21.000+02:00"
+    },
+    {
+      "id": "1a8b7a1131af70b44788f5ed507b1dab911a0801",
+      "message": "dt-bindings: interrupt-controller: apple,aic2: Add apple,t8132 compatible\n\nThe Apple t8132 (M4) SoC uses an AIC3 as interrupt controller, same as\nthe M3 predecessor.\n\nReviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\nReviewed-by: Linus Walleij <linusw@kernel.org>\nLink: https://patch.msgid.link/20260811-apple-m4-initial-devicetrees-v3-2-6bf32d45ad0b@cyberchaos.dev\nSigned-off-by: Sven Peter <sven@kernel.org>\n",
+      "parents": [
+        "4be8659603b030996d1e84efd4993e4842716092"
+      ],
+      "date": "2026-08-31T16:33:21.000+02:00"
+    }
+  ],
+  "yuka-history-parts_41-dt-old-dchid.json": [
+    {
+      "id": "419adc71f0d8fedd8666fa60123b7262d4c82390",
+      "message": "arm64: dts: apple: t604x-j614-j616: Enable MTP device nodes\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "501a16a59f79c8defe62e99dac055d220f982589"
+      ],
+      "date": "2026-10-11T19:30:51.000+02:00"
+    },
+    {
+      "id": "501a16a59f79c8defe62e99dac055d220f982589",
+      "message": "arm64: dts: apple: t604x: Add MTP device nodes\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "d37f88d2cad528a4147aa9551fee13f5b7ed50c0"
+      ],
+      "date": "2026-10-11T19:30:51.000+02:00"
+    },
+    {
+      "id": "d37f88d2cad528a4147aa9551fee13f5b7ed50c0",
+      "message": "arm64: dts: apple: t8132-j715: Enable MTP based input\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "5ab5e5064ccee4fd62850b67518c5f765a89b4a9"
+      ],
+      "date": "2026-10-11T19:30:50.000+02:00"
+    },
+    {
+      "id": "5ab5e5064ccee4fd62850b67518c5f765a89b4a9",
+      "message": "arm64: dts: apple: t8132-j713: Enable MTP based input\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "baaf17752184a427f7feef841cf8bb3039247e5e"
+      ],
+      "date": "2026-10-11T19:30:50.000+02:00"
+    },
+    {
+      "id": "baaf17752184a427f7feef841cf8bb3039247e5e",
+      "message": "arm64: dts: apple: t8132-j604: Enable MTP based input\n\nTested on an M4 MacBook Pro (J604), the built-in keyboard works.\n\nSigned-off-by: Jiajun Wang <ryan1202@foxmail.com>\n",
+      "parents": [
+        "6f9837abdab304bb8db76448ccce33d460af90f6"
+      ],
+      "date": "2026-10-11T19:08:47.000+02:00"
+    },
+    {
+      "id": "6f9837abdab304bb8db76448ccce33d460af90f6",
+      "message": "arm64: dts: apple: t8132: Add MTP support\n\nAdd the MTP, mailbox, DART, DockChannel and HID transport nodes for t8132.\n\nUnlike t8122, the MTP DART uses stream ID 0 on t8132.\n\nSigned-off-by: Jiajun Wang <ryan1202@foxmail.com>\n",
+      "parents": [
+        "8262b63b5ce547c0e84abbe346148c7d33c4ea57"
+      ],
+      "date": "2026-10-11T18:55:11.000+02:00"
+    },
+    {
+      "id": "1167e3ff2568b83246c9807c19512592f0954500",
+      "message": "arm64: dts: apple: Add MTP DockChannel to M3 device tree\n\nThe internal keyboard and trackpad HID on MacBook variants\nof the Apple M3 (t8122) SoC are connected through a Apple\n-developed protocol called DockChannel and mediated by a\ncoprocessor known as the Multi-Touch Processor (MTP).\n\nThis commit adds the nessecary device tree nodes to the\nM3's device tree for internal HID to work. It is disabled\nby default, to be enabled only in MacBook board files\nwhere it is tested and confirmed to work.\n\nCo-developed-by: Alyssa Milburn <amilburn@zall.org>\nSigned-off-by: Alyssa Milburn <amilburn@zall.org>\nSigned-off-by: Michael Reeves <michael.reeves077@gmail.com>\n",
+      "parents": [
+        "dc482985623805c10787b0f19fd73ba4c91c02ae"
+      ],
+      "date": "2026-10-11T13:44:42.000+02:00"
+    },
+    {
+      "id": "506e7d7f1be63f420786971d8cb44841111d1b0b",
+      "message": "arm64: dts: t604x-j*: add PCIe WiFi, Ethernet & SD reader nodes\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "8f7d9410bc4bf51295fea00b2ddd3da3102b4b40"
+      ],
+      "date": "2026-10-11T13:37:59.000+02:00"
+    },
+    {
+      "id": "8f7d9410bc4bf51295fea00b2ddd3da3102b4b40",
+      "message": "arm64: dts: apple: t604x: Add PCIe device nodes\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "9a3f06fa90a144ac9b723b73f5986cc8e1b23697"
+      ],
+      "date": "2026-10-11T13:37:59.000+02:00"
+    },
+    {
+      "id": "9a3f06fa90a144ac9b723b73f5986cc8e1b23697",
+      "message": "dt-bindings: pci: apple,pcie: Add apple,t6041-pcie compatible\n\napple,t6041-pcie is compatible to apple,t6020-pcie.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "f957cf85f75bfb271def332a62d56867f5e6ce93"
+      ],
+      "date": "2026-10-11T13:37:59.000+02:00"
+    },
+    {
+      "id": "8fcab95269bc791f137d287f7f52eaaea9f8cc91",
+      "message": "arm64: dts: t8132-j*: add PCIe WiFi & SD reader nodes\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "dd5a03fd70347cedfcdf09f2b1f62a3b4d566911"
+      ],
+      "date": "2026-10-11T13:37:58.000+02:00"
+    },
+    {
+      "id": "dd5a03fd70347cedfcdf09f2b1f62a3b4d566911",
+      "message": "arm64: dts: apple: t8132: Add PCIe device nodes\n",
+      "parents": [
+        "658ef3e15a8b7f4f2088bbd88d9b9804566907db"
+      ],
+      "date": "2026-10-11T13:37:58.000+02:00"
+    },
+    {
+      "id": "658ef3e15a8b7f4f2088bbd88d9b9804566907db",
+      "message": "dt-bindings: pci: apple,pcie: Add apple,t8132-pcie compatible\n\napple,t8132-pcie is compatible to apple,t6020-pcie.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "702bb25c8d7ad0800d4096d611d42bfa5e05074b"
+      ],
+      "date": "2026-10-11T13:37:58.000+02:00"
+    },
+    {
+      "id": "702bb25c8d7ad0800d4096d611d42bfa5e05074b",
+      "message": "dt-bindings: iommu: apple,dart: Add t6041-dart compatible\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "967afa6cd3913f06e9e5536229d15aa6c9d5c849"
+      ],
+      "date": "2026-10-11T13:37:58.000+02:00"
+    },
+    {
+      "id": "967afa6cd3913f06e9e5536229d15aa6c9d5c849",
+      "message": "dt-bindings: iommu: apple,dart: Add t8132-dart compatible\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "361a54ea144552e66c30f349506335e29d38c639"
+      ],
+      "date": "2026-10-11T13:37:58.000+02:00"
+    },
+    {
+      "id": "e632c5c5f61fb4d0e1420d643ff0e07a9ea2a107",
+      "message": "arm64: dts: apple: t604x: Add NVMe nodes\n\nAdd the device nodes for the internal NVMe SSD on the Apple M4 Pro/Max\n(t6040/t6041) SoCs.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "5e6edd7568041af9d33f07cc43c5b60c62bb6bba"
+      ],
+      "date": "2026-10-11T13:37:58.000+02:00"
+    },
+    {
+      "id": "bb64b118037f2150b020e84e55f8eddd4c572790",
+      "message": "arm64: dts: apple: t8132: Add NVMe nodes\n\nAdd the device nodes for the internal NVMe SSD on the Apple M4 (t8132)\nSoC.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "191549a7220aaa13cf5a2eff0aa92aa306e93159"
+      ],
+      "date": "2026-10-11T13:37:58.000+02:00"
+    },
+    {
+      "id": "191549a7220aaa13cf5a2eff0aa92aa306e93159",
+      "message": "dt-bindings: nvme: apple: Add apple,t8142-nvme-ans2 compatible\n\n\"apple,t8142-nvme-ans2\" on the Apple M5 SoC is compatible with\n\"apple,t8132-nvme-ans2\" so add its per-SoC compatible.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "9e8b78d2ccc7f33d5c1f38932e084d73f2d8de11"
+      ],
+      "date": "2026-10-11T13:37:58.000+02:00"
+    },
+    {
+      "id": "9e8b78d2ccc7f33d5c1f38932e084d73f2d8de11",
+      "message": "dt-bindings: nvme: apple: Add apple,t6041-nvme-ans2 compatible\n\n\"apple,t6041-nvme-ans2\" on the Apple M4 Pro/Max SoCs is compatible with\n\"apple,t8132-nvme-ans2\" so add the per-SoC compatible.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "a1a7124a48430c5a85cc88ec7fa35651da4ec604"
+      ],
+      "date": "2026-10-11T13:37:58.000+02:00"
+    },
+    {
+      "id": "a1a7124a48430c5a85cc88ec7fa35651da4ec604",
+      "message": "dt-bindings: nvme: apple: Add apple,t8140-nvme-ans2 compatible\n\n\"apple,t8140-nvme-ans2\" on the Apple A18 Pro SoC is compatible\nwith \"apple,t8132-nvme-ans2\" so add its per-SoC compatible.\n",
+      "parents": [
+        "111981b788f1386d79d99a08ac8b7a32dcd0e585"
+      ],
+      "date": "2026-10-11T13:37:58.000+02:00"
+    },
+    {
+      "id": "111981b788f1386d79d99a08ac8b7a32dcd0e585",
+      "message": "dt-bindings: iommu: apple,sart: Add t8142 compatibles\n\nThe SART IOMMU in the Apple M5 SoC is compatible to \"apple,t6000-sart\".\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "933adccbba433dc194bfc358ad1aec97bb531287"
+      ],
+      "date": "2026-10-11T13:37:58.000+02:00"
+    },
+    {
+      "id": "933adccbba433dc194bfc358ad1aec97bb531287",
+      "message": "dt-bindings: iommu: apple,sart: Add t6041 compatibles\n\nThe SART IOMMU in the Apple M4 Pro/Max SoCs is compatible to\n\"apple,t6000-sart\".\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "977cf0c0f39b623681ffb6a03968243b08257cd2"
+      ],
+      "date": "2026-10-11T13:37:58.000+02:00"
+    },
+    {
+      "id": "977cf0c0f39b623681ffb6a03968243b08257cd2",
+      "message": "dt-bindings: iommu: apple,sart: Add t8140 compatibles\n\nThe SART IOMMU in the Apple A18 Pro SoC is compatible to\n\"apple,t6000-sart\".\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "a41c2e84ce711ec14a90ff75d1a10d13f5fec803"
+      ],
+      "date": "2026-10-11T13:37:58.000+02:00"
+    },
+    {
+      "id": "a41c2e84ce711ec14a90ff75d1a10d13f5fec803",
+      "message": "dt-bindings: iommu: apple,sart: Add t8132 compatibles\n\nThe SART IOMMU in the Apple M4 SoC is compatible to \"apple,t6000-sart\".\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "8f0e126e8eef00edb02d7e7040773d0e14856707"
+      ],
+      "date": "2026-10-11T13:37:57.000+02:00"
+    },
+    {
+      "id": "df4c2f5ef1050b762e8c52f74a90699d2ff2f70c",
+      "message": "dt-bindings: mailbox: apple,mailbox: Add t6041 compatible\n\nThe mailbox hardware remains unchanged on M4 Pro/Max SoCs so just add\nthe per-SoC compatible.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "b1bdb1e86f451036f9003147ba0b826972f810c0"
+      ],
+      "date": "2026-10-11T13:37:57.000+02:00"
+    },
+    {
+      "id": "b50346b65a7660b91a40721d0b881c0cf95f628e",
+      "message": "dt-bindings: mailbox: apple,mailbox: Add t8132 compatible\n\nThe mailbox hardware remains unchanged on M4 SoC so just add its\nper-SoC compatible.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "811df6ee2d52efc48e807acce908e67ee1edb256"
+      ],
+      "date": "2026-10-11T13:37:57.000+02:00"
+    },
+    {
+      "id": "861d81d1520aba675ac959ce28881fb8611f20d7",
+      "message": "dt-bindings: pinctrl: apple,pinctrl: Add t6050 compatible\n\nThe pin controller on the Apple Silicon T604x (M5 Pro/Max) SoCs is\ncompatible with t8103. Add \"apple,t6050-pinctrl\" as SoC specific\ncompatible under \"apple,t8103-pinctrl\".\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "cbd5543b86dc91ccff74b617a02c614303fa56bb"
+      ],
+      "date": "2026-10-11T13:37:57.000+02:00"
+    },
+    {
+      "id": "7fe488429ecbce416378b198507e562e7acad3bb",
+      "message": "dt-bindings: arm: power: apple,pmgr-pwrstate: Add t6050 compatible\n\nThe device power state management of the PMGR blocks on the Apple\nsilicon M5 Pro/Max SoCs (t604x) is compatible with the M1-M5 SoCs.\nAdd \"apple,t6050-pmgr-pwrstate\" as M5 Pro/Max specific compatible.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "3e8a0bcc58edf26210606da2f3d3eda9583e640b"
+      ],
+      "date": "2026-10-11T13:37:57.000+02:00"
+    },
+    {
+      "id": "9491f58575c0a9e046fb8e6388f2ce47bba93a45",
+      "message": "dts: apple: t8132: Fix some line-length-related dt-check-style issues\n\nThis fixes most `dt-check-style --mode=strict` issues related to line\nlength. Lines up to 82 columns are left as-is.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "928d36f8c6a239e2d4abf27c759c6f9e7890374b"
+      ],
+      "date": "2026-10-10T20:53:06.000+02:00"
+    },
+    {
+      "id": "928d36f8c6a239e2d4abf27c759c6f9e7890374b",
+      "message": "dts: apple: t8132: Fix ordering-related dt-check-style issues\n\nThis fixes most `dt-check-style --mode=strict` issues related to\nnode and property ordering in the t8132 device tres.\nThe cache-related properties are kept in their own sorting group,\nseparated by a newline from the rest, to improve human readability.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "b1a45ed77652e6f24b338b37a044d0ed6143621d"
+      ],
+      "date": "2026-10-10T20:53:06.000+02:00"
+    },
+    {
+      "id": "b1a45ed77652e6f24b338b37a044d0ed6143621d",
+      "message": "dts: apple: t8132: Fix blank-lines-related dt-check-style issues\n\nThis fixes all `dt-check-style --mode=strict` issues related to blank\nlines in the t8132 device tres.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "56f127b370dd95d58737e195add4e843e933fe0f"
+      ],
+      "date": "2026-10-10T20:53:06.000+02:00"
+    },
+    {
+      "id": "56f127b370dd95d58737e195add4e843e933fe0f",
+      "message": "arm64: dts: apple: Add minimal t604x (M4 Pro/Max) device trees\n\nAdded device trees for the following devices:\n- apple,j614s - MacBook Pro (14-inch, M4 Pro, 2024)\n- apple,j614c - MacBook Pro (14-inch, M4 Max, 2024)\n- apple,j616s - MacBook Pro (16-inch, M4 Pro, 2024)\n- apple,j616c - MacBook Pro (16-inch, M4 Max, 2024)\n- apple,j773s - Mac mini (M4 Pro, 2024)\n- apple,j575c - Mac Studio (M4 Max, 2025)\n\nCo-authored-by: Florian Klink <flokli@flokli.de>\nSigned-off-by: Florian Klink <flokli@flokli.de>\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "c99f6e352feeb9cce2c42b2c031d6de9c6dcddf4"
+      ],
+      "date": "2026-10-10T20:52:03.000+02:00"
+    },
+    {
+      "id": "bcc13607113aa3e2469f50fa04cd26ce5111b6db",
+      "message": "dt-bindings: i2c: apple,i2c: Add t6041 compatible\n\nThe i2c block on the Apple Silicon T604x (M4 Pro/Max) SoCs is compatible\nwith t8103. Add \"apple,t6041-i2c\" as SoC specific compatible under\n\"apple,t8103-i2c\".\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "54f43ee3550c5ff77eba932a4dc2d89c099c3a1d"
+      ],
+      "date": "2026-10-10T20:52:03.000+02:00"
+    },
+    {
+      "id": "54f43ee3550c5ff77eba932a4dc2d89c099c3a1d",
+      "message": "dt-bindings: pinctrl: apple,pinctrl: Add t6041 compatible\n\nThe pin controller on the Apple Silicon T604x (M4 Pro/Max) SoCs is\ncompatible with t8103. Add \"apple,t6041-pinctrl\" as SoC specific\ncompatible under \"apple,t8103-pinctrl\".\n",
+      "parents": [
+        "606765ca8d67fdc570a898b3c191c8c79f721569"
+      ],
+      "date": "2026-10-10T20:52:03.000+02:00"
+    },
+    {
+      "id": "606765ca8d67fdc570a898b3c191c8c79f721569",
+      "message": "dt-bindings: pwm: apple,s5l-fpwm: Add t6041 compatible\n\nThe PWM controller on Apple Silicon M4 Pro/Max SoCs is compatible with\nthe t8103 (M1) one. Add \"apple,t6041-fpwm\"as per-SoC compatibles for M4\nPro/Max.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "d7ca51a8d6d415b884377d756055726a0b3687c2"
+      ],
+      "date": "2026-10-10T20:52:03.000+02:00"
+    },
+    {
+      "id": "d7ca51a8d6d415b884377d756055726a0b3687c2",
+      "message": "dt-bindings: arm: apple: apple,pmgr: Add t6041 compatible\n\nThe PMGR blocks on the Apple Silicon M4 Pro/Max SoCs (t604x) are\ncompatible with the previous M1-M4 SoCs. Add \"apple,t6041-pmgr\" as M4\nPro/Max specific compatible.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "330bf8caaa7eb9ce72a43375990d2a6498ab4640"
+      ],
+      "date": "2026-10-10T20:52:03.000+02:00"
+    },
+    {
+      "id": "330bf8caaa7eb9ce72a43375990d2a6498ab4640",
+      "message": "dt-bindings: arm: power: apple,pmgr-pwrstate: Add t6041 compatible\n\nThe device power state management of the PMGR blocks on the Apple\nsilicon M4 Pro/Max SoCs (t604x) is compatible with the M1-M4 SoCs.\nAdd \"apple,t6041-pmgr-pwrstate\" as M4 Pro/Max specific compatible.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "b47c8d54bc86fa14608836f0f13e272a054782e4"
+      ],
+      "date": "2026-10-10T20:52:03.000+02:00"
+    },
+    {
+      "id": "d02e7717e327b34a31da6f906204972cc4a16be1",
+      "message": "dt-bindings: interrupt-controller: apple,aic2: Add t6041 compatible\n\nThe Apple t604x (M4 Pro/Max) SoCs use an AIC3 as interrupt controller,\nsame as the previous M3-M4 SoCs.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "eb701ad4a12617d7f9ef7eae550bab63589dedbc"
+      ],
+      "date": "2026-10-10T20:52:03.000+02:00"
+    },
+    {
+      "id": "eb701ad4a12617d7f9ef7eae550bab63589dedbc",
+      "message": "dt-bindings: watchdog: apple,wdt: Add t6041 compatible\n\nThe watchdog on the Apple t604x (M4 Pro/Max) SoCs is compatible with the\nM1-M4 SoCs. Add \"apple,t6041-wdt\" as SoC specific compatible.\n\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "d393bb87ef9a1e3b919642cfc3824d352915cefd"
+      ],
+      "date": "2026-10-10T20:52:03.000+02:00"
+    },
+    {
+      "id": "d393bb87ef9a1e3b919642cfc3824d352915cefd",
+      "message": "dt-bindings: nvme: Add apple,t8132-nvme-ans2 compatible\n\nAdd a new base compatible for the ANS2 NVMe on the Apple t8132 (M4) SoC,\nwhich requires the IO queues to be registered using additional MMIO writes.\n\nAcked-by: Conor Dooley <conor.dooley@microchip.com>\nSigned-off-by: Yureka Lilian <yureka@cyberchaos.dev>\n",
+      "parents": [
+        "a3944154b1cf4d27f5505e711a9413f24bdc35fb"
+      ],
+      "date": "2026-10-10T17:39:45.000+02:00"
+    },
+    {
+      "id": "2c06bb6e01d7240f75eea466a798f36f4dcb5046",
+      "message": "arm64: dts: apple: t8122: Add NVMe device nodes\n\nOn Apple Silicon, NVMe communication is mediated by a\ncoprocessor known as the ANS, and protected by its own\nIOMMU known as the SART.\n\nAdd the following nodes to the M3 (t8122) device tree:\n- Mailbox for the ANS coprocessor\n- SART (IOMMU for the ANS coprocessor)\n- The NVMe / ANS coprocessor itself\n\nSigned-off-by: Michael Reeves <michael.reeves077@gmail.com>\nSigned-off-by: Janne Grunau <j@jannau.net>\n",
+      "parents": [
+        "6dcf93ce421368d148d3e2b0ea1e106b1bd0c596"
+      ],
+      "date": "2026-10-10T17:36:26.000+02:00"
+    },
+    {
+      "id": "6dcf93ce421368d148d3e2b0ea1e106b1bd0c596",
+      "message": "arm64: dts: apple: t6031: Add NVMe device nodes\n\nApple silicon SoCs have a built-in NVMe host controller. Using it\nrequires device nodes for its IOMMU (SART), its mailbox and the ANS\ncoprocessor implementing the NVMe host controller.\nSince the NAND chips on the M3 Ultra are connected to its second die use\nt6031-nvme.dtsi for the NVMe device nodes.\n\nSigned-off-by: Janne Grunau <j@jannau.net>\n",
+      "parents": [
+        "3db21dd3bab609c9e1b5a3dc682940da011de09b"
+      ],
+      "date": "2026-10-10T17:36:26.000+02:00"
+    },
+    {
+      "id": "3db21dd3bab609c9e1b5a3dc682940da011de09b",
+      "message": "arm64: dts: apple: t6030: Add NVMe device nodes\n\nApple silicon SoCs have a built-in NVMe host controller. Using it\nrequires device nodes for its IOMMU (SART), its mailbox and the ANS\ncoprocessor implementing the NVMe host controller.\n\nSigned-off-by: Janne Grunau <j@jannau.net>\n",
+      "parents": [
+        "4a38c2437d8f7df856b1fa45905e727d10408f18"
+      ],
+      "date": "2026-10-10T17:36:26.000+02:00"
+    }
+  ]
+}

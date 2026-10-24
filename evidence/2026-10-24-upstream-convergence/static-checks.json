@@ -1,0 +1,24 @@
+{
+  "scope": "Assertions over pinned captured source text; no build/schema/hardware test",
+  "checks": {
+    "asahi_version_7_2_12": true,
+    "asahi_new_to_resetting_permitted": true,
+    "asahi_m4_nvme_match_absent": true,
+    "asahi_cpufreq_ulong_present": true,
+    "asahi_bss_upper112_still_present": true,
+    "asahi_idle_nop_present": true,
+    "asahi_delay_still_uses_wfit": true,
+    "asahi_nowfxt_override_present": true,
+    "yuka_ioq_minus_one": true,
+    "yuka_new_nvme_has_no_split": true,
+    "asahi_hid_remains_v1": true,
+    "yuka_hid_remains_v1": true,
+    "yuka_board_uses_port02": true,
+    "yuka_board_removes_dispext2": true,
+    "mainline_target_absent": true,
+    "mainline_chip4388_absent": true,
+    "kernel_dirty_status_preserved": true,
+    "6001_ticket_and_seven_payload_files_unchanged": true,
+    "mainline_new_to_resetting_permitted": true
+  }
+}

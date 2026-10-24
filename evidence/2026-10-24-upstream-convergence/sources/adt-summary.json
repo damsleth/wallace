@@ -1,0 +1,2384 @@
+{
+  "j614s-full-20260728.adt": {
+    "path": "/Users/damsleth/Code/linux-build-out/j614s-full-20260728.adt",
+    "sha256": "2fe477c613c67e44550ded1bbb6cad9cf4fffc62393b47b39edc6c11281df4ba",
+    "nodes": {
+      "/device-tree/amfm": {
+        "function-reg_on": "Container: \n    phandle = 294\n    name = u'pKW4' (total 4)\n    args = ListContainer: \n        1733308723\n        8388608"
+      },
+      "/device-tree/arm-io/apcie0": {
+        "compatible": "ListContainer: \n    apcie,t6040",
+        "interrupts": "ListContainer: \n    1723\n    1732\n    1741\n    1750",
+        "power-gates": "ListContainer: \n    240\n    162\n    244\n    163\n    242\n    164\n    243\n    245",
+        "clock-gates": "ListContainer: \n    240\n    162\n    244\n    163\n    242\n    164\n    243\n    245",
+        "ranges": "ListContainer: \n    Container: \n        bus_addr = ListContainer: \n            0x43000000\n            0xC0000000\n            0x0000000B\n        parent_addr = 0x0000000BC0000000\n        size = 0x0000000020000000\n    Container: \n        bus_addr = ListContainer: \n            0x02000000\n            0x80000000\n            0x00000000\n        parent_addr = 0x0000000B80000000\n        size = 0x0000000040000000",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x1cb0000000",
+            "cpu": "0x1cb0000000",
+            "size": "0x10000000"
+          },
+          {
+            "index": 1,
+            "raw": "0x214000000",
+            "cpu": "0x414000000",
+            "size": "0x4000"
+          },
+          {
+            "index": 2,
+            "raw": "0x217000000",
+            "cpu": "0x417000000",
+            "size": "0x40000"
+          },
+          {
+            "index": 3,
+            "raw": "0x217040000",
+            "cpu": "0x417040000",
+            "size": "0x28000"
+          },
+          {
+            "index": 4,
+            "raw": "0x216000000",
+            "cpu": "0x416000000",
+            "size": "0x1000000"
+          },
+          {
+            "index": 5,
+            "raw": "0x215046200",
+            "cpu": "0x415046200",
+            "size": "0x4000"
+          },
+          {
+            "index": 6,
+            "raw": "0x215044000",
+            "cpu": "0x415044000",
+            "size": "0x4000"
+          },
+          {
+            "index": 7,
+            "raw": "0x210028000",
+            "cpu": "0x410028000",
+            "size": "0x8000"
+          },
+          {
+            "index": 8,
+            "raw": "0x21003c000",
+            "cpu": "0x41003c000",
+            "size": "0x4000"
+          },
+          {
+            "index": 9,
+            "raw": "0x217020000",
+            "cpu": "0x417020000",
+            "size": "0x4000"
+          },
+          {
+            "index": 10,
+            "raw": "0x217048000",
+            "cpu": "0x417048000",
+            "size": "0x8000"
+          },
+          {
+            "index": 11,
+            "raw": "0x210024000",
+            "cpu": "0x410024000",
+            "size": "0x4000"
+          },
+          {
+            "index": 12,
+            "raw": "0x210048000",
+            "cpu": "0x410048000",
+            "size": "0x4000"
+          },
+          {
+            "index": 13,
+            "raw": "0x210044000",
+            "cpu": "0x410044000",
+            "size": "0x4000"
+          },
+          {
+            "index": 14,
+            "raw": "0x211028000",
+            "cpu": "0x411028000",
+            "size": "0x8000"
+          },
+          {
+            "index": 15,
+            "raw": "0x21103c000",
+            "cpu": "0x41103c000",
+            "size": "0x4000"
+          },
+          {
+            "index": 16,
+            "raw": "0x217024000",
+            "cpu": "0x417024000",
+            "size": "0x4000"
+          },
+          {
+            "index": 17,
+            "raw": "0x217050000",
+            "cpu": "0x417050000",
+            "size": "0x8000"
+          },
+          {
+            "index": 18,
+            "raw": "0x211024000",
+            "cpu": "0x411024000",
+            "size": "0x4000"
+          },
+          {
+            "index": 19,
+            "raw": "0x211048000",
+            "cpu": "0x411048000",
+            "size": "0x4000"
+          },
+          {
+            "index": 20,
+            "raw": "0x211044000",
+            "cpu": "0x411044000",
+            "size": "0x4000"
+          },
+          {
+            "index": 21,
+            "raw": "0x212028000",
+            "cpu": "0x412028000",
+            "size": "0x8000"
+          },
+          {
+            "index": 22,
+            "raw": "0x21203c000",
+            "cpu": "0x41203c000",
+            "size": "0x4000"
+          },
+          {
+            "index": 23,
+            "raw": "0x217028000",
+            "cpu": "0x417028000",
+            "size": "0x4000"
+          },
+          {
+            "index": 24,
+            "raw": "0x217058000",
+            "cpu": "0x417058000",
+            "size": "0x8000"
+          },
+          {
+            "index": 25,
+            "raw": "0x212024000",
+            "cpu": "0x412024000",
+            "size": "0x4000"
+          },
+          {
+            "index": 26,
+            "raw": "0x212048000",
+            "cpu": "0x412048000",
+            "size": "0x4000"
+          },
+          {
+            "index": 27,
+            "raw": "0x212044000",
+            "cpu": "0x412044000",
+            "size": "0x4000"
+          },
+          {
+            "index": 28,
+            "raw": "0x213028000",
+            "cpu": "0x413028000",
+            "size": "0x8000"
+          },
+          {
+            "index": 29,
+            "raw": "0x21303c000",
+            "cpu": "0x41303c000",
+            "size": "0x4000"
+          },
+          {
+            "index": 30,
+            "raw": "0x21702c000",
+            "cpu": "0x41702c000",
+            "size": "0x4000"
+          },
+          {
+            "index": 31,
+            "raw": "0x217060000",
+            "cpu": "0x417060000",
+            "size": "0x8000"
+          },
+          {
+            "index": 32,
+            "raw": "0x213024000",
+            "cpu": "0x413024000",
+            "size": "0x4000"
+          },
+          {
+            "index": 33,
+            "raw": "0x213048000",
+            "cpu": "0x413048000",
+            "size": "0x4000"
+          },
+          {
+            "index": 34,
+            "raw": "0x213044000",
+            "cpu": "0x413044000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/apcie0/pci-bridge0": {
+        "compatible": "ListContainer: \n    apcie-bridge",
+        "function-clkreq": "Container: \n    phandle = 248\n    name = u'GPIO' (total 4)\n    args = ListContainer: \n        0\n        2",
+        "function-perst": "Container: \n    phandle = 248\n    name = u'GPIO' (total 4)\n    args = ListContainer: \n        4\n        0"
+      },
+      "/device-tree/arm-io/apcie0/pci-bridge0/wlan": {
+        "compatible": "ListContainer: \n    wlan-pcie,bcm4387\n    wlan-pcie,bcm"
+      },
+      "/device-tree/arm-io/apcie0/pci-bridge0/bluetooth-pcie": {
+        "compatible": "ListContainer: \n    wlan-pcie,bcm4387\n    wlan-pcie,bcm"
+      },
+      "/device-tree/arm-io/apcie0/pci-bridge1": {
+        "compatible": "ListContainer: \n    apcie-bridge",
+        "function-clkreq": "Container: \n    phandle = 248\n    name = u'GPIO' (total 4)\n    args = ListContainer: \n        1\n        2",
+        "function-perst": "Container: \n    phandle = 248\n    name = u'GPIO' (total 4)\n    args = ListContainer: \n        5\n        0"
+      },
+      "/device-tree/arm-io/apcie0/pci-bridge1/pcie-sdreader": {
+        "interrupts": "ListContainer: \n    9",
+        "function-sd_pwr_en": "Container: \n    phandle = 294\n    name = u'pKW4' (total 4)\n    args = ListContainer: \n        1733308729\n        0"
+      },
+      "/device-tree/arm-io/dockchannel-mtp": {
+        "compatible": "ListContainer: \n    dockchannel,t8002",
+        "interrupts": "ListContainer: \n    776",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x314b00000",
+            "cpu": "0x514b00000",
+            "size": "0x1000"
+          },
+          {
+            "index": 1,
+            "raw": "0x314b14000",
+            "cpu": "0x514b14000",
+            "size": "0x1000"
+          },
+          {
+            "index": 2,
+            "raw": "0x314b30000",
+            "cpu": "0x514b30000",
+            "size": "0x1000"
+          },
+          {
+            "index": 3,
+            "raw": "0x314b34000",
+            "cpu": "0x514b34000",
+            "size": "0x1000"
+          },
+          {
+            "index": 4,
+            "raw": "0x314b28000",
+            "cpu": "0x514b28000",
+            "size": "0x1000"
+          },
+          {
+            "index": 5,
+            "raw": "0x314b2c000",
+            "cpu": "0x514b2c000",
+            "size": "0x1000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/mtp": {
+        "compatible": "ListContainer: \n    iop,ascwrap-v6",
+        "interrupts": "ListContainer: \n    793\n    792\n    795\n    794",
+        "power-gates": "None",
+        "clock-gates": "None",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x314600000",
+            "cpu": "0x514600000",
+            "size": "0x88000"
+          },
+          {
+            "index": 1,
+            "raw": "0x314050000",
+            "cpu": "0x514050000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dart-mtp": {
+        "compatible": "ListContainer: \n    dart,t8110",
+        "interrupts": "ListContainer: \n    775",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x314800000",
+            "cpu": "0x514800000",
+            "size": "0xc000"
+          },
+          {
+            "index": 1,
+            "raw": "0x314810000",
+            "cpu": "0x514810000",
+            "size": "0x4000"
+          },
+          {
+            "index": 2,
+            "raw": "0x308afc000",
+            "cpu": "0x508afc000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/gpio0": {
+        "compatible": "ListContainer: \n    gpio,t8101",
+        "interrupts": "ListContainer: \n    478\n    479\n    480\n    481\n    482\n    483\n    484",
+        "no-restore-gpio-pins": {
+          "hex": "bf000000c0000000be000000",
+          "u32le": [
+            191,
+            192,
+            190
+          ]
+        },
+        "#gpio-pins": "200",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x31c000000",
+            "cpu": "0x51c000000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/ans": {
+        "compatible": "ListContainer: \n    iop,ascwrap-v6",
+        "interrupts": "ListContainer: \n    1531\n    1530\n    1533\n    1532\n    2583",
+        "power-gates": "None",
+        "clock-gates": "None",
+        "nvme-interrupt-idx": "4",
+        "nvme-queue-entries": "253",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x209600000",
+            "cpu": "0x409600000",
+            "size": "0x88000"
+          },
+          {
+            "index": 1,
+            "raw": "0x209050000",
+            "cpu": "0x409050000",
+            "size": "0x4000"
+          },
+          {
+            "index": 2,
+            "raw": "0x0",
+            "cpu": "0x200000000",
+            "size": "0x0"
+          },
+          {
+            "index": 3,
+            "raw": "0x20dcc0000",
+            "cpu": "0x40dcc0000",
+            "size": "0x60010"
+          },
+          {
+            "index": 4,
+            "raw": "0x20b000000",
+            "cpu": "0x40b000000",
+            "size": "0x18000"
+          },
+          {
+            "index": 5,
+            "raw": "0x20db90000",
+            "cpu": "0x40db90000",
+            "size": "0xc000"
+          },
+          {
+            "index": 6,
+            "raw": "0x20dd47c00",
+            "cpu": "0x40dd47c00",
+            "size": "0x4000"
+          },
+          {
+            "index": 7,
+            "raw": "0x0",
+            "cpu": "0x200000000",
+            "size": "0x0"
+          },
+          {
+            "index": 8,
+            "raw": "0x0",
+            "cpu": "0x200000000",
+            "size": "0x0"
+          },
+          {
+            "index": 9,
+            "raw": "0x24dcc0000",
+            "cpu": "0x44dcc0000",
+            "size": "0x10000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/sart-ans": {
+        "compatible": "ListContainer: \n    sart,coastguard",
+        "sart-version": "3",
+        "sart-power-reg-offset": "5096",
+        "sart-power-managed": "None",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x20dc50000",
+            "cpu": "0x40dc50000",
+            "size": "0xc000"
+          },
+          {
+            "index": 1,
+            "raw": "0x20dd44000",
+            "cpu": "0x40dd44000",
+            "size": "0x4000"
+          },
+          {
+            "index": 2,
+            "raw": "0x20dcc0000",
+            "cpu": "0x40dcc0000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/smc": {
+        "compatible": "ListContainer: \n    iop,ascwrap-v6",
+        "interrupts": "ListContainer: \n    997\n    996\n    999\n    998",
+        "power-gates": "None",
+        "clock-gates": "None",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x30c600000",
+            "cpu": "0x50c600000",
+            "size": "0x88000"
+          },
+          {
+            "index": 1,
+            "raw": "0x30c050000",
+            "cpu": "0x50c050000",
+            "size": "0x4000"
+          },
+          {
+            "index": 2,
+            "raw": "0x30c810000",
+            "cpu": "0x50c810000",
+            "size": "0x100"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dockchannel-uart": {
+        "compatible": "ListContainer: \n    aapl,dock-channels",
+        "interrupts": "ListContainer: \n    360",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x308828000",
+            "cpu": "0x508828000",
+            "size": "0x10004"
+          },
+          {
+            "index": 1,
+            "raw": "0x30880c000",
+            "cpu": "0x50880c000",
+            "size": "0x18"
+          }
+        ]
+      },
+      "/device-tree/arm-io/disp0": {
+        "compatible": "ListContainer: \n    disp0,t604x",
+        "interrupts": "ListContainer: \n    1081\n    1080\n    1081\n    1082\n    1083\n    1084\n    1085\n    1086\n    1087\n    1088\n    1089\n    1100",
+        "power-gates": "ListContainer: \n    460\n    460\n    461\n    462",
+        "clock-gates": "ListContainer: \n    460\n    460\n    461\n    462",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x200000000",
+            "cpu": "0x400000000",
+            "size": "0x4000000"
+          },
+          {
+            "index": 1,
+            "raw": "0x202240000",
+            "cpu": "0x402240000",
+            "size": "0x10000"
+          },
+          {
+            "index": 2,
+            "raw": "0x2023a8000",
+            "cpu": "0x4023a8000",
+            "size": "0x4000"
+          },
+          {
+            "index": 3,
+            "raw": "0x202800000",
+            "cpu": "0x402800000",
+            "size": "0x800000"
+          },
+          {
+            "index": 4,
+            "raw": "0x304800000",
+            "cpu": "0x504800000",
+            "size": "0xbc000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dart-disp0": {
+        "compatible": "ListContainer: \n    dart,t8110",
+        "interrupts": "ListContainer: \n    1090",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x202300000",
+            "cpu": "0x402300000",
+            "size": "0xc000"
+          },
+          {
+            "index": 1,
+            "raw": "0x202314000",
+            "cpu": "0x402314000",
+            "size": "0x4000"
+          },
+          {
+            "index": 2,
+            "raw": "0x300578000",
+            "cpu": "0x500578000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dart-disp0/mapper-disp0": {
+        "compatible": "ListContainer: \n    iommu-mapper"
+      },
+      "/device-tree/arm-io/dart-disp0/mapper-disp0-piodma": {
+        "compatible": "ListContainer: \n    iommu-mapper"
+      },
+      "/device-tree/arm-io/dispext0": {
+        "compatible": "ListContainer: \n    dispext0,t604x",
+        "interrupts": "ListContainer: \n    1156\n    1155\n    1156\n    1158\n    1159\n    1160\n    1161\n    1162\n    1163\n    1164\n    1175",
+        "power-gates": "None",
+        "clock-gates": "None",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x1a0000000",
+            "cpu": "0x3a0000000",
+            "size": "0x4000000"
+          },
+          {
+            "index": 1,
+            "raw": "0x1a2240000",
+            "cpu": "0x3a2240000",
+            "size": "0x10000"
+          },
+          {
+            "index": 2,
+            "raw": "0x1a23a8000",
+            "cpu": "0x3a23a8000",
+            "size": "0x4000"
+          },
+          {
+            "index": 3,
+            "raw": "0x1a2800000",
+            "cpu": "0x3a2800000",
+            "size": "0x800000"
+          },
+          {
+            "index": 4,
+            "raw": "0x304800000",
+            "cpu": "0x504800000",
+            "size": "0xbc000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dcpext0-expert": {
+        "compatible": "ListContainer: \n    dcp-expert-v1",
+        "interrupts": "ListContainer: \n    1160",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x1a23a8050",
+            "cpu": "0x3a23a8050",
+            "size": "0x4"
+          },
+          {
+            "index": 1,
+            "raw": "0x1a2374000",
+            "cpu": "0x3a2374000",
+            "size": "0x40"
+          },
+          {
+            "index": 2,
+            "raw": "0x1a2370000",
+            "cpu": "0x3a2370000",
+            "size": "0x40"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dcpext0": {
+        "compatible": "ListContainer: \n    iop,ascwrap-v6",
+        "interrupts": "ListContainer: \n    1219\n    1218\n    1221\n    1220\n    1223\n    1222\n    1225\n    1224",
+        "power-gates": "ListContainer: \n    431",
+        "clock-gates": "ListContainer: \n    431",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x1a2e00000",
+            "cpu": "0x3a2e00000",
+            "size": "0x88000"
+          },
+          {
+            "index": 1,
+            "raw": "0x1a2850000",
+            "cpu": "0x3a2850000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dcpext0/iop-dcpext0-nub": {
+        "compatible": "ListContainer: \n    iop-nub,rtbuddy-v2"
+      },
+      "/device-tree/arm-io/dart-dcpext0": {
+        "compatible": "ListContainer: \n    dart,t8110",
+        "interrupts": "ListContainer: \n    1165",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x1a2340000",
+            "cpu": "0x3a2340000",
+            "size": "0x20000"
+          },
+          {
+            "index": 1,
+            "raw": "0x300578000",
+            "cpu": "0x500578000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dart-dcpext0/mapper-dcpext0": {
+        "compatible": "ListContainer: \n    iommu-mapper"
+      },
+      "/device-tree/arm-io/dart-dispext0": {
+        "compatible": "ListContainer: \n    dart,t8110",
+        "interrupts": "ListContainer: \n    1165",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x1a2300000",
+            "cpu": "0x3a2300000",
+            "size": "0xc000"
+          },
+          {
+            "index": 1,
+            "raw": "0x1a2314000",
+            "cpu": "0x3a2314000",
+            "size": "0x4000"
+          },
+          {
+            "index": 2,
+            "raw": "0x300578000",
+            "cpu": "0x500578000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dart-dispext0/mapper-dispext0": {
+        "compatible": "ListContainer: \n    iommu-mapper"
+      },
+      "/device-tree/arm-io/dart-dispext0/mapper-dispext0-piodma": {
+        "compatible": "ListContainer: \n    iommu-mapper"
+      },
+      "/device-tree/arm-io/dispext1": {
+        "compatible": "ListContainer: \n    dispext1,t604x",
+        "interrupts": "ListContainer: \n    1228\n    1227\n    1228\n    1230\n    1231\n    1232\n    1233\n    1234\n    1235\n    1236\n    1247",
+        "power-gates": "None",
+        "clock-gates": "None",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x400000000",
+            "cpu": "0x600000000",
+            "size": "0x4000000"
+          },
+          {
+            "index": 1,
+            "raw": "0x402240000",
+            "cpu": "0x602240000",
+            "size": "0x10000"
+          },
+          {
+            "index": 2,
+            "raw": "0x4023a8000",
+            "cpu": "0x6023a8000",
+            "size": "0x4000"
+          },
+          {
+            "index": 3,
+            "raw": "0x402800000",
+            "cpu": "0x602800000",
+            "size": "0x800000"
+          },
+          {
+            "index": 4,
+            "raw": "0x304800000",
+            "cpu": "0x504800000",
+            "size": "0xbc000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dcpext1-expert": {
+        "compatible": "ListContainer: \n    dcp-expert-v1",
+        "interrupts": "ListContainer: \n    1232",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x4023a8050",
+            "cpu": "0x6023a8050",
+            "size": "0x4"
+          },
+          {
+            "index": 1,
+            "raw": "0x402374000",
+            "cpu": "0x602374000",
+            "size": "0x40"
+          },
+          {
+            "index": 2,
+            "raw": "0x402370000",
+            "cpu": "0x602370000",
+            "size": "0x40"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dcpext1": {
+        "compatible": "ListContainer: \n    iop,ascwrap-v6",
+        "interrupts": "ListContainer: \n    1291\n    1290\n    1293\n    1292\n    1295\n    1294\n    1297\n    1296",
+        "power-gates": "ListContainer: \n    432",
+        "clock-gates": "ListContainer: \n    432",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x402e00000",
+            "cpu": "0x602e00000",
+            "size": "0x88000"
+          },
+          {
+            "index": 1,
+            "raw": "0x402850000",
+            "cpu": "0x602850000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dcpext1/iop-dcpext1-nub": {
+        "compatible": "ListContainer: \n    iop-nub,rtbuddy-v2"
+      },
+      "/device-tree/arm-io/dart-dcpext1": {
+        "compatible": "ListContainer: \n    dart,t8110",
+        "interrupts": "ListContainer: \n    1237",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x402340000",
+            "cpu": "0x602340000",
+            "size": "0xc000"
+          },
+          {
+            "index": 1,
+            "raw": "0x300578000",
+            "cpu": "0x500578000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dart-dcpext1/mapper-dcpext1": {
+        "compatible": "ListContainer: \n    iommu-mapper"
+      },
+      "/device-tree/arm-io/dart-dispext1": {
+        "compatible": "ListContainer: \n    dart,t8110",
+        "interrupts": "ListContainer: \n    1237",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x402300000",
+            "cpu": "0x602300000",
+            "size": "0xc000"
+          },
+          {
+            "index": 1,
+            "raw": "0x402314000",
+            "cpu": "0x602314000",
+            "size": "0x4000"
+          },
+          {
+            "index": 2,
+            "raw": "0x300578000",
+            "cpu": "0x500578000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dart-dispext1/mapper-dispext1": {
+        "compatible": "ListContainer: \n    iommu-mapper"
+      },
+      "/device-tree/arm-io/dart-dispext1/mapper-dispext1-piodma": {
+        "compatible": "ListContainer: \n    iommu-mapper"
+      }
+    },
+    "display_domains": [
+      {
+        "name": "DISPEXT3_SYS",
+        "id": 79,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            78\n            0\n        unk_u8id = ListContainer: \n            230\n            1\n    u16id = Container: \n        parents = ListContainer: \n            78\n            486",
+        "offset": "0x2d8"
+      },
+      {
+        "name": "DISPEXT3_FE",
+        "id": 80,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            79\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            79\n            0",
+        "offset": "0x2e0"
+      },
+      {
+        "name": "DISPEXT3_CPU",
+        "id": 81,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            0\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            0\n            0",
+        "offset": "0x2e8"
+      },
+      {
+        "name": "DISPEXT3_DBE",
+        "id": 82,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            80\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            80\n            0",
+        "offset": "0x2f0"
+      },
+      {
+        "name": "DISPEXT3_GP0",
+        "id": 84,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            80\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            80\n            0",
+        "offset": "0x300"
+      },
+      {
+        "name": "DISPEXT3_GP1",
+        "id": 85,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            80\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            80\n            0",
+        "offset": "0x308"
+      },
+      {
+        "name": "DISPEXT3_GPL",
+        "id": 86,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            80\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            80\n            0",
+        "offset": "0x310"
+      },
+      {
+        "name": "DISPEXT3_PPP",
+        "id": 87,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            80\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            80\n            0",
+        "offset": "0x318"
+      },
+      {
+        "name": "DISPEXT3_DSC",
+        "id": 88,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            82\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            82\n            0",
+        "offset": "0x320"
+      },
+      {
+        "name": "DISPEXT0_SYS",
+        "id": 92,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            91\n            0\n        unk_u8id = ListContainer: \n            230\n            1\n    u16id = Container: \n        parents = ListContainer: \n            91\n            486",
+        "offset": "0x340"
+      },
+      {
+        "name": "DISPEXT0_FE",
+        "id": 93,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            92\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            92\n            0",
+        "offset": "0x348"
+      },
+      {
+        "name": "DISPEXT0_CPU",
+        "id": 94,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            93\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            93\n            0",
+        "offset": "0x350"
+      },
+      {
+        "name": "DISPEXT0_DBE",
+        "id": 95,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            93\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            93\n            0",
+        "offset": "0x358"
+      },
+      {
+        "name": "DISPEXT0_GP0",
+        "id": 97,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            93\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            93\n            0",
+        "offset": "0x368"
+      },
+      {
+        "name": "DISPEXT0_GP1",
+        "id": 98,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            93\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            93\n            0",
+        "offset": "0x370"
+      },
+      {
+        "name": "DISPEXT0_GPL",
+        "id": 99,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            93\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            93\n            0",
+        "offset": "0x378"
+      },
+      {
+        "name": "DISPEXT0_PPP",
+        "id": 100,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            93\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            93\n            0",
+        "offset": "0x380"
+      },
+      {
+        "name": "DISPEXT0_DSC",
+        "id": 101,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            95\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            95\n            0",
+        "offset": "0x388"
+      },
+      {
+        "name": "DISPEXT1_SYS",
+        "id": 134,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            133\n            0\n        unk_u8id = ListContainer: \n            230\n            1\n    u16id = Container: \n        parents = ListContainer: \n            133\n            486",
+        "offset": "0x490"
+      },
+      {
+        "name": "DISPEXT1_FE",
+        "id": 135,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            134\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            134\n            0",
+        "offset": "0x498"
+      },
+      {
+        "name": "DISPEXT1_CPU",
+        "id": 136,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            135\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            135\n            0",
+        "offset": "0x4a0"
+      },
+      {
+        "name": "DISPEXT1_DBE",
+        "id": 137,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            135\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            135\n            0",
+        "offset": "0x4a8"
+      },
+      {
+        "name": "DISPEXT1_GP0",
+        "id": 139,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            135\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            135\n            0",
+        "offset": "0x4b8"
+      },
+      {
+        "name": "DISPEXT1_GP1",
+        "id": 140,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            135\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            135\n            0",
+        "offset": "0x4c0"
+      },
+      {
+        "name": "DISPEXT1_GPL",
+        "id": 141,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            135\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            135\n            0",
+        "offset": "0x4c8"
+      },
+      {
+        "name": "DISPEXT1_PPP",
+        "id": 142,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            135\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            135\n            0",
+        "offset": "0x4d0"
+      },
+      {
+        "name": "DISPEXT1_DSC",
+        "id": 143,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            137\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            137\n            0",
+        "offset": "0x4d8"
+      },
+      {
+        "name": "DISPEXT2_SYS",
+        "id": 144,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            133\n            0\n        unk_u8id = ListContainer: \n            230\n            1\n    u16id = Container: \n        parents = ListContainer: \n            133\n            486",
+        "offset": "0x4e0"
+      },
+      {
+        "name": "DISPEXT2_FE",
+        "id": 145,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            144\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            144\n            0",
+        "offset": "0x4e8"
+      },
+      {
+        "name": "DISPEXT2_CPU",
+        "id": 146,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            0\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            0\n            0",
+        "offset": "0x4f0"
+      },
+      {
+        "name": "DISPEXT2_DBE",
+        "id": 147,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            145\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            145\n            0",
+        "offset": "0x4f8"
+      },
+      {
+        "name": "DISPEXT2_GP0",
+        "id": 149,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            145\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            145\n            0",
+        "offset": "0x508"
+      },
+      {
+        "name": "DISPEXT2_GP1",
+        "id": 150,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            145\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            145\n            0",
+        "offset": "0x510"
+      },
+      {
+        "name": "DISPEXT2_GPL",
+        "id": 151,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            145\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            145\n            0",
+        "offset": "0x518"
+      },
+      {
+        "name": "DISPEXT2_PPP",
+        "id": 152,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            145\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            145\n            0",
+        "offset": "0x520"
+      },
+      {
+        "name": "DISPEXT2_DSC",
+        "id": 153,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            147\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            147\n            0",
+        "offset": "0x528"
+      },
+      {
+        "name": "DISP_SYS",
+        "id": 205,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            132\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            132\n            0",
+        "offset": "0x258"
+      },
+      {
+        "name": "DISP_FE",
+        "id": 239,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            205\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            205\n            0",
+        "offset": "0x368"
+      },
+      {
+        "name": "ANS",
+        "id": 240,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            165\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            165\n            0",
+        "offset": "0x370"
+      },
+      {
+        "name": "DISP_CPU",
+        "id": 262,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10000"
+      },
+      {
+        "name": "DISP_SPI",
+        "id": 263,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10008"
+      },
+      {
+        "name": "DISP_SPMI",
+        "id": 264,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10010"
+      },
+      {
+        "name": "DISP_DBE",
+        "id": 265,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10018"
+      },
+      {
+        "name": "DISP_GP0",
+        "id": 267,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10028"
+      },
+      {
+        "name": "DISP_GP1",
+        "id": 268,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10030"
+      },
+      {
+        "name": "DISP_GPL",
+        "id": 269,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10038"
+      },
+      {
+        "name": "DISP_CMB",
+        "id": 270,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10040"
+      },
+      {
+        "name": "DISP_PPP",
+        "id": 271,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10048"
+      },
+      {
+        "name": "DISP_BRC",
+        "id": 272,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10050"
+      },
+      {
+        "name": "DISP_BLC",
+        "id": 273,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10058"
+      },
+      {
+        "name": "DISP-MIE-DPB",
+        "id": 460,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            0\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            0\n            0",
+        "offset": "0x0"
+      },
+      {
+        "name": "DISP-FB-ACTIVE",
+        "id": 461,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            0\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            0\n            0",
+        "offset": "0x0"
+      },
+      {
+        "name": "DISP-CARVE-OUT",
+        "id": 462,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            0\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            0\n            0",
+        "offset": "0x0"
+      },
+      {
+        "name": "DISP-CPU-V",
+        "id": 430,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            6\n            1\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            262\n            0",
+        "offset": "0x0"
+      },
+      {
+        "name": "DISPEXT0-CPU-V",
+        "id": 431,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            94\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            94\n            0",
+        "offset": "0x0"
+      },
+      {
+        "name": "DISPEXT1-CPU-V",
+        "id": 432,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            136\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            136\n            0",
+        "offset": "0x0"
+      },
+      {
+        "name": "DISPEXT2-CPU-V",
+        "id": 433,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            146\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            146\n            0",
+        "offset": "0x0"
+      },
+      {
+        "name": "DISPEXT3-CPU-V",
+        "id": 434,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            81\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            81\n            0",
+        "offset": "0x0"
+      },
+      {
+        "name": "DISPEXT_RAIL_V",
+        "id": 486,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            0\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            0\n            0",
+        "offset": "0x0"
+      }
+    ]
+  },
+  "j614s-usb-port-map-20260721.adt": {
+    "path": "/Users/damsleth/Code/linux-build-out/j614s-usb-port-map-20260721.adt",
+    "sha256": "7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84",
+    "nodes": {
+      "/device-tree/amfm": {
+        "function-reg_on": "Container: \n    phandle = 294\n    name = u'pKW4' (total 4)\n    args = ListContainer: \n        1733308723\n        8388608"
+      },
+      "/device-tree/arm-io/apcie0": {
+        "compatible": "ListContainer: \n    apcie,t6040",
+        "interrupts": "ListContainer: \n    1723\n    1732\n    1741\n    1750",
+        "power-gates": "ListContainer: \n    240\n    162\n    244\n    163\n    242\n    164\n    243\n    245",
+        "clock-gates": "ListContainer: \n    240\n    162\n    244\n    163\n    242\n    164\n    243\n    245",
+        "ranges": "ListContainer: \n    Container: \n        bus_addr = ListContainer: \n            0x43000000\n            0xC0000000\n            0x0000000B\n        parent_addr = 0x0000000BC0000000\n        size = 0x0000000020000000\n    Container: \n        bus_addr = ListContainer: \n            0x02000000\n            0x80000000\n            0x00000000\n        parent_addr = 0x0000000B80000000\n        size = 0x0000000040000000",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x1cb0000000",
+            "cpu": "0x1cb0000000",
+            "size": "0x10000000"
+          },
+          {
+            "index": 1,
+            "raw": "0x214000000",
+            "cpu": "0x414000000",
+            "size": "0x4000"
+          },
+          {
+            "index": 2,
+            "raw": "0x217000000",
+            "cpu": "0x417000000",
+            "size": "0x40000"
+          },
+          {
+            "index": 3,
+            "raw": "0x217040000",
+            "cpu": "0x417040000",
+            "size": "0x28000"
+          },
+          {
+            "index": 4,
+            "raw": "0x216000000",
+            "cpu": "0x416000000",
+            "size": "0x1000000"
+          },
+          {
+            "index": 5,
+            "raw": "0x215046200",
+            "cpu": "0x415046200",
+            "size": "0x4000"
+          },
+          {
+            "index": 6,
+            "raw": "0x215044000",
+            "cpu": "0x415044000",
+            "size": "0x4000"
+          },
+          {
+            "index": 7,
+            "raw": "0x210028000",
+            "cpu": "0x410028000",
+            "size": "0x8000"
+          },
+          {
+            "index": 8,
+            "raw": "0x21003c000",
+            "cpu": "0x41003c000",
+            "size": "0x4000"
+          },
+          {
+            "index": 9,
+            "raw": "0x217020000",
+            "cpu": "0x417020000",
+            "size": "0x4000"
+          },
+          {
+            "index": 10,
+            "raw": "0x217048000",
+            "cpu": "0x417048000",
+            "size": "0x8000"
+          },
+          {
+            "index": 11,
+            "raw": "0x210024000",
+            "cpu": "0x410024000",
+            "size": "0x4000"
+          },
+          {
+            "index": 12,
+            "raw": "0x210048000",
+            "cpu": "0x410048000",
+            "size": "0x4000"
+          },
+          {
+            "index": 13,
+            "raw": "0x210044000",
+            "cpu": "0x410044000",
+            "size": "0x4000"
+          },
+          {
+            "index": 14,
+            "raw": "0x211028000",
+            "cpu": "0x411028000",
+            "size": "0x8000"
+          },
+          {
+            "index": 15,
+            "raw": "0x21103c000",
+            "cpu": "0x41103c000",
+            "size": "0x4000"
+          },
+          {
+            "index": 16,
+            "raw": "0x217024000",
+            "cpu": "0x417024000",
+            "size": "0x4000"
+          },
+          {
+            "index": 17,
+            "raw": "0x217050000",
+            "cpu": "0x417050000",
+            "size": "0x8000"
+          },
+          {
+            "index": 18,
+            "raw": "0x211024000",
+            "cpu": "0x411024000",
+            "size": "0x4000"
+          },
+          {
+            "index": 19,
+            "raw": "0x211048000",
+            "cpu": "0x411048000",
+            "size": "0x4000"
+          },
+          {
+            "index": 20,
+            "raw": "0x211044000",
+            "cpu": "0x411044000",
+            "size": "0x4000"
+          },
+          {
+            "index": 21,
+            "raw": "0x212028000",
+            "cpu": "0x412028000",
+            "size": "0x8000"
+          },
+          {
+            "index": 22,
+            "raw": "0x21203c000",
+            "cpu": "0x41203c000",
+            "size": "0x4000"
+          },
+          {
+            "index": 23,
+            "raw": "0x217028000",
+            "cpu": "0x417028000",
+            "size": "0x4000"
+          },
+          {
+            "index": 24,
+            "raw": "0x217058000",
+            "cpu": "0x417058000",
+            "size": "0x8000"
+          },
+          {
+            "index": 25,
+            "raw": "0x212024000",
+            "cpu": "0x412024000",
+            "size": "0x4000"
+          },
+          {
+            "index": 26,
+            "raw": "0x212048000",
+            "cpu": "0x412048000",
+            "size": "0x4000"
+          },
+          {
+            "index": 27,
+            "raw": "0x212044000",
+            "cpu": "0x412044000",
+            "size": "0x4000"
+          },
+          {
+            "index": 28,
+            "raw": "0x213028000",
+            "cpu": "0x413028000",
+            "size": "0x8000"
+          },
+          {
+            "index": 29,
+            "raw": "0x21303c000",
+            "cpu": "0x41303c000",
+            "size": "0x4000"
+          },
+          {
+            "index": 30,
+            "raw": "0x21702c000",
+            "cpu": "0x41702c000",
+            "size": "0x4000"
+          },
+          {
+            "index": 31,
+            "raw": "0x217060000",
+            "cpu": "0x417060000",
+            "size": "0x8000"
+          },
+          {
+            "index": 32,
+            "raw": "0x213024000",
+            "cpu": "0x413024000",
+            "size": "0x4000"
+          },
+          {
+            "index": 33,
+            "raw": "0x213048000",
+            "cpu": "0x413048000",
+            "size": "0x4000"
+          },
+          {
+            "index": 34,
+            "raw": "0x213044000",
+            "cpu": "0x413044000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/apcie0/pci-bridge0": {
+        "compatible": "ListContainer: \n    apcie-bridge",
+        "function-clkreq": "Container: \n    phandle = 248\n    name = u'GPIO' (total 4)\n    args = ListContainer: \n        0\n        2",
+        "function-perst": "Container: \n    phandle = 248\n    name = u'GPIO' (total 4)\n    args = ListContainer: \n        4\n        0"
+      },
+      "/device-tree/arm-io/apcie0/pci-bridge0/wlan": {
+        "compatible": "ListContainer: \n    wlan-pcie,bcm4387\n    wlan-pcie,bcm"
+      },
+      "/device-tree/arm-io/apcie0/pci-bridge0/bluetooth-pcie": {
+        "compatible": "ListContainer: \n    wlan-pcie,bcm4387\n    wlan-pcie,bcm"
+      },
+      "/device-tree/arm-io/apcie0/pci-bridge1": {
+        "compatible": "ListContainer: \n    apcie-bridge",
+        "function-clkreq": "Container: \n    phandle = 248\n    name = u'GPIO' (total 4)\n    args = ListContainer: \n        1\n        2",
+        "function-perst": "Container: \n    phandle = 248\n    name = u'GPIO' (total 4)\n    args = ListContainer: \n        5\n        0"
+      },
+      "/device-tree/arm-io/apcie0/pci-bridge1/pcie-sdreader": {
+        "interrupts": "ListContainer: \n    9",
+        "function-sd_pwr_en": "Container: \n    phandle = 294\n    name = u'pKW4' (total 4)\n    args = ListContainer: \n        1733308729\n        0"
+      },
+      "/device-tree/arm-io/dockchannel-mtp": {
+        "compatible": "ListContainer: \n    dockchannel,t8002",
+        "interrupts": "ListContainer: \n    776",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x314b00000",
+            "cpu": "0x514b00000",
+            "size": "0x1000"
+          },
+          {
+            "index": 1,
+            "raw": "0x314b14000",
+            "cpu": "0x514b14000",
+            "size": "0x1000"
+          },
+          {
+            "index": 2,
+            "raw": "0x314b30000",
+            "cpu": "0x514b30000",
+            "size": "0x1000"
+          },
+          {
+            "index": 3,
+            "raw": "0x314b34000",
+            "cpu": "0x514b34000",
+            "size": "0x1000"
+          },
+          {
+            "index": 4,
+            "raw": "0x314b28000",
+            "cpu": "0x514b28000",
+            "size": "0x1000"
+          },
+          {
+            "index": 5,
+            "raw": "0x314b2c000",
+            "cpu": "0x514b2c000",
+            "size": "0x1000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/mtp": {
+        "compatible": "ListContainer: \n    iop,ascwrap-v6",
+        "interrupts": "ListContainer: \n    793\n    792\n    795\n    794",
+        "power-gates": "None",
+        "clock-gates": "None",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x314600000",
+            "cpu": "0x514600000",
+            "size": "0x88000"
+          },
+          {
+            "index": 1,
+            "raw": "0x314050000",
+            "cpu": "0x514050000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dart-mtp": {
+        "compatible": "ListContainer: \n    dart,t8110",
+        "interrupts": "ListContainer: \n    775",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x314800000",
+            "cpu": "0x514800000",
+            "size": "0xc000"
+          },
+          {
+            "index": 1,
+            "raw": "0x314810000",
+            "cpu": "0x514810000",
+            "size": "0x4000"
+          },
+          {
+            "index": 2,
+            "raw": "0x308afc000",
+            "cpu": "0x508afc000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/gpio0": {
+        "compatible": "ListContainer: \n    gpio,t8101",
+        "interrupts": "ListContainer: \n    478\n    479\n    480\n    481\n    482\n    483\n    484",
+        "no-restore-gpio-pins": {
+          "hex": "bf000000c0000000be000000",
+          "u32le": [
+            191,
+            192,
+            190
+          ]
+        },
+        "#gpio-pins": "200",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x31c000000",
+            "cpu": "0x51c000000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/ans": {
+        "compatible": "ListContainer: \n    iop,ascwrap-v6",
+        "interrupts": "ListContainer: \n    1531\n    1530\n    1533\n    1532\n    2583",
+        "power-gates": "None",
+        "clock-gates": "None",
+        "nvme-interrupt-idx": "4",
+        "nvme-queue-entries": "253",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x209600000",
+            "cpu": "0x409600000",
+            "size": "0x88000"
+          },
+          {
+            "index": 1,
+            "raw": "0x209050000",
+            "cpu": "0x409050000",
+            "size": "0x4000"
+          },
+          {
+            "index": 2,
+            "raw": "0x0",
+            "cpu": "0x200000000",
+            "size": "0x0"
+          },
+          {
+            "index": 3,
+            "raw": "0x20dcc0000",
+            "cpu": "0x40dcc0000",
+            "size": "0x60010"
+          },
+          {
+            "index": 4,
+            "raw": "0x20b000000",
+            "cpu": "0x40b000000",
+            "size": "0x18000"
+          },
+          {
+            "index": 5,
+            "raw": "0x20db90000",
+            "cpu": "0x40db90000",
+            "size": "0xc000"
+          },
+          {
+            "index": 6,
+            "raw": "0x20dd47c00",
+            "cpu": "0x40dd47c00",
+            "size": "0x4000"
+          },
+          {
+            "index": 7,
+            "raw": "0x0",
+            "cpu": "0x200000000",
+            "size": "0x0"
+          },
+          {
+            "index": 8,
+            "raw": "0x0",
+            "cpu": "0x200000000",
+            "size": "0x0"
+          },
+          {
+            "index": 9,
+            "raw": "0x24dcc0000",
+            "cpu": "0x44dcc0000",
+            "size": "0x10000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/sart-ans": {
+        "compatible": "ListContainer: \n    sart,coastguard",
+        "sart-version": "3",
+        "sart-power-reg-offset": "5096",
+        "sart-power-managed": "None",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x20dc50000",
+            "cpu": "0x40dc50000",
+            "size": "0xc000"
+          },
+          {
+            "index": 1,
+            "raw": "0x20dd44000",
+            "cpu": "0x40dd44000",
+            "size": "0x4000"
+          },
+          {
+            "index": 2,
+            "raw": "0x20dcc0000",
+            "cpu": "0x40dcc0000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/smc": {
+        "compatible": "ListContainer: \n    iop,ascwrap-v6",
+        "interrupts": "ListContainer: \n    997\n    996\n    999\n    998",
+        "power-gates": "None",
+        "clock-gates": "None",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x30c600000",
+            "cpu": "0x50c600000",
+            "size": "0x88000"
+          },
+          {
+            "index": 1,
+            "raw": "0x30c050000",
+            "cpu": "0x50c050000",
+            "size": "0x4000"
+          },
+          {
+            "index": 2,
+            "raw": "0x30c810000",
+            "cpu": "0x50c810000",
+            "size": "0x100"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dockchannel-uart": {
+        "compatible": "ListContainer: \n    aapl,dock-channels",
+        "interrupts": "ListContainer: \n    360",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x308828000",
+            "cpu": "0x508828000",
+            "size": "0x10004"
+          },
+          {
+            "index": 1,
+            "raw": "0x30880c000",
+            "cpu": "0x50880c000",
+            "size": "0x18"
+          }
+        ]
+      },
+      "/device-tree/arm-io/disp0": {
+        "compatible": "ListContainer: \n    disp0,t604x",
+        "interrupts": "ListContainer: \n    1081\n    1080\n    1081\n    1082\n    1083\n    1084\n    1085\n    1086\n    1087\n    1088\n    1089\n    1100",
+        "power-gates": "ListContainer: \n    460\n    460\n    461\n    462",
+        "clock-gates": "ListContainer: \n    460\n    460\n    461\n    462",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x200000000",
+            "cpu": "0x400000000",
+            "size": "0x4000000"
+          },
+          {
+            "index": 1,
+            "raw": "0x202240000",
+            "cpu": "0x402240000",
+            "size": "0x10000"
+          },
+          {
+            "index": 2,
+            "raw": "0x2023a8000",
+            "cpu": "0x4023a8000",
+            "size": "0x4000"
+          },
+          {
+            "index": 3,
+            "raw": "0x202800000",
+            "cpu": "0x402800000",
+            "size": "0x800000"
+          },
+          {
+            "index": 4,
+            "raw": "0x304800000",
+            "cpu": "0x504800000",
+            "size": "0xbc000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dart-disp0": {
+        "compatible": "ListContainer: \n    dart,t8110",
+        "interrupts": "ListContainer: \n    1090",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x202300000",
+            "cpu": "0x402300000",
+            "size": "0xc000"
+          },
+          {
+            "index": 1,
+            "raw": "0x202314000",
+            "cpu": "0x402314000",
+            "size": "0x4000"
+          },
+          {
+            "index": 2,
+            "raw": "0x300578000",
+            "cpu": "0x500578000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dart-disp0/mapper-disp0": {
+        "compatible": "ListContainer: \n    iommu-mapper"
+      },
+      "/device-tree/arm-io/dart-disp0/mapper-disp0-piodma": {
+        "compatible": "ListContainer: \n    iommu-mapper"
+      },
+      "/device-tree/arm-io/dispext0": {
+        "compatible": "ListContainer: \n    dispext0,t604x",
+        "interrupts": "ListContainer: \n    1156\n    1155\n    1156\n    1158\n    1159\n    1160\n    1161\n    1162\n    1163\n    1164\n    1175",
+        "power-gates": "None",
+        "clock-gates": "None",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x1a0000000",
+            "cpu": "0x3a0000000",
+            "size": "0x4000000"
+          },
+          {
+            "index": 1,
+            "raw": "0x1a2240000",
+            "cpu": "0x3a2240000",
+            "size": "0x10000"
+          },
+          {
+            "index": 2,
+            "raw": "0x1a23a8000",
+            "cpu": "0x3a23a8000",
+            "size": "0x4000"
+          },
+          {
+            "index": 3,
+            "raw": "0x1a2800000",
+            "cpu": "0x3a2800000",
+            "size": "0x800000"
+          },
+          {
+            "index": 4,
+            "raw": "0x304800000",
+            "cpu": "0x504800000",
+            "size": "0xbc000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dcpext0-expert": {
+        "compatible": "ListContainer: \n    dcp-expert-v1",
+        "interrupts": "ListContainer: \n    1160",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x1a23a8050",
+            "cpu": "0x3a23a8050",
+            "size": "0x4"
+          },
+          {
+            "index": 1,
+            "raw": "0x1a2374000",
+            "cpu": "0x3a2374000",
+            "size": "0x40"
+          },
+          {
+            "index": 2,
+            "raw": "0x1a2370000",
+            "cpu": "0x3a2370000",
+            "size": "0x40"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dcpext0": {
+        "compatible": "ListContainer: \n    iop,ascwrap-v6",
+        "interrupts": "ListContainer: \n    1219\n    1218\n    1221\n    1220\n    1223\n    1222\n    1225\n    1224",
+        "power-gates": "ListContainer: \n    431",
+        "clock-gates": "ListContainer: \n    431",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x1a2e00000",
+            "cpu": "0x3a2e00000",
+            "size": "0x88000"
+          },
+          {
+            "index": 1,
+            "raw": "0x1a2850000",
+            "cpu": "0x3a2850000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dcpext0/iop-dcpext0-nub": {
+        "compatible": "ListContainer: \n    iop-nub,rtbuddy-v2"
+      },
+      "/device-tree/arm-io/dart-dcpext0": {
+        "compatible": "ListContainer: \n    dart,t8110",
+        "interrupts": "ListContainer: \n    1165",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x1a2340000",
+            "cpu": "0x3a2340000",
+            "size": "0x20000"
+          },
+          {
+            "index": 1,
+            "raw": "0x300578000",
+            "cpu": "0x500578000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dart-dcpext0/mapper-dcpext0": {
+        "compatible": "ListContainer: \n    iommu-mapper"
+      },
+      "/device-tree/arm-io/dart-dispext0": {
+        "compatible": "ListContainer: \n    dart,t8110",
+        "interrupts": "ListContainer: \n    1165",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x1a2300000",
+            "cpu": "0x3a2300000",
+            "size": "0xc000"
+          },
+          {
+            "index": 1,
+            "raw": "0x1a2314000",
+            "cpu": "0x3a2314000",
+            "size": "0x4000"
+          },
+          {
+            "index": 2,
+            "raw": "0x300578000",
+            "cpu": "0x500578000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dart-dispext0/mapper-dispext0": {
+        "compatible": "ListContainer: \n    iommu-mapper"
+      },
+      "/device-tree/arm-io/dart-dispext0/mapper-dispext0-piodma": {
+        "compatible": "ListContainer: \n    iommu-mapper"
+      },
+      "/device-tree/arm-io/dispext1": {
+        "compatible": "ListContainer: \n    dispext1,t604x",
+        "interrupts": "ListContainer: \n    1228\n    1227\n    1228\n    1230\n    1231\n    1232\n    1233\n    1234\n    1235\n    1236\n    1247",
+        "power-gates": "None",
+        "clock-gates": "None",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x400000000",
+            "cpu": "0x600000000",
+            "size": "0x4000000"
+          },
+          {
+            "index": 1,
+            "raw": "0x402240000",
+            "cpu": "0x602240000",
+            "size": "0x10000"
+          },
+          {
+            "index": 2,
+            "raw": "0x4023a8000",
+            "cpu": "0x6023a8000",
+            "size": "0x4000"
+          },
+          {
+            "index": 3,
+            "raw": "0x402800000",
+            "cpu": "0x602800000",
+            "size": "0x800000"
+          },
+          {
+            "index": 4,
+            "raw": "0x304800000",
+            "cpu": "0x504800000",
+            "size": "0xbc000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dcpext1-expert": {
+        "compatible": "ListContainer: \n    dcp-expert-v1",
+        "interrupts": "ListContainer: \n    1232",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x4023a8050",
+            "cpu": "0x6023a8050",
+            "size": "0x4"
+          },
+          {
+            "index": 1,
+            "raw": "0x402374000",
+            "cpu": "0x602374000",
+            "size": "0x40"
+          },
+          {
+            "index": 2,
+            "raw": "0x402370000",
+            "cpu": "0x602370000",
+            "size": "0x40"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dcpext1": {
+        "compatible": "ListContainer: \n    iop,ascwrap-v6",
+        "interrupts": "ListContainer: \n    1291\n    1290\n    1293\n    1292\n    1295\n    1294\n    1297\n    1296",
+        "power-gates": "ListContainer: \n    432",
+        "clock-gates": "ListContainer: \n    432",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x402e00000",
+            "cpu": "0x602e00000",
+            "size": "0x88000"
+          },
+          {
+            "index": 1,
+            "raw": "0x402850000",
+            "cpu": "0x602850000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dcpext1/iop-dcpext1-nub": {
+        "compatible": "ListContainer: \n    iop-nub,rtbuddy-v2"
+      },
+      "/device-tree/arm-io/dart-dcpext1": {
+        "compatible": "ListContainer: \n    dart,t8110",
+        "interrupts": "ListContainer: \n    1237",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x402340000",
+            "cpu": "0x602340000",
+            "size": "0xc000"
+          },
+          {
+            "index": 1,
+            "raw": "0x300578000",
+            "cpu": "0x500578000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dart-dcpext1/mapper-dcpext1": {
+        "compatible": "ListContainer: \n    iommu-mapper"
+      },
+      "/device-tree/arm-io/dart-dispext1": {
+        "compatible": "ListContainer: \n    dart,t8110",
+        "interrupts": "ListContainer: \n    1237",
+        "reg": [
+          {
+            "index": 0,
+            "raw": "0x402300000",
+            "cpu": "0x602300000",
+            "size": "0xc000"
+          },
+          {
+            "index": 1,
+            "raw": "0x402314000",
+            "cpu": "0x602314000",
+            "size": "0x4000"
+          },
+          {
+            "index": 2,
+            "raw": "0x300578000",
+            "cpu": "0x500578000",
+            "size": "0x4000"
+          }
+        ]
+      },
+      "/device-tree/arm-io/dart-dispext1/mapper-dispext1": {
+        "compatible": "ListContainer: \n    iommu-mapper"
+      },
+      "/device-tree/arm-io/dart-dispext1/mapper-dispext1-piodma": {
+        "compatible": "ListContainer: \n    iommu-mapper"
+      }
+    },
+    "display_domains": [
+      {
+        "name": "DISPEXT3_SYS",
+        "id": 79,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            78\n            0\n        unk_u8id = ListContainer: \n            230\n            1\n    u16id = Container: \n        parents = ListContainer: \n            78\n            486",
+        "offset": "0x2d8"
+      },
+      {
+        "name": "DISPEXT3_FE",
+        "id": 80,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            79\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            79\n            0",
+        "offset": "0x2e0"
+      },
+      {
+        "name": "DISPEXT3_CPU",
+        "id": 81,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            0\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            0\n            0",
+        "offset": "0x2e8"
+      },
+      {
+        "name": "DISPEXT3_DBE",
+        "id": 82,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            80\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            80\n            0",
+        "offset": "0x2f0"
+      },
+      {
+        "name": "DISPEXT3_GP0",
+        "id": 84,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            80\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            80\n            0",
+        "offset": "0x300"
+      },
+      {
+        "name": "DISPEXT3_GP1",
+        "id": 85,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            80\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            80\n            0",
+        "offset": "0x308"
+      },
+      {
+        "name": "DISPEXT3_GPL",
+        "id": 86,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            80\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            80\n            0",
+        "offset": "0x310"
+      },
+      {
+        "name": "DISPEXT3_PPP",
+        "id": 87,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            80\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            80\n            0",
+        "offset": "0x318"
+      },
+      {
+        "name": "DISPEXT3_DSC",
+        "id": 88,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            82\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            82\n            0",
+        "offset": "0x320"
+      },
+      {
+        "name": "DISPEXT0_SYS",
+        "id": 92,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            91\n            0\n        unk_u8id = ListContainer: \n            230\n            1\n    u16id = Container: \n        parents = ListContainer: \n            91\n            486",
+        "offset": "0x340"
+      },
+      {
+        "name": "DISPEXT0_FE",
+        "id": 93,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            92\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            92\n            0",
+        "offset": "0x348"
+      },
+      {
+        "name": "DISPEXT0_CPU",
+        "id": 94,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            93\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            93\n            0",
+        "offset": "0x350"
+      },
+      {
+        "name": "DISPEXT0_DBE",
+        "id": 95,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            93\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            93\n            0",
+        "offset": "0x358"
+      },
+      {
+        "name": "DISPEXT0_GP0",
+        "id": 97,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            93\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            93\n            0",
+        "offset": "0x368"
+      },
+      {
+        "name": "DISPEXT0_GP1",
+        "id": 98,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            93\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            93\n            0",
+        "offset": "0x370"
+      },
+      {
+        "name": "DISPEXT0_GPL",
+        "id": 99,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            93\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            93\n            0",
+        "offset": "0x378"
+      },
+      {
+        "name": "DISPEXT0_PPP",
+        "id": 100,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            93\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            93\n            0",
+        "offset": "0x380"
+      },
+      {
+        "name": "DISPEXT0_DSC",
+        "id": 101,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            95\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            95\n            0",
+        "offset": "0x388"
+      },
+      {
+        "name": "DISPEXT1_SYS",
+        "id": 134,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            133\n            0\n        unk_u8id = ListContainer: \n            230\n            1\n    u16id = Container: \n        parents = ListContainer: \n            133\n            486",
+        "offset": "0x490"
+      },
+      {
+        "name": "DISPEXT1_FE",
+        "id": 135,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            134\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            134\n            0",
+        "offset": "0x498"
+      },
+      {
+        "name": "DISPEXT1_CPU",
+        "id": 136,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            135\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            135\n            0",
+        "offset": "0x4a0"
+      },
+      {
+        "name": "DISPEXT1_DBE",
+        "id": 137,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            135\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            135\n            0",
+        "offset": "0x4a8"
+      },
+      {
+        "name": "DISPEXT1_GP0",
+        "id": 139,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            135\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            135\n            0",
+        "offset": "0x4b8"
+      },
+      {
+        "name": "DISPEXT1_GP1",
+        "id": 140,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            135\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            135\n            0",
+        "offset": "0x4c0"
+      },
+      {
+        "name": "DISPEXT1_GPL",
+        "id": 141,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            135\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            135\n            0",
+        "offset": "0x4c8"
+      },
+      {
+        "name": "DISPEXT1_PPP",
+        "id": 142,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            135\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            135\n            0",
+        "offset": "0x4d0"
+      },
+      {
+        "name": "DISPEXT1_DSC",
+        "id": 143,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            137\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            137\n            0",
+        "offset": "0x4d8"
+      },
+      {
+        "name": "DISPEXT2_SYS",
+        "id": 144,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            133\n            0\n        unk_u8id = ListContainer: \n            230\n            1\n    u16id = Container: \n        parents = ListContainer: \n            133\n            486",
+        "offset": "0x4e0"
+      },
+      {
+        "name": "DISPEXT2_FE",
+        "id": 145,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            144\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            144\n            0",
+        "offset": "0x4e8"
+      },
+      {
+        "name": "DISPEXT2_CPU",
+        "id": 146,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            0\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            0\n            0",
+        "offset": "0x4f0"
+      },
+      {
+        "name": "DISPEXT2_DBE",
+        "id": 147,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            145\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            145\n            0",
+        "offset": "0x4f8"
+      },
+      {
+        "name": "DISPEXT2_GP0",
+        "id": 149,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            145\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            145\n            0",
+        "offset": "0x508"
+      },
+      {
+        "name": "DISPEXT2_GP1",
+        "id": 150,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            145\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            145\n            0",
+        "offset": "0x510"
+      },
+      {
+        "name": "DISPEXT2_GPL",
+        "id": 151,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            145\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            145\n            0",
+        "offset": "0x518"
+      },
+      {
+        "name": "DISPEXT2_PPP",
+        "id": 152,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            145\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            145\n            0",
+        "offset": "0x520"
+      },
+      {
+        "name": "DISPEXT2_DSC",
+        "id": 153,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            147\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            147\n            0",
+        "offset": "0x528"
+      },
+      {
+        "name": "DISP_SYS",
+        "id": 205,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            132\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            132\n            0",
+        "offset": "0x258"
+      },
+      {
+        "name": "DISP_FE",
+        "id": 239,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            205\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            205\n            0",
+        "offset": "0x368"
+      },
+      {
+        "name": "ANS",
+        "id": 240,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            165\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            165\n            0",
+        "offset": "0x370"
+      },
+      {
+        "name": "DISP_CPU",
+        "id": 262,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10000"
+      },
+      {
+        "name": "DISP_SPI",
+        "id": 263,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10008"
+      },
+      {
+        "name": "DISP_SPMI",
+        "id": 264,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10010"
+      },
+      {
+        "name": "DISP_DBE",
+        "id": 265,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10018"
+      },
+      {
+        "name": "DISP_GP0",
+        "id": 267,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10028"
+      },
+      {
+        "name": "DISP_GP1",
+        "id": 268,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10030"
+      },
+      {
+        "name": "DISP_GPL",
+        "id": 269,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10038"
+      },
+      {
+        "name": "DISP_CMB",
+        "id": 270,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10040"
+      },
+      {
+        "name": "DISP_PPP",
+        "id": 271,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10048"
+      },
+      {
+        "name": "DISP_BRC",
+        "id": 272,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10050"
+      },
+      {
+        "name": "DISP_BLC",
+        "id": 273,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            239\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            239\n            0",
+        "offset": "0x10058"
+      },
+      {
+        "name": "DISP-MIE-DPB",
+        "id": 460,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            0\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            0\n            0",
+        "offset": "0x0"
+      },
+      {
+        "name": "DISP-FB-ACTIVE",
+        "id": 461,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            0\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            0\n            0",
+        "offset": "0x0"
+      },
+      {
+        "name": "DISP-CARVE-OUT",
+        "id": 462,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            0\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            0\n            0",
+        "offset": "0x0"
+      },
+      {
+        "name": "DISP-CPU-V",
+        "id": 430,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            6\n            1\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            262\n            0",
+        "offset": "0x0"
+      },
+      {
+        "name": "DISPEXT0-CPU-V",
+        "id": 431,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            94\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            94\n            0",
+        "offset": "0x0"
+      },
+      {
+        "name": "DISPEXT1-CPU-V",
+        "id": 432,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            136\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            136\n            0",
+        "offset": "0x0"
+      },
+      {
+        "name": "DISPEXT2-CPU-V",
+        "id": 433,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            146\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            146\n            0",
+        "offset": "0x0"
+      },
+      {
+        "name": "DISPEXT3-CPU-V",
+        "id": 434,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            81\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            81\n            0",
+        "offset": "0x0"
+      },
+      {
+        "name": "DISPEXT_RAIL_V",
+        "id": 486,
+        "parents": "Container: \n    u8id = Container: \n        parents = ListContainer: \n            0\n            0\n        unk_u8id = ListContainer: \n            0\n            0\n    u16id = Container: \n        parents = ListContainer: \n            0\n            0",
+        "offset": "0x0"
+      }
+    ]
+  }
+}

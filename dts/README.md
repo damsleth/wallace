@@ -57,11 +57,23 @@ in Git history. Current ADT-derived results are documented in `evidence/`,
 especially the Linux DT series, PCIe endpoint-power, SD preflight, and NVMe
 port write-ups.
 
-## October upstream comparison (ticket 6002)
+## October upstream comparison (ticket 6002 complete)
 
-Compare submitted M4 Pro/Max DTs and `t604x-old-dchid-working` against the live
-J614s ADT. Preserve MacBook disp0 + dispext0/1; mini display domains differ.
-Check power-domain edges, IRQs, NVMe/SART split mappings and input reset/power
-contracts independently. Template ADTs and base-M4 USB nodes are insufficient
-board evidence. Track standard `gpio-reserved-ranges` without importing other
-SoCs' reserved pin numbers. [Review](../evidence/2026-10-24-asahi-dev-review.md).
+The [pinned property/patch map](../evidence/2026-10-24-upstream-convergence-audit.md)
+reparsed both saved live J614s ADTs and compared the minimal submitted and
+fuller Yuka component DTs. Keep local DTs for LC1 source assembly (6004):
+
+- MacBook disp0 + dispext0/1; delete dispext2 only at the correct board scope,
+  while keeping the local firmware-owned display-CPU policy.
+- Proven NVMe reg9 64 KiB + reg3 NVMMU split; Yuka's single 384 KiB reg9
+  window and 64 KiB SART window conflict with the captured/proven local sizes.
+- Proven SD port01/DART1; Yuka's port02/DART2 node is a separate migration.
+- Mailbox-based HID, SID0 DMA ownership and nine-byte v2 power request;
+  the old-helper DT's SRAM/SID1/FIFO topology is a different driver contract.
+- Measured DockChannel UART IRQ 816, even though the saved ADT says 360.
+
+AP GPIO no-restore metadata decodes to pins 191/192/190; it does not by itself
+prove forbidden access or equivalent `gpio-reserved-ranges` semantics. Do not
+copy other SoCs' reserved-pin lists. Standardize properties only with the
+matching driver/binding review. Neither source assembly nor this comparison
+passes schema or hardware gates; the validation rules above remain mandatory.

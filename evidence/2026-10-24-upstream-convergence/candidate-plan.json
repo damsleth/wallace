@@ -1,0 +1,95 @@
+{
+  "name": "LC1-7.2.12-2-local-j614s",
+  "kind": "source-integration-plan",
+  "runnable": false,
+  "built": false,
+  "live_approved": false,
+  "source_lock": "evidence/2026-10-24-upstream-convergence/source-lock.json",
+  "base": "2bb9d16f967f11e533a851b13b148a708d59b4f3",
+  "local_behavior_reference": "4f2429104009e3964ddcc326d8490ac25bfb1a5c",
+  "local_support_commits": {
+    "a97a98ae": "a97a98ae00763fb8b9bfbb08622ea93a15a8aa80",
+    "79ddb8fc": "79ddb8fc3b49f224d35079dfac34f8b23079c361",
+    "25a68c4e": "25a68c4e9d774d4e0c7c9b59080c67e4d76d2b95",
+    "cf47872d": "cf47872d10c90537d92d2b6ed1687c7bf4b26aea",
+    "08c0e68f": "08c0e68f6e71b9666316cd1b57c480a1f67cf9ba",
+    "cf08fa59": "cf08fa59b5fa4063c2e8fb9301170551ed2d4152",
+    "38645fe8": "38645fe8da365a63d5f43dbacbe592376bc59e31",
+    "6b6d9b4b": "6b6d9b4bf73858758504e51cd85b0534f68c836b",
+    "8dc17800": "8dc17800b4dbc182e6a0bc5181833f34e8f528cb",
+    "1369af1f": "1369af1f63c5080f07cccb7938c0bffa9186cd63",
+    "cd5da1d0": "cd5da1d058e31ab1d3f933bd6c4206d6337c2cd5"
+  },
+  "reference_only_not_wholesale_import": {
+    "minimal_dt": "7edc05e30bf7a9da5e4e61bd94ca098445b15af9",
+    "full_dt": "0880225c96f587ce7645fd3ca8e51769bccbfccd",
+    "ioq": "6acd61216911155b04fd98ca5599c3e74450010b",
+    "hid": "55e130fd72dbd21cf0896a73664eaa8029b9f792",
+    "hid_dt": "cb64e51073fc6837d25f3b83c0d965c2ab020626"
+  },
+  "ordered_delta_groups": [
+    "port AIC locked-sysreg guards, retain downstream idle support, require arm64.nowfxt",
+    "port preserve-active PMGR/dispext0/1 AUTO guards, keep local DT snapshot including disabled ps_disp_cpu",
+    "retain exactly one mailbox FIFO Kconfig/provider, legacy HID/TTY/nbcon and v2+HIDF behavior",
+    "retain BSS116 and current board/firmware/endpoint-power mapping",
+    "port final split NVMe and firmware gates + force-clean boot + zero-based IOQ once + compatible SART behavior; disabled in first DT"
+  ],
+  "profiles": {
+    "LC1-A": {
+      "cpu_count": 1,
+      "root": "RAM",
+      "ans": "disabled",
+      "spmi": "disabled",
+      "usb": "disabled",
+      "sd": "identity and reviewed read-only reads only",
+      "input": "keyboard + touch + haptics + second-open",
+      "network": "WiFi and Bluetooth separately"
+    },
+    "LC1-B": {
+      "cpu_count": 1,
+      "root": "RAM",
+      "spmi": "disabled",
+      "usb": "disabled",
+      "ans": "enabled only after 6001 result accepted and LC1-A passed",
+      "nvme": "6001 workload retained as a separately pinned fixture; no mounts/writes"
+    }
+  },
+  "bootargs_contract": [
+    "maxcpus=1",
+    "idle=nop",
+    "arm64.nowfxt",
+    "pd_ignore_unused",
+    "clk_ignore_unused",
+    "rdinit=/init",
+    "console=ttydc0 earlier; console=tty0 last"
+  ],
+  "loader": {
+    "source_head": "80badc91e62c8b4228a857730f160ffb62a29335",
+    "m1n1_bin_sha256": "7de07c714ebe8b26a408ab0a4719d10d2d208eb120eaac7d3aea03f0e36daf2a",
+    "client": "existing6001 exact inventory; recapture before new build; no refresh"
+  },
+  "hidf_sha256": "a1f4131d0cb7caf6fa15b19f47725458a6d7b0e3a34f15169339d5541663d9e2",
+  "artifact_hashes": null,
+  "hard_dependencies": {
+    "next_hardware": "6001 under existing execution gate",
+    "source_assembly": "6002 audit complete",
+    "build": "separate source assembly review then separate build ticket with two fresh builds, schema and keymap/preflight",
+    "LC1_live": "separate approved exact-artifact ticket, independent review, readiness, lease",
+    "SMP": "single-CPU storage/input gates;217 artifact;independent205/209 scope"
+  },
+  "excluded": [
+    "p3s",
+    "4K-process MM",
+    "KVM/SEIS",
+    "secondary-start/m1n1 refresh",
+    "DCP/GPU/AVD/audio/suspend",
+    "new USB/ATCPHY/SPMI",
+    "Yuka reg9/SART/AP-GPIO widening",
+    "SD port02 migration",
+    "HID helper/SID1 migration",
+    "new SMC GPIOs",
+    "NVMe namespace writes",
+    "enrollment"
+  ],
+  "stop_and_pass_gates": "evidence/2026-10-24-upstream-convergence-audit.md section6"
+}

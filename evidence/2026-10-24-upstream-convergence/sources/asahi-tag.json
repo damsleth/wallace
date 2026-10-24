@@ -1,0 +1,24 @@
+{
+  "node_id": "TA_kwDOEzUjpdoAKDY4ODJkZjM4ZWVjOTY5MGUxMTJkM2UzZjYyZWQ2YjU5NzRhYzA3ZjQ",
+  "sha": "6882df38eec9690e112d3e3f62ed6b5974ac07f4",
+  "url": "https://api.github.com/repos/AsahiLinux/linux/git/tags/6882df38eec9690e112d3e3f62ed6b5974ac07f4",
+  "tagger": {
+    "name": "Janne Grunau",
+    "email": "j@jannau.net",
+    "date": "2026-10-22T20:27:08Z"
+  },
+  "object": {
+    "sha": "2bb9d16f967f11e533a851b13b148a708d59b4f3",
+    "type": "commit",
+    "url": "https://api.github.com/repos/AsahiLinux/linux/git/commits/2bb9d16f967f11e533a851b13b148a708d59b4f3"
+  },
+  "tag": "asahi-7.2.12-2",
+  "message": "Tagging asahi-7.2.12-2\n\n- fix Aquantia AQC113 10 Gbps NIC regression\n-----BEGIN PGP SIGNATURE-----\n\niHUEABYKAB0WIQRiK+mIAKt8IVx94FahGzzbjS9lZgUCatpx5gAKCRChGzzbjS9l\nZsCVAQDgy8Av8zkuGdDKrVQoBp/VVCPjOTkXzOSPdPOkJfsz6AD9ExOwtncQOZzc\nY2McBOIoda/J0KcRxI3dvd8aVwXMyQ4=\n=l3K+\n-----END PGP SIGNATURE-----\n",
+  "verification": {
+    "verified": true,
+    "reason": "valid",
+    "signature": "-----BEGIN PGP SIGNATURE-----\n\niHUEABYKAB0WIQRiK+mIAKt8IVx94FahGzzbjS9lZgUCatpx5gAKCRChGzzbjS9l\nZsCVAQDgy8Av8zkuGdDKrVQoBp/VVCPjOTkXzOSPdPOkJfsz6AD9ExOwtncQOZzc\nY2McBOIoda/J0KcRxI3dvd8aVwXMyQ4=\n=l3K+\n-----END PGP SIGNATURE-----\n",
+    "payload": "object 2bb9d16f967f11e533a851b13b148a708d59b4f3\ntype commit\ntag asahi-7.2.12-2\ntagger Janne Grunau <j@jannau.net> 1792700828 +0200\n\nTagging asahi-7.2.12-2\n\n- fix Aquantia AQC113 10 Gbps NIC regression\n",
+    "verified_at": "2026-10-22T20:31:22Z"
+  }
+}

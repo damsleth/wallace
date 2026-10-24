@@ -1,0 +1,56 @@
+[
+  {
+    "patch": "patches/t6040-apple-cpufreq-freq-mult-overflow.patch",
+    "mode": "forward",
+    "exit": 1,
+    "output": "Checking patch drivers/cpufreq/apple-soc-cpufreq.c...\nerror: while searching for:\n\n\t/* Get OPP levels (p-state indexes) and stash them in driver_data */\n\tfor (i = 0; freq_table[i].frequency != CPUFREQ_TABLE_END; i++) {\n\t\tunsigned long rate = freq_table[i].frequency * 1000 + 999;\n\t\tstruct dev_pm_opp *opp = dev_pm_opp_find_freq_floor(cpu_dev, &rate);\n\n\t\tif (IS_ERR(opp)) {\n\nerror: patch failed: drivers/cpufreq/apple-soc-cpufreq.c:290\nerror: drivers/cpufreq/apple-soc-cpufreq.c: patch does not apply\n"
+  },
+  {
+    "patch": "patches/t6040-apple-cpufreq-freq-mult-overflow.patch",
+    "mode": "reverse",
+    "exit": 0,
+    "output": "Checking patch drivers/cpufreq/apple-soc-cpufreq.c...\nHunk #1 succeeded at 280 (offset 10 lines).\n"
+  },
+  {
+    "patch": "patches/t6040-brcmfmac-bss-info-v116.patch",
+    "mode": "forward",
+    "exit": 0,
+    "output": "Checking patch drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwil_types.h...\n"
+  },
+  {
+    "patch": "patches/t6040-nvme-apple-force-clean-ans-boot.patch",
+    "mode": "forward",
+    "exit": 0,
+    "output": "Checking patch drivers/nvme/host/apple.c...\nHunk #1 succeeded at 1108 (offset 10 lines).\n"
+  },
+  {
+    "patch": "patches/t6040-nvme-ans2-ioq-size.patch",
+    "mode": "forward",
+    "exit": 1,
+    "output": "Checking patch drivers/nvme/host/apple.c...\nerror: while searching for:\n#define APPLE_ANS_IOSQ_REGISTER      0x1200\n#define APPLE_ANS_IOCQ_REGISTER      0x1208\n#define APPLE_ANS_MAX_PEND_CMDS_CTRL 0x1210\n\n#define APPLE_ANS_BOOT_STATUS\t 0x1300\n#define APPLE_ANS_BOOT_STATUS_OK 0xde71ce55\n\nerror: patch failed: drivers/nvme/host/apple.c:45\nerror: drivers/nvme/host/apple.c: patch does not apply\n"
+  },
+  {
+    "patch": "patches/t8140-sart-power-managed.patch",
+    "mode": "forward",
+    "exit": 0,
+    "output": "Checking patch drivers/soc/apple/sart.c...\n"
+  },
+  {
+    "patch": "patches/t6040-pmgr-functional.patch",
+    "mode": "forward",
+    "exit": 1,
+    "output": "Checking patch drivers/pmdomain/apple/pmgr-pwrstate.c...\nHunk #1 succeeded at 42 (offset 1 line).\nerror: while searching for:\n\t\tdev_err(ps->dev, \"PS %s: Failed to reach power state 0x%x (now: 0x%x)\\n\",\n\t\t\tgenpd->name, pstate, reg);\n\n\tif (auto_enable) {\n\t\t/* Not all devices implement this; this is a no-op where not implemented. */\n\t\treg &= ~APPLE_PMGR_FLAGS;\n\t\treg |= APPLE_PMGR_AUTO_ENABLE;\n\nerror: patch failed: drivers/pmdomain/apple/pmgr-pwrstate.c:79\nerror: drivers/pmdomain/apple/pmgr-pwrstate.c: patch does not apply\n"
+  },
+  {
+    "patch": "patches/flokli-code.patch",
+    "mode": "forward",
+    "exit": 1,
+    "output": "Checking patch arch/arm64/kernel/idle.c...\nerror: while searching for:\n#include <asm/cpufeature.h>\n#include <asm/sysreg.h>\n\n/*\n *\tcpu_do_idle()\n *\n\nerror: patch failed: arch/arm64/kernel/idle.c:11\nerror: arch/arm64/kernel/idle.c: patch does not apply\nChecking patch arch/arm64/lib/delay.c...\n"
+  },
+  {
+    "patch": ".tmp/convergence-6002/yuka-diff-6acd61216911155b04fd98ca5599c3e74450010b.patch",
+    "mode": "forward",
+    "exit": 0,
+    "output": "Checking patch drivers/nvme/host/apple.c...\nHunk #3 succeeded at 1175 (offset 37 lines).\nHunk #4 succeeded at 1239 (offset 37 lines).\nHunk #5 succeeded at 1791 (offset 70 lines).\n"
+  }
+]

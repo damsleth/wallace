@@ -1,0 +1,53 @@
+patch	sha256	disposition	dependency_or_gate
+patches/0001-phy-apple-add-experimental-T6040-USB2-only-slice.patch	b7f02c3cb06b0ed6e490d473a2efd99f61b8cd1ab089a0a09f72ecdec7b60a30	defer-existing-track	108/305; no USB in first profile
+patches/0001-usb-typec-tps6598x-add-SPMI-transport-for-T6040-SN20.patch	9dcb4606e6385815dafa29f2690cf5cc29021d07387da78b55a09d4385b28350	defer-existing-track	231/305; no SPMI in first profile
+patches/flokli-code.patch	22f1cbe674bafb409a506bfb6ebafb2f0cc540e39f54a0685220af6c3b8948ac	replace	Asahi idle=nop + arm64.nowfxt; AIC guards are a separate committed delta
+patches/m1n1-dualmode-window.patch	37292bfc3b685e7d1a4d49e46b12fa89452c4cc2f97210e4d82539eca383448a	out-of-scope-loader	m1n1/U-Boot unchanged
+patches/m1n1-early-proxy-unconditional.patch	1d7ad83ad7651e5b62ce7bf0199685c5d2b34d0dc69578f6f957ecaf10b8b032	out-of-scope-loader	m1n1/U-Boot unchanged
+patches/m1n1-fb-console-always.patch	5b62f0e5a03e2b2e851fc804248571aa864b9faa4908d8f6063409e297a6669b	out-of-scope-loader	m1n1/U-Boot unchanged
+patches/m1n1-minilzlib-vli-bytes-max.patch	0f360a3798cbc49588ac392c623372d39670b82a3fbfb25783dd37ec88b95498	out-of-scope-loader	m1n1/U-Boot unchanged
+patches/m1n1-payload-unmask.patch	71a843ce5c5e8498f7cee10ccb3d4560f60504cc9f055c66310fba9e25f7e500	out-of-scope-loader	m1n1/U-Boot unchanged
+patches/t6040-aic-hcr-debug.patch	33f65edfacd0b5628c2c4c6af0b80dfc32c5c0c9e8205850abd6f8f618545eb4	exclude-diagnostic	debug/isolation/tracing/IRQ experiment not in LC1
+patches/t6040-apple-cpufreq-freq-mult-overflow.patch	e16321de361808b37243d452ab4def57744c8887a9b3b350eed940695cb59fc8	absorbed-downstream	1000UL already in Asahi pin; reverse context check passes
+patches/t6040-brcmfmac-bss-info-v116.patch	b9edb064814dae3aeb0fb9ca4fc8a4d0e11fb42e351b8f8eb2a23035b1d355c5	keep	Asahi remains max112; retain116 pending separate BRCM series
+patches/t6040-dockchannel-atomic-tx.patch	a217182c4abb85d7c77c10083c617cb36677b16c454cd2d9fe7ab69339cef51a	keep-port	after poll; needed by nbcon
+patches/t6040-dockchannel-earlycon-debug.patch	c70a9b2c215be2212d7794f8895b707fc54759c99baf7b9e20c68a7b4facd725	exclude-diagnostic	debug/isolation/tracing/IRQ experiment not in LC1
+patches/t6040-dockchannel-fifo-telemetry-debug.patch	29a8d9dad3090a11698ea1e94dd1ee83df95e553010762f4beae6d0bd803063d	exclude-diagnostic	debug/isolation/tracing/IRQ experiment not in LC1
+patches/t6040-dockchannel-fixes.patch	814d085f68d1fd5501abbb53e944b460bdda2dec51292cedca6fb66bdc364cd4	keep-port	mailbox HID; preserve ready/command cleanup
+patches/t6040-dockchannel-hid-reset-contract.patch	6eba591f8e5de69e6115ab7f90811b60680cb4e42a4a7f25df11cccd02667aff	keep-port	after trackpad-fw;9bytev2;phase0/1;OFF/ON
+patches/t6040-dockchannel-hid-state-trace.patch	f966cedbc61322118d1d492726143d72364a1c3479ab2a72c9bdc08d43fbaf0b	exclude-diagnostic	debug/isolation/tracing/IRQ experiment not in LC1
+patches/t6040-dockchannel-hid-type.patch	8692c4554f2db232fa57ee4fbc2e3ac529b1a8d36c44629612a478c30d8a455c	keep-port	mailbox HID type registration
+patches/t6040-dockchannel-irq-guard-debug.patch	2d2b8218f967dadd85eaa926bffa7d97097a90b6a79bc1782f0a09baae72acd2	exclude-diagnostic	debug/isolation/tracing/IRQ experiment not in LC1
+patches/t6040-dockchannel-nbcon.patch	b245c837793e16ed3241c893393f7c0e1b9a9fefd1391c4ba04842da0b969d6d	keep-port	TTY + atomic mailbox TX; preserve ttydc0
+patches/t6040-dockchannel-poll.patch	627d0805f103f56ad20cc24785d4e747740e774c1660604611298adf6bcd0e63	keep-port	mailbox provider then per-instance RX masks
+patches/t6040-dockchannel-rx-rearm.patch	83d07766678acd271ef3be9b9cbb93e35fb186bfe162b329de634d91fe2f3b01	conditional	preserve exact baseline flag; not a new experiment
+patches/t6040-dockchannel-trackpad-fw.patch	f7a3eb883c0d393e899128c91740f7405b6e9626ac58746ae37562032732a779	keep-port	mailbox HID; bounded HIDF + exact blob
+patches/t6040-dockchannel-tty-driver.patch	016b2eec240ab74712cc51a2a6cd35ffd7577490ba941593af1ef831cfedf479	keep-port	one legacy mailbox APPLE_DOCKCHANNEL provider; console dependency
+patches/t6040-dockchannel-tx-poll-debug.patch	af8015a59ba6f6293c427b653863bef1a8d331780bd6c997e44c53b1c76ee445	exclude-diagnostic	debug/isolation/tracing/IRQ experiment not in LC1
+patches/t6040-dwc3-apple-force-host.patch	84cef2d3be3969bef9b8e4d9aa3683c6774592621acfe3167fd42d0f8a8168cb	defer-existing-track	USB-only; not base-M4 TB5 support
+patches/t6040-nvme-ans-read-debug.patch	b12c8ea239f2bad186ef475c04ac08aa73718a3377dfa875bebb993223c44147	exclude-diagnostic	debug/isolation/tracing/IRQ experiment not in LC1
+patches/t6040-nvme-ans2-ioq-size.patch	c1adc415a5df84877379e917e888beb32597c0704f6613b239302649dd2f89e8	keep-equivalent-once	after split driver port; do not double apply with Yuka6acd;6001 unchanged
+patches/t6040-nvme-apple-force-clean-ans-boot.patch	399578f56d4ec6ae1d865be68878b68dad6868d1a56015b085cd088592994904	keep	after split port; forward source-context check passes
+patches/t6040-nvme-force-continue-debug.patch	c2e3ee56bd37bf34a2bcef1bf104b40551aa6cdca5c1006fe53ac8657363bfb9	exclude-diagnostic	debug/isolation/tracing/IRQ experiment not in LC1
+patches/t6040-nvme-init-trace-debug.patch	4a731f1f0a78c333c4fc44d1b820d719f2a9c5b2014cd261b11095c3e6cc6dcd	exclude-diagnostic	debug/isolation/tracing/IRQ experiment not in LC1
+patches/t6040-nvme-pmgr-snapshot-debug.patch	3f6aad017859acb3554e10c00f2497e5683865c68204e5775399eec5030bb7a4	exclude-diagnostic	debug/isolation/tracing/IRQ experiment not in LC1
+patches/t6040-nvme-register-trace-debug.patch	b6cb2477fce8f74e31c53286a8e24ac719f7607204340eaf84432bdadb4d5e3c	exclude-diagnostic	debug/isolation/tracing/IRQ experiment not in LC1
+patches/t6040-nvme-sptm-debug.patch	8c9bfa90193b9c32048a55035f8208bf46928458d32bcf89f8be9aba361803e9	exclude-diagnostic	debug/isolation/tracing/IRQ experiment not in LC1
+patches/t6040-nvme-threaded-irq-discriminator.patch	c3524c888cb056f9fe136b254bac136ab115a8fcffd83a3bb5b79bb19f1b4fe3	exclude-diagnostic	debug/isolation/tracing/IRQ experiment not in LC1
+patches/t6040-nvme-trace-debug.patch	df908c981c4479b398f212b5619e98d206ef8e07d83566195c9160c08bd8c958	exclude-diagnostic	debug/isolation/tracing/IRQ experiment not in LC1
+patches/t6040-pmgr-ans-no-auto.patch	361e965edea2f320efaa55eda67791282097bf6575115868654c66436cbfe9ba	exclude-diagnostic	did not move original failure boundary; do not promote
+patches/t6040-pmgr-force-active-debug.patch	98bcf9a353ca066373b38dbfb4eedc65d3e457f8669b6a878a718ddb974f2198	exclude-diagnostic	debug/isolation/tracing/IRQ experiment not in LC1
+patches/t6040-pmgr-functional.patch	2692f5172d7d4e12e7839d365ca1d982f1b99efc844988051b6f550f4e0d3013	port-conflict	new PMGR force-reset/disable context; preserve semantics
+patches/t6040-pmgr-t6041-bindings.patch	73a577d46b538b72633aae1104d501c6ca4ff550651947fbea2a9985d71c8389	keep-port	paired local PMGR policy, not broad Yuka tree import
+patches/t6040-pmgr-t6041-quirks.patch	f69f5965918b6124a9a666b0b05d219525445b39eac70e66cea1d750ff1ba0f3	port	after functional policy;dispext0/1 skip AUTO; preserve active
+patches/t6040-remove-mtpdbg.patch	71b8820d51b75fbf4faaf08bc86c176b2d821d14c6bcf847425633f12ffb9ee9	exclude-diagnostic	debug/isolation/tracing/IRQ experiment not in LC1
+patches/t6040-rtkit-modern-crashlog-debug.patch	849f06144da0dc867e766f6c0d8f1854a2f44238d9a99e3493e12c3e233c2669	exclude-diagnostic	debug/isolation/tracing/IRQ experiment not in LC1
+patches/t8140-ans-bindings.patch	a135b930c166dadffd20e996ca611007f68c775601ef9fe3b5015cbe7d6c09d6	retain-compatibility	no new enabled T8140 path
+patches/t8140-sart-defer-scan.patch	963378bdcd4b7147b648411783fb0dd23e1ce6c67e996d186f4c4f58252758b8	keep-with-dependency	after power-managed patch; preserve protected-entry behavior
+patches/t8140-sart-deferred-probe-debug.patch	c9bf54b0b0de52fcbca962d0cf80f5c22822533261ead0ddae7c1cf80ddc3f8a	exclude-diagnostic	debug/isolation/tracing/IRQ experiment not in LC1
+patches/t8140-sart-handshake-only-debug.patch	e0d0f646750cfcc5ae8e00649597aa98f87bbbed9c7c16d76f540f1f341a30f1	exclude-diagnostic	debug/isolation/tracing/IRQ experiment not in LC1
+patches/t8140-sart-power-bindings.patch	e5dc09d57e36a7853988e6ff3773e274a84f82a588ff899c567b6c2355e9e495	retain-compatibility	no new enabled power resource
+patches/t8140-sart-power-managed.patch	583a35cf556b9705b891b02c95b26b7dbfaf89ae3b0e3114a9a8b95202dead81	retain-compatibility	matches t8140 only; T6040+t6000 path is not power-managed
+patches/t8140-sart-trace-debug.patch	ccfcf49f677ad03b8f7eebfb040ff122aabdc81dc22bf80c556b8d314f070654	exclude-diagnostic	debug/isolation/tracing/IRQ experiment not in LC1
+patches/uboot-t6040-noio-prep.patch	7555aec41d86d6edb58a3e593199ed4b81b40be1316700c7c03ddf1d183963b5	out-of-scope-loader	m1n1/U-Boot unchanged
+patches/uboot-t6040-stage2-prep.patch	814ffa47d6ab4b8f050505b879bb21bc730c57c3d89fb75af36a27061b7695c7	out-of-scope-loader	m1n1/U-Boot unchanged

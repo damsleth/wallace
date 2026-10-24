@@ -1,0 +1,28 @@
+{
+  "seq": "6004",
+  "slug": "october-convergence-source-assembly",
+  "needs": "offline",
+  "state": "open",
+  "track": "integration",
+  "priority": "P1",
+  "desc": "Assemble the separately pinned LC1 Asahi 7.2.12-2 source candidate from 6002's map. Resolve raw-boot PMGR/AIC and duplicate DockChannel provider conflicts, retain proven J614s DT/input/split NVMe behavior, and produce a reviewed ordered patch series plus config/DT manifest. Offline source preparation only; no build, rig, enrollment or target writes. 6001 remains the next hardware action.",
+  "author": "astra",
+  "deps": [
+    "6002"
+  ],
+  "hashes": {
+    "source_lock_sha256": "b8b7bc2c73c77fa8a297c62e0b0ac230d6ee9121966f3231a2211ae636acffb7"
+  },
+  "created": 1792864556,
+  "evidence": [
+    "evidence/2026-10-24-upstream-convergence-audit.md",
+    "evidence/2026-10-24-upstream-convergence/source-lock.json",
+    "evidence/2026-10-24-upstream-convergence/candidate-plan.json"
+  ],
+  "acceptance_criteria": [
+    "Use exact Asahi 2bb9d16f967f11e533a851b13b148a708d59b4f3 and 6002 local-source/patch pins; preserve dirty shared source checkout.",
+    "Produce ordered patch files for AIC and PMGR, exactly one legacy mailbox FIFO provider plus proven HID v2/TTY, BSS116 and gated split NVMe; no wholesale Yuka DT import.",
+    "Review complete config/DT/resource diff and compiler-facing API dependencies; use idle=nop arm64.nowfxt and maxcpus=1. No p3s/KVM/loader/USB/SPMI/display or new firmware changes.",
+    "Pin assembled source series and unresolved issues; create a separate scoped build follow-on only after source gates close. No build or rig work in 6004; 6001 remains next hardware step."
+  ]
+}

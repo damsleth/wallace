@@ -1,0 +1,56 @@
+{
+  "seq": "6002",
+  "slug": "october-upstream-convergence-audit",
+  "needs": "offline",
+  "state": "done",
+  "track": "integration",
+  "priority": "P1",
+  "desc": "Completed offline source audit: pinned corrected Asahi base and Yuka/BCM4388/HID references, preserved live-ADT differences, mapped all 52 top-level patches and specified separately gated LC1 candidate. Source assembly continues in 6004; 6001 payload and hardware-first gate unchanged.",
+  "author": "astra",
+  "deps": [],
+  "hashes": {
+    "evidence/2026-10-24-upstream-convergence-audit.md": "50a70253d42a90340451476c533ba086139a399285751cde09618a4b3ebee39c",
+    "evidence/2026-10-24-upstream-convergence/source-lock.json": "b8b7bc2c73c77fa8a297c62e0b0ac230d6ee9121966f3231a2211ae636acffb7",
+    "evidence/2026-10-24-upstream-convergence/candidate-plan.json": "40ffb2ec94515d42cffec3067f228d0c0a33e1c7e7a40e03dc1778566238f269",
+    "evidence/2026-10-24-upstream-convergence/patch-map.tsv": "251dfbd76963aae21af2cdf4b83f683876b7f54ab5dbdf0653fc707d6b569055"
+  },
+  "created": 1792861488,
+  "acceptance_criteria": [
+    "Resolve immutable sources and actual corrected asahi-7.2.12-2 tag target; record merge versus submission status and retrieval gaps.",
+    "Compare J614s live ADT, DT domains/IRQs/reserved pins, NVMe/SART/controller-state fixes, HID and BRCM4388; preserve locally proven functionality.",
+    "Produce patch/dependency map and separate single-CPU regression candidate plan with rollback, keymap and config gates. Do not modify 6001 artifacts.",
+    "Define independent SMP fault-205 retest using original reproducer; exclude p3s and unrelated experiments. New builds/live runs need their own scoped follow-ons."
+  ],
+  "evidence": [
+    "evidence/2026-10-24-asahi-dev-review.md",
+    "evidence/2026-10-24-upstream-convergence-audit.md",
+    "evidence/2026-10-24-upstream-convergence/source-lock.json",
+    "evidence/2026-10-24-upstream-convergence/candidate-plan.json",
+    "evidence/2026-10-24-upstream-convergence/patch-map.tsv",
+    "evidence/2026-10-24-upstream-convergence/static-checks.json"
+  ],
+  "result": {
+    "asahi_commit": "2bb9d16f967f11e533a851b13b148a708d59b4f3",
+    "asahi_tag_object": "6882df38eec9690e112d3e3f62ed6b5974ac07f4",
+    "source_plan": "LC1-7.2.12-2-local-j614s",
+    "patches_mapped": 52,
+    "source_assertions_and_integrity_checks": 19,
+    "compiled": false,
+    "hardware_run": false,
+    "source_assembly_follow_on": "6004",
+    "verified": [
+      "NEW-to-RESETTING allowed on selected base; mainline revert 5755f1bd pinned",
+      "ANS2 IOQ fields zero-based after bases; 6001 unchanged",
+      "local split MMIO, SD port01, HID v2 remain; Yuka alternatives conflict",
+      "cpufreq fix absorbed downstream; idle=nop and arm64.nowfxt paired",
+      "16K RAM-root built-ins and one-CPU input/storage gates defined"
+    ],
+    "uncertainties": [
+      "Historical parts/21-dt-nvme and t604x-old-dchid-working heads absent from current public refs; surviving components are not exact tested composition",
+      "b4 minimal DT branch rebased; original submission byte match not recovered",
+      "source/API/schema/build compatibility must pass 6004 and a separate build ticket",
+      "No claim of runtime MM/COW fault 205 fix; no T6040 TB5/GPU/durability sign-off"
+    ]
+  },
+  "done_at": 1792864665
+}
