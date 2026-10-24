@@ -2,7 +2,7 @@
   "seq": "217",
   "slug": "cow-topology-artifact",
   "needs": "offline",
-  "state": "open",
+  "state": "built-awaiting-independent-review",
   "track": "bringup",
   "priority": "P1",
   "desc": "Build a byte-reproducible storage-free diagnostic initramfs containing scripts/t6040-cow-repro.sh, pair it with the uninstrumented CoW control Image and default DTB, and prove the stock arm64 oops already reports logical CPU while boot logs map logical CPUs to MPIDR/MIDR. Offline only; no kernel instrumentation or hardware access. Pass = two identical initramfs builds plus exact Image/DTB/initramfs/config/System.map hashes and a zero-new-hardware-operation review for ticket 209.",
@@ -10,6 +10,17 @@
   "deps": [
     "208"
   ],
-  "hashes": null,
-  "created": 1785746957
+  "hashes": {
+    "Image (daily301)": "a9a2096ff47cc8538090ad28cd0bc41b75b09354e90abff8135b3d242d987bc8",
+    "System.map": "93cfaa38bc4b3906485b66d0f081a30d8963c46fd9d7d75a2c100a3a39fbc253",
+    "config": "96e83d858ddbbcf19027d3ea56411158f75ae75fe4c42c0b03dbdd28b6da3eee",
+    "t6040-j614s-dcuart.dtb": "30b01736b5291aaa864f37f73192ec9877da97ab8ecf5d72c1ca92cf9c8af05d",
+    "initramfs-cow-report.cpio.gz": "de1a5cd79e030468bff7f7f1fccaf03f2e34d705a4dc77a5aedd927d94fc9b29"
+  },
+  "created": 1785746957,
+  "owner": "claude",
+  "evidence": [
+    "evidence/2026-10-24-t6040-217-cow-topology-artifact.md"
+  ],
+  "finding_2026_10_24": "The 208 control Image (tree 2532b17) was overwritten by a same-named 4f24291 build on 2026-08-03 and was never hash-pinned; the pinned replacement control is the reproducible daily301 kernel. Re-baseline its maxcpus=2 fault rate before comparing with 207/208."
 }
