@@ -1,0 +1,22 @@
+t6040-dockchannel-tty-driver.patch applied OK
+t6040-brcmfmac-bss-info-v116.patch applied OK
+t6040-apple-cpufreq-freq-mult-overflow.patch applied OK
+t6040-nvme-apple-force-clean-ans-boot.patch applied OK
+t8140-ans-bindings.patch applied OK
+t8140-sart-power-bindings.patch applied OK
+t8140-sart-power-managed.patch applied OK
+t8140-sart-defer-scan.patch applied OK
+t6040-pmgr-t6041-bindings.patch applied OK
+t6040-pmgr-t6041-quirks.patch applied OK
+t6040-dockchannel-poll.patch applied OK
+t6040-dockchannel-atomic-tx.patch applied OK
+t6040-dockchannel-nbcon.patch applied OK
+t6040-dockchannel-hid-type.patch applied OK
+t6040-dockchannel-trackpad-fw.patch applied OK
+t6040-dockchannel-hid-reset-contract.patch applied OK
+== assert Apple cpufreq is BUILTIN ==
+== assert WiFi/PCIe symbols are BUILTIN (no module loader in the RAM image) ==
+== assert feature-kernel USB storage path ==
+== assert integrated trackpad firmware path ==
+== assert PPP fallback is builtin ==
+== assert DockChannel nbcon linked ==

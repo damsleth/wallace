@@ -2,7 +2,7 @@
   "seq": "301",
   "slug": "trackpad-reset-contract-daily",
   "needs": "offline",
-  "state": "in-progress",
+  "state": "built-awaiting-4003-review",
   "track": "hid",
   "priority": "P2",
   "desc": "Integrate the proven J614s v2 interface power-request patch and approved a1f4131d HIDF blob into the daily SD-root image. Ticket 230 finger test passed August 19 (touch and haptics); no longer waiting for finger confirmation. Reproduce twice, run Norwegian-layout and artifact preflights, and preserve current rollback/enrollment gates. Compare Yuka t604x-old-dchid-working and upstream-style HID DT via 6002 before replacing the proven implementation; the new DT failed to wake the M4 Pro coprocessor on October 8. No additional SMC-key authorization follows from IRC suggestions.",
@@ -15,8 +15,15 @@
     "evidence/2026-08-04-t6040-trackpad-v2-power-request-accepted.md",
     "evidence/2026-08-04-t6040-trackpad-post-upload-reset-contract.md",
     "evidence/2026-10-24-asahi-dev-review.md",
-    "evidence/2026-10-24-ticket-context-before-refresh.json"
+    "evidence/2026-10-24-ticket-context-before-refresh.json",
+    "evidence/2026-10-24-t6040-301-sdroot-daily-v4-offline-build.md"
   ],
   "owner": "claude",
-  "claim_note": "claude 2026-10-24: build the daily SD-root kernel with TRACKPAD_FW+TRACKPAD_RESET_CONTRACT on top of the daily-v2 feature set, two clean builds, paired with the 5000 initramfs; offline only."
+  "claim_note": "claude 2026-10-24: build the daily SD-root kernel with TRACKPAD_FW+TRACKPAD_RESET_CONTRACT on top of the daily-v2 feature set, two clean builds, paired with the 5000 initramfs; offline only.",
+  "hashes": {
+    "m1n1-alpine-sdroot-daily-v4.bin": "32eac091b1f71c0fc35d0af76d0ff8acf2773098bb8e093fd1ddd6da2c4b8408",
+    "Image-daily301": "a9a2096ff47cc8538090ad28cd0bc41b75b09354e90abff8135b3d242d987bc8",
+    "initramfs-sdroot-daily-v3": "f089ffa7f1e2982e5661dd25b2aca9fd8d12795de17e33e656e7562680a035f7",
+    "dtb": "c5c3b4c38b24748f95e06fd3cc39b348326783a58feb7029d9273a5b23dd7e72"
+  }
 }
