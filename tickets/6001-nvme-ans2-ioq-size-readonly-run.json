@@ -40,5 +40,6 @@
   "testerfix_2026_10_24": "Run 3 payload: delta from gatefix manifest 84b0275f is exactly tester source (9372f143) + rebuilt tester (aef24ab9, two builds identical; original source rebuilds the reviewed 0ffb3e55 with the same flags), checker (0481319f), initramfs 524d94c3 (two builds identical). Upper-case tokens (SError, panic, BUG:, Oops:, RTKit: Exception) now case-sensitive. Needs review, then queue ready.",
   "reviewed_by": "sonnet-review",
   "ready_at": 1792876803,
-  "run3_2026_10_24": "16,384 direct reads complete, exit 0, +16384 reads/+524288 sectors, zero writes, aux unchanged, no assert/fault in full dmesg; CQ wrapped ~256 times (previous Linux asserted at first wrap). Formal checker missing the PASS line only because /dev/kmsg ratelimit dropped it (init: 60 lines suppressed); fix = printk.devkmsg=on for a formal re-run."
+  "run3_2026_10_24": "16,384 direct reads complete, exit 0, +16384 reads/+524288 sectors, zero writes, aux unchanged, no assert/fault in full dmesg; CQ wrapped ~256 times (previous Linux asserted at first wrap). Formal checker missing the PASS line only because /dev/kmsg ratelimit dropped it (init: 60 lines suppressed); fix = printk.devkmsg=on for a formal re-run.",
+  "followup_2026_10_25": "Reads PASS substantively (run 3). Optional formal re-run with printk.devkmsg=on so the PASS line cannot be ratelimited (bootargs change -> small re-review). Not blocking 211/5003."
 }

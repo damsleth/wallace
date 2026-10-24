@@ -13,5 +13,9 @@
   "runnable": false,
   "approved_by": "cj",
   "approved_at": 1785746507,
-  "safety_correction_2026_10_24": "2026-10-24 SAFETY CORRECTION (claude): CJ wiped the old exFAT partition. On the current disk nvme0n1 has only p1-p3, and p3 is presumably the Apple RecoveryOS container, NOT exFAT. Never target a partition by number: any write must first match exFAT label \"linux\" AND GPT type EBD0A0A2-B9E5-4433-87C0-68B6B72699C7 AND the start/size pinned by read-only probe 5001, aborting on mismatch. Raw dd is not part of the plan until CJ re-authorizes it against the new partition."
+  "safety_correction_2026_10_24": "2026-10-24 SAFETY CORRECTION (claude): CJ wiped the old exFAT partition. On the current disk nvme0n1 has only p1-p3, and p3 is presumably the Apple RecoveryOS container, NOT exFAT. Never target a partition by number: any write must first match exFAT label \"linux\" AND GPT type EBD0A0A2-B9E5-4433-87C0-68B6B72699C7 AND the start/size pinned by read-only probe 5001, aborting on mismatch. Raw dd is not part of the plan until CJ re-authorizes it against the new partition.",
+  "plan_2026_10_25": "Superseding plan (CJ rebuilt a 64 GB exFAT \"linux\" partition on 2026-10-25; old p3 numbering void). Stage 0 = probe 5001 (read-only) pins label, GPT type EBD0A0A2-B9E5-4433-87C0-68B6B72699C7, start/size. Stage 1 = filesystem write test (ticket 5003 builds it): gate on exactly those pins + 6001 topology/identity gates; mount the partition rw; write a deterministic pattern file (e.g. 1 GiB), fsync, sha256, umount, fsck.exfat -n, remount ro, re-verify; then a fresh-boot re-verify. Stage 2 = raw dd soak ONLY if CJ re-authorizes against the new partition. Prereq satisfied: Linux NVMe reads pass (6001 run 3).",
+  "evidence": [
+    "evidence/2026-10-24-t6001-run3-16384-reads-no-cq-wrap-assert.md"
+  ]
 }
