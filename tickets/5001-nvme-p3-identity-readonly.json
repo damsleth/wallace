@@ -1,0 +1,23 @@
+{
+  "seq": "5001",
+  "slug": "nvme-p3-identity-readonly",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "nvme",
+  "priority": "P1",
+  "desc": "Read-only identity probe of internal-SSD exFAT partition nvme0n1p3 (ticket 211 prerequisite). Same kernel 6eef9eef / DTB a96d04a7 / m1n1 7de07c71 as 6001 run 3; new init scripts/t6040-init-nvme-p3-identity (a140f282): 6001 namespace gate, sets nvme0n1, all partitions and n2/n3 read-only before any read, then records blkid label/type of p1-p3, sysfs start/size/PARTNAME, GPT LBA0-33 hash + header + entries 0-3, p3 exFAT boot sector and VolumeFlags, block stats before/after. No mounts, no writes. Initramfs 556c1ac2 (two builds identical). Bootargs as 6001 plus printk.devkmsg=on. PASS = IDENTITY-DONE with zero write counters. Output pins the label/GPT-type/LBA gate for the 211 write test.",
+  "author": "claude",
+  "deps": [
+    "6000"
+  ],
+  "hashes": {
+    "Image": "6eef9eef130d805d71e2800f63c58813979041ee7589eb5d90116340bcd3bb7d",
+    "dtb": "a96d04a7c37355ed13ac6e4ac90ec319ecc3e755d584ea2b414a7ad80498845b",
+    "m1n1": "7de07c714ebe8b26a408ab0a4719d10d2d208eb120eaac7d3aea03f0e36daf2a",
+    "initramfs": "556c1ac2adbd57b4adfe96ba9ab91991e9f032d40817df211cdcd5321a7f0484",
+    "scripts/t6040-init-nvme-p3-identity": "a140f2822fc44bc7"
+  },
+  "created": 1792877286,
+  "payload": "/Users/damsleth/Code/linux-build-out/nvme-p3id-20261024/payload",
+  "bootargs": "maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel printk.devkmsg=on console=ttydc0 console=tty0 rdinit=/init"
+}

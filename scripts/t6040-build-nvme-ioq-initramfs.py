@@ -12,6 +12,8 @@ p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--base', type=Path, required=True)
 p.add_argument('--tester', type=Path, required=True)
 p.add_argument('--output', type=Path, required=True)
+p.add_argument('--init', type=Path, default=None,
+               help='init script (default: scripts/t6040-init-nvme-ioq-readonly)')
 a = p.parse_args()
 script_dir = Path(__file__).resolve().parent
 root = a.output.with_suffix('.root')
@@ -26,7 +28,7 @@ for directory in ('proc', 'sys', 'dev', 'run', 'tmp', 'sbin'):
     (root / directory).mkdir(exist_ok=True)
 for name in ('sh', 'cat', 'echo', 'ls', 'dmesg', 'sleep', 'uname', 'grep', 'blockdev'):
     (root / 'bin' / name).symlink_to('busybox')
-shutil.copyfile(script_dir / 't6040-init-nvme-ioq-readonly', root / 'init')
+shutil.copyfile(a.init or script_dir / 't6040-init-nvme-ioq-readonly', root / 'init')
 shutil.copyfile(a.tester, root / 'sbin/nvme-readonly-test')
 (root / 'init').chmod(0o755)
 (root / 'sbin/nvme-readonly-test').chmod(0o755)

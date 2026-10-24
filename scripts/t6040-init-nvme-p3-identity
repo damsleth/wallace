@@ -1,0 +1,74 @@
+#!/bin/busybox sh
+# Read-only identity probe for the internal-SSD exFAT partition nvme0n1p3
+# (ticket 211 prerequisite). Records the label, filesystem type, GPT entry
+# and exFAT boot-sector state that the write test must later pin. No mounts,
+# no writes: every block device is set read-only before the first read.
+BB=/bin/busybox
+PATH=/bin:/sbin
+export PATH
+early_stop() { echo "NVME-P3ID STOP: $*"; while :; do $BB sleep 60; done; }
+$BB mount -t proc proc /proc || early_stop proc
+$BB mount -t sysfs sysfs /sys || early_stop sysfs
+$BB mount -t devtmpfs devtmpfs /dev || early_stop devtmpfs
+$BB mkdir -p /run || early_stop run-directory
+$BB mount -t tmpfs tmpfs /run || early_stop tmpfs
+# Keyboard must be configured before either console can get a shell.
+if ! $BB loadkmap </etc/wallace-no.bmap >/dev/tty0; then
+    echo 'NVME-P3ID STOP: Norwegian keymap failed' >/dev/kmsg
+    while :; do $BB sleep 60; done
+fi
+say() { echo "NVME-P3ID $*" >/dev/kmsg; }
+park() {
+    say 'PARKED: no further automated storage operations'
+    $BB setsid -c $BB sh -i </dev/ttydc0 >/dev/ttydc0 2>&1 &
+    while :; do $BB setsid -c $BB sh -i </dev/tty1 >/dev/tty1 2>&1; $BB sleep 1; done
+}
+if [ -c /dev/watchdog0 ]; then
+    $BB watchdog -T 30 -t 10 /dev/watchdog0 &
+else
+    say 'STOP: watchdog missing'; park
+fi
+say 'read-only identity probe; maxcpus=1; no mounts, no writes'
+$BB cat /proc/cmdline >/dev/kmsg
+
+# Same topology gate as ticket 6001 run 3.
+ns_size() { $BB cat "/sys/block/$1/size" 2>/dev/null; }
+i=0
+while [ ! -b /dev/nvme0n1p3 ] && [ "$i" -lt 30 ]; do $BB sleep 1; i=$((i+1)); done
+[ ! -e /dev/nvme1 ] || { say 'STOP: unexpected second controller'; park; }
+i=0
+while { [ ! -b /dev/nvme0n2 ] || [ ! -b /dev/nvme0n3 ]; } && [ "$i" -lt 10 ]; do $BB sleep 1; i=$((i+1)); done
+[ "$(ns_size nvme0n1)" = 1954210120 ] && [ "$(ns_size nvme0n2)" = 6144 ] &&
+    [ "$(ns_size nvme0n3)" = 262144 ] && [ ! -e /dev/nvme0n4 ] ||
+    { say "STOP: unexpected namespace topology"; park; }
+
+# Everything read-only before any read.
+for d in /dev/nvme0n1 /dev/nvme0n1p* /dev/nvme0n2 /dev/nvme0n3; do
+    [ -b "$d" ] || continue
+    $BB blockdev --setro "$d" || { say "STOP: cannot set $d read-only"; park; }
+done
+say "stats before: $($BB cat /sys/block/nvme0n1/stat)"
+
+for p in /sys/block/nvme0n1/nvme0n1p*; do
+    n=${p##*/}
+    say "part $n start=$($BB cat $p/start) size=$($BB cat $p/size) $($BB grep -E '^PARTNAME=' $p/uevent)"
+done
+for d in /dev/nvme0n1p1 /dev/nvme0n1p2 /dev/nvme0n1p3; do
+    say "blkid $($BB blkid "$d" 2>&1)"
+done
+# GPT: protective MBR, header (LBA 1) and the entry array (LBA 2-33).
+gpt=$($BB dd if=/dev/nvme0n1 bs=512 count=34 2>/dev/null | $BB sha256sum)
+say "gpt-lba0-33 sha256=${gpt%% *}"
+say "gpt-header: $($BB dd if=/dev/nvme0n1 bs=512 skip=1 count=1 2>/dev/null | $BB hexdump -v -e '16/1 "%02x" " "' | $BB cut -c1-300)"
+# Entries are 128 bytes each from LBA 2: p1..p4.
+for e in 0 1 2 3; do
+    say "gpt-entry$e: $($BB dd if=/dev/nvme0n1 bs=128 skip=$((8 + e)) count=1 2>/dev/null | $BB hexdump -v -e '16/1 "%02x" " "')"
+done
+# exFAT boot sector of p3: name, VolumeFlags (offset 106), sizes.
+bs=$($BB dd if=/dev/nvme0n1p3 bs=512 count=1 2>/dev/null | $BB hexdump -v -e '16/1 "%02x" " "')
+say "p3-bootsector: $bs"
+flags=$($BB dd if=/dev/nvme0n1p3 bs=1 skip=106 count=2 2>/dev/null | $BB od -An -tu2)
+say "p3-volumeflags=${flags##* }"
+say "stats after: $($BB cat /sys/block/nvme0n1/stat)"
+say 'IDENTITY-DONE'
+park
