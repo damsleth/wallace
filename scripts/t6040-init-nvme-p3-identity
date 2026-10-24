@@ -1,8 +1,10 @@
 #!/bin/busybox sh
-# Read-only identity probe for the internal-SSD exFAT partition nvme0n1p3
-# (ticket 211 prerequisite). Records the label, filesystem type, GPT entry
-# and exFAT boot-sector state that the write test must later pin. No mounts,
-# no writes: every block device is set read-only before the first read.
+# Read-only identity probe for the internal-SSD exFAT "linux" partition
+# (ticket 5001, prerequisite of the 211 write test). Records every partition's
+# position and GPT entry, and for each exFAT partition its boot-sector hash,
+# VolumeFlags and root-directory label entry, so the write test can pin label,
+# GPT type and LBAs. No mounts, no writes: every block device is set read-only
+# before the first read. The partition number is not assumed (CJ rebuilt it).
 BB=/bin/busybox
 PATH=/bin:/sbin
 export PATH
@@ -17,6 +19,7 @@ if ! $BB loadkmap </etc/wallace-no.bmap >/dev/tty0; then
     echo 'NVME-P3ID STOP: Norwegian keymap failed' >/dev/kmsg
     while :; do $BB sleep 60; done
 fi
+# Every record stays far below the 1024-byte /dev/kmsg limit.
 say() { echo "NVME-P3ID $*" >/dev/kmsg; }
 park() {
     say 'PARKED: no further automated storage operations'
@@ -31,16 +34,21 @@ fi
 say 'read-only identity probe; maxcpus=1; no mounts, no writes'
 $BB cat /proc/cmdline >/dev/kmsg
 
-# Same topology gate as ticket 6001 run 3.
+# Same topology and identity gate as ticket 6001 run 3.
 ns_size() { $BB cat "/sys/block/$1/size" 2>/dev/null; }
 i=0
-while [ ! -b /dev/nvme0n1p3 ] && [ "$i" -lt 30 ]; do $BB sleep 1; i=$((i+1)); done
+while [ ! -b /dev/nvme0n1 ] && [ "$i" -lt 30 ]; do $BB sleep 1; i=$((i+1)); done
+[ -b /dev/nvme0n1 ] || { say 'STOP: namespace absent after 30 seconds'; park; }
 [ ! -e /dev/nvme1 ] || { say 'STOP: unexpected second controller'; park; }
 i=0
 while { [ ! -b /dev/nvme0n2 ] || [ ! -b /dev/nvme0n3 ]; } && [ "$i" -lt 10 ]; do $BB sleep 1; i=$((i+1)); done
 [ "$(ns_size nvme0n1)" = 1954210120 ] && [ "$(ns_size nvme0n2)" = 6144 ] &&
     [ "$(ns_size nvme0n3)" = 262144 ] && [ ! -e /dev/nvme0n4 ] ||
     { say "STOP: unexpected namespace topology"; park; }
+transport=$($BB cat /sys/class/nvme/nvme0/transport)
+model=$($BB cat /sys/class/nvme/nvme0/model)
+case "$transport:$model" in apple-nvme:APPLE*) ;; *) say "STOP: unexpected identity $transport:$model"; park ;; esac
+say "identity transport=$transport model=$model"
 
 # Everything read-only before any read.
 for d in /dev/nvme0n1 /dev/nvme0n1p* /dev/nvme0n2 /dev/nvme0n3; do
@@ -49,26 +57,44 @@ for d in /dev/nvme0n1 /dev/nvme0n1p* /dev/nvme0n2 /dev/nvme0n3; do
 done
 say "stats before: $($BB cat /sys/block/nvme0n1/stat)"
 
-for p in /sys/block/nvme0n1/nvme0n1p*; do
-    n=${p##*/}
-    say "part $n start=$($BB cat $p/start) size=$($BB cat $p/size) $($BB grep -E '^PARTNAME=' $p/uevent)"
-done
-for d in /dev/nvme0n1p1 /dev/nvme0n1p2 /dev/nvme0n1p3; do
-    say "blkid $($BB blkid "$d" 2>&1)"
-done
-# GPT: protective MBR, header (LBA 1) and the entry array (LBA 2-33).
+# u32/u8 little-endian readers on a read-only device.
+u32() { v=$($BB dd if="$1" bs=1 skip="$2" count=4 2>/dev/null | $BB od -An -tu4); echo ${v##* }; }
+u8() { v=$($BB dd if="$1" bs=1 skip="$2" count=1 2>/dev/null | $BB od -An -tu1); echo ${v##* }; }
+hexline() { $BB dd if="$1" bs=1 skip="$2" count="$3" 2>/dev/null | $BB hexdump -v -e '16/1 "%02x" " "'; }
+
+# GPT header and the first 8 entries (128 bytes each, from LBA 2).
 gpt=$($BB dd if=/dev/nvme0n1 bs=512 count=34 2>/dev/null | $BB sha256sum)
 say "gpt-lba0-33 sha256=${gpt%% *}"
-say "gpt-header: $($BB dd if=/dev/nvme0n1 bs=512 skip=1 count=1 2>/dev/null | $BB hexdump -v -e '16/1 "%02x" " "' | $BB cut -c1-300)"
-# Entries are 128 bytes each from LBA 2: p1..p4.
-for e in 0 1 2 3; do
-    say "gpt-entry$e: $($BB dd if=/dev/nvme0n1 bs=128 skip=$((8 + e)) count=1 2>/dev/null | $BB hexdump -v -e '16/1 "%02x" " "')"
+say "gpt-header: $(hexline /dev/nvme0n1 512 92)"
+e=0
+while [ "$e" -lt 8 ]; do
+    say "gpt-entry$e: $(hexline /dev/nvme0n1 $((1024 + e * 128)) 128)"
+    e=$((e + 1))
 done
-# exFAT boot sector of p3: name, VolumeFlags (offset 106), sizes.
-bs=$($BB dd if=/dev/nvme0n1p3 bs=512 count=1 2>/dev/null | $BB hexdump -v -e '16/1 "%02x" " "')
-say "p3-bootsector: $bs"
-flags=$($BB dd if=/dev/nvme0n1p3 bs=1 skip=106 count=2 2>/dev/null | $BB od -An -tu2)
-say "p3-volumeflags=${flags##* }"
+
+nexfat=0
+for p in /sys/block/nvme0n1/nvme0n1p*; do
+    n=${p##*/}
+    say "part $n start=$($BB cat $p/start) size=$($BB cat $p/size) $($BB grep -E '^(PARTN|PARTNAME)=' $p/uevent | $BB tr '\n' ' ')"
+    dev=/dev/$n
+    oem=$($BB dd if="$dev" bs=1 skip=3 count=8 2>/dev/null)
+    [ "$oem" = "EXFAT   " ] || { say "part $n not exFAT"; continue; }
+    nexfat=$((nexfat + 1))
+    bs=$($BB dd if="$dev" bs=512 count=1 2>/dev/null | $BB sha256sum)
+    say "exfat $n bootsector sha256=${bs%% *}"
+    say "exfat $n bootsector[64..119]: $(hexline "$dev" 64 56)"
+    heap=$(u32 "$dev" 88); root=$(u32 "$dev" 96)
+    bps=$(u8 "$dev" 108); spc=$(u8 "$dev" 109)
+    flags=$($BB dd if="$dev" bs=1 skip=106 count=2 2>/dev/null | $BB od -An -tu2)
+    say "exfat $n heap=$heap rootcluster=$root bpsshift=$bps spcshift=$spc volumeflags=${flags##* }"
+    # Root directory: label entry (type 0x83) is normally first; dump 8 entries.
+    off=$(( (heap + ((root - 2) << spc)) << bps ))
+    say "exfat $n rootdir-offset=$off"
+    say "exfat $n rootdir[0..127]: $(hexline "$dev" "$off" 128)"
+    say "exfat $n rootdir[128..255]: $(hexline "$dev" $((off + 128)) 128)"
+done
+[ "$nexfat" -ge 1 ] || { say 'STOP: no exFAT partition found'; park; }
+say "exfat-partitions=$nexfat"
 say "stats after: $($BB cat /sys/block/nvme0n1/stat)"
 say 'IDENTITY-DONE'
 park
