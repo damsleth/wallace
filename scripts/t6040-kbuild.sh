@@ -497,6 +497,26 @@ if [ "${T6040_TYPEC_PD:-0}" = "1" ]; then
         git apply --check "$typec_pd_patch" || true
         exit 1
     fi
+    # spmi-apple has no .cmd, so the PD probe's WAKEUP never reached the bus
+    # and hpm2 answered VID=0 (305 run 6). Adds a WAKEUP-only .cmd, the proven
+    # 10 ms settle, and probe diagnostics.
+    if [ "${T6040_TYPEC_PD_WAKEUP:-0}" = "1" ]; then
+        echo "== apply SPMI WAKEUP command + tipd probe diagnostics =="
+        wake_patch=/out/t6040-spmi-wakeup-and-tipd-probe-diag.patch
+        if git apply --check "$wake_patch" 2>/dev/null; then
+            git apply "$wake_patch"
+            echo "t6040-spmi-wakeup-and-tipd-probe-diag.patch applied OK"
+        elif git apply -R --check "$wake_patch" 2>/dev/null; then
+            echo "t6040-spmi-wakeup-and-tipd-probe-diag.patch already applied"
+        else
+            echo "ERROR: t6040-spmi-wakeup-and-tipd-probe-diag.patch does not apply:"
+            git apply --check "$wake_patch" || true
+            exit 1
+        fi
+    fi
+elif [ "${T6040_TYPEC_PD_WAKEUP:-0}" = "1" ]; then
+    echo "ERROR: T6040_TYPEC_PD_WAKEUP=1 requires T6040_TYPEC_PD=1"
+    exit 1
 fi
 
 # A reused build tree can retain the old MTP IRQ-order diagnostics even though

@@ -1,0 +1,111 @@
+diff --git a/drivers/spmi/spmi-apple-controller.c b/drivers/spmi/spmi-apple-controller.c
+index 87e3ee9..e00967c 100644
+--- a/drivers/spmi/spmi-apple-controller.c
++++ b/drivers/spmi/spmi-apple-controller.c
+@@ -119,6 +119,40 @@ static int spmi_write_cmd(struct spmi_controller *ctrl, u8 opc, u8 sid,
+ 	return 0;
+ }
+ 
++/* SPMI WAKEUP; the only bare command this controller is allowed to send. */
++#define APPLE_SPMI_OPC_WAKEUP 0x13
++
++static int apple_spmi_cmd(struct spmi_controller *ctrl, u8 opc, u8 sid)
++{
++	struct apple_spmi *spmi = spmi_controller_get_drvdata(ctrl);
++	u32 rsp;
++	int ret;
++
++	/*
++	 * WAKEUP only. This driver also serves the system PMU bus, which must
++	 * never be sent RESET, SLEEP or SHUTDOWN.
++	 */
++	if (opc != APPLE_SPMI_OPC_WAKEUP)
++		return -EOPNOTSUPP;
++
++	/* Bare command: no payload, so no length field and no data words. */
++	writel(opc | sid << 8 | BIT(15), spmi->regs + SPMI_CMD_REG);
++
++	ret = apple_spmi_wait_rx_not_empty(ctrl);
++	if (ret)
++		return ret;
++
++	/* The reply echoes opcode (7:0) and SID (14:8) and sets ACK (15). */
++	rsp = readl(spmi->regs + SPMI_RSP_REG);
++	if ((rsp & 0xff) != opc || ((rsp >> 8) & 0x7f) != sid || !(rsp & BIT(15))) {
++		dev_err(&ctrl->dev, "WAKEUP to SID %u: unexpected reply 0x%08x\n",
++			sid, rsp);
++		return -EIO;
++	}
++
++	return 0;
++}
++
+ static int apple_spmi_probe(struct platform_device *pdev)
+ {
+ 	struct apple_spmi *spmi;
+@@ -137,6 +171,7 @@ static int apple_spmi_probe(struct platform_device *pdev)
+ 
+ 	ctrl->dev.of_node = pdev->dev.of_node;
+ 
++	ctrl->cmd = apple_spmi_cmd;
+ 	ctrl->read_cmd = spmi_read_cmd;
+ 	ctrl->write_cmd = spmi_write_cmd;
+ 
+diff --git a/drivers/usb/typec/tipd/core.c b/drivers/usb/typec/tipd/core.c
+index 4ea378a..14f0157 100644
+--- a/drivers/usb/typec/tipd/core.c
++++ b/drivers/usb/typec/tipd/core.c
+@@ -1776,8 +1776,11 @@ int tps6598x_probe_common(struct device *dev, struct regmap *regmap, int irq,
+ 
+ 	if (!device_is_compatible(tps->dev, "ti,tps25750")) {
+ 		ret = tps6598x_read32(tps, TPS_REG_VID, &vid);
+-		if (ret < 0 || !vid)
++		if (ret < 0 || !vid) {
++			dev_err(dev, "VID read failed: ret=%d vid=0x%08x\n",
++				ret, ret < 0 ? 0 : vid);
+ 			return -ENODEV;
++		}
+ 	}
+ 
+ 	/*
+diff --git a/drivers/usb/typec/tipd/spmi.c b/drivers/usb/typec/tipd/spmi.c
+index cf91024..579ae4a 100644
+--- a/drivers/usb/typec/tipd/spmi.c
++++ b/drivers/usb/typec/tipd/spmi.c
+@@ -174,7 +174,8 @@ static int tps6598x_spmi_probe(struct spmi_device *sdev)
+ {
+ 	const struct tipd_data *data;
+ 	struct regmap *regmap;
+-	int irq;
++	u8 power_state = 0;
++	int irq, ret;
+ 
+ 	data = device_get_match_data(&sdev->dev);
+ 	if (!data)
+@@ -187,13 +188,25 @@ static int tps6598x_spmi_probe(struct spmi_device *sdev)
+ 	 * harmless if the part is already awake. Reaching S0 itself is left to
+ 	 * cd321x_data.switch_power_state inside tps6598x_probe_common().
+ 	 */
+-	spmi_command_wakeup(sdev);
++	ret = spmi_command_wakeup(sdev);
++	if (ret)
++		return dev_err_probe(&sdev->dev, ret, "SPMI WAKEUP failed\n");
++	/*
++	 * Proven on J614s hpm2 (tickets 093/094): the select/data window reads
++	 * back zero until about 10 ms after WAKEUP.
++	 */
++	usleep_range(10000, 11000);
+ 
+ 	regmap = devm_regmap_init(&sdev->dev, &tps6598x_spmi_regmap_bus, sdev,
+ 				  &tps6598x_regmap_config);
+ 	if (IS_ERR(regmap))
+ 		return PTR_ERR(regmap);
+ 
++	/* Logical system-power-state (0x20), as read in ticket 094. */
++	ret = regmap_raw_read(regmap, 0x20, &power_state, 1);
++	dev_info(&sdev->dev, "after WAKEUP: power-state read ret=%d state=0x%02x\n",
++		 ret, power_state);
++
+ 	irq = of_irq_get(sdev->dev.of_node, 0);
+ 	if (irq == -EPROBE_DEFER)
+ 		return irq;
