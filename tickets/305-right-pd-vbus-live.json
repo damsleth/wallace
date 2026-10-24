@@ -32,7 +32,16 @@
     "t6040-j614s-dcuart-usb2-native-right-pd.dtb": "dd57776e… SUPERSEDED (raw-address v3, hung in runs 1-5); do NOT boot. Use the physfix eaf8cceb DTB. (v2 05e6acee, v1 36e5c462 also raw-address, hung)",
     "pd-spmi-patch": "committed 77fd00b (patches/0001-usb-typec-tps6598x-add-SPMI-transport-for-T6040-SN20.patch)",
     "phy-slice-patch-v2": "b7f02c3cb06b0ed6e490d473a2efd99f61b8cd1ab089a0a09f72ecdec7b60a30",
-    "t6040-j614s-dcuart-usb2-native-right-pd-physfix.dtb (AUTHORITATIVE — boot this, 3009 PASS)": "eaf8cceb8c22d19f71ea0175397a96bd41ff6ebf56ab0719da7da0272f068acf"
+    "t6040-j614s-dcuart-usb2-native-right-pd-physfix.dtb (AUTHORITATIVE — boot this, 3009 PASS)": "eaf8cceb8c22d19f71ea0175397a96bd41ff6ebf56ab0719da7da0272f068acf",
+    "run8_candidate_2026_10_25": {
+      "Image-macsmc-hid-type-fix-nbcon-ppp-usb2-native-right-pddiag.build1 (==build2)": "08de37b12a535c011d988cb935777c00d740c856f907a5ffb8b2392a201d6e17",
+      "config": "51aa40f0df95a6938d7067f107f7b4aa0d614bea6c2c269a4e1b10a9e745b2d1 (== config-usb2pd.buildA)",
+      "dtb": "eaf8cceb… physfix (unchanged)",
+      "initramfs": "4cc65133… sdroot-hardened (unchanged)",
+      "contents": "pdwake + t6040-spmi-apple-zero-write-encoding.patch (233e9909…) + t6040-tipd-connector-state-diag.patch (4bb22141…, R0 reads only)",
+      "evidence": "evidence/2026-10-25-t6040-5002-pddiag-build-and-review.md",
+      "gate": "independent exact-artifact review + CJ attendance; same run-7 cmdline and fixture"
+    }
   },
   "runnable": true,
   "approved_by": "cj",

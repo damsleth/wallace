@@ -1,0 +1,94 @@
+diff --git a/drivers/usb/typec/tipd/core.c b/drivers/usb/typec/tipd/core.c
+index 14f0157..9c85d35 100644
+--- a/drivers/usb/typec/tipd/core.c
++++ b/drivers/usb/typec/tipd/core.c
+@@ -873,6 +873,68 @@ static int cd321x_connect(struct tps6598x *tps, u32 status)
+ 	return 0;
+ }
+ 
++/*
++ * T6040 bring-up diagnostic (SPMI_SAFETY class R0 only): log the connector
++ * state the part reports, so a run that binds and reaches S0 without VBUS
++ * can be classified from dmesg. Reads only; every register is one tipd or
++ * the paired macOS driver already reads. No command, no mask or W1C write.
++ */
++static void tps6598x_diag_connector_state(struct tps6598x *tps, const char *when)
++{
++	u8 mode[5] = { };
++	u8 pdst[5] = { };
++	u8 r5d[6] = { };
++	u8 pstate = 0, r2c = 0;
++	u32 status = 0, conf = 0, dstatus = 0;
++	u16 pwr = 0;
++	u64 mask_rb = 0;
++	int ret;
++
++	ret = tps6598x_read32(tps, TPS_REG_STATUS, &status);
++	if (ret) {
++		dev_info(tps->dev, "diag[%s]: STATUS read failed %d\n", when, ret);
++		return;
++	}
++	dev_info(tps->dev,
++		 "diag[%s]: STATUS %#010x plug=%u conn=%u portrole=%s datarole=%s vconn=%u pp5v0=%u pphv=%u src=%u vbus=%u host=%u\n",
++		 when, status, !!(status & TPS_STATUS_PLUG_PRESENT),
++		 TPS_STATUS_CONN_STATE(status),
++		 TPS_STATUS_TO_TYPEC_PORTROLE(status) ? "source" : "sink",
++		 TPS_STATUS_TO_TYPEC_DATAROLE(status) ? "host" : "device",
++		 TPS_STATUS_TO_TYPEC_VCONN(status),
++		 TPS_STATUS_PP_5V0_SWITCH(status), TPS_STATUS_PP_HV_SWITCH(status),
++		 TPS_STATUS_POWER_SOURCE(status), TPS_STATUS_VBUS_STATUS(status),
++		 TPS_STATUS_USB_HOST_PRESENT(status));
++
++	ret = tps6598x_block_read(tps, TPS_REG_MODE, mode, 4);
++	dev_info(tps->dev, "diag[%s]: MODE %d \"%4.4s\"\n", when, ret, mode);
++	ret = tps6598x_read8(tps, TPS_REG_SYSTEM_POWER_STATE, &pstate);
++	dev_info(tps->dev, "diag[%s]: SYSTEM_POWER_STATE %d %#04x\n", when, ret, pstate);
++	ret = tps6598x_read32(tps, TPS_REG_SYSTEM_CONF, &conf);
++	dev_info(tps->dev, "diag[%s]: SYSTEM_CONF %d %#010x portinfo=%u\n", when, ret,
++		 conf, TPS_SYSCONF_PORTINFO(conf));
++	ret = tps6598x_read16(tps, TPS_REG_POWER_STATUS, &pwr);
++	dev_info(tps->dev, "diag[%s]: POWER_STATUS %d %#06x conn=%u sourcesink=%u pwropmode=%u\n",
++		 when, ret, pwr, TPS_POWER_STATUS_CONNECTION(pwr),
++		 TPS_POWER_STATUS_SOURCESINK(pwr), TPS_POWER_STATUS_PWROPMODE(pwr));
++	ret = tps6598x_block_read(tps, TPS_REG_PD_STATUS, pdst, sizeof(pdst));
++	dev_info(tps->dev, "diag[%s]: PD_STATUS %d %5phN porttype=%u\n", when, ret, pdst,
++		 TPS_PD_STATUS_PORT_TYPE(pdst[0]));
++	ret = tps6598x_read32(tps, TPS_REG_DATA_STATUS, &dstatus);
++	dev_info(tps->dev, "diag[%s]: DATA_STATUS %d %#010x dataconn=%u usb2=%u usb3=%u datarole=%u\n",
++		 when, ret, dstatus, !!(dstatus & TPS_DATA_STATUS_DATA_CONNECTION),
++		 !!(dstatus & TPS_DATA_STATUS_USB2_CONNECTION),
++		 !!(dstatus & TPS_DATA_STATUS_USB3_CONNECTION),
++		 !!(dstatus & TPS_DATA_STATUS_USB_DATA_ROLE));
++	ret = tps6598x_read64(tps, TPS_REG_INT_MASK1, &mask_rb);
++	dev_info(tps->dev, "diag[%s]: INT_MASK1 readback %d %#018llx (wrote %#018llx)\n",
++		 when, ret, mask_rb, tps->data->irq_mask1);
++	ret = tps6598x_block_read(tps, 0x5d, r5d, sizeof(r5d));
++	dev_info(tps->dev, "diag[%s]: reg 0x5d %d %6phN\n", when, ret, r5d);
++	ret = tps6598x_read8(tps, 0x2c, &r2c);
++	dev_info(tps->dev, "diag[%s]: reg 0x2c %d %#04x\n", when, ret, r2c);
++}
++
+ static irqreturn_t cd321x_interrupt(int irq, void *data)
+ {
+ 	struct tps6598x *tps = data;
+@@ -892,10 +954,12 @@ static irqreturn_t cd321x_interrupt(int irq, void *data)
+ 	if (!event)
+ 		goto err_unlock;
+ 
++	dev_info(tps->dev, "diag[event]: INT_EVENT1 %#018llx\n", event);
+ 	tps6598x_write64(tps, TPS_REG_INT_CLEAR1, event);
+ 
+ 	if (!tps6598x_read_status(tps, &status))
+ 		goto err_unlock;
++	tps6598x_diag_connector_state(tps, "event");
+ 
+ 	if (event & APPLE_CD_REG_INT_POWER_STATUS_UPDATE) {
+ 		if (!tps6598x_read_power_status(tps))
+@@ -1817,6 +1881,7 @@ int tps6598x_probe_common(struct device *dev, struct regmap *regmap, int irq,
+ 		ret = -ENODEV;
+ 		goto err_clear_mask;
+ 	}
++	tps6598x_diag_connector_state(tps, "probe");
+ 
+ 	/*
+ 	 * This fwnode has a "compatible" property, but is never populated as a

@@ -2,7 +2,7 @@
   "seq": "5002",
   "slug": "tipd-spmi-connector-state-diag",
   "needs": "offline",
-  "state": "open",
+  "state": "built-twice-byte-identical-preflight-ok-awaiting-independent-review",
   "track": "usb",
   "priority": "P1",
   "desc": "Offline: build the R0-only connector-state diagnostic sketched in evidence/2026-10-24-t6040-hpm2-source-vbus-re.md §5.3/§6, for use ONLY if 305 run 7 reaches S0 but shows no VBUS (PARTIAL). Adds dev_info readbacks of STATUS 0x1a, PD status 0x40, data status 0x5f, PORTINFO 0x28 and the unnamed 0x5d/0x2c after probe, decoding PLUG_PRESENT, PORTROLE, PP_5V0 switch and VBUS status. Reads only; no new transaction class; Entry 1 unchanged. Deliver patch, two identical builds, independent review. Do not start before run 7 shows PARTIAL.",
@@ -10,9 +10,21 @@
   "deps": [
     "305"
   ],
-  "hashes": null,
+  "hashes": {
+    "Image-pddiag.build1==build2": "08de37b12a535c011d988cb935777c00d740c856f907a5ffb8b2392a201d6e17",
+    "System.map-pddiag": "9166487cccd0866a20d6c95882b383fa5b340539958fb987e5737555d037fe15",
+    "config-pddiag (== pinned 305 config)": "51aa40f0df95a6938d7067f107f7b4aa0d614bea6c2c269a4e1b10a9e745b2d1",
+    "t6040-tipd-connector-state-diag.patch": "4bb22141cb9a96d0f90e3750c221f3fe9cc85977da3c405230de7de6ad287566",
+    "t6040-spmi-apple-zero-write-encoding.patch": "233e99090fcb8760afce",
+    "kbuild (t6040-kbuild-pddiag.sh == scripts/t6040-kbuild.sh@d227605)": "c741f8f1c9918e97",
+    "dtb (unchanged, 3009 PASS)": "eaf8cceb8c22d19f71ea0175397a96bd41ff6ebf56ab0719da7da0272f068acf",
+    "initramfs (unchanged)": "4cc6513365803f161100d93b9dd9ae7c1a75d0a82e2d196ba7e776f8bb93f672"
+  },
   "created": 1792879897,
   "evidence": [
-    "evidence/2026-10-24-t6040-hpm2-source-vbus-re.md"
-  ]
+    "evidence/2026-10-24-t6040-hpm2-source-vbus-re.md",
+    "evidence/2026-10-25-t6040-5002-pddiag-build-and-review.md",
+    "evidence/2026-10-25-t6040-zero-write-encoding-patch-review.md"
+  ],
+  "progress": "2026-10-25 (claude/Mythos): CJ asked for the build ahead of a PARTIAL result. Image = run-7 pdwake + zero-write encoding fix (64dcbaf, reviewed PASS-with-notes) + R0-only connector-state readbacks (T6040_TYPEC_PD_DIAG=1). Two fresh-clone builds byte-identical; config unchanged vs the signed-off 305 config; preflight OK. Remaining: independent exact-artifact review (cross-review requested from Opus Wallace), then 305 run 8 attended by CJ."
 }
