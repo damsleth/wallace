@@ -2,7 +2,7 @@
   "seq": "5001",
   "slug": "nvme-p3-identity-readonly",
   "needs": "rig",
-  "state": "approved",
+  "state": "done",
   "track": "nvme",
   "priority": "P1",
   "desc": "Read-only identity probe of internal-SSD exFAT partition nvme0n1p3 (ticket 211 prerequisite). Same kernel 6eef9eef / DTB a96d04a7 / m1n1 7de07c71 as 6001 run 3; new init scripts/t6040-init-nvme-p3-identity (a140f282): 6001 namespace gate, sets nvme0n1, all partitions and n2/n3 read-only before any read, then records blkid label/type of p1-p3, sysfs start/size/PARTNAME, GPT LBA0-33 hash + header + entries 0-3, p3 exFAT boot sector and VolumeFlags, block stats before/after. No mounts, no writes. Initramfs 556c1ac2 (two builds identical). Bootargs as 6001 plus printk.devkmsg=on. PASS = IDENTITY-DONE with zero write counters. Output pins the label/GPT-type/LBA gate for the 211 write test.",
@@ -25,5 +25,9 @@
   "approved_at": 1792880191,
   "v2_2026_10_25": "Rewritten after the Sonnet FAIL (evidence/2026-10-24-review-5001-nvme-p3-identity.md): no blkid (not in BusyBox) - exFAT found by OEM \"EXFAT   \" and label read from the root-directory 0x83 entry via boot-sector geometry; every line < 300 chars (kmsg 1024 limit); 6001 transport/model gate restored; partition number not assumed (CJ rebuilt a 64 GB \"linux\" exFAT); STOP if no exFAT found. Parsing tested on a real GPT+exFAT loop image under the initramfs BusyBox 1.35 (evidence/2026-10-25-t6040-5001-probe-v2-test/). Needs re-review.",
   "reviewed_by": "sonnet-review",
-  "ready_at": 1792880191
+  "ready_at": 1792880191,
+  "evidence": [
+    "evidence/2026-10-25-t6040-5001-exfat-linux-identity.md"
+  ],
+  "done_at": 1792880378
 }
