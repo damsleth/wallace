@@ -1,0 +1,62 @@
+##### variant default ()
+source: 
+== install
+  fsck.exfat -n (before) rc=0: /dev/loop0p3: clean. directories 1, files 0
+  copied 1073741824 bytes in 8856.34..8864.99 s; source sha256=2cd91d078064b4947b0d7fe49afa5f492bc6e081a4a1ef2c71fd3ae7854f9dac
+  re-read copy sha256=2cd91d078064b4947b0d7fe49afa5f492bc6e081a4a1ef2c71fd3ae7854f9dac
+  e2fsck -fn /dev/loop2 rc=0: /dev/loop2: 1082/65536 files (0.3% non-contiguous), 23961/262144 blocks
+  e2fsck -fp /dev/loop2 rc=0: /dev/loop2: 1082/65536 files (0.3% non-contiguous), 23961/262144 blocks
+  tune2fs -U 988d97b4-06ba-40d7-8f70-7899bb6fa297 /dev/loop2 rc=0: tune2fs 1.47.4 (6-Mar-2025)
+  resize2fs /dev/loop2 rc=0: The filesystem on /dev/loop2 is now 786432 (4k) blocks long.
+  e2fsck -fn /dev/loop2 rc=0: /dev/loop2: 1082/196608 files (0.3% non-contiguous), 32314/786432 blocks
+  fsck.exfat -n (final) rc=0: /dev/loop0p3: clean. directories 1, files 1
+  sectors written: disk=4198024 p3=4198024
+  PASS installed wallace-root.img bytes=3221225472 uuid=988d97b4-06ba-40d7-8f70-7899bb6fa297 source_sha256=2cd91d078064b4947b0d7fe49afa5f492bc6e081a4a1ef2c71fd3ae7854f9dac others_unchanged=yes
+  (fell through)
+  exit=0
+== result: -rwxr-xr-x 1 root root 3221225472 Oct 24 23:11 wallace-root.img
+e2fsck=0
+== install again (must refuse)
+  fsck.exfat -n (before) rc=0: /dev/loop0p3: clean. directories 1, files 1
+  STOP: /mnt/linux/wallace-root.img already exists; nothing to install
+##### variant noseed-noresize (-O ^metadata_csum_seed,^resize_inode)
+Error: parsing reference "^metadata_csum_seed,^resize_inode": invalid reference format
+##### variant noseed-noresize (-O^metadata_csum_seed,^resize_inode)
+source: 
+== install
+  fsck.exfat -n (before) rc=0: /dev/loop0p3: clean. directories 1, files 0
+  copied 1073741824 bytes in 8888.09..8897.01 s; source sha256=29649cbfe809e464f87bd2dc416d1eda9556e1d0d47340a3c8f02c5a35f85a58
+  re-read copy sha256=29649cbfe809e464f87bd2dc416d1eda9556e1d0d47340a3c8f02c5a35f85a58
+  e2fsck -fn /dev/loop2 rc=0: /dev/loop2: 1082/65536 files (0.3% non-contiguous), 23325/262144 blocks
+  e2fsck -fp /dev/loop2 rc=0: /dev/loop2: 1082/65536 files (0.3% non-contiguous), 23325/262144 blocks
+  tune2fs -U 988d97b4-06ba-40d7-8f70-7899bb6fa297 /dev/loop2 rc=0: tune2fs 1.47.4 (6-Mar-2025)
+  resize2fs /dev/loop2 rc=0: The filesystem on /dev/loop2 is now 786432 (4k) blocks long.
+  e2fsck -fn /dev/loop2 rc=0: /dev/loop2: 1082/196608 files (0.3% non-contiguous), 31551/786432 blocks
+  fsck.exfat -n (final) rc=0: /dev/loop0p3: clean. directories 1, files 1
+  sectors written: disk=4199904 p3=4199904
+  PASS installed wallace-root.img bytes=3221225472 uuid=988d97b4-06ba-40d7-8f70-7899bb6fa297 source_sha256=29649cbfe809e464f87bd2dc416d1eda9556e1d0d47340a3c8f02c5a35f85a58 others_unchanged=yes
+  (fell through)
+  exit=0
+== result: -rwxr-xr-x 1 root root 3221225472 Oct 24 23:12 wallace-root.img
+e2fsck=0
+== install again (must refuse)
+  fsck.exfat -n (before) rc=0: /dev/loop0p3: clean. directories 1, files 1
+  STOP: /mnt/linux/wallace-root.img already exists; nothing to install
+##### full-size adapt 6 GiB -> 16 GiB
+source: Filesystem features:      has_journal ext_attr resize_inode dir_index orphan_file filetype extent 64bit flex_bg metadata_csum_seed sparse_super large_file huge_file dir_nlink extra_isize metadata_csum;Block count:              1572864;Reserved GDT blocks:      767;
+  e2fsck -fn /dev/loop0 rc=0 (8918.99..8919.01 s): /dev/loop0: 565/393216 files (0.0% non-contiguous), 54205/1572864 blocks
+  e2fsck -fp /dev/loop0 rc=0 (8919.01..8919.02 s): /dev/loop0: 565/393216 files (0.0% non-contiguous), 54205/1572864 blocks
+  tune2fs -U 988d97b4-06ba-40d7-8f70-7899bb6fa297 /dev/loop0 rc=0 (8919.02..8919.03 s): tune2fs 1.47.4 (6-Mar-2025)
+  resize2fs /dev/loop0 rc=0 (8919.03..8919.05 s): The filesystem on /dev/loop0 is now 4194304 (4k) blocks long.
+  e2fsck -fn /dev/loop0 rc=0 (8919.05..8919.07 s): /dev/loop0: 565/1048576 files (0.0% non-contiguous), 97632/4194304 blocks
+  findfs: /dev/loop0 loop=/dev/loop0 size=17179869184
+result: Filesystem UUID:          988d97b4-06ba-40d7-8f70-7899bb6fa297;Filesystem state:         clean;Block count:              4194304;
+
+
+
+
+
+
+
+
+

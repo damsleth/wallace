@@ -1,0 +1,27 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * J614s one-core daily-driver DT with the internal SSD enabled (ticket 5005).
+ *
+ * The SD-root daily DT unchanged, except that ANS is enabled again. It was
+ * disabled only because of the first-I/O-CQ-wrap assert, which the ANS2
+ * zero-based queue-size fix removes (6001 run 3 PASS). The system-PMU SPMI bus,
+ * smc_rtc and smc_reboot stay disabled per docs/SPMI_SAFETY.md.
+ */
+
+#include "t6040-j614s-dcuart-wifi-cpufreq-sdroot.dts"
+
+/ {
+	model = "Apple MacBook Pro (M4 Pro) J614s [Alpine root on SD or NVMe, PMU SPMI disabled]";
+};
+
+&ans_mbox {
+	status = "okay";
+};
+
+&ans_sart {
+	status = "okay";
+};
+
+&ans_nvme {
+	status = "okay";
+};
