@@ -14,5 +14,9 @@
   "hashes": {
     "image": "1c493fad1d1b44520d9265c5946c8ac00b867b3d47fac93f88d1f55cde25060e"
   },
-  "created": 1784927435
+  "created": 1784927435,
+  "note_2026_10_24": "2026-10-24 claude: target stick identity (host metadata): SanDisk 0781:55fd serial 03043930012326064731, 123048296448 bytes, MBR+FAT32 \"S128\" holding ~1.2 GB of data. Flashing destroys it; CJ must decide on its contents and give the exact erase confirmation. Image 098 was never installed on this stick.",
+  "evidence": [
+    "evidence/2026-10-24-t6040-s128-host-declared-identity.md"
+  ]
 }

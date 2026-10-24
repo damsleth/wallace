@@ -14,5 +14,9 @@
   "created": 1784927435,
   "runnable": false,
   "approved_by": "maintainer",
-  "approved_at": 1784928481
+  "approved_at": 1784928481,
+  "note_2026_10_24": "2026-10-24 claude: host-side declared S128 identity recorded (evidence/2026-10-24-t6040-s128-host-declared-identity.md): 0781:55fd, serial 03043930012326064731, 240328704 sectors, MBR + single FAT32 \"S128\" -- NOT the ticket-098 GPT root image. Expected-identity comparisons must match that layout unless 110 flashes first.",
+  "evidence": [
+    "evidence/2026-10-24-t6040-s128-host-declared-identity.md"
+  ]
 }
