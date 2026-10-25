@@ -1,0 +1,13 @@
+{
+  "seq": "5013",
+  "slug": "hid-mtp-boot-stall",
+  "needs": "offline",
+  "state": "open",
+  "track": "hid",
+  "priority": "P1",
+  "desc": "Intermittent dockchannel-hid / MTP bring-up stall on the NVMe daily root: 2 of 11 boots (C2, C10 in linux-build-out/nvmeroot-20261025/runs/) stop right after 'RTKit: syslog message: kb_transport.c:271: IPD HIDSPI attached' at ~1.5 s with no interface configuration, no 'Keyboard ready', no input devices -> no keyboard and no trackpad that boot. Pre-userspace, so not init/firmware related. Offline first: compare the stalled vs good consoles line by line (RTKit messages, timing, any mailbox/IRQ errors), check the TRACKPAD_RESET_CONTRACT patch path and the 230 evidence for a known race, then propose a minimal driver-side retry/diagnostic. Evidence: evidence/2026-10-25-t6040-nvmeroot-trackpad-and-reboot.md.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1792938819
+}

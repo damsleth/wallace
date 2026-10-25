@@ -39,3 +39,26 @@ No files changed; no hardware accessed.
 **Other suspected causes are unsupported:** the config diff removes KVM and related settings; HID settings are unchanged, with `HID_MAGICMOUSE`, `HID_MULTITOUCH` and DockChannel HID enabled. The new root includes `libinput_drv.so`, `40-libinput.conf`, input identification and libinput udev rules ([manifest](/Users/damsleth/Code/linux-build-out/nvmeroot-image-20261025/tree.txt:1207)). X launches directly as root, so the empty `input` group in the base archive is not a blocker.
 
 No files changed; no hardware accessed.
+
+## Hardware result (initramfs 82a86064; Mythos no objection)
+
+- Clean reboot through `t6040-sdroot-powerctl reboot` on the old root: the
+  kernel logged `EXT4-fs (loop0): unmounting filesystem` (a full unmount; plain
+  BusyBox reboot only remounted read-only), then saveCtx and restart.
+- **C10**: no dirty repair (p3 clean after the powerctl path). Logged
+  `installed the trackpad firmware on the new root` and
+  `linked /usr/local/sbin/{reboot,poweroff} to t6040-sdroot-powerctl`. But on
+  this boot dockchannel-hid stalled after `IPD HIDSPI attached`: no interface
+  configuration, no keyboard, no multi-touch (see below).
+- **C11** (after a plain `reboot`, which now resolves to powerctl): **no
+  dirty repair**, keyboard and multi-touch input registered, **0
+  tpmtfw failures**. Xorg: `Apple DockChannel Multi-touch: is tagged by udev
+  as: Touchpad`, `XINPUT: Adding extended input device ... (type: TOUCHPAD)`.
+  Physical finger test: pending CJ.
+
+## New, separate issue: intermittent HID coprocessor stall at boot (2 of 11)
+
+NVMe-root boots C2 and C10 stalled in dockchannel-hid bring-up right after
+`IPD HIDSPI attached` (about 1.5 s, before /init runs), leaving no keyboard and
+no trackpad for that boot. C1, C3-C9 and C11 were fine. This happens before
+userspace, so it is not caused by the init change. Ticket 5013.
