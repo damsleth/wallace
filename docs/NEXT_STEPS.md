@@ -40,8 +40,8 @@ booted by the enrolled m1n1/kernel/initramfs through OpenRC. SD remains a
 checksum-verified read/write fallback. This does not change any current
 capability result above or bypass the 6001/305 execution gates.
 As of 2026-10-25 the active daily-root track is the internal-SSD root on the
-exFAT `linux` partition (5005/5008, §3); this USB-root section is unchanged
-and has not been withdrawn.
+exFAT `linux` partition (5005/5008, §3). This USB-root section is retained
+as written; CJ decides whether it still stands.
 
 Completion requires three consecutive cold boots with clean poweroff and
 post-poweroff fsck, root-stick write/sync/reboot/checksum persistence,
@@ -83,12 +83,11 @@ SSD's three namespaces, then the log watchdog matched `BUG:` in `debug:`
 ([run 1](../evidence/2026-10-24-t6001-run1-gate-parked-three-namespaces.md),
 [run 2](../evidence/2026-10-24-t6001-run2-tester-false-stop.md)).
 
-The formal transcript checker is not green: `/dev/kmsg` ratelimiting dropped
-the tester's PASS line. A formal re-run needs `printk.devkmsg=on`, which
-changes the bootargs and therefore needs a small re-review. Not established:
-sustained reads, multi-CPU, the 227 teardown UAF. 5008 step A
-(2026-10-25) ran the same 6001 tester with `printk.devkmsg=on` on the new
-daily+NVMe kernel `2234baad`, and its checker passed. Writes are covered in §3.
+Run 3's formal transcript checker was not green because `/dev/kmsg`
+ratelimiting dropped the tester's PASS line. 5008 step A (2026-10-25) closed
+that: the same 6001 tester initramfs (`524d94c3`) with `printk.devkmsg=on`, on
+the new daily+NVMe kernel `2234baad`, and its checker passed. Not established:
+sustained reads, multi-CPU, the 227 teardown UAF. Writes are covered in §3.
 
 ## October upstream findings and offline follow-ons
 
@@ -260,8 +259,8 @@ set `okay`.
 first Flush (`BAD_CMD`, `fast decode err 0x7`, `sc 0x2`); its data was later
 lost on a hard reset
 ([write1](../evidence/2026-10-25-t6040-211-write1-flush-badcmd.md)). With
-`write_cache` set to `write through`, r2 and r3 each wrote 1 GiB in about
-2.6 s (about 410 MB/s) into the label-, GPT-type- and extent-pinned exFAT
+`write_cache` set to `write through`, r2 wrote 1 GiB in about 2.6 s (about 410 MB/s) and r3
+another 1 GiB, each into the label-, GPT-type- and extent-pinned exFAT
 `linux` partition; read-back after `drop_caches` matched; whole-disk writes
 equalled p3 writes and nothing else was written; no BAD_CMD or I/O errors
 ([r2](../evidence/2026-10-25-t6040-5006-flush-unsupported-211-write-r2-pass.md),

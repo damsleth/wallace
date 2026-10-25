@@ -301,11 +301,11 @@ the discipline around them.
   ([evidence](../evidence/2026-10-24-t6001-run3-16384-reads-no-cq-wrap-assert.md)).
   Sustained reads, multi-CPU and the 227 teardown UAF are unproven.
 - The `APPLE SSD AP1024Z` (`apple-nvme`) exposes one controller with **three
-  namespaces**: n1 1,954,210,120 sectors (the 1 TB disk, p1–p3), and Apple
+  namespaces**: n1 1,954,210,120 sectors (the 1 TB disk; p1–p4 as of 5008 A, 2026-10-25), and Apple
   auxiliary n2 at 6,144 sectors (3 MiB) and n3 at 262,144 (128 MiB). Gates must
   pin this topology rather than reject a second namespace.
 - **Linux writes work (211 stage 1, 2026-10-25),** with write-through: r2
-  and r3 each wrote 1 GiB in about 2.6 s (about 410 MB/s) to the pinned exFAT
+  wrote 1 GiB in about 2.6 s (about 410 MB/s) and r3 another 1 GiB, each to the pinned exFAT
   `linux` partition `nvme0n1p3`, read-back matched after `drop_caches`, and
   whole-disk writes equalled p3 writes
   ([r2](../evidence/2026-10-25-t6040-5006-flush-unsupported-211-write-r2-pass.md),
