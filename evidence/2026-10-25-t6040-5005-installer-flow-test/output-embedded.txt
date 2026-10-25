@@ -1,0 +1,16 @@
+== full-size decode of the shipped image with the installer's busybox
+  decoded sha256=e3fa66b505c6fba8d30fb74e7c04f66ab13188ae3901ddf9b218c87f65cc7bc3 pinned=e3fa66b505c6fba8d30fb74e7c04f66ab13188ae3901ddf9b218c87f65cc7bc3
+== install (scaled)
+  write_cache=write through
+  fsck.exfat -n (before) rc=0: /dev/loop0p3: clean. directories 1, files 0
+  wrote 1073741824 bytes in 32253.09..32259.89 s; sha256=5fc2e357d61bfc75df290418dcccbc137505085051906306a8c70d460e4ec046 expected=5fc2e357d61bfc75df290418dcccbc137505085051906306a8c70d460e4ec046
+  re-read copy sha256=5fc2e357d61bfc75df290418dcccbc137505085051906306a8c70d460e4ec046
+  e2fsck -fn /dev/loop1 rc=0: /dev/loop1: 102/65536 files (0.0% non-contiguous), 13489/262144 blocks
+  fsck.exfat -n (final) rc=0: /dev/loop0p3: clean. directories 1, files 1
+  sectors written: disk=2099304 p3=2099304
+  PASS installed wallace-root.img bytes=1073741824 uuid=988d97b4-06ba-40d7-8f70-7899bb6fa297 sha256=5fc2e357d61bfc75df290418dcccbc137505085051906306a8c70d460e4ec046 others_unchanged=yes
+  (fell through)
+== install again (must refuse)
+  write_cache=write through
+  fsck.exfat -n (before) rc=0: /dev/loop0p3: clean. directories 1, files 1
+  STOP: /mnt/linux/wallace-root.img already exists; nothing to install

@@ -1,17 +1,17 @@
 #!/bin/busybox sh
 # One-shot installer for the NVMe daily root (ticket 5005).
 #
-# Clones the proven SD64 root (wallace-root.img, 6 GiB ext4, UUID 4c41b99c)
-# onto the pinned exFAT "linux" partition (nvme0n1p3, probe 5001), then gives
-# the copy its own UUID and grows it to 16 GiB. The SD card and every other
-# NVMe partition and namespace are read-only; the only writes are the new
-# file on p3. Every gate is passed before the first write.
+# Writes the host-built root image (16 GiB ext4, UUID 988d97b4, carried in
+# this initramfs as /wallace-root.img.xz with its raw sha256) onto the pinned
+# exFAT "linux" partition (nvme0n1p3, probe 5001) as wallace-root.img. Every
+# other NVMe partition and namespace is read-only and no SD card is touched;
+# the only writes are the new file on p3. Every gate is passed before the
+# first write. (SD64, the original clone source, is unavailable.)
 #
-#   copy:   SD64 image -> p3/wallace-root.img.partial (hashed while copying),
-#           drop caches, re-hash from the SSD, compare
-#   adapt:  truncate to 16 GiB, e2fsck -fn, e2fsck -fp, tune2fs -U,
-#           resize2fs, e2fsck -fn
-#   commit: rename to wallace-root.img, umount, fsck.exfat -n
+#   copy:   xzcat image -> p3/wallace-root.img.partial (hashed in-stream),
+#           compare with the pinned raw hash, drop caches, re-hash from the SSD
+#   check:  e2fsck -fn on a loop, UUID via findfs, size
+#   commit: rename to wallace-root.img, umount, fsck.exfat -n, clean reboot
 BB=/bin/busybox
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 export PATH
@@ -19,7 +19,7 @@ early_stop() { echo "NVME-INSTALL STOP: $*"; while :; do $BB sleep 60; done; }
 $BB mount -t proc proc /proc || early_stop proc
 $BB mount -t sysfs sysfs /sys || early_stop sysfs
 $BB mount -t devtmpfs devtmpfs /dev || early_stop devtmpfs
-$BB mkdir -p /run /mnt/linux /mnt/sd || early_stop directories
+$BB mkdir -p /run /mnt/linux || early_stop directories
 $BB mount -t tmpfs tmpfs /run || early_stop tmpfs
 # Keyboard must be configured before either console can get a shell.
 if ! $BB loadkmap </etc/wallace-no.bmap >/dev/tty0; then
@@ -31,7 +31,6 @@ LOOP=
 park() {
     [ -z "$LOOP" ] || $BB losetup -d "$LOOP" 2>/dev/null
     $BB umount /mnt/linux 2>/dev/null
-    $BB umount /mnt/sd 2>/dev/null
     say 'PARKED: no further automated storage operations'
     $BB setsid -c $BB sh -i </dev/ttydc0 >/dev/ttydc0 2>&1 &
     while :; do $BB setsid -c $BB sh -i </dev/tty1 >/dev/tty1 2>&1; $BB sleep 1; done
@@ -43,11 +42,12 @@ else
     stop 'watchdog missing'
 fi
 set -o pipefail
-SRC_BYTES=6442450944
-SRC_UUID=4c41b99c-7747-4688-85a5-397bc5d784a2
 ROOT_UUID=988d97b4-06ba-40d7-8f70-7899bb6fa297
 ROOT_BYTES=17179869184
-say "start; maxcpus=1; source SD64 root $SRC_UUID, target p3 root $ROOT_UUID"
+SRC=/wallace-root.img.xz
+EXP=$($BB cut -d' ' -f1 /wallace-root.img.sha256 2>/dev/null)
+[ -f $SRC ] && [ ${#EXP} = 64 ] || stop 'embedded root image or its hash is missing'
+say "start; maxcpus=1; embedded root image $ROOT_UUID raw sha256=$EXP"
 
 # --- NVMe controller, namespace and identity gate (as 5003) -----------------
 ns_size() { $BB cat "/sys/block/$1/size" 2>/dev/null; }
@@ -103,36 +103,6 @@ if [ $((F & 2)) -ne 0 ]; then
 fi
 say "p3 pins OK: start=1586917376 size=356806656 type=EBD0A0A2 guid=EA0DA6DB serial=6add2caf label=linux clean"
 
-# --- SD64 source gate (as the sdroot init), all read-only --------------------
-PCI_DEV=/sys/bus/pci/devices/0000:02:00.0
-SDP=/dev/mmcblk0p1
-i=0
-while [ ! -L "$PCI_DEV/driver" ] && [ "$i" -lt 25 ]; do $BB sleep 1; i=$((i+1)); done
-[ "$($BB cat $PCI_DEV/vendor 2>/dev/null):$($BB cat $PCI_DEV/device 2>/dev/null)" = 0x17a0:0x9755 ] ||
-    stop 'GL9755 0000:02:00.0 missing'
-[ "$($BB basename "$($BB readlink $PCI_DEV/driver)")" = sdhci-pci ] || stop 'GL9755 not bound to sdhci-pci'
-i=0
-while [ ! -b $SDP ] && [ "$i" -lt 30 ]; do $BB sleep 1; i=$((i+1)); done
-[ -b $SDP ] || stop "$SDP absent: insert the SD64 card"
-case "$($BB readlink -f /sys/class/block/mmcblk0/device)" in
-    "$($BB readlink -f $PCI_DEV)"/*) ;;
-    *) stop 'mmcblk0 is not a child of the GL9755' ;;
-esac
-$BB blockdev --setro /dev/mmcblk0 && $BB blockdev --setro $SDP || stop 'cannot set SD read-only'
-[ "$($BB findfs LABEL=SD64 2>/dev/null)" = $SDP ] || stop 'LABEL=SD64 is not mmcblk0p1'
-$BB mount -t exfat -o ro $SDP /mnt/sd || stop 'SD64 did not mount read-only'
-SRC=/mnt/sd/wallace-root.img
-[ "$($BB stat -c %s $SRC 2>/dev/null)" = $SRC_BYTES ] || stop "SD64 $SRC missing or not $SRC_BYTES bytes"
-LOOP=$($BB losetup -f) && $BB losetup -r "$LOOP" $SRC || stop 'cannot attach source read-only'
-[ "$($BB findfs UUID=$SRC_UUID 2>/dev/null)" = "$LOOP" ] || stop 'source ext4 UUID mismatch'
-case "$($BB blkid "$LOOP")" in *'TYPE="ext4"'*) ;; *) stop 'source is not ext4' ;; esac
-say "source features: $(dumpe2fs -h "$LOOP" 2>/dev/null | $BB grep -E '^Filesystem features|^Block count|^Reserved GDT' | $BB tr -s ' ' | $BB tr '\n' ';')"
-S=$($BB dd if="$LOOP" bs=1 skip=1082 count=2 2>/dev/null | $BB od -An -tu2); S=${S##* }
-[ "$S" = 1 ] || stop "source ext4 is not clean (s_state=${S:-unreadable})"
-$BB losetup -d "$LOOP" || stop 'cannot detach source'
-LOOP=
-say "SD64 source OK: $SRC_BYTES bytes, ext4 $SRC_UUID clean"
-
 # --- copy ----------------------------------------------------------------------
 fsck_n() {
     out=$(/sbin/fsck.exfat -n $DEV 2>&1); rc=$?
@@ -152,30 +122,23 @@ DST=/mnt/linux/wallace-root.img
 [ ! -e $DST ] || stop "$DST already exists; nothing to install"
 $BB rm -f $DST.partial
 t0=$(up)
-H=$($BB dd if=$SRC bs=4M 2>/dev/null | $BB tee $DST.partial | $BB sha256sum) || stop 'copy failed'
+H=$($BB xzcat $SRC | $BB tee $DST.partial | $BB sha256sum) || stop 'copy failed'
 H=${H%% *}
 $BB sync
 t1=$(up)
-[ "$($BB stat -c %s $DST.partial)" = $SRC_BYTES ] || stop 'copy has the wrong size'
-say "copied $SRC_BYTES bytes in $t0..$t1 s; source sha256=$H"
-$BB umount /mnt/sd || stop 'SD64 would not unmount'
+[ "$($BB stat -c %s $DST.partial)" = $ROOT_BYTES ] || stop 'copy has the wrong size'
+say "wrote $ROOT_BYTES bytes in $t0..$t1 s; sha256=$H expected=$EXP"
+[ "$H" = "$EXP" ] || stop 'decompressed image differs from the pinned hash'
 echo 3 >/proc/sys/vm/drop_caches || stop 'drop_caches failed'
 G=$($BB sha256sum $DST.partial); G=${G%% *}
 say "re-read copy sha256=$G"
-[ "$G" = "$H" ] || stop 'copy differs from the source'
+[ "$G" = "$EXP" ] || stop 'copy on p3 differs from the pinned hash'
 
-# --- adapt: own UUID, 16 GiB -------------------------------------------------
-$BB truncate -s $ROOT_BYTES $DST.partial || stop 'truncate failed'
-LOOP=$($BB losetup -f) && $BB losetup "$LOOP" $DST.partial || stop 'cannot attach the copy'
+# --- check ---------------------------------------------------------------------
+LOOP=$($BB losetup -f) && $BB losetup -r "$LOOP" $DST.partial || stop 'cannot attach the copy'
 e2() { out=$("$@" 2>&1); rc=$?; say "$* rc=$rc: $(echo "$out" | $BB tail -1 | $BB cut -c1-200)"; return $rc; }
-e2 e2fsck -fn "$LOOP" || stop 'copy has ext4 errors'
-# -p on a clean filesystem changes nothing but the last-check time, which
-# tune2fs -U and resize2fs require.
-e2 e2fsck -fp "$LOOP" || stop 'e2fsck -fp failed'
-e2 tune2fs -U $ROOT_UUID "$LOOP" || stop 'tune2fs -U failed'
-e2 resize2fs "$LOOP" || stop 'resize2fs failed'
-e2 e2fsck -fn "$LOOP" || stop 'grown root has ext4 errors'
-[ "$($BB findfs UUID=$ROOT_UUID 2>/dev/null)" = "$LOOP" ] || stop 'new UUID not visible'
+e2 e2fsck -fn "$LOOP" || stop 'root image has ext4 errors'
+[ "$($BB findfs UUID=$ROOT_UUID 2>/dev/null)" = "$LOOP" ] || stop 'root UUID not visible'
 B=$($BB blockdev --getsize64 "$LOOP")
 [ "$B" = $ROOT_BYTES ] || stop "loop size $B"
 $BB losetup -d "$LOOP" || stop 'cannot detach the copy'
@@ -191,7 +154,7 @@ DISK_DW=$(( $(wsec /sys/block/nvme0n1/stat) - DISK_W0 ))
 P_DW=$(( $(wsec /sys/block/nvme0n1/$P/stat) - P_W0 ))
 say "sectors written: disk=$DISK_DW p3=$P_DW"
 [ "$DISK_DW" = "$P_DW" ] || stop 'writes outside p3 on nvme0n1'
-say "PASS installed wallace-root.img bytes=$ROOT_BYTES uuid=$ROOT_UUID source_sha256=$H others_unchanged=yes"
+say "PASS installed wallace-root.img bytes=$ROOT_BYTES uuid=$ROOT_UUID sha256=$H others_unchanged=yes"
 # Without Flush the newest writes sit in the controller's volatile cache until
 # a controller shutdown (211 r3): reboot through device_shutdown before anyone
 # can hard-reset the machine.

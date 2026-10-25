@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
-# Ticket 5008: boot one 5005 payload (A sdroot-ro, B install, C nvmeroot) with
+# Ticket 5008: boot one 5005 payload (A nvmeread, B install, C nvmeroot) with
 # hash checks. Step B enforces a host deadline: with no NVME-INSTALL PASS or
 # STOP within DEADLINE seconds of handoff, the M4 is rebooted via DebugUSB.
-# Then the installer checker runs. A and C only boot and capture the console.
+# Then the installer checker runs. A runs the 6001 read-only NVMe tester on the
+# new kernel+DTB and its checker; C only boots and captures the console.
 #   usage: t6040-run-nvmeroot-step.sh A|B|C <run-dir>
 # Requires the rig lease (boot-dcuart enforces it) and a running kisd.
 set -u
 STEP=${1:?A|B|C}; RUN=${2:?run directory}
 case "$STEP" in
-    A) P=nvmeroot-20261025/payload-A-sdroot-ro ;;
+    A) P=nvmeroot-20261025/payload-A-nvmeread ;;
     B) P=nvmeroot-20261025/payload-B-install ;;
     C) P=nvmeroot-20261025/payload-C-nvmeroot ;;
     *) echo "step must be A, B or C" >&2; exit 2 ;;
@@ -30,6 +31,16 @@ env -u EXTRA_BOOTARGS RIG_AGENT=claude RIG_ENFORCE=1 M1N1DEVICE=/tmp/m1n1 \
 echo "boot exit=$?" >>"$RUN/boot-script.out"
 CON="$RUN/dcuart-console.log"
 grep -q 'handoff done' "$RUN/boot-script.out" || { echo "no handoff; see $RUN/boot-script.out"; exit 1; }
+if [ "$STEP" = A ]; then
+    t=0
+    while [ "$t" -lt 300 ]; do
+        grep -qE 'NVME-READONLY (PASS|STOP)|test exit=|Kernel panic|SError' "$CON" 2>/dev/null && break
+        sleep 5; t=$((t + 5))
+    done
+    sleep 10
+    python3 "$WALLACE/scripts/t6040-check-nvme-ioq-transcript.py" "$CON"
+    exit $?
+fi
 [ "$STEP" = B ] || { echo "step $STEP handed off; console: $CON"; exit 0; }
 t=0
 while [ "$t" -lt "$DEADLINE" ]; do
@@ -47,4 +58,4 @@ else
     sudo -n /usr/local/bin/macvdmtool reboot debugusb >"$RUN/deadline-reboot.txt" 2>&1
 fi
 echo "checker:"
-python3 "$WALLACE/scripts/t6040-check-nvme-root-install-transcript.py" "$CON"
+python3 "$WALLACE/scripts/t6040-check-nvme-root-install-transcript.py" --expect-sha256 e3fa66b505c6fba8d30fb74e7c04f66ab13188ae3901ddf9b218c87f65cc7bc3 "$CON"

@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Pack the ticket-5005 one-shot NVMe root installer: the pinned Alpine
 # bootstrap (BusyBox 1.37, e2fsprogs 1.47.4) with /init replaced by
-# scripts/t6040-init-nvme-root-install. Deterministic; never touches a device.
+# scripts/t6040-init-nvme-root-install, plus the host-built root image from
+# scripts/t6040-build-nvmeroot-image.sh (IMAGE_DIR, pinned by IMAGE_XZ_SHA256).
+# Deterministic; never touches a device.
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
@@ -14,6 +16,10 @@ FSCK_SHA256=d56b877d91e8e42a64cf8d8ad574ea425041f6fe117f0e52180f84ffad972790
 KEYMAP=${KEYMAP:-$OUT/no-latin1.bmap}
 KEYMAP_SHA256=606ecd98f83b72983f3cd35976df939dc9c7187283703736a81e89b65aee85a8
 [ ! -e "$DEST" ] || { echo "refusing to overwrite $DEST" >&2; exit 1; }
+IMAGE_DIR=${IMAGE_DIR:?set IMAGE_DIR to the t6040-build-nvmeroot-image.sh output}
+IMAGE_XZ_SHA256=${IMAGE_XZ_SHA256:?pin the wallace-root.img.xz sha256}
+printf '%s  %s\n' "$IMAGE_XZ_SHA256" "$IMAGE_DIR/wallace-root.img.xz" | shasum -a 256 -c -
+grep -qE '^[0-9a-f]{64}$' "$IMAGE_DIR/wallace-root.img.sha256" || { echo "bad raw image hash file" >&2; exit 1; }
 printf '%s  %s\n' "$BASE_SHA256" "$BASE" "$FSCK_SHA256" "$FSCK" "$KEYMAP_SHA256" "$KEYMAP" |
     shasum -a 256 -c -
 TMP=$(mktemp -d "$OUT/nvme-root-install.XXXXXX")
@@ -24,17 +30,20 @@ install -m 0755 "$ROOT/scripts/t6040-init-nvme-root-install" "$TMP/init"
 install -d -m 0755 "$TMP/sbin" "$TMP/etc"
 install -m 0755 "$FSCK" "$TMP/sbin/fsck.exfat"
 install -m 0644 "$KEYMAP" "$TMP/etc/wallace-no.bmap"
+install -m 0644 "$IMAGE_DIR/wallace-root.img.xz" "$TMP/wallace-root.img.xz"
+install -m 0644 "$IMAGE_DIR/wallace-root.img.sha256" "$TMP/wallace-root.img.sha256"
 # Nothing here may create a filesystem, partition, discard or erase. Only the
-# e2fsprogs the installer calls stay: e2fsck, tune2fs, resize2fs, dumpe2fs.
+# e2fsprogs the installer calls stay: e2fsck and dumpe2fs.
 rm -rf "$TMP/etc/wpa_supplicant" "$TMP/root/.ssh" "$TMP/var/cache/apk/"*
 rm -f "$TMP"/etc/ssh/ssh_host_* "$TMP/var/log/apk.log" \
     "$TMP"/sbin/{mke2fs,mkfs.ext2,mkfs.ext3,mkfs.ext4,mkfs.vfat,mkdosfs,mkswap,fdisk,blkdiscard,fstrim} \
-    "$TMP"/usr/sbin/{badblocks,debugfs,e2image,e2undo,e4crypt,e4defrag,mklost+found,partprobe,nandwrite,setpci,mkfs.exfat,tune.exfat,exfatlabel,exfat2img}
-for f in init sbin/fsck.exfat sbin/e2fsck usr/sbin/tune2fs usr/sbin/resize2fs usr/sbin/dumpe2fs \
-         etc/wallace-no.bmap bin/busybox lib/ld-musl-aarch64.so.1; do
+    "$TMP"/usr/sbin/{badblocks,debugfs,e2image,e2undo,e4crypt,e4defrag,mklost+found,partprobe,nandwrite,setpci,mkfs.exfat,tune.exfat,exfatlabel,exfat2img,tune2fs,resize2fs}
+for f in init sbin/fsck.exfat sbin/e2fsck usr/sbin/dumpe2fs \
+         etc/wallace-no.bmap bin/busybox lib/ld-musl-aarch64.so.1 \
+         wallace-root.img.xz wallace-root.img.sha256; do
     [ -e "$TMP/$f" ] || { echo "missing installer member: $f" >&2; exit 1; }
 done
-for f in sbin/mke2fs sbin/mkfs.ext4 sbin/blkdiscard sbin/fdisk usr/sbin/debugfs; do
+for f in sbin/mke2fs sbin/mkfs.ext4 sbin/blkdiscard sbin/fdisk usr/sbin/debugfs usr/sbin/tune2fs usr/sbin/resize2fs; do
     [ ! -e "$TMP/$f" ] || { echo "forbidden installer member: $f" >&2; exit 1; }
 done
 python3 "$ROOT/scripts/reproducible-newc.py" "$TMP" | gzip -n -9 >"$DEST"
