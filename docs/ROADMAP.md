@@ -1,6 +1,6 @@
 # T6040 / J614s Linux roadmap
 
-Reviewed 2026-10-24; Linux NVMe reads now pass at `maxcpus=1` (6001 run 3). This is the stage map; tickets contain the executable
+Reviewed 2026-10-25; Linux NVMe reads (6001) and write-through writes (211) pass at `maxcpus=1`. This is the stage map; tickets contain the executable
 work and [NEXT_STEPS.md](NEXT_STEPS.md) contains the current order.
 
 ## Project state
@@ -165,10 +165,12 @@ Required for completion: repair the currently dirty exFAT and ext4 filesystems;
 validate the shutdown pivot and post-shutdown clean checks; reliable SSH;
 WiFi/Bluetooth services; Xorg/i3 startup; repeated cold-boot validation.
 
-Internal NVMe is a later replacement candidate. Linux reads pass through
-repeated CQ wraps at `maxcpus=1` since the zero-based IOQ-size fix (6001 run
-3, 2026-10-24); writes (211), sustained use and multi-CPU are unproven, and
-NVMe stays disabled in the daily DTB.
+Internal NVMe is now an active root candidate (5005/5008). Linux reads pass
+through repeated CQ wraps at `maxcpus=1` since the zero-based IOQ-size fix
+(6001 run 3, 2026-10-24), and write-through writes pass (211, 2026-10-25).
+ANS2 rejects Flush, so durability depends on a clean controller shutdown. The
+NVMe-root boot (5008 C), sustained use and multi-CPU are unproven; the SD daily
+DTB keeps NVMe disabled, and only the separate nvmeroot DTB enables it.
 
 ## Completion criteria
 

@@ -1,6 +1,6 @@
 # T6040 runbook
 
-Current as of 2026-10-24. This file contains operational commands only.
+Current as of 2026-10-25. This file contains operational commands only.
 Read [COORDINATION.md](COORDINATION.md) before a rig run and
 [DEVLOG.md](DEVLOG.md) for failure history.
 
@@ -45,6 +45,25 @@ fails with `Failed to send VDM`, stop VDM attempts; the next step is a
 physical power cycle of the M4.
 [Evidence](../evidence/2026-10-24-t6040-305-attempt-kis-blocked-by-deviceinterfaced.md).
 
+The daemon can take the device again on **every** re-enumeration, including
+after a recovery or watchdog reboot, so check `ioreg` after each reboot
+(2026-10-25).
+
+**Manual recovery when the M4 shows `Running proxy` but the link is silent**
+(worked on 2026-10-25 after three failed reboots). Order matters: kisd
+attached and a console reader running *before* the reboot.
+
+    # kisd running and holding Debug USB; then, in its own shell:
+    cat /tmp/m1n1                         # reader, left running
+    sudo -n /usr/local/bin/macvdmtool reboot debugusb
+    # wait for "Running proxy" in the reader, then stop only that reader:
+    pkill -f '^cat /tmp/m1n1$'
+    ~/Code/m1n1/venv/bin/python scripts/t6040-proxy-alive.py \
+        --device /tmp/m1n1 --timeout 5
+
+Keep the `pkill` pattern anchored so it cannot match another process. Use this
+only between runs; `boot-dcuart.sh` manages its own reader during a boot.
+
 ## 3. Chainload
 
 For a ticket-specific raw object:
@@ -67,6 +86,37 @@ Send a command to the Linux tty:
 
 Use `scripts/t6040-bootcap-fb.sh <dtb> <initramfs>` only when the ticket
 specifically requires panel-only observation.
+
+## 3a. NVMe launchers (tickets 5006, 211/5003, 5008)
+
+Each launcher checks the payload's `SHA256SUMS` (or the pinned m1n1 hash),
+refuses to reuse an existing run directory, and boots through the lease
+checks. They hardcode `RIG_AGENT=claude` / the `claude` lease; use them under
+another handle only after changing that deliberately.
+
+    # 5006: chainload the NVMe-fixed m1n1 7de07c71 over the rollback, then the
+    # m1n1 proxy Flush probe (no data writes). Never nvme_init on the rollback.
+    scripts/t6040-run-nvme-flush-probe.sh <run-dir>
+
+    # 211/5003: exFAT write test; enforced 300 s host deadline after handoff.
+    PAYLOAD=nvme-exfat-write-20261025c/payload \
+      WRITE_ARGS='nvmewritedir=TAG nvmewc=through [nvmeend=reboot]' \
+      scripts/t6040-run-nvme-write.sh write|verify <run-dir>
+
+    # 5008: the NVMe daily-root steps (payloads nvmeroot-20261025/payload-*).
+    # A = 6001 read tester on the new kernel; B = root installer (15 min
+    # deadline); C = NVMe-root boot, console capture only.
+    scripts/t6040-run-nvmeroot-step.sh A|B|C <run-dir>
+
+Use the same `TAG` for a write and its verify. `macvdmtool reboot` is a hard
+reset with no NVMe controller shutdown, which is what a verify boot tests.
+
+**Rule for any system that mounts the internal SSD read/write:** set
+`echo "write through" > /sys/block/nvme0n1/queue/write_cache` before the
+mount (ANS2 rejects Flush), and end with `reboot`/`poweroff` so that
+`device_shutdown` runs the NVMe controller shutdown. A crash or hard reset
+loses the most recent writes. Writes stay confined to the label- and
+GPT-type-verified exFAT `linux` partition.
 
 ## 4. Preserve evidence
 
@@ -131,8 +181,17 @@ as patches; the build uses committed kernel state plus copied T6040 DT files.
 
 Use only switches implemented by `scripts/t6040-kbuild.sh`. Relevant profiles
 include `MACSMC=1`, `WIFI=1`, `PCIE=1`, `CPUFREQ=1`, and
-`SD_GL9755=1`. The script must assert every required built-in symbol after
-`olddefconfig`.
+`SD_GL9755=1`; for NVMe, `NVME=1 NVME_IOQ_SIZE=1` plus `NVME_EXFAT=1`
+(requires `NVME_IOQ_SIZE=1`). Daily images add `NO_KVM=1` (ticket 5007).
+`NVME_FLUSH_TCB=1` exists but is unused (5006 refuted it). The script must
+assert every required built-in symbol after `olddefconfig`.
+
+A clone from the build VM's local mirror is much faster than from `/src`:
+
+    podman exec -e KBUILD_CLONE_SRC=/build/linux-mirror.git … kbuild \
+        bash /out/t6040-kbuild.sh image
+
+The build stops if the mirror's branch head differs from `/src`.
 
 Fast DT-only rebuild:
 
@@ -201,6 +260,12 @@ Build the pinned repair and hardened images with:
     scripts/t6040-build-sdroot-initramfs.sh
 
 Ticket 215 must pass before ticket 216 applies `scripts/t6040-sdroot-apply`.
+
+The NVMe daily root (5005) uses `scripts/t6040-build-nvmeroot-image.sh` (the
+16 GiB ext4 root image), `scripts/t6040-build-nvme-root-install-initramfs.sh`
+(the one-shot installer), and `scripts/t6040-gen-nvmeroot-init.py`, which
+generates `scripts/t6040-nvmeroot-init` from the sdroot init plus the NVMe p3
+pins and write-through.
 Normal reboot and poweroff must resolve to `t6040-sdroot-powerctl`; direct
 BusyBox reboot bypasses the clean loop/exFAT teardown.
 
@@ -272,8 +337,8 @@ boot stage; it is not a substitute for the panel in every experiment.
 
 ## October refresh and tracing boundary
 
-The next prepared storage run remains ticket 6001 with its exact manifest and
-CJ-ready gate. Ticket 6002 plans an isolated upstream integration candidate;
+The next prepared storage run is ticket 5008 step C (first NVMe-root boot).
+6001's read result stands. Ticket 6002 plans an isolated upstream integration candidate;
 6003 plans a separate M4 Pro SPTM/emulation tracing environment. Neither is a
 live procedure. Reconfirm fixture/boot-volume firmware before a later run;
 September's unchanged-fixture statement is historical.

@@ -1,6 +1,6 @@
 # T6040 / J614s development log and operating notes
 
-Reviewed through 2026-10-24. This file keeps durable operating knowledge,
+Reviewed through 2026-10-25. This file keeps durable operating knowledge,
 milestones, corrections, and dead ends. Exact experiment evidence lives in
 `evidence/`; current work lives in [NEXT_STEPS.md](NEXT_STEPS.md).
 
@@ -61,6 +61,22 @@ Rules:
    at exactly m1n1's own output (~625 bytes / 20 lines) with nothing after
    `Vectoring to next stage`.
 
+10. **`deviceinterfaced` re-grabs Debug USB on every re-enumeration
+    (2026-10-25).** "Start kisd first" holds only until the next reboot: after
+    each recovery or watchdog reboot macOS `deviceinterfaced` can take the
+    device again, and CJ's kill loop missed it once (5008 B). The kill needs
+    `sudo` and is CJ's to run ([RUNBOOK.md](RUNBOOK.md) §2).
+11. **Manual recovery sequence that works (2026-10-25).** After the M4 showed
+    `Running proxy` on screen but the link stayed silent (211 r2 verify, three
+    reboots), the order that recovered it was: kisd attached, a `cat /tmp/m1n1`
+    reader running, *then* `macvdmtool reboot debugusb`; wait for
+    `Running proxy` in the reader; stop that reader with the anchored
+    `pkill -f '^cat /tmp/m1n1$'`; then `t6040-proxy-alive.py`. This does not
+    contradict rule 9: the kill is a recovery step between `Running proxy` and
+    the first proxyclient, not a kill of `boot-dcuart.sh`'s own reader during a
+    boot. Exact commands in [RUNBOOK.md](RUNBOOK.md) §2. kisd also panicked once
+    (`bytes.rs split_to out of bounds`) and had to be restarted.
+
 An empty ttydc0 transcript is not proof of a kernel hang. Reattach kisd,
 confirm the proxy or a known console control, and preserve the first complete
 transcript before reboot.
@@ -92,6 +108,17 @@ the discipline around them.
   the very line that disproves your theory.
 - **A whole missing *subsystem* means the wrong kernel, not broken hardware.**
   One absent device can be hardware; an empty `/sys/bus/pci/devices` cannot.
+- **Never `rm -rf` a tree with live mounts in a privileged container
+  (2026-10-25).** BusyBox `umount` has no `-R`; a harness cleanup that relied
+  on it, followed by `rm -rf`, deleted the podman VM's devtmpfs nodes through a
+  bind-mounted `/dev` and broke new podman sessions until the VM was restarted.
+  Detach each mount separately and refuse to `rm` while anything remains
+  mounted ([incident](../evidence/2026-10-25-t6040-5005-installer-flow-test/README.md)).
+- **`podman machine ssh -- … sh -c '<script>'` splits the script into
+  separate arguments,** so part of it runs on the VM instead of in the
+  container. Pass container scripts as a file (as
+  `scripts/t6040-build-nvmeroot-image.sh` does).
+- **Daily kernels are built with `NO_KVM=1` (5007).** See "Core boot".
 
 ## Durable bring-up results
 
@@ -104,6 +131,16 @@ the discipline around them.
   remains available.
 - PMGR generation and the current power-domain layout are sufficient for boot.
 - The watchdog transfers from m1n1 to Linux.
+- **KVM breaks reboot on T6040 (5007, 2026-10-25).** With `CONFIG_KVM=y`,
+  `reboot -f` reaches `syscore_shutdown` → `kvm_shutdown` →
+  `kvm_timer_cpu_down` → `aic_fiq_set_mask`, whose IMP-DEF sysreg write
+  (`d51df160`, the vtimer FIQ mask) traps because the kernel is not at EL2:
+  Oops (Undefined instruction), and the machine hangs instead of rebooting.
+  It runs after `device_shutdown`, so storage is already safe. Fix for daily
+  images: kbuild `NO_KVM=1`; 5008 B then showed `reboot: Restarting system`
+  with no Oops ([r3](../evidence/2026-10-25-t6040-211-r3-clean-shutdown-durable.md),
+  [5008](../evidence/2026-10-25-t6040-5008-A-B.md)). A guard in
+  `aic_fiq_set_mask` for non-EL2 kernels is the alternative, not done.
 
 ### Boot object and enrollment
 
@@ -267,8 +304,46 @@ the discipline around them.
   namespaces**: n1 1,954,210,120 sectors (the 1 TB disk, p1–p3), and Apple
   auxiliary n2 at 6,144 sectors (3 MiB) and n3 at 262,144 (128 MiB). Gates must
   pin this topology rather than reject a second namespace.
-- Linux NVMe writes remain unproven (211) and NVMe stays disabled in the daily
-  DTB.
+- **Linux writes work (211 stage 1, 2026-10-25),** with write-through: r2
+  and r3 each wrote 1 GiB in about 2.6 s (about 410 MB/s) to the pinned exFAT
+  `linux` partition `nvme0n1p3`, read-back matched after `drop_caches`, and
+  whole-disk writes equalled p3 writes
+  ([r2](../evidence/2026-10-25-t6040-5006-flush-unsupported-211-write-r2-pass.md),
+  [r3](../evidence/2026-10-25-t6040-211-r3-clean-shutdown-durable.md)).
+  Read-back runs at about 210 MB/s, bound by sha256 on one core.
+- **ANS2 rejects NVMe Flush.** Linux's Flush (opcode 0, namespace NSID, TCB
+  not zeroed) fails with `host_ans2.c:1616: cmd parsing error … fast decode
+  err 0x7`, `BAD_CMD`, NVMe status 2 (`sc 0x2`, Invalid Field), so
+  `conv=fsync` and every PREFLUSH request fail
+  ([write1](../evidence/2026-10-25-t6040-211-write1-flush-badcmd.md)). The
+  5006 m1n1 proxy probe sent m1n1's own minimal Flush (zeroed TCB,
+  `dma_flags=3`) to nsid 1 and to broadcast `0xFFFFFFFF`: both status 2, link
+  alive, LBA 0 unchanged. Admin delete-SQ/CQ also returns status 2, from both
+  m1n1 and Linux. How macOS makes ANS2 durable (possibly a vendor command) is
+  unknown.
+- **Durability model.** Without Flush the controller keeps the most recent
+  writes in a volatile cache and does not commit them by itself, even after
+  1–2 idle minutes. Large writes push older data out to flash; the small
+  trailing metadata stays cached. r2 survived a hard reset with its 1 GiB
+  intact but lost `pattern.sha256` (written last) and the exFAT dirty-bit
+  clear. A controller shutdown commits the cache: `reboot`/`poweroff` →
+  `device_shutdown` → `apple_nvme_shutdown` (CC.SHN, then RTKit power-down),
+  and the firmware logs `NVMe shutdown start` and `saveCtx 1 took 599 ms`
+  (678 ms in 5008 B). r3's verify after a hard reset found everything. So:
+  **any system that mounts the SSD read/write sets
+  `/sys/block/nvme0n1/queue/write_cache` to `write through` before the mount
+  and shuts down through the `reboot`/`poweroff` syscall.** A crash or hard
+  reset still loses the last writes.
+- **The daily SD-root DTB (`c5c3b4c3`) keeps NVMe disabled.** The nvmeroot DTB
+  (`6d2d3da6`) enables only the three ANS nodes; 5008 A booted it with the full
+  daily driver set and 6001's tester passed
+  ([5008 A/B](../evidence/2026-10-25-t6040-5008-A-B.md)).
+- **Installer false STOP (5008 B).** The installer's `others()` check hashed
+  whole `/sys/block/*/stat` lines, reads included, and the new
+  `findfs UUID=` reads every block device's superblock: p1/p2/p4 showed 5
+  reads each and n2/n3 6, with zero writes. A write-confinement gate must
+  compare the write, discard and flush fields only (fixed in `4389c3d`). The
+  host flow test had stubbed `others()`, so it could not catch this.
 
 ### Trackpad
 
@@ -433,6 +508,17 @@ Do not repeat these without new evidence:
   1.37.0-r20 silently ignores `::restart`** (aports `c792a061` fixed it in
   3.23+), so never build an SD root from a 3.22 rootfs.
 
+- **`t6040-nvme-apple-flush-tcb.patch` as the Flush fix (2026-10-25).** The
+  theory was that Linux's non-zeroed TCB and `dma_flags` made ANS2 reject
+  Flush. 5006 refuted it: m1n1's zeroed-TCB encoding fails the same way for
+  nsid 1 and broadcast. The patch stays behind the opt-in `NVME_FLUSH_TCB`
+  kbuild flag and is not in any payload.
+- **A parked-shell listing as proof that NVMe data persisted (2026-10-25).**
+  After 211 write run 1, `fsck.exfat -n` at the parked shell showed the test
+  directory and file (19/97). After the `macvdmtool reboot` hard reset they
+  were gone (18/96). Data reported as written was only in the controller's
+  volatile cache. Persistence is proven only by a verify on a later boot, after
+  the same kind of reset the daily driver will see.
 - **Treating software queue-depth agreement as proof of the ANS2 firmware ring
   size (reopened 2026-09-20).** The earlier wrap investigation did not establish
   how firmware interprets register 0x1210. The upstream ANS2 implementation
@@ -442,8 +528,8 @@ Do not repeat these without new evidence:
   reason to repeat generic depth/batching/doorbell experiments. Hardware
   validation is pending; neither NVMe reads nor writes are newly signed off.
   **Resolved for reads, 2026-10-24:** 6001 run 3 with the zero-based size
-  passed about 256 CQ wraps, so this was the Linux CQ-wrap cause. Writes are
-  still unproven.
+  passed about 256 CQ wraps, so this was the Linux CQ-wrap cause. Writes
+  passed on 2026-10-25 (211, write-through).
 
 - **A latched SMC power rail as the cause of a missing SD reader (2026-08-03).**
   The reader, the card, and the rail were all fine. `$OUT/Image` was the Jul 24
@@ -524,6 +610,7 @@ Do not repeat these without new evidence:
 | 2026-08-18 | USB lane fully staged offline: dwc3 `-EINVAL` root cause (v1 phy-mode ordering) fixed and reviewed; the v2phy re-run image built and byte-reproduced fresh-vs-fresh (`80248306…`, 303) — the two-build protocol caught a real one-byte stale object in a reused dir; tps6598x SPMI transport passed exact-source review; draft hpm2-only PD connector DT compiled; everything now waits on binary review, CJ's SPMI-envelope sign-off, and rig time |
 | 2026-08-19 | USB2 data path verified live and no-child disambiguated to no VBUS; PD image runs then hung because the DT used raw `/arm-io` `0x309198000` as a CPU physical address. Offline audit 3000 proved `0x509198000`; candidate 3008 rebuilt that DT-only correction twice byte-identically (`eaf8cceb...`). Await independent exact review, then resume attended 305. |
 | 2026-10-24 | **Linux NVMe reads work**: 16,384 direct reads through ~256 CQ wraps at `maxcpus=1` with the zero-based ANS2 IOQ size (6001 run 3). 305 run 6: a1 SPMI binds at `0x509198000`; hpm2 probe `-ENODEV` traced to the missing `spmi-apple` `.cmd`, WAKEUP fix reviewed. SD-root shutdown fixed in a host harness (3006) |
+| 2026-10-25 | **Linux NVMe writes work** (211: 1 GiB at about 410 MB/s, p3 only, write-through). ANS2 rejects NVMe Flush in any encoding (5006); a clean controller shutdown (CC.SHN, `saveCtx`) makes cached writes durable across a hard reset (r3). KVM reboot oops fixed by `NO_KVM` (5007). NVMe daily root: new daily+NVMe kernel `2234baad` reads NVMe with every driver up (5008 A); 16 GiB root image installed on p3 (5008 B); first NVMe-root boot pending. 305 run 7: WAKEUP ACKed, register select mis-encoded; `pddiag` built for run 8 |
 
 Detailed transcripts, hashes, retractions, and per-experiment stop conditions
 remain in dated files under `evidence/` and in Git history.

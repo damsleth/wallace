@@ -115,6 +115,32 @@ wrong artifact — not a power rail.
 - BCM4388 WiFi and BT firmware, because `brcmfmac` and `hci_bcm4377` probe
   before `switch_root`.
 
+### 6. Daily kernels are built without KVM (added 2026-10-25)
+
+Build daily kernels with kbuild `NO_KVM=1`; the script fails if
+`CONFIG_KVM=y` survives. With KVM, `reboot`/`poweroff` reaches
+`kvm_shutdown` → `aic_fiq_set_mask`, whose IMP-DEF sysreg write traps because
+the kernel is not at EL2, and the machine hangs after an Oops instead of
+rebooting (ticket 5007). The daily+NVMe kernel `2234baad` is daily301's config
+minus KVM, and 5008 B rebooted cleanly with it. **Not yet checked by
+`t6040-image-preflight.sh`.**
+
+### 7. Internal SSD read/write means write-through and a clean shutdown (added 2026-10-25)
+
+ANS2 firmware rejects NVMe Flush (5006). Any image that mounts an internal-SSD
+partition read/write must:
+
+- set `/sys/block/nvme0n1/queue/write_cache` to `write through` before the
+  mount, and stop if the readback differs (`t6040-nvmeroot-init` and the
+  5005 installer always do; the 5003 write init does with `nvmewc=through`);
+- shut down through the `reboot`/`poweroff` syscall so `device_shutdown` runs
+  the NVMe controller shutdown, which is what commits the controller's
+  volatile cache (211 r3);
+- write only to the label- and GPT-type-verified exFAT `linux` partition.
+
+A crash or hard reset still loses the most recent writes. **Not yet checked by
+`t6040-image-preflight.sh`.**
+
 ## Maintenance rule
 
 **Every error, quirk, one-off, or surprise hit during a build goes in the section
@@ -427,6 +453,31 @@ use `command cat`.
   `xfs_growfs /var` inside the build VM. `/sysroot` is a read-only mount and
   rejects growth; `/var` is the writable mount of the same filesystem. Confirm
   `df` inside kbuild shows the new capacity before beginning a fresh checkout.
+
+### Daily+NVMe kernel and NVMe root image (5005, 2026-10-25)
+
+- **`KBUILD_CLONE_SRC=/build/linux-mirror.git`:** cloning the shallow `/src`
+  copies the whole pack over virtiofs; a mirror on the build VM's native disk
+  takes seconds. The tree is still a fresh clone, and kbuild stops unless the
+  mirror's branch head equals `/src`'s.
+- **`NVME_IOQ_SIZE=1` used to force SPMI/NVMEM/RTC off,** which is right for
+  the minimal NVMe test kernel but failed the WiFi asserts in the daily+NVMe
+  union, and then tripped the IOQ forbidden-config guard. Both now make an
+  exception only when `WIFI=1` (`1230939`, `48c7384`); the 5003 test kernel
+  config is unchanged.
+- New switches: `NVME_EXFAT=1` (requires `NVME_IOQ_SIZE=1`), `NO_KVM=1`
+  (see Mandatory §6), and `NVME_FLUSH_TCB=1`, which applies
+  `t6040-nvme-apple-flush-tcb.patch`. 5006 showed that patch does not fix Flush,
+  so no payload uses it.
+- **Root image is not byte-reproducible:** `mkfs.ext4 -d` stamps times, so
+  `wallace-root.img` is pinned by hash (raw `e3fa66b5…`) rather than rebuilt.
+- **`podman machine ssh -- … sh -c '<script>'` splits its arguments,** so
+  part of an inline script runs on the VM. Pass the container script as a file.
+- **Never `rm -rf` a work tree with live mounts in a privileged container.**
+  BusyBox `umount` has no `-R`; a cleanup that relied on it deleted the podman
+  VM's devtmpfs nodes through a bind-mounted `/dev`, and podman was broken
+  until the VM restarted. Detach each mount, then refuse to `rm` while
+  anything is still mounted.
 
 ### October refresh candidates (planning notes, 2026-10-24)
 

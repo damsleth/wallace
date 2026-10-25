@@ -1,6 +1,8 @@
 # T6040 Linux bring-up — next steps
 
-Current as of 2026-10-24 (Linux NVMe reads validated on hardware; 305 run 6 reached a1 SPMI). This file states priorities and stop conditions.
+Current as of 2026-10-25 (Linux NVMe reads and writes validated at `maxcpus=1`;
+ANS2 rejects Flush, so the SSD runs write-through; NVMe daily root 5008 steps A
+and B done, C pending). This file states priorities and stop conditions.
 Exact work items, hashes, dependencies, and approval state live in
 `tickets/*.json`.
 
@@ -13,8 +15,8 @@ unambiguously:
 | capability | state |
 |---|---|
 | SD read/write | reader and persistence proven; fixture needs `fsck.exfat` repair |
-| USB read/write | device mode works; **USB2 host data path DONE 2026-08-19** (108) — dwc3 probes, right xHCI root hubs healthy. VBUS is the sole gap; the tps6598x SPMI PD driver is CJ-signed-off (231). 305 run 6: a1 SPMI binds, PD probe `-ENODEV` (WAKEUP never sent); fix reviewed, build pending |
-| NVMe read/write | **Linux reads work (6001 run 3, 2026-10-24):** 16,384 direct reads through ~256 CQ wraps at `maxcpus=1`, no assert, with the zero-based ANS2 IOQ size; writes unproven (211) |
+| USB read/write | device mode works; **USB2 host data path DONE 2026-08-19** (108) — dwc3 probes, right xHCI root hubs healthy. VBUS is the sole gap; the tps6598x SPMI PD driver is CJ-signed-off (231). 305 run 6: a1 SPMI binds, PD probe `-ENODEV` (WAKEUP never sent). Run 7 (2026-10-25): WAKEUP ACKed, register select mis-encoded; the run-8 `pddiag` image (`08de37b1`, 5002) is built, CJ-attended run pending |
+| NVMe read/write | **Reads and writes work at `maxcpus=1`.** Reads: 6001 run 3 (2026-10-24), 16,384 direct reads through ~256 CQ wraps with the zero-based ANS2 IOQ size. Writes: 211 stage 1 r2/r3 (2026-10-25), 1 GiB at about 410 MB/s into the pinned exFAT `linux` partition (`nvme0n1p3`), read-back hash equal, writes elsewhere zero. **ANS2 rejects NVMe Flush** (5006), so the SSD must run `write through`, and recent writes are durable only after a clean controller shutdown; a crash or hard reset loses the last writes (see §3). NVMe daily root (5005/5008): steps A and B done, step C pending |
 | WiFi | works, including DHCP and routed traffic |
 | Bluetooth | `hci0` present and working |
 | Trackpad | **DONE 2026-08-19** (230): finger test PASSED — 37 950 events on `/dev/input/event0` and haptic click works. Daily-image integration remains (301) |
@@ -37,6 +39,9 @@ The intended daily root is now a small USB-C stick left in the right port,
 booted by the enrolled m1n1/kernel/initramfs through OpenRC. SD remains a
 checksum-verified read/write fallback. This does not change any current
 capability result above or bypass the 6001/305 execution gates.
+As of 2026-10-25 the active daily-root track is the internal-SSD root on the
+exFAT `linux` partition (5005/5008, §3); this USB-root section is unchanged
+and has not been withdrawn.
 
 Completion requires three consecutive cold boots with clean poweroff and
 post-poweroff fsck, root-stick write/sync/reboot/checksum persistence,
@@ -62,7 +67,8 @@ a refreshed RW-root candidate. The new separate staging profile supplies the
 Norwegian root config, shutdown gate and daily services; the historical098
 image remains unchanged and does not satisfy the goal.
 305→109→110/111→112/113 remain the hardware/flash/root progression, with exact
-new artifacts and separate erase/enrollment review. 6001 remains next on hardware.
+new artifacts and separate erase/enrollment review. On hardware, 5008 step C
+(§3) is next for storage.
 
 ## Immediate experiment: ANS2 queue-size contract
 
@@ -80,7 +86,9 @@ SSD's three namespaces, then the log watchdog matched `BUG:` in `debug:`
 The formal transcript checker is not green: `/dev/kmsg` ratelimiting dropped
 the tester's PASS line. A formal re-run needs `printk.devkmsg=on`, which
 changes the bootargs and therefore needs a small re-review. Not established:
-writes (211), sustained reads, multi-CPU, the 227 teardown UAF.
+sustained reads, multi-CPU, the 227 teardown UAF. 5008 step A
+(2026-10-25) ran the same 6001 tester with `printk.devkmsg=on` on the new
+daily+NVMe kernel `2234baad`, and its checker passed. Writes are covered in §3.
 
 ## October upstream findings and offline follow-ons
 
@@ -89,14 +97,15 @@ cover September 21–October 24, through 16:00 UTC. External J614s NVMe success,
 submitted M4 Pro/Max DTs, and a working older HID branch justify convergence
 work. They do not change the local capability table or authorize writes.
 
-- **6001 remains the next hardware experiment.** The linux-next controller-state
-  regression is distinct from our CQ-wrap assert; preserve the prepared payload.
+- **6001 is done for reads** (run 3, and its tester passed again as 5008 step
+  A). The linux-next controller-state regression is distinct from our CQ-wrap
+  assert. The next storage hardware step is 5008 step C (§3).
 - **6002 complete (offline audit):** [pinned map and candidate plan](../evidence/2026-10-24-upstream-convergence-audit.md). Corrected Asahi
   `asahi-7.2.12-2` is `2bb9d16f967f11e533a851b13b148a708d59b4f3`.
   **6004 (offline, P1)** assembles the separate LC1 source candidate, retaining
   local J614s DT, split NVMe and v2 input. Resolve PMGR and duplicate FIFO
   provider conflicts before a separate build ticket. No baseline replacement
-  or live readiness is implied; 6001 remains first on hardware.
+  or live readiness is implied; 5008 step C stays first on hardware.
 - **6003 (offline, P2):** plan a separate M4 Pro tracing environment with paired
   host/target revisions and recovery. Login-screen tracing is useful; post-login
   hangs and unexplained AMCC interrupt suppression remain.
@@ -238,23 +247,84 @@ clean return to the enrolled rollback proxy, with no media write or enrollment.
 Physical bundle installation and untethered enrollment get separate tickets
 only after an exact removable target and hashes exist.
 
-## 3. NVMe after the CQ-wrap fix: formal re-run, then writes
+## 3. NVMe: writes proven; write-through durability; the NVMe daily root
 
 The Linux CQ-wrap assert was the non-zero-based IOQ size (see Immediate
-experiment). Raw m1n1 reads were already stable; Linux reads now pass at
-`maxcpus=1`. NVMe stays disabled in the daily DTB until writes are proven.
+experiment). Linux reads and writes now pass at `maxcpus=1`. The daily SD-root
+DTB (`c5c3b4c3`) still keeps ANS/NVMe disabled; the separate nvmeroot DTB
+`t6040-j614s-dcuart-wifi-cpufreq-nvmeroot` (`6d2d3da6`) is the sdroot DTB with
+only the model string and the three ANS nodes (mailbox, SART, `nvme@44dcc0000`)
+set `okay`.
 
-Order:
+**Writes (211 stage 1, 5003 payloads, 2026-10-25).** Run 1 stopped on the
+first Flush (`BAD_CMD`, `fast decode err 0x7`, `sc 0x2`); its data was later
+lost on a hard reset
+([write1](../evidence/2026-10-25-t6040-211-write1-flush-badcmd.md)). With
+`write_cache` set to `write through`, r2 and r3 each wrote 1 GiB in about
+2.6 s (about 410 MB/s) into the label-, GPT-type- and extent-pinned exFAT
+`linux` partition; read-back after `drop_caches` matched; whole-disk writes
+equalled p3 writes and nothing else was written; no BAD_CMD or I/O errors
+([r2](../evidence/2026-10-25-t6040-5006-flush-unsupported-211-write-r2-pass.md),
+[r3](../evidence/2026-10-25-t6040-211-r3-clean-shutdown-durable.md)).
 
-1. **6001 formal re-run (optional):** the same payload with
-   `printk.devkmsg=on`, after a small bootargs re-review, so the checker sees
-   the PASS line. Preserve the full dmesg before anything clears it.
-2. **211 (approved, not yet ready):** the write soak, only within CJ's
-   recorded authorization: writes via the mounted exFAT `linux` filesystem
-   (label *and* GPT type verified) and raw writes to `p3` only, never raw
-   writes to `/dev/nvme0n1` or any APFS partition. It needs an exact payload,
-   review and its own ready/approval cycle (196/211 own the write work).
-3. Sustained reads, multi-CPU NVMe and the 227 teardown UAF remain open.
+**Flush is not supported (5006).** An m1n1 proxy probe sent Flush with m1n1's
+own minimal encoding (zeroed TCB, `dma_flags=3`) to nsid 1 and to broadcast
+`0xFFFFFFFF`; both returned status 2, and the link stayed alive. The
+`t6040-nvme-apple-flush-tcb.patch` is therefore not the fix; it stays opt-in
+(`NVME_FLUSH_TCB`) and unused. How macOS makes ANS2 durable is an open RE item.
+
+**Durability model.** Without Flush, ANS2 holds the most recent writes in a
+volatile cache and does not commit them on its own, even after minutes idle.
+r2's 1 GiB survived a hard reset, but its trailing `pattern.sha256` and the
+exFAT dirty-bit clear were lost. r3 ended with `reboot -f`, so
+`device_shutdown` reached `apple_nvme_shutdown` (CC.SHN); the firmware logged
+`saveCtx 1 took 599 ms`, and after a hard reset the verify found every file,
+including the last one written. Rules for any system that mounts the internal
+SSD read/write:
+
+- set `/sys/block/nvme0n1/queue/write_cache` to `write through` before the
+  mount (no Flush/FUA requests reach the firmware);
+- shut down cleanly through the `reboot`/`poweroff` syscall so that
+  `device_shutdown` runs the controller shutdown;
+- accepted caveat (CJ): a crash or hard reset still loses the last writes.
+  ext4's journal on the loop root bounds that to recent data.
+
+**KVM shutdown oops (5007), fixed for the daily image.** r3's `reboot -f`
+then hit `kvm_shutdown` → `kvm_timer_cpu_down` → `aic_fiq_set_mask`, an
+IMP-DEF sysreg write (`d51df160`) that traps because the kernel is not at EL2:
+Oops (Undefined instruction), and the machine hung after the storage
+shutdown. The daily+NVMe kernel is built with kbuild `NO_KVM=1`; 5008 step B
+showed `saveCtx 1 took 678 ms` and then `reboot: Restarting system` with no
+Oops ([5008 A/B](../evidence/2026-10-25-t6040-5008-A-B.md)).
+
+**NVMe daily root (5005 offline, 5008 rig).** SD64 was unavailable, so the
+root is a host-built 16 GiB ext4 image (`wallace-root.img`, UUID `988d97b4`,
+raw sha256 `e3fa66b5…`) from the pinned dwm/i3 desktop RAM root
+(`initramfs-alpine-dwm-i3-v5`) plus a persistent OpenRC profile and the
+Norwegian layout at all three layers; the RAM-root `t6040-data-mount` and
+`t6040-data-sync` are removed. Kernel `2234baad` = daily301 config minus KVM
+(flags `DOCKCHANNEL DOCKCHANNEL_NBCON MACSMC HID_TYPE_FIX T6040_PPP WIFI PCIE
+CPUFREQ TRACKPAD_FW TRACKPAD_RESET_CONTRACT NVME NVME_IOQ_SIZE NVME_EXFAT
+NO_KVM`), DTB `6d2d3da6`, m1n1 `7de07c71`
+([payloads](../evidence/2026-10-25-t6040-5005-payloads.md)).
+
+- **A: PASS.** The 6001 read-only tester (`524d94c3`) on the new kernel and
+  DTB: 16,384 direct reads, no writes; the same boot brought up both PCIe
+  links, WiFi, BT, the GL9755 SD reader, keyboard, trackpad firmware and
+  `nvme0n1: p1 p2 p3 p4`.
+- **B: done.** Installer `d2c564f0` repaired the dirty p3 (from r2), set
+  write-through, wrote the image (sha256 equal to the pin, re-read equal,
+  loop `e2fsck -fn` clean). It then STOPped on a false positive: `others()`
+  counted the read I/Os from `findfs`; the parked shell showed zero writes
+  outside p3. The clean reboot was run by hand. `others()` now compares
+  writes, discards and flushes only (`4389c3d`).
+- **C: pending.** First NVMe-root boot (`9adabb1b`), then three cold boots
+  with clean poweroff and a post-poweroff fsck. Nothing about the NVMe root
+  booting is established yet.
+
+Still open: stage 2 of 211 (raw `dd` to p3) needs CJ's re-authorization
+against the new partition; sustained reads, multi-CPU NVMe, the 227 teardown
+UAF, and Apple's real durability mechanism.
 
 Parked: 201 (RTKit crashlog decoder), 203/210 (threaded-IRQ discriminator) and
 195 (live admin traffic in m1n1) were follow-ons for the assert. Revive them
@@ -351,13 +421,25 @@ run. Expect `after WAKEUP: power-state … state=0x07`; `state=0x00` with VID 0
 points at the select/window protocol instead. The host must first free the
 Debug USB device from `deviceinterfaced` ([RUNBOOK](RUNBOOK.md) §2).
 
+**305 run 7 (2026-10-25,
+[evidence](../evidence/2026-10-25-t6040-305-run7-wakeup-ok-zero-write-encoding.md)):**
+WAKEUP reached the bus and was ACKed, but the power-state read returned
+`state=0x00` and VID 0: spmi-apple encoded the register-select zero-write as a
+command word plus a data word, so every select hit register 0. The fix
+(`t6040-spmi-apple-zero-write-encoding.patch`, `64dcbaf`) and a read-only
+connector-state diagnostic form the `pddiag` image (5002), built twice
+byte-identical (Image `08de37b1`) with preflight OK
+([build](../evidence/2026-10-25-t6040-5002-pddiag-build-and-review.md)).
+This track belongs to the Mythos session. Run 8 is CJ-attended. Multi-core
+fault 205 remains fail-stop, so it also runs at `maxcpus=1`.
+
 ## 7. Parked tracks
 
 - **GPU:** wait for a maintainer-endorsed T6040/G16 kernel, firmware ABI, m1n1,
   and Mesa stack. Do not relabel G14 support.
 - **Internal-NVMe stage 2:** ticket 191 remains a separate parked design. It is
-  not the active removable SD-first path and remains blocked by the NVMe fault
-  track.
+  not the active removable SD-first path. The NVMe I/O fault it waited on is
+  resolved; the active internal-SSD root work is 5005/5008 (§3).
 - **Audio, camera, suspend, cpuidle, panel backlight:** retain as roadmap work;
   none blocks the current SD-root milestone.
 
