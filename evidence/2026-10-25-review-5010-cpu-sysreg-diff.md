@@ -132,3 +132,27 @@ script. `smp_start_secondaries` on the chainloaded m1n1 starts the cores
 with `broken_wfi` (wfe park), the same way it starts them for Linux. No
 Linux boot, no SPMI, no MMIO beyond `smp_start_secondaries`' own CPU-start
 registers, which every Linux boot already exercises.
+
+## Correction after run 2 (2026-10-25, claude)
+
+§1's "Code buffer" paragraph was wrong. `mmu_init_secondary` is only ever
+run on request (`proxy.c:318`, `P_MMU_INIT_SECONDARY`, and the hypervisor
+path in `hv.c:260`); `smp_start_secondaries` leaves secondaries with the
+MMU **off**, which is also how they are handed to Linux. With the MMU off
+the `REGION_RX_EL1` alias (`0xc00_0000_0000 | addr`) is not a physical
+address, so a secondary executing `exec`'s code buffer there takes an
+instruction abort, and `GUARD_SKIP` on an instruction abort only advances
+ELR 4 bytes into the same unmapped range, so the secondary aborts
+repeatedly until the host clears the guard, at which point the handler
+reboots ("Unhandled exception"). That is run 2's `ESR 0x86000000` on cpu1
+after three guarded reads returned nothing. Run-3 fix: call secondaries at
+region 0 (the physical address), after a single-NOP sanity call, and do
+**not** call `p.mmu_init_secondary` first, since that would rewrite
+exactly the per-core state (SCTLR/TCR/MAIR and, where enabled, SPRR) the
+diff exists to measure. With caches off the secondary's accesses are
+Device-nGnRnE, which Apple treats as outer-shareable and coherent with
+cpu 0's caches (the comment above `mmu_secondary_setup` in `memory.c`
+relies on the same property), so the spin-table handshake and the code
+fetch work; cleaning the code buffer to PoC (`dc cvac`) instead of PoU is
+cheap insurance. Expected, not findings: SCTLR_EL2/TCR_EL2/MAIR_EL2 on a
+secondary will differ from cpu 0 because cpu 0 has m1n1's MMU on.
