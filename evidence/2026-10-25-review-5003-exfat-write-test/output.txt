@@ -1,0 +1,37 @@
+LBS=4096 type=a2a0d0ebe5b9334487c068b6b72699c7 guid=dba60dea3529cb49a996b982dd646f24  (expect a2a0d0eb… / dba60dea3529cb49a996b982dd646f24)
+first/last LBA bytes: 0018000000000000dfab040000000000
+Partition unique GUID: EA0DA6DB-2935-49CB-A996-B982DD646F24
+First sector: 6144 (at 24.0 MiB)
+Last sector: 306143 (at 1.2 GiB)
+== write
+  fsck.exfat -n (before) rc=0: /dev/loop0p3: clean. directories 1, files 0
+  p3 stats before:  34 0 2384 1 6 603 4864 2 0 2 4 0 0 0 0 0 0
+  wrote 1073741824 bytes in 6392.53..6395.04 s (uptime)
+  write sha256=61e6cc46f68be63907f138392b0a66bb303bad58007e0ac391acb81ec2df90f0
+  fsck.exfat -n (after-write) rc=0: /dev/loop0p3: clean. directories 2, files 2
+  read back 1073741824 bytes in 6401.88..6408.62 s; sha256=61e6cc46f68be63907f138392b0a66bb303bad58007e0ac391acb81ec2df90f0 expected=61e6cc46f68be63907f138392b0a66bb303bad58007e0ac391acb81ec2df90f0
+  fsck.exfat -n (final) rc=0: /dev/loop0p3: clean. directories 2, files 2
+  p3 stats after:  16688 0 4204080 1219 1683 1443 2102360 7131 0 1652 8350 0 0 0 0 0 0
+  PASS mode=write bytes=1073741824 sha256=61e6cc46f68be63907f138392b0a66bb303bad58007e0ac391acb81ec2df90f0 others_unchanged=yes
+  (fell through)
+  exit=0
+== write again (must refuse)
+  fsck.exfat -n (before) rc=0: /dev/loop0p3: clean. directories 2, files 2
+  p3 stats before:  16696 0 4204368 1219 1683 1443 2102360 7131 0 1653 8351 0 0 0 0 0 0
+  STOP: /mnt/linux/wallace-write-test already exists; use nvmewrite=verify
+  exit=3
+== verify
+  fsck.exfat -n (before) rc=0: /dev/loop0p3: clean. directories 2, files 2
+  p3 stats before:  16784 0 4205296 1228 1683 1443 2102360 7131 0 1655 8360 0 0 0 0 0 0
+  read back 1073741824 bytes in 6408.67..6415.58 s; sha256=61e6cc46f68be63907f138392b0a66bb303bad58007e0ac391acb81ec2df90f0 expected=61e6cc46f68be63907f138392b0a66bb303bad58007e0ac391acb81ec2df90f0
+  fsck.exfat -n (final) rc=0: /dev/loop0p3: clean. directories 2, files 2
+  p3 stats after:  25109 0 6305424 2035 1683 1443 2102360 7131 0 2382 9167 0 0 0 0 0 0
+  PASS mode=verify bytes=1073741824 sha256=61e6cc46f68be63907f138392b0a66bb303bad58007e0ac391acb81ec2df90f0 others_unchanged=yes
+  (fell through)
+  exit=0
+== corrupt a byte then verify (must STOP)
+  fsck.exfat -n (before) rc=0: /dev/loop0p3: clean. directories 2, files 2
+  p3 stats before:  25198 0 6306360 2043 1687 1443 2102392 7131 0 2384 9175 0 0 0 0 0 0
+  read back 1073741824 bytes in 6415.63..6422.54 s; sha256=e6371b9fe3af1096241f6c68f5a1b1b38062710f3b41ff0d89b81a27ea58da7c expected=61e6cc46f68be63907f138392b0a66bb303bad58007e0ac391acb81ec2df90f0
+  STOP: data mismatch
+  exit=3
