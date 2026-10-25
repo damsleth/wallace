@@ -73,8 +73,10 @@ done
 [ "$($BB cat /sys/block/nvme0n1/$P/ro)" = 0 ] || stop "$P is read-only"
 others() {
     for n in nvme0n1/nvme0n1p1 nvme0n1/nvme0n1p2 nvme0n1/nvme0n1p4 nvme0n2 nvme0n3; do
-        $BB cat "/sys/block/$n/stat"
-    done | $BB tr -s ' ' | $BB sha256sum
+        # Writes, discards and flushes only (fields 5-7, 12-17): findfs reads
+        # every superblock, which is not I/O that matters here (5008 B1).
+        set -- $($BB cat "/sys/block/$n/stat"); echo "$5 $6 $7 ${12} ${13} ${14} ${16} ${17}"
+    done | $BB sha256sum
 }
 OTHERS_BEFORE=$(others)
 hex() { $BB dd if="$1" bs=1 skip="$2" count="$3" 2>/dev/null | $BB hexdump -v -e '1/1 "%02x"'; }
