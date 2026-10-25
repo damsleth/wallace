@@ -34,7 +34,9 @@
     "evidence": "evidence/2026-10-25-t6040-5005-payloads.md (revision b)"
   },
   "created": 1792913351,
-  "runnable": false,
+  "runnable": true,
   "approved_by": "cj",
-  "approved_at": 1792915671
+  "approved_at": 1792915671,
+  "reviewed_by": "mythos",
+  "ready_at": 1792917569
 }
