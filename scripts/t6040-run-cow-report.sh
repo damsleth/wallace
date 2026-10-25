@@ -17,7 +17,7 @@ esac
 IMAGE=Image-macsmc-hid-type-fix-trackpad-nbcon-ppp-cpufreq-daily301.build1
 DTB=t6040-j614s-dcuart.dtb
 INITRAMFS=initramfs-cow-report.build1.cpio.gz
-DEADLINE=${DEADLINE:-240}
+DEADLINE=${DEADLINE:-480}
 [ ! -e "$RUN" ] || { echo "refusing to reuse $RUN" >&2; exit 2; }
 mkdir -p "$RUN"
 [ "$(shasum -a 256 "$M1N1" | cut -c1-16)" = "$H" ] || { echo "m1n1 hash mismatch" >&2; exit 1; }
@@ -43,7 +43,8 @@ while [ "$t" -lt "$DEADLINE" ]; do
 done
 sleep 5
 up=$(tr -d '\r' <"$CON" | grep -aoE 'Brought up [0-9]+ node, [0-9]+ CPUs' | tail -1)
-oops=$(tr -d '\r' <"$CON" | grep -acE 'Internal error: Oops|Unable to handle kernel')
+# One line per fault: "Unable to handle kernel" always precedes the Oops.
+oops=$(tr -d '\r' <"$CON" | grep -ac 'Internal error: Oops')
 end=$(grep -c 'T6040_COW_REPORT_END' "$CON")
-runs=$(tr -d '\r' <"$CON" | awk '/T6040_COW_RUN_BEGIN/{r=$NF} /Unable to handle kernel|Internal error: Oops/{c[r]++} END{for (k in c) printf "%s:%d ", k, c[k]}')
+runs=$(tr -d '\r' <"$CON" | awk 'BEGIN{r="boot"} /T6040_COW_RUN_BEGIN/{r=$NF} /Internal error: Oops/{c[r]++} END{for (k in c) printf "%s:%d ", k, c[k]}')
 echo "RESULT variant=$VAR maxcpus=$N up='$up' report_end=$end faults_total=$oops per_run='${runs:-none}' waited=${t}s"

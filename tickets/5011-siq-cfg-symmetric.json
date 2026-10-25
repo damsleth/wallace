@@ -2,7 +2,7 @@
   "seq": "5011",
   "slug": "siq-cfg-symmetric",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "smp",
   "priority": "P0",
   "desc": "205 lead from 5010 run 3: SIQ_CFG_EL1 is the only named register that differs between the boot core (0, iBoot) and every secondary (3, reset); 208's reproducer faulted at maxcpus=2 (cpu0+E cpu1), so the asymmetry to test is boot-vs-every-secondary. m1n1 writes SIQ_CFG_EL1=2 on every core for M1-M3 (chickens.c .siq_cfg) but features_m4 omits it. Experiment: patches/m1n1-t6040-siq-cfg.patch (-DT6040_SIQ_CFG adds .siq_cfg=true to features_m4) on m1n1 80badc91; control = same tree/toolchain without the define (ELFs differ in exactly 1 byte). NEW WRITE CLASS: msr to a CPU-core IMP-DEF register (SIQ_CFG_EL1 = 2) that m1n1 already writes on all M1-M3 cores; not PMU/SMC/SPMI/NVRAM/MMIO. Steps: (1) chainload siq m1n1, 5010 script (reads) shows cpu0/cpu1/cpu5 = 2; (2) 208 BusyBox reproducer (scripts/t6040-cow-repro.sh) on the daily+NVMe-free kernel/RAM root at maxcpus=2 x4 and maxcpus=6 x4 with the siq m1n1, and the same with the control m1n1 x4 each, same day, fresh boot per run; (3) variant B (write 0 on secondaries to match iBoot cpu0) only if 2 changes nothing. No storage writes.",
@@ -17,10 +17,18 @@
     "kernel (217/301 daily301)": "a9a2096ff47cc8538090ad28cd0bc41b75b09354e90abff8135b3d242d987bc8",
     "DTB t6040-j614s-dcuart.dtb": "30b01736b5291aaa864f37f73192ec9877da97ab8ecf5d72c1ca92cf9c8af05d",
     "initramfs-cow-report (217)": "de1a5cd79e030468bff7f7f1fccaf03f2e34d705a4dc77a5aedd927d94fc9b29",
-    "launcher t6040-run-cow-report.sh": "a14522f0d04eaea215ea344810f0eb407f5c2b00375cbf658f87d6289bffe0d1",
+    "launcher t6040-run-cow-report.sh": "4181c791b9d34191edf1ea0a0f8abc97053dff301daa9140f1a7221cc5404e43",
     "verify step": "scripts/t6040-run-sysreg-diff.sh with M1N1 siq (reads)",
     "build": "worktree of m1n1 80badc91, rustup nightly, M1N1_VERSION_TAG=v1.6.0-wallace-80badc91; ELF/bin differ in exactly 1 byte (features_m4.siq_cfg)",
-    "proposal": "per (variant, maxcpus in {2,6}): 2 fresh boots x 4 in-boot reproducer runs (initramfs-cow-report); 8 boots + 1 verify"
+    "proposal": "per (variant, maxcpus in {2,6}): 2 fresh boots x 4 in-boot reproducer runs (initramfs-cow-report); 8 boots + 1 verify",
+    "verify fixture t6040-run-sysreg-diff.sh": "f6a7c14bcf54ba7cfb0ef87ae5e6c9d1ff4df6b0ea3f1059803f3a54705ed7e9",
+    "build commands": "cd <worktree of m1n1 80badc91 + patch>; PATH=$HOME/.cargo/bin:$PATH; RUSTUP_TOOLCHAIN=nightly make -j8 EXTRA_CFLAGS=\"-Wstack-usage=2048 [-DT6040_SIQ_CFG]\" M1N1_VERSION_TAG=v1.6.0-wallace-80badc91 (make clean between variants)",
+    "verify invocation": "M1N1_BIN=linux-build-out/m1n1-siq-20261025/m1n1-siq.bin M1N1_SHA256=7cbf67fe88f7364793f5e082c1a975ed01f677b17e51cd7d951d28d139387102 scripts/t6040-run-sysreg-diff.sh <dir>; expect IMP_APL_SIQ_CFG_EL1 = 0x2 on cpu0/cpu1/cpu5",
+    "run rule (Mythos e350fc3)": "first pass 2 fresh boots per cell, order control6, siq6, control2, siq2; siq faults anywhere -> negative, stop; siq clean in both while control faults -> 2 more boots per siq cell (4 total) before \"candidate\"; control clean at 2 -> only maxcpus=6 cells count; if positive, variant B (secondaries 0) disentangles before promotion",
+    "review": "Mythos PASS w/ must-fixes A (single Oops count, boot label) B (DEADLINE 480) C (verify fixture M1N1 override) - applied; evidence/2026-10-25-review-5011-siq-cfg.md"
   },
-  "created": 1792932595
+  "created": 1792932595,
+  "runnable": false,
+  "approved_by": "cj",
+  "approved_at": 1792932769
 }

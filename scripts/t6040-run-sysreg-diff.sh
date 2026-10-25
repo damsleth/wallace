@@ -5,11 +5,12 @@
 
 set -u
 RUN=${1:?run directory}
-M1N1_BIN=/Users/damsleth/Code/linux-build-out/nvme-exfat-write-20261025/payload/m1n1.bin
+M1N1_BIN=${M1N1_BIN:-/Users/damsleth/Code/linux-build-out/nvme-exfat-write-20261025/payload/m1n1.bin}
+M1N1_SHA256=${M1N1_SHA256:-7de07c714ebe8b26a408ab0a4719d10d2d208eb120eaac7d3aea03f0e36daf2a}
 WALLACE=$(cd "$(dirname "$0")/.." && pwd)
 [ ! -e "$RUN" ] || { echo "refusing to reuse $RUN" >&2; exit 2; }
 mkdir -p "$RUN"
-echo "7de07c714ebe8b26a408ab0a4719d10d2d208eb120eaac7d3aea03f0e36daf2a  $M1N1_BIN" |
+echo "$M1N1_SHA256  $M1N1_BIN" |
     shasum -a 256 -c - || exit 1
 "$WALLACE/scripts/rig-lease.sh" status | grep -q 'HELD by claude' || { echo "no lease" >&2; exit 1; }
 cd /Users/damsleth/Code/m1n1
