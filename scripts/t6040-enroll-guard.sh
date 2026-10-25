@@ -18,11 +18,13 @@ set -euo pipefail
 # third startup entry for the standalone NVMe desktop (ticket 5014); its UUID is
 # pinned by CJ after creating the volume, and until then the guard refuses it
 # and prints the UUID to pin.
-TARGET="${TARGET:-/Volumes/m1n1}"
+# TARGET must be named explicitly, and each target has its own allowlist
+# (5014 review): an object approved for one volume is refused on the other.
+TARGET="${TARGET:-}"
 case "$TARGET" in
     /Volumes/m1n1) EXPECT_UUID="B7FB1EC3-1BA0-4DCB-B57D-C8E9A0AE1E63"; EXPECT_NAME="m1n1" ;;
     /Volumes/wallace) EXPECT_UUID=""; EXPECT_NAME="wallace" ;;
-    *) echo "GUARD FAIL: target must be /Volumes/m1n1 or /Volumes/wallace (got: $TARGET)" >&2; exit 1 ;;
+    *) echo "GUARD FAIL: set TARGET=/Volumes/m1n1 or TARGET=/Volumes/wallace (got: '$TARGET')" >&2; exit 1 ;;
 esac
 
 # --- approved objects (SHA-256 -> label). Anything else is refused. ---
@@ -135,6 +137,10 @@ beb293340965d53f1ed3a1f14cde748bd1326d8fa6f1f6f158dc3e39bd2cb6cc dwm-i3-v2-rtc-w
 2abc49018f6a8186debef0f3852df694c16ea6fa9127683bc3950b8e4260237b dwm-i3-v6-ansquiesce-5core
 76083c544712c0d406f923d2092a64eb1ea0c319e6a5abc568876d8cbaa466f6 dwm-i3-v7-nvme-depth16-5core
 6f7a54a5ea44e18ddb803628cb7e450b89a0b2889f14dded6aa331b628eee556 dwm-i3-v71-depth16-reboot-5core"
+# Objects for /Volumes/wallace (the standalone NVMe desktop entry, ticket 5014).
+# Empty until the 5014 smoke boot passes.
+WALLACE_HASHES=""
+[ "$TARGET" = /Volumes/wallace ] && APPROVED_HASHES=$WALLACE_HASHES
 
 OBJ="${1:-}"
 CONFIRM="${2:-}"
@@ -149,6 +155,7 @@ fi
 # 1) object SHA-256 must be an approved object
 sha=$(shasum -a 256 "$OBJ" | awk '{print $1}')
 label=$(awk -v s="$sha" '$1==s{print $2}' <<<"$APPROVED_HASHES")
+[ -n "$label" ] || echo "(allowlist checked: $TARGET)" >&2
 [ -n "$label" ] || {
     echo "GUARD FAIL: object SHA-256 not approved:" >&2
     echo "  $sha" >&2

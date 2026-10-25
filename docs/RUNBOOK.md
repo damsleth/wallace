@@ -298,11 +298,14 @@ Expected dedicated volume UUID:
 
     B7FB1EC3-1BA0-4DCB-B57D-C8E9A0AE1E63
 
-Hash-gated wrapper:
+Hash-gated wrapper (the target is mandatory; each volume has its own allowlist):
 
-    bash scripts/t6040-enroll-guard.sh <object.bin>
+    TARGET=/Volumes/m1n1 bash scripts/t6040-enroll-guard.sh <object.bin>
 
 It prints the command and runs only with its explicit confirmation option.
+`/Volumes/wallace` is the third startup entry for the standalone NVMe desktop
+(ticket 5014). The guard refuses it until its Volume UUID and the 5014 object
+hash are both pinned.
 Rollback object:
 
     rollback-m1n1-1394c345.bin
