@@ -51,9 +51,10 @@ always-proxy `7de07c71` to the window-free `bf4b2462`.
    `csrutil disable` (pick `wallace` when asked), then
    `bputil -n -v /Volumes/wallace`. `Macintosh HD` stays at Full Security and
    `m1n1` keeps its own policy.
-5. **Enroll** with the guard (main macOS, as for `m1n1`):
-   `TARGET=/Volumes/wallace bash scripts/t6040-enroll-guard.sh <object>` and
-   check the printed command, then re-run with `--confirm-enroll`.
+5. **Enroll** in 1TR (root already, no `sudo`; `kmutil configure-boot` is
+   1TR-only): `kmutil configure-boot -c <object> --raw --entry-point 2048
+   --lowest-virtual-address 0 -v /Volumes/wallace`. The guard
+   (`TARGET=/Volumes/wallace`) can print and check this command first.
 6. **Pick the default:** hold power → choose `wallace` → hold Option/⌥ on it
    for *Always Use*, or System Settings → General → Startup Disk.
 
