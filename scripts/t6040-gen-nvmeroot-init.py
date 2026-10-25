@@ -63,6 +63,32 @@ say "NVMe write_cache=write through"
 
 '''
 
+NVME_EXTRA = r'''# Trackpad firmware: dockchannel-hid requests it on first open, after
+# switch_root, so the new root must carry the pinned blob (ticket 230).
+TPMTFW=/lib/firmware/apple/tpmtfw-j614s.bin
+TPMTFW_SHA256=a1f4131d0cb7caf6fa15b19f47725458a6d7b0e3a34f15169339d5541663d9e2
+if [ "$("$BB" sha256sum "$TPMTFW" 2>/dev/null | "$BB" cut -d' ' -f1)" = "$TPMTFW_SHA256" ]; then
+    if ! "$BB" cmp -s "$TPMTFW" "/newroot$TPMTFW"; then
+        "$BB" mkdir -p /newroot/lib/firmware/apple &&
+        "$BB" cp "$TPMTFW" "/newroot$TPMTFW" &&
+        "$BB" chmod 0644 "/newroot$TPMTFW" &&
+        say "installed the trackpad firmware on the new root"
+    fi
+else
+    say "WARNING: trackpad firmware missing or wrong hash in the initramfs"
+fi
+
+# reboot/poweroff must take the clean PID-1 path (powerctl -> SIGQUIT ->
+# ::restart -> /run/initramfs/shutdown), not BusyBox's direct reboot.
+for name in reboot poweroff; do
+    if [ "$("$BB" readlink "/newroot/usr/local/sbin/$name" 2>/dev/null)" != t6040-sdroot-powerctl ]; then
+        "$BB" ln -sf t6040-sdroot-powerctl "/newroot/usr/local/sbin/$name" &&
+        say "linked /usr/local/sbin/$name to t6040-sdroot-powerctl"
+    fi
+done
+
+'''
+
 
 def main():
     s = (ROOT / 't6040-sdroot-init').read_text()
@@ -95,6 +121,12 @@ def main():
                      ('"cannot move SD64 under the shutdown tmpfs"', '"cannot move the linux exFAT under the shutdown tmpfs"'),
                      ('"cannot expose SD64 at /mnt/sd"', '"cannot expose the linux exFAT at /mnt/sd"')):
         sub(old, new)
+    # NVMe-root only (2026-10-25): the host-built root has neither the trackpad
+    # firmware nor powerctl's reboot/poweroff names. dockchannel-hid loads the
+    # firmware on first open, after switch_root, so it must be on the new root;
+    # plain BusyBox reboot skips the PID-1 pivot and leaves the exFAT dirty.
+    sub('# These genuinely cannot be repaired from here.\n', NVME_EXTRA +
+        '# These genuinely cannot be repaired from here.\n')
     leftovers = [l for l in s.splitlines() if any(k in l for k in ('GL9755', 'mmcblk', 'PCI_DEV', 'SD64'))]
     if leftovers:
         raise SystemExit('SD-specific lines remain:\n' + '\n'.join(leftovers))

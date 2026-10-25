@@ -309,6 +309,30 @@ if [ ! -e /newroot/etc/localtime ] &&
     say "set timezone Europe/Oslo"
 fi
 
+# Trackpad firmware: dockchannel-hid requests it on first open, after
+# switch_root, so the new root must carry the pinned blob (ticket 230).
+TPMTFW=/lib/firmware/apple/tpmtfw-j614s.bin
+TPMTFW_SHA256=a1f4131d0cb7caf6fa15b19f47725458a6d7b0e3a34f15169339d5541663d9e2
+if [ "$("$BB" sha256sum "$TPMTFW" 2>/dev/null | "$BB" cut -d' ' -f1)" = "$TPMTFW_SHA256" ]; then
+    if ! "$BB" cmp -s "$TPMTFW" "/newroot$TPMTFW"; then
+        "$BB" mkdir -p /newroot/lib/firmware/apple &&
+        "$BB" cp "$TPMTFW" "/newroot$TPMTFW" &&
+        "$BB" chmod 0644 "/newroot$TPMTFW" &&
+        say "installed the trackpad firmware on the new root"
+    fi
+else
+    say "WARNING: trackpad firmware missing or wrong hash in the initramfs"
+fi
+
+# reboot/poweroff must take the clean PID-1 path (powerctl -> SIGQUIT ->
+# ::restart -> /run/initramfs/shutdown), not BusyBox's direct reboot.
+for name in reboot poweroff; do
+    if [ "$("$BB" readlink "/newroot/usr/local/sbin/$name" 2>/dev/null)" != t6040-sdroot-powerctl ]; then
+        "$BB" ln -sf t6040-sdroot-powerctl "/newroot/usr/local/sbin/$name" &&
+        say "linked /usr/local/sbin/$name to t6040-sdroot-powerctl"
+    fi
+done
+
 # These genuinely cannot be repaired from here.
 for required in /sbin/init /bin/busybox; do
     [ -s "/newroot$required" ] || { cleanup_root; stop "new root is missing $required"; }
