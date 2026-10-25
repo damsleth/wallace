@@ -24,5 +24,6 @@
   "approved_by": "cj",
   "approved_at": 1792934128,
   "reviewed_by": "mythos",
-  "ready_at": 1792935151
+  "ready_at": 1792935151,
+  "v2_approval": "CJ \"go ahead\" in chat 2026-10-25 for probe v2 (412dc15): 2 boots at maxcpus=6, same harness; reviews: Codex (applied) + Mythos (pud must-fix applied)"
 }
