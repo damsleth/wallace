@@ -28,7 +28,9 @@
     "C-nvmeroot/m1n1.bin": "7de07c714ebe8b26a408ab0a4719d10d2d208eb120eaac7d3aea03f0e36daf2a",
     "C-nvmeroot/t6040-nvmeroot.dtb": "6d2d3da60352c93a6973dc068addcb7d2b1fd05a504506eb580bb18293c48e20",
     "bootargs": "maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel printk.devkmsg=on console=ttydc0 console=tty0 rdinit=/init",
-    "evidence": "evidence/2026-10-25-t6040-5005-payloads.md"
+    "evidence": "evidence/2026-10-25-t6040-5005-payloads.md",
+    "launcher": "scripts/t6040-run-nvmeroot-step.sh A|B|C <run-dir> (B: enforced DEADLINE=900 -> macvdmtool reboot, then installer checker)",
+    "review": "Mythos PASS-with-notes, evidence/2026-10-25-review-5005-payloads.md (must-do: enforced B deadline -> done)"
   },
   "created": 1792913351
 }
