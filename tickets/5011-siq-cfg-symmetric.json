@@ -28,7 +28,9 @@
     "review": "Mythos PASS w/ must-fixes A (single Oops count, boot label) B (DEADLINE 480) C (verify fixture M1N1 override) - applied; evidence/2026-10-25-review-5011-siq-cfg.md"
   },
   "created": 1792932595,
-  "runnable": false,
+  "runnable": true,
   "approved_by": "cj",
-  "approved_at": 1792932769
+  "approved_at": 1792932769,
+  "reviewed_by": "mythos",
+  "ready_at": 1792932850
 }
