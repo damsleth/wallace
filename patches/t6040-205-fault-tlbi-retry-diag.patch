@@ -13,7 +13,7 @@
  
  #include <asm/acpi.h>
  #include <asm/bug.h>
-@@ -400,6 +406,373 @@
+@@ -400,6 +406,443 @@
  	return false;
  }
  
@@ -232,6 +232,75 @@
 +	pr_emerg("t6040-205: v2 walk for VA %016lx not a valid L3 mapping; v2 skipped\n", va);
 +}
 +
++/*
++ * Probe v3: exact map of the write-denied range. Each CPU translates every
++ * 16 KiB page across ADT start - 32 MiB .. ADT end + 32 MiB with AT S1E2W
++ * and records PAR.F per page; the log prints the runs where the per-CPU
++ * denial pattern changes. Reads/translations only.
++ */
++#define T6040_205_MAP_PAGES	(SZ_64M / PAGE_SIZE + 64)
++static unsigned long t6040_205_map_base;
++static unsigned long t6040_205_map_n;
++static DECLARE_BITMAP(t6040_205_map[NR_CPUS], T6040_205_MAP_PAGES);
++static u8 t6040_205_map_skip[T6040_205_MAP_PAGES];
++
++static void t6040_205_map_cpu(void *arg)
++{
++	unsigned long *bm = t6040_205_map[smp_processor_id()];
++	unsigned long i;
++
++	for (i = 0; i < t6040_205_map_n; i++) {
++		if (t6040_205_map_skip[i])
++			continue;
++		if (t6040_205_at_s1e2w((unsigned long)__va(t6040_205_map_base +
++							     i * PAGE_SIZE)) & 1)
++			__set_bit(i, bm);
++	}
++}
++
++static void __init t6040_205_probe_v3(phys_addr_t adt_start, phys_addr_t adt_end)
++{
++	unsigned long i, run_start = 0;
++	u64 prev = ~0ULL, mask;
++	int cpu;
++
++	t6040_205_map_base = ALIGN_DOWN(adt_start, PAGE_SIZE) - SZ_32M;
++	t6040_205_map_n = min_t(unsigned long, T6040_205_MAP_PAGES,
++				(adt_end + SZ_32M - t6040_205_map_base) / PAGE_SIZE);
++	for (i = 0; i < t6040_205_map_n; i++) {
++		phys_addr_t pa = t6040_205_map_base + i * PAGE_SIZE;
++
++		t6040_205_map_skip[i] = !pfn_valid(PHYS_PFN(pa)) ||
++					!memblock_is_map_memory(pa);
++	}
++	for_each_online_cpu(cpu)
++		smp_call_function_single(cpu, t6040_205_map_cpu, NULL, 1);
++	pr_emerg("t6040-205: v3 map %016llx..%016llx (%lu pages), ADT %016llx..%016llx; runs of [skip|deny-cpu-mask]:\n",
++		 (u64)t6040_205_map_base,
++		 (u64)(t6040_205_map_base + t6040_205_map_n * PAGE_SIZE),
++		 t6040_205_map_n, (u64)adt_start, (u64)adt_end);
++	for (i = 0; i <= t6040_205_map_n; i++) {
++		if (i < t6040_205_map_n) {
++			mask = 0;
++			if (t6040_205_map_skip[i])
++				mask = ~0ULL;
++			else
++				for_each_online_cpu(cpu)
++					if (test_bit(i, t6040_205_map[cpu]))
++						mask |= BIT_ULL(cpu);
++		}
++		if (i == t6040_205_map_n || mask != prev) {
++			if (i > 0)
++				pr_emerg("t6040-205: v3 run %016llx..%016llx %s %llx\n",
++					 (u64)(t6040_205_map_base + run_start * PAGE_SIZE),
++					 (u64)(t6040_205_map_base + i * PAGE_SIZE),
++					 prev == ~0ULL ? "skip" : "deny", prev == ~0ULL ? 0 : prev);
++			run_start = i;
++			prev = mask;
++		}
++	}
++}
++
 +static int __init t6040_205_probe(void)
 +{
 +	struct device_node *np;
@@ -259,6 +328,7 @@
 +		for (i = 0; i < ARRAY_SIZE(win); i++)
 +			t6040_205_par_window(PFN_PHYS(pfn + win[i].off), win[i].what);
 +		t6040_205_probe_v2(pfn);
++		t6040_205_probe_v3(res.start, res.end + 1);
 +	}
 +	if (!pfn) {
 +		pr_emerg("t6040-205: probe: no phram node labelled adt\n");
@@ -387,7 +457,7 @@
  static void __do_kernel_fault(unsigned long addr, unsigned long esr,
  			      struct pt_regs *regs)
  {
-@@ -418,6 +791,9 @@
+@@ -418,6 +861,9 @@
  		return;
  	}
  
