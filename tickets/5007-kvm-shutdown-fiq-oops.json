@@ -1,0 +1,13 @@
+{
+  "seq": "5007",
+  "slug": "kvm-shutdown-fiq-oops",
+  "needs": "offline",
+  "state": "open",
+  "track": "bringup",
+  "priority": "P1",
+  "desc": "Daily-driver reboot bug found in 211 r3: reboot -f -> syscore_shutdown -> kvm_shutdown -> kvm_timer_cpu_down -> aic_fiq_set_mask executes IMP-DEF sysreg write d51df160 -> Oops Undefined instruction (kernel not at EL2). Happens after device_shutdown (storage already safe) but leaves the machine hung instead of rebooting. Fix candidates: CONFIG_KVM=n in the daily config (no use for KVM at EL1), or guard aic_fiq_set_mask vtimer path when !is_kernel_in_hyp_mode(). Evidence: evidence/2026-10-25-t6040-211-r3-clean-shutdown-durable.md.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1792912422
+}
