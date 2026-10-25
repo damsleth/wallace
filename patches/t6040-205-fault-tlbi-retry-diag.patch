@@ -1,0 +1,82 @@
+--- a/arch/arm64/mm/fault.c
++++ b/arch/arm64/mm/fault.c
+@@ -400,6 +400,69 @@
+ 	return false;
+ }
+ 
++/*
++ * Wallace ticket 205 diagnostic, never a fix. 205's faults are EL1 write
++ * permission faults on linear-map pages whose in-memory PTE is writable. On
++ * such a fault: log CPU/VA/PA/PTE, invalidate this CPU's TLB and retry the
++ * instruction; if it faults again at the same VA, invalidate all CPUs' TLBs
++ * (broadcast) and retry once more. A third fault at the same VA means no TLB
++ * maintenance clears it: logged, then handled exactly as before (Oops).
++ */
++static DEFINE_PER_CPU(unsigned long, t6040_205_retry_va);
++static DEFINE_PER_CPU(int, t6040_205_stage);
++
++static bool t6040_205_stale_tlb_retry(unsigned long addr, unsigned long esr)
++{
++	pgd_t *pgdp;
++	p4d_t *p4dp;
++	pud_t *pudp, pud;
++	pmd_t *pmdp, pmd;
++	pte_t pte;
++	int stage;
++
++	if (ESR_ELx_EC(esr) != ESR_ELx_EC_DABT_CUR || !(esr & ESR_ELx_WNR) ||
++	    !esr_fsc_is_permission_fault(esr) || !virt_addr_valid((void *)addr))
++		return false;
++	pgdp = pgd_offset_k(addr);
++	if (pgd_none(READ_ONCE(*pgdp)))
++		return false;
++	p4dp = p4d_offset(pgdp, addr);
++	if (p4d_none(READ_ONCE(*p4dp)))
++		return false;
++	pudp = pud_offset(p4dp, addr);
++	pud = READ_ONCE(*pudp);
++	if (pud_none(pud) || pud_leaf(pud))
++		return false;
++	pmdp = pmd_offset(pudp, addr);
++	pmd = READ_ONCE(*pmdp);
++	if (pmd_none(pmd) || pmd_leaf(pmd))
++		return false;
++	pte = __ptep_get(pte_offset_kernel(pmdp, addr));
++	if (!pte_valid(pte) || (pte_val(pte) & PTE_RDONLY))
++		return false;	/* genuinely read-only: not this bug */
++
++	stage = this_cpu_read(t6040_205_retry_va) == addr ?
++		this_cpu_read(t6040_205_stage) + 1 : 1;
++	this_cpu_write(t6040_205_retry_va, addr);
++	this_cpu_write(t6040_205_stage, stage);
++	if (stage == 1) {
++		pr_emerg("t6040-205: CPU%d VA %016lx PA %016llx pte %016llx writable, ESR %08lx: stage 1 local TLBI + retry\n",
++			 smp_processor_id(), addr, (u64)__pa(addr), pte_val(pte), esr);
++		local_flush_tlb_all();
++		return true;
++	}
++	if (stage == 2) {
++		pr_emerg("t6040-205: CPU%d VA %016lx: faulted after local TLBI; stage 2 broadcast TLBI + retry\n",
++			 smp_processor_id(), addr);
++		flush_tlb_all();
++		return true;
++	}
++	this_cpu_write(t6040_205_retry_va, 0);
++	pr_emerg("t6040-205: CPU%d VA %016lx pte %016llx: faulted AGAIN after local and broadcast TLBI -> not cleared by TLB maintenance\n",
++		 smp_processor_id(), addr, pte_val(pte));
++	return false;
++}
++
+ static void __do_kernel_fault(unsigned long addr, unsigned long esr,
+ 			      struct pt_regs *regs)
+ {
+@@ -418,6 +481,9 @@
+ 		return;
+ 	}
+ 
++	if (t6040_205_stale_tlb_retry(addr, esr))
++		return;
++
+ 	if (is_el1_mte_sync_tag_check_fault(esr)) {
+ 		do_tag_recovery(addr, esr, regs);
+ 

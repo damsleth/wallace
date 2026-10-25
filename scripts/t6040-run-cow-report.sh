@@ -14,7 +14,8 @@ case "$VAR" in
     control) M1N1=$O/m1n1-siq-20261025/m1n1-control.bin; H=bf4b24627560759f ;;
     *) echo "variant must be siq or control" >&2; exit 2 ;;
 esac
-IMAGE=Image-macsmc-hid-type-fix-trackpad-nbcon-ppp-cpufreq-daily301.build1
+IMAGE=${IMAGE:-Image-macsmc-hid-type-fix-trackpad-nbcon-ppp-cpufreq-daily301.build1}
+IMAGE_SHA256=${IMAGE_SHA256:-a9a2096ff47cc8538090ad28cd0bc41b75b09354e90abff8135b3d242d987bc8}
 DTB=t6040-j614s-dcuart.dtb
 INITRAMFS=initramfs-cow-report.build1.cpio.gz
 DEADLINE=${DEADLINE:-480}
@@ -22,7 +23,7 @@ DEADLINE=${DEADLINE:-480}
 mkdir -p "$RUN"
 [ "$(shasum -a 256 "$M1N1" | cut -c1-16)" = "$H" ] || { echo "m1n1 hash mismatch" >&2; exit 1; }
 (cd "$O" && printf '%s  %s\n' \
-    a9a2096ff47cc8538090ad28cd0bc41b75b09354e90abff8135b3d242d987bc8 "$IMAGE" \
+    "$IMAGE_SHA256" "$IMAGE" \
     30b01736b5291aaa864f37f73192ec9877da97ab8ecf5d72c1ca92cf9c8af05d "$DTB" \
     de1a5cd79e030468bff7f7f1fccaf03f2e34d705a4dc77a5aedd927d94fc9b29 "$INITRAMFS" |
     shasum -a 256 -c -) >"$RUN/payload-check.txt" 2>&1 || { echo "payload hash mismatch" >&2; exit 1; }
@@ -39,6 +40,12 @@ grep -q "maxcpus=$N " "$RUN/dcuart-boot.log" || { echo "cmdline lacks maxcpus=$N
 t=0
 while [ "$t" -lt "$DEADLINE" ]; do
     grep -q 'T6040_COW_REPORT_END' "$CON" 2>/dev/null && break
+    # A boot that oopses before the reproducer starts is decided: stop
+    # waiting 30 s after the Oops (5011: unpack fault at ~21 ms on CPU 5).
+    if [ "$t" -ge 30 ] && grep -q 'Internal error: Oops' "$CON" 2>/dev/null &&
+       ! grep -q 'T6040_COW_RUN_BEGIN' "$CON" 2>/dev/null; then
+        break
+    fi
     sleep 5; t=$((t + 5))
 done
 sleep 5
@@ -47,4 +54,5 @@ up=$(tr -d '\r' <"$CON" | grep -aoE 'Brought up [0-9]+ node, [0-9]+ CPUs' | tail
 oops=$(tr -d '\r' <"$CON" | grep -ac 'Internal error: Oops')
 end=$(grep -c 'T6040_COW_REPORT_END' "$CON")
 runs=$(tr -d '\r' <"$CON" | awk 'BEGIN{r="boot"} /T6040_COW_RUN_BEGIN/{r=$NF} /Internal error: Oops/{c[r]++} END{for (k in c) printf "%s:%d ", k, c[k]}')
-echo "RESULT variant=$VAR maxcpus=$N up='$up' report_end=$end faults_total=$oops per_run='${runs:-none}' waited=${t}s"
+diag=$(tr -d '\r' <"$CON" | grep -aoE 't6040-205: .*(stage [12]|AGAIN)' | sed -E 's/.*(stage [12]|AGAIN).*/\1/' | sort | uniq -c | tr -s ' ' | tr '\n' ',')
+echo "RESULT diag='${diag:-none}' variant=$VAR maxcpus=$N up='$up' report_end=$end faults_total=$oops per_run='${runs:-none}' waited=${t}s"

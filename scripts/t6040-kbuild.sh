@@ -430,6 +430,13 @@ if [ "${NVME_IOQ_SIZE:-0}" = "1" ]; then
     git apply --check /out/t6040-nvme-ans2-ioq-size.patch
     git apply /out/t6040-nvme-ans2-ioq-size.patch
 fi
+# Ticket 205 diagnostic only (5012): on an EL1 write permission fault at a
+# linear-map VA whose PTE is writable, log it and retry after a local, then a
+# broadcast TLB invalidate. Never in a daily image.
+if [ "${T6040_FAULT_DIAG:-0}" = "1" ]; then
+    git apply --check /out/t6040-205-fault-tlbi-retry-diag.patch
+    git apply /out/t6040-205-fault-tlbi-retry-diag.patch
+fi
 # Ticket 205 diagnostic only: a late_initcall that checks, for every CPU
 # pair, whether broadcast TLB invalidation removes a stale read-only
 # linear-map entry. Never in a daily image.
