@@ -17,7 +17,9 @@
     "image": "737df0b030d26acb9cc92b0115b63e2a7fb31acb86b64d69270eb1bd911a7cbd (build1==build2)",
     "System.map": "e1ba9af5cc8c0f376dfb47980ed7604cc82c90c64e3b66b5e40a28303effd31d",
     "config": "96e83d858ddbbcf19027d3ea56411158f75ae75fe4c42c0b03dbdd28b6da3eee (== daily301 96e83d85)",
-    "run": "IMAGE=Image-macsmc-hid-type-fix-trackpad-nbcon-ppp-cpufreq-faultdiag.build1 IMAGE_SHA256=<image> scripts/t6040-run-cow-report.sh control 6 <dir> (x2)"
+    "run": "IMAGE=Image-macsmc-hid-type-fix-trackpad-nbcon-ppp-cpufreq-faultdiag.build1 IMAGE_SHA256=<image> scripts/t6040-run-cow-report.sh control 6 <dir> (x2)",
+    "image v2 (faultdiag2, build1==build2)": "c4199a1d8ecf9a4f0617be18cba740ab80f2be40ca431a0394a65ca9ccdd4e78",
+    "patch v2": "2af51e9f92cd4bc8628d1fc168e7bb8a3c50f012368b54b7f684969b73c6db0f"
   },
   "created": 1792933849,
   "runnable": true,
