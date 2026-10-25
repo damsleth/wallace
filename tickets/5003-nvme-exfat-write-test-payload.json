@@ -14,13 +14,14 @@
     "Image": "4fadb8d37808878b5ebcacd652d4f7f3657930dbf54bd66e91a48172cccfafcc",
     "System.map": "48f2d81d9b4a17c2d60353587dbbb274460be8ba5ed41a6eedd2d5efe5e44344",
     "config": "1b19dabafc21c9103f3b1e42fc0bb97f3eb3e1f24aef747e1818cec00648e863",
-    "initramfs.cpio.gz": "dccf3de9f1bf9f2dd7f5aedeba3c81405bb04af226005cbf74858c27d2975d00",
+    "initramfs.cpio.gz": "42a5e48f0b4c6461ffd37ccc6d7ff6ff2b6e0e6ad4e297228e22dd53356c3a64",
     "m1n1-raw.elf": "5bee616c39fb745393cc4d961fe148189b1c084ef722b51d25c07941cc2a396f",
     "m1n1.bin": "7de07c714ebe8b26a408ab0a4719d10d2d208eb120eaac7d3aea03f0e36daf2a",
     "t6040-nvme.dtb": "a96d04a7c37355ed13ac6e4ac90ec319ecc3e755d584ea2b414a7ad80498845b",
-    "bootargs": "maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel printk.devkmsg=on console=ttydc0 console=tty0 nvmewrite=write|verify rdinit=/init (exact boot-dcuart CMDLINE; preflight OK both modes)",
-    "payload_dir": "/Users/damsleth/Code/linux-build-out/nvme-exfat-write-20261025/payload",
-    "notes": "Image = NVME_EXFAT build1 (Mythos config PASS, evidence/2026-10-25-review-5003-nvmeexfat-kernel.md); build2 byte-compare pending at pin time. DTB/m1n1 = 6001 run 3. initramfs-write-a == -b. Preflight OK (proxy-m1n1 WARN expected for chainload). Host deadline 180 s; checker scripts/t6040-check-nvme-write-transcript.py. Run with scripts/t6040-run-nvme-write.sh (enforced 300 s post-handoff deadline -> macvdmtool reboot). Exact-artifact review: Mythos PASS-with-notes, evidence/2026-10-25-review-5003-payload-exact.md."
+    "payload_dir": "/Users/damsleth/Code/linux-build-out/nvme-exfat-write-20261025b/payload",
+    "bootargs": "maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel printk.devkmsg=on console=ttydc0 console=tty0 nvmewrite=write|verify nvmewritedir=TAG [nvmewc=through] rdinit=/init (exact boot-dcuart CMDLINE; preflight OK all four)",
+    "run": "PAYLOAD=nvme-exfat-write-20261025b/payload WRITE_ARGS='nvmewritedir=TAG [nvmewc=through]' scripts/t6040-run-nvme-write.sh write|verify <run-dir>; same TAG on verify",
+    "review": "5003b: Mythos PASS-with-notes, evidence/2026-10-25-review-5003b-payload.md (run1 payload dccf3de9 superseded)"
   },
   "created": 1792879898,
   "evidence": [
