@@ -15,6 +15,9 @@ record of which (cpu, register). This version (Mythos's run-2 plan):
   and the JSON is rewritten after every read;
 - secondary reads are asynchronous (smp_call) and polled from the host via
   m1n1's spin_table, so a hung secondary costs that core, not the proxy;
+  secondaries run MMU-off (as Linux receives them), so their calls use the
+  code buffer's physical address (run 2 took an IABT on the RX_EL1 alias),
+  and a single NOP call is checked on each secondary before any read;
 - side-effecting registers are never read (EXCLUDE).
 Linux rewrites SCTLR/TCR/MAIR per core in __cpu_setup; rows that can carry
 a 205 finding are those Linux never writes: ACTLR_EL2, HCR_EL2, ID registers
@@ -94,6 +97,10 @@ def secondary_call(cpu):
     entry = SPIN_TABLE + cpu * ST_SIZE
 
     def call(addr, *args):
+        # Secondaries run MMU-off after smp_start_secondaries (as Linux gets
+        # them): call the code buffer by physical address (region 0), and
+        # clean it to PoC as well as PoU (run 2: RX_EL1 alias -> IABT).
+        p.dc_cvac(u.code_buffer, u.CODE_BUFFER_SIZE)
         p.smp_call(cpu, addr, *args)
         t0 = time.time()
         while struct.unpack("<Q", iface.readmem(entry + ST_TARGET, 8))[0]:
@@ -107,7 +114,7 @@ def secondary_call(cpu):
 def read(name, reg, cpu):
     PROGRESS.write(f"read cpu{cpu} {name} {reg}\n")
     PROGRESS.flush()
-    call = None if cpu == 0 else secondary_call(cpu)
+    call = None if cpu == 0 else (secondary_call(cpu), 0)
     try:
         return u.mrs(reg, silent=True, call=call)
     except SecondaryHang:
@@ -134,6 +141,19 @@ def main() -> int:
     for c in cpus[1:]:
         mp = struct.unpack("<Q", iface.readmem(SPIN_TABLE + c * ST_SIZE, 8))[0]
         print(f"cpu{c}: alive={p.smp_is_alive(c)} spin_table mpidr={mp:#x}", flush=True)
+    # Sanity: one NOP on each secondary through the same path before any mrs.
+    for c in cpus[1:]:
+        PROGRESS.write(f"nop cpu{c}\n")
+        PROGRESS.flush()
+        try:
+            u.exec(0xd503201f, call=(secondary_call(c), 0))
+            print(f"cpu{c}: NOP call OK", flush=True)
+        except SecondaryHang:
+            print(f"cpu{c}: NOP call HUNG; aborting before any register read", flush=True)
+            return 3
+        except Exception as e:  # noqa: BLE001
+            print(f"cpu{c}: NOP call raised {e}; aborting before any register read", flush=True)
+            return 3
     regs = dict(ARCH)
     regs.update(impdef_first_pass())
     print(f"first pass: {len(regs)} registers on cpus {cpus}", flush=True)

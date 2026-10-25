@@ -9,7 +9,7 @@
   "author": "claude",
   "deps": [],
   "hashes": {
-    "script t6040-cpu-sysreg-diff.py": "29b7dd173294263e5e869a39fef5763cf8cb54bec92cc1888454c5cd1e958f15",
+    "script t6040-cpu-sysreg-diff.py": "4163cc21b7872c2ae4fdbd2760c11d95d10b82a06c3956b0bc06548dc8e539e1",
     "imported gate t6040-nvme-probe.py": "see 5006",
     "chainloaded m1n1": "7de07c714ebe8b26a408ab0a4719d10d2d208eb120eaac7d3aea03f0e36daf2a",
     "fixture t6040-run-sysreg-diff.sh": "f7781b9f1625360e33e4ab855a1606d3d04b2bc8080bd3c8ddacf58897190a09",
@@ -22,5 +22,6 @@
   "reviewed_by": "mythos",
   "ready_at": 1792928550,
   "run1": "2026-10-25 12:43: blind s3_*_c15 sweep wedged m1n1 (no output: stdout buffered through tee; proxy dead after 20 min timeout; recovered by reboot). Script narrowed to the 127 cpu_regs.h-named impdef regs (strict subset of the reviewed reads) with unbuffered per-read progress file.",
-  "run2_plan": "Mythos run-2 plan: first pass (21 arch + 43 named config impdef) on cpu0,1,5; per-(cpu,reg) progress before each mrs; JSON after every read; async secondary reads polled via spin_table (+0xdd290 in 7de07c71, 3 s timeout); 300 s host timeout; stop after a second wedge in one lease."
+  "run2_plan": "Mythos run-2 plan: first pass (21 arch + 43 named config impdef) on cpu0,1,5; per-(cpu,reg) progress before each mrs; JSON after every read; async secondary reads polled via spin_table (+0xdd290 in 7de07c71, 3 s timeout); 300 s host timeout; stop after a second wedge in one lease.",
+  "run3_plan": "Secondaries MMU-off (smp_start_secondaries never runs mmu_init_secondary): call code buffer at region 0 (physical), dc cvac before each secondary call, single NOP sanity call per secondary before reads; never mmu_init_secondary (would rewrite the measured state). Mythos e46bbd4."
 }
