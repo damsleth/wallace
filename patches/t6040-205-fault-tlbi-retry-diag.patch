@@ -1,80 +1,115 @@
 --- a/arch/arm64/mm/fault.c
 +++ b/arch/arm64/mm/fault.c
-@@ -400,6 +400,69 @@
+@@ -400,6 +400,104 @@
  	return false;
  }
  
 +/*
 + * Wallace ticket 205 diagnostic, never a fix. 205's faults are EL1 write
-+ * permission faults on linear-map pages whose in-memory PTE is writable. On
-+ * such a fault: log CPU/VA/PA/PTE, invalidate this CPU's TLB and retry the
-+ * instruction; if it faults again at the same VA, invalidate all CPUs' TLBs
-+ * (broadcast) and retry once more. A third fault at the same VA means no TLB
-+ * maintenance clears it: logged, then handled exactly as before (Oops).
++ * permission faults on linear-map pages whose in-memory leaf PTE permits
++ * writes. On such a fault the faulting instruction is retried in stages,
++ * keyed on (CPU, PC, VA) and bounded by a global budget:
++ *   stage 1  plain retry, no TLB maintenance (timing control)
++ *   stage 2  local TLBI (tlbi vmalle1; dsb nsh; isb), retry
++ *   stage 3  broadcast TLBI (flush_tlb_all), retry
++ *   stage 4  log AGAIN and fall through to the unchanged Oops
++ * Recovery is only inferred if the workload then progresses; absence of a
++ * further fault alone is "no recurrence observed". AGAIN does not exclude
++ * every translation-maintenance defect.
 + */
-+static DEFINE_PER_CPU(unsigned long, t6040_205_retry_va);
-+static DEFINE_PER_CPU(int, t6040_205_stage);
++#define T6040_205_BUDGET	32
++static DEFINE_RAW_SPINLOCK(t6040_205_lock);
++static struct {
++	int cpu, stage, budget_used;
++	unsigned long pc, va;
++} t6040_205_state = { .cpu = -1 };
 +
-+static bool t6040_205_stale_tlb_retry(unsigned long addr, unsigned long esr)
++static bool t6040_205_stale_tlb_retry(unsigned long addr, unsigned long esr,
++				      struct pt_regs *regs)
 +{
 +	pgd_t *pgdp;
 +	p4d_t *p4dp;
 +	pud_t *pudp, pud;
 +	pmd_t *pmdp, pmd;
 +	pte_t pte;
-+	int stage;
++	unsigned long flags;
++	int cpu, stage;
++	bool retry = true;
 +
 +	if (ESR_ELx_EC(esr) != ESR_ELx_EC_DABT_CUR || !(esr & ESR_ELx_WNR) ||
 +	    !esr_fsc_is_permission_fault(esr) || !virt_addr_valid((void *)addr))
 +		return false;
 +	pgdp = pgd_offset_k(addr);
-+	if (pgd_none(READ_ONCE(*pgdp)))
++	if (pgd_none(READ_ONCE(*pgdp)) || pgd_bad(READ_ONCE(*pgdp)))
 +		return false;
 +	p4dp = p4d_offset(pgdp, addr);
-+	if (p4d_none(READ_ONCE(*p4dp)))
++	if (p4d_none(READ_ONCE(*p4dp)) || p4d_bad(READ_ONCE(*p4dp)))
 +		return false;
 +	pudp = pud_offset(p4dp, addr);
 +	pud = READ_ONCE(*pudp);
-+	if (pud_none(pud) || pud_leaf(pud))
++	if (pud_none(pud) || pud_leaf(pud) || pud_bad(pud))
 +		return false;
 +	pmdp = pmd_offset(pudp, addr);
 +	pmd = READ_ONCE(*pmdp);
-+	if (pmd_none(pmd) || pmd_leaf(pmd))
++	if (pmd_none(pmd) || pmd_leaf(pmd) || pmd_bad(pmd))
 +		return false;
 +	pte = __ptep_get(pte_offset_kernel(pmdp, addr));
 +	if (!pte_valid(pte) || (pte_val(pte) & PTE_RDONLY))
-+		return false;	/* genuinely read-only: not this bug */
++		return false;	/* leaf AP forbids the write: not this bug */
 +
-+	stage = this_cpu_read(t6040_205_retry_va) == addr ?
-+		this_cpu_read(t6040_205_stage) + 1 : 1;
-+	this_cpu_write(t6040_205_retry_va, addr);
-+	this_cpu_write(t6040_205_stage, stage);
-+	if (stage == 1) {
-+		pr_emerg("t6040-205: CPU%d VA %016lx PA %016llx pte %016llx writable, ESR %08lx: stage 1 local TLBI + retry\n",
-+			 smp_processor_id(), addr, (u64)__pa(addr), pte_val(pte), esr);
++	raw_spin_lock_irqsave(&t6040_205_lock, flags);
++	cpu = smp_processor_id();
++	if (t6040_205_state.cpu == cpu && t6040_205_state.pc == regs->pc &&
++	    t6040_205_state.va == addr)
++		stage = t6040_205_state.stage + 1;
++	else
++		stage = 1;
++	if (stage <= 3 && t6040_205_state.budget_used >= T6040_205_BUDGET) {
++		stage = 0;	/* budget exhausted: no more retries anywhere */
++		retry = false;
++	} else if (stage <= 3) {
++		t6040_205_state.budget_used++;
++	}
++	t6040_205_state.cpu = stage > 3 || !retry ? -1 : cpu;
++	t6040_205_state.pc = regs->pc;
++	t6040_205_state.va = addr;
++	t6040_205_state.stage = stage;
++	if (stage == 2)
 +		local_flush_tlb_all();
-+		return true;
-+	}
-+	if (stage == 2) {
-+		pr_emerg("t6040-205: CPU%d VA %016lx: faulted after local TLBI; stage 2 broadcast TLBI + retry\n",
-+			 smp_processor_id(), addr);
++	else if (stage == 3)
 +		flush_tlb_all();
-+		return true;
++	raw_spin_unlock_irqrestore(&t6040_205_lock, flags);
++
++	if (stage == 0) {
++		pr_emerg("t6040-205: retry budget exhausted; CPU%d VA %016lx handled as before\n",
++			 cpu, addr);
++		return false;
 +	}
-+	this_cpu_write(t6040_205_retry_va, 0);
-+	pr_emerg("t6040-205: CPU%d VA %016lx pte %016llx: faulted AGAIN after local and broadcast TLBI -> not cleared by TLB maintenance\n",
-+		 smp_processor_id(), addr, pte_val(pte));
-+	return false;
++	if (stage == 1)
++		pr_emerg("t6040-205: CPU%d PC %pS VA %016lx PA(lin) %016llx PA(pte) %016llx pte %016llx%s ESR %08lx: stage 1 plain retry\n",
++			 cpu, (void *)regs->pc, addr, (u64)__pa(addr),
++			 (u64)__pte_to_phys(pte), pte_val(pte),
++			 (pte_val(pte) & PTE_CONT) ? " CONT" : "", esr);
++	else if (stage == 2)
++		pr_emerg("t6040-205: CPU%d VA %016lx: faulted again after plain retry; stage 2 local TLBI + retry\n",
++			 cpu, addr);
++	else if (stage == 3)
++		pr_emerg("t6040-205: CPU%d VA %016lx: faulted again after local TLBI; stage 3 broadcast TLBI + retry\n",
++			 cpu, addr);
++	else
++		pr_emerg("t6040-205: CPU%d VA %016lx pte %016llx: faulted AGAIN after plain, local and broadcast retries\n",
++			 cpu, addr, pte_val(pte));
++	return stage <= 3;
 +}
 +
  static void __do_kernel_fault(unsigned long addr, unsigned long esr,
  			      struct pt_regs *regs)
  {
-@@ -418,6 +481,9 @@
+@@ -418,6 +516,9 @@
  		return;
  	}
  
-+	if (t6040_205_stale_tlb_retry(addr, esr))
++	if (t6040_205_stale_tlb_retry(addr, esr, regs))
 +		return;
 +
  	if (is_el1_mte_sync_tag_check_fault(esr)) {
