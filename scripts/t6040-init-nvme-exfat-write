@@ -11,6 +11,9 @@
 #                     needs a fresh directory; nothing is ever deleted)
 #   nvmewc=through    optional: set nvme0n1 write_cache to "write through"
 #                     before the mount, so the kernel issues no Flush/FUA
+#   nvmeend=reboot    optional: after PASS, "reboot -f" (kernel_restart ->
+#                     device_shutdown -> apple_nvme_shutdown: CC.SHN + RTKit
+#                     power-down), the daily driver's clean-shutdown path
 # Every other partition and namespace is read-only; their counters must
 # not change.
 BB=/bin/busybox
@@ -41,17 +44,19 @@ else
     stop 'watchdog missing'
 fi
 
-MODE= TAG= WC=
+MODE= TAG= WC= END=
 for a in $($BB cat /proc/cmdline); do
     case "$a" in
         nvmewrite=*) MODE=${a#nvmewrite=} ;;
         nvmewritedir=*) TAG=${a#nvmewritedir=} ;;
         nvmewc=*) WC=${a#nvmewc=} ;;
+        nvmeend=*) END=${a#nvmeend=} ;;
     esac
 done
 case "$MODE" in write|verify) ;; *) stop "missing nvmewrite=write|verify" ;; esac
 case "$TAG" in '') ;; *[!a-z0-9]*) stop "nvmewritedir must be [a-z0-9]" ;; esac
 case "$WC" in ''|through) ;; *) stop "nvmewc must be through or absent" ;; esac
+case "$END" in ''|reboot) ;; *) stop "nvmeend must be reboot or absent" ;; esac
 say "mode=$MODE; maxcpus=1; writes only to the pinned exFAT linux partition"
 
 # --- controller, namespace and identity gate (as 6001 run 3) ---------------
@@ -107,6 +112,8 @@ E=$((LBS * 2 + 2 * 128))   # GPT entry array starts at LBA 2; p3 is slot 2
     stop 'p3 boot-sector geometry changed since probe 5001'
 [ "$(hex $DEV 108 4)" = 0c050180 ] || stop 'p3 boot-sector shifts changed since probe 5001'
 [ "$(hex $DEV 510 2)" = 55aa ] || stop 'p3 boot-sector signature missing'
+VF=$($BB dd if=$DEV bs=1 skip=106 count=2 2>/dev/null | $BB od -An -tu2); VF=${VF##* }
+say "volume flags at boot: VolumeFlags=$VF (bit 1 = dirty)"
 say "pins OK: p3 start=1586917376 size=356806656 type=EBD0A0A2 guid=EA0DA6DB serial=6add2caf label=linux"
 
 fsck_n() {
@@ -165,4 +172,11 @@ P_DW=$(( $(wsec /sys/block/nvme0n1/$P/stat) - P_W0 ))
 say "sectors written: disk=$DISK_DW p3=$P_DW"
 [ "$DISK_DW" = "$P_DW" ] || stop 'writes outside p3 on nvme0n1'
 say "PASS mode=$MODE bytes=1073741824 sha256=$GOT others_unchanged=yes write_cache=${WCNOW#write }"
+if [ "$END" = reboot ]; then
+    say "clean kernel reboot: device_shutdown -> apple_nvme_shutdown (CC.SHN, RTKit off)"
+    $BB sync
+    $BB reboot -f
+    $BB sleep 30
+    say 'reboot -f returned'
+fi
 park

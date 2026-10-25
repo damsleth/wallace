@@ -54,3 +54,36 @@ After it the M4 showed iBoot trace output and then fell silent: no m1n1 proxy,
 and the second recovery reboot did not help. kisd panicked once
 (`bytes.rs split_to out of bounds`) and was restarted. CJ has been asked to
 check the screen.
+
+## Verify r2 after the hard reset: partial persistence (console `3086c39248b91b23…`)
+
+Recovery took three reboots. The M4 reached "Running proxy" on screen, but the
+link only answered once kisd was attached before a fresh
+`macvdmtool reboot debugusb` with a console reader running. The checker then
+gave STOP: `test file missing`. From the parked shell, read-only:
+
+- p3 holds `wallace-write-test-r2/pattern.bin`, 1073741824 bytes.
+  **Its sha256 is `e26c3c8a…`, equal to the write run's.** The 1 GiB, written
+  0.4–3.0 s into that boot, persisted.
+- `pattern.sha256` is **missing**. It was written at about 7.8 s, after the
+  hashing. The unmount's clear of the dirty bit was also lost: the kernel says
+  "Volume was not properly unmounted". `fsck.exfat -n` still reports clean,
+  19/97.
+- Zero sectors were written on the verify boot.
+
+Model: with no Flush, ANS keeps the most recent writes in a volatile cache and
+does not commit them by itself, even after 1–2 idle minutes. Large writes push
+older data to flash; the small trailing metadata stays in the cache and is
+lost on a hard reset. Run 1's metadata was lost the same way.
+
+## Next: r3 tests clean shutdown
+
+New option `nvmeend=reboot`: after PASS, `reboot -f`, which runs
+`device_shutdown` and then `apple_nvme_shutdown` (CC.SHN plus RTKit
+power-down). That is the daily driver's clean-shutdown path. The init also logs
+VolumeFlags at boot. The r3 verify must find the hash file and VolumeFlags=0.
+If it does, a clean shutdown makes the cache durable, and an NVMe root is
+viable with write-through plus the existing PID-1 shutdown. A crash or hard
+reset would still lose the last writes; ext4's journal limits that to recent
+data, not metadata corruption, as long as ordering holds. Payload
+`nvme-exfat-write-20261025c`, initramfs `62bab9e3` (built twice, identical).
