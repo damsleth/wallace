@@ -1,0 +1,17 @@
+{
+  "seq": "5010",
+  "slug": "cpu-sysreg-diff",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "smp",
+  "priority": "P0",
+  "desc": "205 per-CPU sysreg diff (Mythos-suggested cheaper first step, 2026-10-25). READS ONLY via m1n1 proxy mrs under the exception guard: scripts/t6040-cpu-sysreg-diff.py. Fixture: chainload the NVMe-era m1n1 7de07c71 (what starts Linux secondaries) over the rollback, proxy-alive, then the script: identity gate, smp_start_secondaries, probe all s3_{0-7}_c15_c{0-15}_{0-7} on cpu0, then read arch MMU/ID regs + the cpu0-implemented impdef set on every online CPU; diff P secondaries (incl. cpu5 = 205 threshold, cpu6/7 = July oops CPUs) vs the iBoot-configured boot P core, and E cores vs E0. No msr, no MMIO, no SPMI. Motivation: m1n1 chickens.c has NULL init for all M4 cores; the boot core is iBoot-configured, secondaries are raw. Output JSON evidence.",
+  "author": "claude",
+  "deps": [],
+  "hashes": {
+    "script t6040-cpu-sysreg-diff.py": "3971455037953bf4cd586c7a5d8540f97e1e594d69e39ca8ee9715b6ba697519",
+    "imported gate t6040-nvme-probe.py": "see 5006",
+    "chainloaded m1n1": "7de07c714ebe8b26a408ab0a4719d10d2d208eb120eaac7d3aea03f0e36daf2a"
+  },
+  "created": 1792927776
+}
