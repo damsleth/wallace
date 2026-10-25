@@ -14,7 +14,10 @@ trap 'rm -rf "$TMP"' EXIT
 printf '%s  %s\n' "$BASE_SHA256" "$BASE" | shasum -a 256 -c -
 
 LC_ALL=C gzip -dc "$BASE" | (cd "$TMP" && LC_ALL=C bsdtar -xf -)
-install -m 0755 "$ROOT/scripts/t6040-sdroot-init" "$TMP/init"
+# INIT selects the root init: the SD root (default) or the generated NVMe
+# root (scripts/t6040-nvmeroot-init, ticket 5005). Everything else is shared.
+INIT=${INIT:-$ROOT/scripts/t6040-sdroot-init}
+install -m 0755 "$INIT" "$TMP/init"
 install -m 0755 "$ROOT/scripts/t6040-sdroot-shutdown" "$TMP/shutdown"
 
 # fsck.exfat repairs a dirty SD64 in place. Statically linked on purpose: this
@@ -111,7 +114,9 @@ done
 
 for item in init shutdown; do
     embedded=$(gzip -dc "$DEST" | bsdtar -xOf - "$item" | shasum -a 256 | awk '{print $1}')
-    source=$(shasum -a 256 "$ROOT/scripts/t6040-sdroot-$item" | awk '{print $1}')
+    src="$ROOT/scripts/t6040-sdroot-$item"
+    [ "$item" != init ] || src="$INIT"
+    source=$(shasum -a 256 "$src" | awk '{print $1}')
     [ "$embedded" = "$source" ] || { echo "$item hash mismatch" >&2; exit 1; }
 done
 
