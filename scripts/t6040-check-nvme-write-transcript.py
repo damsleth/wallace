@@ -42,8 +42,11 @@ else:
         errors.append('verify: read-back hash does not equal the write run hash')
     if len(re.findall(r'fsck\.exfat -n \((before|final)\) rc=0', s)) != 2:
         errors.append('expected two clean fsck.exfat -n checks')
+wc = re.findall(r'NVME-WRITE dir=(\S+) write_cache=(write back|write through) fua=(\d)', s)
+if len(wc) != 1:
+    errors.append('missing dir/write_cache line')
 if errors:
     raise SystemExit('STOP / NOT VALIDATED:\n' + '\n'.join(errors))
-print(f'PASS: {a.mode} of 1 GiB on the pinned exFAT linux partition; hashes match, '
-      'exFAT clean, other partitions untouched.')
+print(f'PASS: {a.mode} of 1 GiB on the pinned exFAT linux partition ({wc[0][0]}, '
+      f'write_cache={wc[0][1]}, fua={wc[0][2]}); hashes match, exFAT clean, other partitions untouched.')
 print('Preserve and hash the complete transcript.')

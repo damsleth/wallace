@@ -164,5 +164,5 @@ DISK_DW=$(( $(wsec /sys/block/nvme0n1/stat) - DISK_W0 ))
 P_DW=$(( $(wsec /sys/block/nvme0n1/$P/stat) - P_W0 ))
 say "sectors written: disk=$DISK_DW p3=$P_DW"
 [ "$DISK_DW" = "$P_DW" ] || stop 'writes outside p3 on nvme0n1'
-say "PASS mode=$MODE bytes=1073741824 sha256=$GOT others_unchanged=yes write_cache=${WCNOW% *}"
+say "PASS mode=$MODE bytes=1073741824 sha256=$GOT others_unchanged=yes write_cache=${WCNOW#write }"
 park

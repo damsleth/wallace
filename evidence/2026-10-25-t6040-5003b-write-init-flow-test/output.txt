@@ -1,0 +1,57 @@
+LBS=4096 type=a2a0d0ebe5b9334487c068b6b72699c7 guid=dba60dea3529cb49a996b982dd646f24  (expect a2a0d0eb… / dba60dea3529cb49a996b982dd646f24)
+first/last LBA bytes: 00180000000000005fc60a0000000000
+Partition unique GUID: EA0DA6DB-2935-49CB-A996-B982DD646F24
+First sector: 6144 (at 24.0 MiB)
+Last sector: 706143 (at 2.7 GiB)
+== write r2 through
+  fsck.exfat -n (before) rc=0: /dev/loop0p3: clean. directories 1, files 0
+  p3 stats before:  62 0 4504 3 5 603 4864 3 0 4 7 0 0 0 0 0 0
+  dir=/mnt/linux/wallace-write-test-r2 write_cache=write through fua=0
+  wrote 1073741824 bytes in 26175.46..26177.92 s (uptime)
+  write sha256=511f8e682296919ef6f15e6376268d922f1b2b1a6a40b153b1e68f5936f33762
+  fsck.exfat -n (after-write) rc=0: /dev/loop0p3: clean. directories 2, files 2
+  read back 1073741824 bytes in 26184.39..26190.72 s; sha256=511f8e682296919ef6f15e6376268d922f1b2b1a6a40b153b1e68f5936f33762 expected=511f8e682296919ef6f15e6376268d922f1b2b1a6a40b153b1e68f5936f33762
+  fsck.exfat -n (final) rc=0: /dev/loop0p3: clean. directories 2, files 2
+  p3 stats after:  8402 0 2103264 570 1048 634 2102352 1574 0 818 2145 0 0 0 0 0 0
+  sectors written: disk=2097488 p3=2097488
+  PASS mode=write bytes=1073741824 sha256=511f8e682296919ef6f15e6376268d922f1b2b1a6a40b153b1e68f5936f33762 others_unchanged=yes write_cache=through
+  (fell through)
+  exit=0
+== write r2 again (must refuse)
+  fsck.exfat -n (before) rc=0: /dev/loop0p3: clean. directories 2, files 2
+  p3 stats before:  8410 0 2103552 571 1048 634 2102352 1574 0 818 2145 0 0 0 0 0 0
+  dir=/mnt/linux/wallace-write-test-r2 write_cache=write through fua=0
+  STOP: /mnt/linux/wallace-write-test-r2 already exists; use nvmewrite=verify
+  exit=3
+== verify r2
+  fsck.exfat -n (before) rc=0: /dev/loop0p3: clean. directories 2, files 2
+  p3 stats before:  8498 0 2104480 574 1048 634 2102352 1574 0 818 2149 0 0 0 0 0 0
+  dir=/mnt/linux/wallace-write-test-r2 write_cache=write through fua=0
+  read back 1073741824 bytes in 26190.84..26197.32 s; sha256=511f8e682296919ef6f15e6376268d922f1b2b1a6a40b153b1e68f5936f33762 expected=511f8e682296919ef6f15e6376268d922f1b2b1a6a40b153b1e68f5936f33762
+  fsck.exfat -n (final) rc=0: /dev/loop0p3: clean. directories 2, files 2
+  p3 stats after:  16782 0 4202568 1161 1048 634 2102352 1574 0 1402 2736 0 0 0 0 0 0
+  sectors written: disk=0 p3=0
+  PASS mode=verify bytes=1073741824 sha256=511f8e682296919ef6f15e6376268d922f1b2b1a6a40b153b1e68f5936f33762 others_unchanged=yes write_cache=through
+  (fell through)
+  exit=0
+== write r3 write-back
+  fsck.exfat -n (before) rc=0: /dev/loop0p3: clean. directories 2, files 2
+  p3 stats before:  16790 0 4202856 1161 1048 634 2102352 1574 0 1403 2736 0 0 0 0 0 0
+  dir=/mnt/linux/wallace-write-test-r3 write_cache=write through fua=0
+  wrote 1073741824 bytes in 26197.40..26199.79 s (uptime)
+  write sha256=80ce5332c2a5a4533e9d7488f5ff34e64b3fdb04a1ec06b4a2fed525038893b1
+  fsck.exfat -n (after-write) rc=0: /dev/loop0p3: clean. directories 3, files 4
+  read back 1073741824 bytes in 26206.20..26212.63 s; sha256=80ce5332c2a5a4533e9d7488f5ff34e64b3fdb04a1ec06b4a2fed525038893b1 expected=80ce5332c2a5a4533e9d7488f5ff34e64b3fdb04a1ec06b4a2fed525038893b1
+  fsck.exfat -n (final) rc=0: /dev/loop0p3: clean. directories 3, files 4
+  p3 stats after:  25132 0 6301648 1780 2020 2218 4199848 2935 0 2235 4715 0 0 0 0 0 0
+  sectors written: disk=2097496 p3=2097496
+  PASS mode=write bytes=1073741824 sha256=80ce5332c2a5a4533e9d7488f5ff34e64b3fdb04a1ec06b4a2fed525038893b1 others_unchanged=yes write_cache=through
+  (fell through)
+  exit=0
+== corrupt r3 then verify (must STOP)
+  fsck.exfat -n (before) rc=0: /dev/loop0p3: clean. directories 3, files 4
+  p3 stats before:  25222 0 6302600 1781 2024 2218 4199880 2935 0 2235 4717 0 0 0 0 0 0
+  dir=/mnt/linux/wallace-write-test-r3 write_cache=write through fua=0
+  read back 1073741824 bytes in 26212.73..26219.05 s; sha256=05016e61d3990bfe2c0ab1ced0e57f842f87a2c27f5a1043909e0697480c6193 expected=80ce5332c2a5a4533e9d7488f5ff34e64b3fdb04a1ec06b4a2fed525038893b1
+  STOP: data mismatch
+  exit=3

@@ -3,14 +3,15 @@
 # The in-image watchdog keeps petting while a hung dd blocks, so only the host
 # can stop a stuck run: if neither PASS nor STOP appears in the console log
 # within DEADLINE seconds of handoff, the M4 is rebooted via DebugUSB.
-#   usage: t6040-run-nvme-write.sh write|verify <run-dir>
+#   usage: [PAYLOAD=dir] [WRITE_ARGS="nvmewritedir=TAG nvmewc=through"] \
+#          t6040-run-nvme-write.sh write|verify <run-dir>
 # Requires the rig lease (boot-dcuart enforces it) and a running kisd.
 set -u
 MODE=${1:?write|verify}; RUN=${2:?run directory}
 case "$MODE" in write|verify) ;; *) echo "bad mode" >&2; exit 2 ;; esac
 WALLACE=$(cd "$(dirname "$0")/.." && pwd)
 O=/Users/damsleth/Code/linux-build-out
-P=nvme-exfat-write-20261025/payload
+P=${PAYLOAD:-nvme-exfat-write-20261025/payload}
 DEADLINE=${DEADLINE:-300}
 [ ! -e "$RUN" ] || { echo "refusing to reuse $RUN" >&2; exit 2; }
 mkdir -p "$RUN"
@@ -20,7 +21,7 @@ cd "$WALLACE"
 env -u EXTRA_BOOTARGS RIG_AGENT=claude RIG_ENFORCE=1 M1N1DEVICE=/tmp/m1n1 \
     M1N1_BIN=$O/$P/m1n1.bin IMAGE=$P/Image BOOT_MAXCPUS=1 BOOT_IDLE=nop \
     KERNEL_LOG_ARGS='ignore_loglevel printk.devkmsg=on console=ttydc0 console=tty0' \
-    EXTRA_BOOTARGS="nvmewrite=$MODE" LOG_DIR="$RUN" CHAINLOAD_ATTEMPTS=1 BOOT_WAIT=5 \
+    EXTRA_BOOTARGS="nvmewrite=$MODE${WRITE_ARGS:+ $WRITE_ARGS}" LOG_DIR="$RUN" CHAINLOAD_ATTEMPTS=1 BOOT_WAIT=5 \
     T6040_KEEPALIVE=0 bash scripts/t6040-boot-dcuart.sh $P/t6040-nvme.dtb $P/initramfs.cpio.gz \
     >"$RUN/boot-script.out" 2>&1
 echo "boot exit=$?" >>"$RUN/boot-script.out"
