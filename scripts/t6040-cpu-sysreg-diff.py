@@ -75,6 +75,17 @@ FIRST_PASS = re.compile(
     r"CYC_OVRD|SPRR_CONFIG_EL1|GXF_CONFIG_EL1|IPI_CR_EL1|SIQ_CFG_EL1|AMX_CTL_EL[12])")
 
 
+def ctrr_regs():
+    """CTRR range-protection registers, named in proxyclient apple_regs.json
+    (not in cpu_regs.h, so outside the 5010 first pass). 5012 showed every
+    secondary denying writes around the ADT while cpu0 allows them."""
+    regs = {}
+    for e in json.load(open("/Users/damsleth/Code/m1n1/proxyclient/m1n1/apple_regs.json")):
+        if e["name"].startswith("CTRR_"):
+            regs["IMP_APL_" + e["name"]] = tuple(e["enc"])
+    return regs
+
+
 def impdef_first_pass():
     regs = {}
     src = open("/Users/damsleth/Code/m1n1/src/cpu_regs.h").read()
@@ -129,6 +140,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True)
     ap.add_argument("--cpus", default="0,1,5")
+    ap.add_argument("--ctrr", action="store_true", help="read only arch ID regs + the CTRR set")
     a = ap.parse_args()
     PROGRESS = open(a.out + ".progress", "w")
     print("== identity gate ==", flush=True)
@@ -155,7 +167,7 @@ def main() -> int:
             print(f"cpu{c}: NOP call raised {e}; aborting before any register read", flush=True)
             return 3
     regs = dict(ARCH)
-    regs.update(impdef_first_pass())
+    regs.update(ctrr_regs() if a.ctrr else impdef_first_pass())
     print(f"first pass: {len(regs)} registers on cpus {cpus}", flush=True)
     data, hung = {c: {} for c in cpus}, {}
     for c in cpus:

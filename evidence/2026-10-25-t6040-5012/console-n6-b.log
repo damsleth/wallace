@@ -1,0 +1,469 @@
+Preparing to run next stage at 0x1000f800000...
+nvme: ensure-shutdown: adopting live ANS to quiesce it
+nvme: clock-gates not set
+nvme: ANS is on die 0
+sart: SARTv3 /arm-io/sart-ans at 0x40dc50000
+rtkit(nvme): booting with version 12
+rtkit(nvme): unknown system endpoint 0x0a
+nvme: initialized at 0x44dcc0000
+nvme: command failed with status 2
+nvme: delete sq command failed
+nvme: command failed with status 2
+nvme: delete cq command failed
+pmgr: resetting device 0.ANS
+nvme: shutdown done
+USB0: shutdown
+USB1: shutdown
+USB2: shutdown
+MMU: shutting down...
+MMU: shutdown successful, clearing caches
+Vectoring to next stage...
+[    0.000000] Booting Linux on physical CPU 0x0000010100 [0x611f0551]
+[    0.000000] Linux version 7.1.3-g4f2429104009-dirty (wallace@t6040-kbuild) (gcc (Debian 12.2.0-14+deb12u1) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40) #1 SMP PREEMPT 2026-08-03T18:17:34+02:00
+[    0.000000] KASLR disabled on command line
+[    0.000000] random: crng init done
+[    0.000000] Machine model: Apple MacBook Pro (M4 Pro) J614s [DockChannel UART bring-up]
+[    0.000000] printk: debug: ignoring loglevel setting.
+[    0.000000] efi: UEFI not found.
+[    0.000000] OF: reserved mem: 0x00000105ce7a0000..0x00000105ce7a3fff (16 KiB) map non-reusable flash@105ce7a0000
+[    0.000000] OF: reserved mem: 0x00000100047c4000..0x0000010004857fff (592 KiB) map non-reusable flash@100047c4000
+[    0.000000] NUMA: Faking a node at [mem 0x00000100032a8000-0x00000105ce7a3fff]
+[    0.000000] NODE_DATA(0) allocated [mem 0x105cdbac740-0x105cdbaef3f]
+[    0.000000] cma: Reserved 32 MiB at 0x0000010005000000
+[    0.000000] Large number of MPIDR hash buckets detected
+[    0.000000] Zone ranges:
+[    0.000000]   DMA      [mem 0x00000100032a8000-0x00000105ce7a3fff]
+[    0.000000]   DMA32    empty
+[    0.000000]   Normal   empty
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x00000100032a8000-0x00000105ce79bfff]
+[    0.000000]   node   0: [mem 0x00000105ce7a0000-0x00000105ce7a3fff]
+[    0.000000] Initmem setup node 0 [mem 0x00000100032a8000-0x00000105ce7a3fff]
+[    0.000000] On node 0, zone DMA: 3242 pages in unavailable ranges
+[    0.000000] On node 0, zone DMA: 1 pages in unavailable ranges
+[    0.000000] On node 0, zone DMA: 1559 pages in unavailable ranges
+[    0.000000] percpu: Embedded 7 pages/cpu s67800 r8192 d38696 u114688
+[    0.000000] pcpu-alloc: s67800 r8192 d38696 u114688 alloc=7*16384
+[    0.000000] pcpu-alloc: [0] 00 [0] 01 [0] 02 [0] 03 [0] 04 [0] 05 [0] 06 [0] 07 
+[    0.000000] pcpu-alloc: [0] 08 [0] 09 [0] 10 [0] 11 [0] 12 [0] 13 
+[    0.000000] Detected PIPT I-cache on CPU0
+[    0.000000] CPU features: detected: Address authentication (IMP DEF algorithm)
+[    0.000000] CPU features: detected: HCRX_EL2 register
+[    0.000000] CPU features: detected: Virtualization Host Extensions
+[    0.000000] CPU features: detected: Spectre-v4
+[    0.000000] CPU features: detected: Spectre-BHB
+[    0.000000] alternatives: applying boot alternatives
+[    0.000000] Kernel command line: maxcpus=6 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel printk.devkmsg=on console=ttydc0 console=tty0 rdinit=/init
+[    0.000000] printk: log buffer data + meta data: 131072 + 458752 = 589824 bytes
+[    0.000000] Dentry cache hash table entries: 4194304 (order: 11, 33554432 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 2097152 (order: 10, 16777216 bytes, linear)
+[    0.000000] software IO TLB: SWIOTLB bounce buffer size adjusted to 23MB
+[    0.000000] software IO TLB: area num 16.
+[    0.000000] software IO TLB: SWIOTLB bounce buffer size roundup to 32MB
+[    0.000000] software IO TLB: mapped [mem 0x00000105c8a00000-0x00000105caa00000] (32MB)
+[    0.000000] Fallback order for Node 0: 0 
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 1518910
+[    0.000000] Policy zone: DMA
+[    0.000000] mem auto-init: stack:all(zero), heap alloc:off, heap free:off
+[    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=14, Nodes=1
+[    0.000000] rcu: Preemptible hierarchical RCU implementation.
+[    0.000000] rcu: 	RCU event tracing is enabled.
+[    0.000000] rcu: 	RCU restricting CPUs from NR_CPUS=512 to nr_cpu_ids=14.
+[    0.000000] 	Trampoline variant of Tasks RCU enabled.
+[    0.000000] 	Tracing variant of Tasks RCU enabled.
+[    0.000000] rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+[    0.000000] rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=14
+[    0.000000] RCU Tasks: Setting shift to 4 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=14.
+[    0.000000] NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+[    0.000000] Root IRQ handler: aic_handle_irq
+[    0.000000] Root FIQ handler: aic_handle_fiq
+[    0.000000] irq_apple_aic: Using Fast IPIs
+[    0.000000] irq_apple_aic: Initialized with 2720/4096 IRQs * 1/2 die(s), 7 FIQs, 32 vIPIs
+[    0.000000] rcu: srcu_init: Setting srcu_struct sizes based on contention.
+[    0.000000] arch_timer: cp15 timer running at 1000.00MHz (phys).
+[    0.000000] clocksource: arch_sys_counter: mask: 0x1fffffffffffffff max_cycles: 0x1cd42e4dffb, max_idle_ns: 881590591483 ns
+[    0.000000] sched_clock: 61 bits at 1000MHz, resolution 1ns, wraps every 4398046511103ns
+[    0.000230] Console: colour dummy device 80x25
+[    0.000234] printk: legacy console [tty0] enabled
+[    0.000299] Calibrating delay loop (skipped), value calculated using timer frequency.. 2000.00 BogoMIPS (lpj=4000000)
+[    0.000302] pid_max: default: 32768 minimum: 301
+[    0.000371] Mount-cache hash table entries: 65536 (order: 5, 524288 bytes, linear)
+[    0.000383] Mountpoint-cache hash table entries: 65536 (order: 5, 524288 bytes, linear)
+[    0.000443] VFS: Finished mounting rootfs on nullfs
+[    0.000809] rcu: Hierarchical SRCU implementation.
+[    0.000812] rcu: 	Max phase no-delay instances is 1000.
+[    0.000836] Timer migration: 2 hierarchy levels; 8 children per group; 2 crossnode level
+[    0.001114] EFI services will not be available.
+[    0.001177] smp: Bringing up secondary CPUs ...
+[    0.001244] Detected PIPT I-cache on CPU1
+[    0.001296] CPU1: Booted secondary processor 0x0000000000 [0x611f0541]
+[    0.001435] Detected PIPT I-cache on CPU2
+[    0.001464] CPU2: Booted secondary processor 0x0000000001 [0x611f0541]
+[    0.001559] Detected PIPT I-cache on CPU3
+[    0.001588] CPU3: Booted secondary processor 0x0000000002 [0x611f0541]
+[    0.001678] Detected PIPT I-cache on CPU4
+[    0.001707] CPU4: Booted secondary processor 0x0000000003 [0x611f0541]
+[    0.001806] Detected PIPT I-cache on CPU5
+[    0.001833] CPU5: Booted secondary processor 0x0000010101 [0x611f0551]
+[    0.001861] smp: Brought up 1 node, 6 CPUs
+[    0.001868] SMP: Total of 6 processors activated.
+[    0.001869] CPU: All CPU(s) started at EL2
+[    0.001871] CPU features: detected: Branch Target Identification
+[    0.001872] CPU features: detected: ARMv8.4 Translation Table Level
+[    0.001874] CPU features: detected: Data cache clean to the PoU not required for I/D coherence
+[    0.001875] CPU features: detected: Common not Private translations
+[    0.001876] CPU features: detected: CRC32 instructions
+[    0.001877] CPU features: detected: Data independent timing control (DIT)
+[    0.001878] CPU features: detected: E0PD
+[    0.001879] CPU features: detected: Enhanced Counter Virtualization
+[    0.001880] CPU features: detected: Enhanced Privileged Access Never
+[    0.001881] CPU features: detected: Enhanced Virtualization Traps
+[    0.001882] CPU features: detected: Fine Grained Traps
+[    0.001883] CPU features: detected: Generic authentication (IMP DEF algorithm)
+[    0.001884] CPU features: detected: RCpc load-acquire (LDAPR)
+[    0.001885] CPU features: detected: LSE atomic instructions
+[    0.001886] CPU features: detected: Privileged Access Never
+[    0.001887] CPU features: detected: RAS Extension Support
+[    0.001888] CPU features: detected: Speculation barrier (SB)
+[    0.001889] CPU features: detected: Stage-2 Force Write-Back
+[    0.001890] CPU features: detected: TLB range maintenance instructions
+[    0.001891] CPU features: detected: WFx with timeout
+[    0.001892] CPU features: detected: XNX
+[    0.001912] alternatives: applying system-wide alternatives
+[    0.004085] CPU features: detected: ACTLR virtualization (architectural?)
+[    0.004228] Memory: 24011040K/24302560K available (20992K kernel code, 5346K rwdata, 15376K rodata, 13120K init, 820K bss, 251152K reserved, 32768K cma-reserved)
+[    0.004475] devtmpfs: initialized
+[    0.005989] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+[    0.005994] posixtimers hash table entries: 8192 (order: 3, 131072 bytes, linear)
+[    0.006016] futex hash table entries: 4096 (262144 bytes on 1 NUMA nodes, total 256 KiB, linear).
+[    0.006045] 4688 pages in range for non-PLT usage
+[    0.006046] 127568 pages in range for PLT usage
+[    0.006357] DMI: not present or invalid.
+[    0.006763] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+[    0.006842] t6040-205: par adt_last PA 0000010004854000 cpu0 PAR_EL1 ff00010004854b80
+[    0.006844] t6040-205: par adt_last PA 0000010004854000 cpu1 PAR_EL1 000000000000081f
+[    0.006846] t6040-205: par adt_last PA 0000010004854000 cpu2 PAR_EL1 000000000000081f
+[    0.006847] t6040-205: par adt_last PA 0000010004854000 cpu3 PAR_EL1 000000000000081f
+[    0.006849] t6040-205: par adt_last PA 0000010004854000 cpu4 PAR_EL1 000000000000081f
+[    0.006850] t6040-205: par adt_last PA 0000010004854000 cpu5 PAR_EL1 000000000000081f
+[    0.006861] t6040-205: par adt_end+0 PA 0000010004858000 cpu0 PAR_EL1 ff00010004858b80
+[    0.006862] t6040-205: par adt_end+0 PA 0000010004858000 cpu1 PAR_EL1 000000000000081f
+[    0.006864] t6040-205: par adt_end+0 PA 0000010004858000 cpu2 PAR_EL1 000000000000081f
+[    0.006865] t6040-205: par adt_end+0 PA 0000010004858000 cpu3 PAR_EL1 000000000000081f
+[    0.006867] t6040-205: par adt_end+0 PA 0000010004858000 cpu4 PAR_EL1 000000000000081f
+[    0.006868] t6040-205: par adt_end+0 PA 0000010004858000 cpu5 PAR_EL1 000000000000081f
+[    0.006878] t6040-205: par adt_end+1 PA 000001000485c000 cpu0 PAR_EL1 ff0001000485cb80
+[    0.006880] t6040-205: par adt_end+1 PA 000001000485c000 cpu1 PAR_EL1 000000000000081f
+[    0.006881] t6040-205: par adt_end+1 PA 000001000485c000 cpu2 PAR_EL1 000000000000081f
+[    0.006882] t6040-205: par adt_end+1 PA 000001000485c000 cpu3 PAR_EL1 000000000000081f
+[    0.006884] t6040-205: par adt_end+1 PA 000001000485c000 cpu4 PAR_EL1 000000000000081f
+[    0.006885] t6040-205: par adt_end+1 PA 000001000485c000 cpu5 PAR_EL1 000000000000081f
+[    0.006895] t6040-205: par adt_end+2 PA 0000010004860000 cpu0 PAR_EL1 ff00010004860b80
+[    0.006897] t6040-205: par adt_end+2 PA 0000010004860000 cpu1 PAR_EL1 000000000000081f
+[    0.006898] t6040-205: par adt_end+2 PA 0000010004860000 cpu2 PAR_EL1 000000000000081f
+[    0.006900] t6040-205: par adt_end+2 PA 0000010004860000 cpu3 PAR_EL1 000000000000081f
+[    0.006901] t6040-205: par adt_end+2 PA 0000010004860000 cpu4 PAR_EL1 000000000000081f
+[    0.006903] t6040-205: par adt_end+2 PA 0000010004860000 cpu5 PAR_EL1 000000000000081f
+[    0.006913] t6040-205: par adt_end+3 PA 0000010004864000 cpu0 PAR_EL1 ff00010004864b80
+[    0.006914] t6040-205: par adt_end+3 PA 0000010004864000 cpu1 PAR_EL1 000000000000081f
+[    0.006915] t6040-205: par adt_end+3 PA 0000010004864000 cpu2 PAR_EL1 000000000000081f
+[    0.006917] t6040-205: par adt_end+3 PA 0000010004864000 cpu3 PAR_EL1 000000000000081f
+[    0.006918] t6040-205: par adt_end+3 PA 0000010004864000 cpu4 PAR_EL1 000000000000081f
+[    0.006919] t6040-205: par adt_end+3 PA 0000010004864000 cpu5 PAR_EL1 000000000000081f
+[    0.006930] t6040-205: par adt_end+16 PA 0000010004898000 cpu0 PAR_EL1 ff00010004898b80
+[    0.006931] t6040-205: par adt_end+16 PA 0000010004898000 cpu1 PAR_EL1 000000000000081f
+[    0.006933] t6040-205: par adt_end+16 PA 0000010004898000 cpu2 PAR_EL1 000000000000081f
+[    0.006934] t6040-205: par adt_end+16 PA 0000010004898000 cpu3 PAR_EL1 000000000000081f
+[    0.006935] t6040-205: par adt_end+16 PA 0000010004898000 cpu4 PAR_EL1 000000000000081f
+[    0.006937] t6040-205: par adt_end+16 PA 0000010004898000 cpu5 PAR_EL1 000000000000081f
+[    0.006943] t6040-205: probe: page after ADT (PA 0000010004858000, ADT [mem 0x100047c4000-0x10004857fff]) not allocatable; skipped
+[    0.006957] t6040-205: probe control PA 0000010003a58000 VA ffff800003a58000: read_fail_cpus=0 write_fail_cpus=0
+[    0.006959] t6040-205: probe control cpu0 PAR_EL1 ff00010003a58b80
+[    0.006960] t6040-205: probe control cpu1 PAR_EL1 ff00010003a58b80
+[    0.006961] t6040-205: probe control cpu2 PAR_EL1 ff00010003a58b80
+[    0.006962] t6040-205: probe control cpu3 PAR_EL1 ff00010003a58b80
+[    0.006964] t6040-205: probe control cpu4 PAR_EL1 ff00010003a58b80
+[    0.006964] t6040-205: probe control cpu5 PAR_EL1 ff00010003a58b80
+[    0.007197] DMA: preallocated 4096 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.007203] audit: initializing netlink subsys (disabled)
+[    0.007228] audit: type=2000 audit(0.000:1): state=initialized audit_enabled=0 res=1
+[    0.007458] thermal_sys: Registered thermal governor 'step_wise'
+[    0.007460] thermal_sys: Registered thermal governor 'power_allocator'
+[    0.007470] cpuidle: using governor menu
+[    0.007497] hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
+[    0.007537] ASID allocator initialised with 65536 entries
+[    0.007797] Serial: AMBA PL011 UART driver
+[    0.015421] HugeTLB: registered 1.00 GiB page size, pre-allocated 0 pages
+[    0.015423] HugeTLB: 0 KiB vmemmap can be freed for a 1.00 GiB page
+[    0.015424] HugeTLB: registered 32.0 MiB page size, pre-allocated 0 pages
+[    0.015425] HugeTLB: 0 KiB vmemmap can be freed for a 32.0 MiB page
+[    0.015426] HugeTLB: registered 2.00 MiB page size, pre-allocated 0 pages
+[    0.015427] HugeTLB: 0 KiB vmemmap can be freed for a 2.00 MiB page
+[    0.015774] ACPI: Interpreter disabled.
+[    0.016643] iommu: Default domain type: Translated
+[    0.016644] iommu: DMA domain TLB invalidation policy: strict mode
+[    0.016767] SCSI subsystem initialized
+[    0.016790] libata version 3.00 loaded.
+[    0.016820] usbcore: registered new interface driver usbfs
+[    0.016824] usbcore: registered new interface driver hub
+[    0.016830] usbcore: registered new device driver usb
+[    0.017105] pps_core: LinuxPPS API ver. 1 registered
+[    0.017106] pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
+[    0.017109] PTP clock support registered
+[    0.017143] EDAC MC: Ver: 3.0.0
+[    0.017188] scmi_core: SCMI protocol bus registered
+[    0.017433] FPGA manager framework
+[    0.017546] Bluetooth: Core ver 2.22
+[    0.017551] NET: Registered PF_BLUETOOTH protocol family
+[    0.017552] Bluetooth: HCI device and connection manager initialized
+[    0.017553] Bluetooth: HCI socket layer initialized
+[    0.017555] Bluetooth: L2CAP socket layer initialized
+[    0.017557] Bluetooth: SCO socket layer initialized
+[    0.017645] vgaarb: loaded
+[    0.017719] clocksource: Switched to clocksource arch_sys_counter
+[    0.017760] VFS: Disk quotas dquot_6.6.0
+[    0.017763] VFS: Dquot-cache hash table entries: 2048 (order 0, 16384 bytes)
+[    0.017821] pnp: PnP ACPI: disabled
+[    0.018861] NET: Registered PF_INET protocol family
+[    0.018916] IP idents hash table entries: 262144 (order: 7, 2097152 bytes, linear)
+[    0.020745] tcp_listen_portaddr_hash hash table entries: 16384 (order: 4, 262144 bytes, linear)
+[    0.020761] Table-perturb hash table entries: 65536 (order: 4, 262144 bytes, linear)
+[    0.020764] TCP established hash table entries: 262144 (order: 7, 2097152 bytes, linear)
+[    0.020879] TCP bind hash table entries: 65536 (order: 7, 2097152 bytes, linear)
+[    0.020973] TCP: Hash tables configured (established 262144 bind 65536)
+[    0.020990] UDP hash table entries: 16384 (order: 6, 1048576 bytes, linear)
+[    0.021097] NET: Registered PF_UNIX/PF_LOCAL protocol family
+[    0.021162] RPC: Registered named UNIX socket transport module.
+[    0.021164] RPC: Registered udp transport module.
+[    0.021165] RPC: Registered tcp transport module.
+[    0.021166] RPC: Registered tcp-with-tls transport module.
+[    0.021167] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[    0.021255] PCI: CLS 0 bytes, default 64
+[    0.021297] Unpacking initramfs...
+[    0.022864] t6040-205: CPU5 PC __pi_memcpy_generic+0x128/0x22c VA ffff800004858000 PA(lin) 0000010004858000 PA(pte) 0000010004858000 pte 00e8010004858707 ESR 9600004f PAR(at s1e2w) 000000000000081f: stage 1 plain retry
+[    0.022877] t6040-205: CPU5 VA ffff800004858000: faulted again after plain retry; stage 2 local TLBI + retry
+[    0.022879] t6040-205: CPU5 VA ffff800004858000: faulted again after local TLBI; stage 3 broadcast TLBI + retry
+[    0.022881] t6040-205: CPU5 VA ffff800004858000 pte 00e8010004858707 PAR(at s1e2w) 000000000000081f read ok: faulted AGAIN after plain, local and broadcast retries
+[    0.022884] Unable to handle kernel write to read-only memory at virtual address ffff800004858000
+[    0.022886] Mem abort info:
+[    0.022887]   ESR = 0x000000009600004f
+[    0.022888]   EC = 0x25: DABT (current EL), IL = 32 bits
+[    0.022889]   SET = 0, FnV = 0
+[    0.022890]   EA = 0, S1PTW = 0
+[    0.022891]   FSC = 0x0f: level 3 permission fault
+[    0.022892] Data abort info:
+[    0.022893]   ISV = 0, ISS = 0x0000004f, ISS2 = 0x00000000
+[    0.022894]   CM = 0, WnR = 1, TnD = 0, TagAccess = 0
+[    0.022895]   GCS = 0, Overlay = 0, DirtyBit = 0, Xs = 0
+[    0.022896] swapper pgtable: 16k pages, 47-bit VAs, pgdp=0000010011bb4000
+[    0.022898] [ffff800004858000] pgd=0000000000000000, p4d=0000000000000000, pud=18000105ce798403, pmd=18000105ce790403, pte=00e8010004858707
+[    0.022903] Internal error: Oops: 000000009600004f [#1]  SMP
+[    0.022905] Modules linked in:
+[    0.022908] CPU: 5 UID: 0 PID: 66 Comm: kworker/u57:1 Not tainted 7.1.3-g4f2429104009-dirty #1 PREEMPT 
+[    0.022910] Hardware name: Apple MacBook Pro (M4 Pro) J614s [DockChannel UART bring-up] (DT)
+[    0.022912] Workqueue: async async_run_entry_fn
+[    0.022917] pstate: a1400009 (NzCv daif +PAN -UAO -TCO +DIT -SSBS BTYPE=--)
+[    0.022920] pc : __pi_memcpy_generic+0x128/0x22c
+[    0.022923] lr : copy_folio_from_iter_atomic+0x494/0x8c0
+[    0.022929] sp : ffffc000844c78f0
+[    0.022930] x29: ffffc000844c7960 x28: 0000000000004160 x27: 0000000000000000
+[    0.022932] x26: ffffc000844c7b00 x25: 0000000000000000 x24: ffffc000844c7b10
+[    0.022934] x23: 0000000000000000 x22: ffff800003bfb900 x21: ffff800004858000
+[    0.022936] x20: 0000000000003ea0 x19: 0000000000003ea0 x18: 0000000000000001
+[    0.022938] x17: 0000000000008000 x16: ffff80000a9a2548 x15: 0000000000000000
+[    0.022939] x14: 0000000000000000 x13: f9400c21b5ffdbe7 x12: f9400827f9400061
+[    0.022941] x11: 17ffff0d2a0003f7 x10: 0000000000000000 x9 : 0000000000000000
+[    0.022943] x8 : ffffc0054b40c000 x7 : 17ffff752a0003e4 x6 : 17fffedcb4ffef01
+[    0.022944] x5 : ffff80000485bea0 x4 : ffff80000ab60000 x3 : ffff800004858000
+[    0.022946] x2 : 0000000000003ea0 x1 : ffff80000ab5c160 x0 : ffff800004858000
+[    0.022948] Call trace:
+[    0.022949]  __pi_memcpy_generic+0x128/0x22c (P)
+[    0.022953]  generic_perform_write+0x150/0x264
+[    0.022958]  shmem_file_write_iter+0xa0/0xa8
+[    0.022961]  __kernel_write_iter+0xf8/0x274
+[    0.022964]  kernel_write+0xe4/0x120
+[    0.022966]  xwrite.constprop.0+0x4c/0xe8
+[    0.022973]  do_copy+0xe8/0x178
+[    0.022975]  flush_buffer+0x58/0xd0
+[    0.022977]  gunzip+0x254/0x328
+[    0.022981]  unpack_to_rootfs+0x120/0x31c
+[    0.022983]  do_populate_rootfs+0x10c/0x1c4
+[    0.022985]  async_run_entry_fn+0x34/0xe0
+[    0.022988]  process_one_work+0x158/0x298
+[    0.022991]  worker_thread+0x188/0x304
+[    0.022993]  kthread+0x11c/0x128
+[    0.022995]  ret_from_fork+0x10/0x20
+[    0.022999] Code: 927cec03 cb0e0021 8b0e0042 a9411c26 (a900340c) 
+[    0.023002] ---[ end trace 0000000000000000 ]---
+[    0.023439] kvm [1]: nv: 570 coarse grained trap handlers
+[    0.023499] kvm [1]: nv: 710 fine grained trap handlers
+[    0.023533] kvm [1]: IPA Size Limit: 42 bits
+[    0.023541] kvm [1]: Non-architectural vgic, tainting kernel
+[    0.023543] kvm [1]: GICv3: no GICV resource entry
+[    0.023545] kvm [1]: disabling GICv2 emulation
+[    0.023546] kvm [1]: GICv3 sysreg trapping enabled ([C], reduced performance)
+[    0.023580] kvm [1]: GIC system register CPU interface enabled
+[    0.023584] kvm [1]: vgic interrupt IRQ33
+[    0.023601] kvm [1]: VHE mode initialized successfully
+[    0.023834] Initialise system trusted keyrings
+[    0.023861] workingset: timestamp_bits=42 (anon: 38) max_order=21 bucket_order=0 (anon: 0)
+[    0.023930] squashfs: version 4.0 (2009/01/31) Phillip Lougher
+[    0.023981] NFS: Registering the id_resolver key type
+[    0.023984] Key type id_resolver registered
+[    0.023985] Key type id_legacy registered
+[    0.023990] nfs4filelayout_init: NFSv4 File Layout Driver Registering...
+[    0.023992] nfs4flexfilelayout_init: NFSv4 Flexfile Layout Driver Registering...
+[    0.024013] 9p: Installing v9fs 9p2000 file system support
+[    0.024047] Key type asymmetric registered
+[    0.024048] Asymmetric key parser 'x509' registered
+[    0.024056] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 244)
+[    0.024058] io scheduler mq-deadline registered
+[    0.024060] io scheduler kyber registered
+[    0.024065] io scheduler bfq registered
+[    0.028017] ledtrig-cpu: registered to indicate activity on CPUs
+[    0.035485] apple-pmgr-pwrstate 288e80000.power-management:power-controller@100: always-on domain afr is not on at boot
+[    0.035962] apple-pmgr-pwrstate 502800000.power-management:power-controller@140: always-on domain pms_fpwm0 is not on at boot
+[    0.036068] apple-pmgr-pwrstate 502800000.power-management:power-controller@140: PS pms_fpwm0: Failed to reach power state 0xf (now: 0xf)
+[    0.036071] PM: always-on PM domain pms_fpwm0 is not on
+[    0.036073] apple-pmgr-pwrstate 502800000.power-management:power-controller@140: pm_genpd_init failed
+[    0.036075] apple-pmgr-pwrstate 502800000.power-management:power-controller@140: probe with driver apple-pmgr-pwrstate failed with error -22
+[    0.036083] apple-pmgr-pwrstate 502800000.power-management:power-controller@148: always-on domain pms_fpwm1 is not on at boot
+[    0.036188] apple-pmgr-pwrstate 502800000.power-management:power-controller@148: PS pms_fpwm1: Failed to reach power state 0xf (now: 0xf)
+[    0.036191] PM: always-on PM domain pms_fpwm1 is not on
+[    0.036192] apple-pmgr-pwrstate 502800000.power-management:power-controller@148: pm_genpd_init failed
+[    0.036194] apple-pmgr-pwrstate 502800000.power-management:power-controller@148: probe with driver apple-pmgr-pwrstate failed with error -22
+[    0.036203] apple-pmgr-pwrstate 502800000.power-management:power-controller@150: always-on domain pms_fpwm2 is not on at boot
+[    0.036310] apple-pmgr-pwrstate 502800000.power-management:power-controller@150: PS pms_fpwm2: Failed to reach power state 0xf (now: 0xf)
+[    0.036313] PM: always-on PM domain pms_fpwm2 is not on
+[    0.036314] apple-pmgr-pwrstate 502800000.power-management:power-controller@150: pm_genpd_init failed
+[    0.036315] apple-pmgr-pwrstate 502800000.power-management:power-controller@150: probe with driver apple-pmgr-pwrstate failed with error -22
+[    0.036322] apple-pmgr-pwrstate 502800000.power-management:power-controller@158: always-on domain pms_fpwm3 is not on at boot
+[    0.036427] apple-pmgr-pwrstate 502800000.power-management:power-controller@158: PS pms_fpwm3: Failed to reach power state 0xf (now: 0xf)
+[    0.036431] PM: always-on PM domain pms_fpwm3 is not on
+[    0.036432] apple-pmgr-pwrstate 502800000.power-management:power-controller@158: pm_genpd_init failed
+[    0.036433] apple-pmgr-pwrstate 502800000.power-management:power-controller@158: probe with driver apple-pmgr-pwrstate failed with error -22
+[    0.036440] apple-pmgr-pwrstate 502800000.power-management:power-controller@160: always-on domain pms_fpwm4 is not on at boot
+[    0.036545] apple-pmgr-pwrstate 502800000.power-management:power-controller@160: PS pms_fpwm4: Failed to reach power state 0xf (now: 0xf)
+[    0.036548] PM: always-on PM domain pms_fpwm4 is not on
+[    0.036549] apple-pmgr-pwrstate 502800000.power-management:power-controller@160: pm_genpd_init failed
+[    0.036551] apple-pmgr-pwrstate 502800000.power-management:power-controller@160: probe with driver apple-pmgr-pwrstate failed with error -22
+[    0.037669] apple-pmgr-pwrstate 508300000.power-management:power-controller@80: always-on domain nub_spi0 is not on at boot
+[    0.037725] apple-pmgr-pwrstate 508300000.power-management:power-controller@98: always-on domain nub_ocla is not on at boot
+[    0.040145] Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+[    0.040844] msm_serial: driver initialized
+[    0.040991] SuperH (H)SCI(F) driver initialized
+[    0.041072] STM32 USART driver initialized
+[    0.042111] platform 514600000.hid: Adding to iommu group 0
+[    0.042139] apple-dart 514800000.iommu: DART [pagesize 4000, 16 streams, bypass support: 1, bypass forced: 0, locked: 0, AS 42 -> 42] initialized
+[    0.042243] [drm] Initialized simpledrm 1.0.0 for 105d306a880.framebuffer on minor 0
+[    0.042958] fbcon_init: detected unhandled fb_set_par error, error code -16
+[    0.046372] Console: switching to colour frame buffer device 189x59
+[    0.049069] simple-framebuffer 105d306a880.framebuffer: [drm] fb0: simpledrmdrmfb frame buffer device
+[    0.050110] loop: module loaded
+[    0.050458] megasas: 07.734.00.00-rc1
+[    0.052244] tun: Universal TUN/TAP device driver, 1.6
+[    0.052569] thunder_xcv, ver 1.0
+[    0.052581] thunder_bgx, ver 1.0
+[    0.052593] nicpf, ver 1.0
+[    0.052963] e1000: Intel(R) PRO/1000 Network Driver
+[    0.052974] e1000: Copyright (c) 1999-2006 Intel Corporation.
+[    0.052993] e1000e: Intel(R) PRO/1000 Network Driver
+[    0.053007] e1000e: Copyright(c) 1999 - 2015 Intel Corporation.
+[    0.053026] igb: Intel(R) Gigabit Ethernet Network Driver
+[    0.053045] igb: Copyright (c) 2007-2014 Intel Corporation.
+[    0.053062] igbvf: Intel(R) Gigabit Virtual Function Network Driver
+[    0.053079] igbvf: Copyright (c) 2009 - 2012 Intel Corporation.
+[    0.053197] sky2: driver version 1.30
+[    0.053568] PPP generic driver version 2.4.2
+[    0.053633] usbcore: registered new device driver r8152-cfgselector
+[    0.053658] usbcore: registered new interface driver r8152
+[    0.053675] usbcore: registered new interface driver asix
+[    0.053695] usbcore: registered new interface driver ax88179_178a
+[    0.053735] usbcore: registered new interface driver cdc_ether
+[    0.053812] usbcore: registered new interface driver cdc_subset
+[    0.053850] usbcore: registered new interface driver cdc_ncm
+[    0.053886] usbcore: registered new interface driver r8153_ecm
+[    0.053976] VFIO - User Level meta-driver version: 0.3
+[    0.055845] usbcore: registered new interface driver uas
+[    0.055881] usbcore: registered new interface driver usb-storage
+[    0.057343] i2c_dev: i2c /dev entries driver
+[    0.060625] Bluetooth: HCI UART driver ver 2.3
+[    0.062086] Bluetooth: HCI UART protocol H4 registered
+[    0.063806] Bluetooth: HCI UART protocol LL registered
+[    0.065762] Bluetooth: HCI UART protocol Broadcom registered
+[    0.067423] Bluetooth: HCI UART protocol QCA registered
+[    0.069045] Bluetooth: HCI UART protocol Marvell registered
+[    0.071228] cpu cpu0: apple_soc_cpufreq_init: failed to add OPP table: -19
+[    0.072892] cpu cpu1: apple_soc_cpufreq_init: failed to add OPP table: -19
+[    0.074548] cpu cpu2: apple_soc_cpufreq_init: failed to add OPP table: -19
+[    0.076131] cpu cpu3: apple_soc_cpufreq_init: failed to add OPP table: -19
+[    0.077678] cpu cpu4: apple_soc_cpufreq_init: failed to add OPP table: -19
+[    0.079220] cpu cpu5: apple_soc_cpufreq_init: failed to add OPP table: -19
+[    0.084049] usbcore: registered new interface driver usbhid
+[    0.085479] usbhid: USB HID core driver
+[    0.087565] apple-dockchannel 514b14000.mailbox: IRQ masks: TX=0x4 RX=0x8
+[    0.089175] apple-dockchannel 50880c000.mailbox: IRQ masks: TX=0x4 RX=0x2
+[    0.090639] apple-dockchannel 50880c000.mailbox: using polled mode (5 ms)
+[    0.096219] NET: Registered PF_INET6 protocol family
+[    0.097930] Segment Routing with IPv6
+[    0.099327] In-situ OAM (IOAM) with IPv6
+[    0.100732] NET: Registered PF_PACKET protocol family
+[    0.102177] 9pnet: Installing 9P2000 support
+[    0.103605] Key type dns_resolver registered
+[    0.106917] registered taskstats version 1
+[    0.108372] Loading compiled-in X.509 certificates
+[    0.111135] Demotion targets for Node 0: null
+[    0.124506] printk: console [ttydc0] enabled
+[    0.125871] apple-dockchannel-tty soc:serial: registered ttydc0
+[    0.128331] dockchannel-hid 514600000.hid: RTKit: Initializing (protocol version 12)
+[    0.130542] dockchannel-hid 514600000.hid: RTKit: syslog message: main.c:245: MTP Says Hello
+[    0.131071] cfg80211: Loading compiled-in X.509 certificates for regulatory database
+[    0.131931] dockchannel-hid 514600000.hid: RTKit: syslog message: main.c:245: Version: AppleMTPFirmwareMac-5340.61.4~438
+[    0.134750] dockchannel-hid 514600000.hid: RTKit: syslog message: main.c:245: Personality: MTP_SYS
+[    0.136160] dockchannel-hid 514600000.hid: RTKit: syslog message: main.c:245: SDK: 25F63
+[    0.137562] dockchannel-hid 514600000.hid: RTKit: syslog message: main.c:245: Built on: 2026-04-18__18:25:06
+[    0.139086] dockchannel-hid 514600000.hid: RTKit: Unknown oslog message: 3ff006e78f83f4c
+[    0.140522] dockchannel-hid 514600000.hid: RTKit: Unknown oslog message: 4000020b13063c0
+[    0.141967] dockchannel-hid 514600000.hid: RTKit: Unknown oslog message: 4000040ae822582
+[    0.143380] dockchannel-hid 514600000.hid: RTKit: Unknown oslog message: 400006070b1da96
+[    0.144942] dockchannel-hid 514600000.hid: RTKit: Unknown oslog message: 50672694670744d
+[    0.146408] dockchannel-hid 514600000.hid: RTKit: Unknown oslog message: 56500657261776d
+[    0.146596] hid-generic 0019:0000:0000.0001: device has no listeners, quitting
+[    0.147835] dockchannel-hid 514600000.hid: RTKit: syslog message: kb_transport.c:271: IPD HIDSPI attached
+[    0.150668] dockchannel-hid 514600000.hid: RTKit: syslog message: touch_pwr_mgr.c:198: [TPM] Mac Power Manager State Machine Initialized (0)
+[    0.152148] dockchannel-hid 514600000.hid: RTKit: syslog message: act_mgr.c:551: Called act_mgr_init()
+[    0.153590] dockchannel-hid 514600000.hid: RTKit: syslog message: comm.c:199: Initializing comm interface <0- "comm">
+[    0.155069] dockchannel-hid 514600000.hid: RTKit: syslog message: comm.c:199: Initializing comm interface <1- "multi-touch">
+[    0.156564] dockchannel-hid 514600000.hid: RTKit: syslog message: comm.c:199: Initializing comm interface <2- "keyboard">
+[    0.158097] dockchannel-hid 514600000.hid: RTKit: syslog message: comm.c:199: Initializing comm interface <3- "stm">
+[    0.159642] dockchannel-hid 514600000.hid: RTKit: syslog message: comm.c:199: Initializing comm interface <4- "actuator">
+[    0.159751] input: Apple DockChannel Multi-touch as /devices/platform/soc/514600000.hid/0019:05AC:0359.0002/input/input0
+[    0.161168] dockchannel-hid 514600000.hid: RTKit: syslog message: comm.c:199: Initializing comm interface <5- "tp-accel">
+[    0.162149] magicmouse 0019:05AC:0359.0002: input: HOST HID v5.10 Mouse [Apple DockChannel Multi-touch] on 514600000.hid.1
+[    0.163189] dockchannel-hid 514600000.hid: RTKit: syslog message: comm.c:199: Initializing comm interface <6- "mtp">
+[    0.165294] dockchannel-hid 514600000.hid: RTKit: syslog message: stm.c:75: ST IF complete enumeration: SENT (0x0)
+[    0.165370] input: Apple DockChannel Keyboard as /devices/platform/soc/514600000.hid/0019:05AC:0359.0003/input/input1
+[    0.166867] dockchannel-hid 514600000.hid: RTKit: syslog message: touch_iface.c:171: Grape interface initializing
+[    0.169017] dockchannel-hid 514600000.hid: RTKit: syslog message: touch_iface.c:179: Grape interface initialized
+[    0.170643] dockchannel-hid 514600000.hid: RTKit: syslog message: touch_mgr.c:65: Touch IF complete enumeration: SENT
+[    0.172280] dockchannel-hid 514600000.hid: RTKit: syslog message: keyboard.c:63: Keyboard initialized
+[    0.173946] dockchannel-hid 514600000.hid: RTKit: syslog message: touch_iface.c:370: Grape interface configuration completed
+[    0.175636] dockchannel-hid 514600000.hid: RTKit: syslog message: keyboard_cr.c:73: Keyboard interface configuration completed
+[    0.176042] apple 0019:05AC:0359.0003: input: HOST HID v5.10 Keyboard [Apple DockChannel Keyboard] on 514600000.hid.2
+[    0.177293] dockchannel-hid 514600000.hid: RTKit: syslog message: keyboard.c:77: Keyboard ready
+[    0.179772] dockchannel-hid 514600000.hid: RTKit: syslog message: actuator_cr.c:84: Actuator interface configuration completed
+[    0.181546] dockchannel-hid 514600000.hid: RTKit: syslog message: actuator.c:71: Actuator ready
+[    0.183378] dockchannel-hid 514600000.hid: RTKit: syslog message: accel_cr.c:73: Accel interface configuration completed
+[    0.185201] dockchannel-hid 514600000.hid: RTKit: syslog message: accel.c:71: Accel ready
+[    0.187036] dockchannel-hid 514600000.hid: RTKit: syslog message: mtp_cr.c:268: MTP interface is ready
+[    0.188869] dockchannel-hid 514600000.hid: RTKit: syslog message: mtp_cr.c:275: MTP management interface configuration completed
+[   10.205797] apple-pmgr-pwrstate 502800000.power-management:power-controller@100: sync_state() pending due to 502800000.power-management:power-controller@140
+[   10.207711] apple-pmgr-pwrstate 502800000.power-management:power-controller@100: sync_state() pending due to 502800000.power-management:power-controller@148
+[   10.209626] apple-pmgr-pwrstate 502800000.power-management:power-controller@100: sync_state() pending due to 502800000.power-management:power-controller@150
+[   10.211502] apple-pmgr-pwrstate 502800000.power-management:power-controller@100: sync_state() pending due to 502800000.power-management:power-controller@158
+[   10.213370] apple-pmgr-pwrstate 502800000.power-management:power-controller@100: sync_state() pending due to 502800000.power-management:power-controller@160
+[   10.215235] apple-pmgr-pwrstate 502800000.power-management:power-controller@390: sync_state() pending due to 508300000.power-management
+[   10.217067] apple-pmgr-pwrstate 502800000.power-management:power-controller@3b8: sync_state() pending due to 508300000.power-management
+[   10.218887] apple-pmgr-pwrstate 502800000.power-management:power-controller@3e0: sync_state() pending due to 508300000.power-management
+[   10.220678] apple-pmgr-pwrstate 502800000.power-management:power-controller@408: sync_state() pending due to 508300000.power-management
