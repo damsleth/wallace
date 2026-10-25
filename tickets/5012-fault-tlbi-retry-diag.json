@@ -2,12 +2,22 @@
   "seq": "5012",
   "slug": "fault-tlbi-retry-diag",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "smp",
   "priority": "P0",
   "desc": "205 P2 (Mythos): does the REAL fault clear with TLB maintenance? Diagnostic kernel = daily301 feature set + patches/t6040-205-fault-tlbi-retry-diag.patch (kbuild T6040_FAULT_DIAG=1). In __do_kernel_fault, after fixup/spurious checks: on an EL1 data-abort WRITE permission fault at a linear-map VA whose current PTE is valid and not PTE_RDONLY: stage 1 log CPU/VA/PA/PTE/ESR + local_flush_tlb_all (tlbi vmalle1; dsb nsh; isb) and return to retry; stage 2 (same VA, same CPU faults again) flush_tlb_all broadcast + retry; stage 3 log AGAIN and fall through to the unchanged Oops. Diagnostic only, never a fix. Harness = 5011's deterministic one: thin dcuart DTB + 217 initramfs-cow-report + control m1n1 bf4b2462, maxcpus=6 (2/2 control boots Oops on CPU 5 at ~21 ms in the initramfs unpack). Launcher scripts/t6040-run-cow-report.sh control 6 (IMAGE/IMAGE_SHA256 override; early exit 30 s after a pre-reproducer Oops; RESULT reports diag stage counts). Readout: stage-1 success = stale private-TLB entry; stage-2 success = stale entry that only a broadcast clears; AGAIN = not TLB. 2 fresh boots; maxcpus=2 x1 if time. No storage writes, no new hardware write class (TLBI only).",
   "author": "claude",
   "deps": [],
-  "hashes": null,
-  "created": 1792933849
+  "hashes": {
+    "patch t6040-205-fault-tlbi-retry-diag.patch": "24d694c7dffa8262881deb16df7b53af0ec92968f18d84b7cdb51642ace3db60",
+    "launcher t6040-run-cow-report.sh": "944b21c54a923fb50f252a67344f4db8969012859da4cf921e59efcfe51b0bda",
+    "harness": "thin dcuart DTB 30b01736 + initramfs-cow-report de1a5cd7 + control m1n1 bf4b2462, maxcpus=6, 2 boots",
+    "reviews": "Codex (gpt-6.1-sol medium) fix-first -> applied, evidence/2026-10-25-review-5012-codex.md; Mythos PASS + additions (AT S1E2W/PAR at stages 1 and 4, postcore probe of the page after the ADT phram reservation on every CPU vs control page, stage-4 nofault read) -> applied",
+    "context": "Mythos 2f2c2be: every captured 205 fault is on the first page after m1n1 ADT phram reservation (moves with the ADT each boot)",
+    "image": "pending build (faultdiag.build1==build2)"
+  },
+  "created": 1792933849,
+  "runnable": false,
+  "approved_by": "cj",
+  "approved_at": 1792934128
 }

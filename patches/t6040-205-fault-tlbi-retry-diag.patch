@@ -1,9 +1,104 @@
 --- a/arch/arm64/mm/fault.c
 +++ b/arch/arm64/mm/fault.c
-@@ -400,6 +400,104 @@
+@@ -26,6 +26,9 @@
+ #include <linux/pkeys.h>
+ #include <linux/preempt.h>
+ #include <linux/hugetlb.h>
++#include <linux/of.h>
++#include <linux/of_address.h>
++#include <linux/gfp.h>
+ 
+ #include <asm/acpi.h>
+ #include <asm/bug.h>
+@@ -400,6 +403,195 @@
  	return false;
  }
  
++/* Stage-1 translation of a write at VA in the current (EL2&0, VHE) regime. */
++static u64 t6040_205_at_s1e2w(unsigned long va)
++{
++	asm volatile("at s1e2w, %0" : : "r" (va));
++	isb();
++	return read_sysreg_par();
++}
++
++/*
++ * Early probe (Mythos 5012 review): before the initramfs unpack, own the
++ * physical page right after m1n1's ADT phram reservation, which held every
++ * captured 205 fault, plus an unrelated control page, and check from every
++ * online CPU a nofault read, a write-back of the same value, and AT S1E2W.
++ */
++struct t6040_205_probe {
++	unsigned long *va;
++	u64 rd_fail, wr_fail;
++	u64 par[NR_CPUS];
++};
++
++static void t6040_205_probe_cpu(void *arg)
++{
++	struct t6040_205_probe *pr = arg;
++	int cpu = smp_processor_id();
++	unsigned long v = 0;
++
++	pr->par[cpu] = t6040_205_at_s1e2w((unsigned long)pr->va);
++	if (copy_from_kernel_nofault(&v, pr->va, sizeof(v)))
++		pr->rd_fail |= BIT_ULL(cpu);
++	else if (copy_to_kernel_nofault(pr->va, &v, sizeof(v)))
++		pr->wr_fail |= BIT_ULL(cpu);
++}
++
++static void __init t6040_205_probe_page(const char *what, struct page *pg)
++{
++	static struct t6040_205_probe pr;
++	int cpu;
++
++	memset(&pr, 0, sizeof(pr));
++	pr.va = page_address(pg);
++	for_each_online_cpu(cpu)
++		smp_call_function_single(cpu, t6040_205_probe_cpu, &pr, 1);
++	pr_emerg("t6040-205: probe %s PA %016llx VA %px: read_fail_cpus=%llx write_fail_cpus=%llx\n",
++		 what, (u64)page_to_phys(pg), pr.va, pr.rd_fail, pr.wr_fail);
++	for_each_online_cpu(cpu)
++		pr_emerg("t6040-205: probe %s cpu%d PAR_EL1 %016llx\n", what, cpu, pr.par[cpu]);
++}
++
++static int __init t6040_205_probe(void)
++{
++	struct device_node *np;
++	struct resource res;
++	unsigned long pfn = 0;
++	struct page *ctl;
++
++	for_each_compatible_node(np, NULL, "phram") {
++		const char *label;
++
++		if (!of_property_read_string(np, "label", &label) && !strcmp(label, "adt") &&
++		    !of_address_to_resource(np, 0, &res)) {
++			pfn = PHYS_PFN(res.end + 1);
++			of_node_put(np);
++			break;
++		}
++	}
++	if (!pfn) {
++		pr_emerg("t6040-205: probe: no phram node labelled adt\n");
++	} else if (alloc_contig_range(pfn, pfn + 1, ACR_FLAGS_NONE, GFP_KERNEL)) {
++		pr_emerg("t6040-205: probe: page after ADT (PA %016llx, ADT %pR) not allocatable; skipped\n",
++			 (u64)PFN_PHYS(pfn), &res);
++	} else {
++		pr_emerg("t6040-205: probe: ADT %pR, page after it PA %016llx owned\n",
++			 &res, (u64)PFN_PHYS(pfn));
++		t6040_205_probe_page("adt_end", pfn_to_page(pfn));
++		free_contig_range(pfn, 1);
++	}
++	ctl = alloc_page(GFP_KERNEL);
++	if (ctl) {
++		t6040_205_probe_page("control", ctl);
++		__free_page(ctl);
++	}
++	return 0;
++}
++postcore_initcall(t6040_205_probe);
++
 +/*
 + * Wallace ticket 205 diagnostic, never a fix. 205's faults are EL1 write
 + * permission faults on linear-map pages whose in-memory leaf PTE permits
@@ -86,26 +181,32 @@
 +		return false;
 +	}
 +	if (stage == 1)
-+		pr_emerg("t6040-205: CPU%d PC %pS VA %016lx PA(lin) %016llx PA(pte) %016llx pte %016llx%s ESR %08lx: stage 1 plain retry\n",
++		pr_emerg("t6040-205: CPU%d PC %pS VA %016lx PA(lin) %016llx PA(pte) %016llx pte %016llx%s ESR %08lx PAR(at s1e2w) %016llx: stage 1 plain retry\n",
 +			 cpu, (void *)regs->pc, addr, (u64)__pa(addr),
 +			 (u64)__pte_to_phys(pte), pte_val(pte),
-+			 (pte_val(pte) & PTE_CONT) ? " CONT" : "", esr);
++			 (pte_val(pte) & PTE_CONT) ? " CONT" : "", esr,
++			 t6040_205_at_s1e2w(addr));
 +	else if (stage == 2)
 +		pr_emerg("t6040-205: CPU%d VA %016lx: faulted again after plain retry; stage 2 local TLBI + retry\n",
 +			 cpu, addr);
 +	else if (stage == 3)
 +		pr_emerg("t6040-205: CPU%d VA %016lx: faulted again after local TLBI; stage 3 broadcast TLBI + retry\n",
 +			 cpu, addr);
-+	else
-+		pr_emerg("t6040-205: CPU%d VA %016lx pte %016llx: faulted AGAIN after plain, local and broadcast retries\n",
-+			 cpu, addr, pte_val(pte));
++	else {
++		unsigned long v;
++		int rd = copy_from_kernel_nofault(&v, (void *)addr, sizeof(v));
++
++		pr_emerg("t6040-205: CPU%d VA %016lx pte %016llx PAR(at s1e2w) %016llx read %s: faulted AGAIN after plain, local and broadcast retries\n",
++			 cpu, addr, pte_val(pte), t6040_205_at_s1e2w(addr),
++			 rd ? "FAULTS" : "ok");
++	}
 +	return stage <= 3;
 +}
 +
  static void __do_kernel_fault(unsigned long addr, unsigned long esr,
  			      struct pt_regs *regs)
  {
-@@ -418,6 +516,9 @@
+@@ -418,6 +610,9 @@
  		return;
  	}
  
