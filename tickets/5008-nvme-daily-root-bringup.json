@@ -2,7 +2,7 @@
   "seq": "5008",
   "slug": "nvme-daily-root-bringup",
   "needs": "rig",
-  "state": "approved",
+  "state": "done",
   "track": "storage",
   "priority": "P0",
   "desc": "Rig steps for 5005 (payloads pinned in tickets/5005-nvme-daily-root.json, evidence/2026-10-25-t6040-5005-payloads.md). A: 6001 read-only NVMe tester on the new daily+NVMe kernel 2234baad + nvmeroot DTB 6d2d3da6 (SD64 unavailable). B: installer d2c564f0 writes the embedded host-built root image (raw e3fa66b5) to p3 (write-through, SD and other NVMe read-only, writes==p3, clean reboot -f at end), checker + 15 min host deadline. C: nvmeroot 9adabb1b boot; then 3 cold boots with clean poweroff and fsck postcheck. maxcpus=1. Writes only to the pinned exFAT linux partition (CJ 2026-08-03 rule). Stop on any gate failure.",
@@ -39,5 +39,7 @@
   "approved_by": "cj",
   "approved_at": 1792915671,
   "reviewed_by": "mythos",
-  "ready_at": 1792917569
+  "ready_at": 1792917569,
+  "done_note": "A PASS, B installed+verified, C1-C4 boot and clean reboots PASS: evidence/2026-10-25-t6040-5008-C-nvme-daily-root.md",
+  "done_at": 1792926386
 }

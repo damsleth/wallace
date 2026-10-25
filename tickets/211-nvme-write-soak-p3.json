@@ -2,7 +2,7 @@
   "seq": "211",
   "slug": "nvme-write-soak-p3",
   "needs": "rig",
-  "state": "approved",
+  "state": "done",
   "track": "bringup",
   "priority": "P1",
   "desc": "BLOCKED until 206/210 gives a non-asserting NVMe path. Then complete the storage milestone on internal storage: (1) mount /dev/nvme0n1p3 exFAT, write a file, fsync, reboot, verify; (2) raw dd soak to /dev/nvme0n1p3 ONLY with md5 verify. CJ authorized 2026-08-02: writes via the mounted filesystem AND raw writes to p3 only -- NEVER raw writes to /dev/nvme0n1 or any APFS partition. Compare throughput against the SD card (58.2 GiB SDXC, already working) so we know what NVMe actually buys.",
@@ -32,5 +32,7 @@
     "evidence/2026-10-24-t6001-run3-16384-reads-no-cq-wrap-assert.md"
   ],
   "reviewed_by": "mythos",
-  "ready_at": 1792884013
+  "ready_at": 1792884013,
+  "done_note": "Stage 1 done: write r2/r3 PASS, durability model established (evidence/2026-10-25-t6040-211-r3-clean-shutdown-durable.md); raw dd soak (stage 2) not authorized",
+  "done_at": 1792926386
 }

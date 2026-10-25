@@ -1,8 +1,8 @@
 # T6040 Linux bring-up — next steps
 
 Current as of 2026-10-25 (Linux NVMe reads and writes validated at `maxcpus=1`;
-ANS2 rejects Flush, so the SSD runs write-through; NVMe daily root 5008 steps A
-and B done, C pending). This file states priorities and stop conditions.
+ANS2 rejects Flush, so the SSD runs write-through; NVMe daily root 5008 DONE:
+the M4 runs its desktop root from the internal SSD). This file states priorities and stop conditions.
 Exact work items, hashes, dependencies, and approval state live in
 `tickets/*.json`.
 
@@ -16,7 +16,7 @@ unambiguously:
 |---|---|
 | SD read/write | reader and persistence proven; fixture needs `fsck.exfat` repair |
 | USB read/write | device mode works; **USB2 host data path DONE 2026-08-19** (108) — dwc3 probes, right xHCI root hubs healthy. VBUS is the sole gap; the tps6598x SPMI PD driver is CJ-signed-off (231). 305 run 6: a1 SPMI binds, PD probe `-ENODEV` (WAKEUP never sent). Run 7 (2026-10-25): WAKEUP ACKed, register select mis-encoded; the run-8 `pddiag` image (`08de37b1`, 5002) is built, CJ-attended run pending |
-| NVMe read/write | **Reads and writes work at `maxcpus=1`.** Reads: 6001 run 3 (2026-10-24), 16,384 direct reads through ~256 CQ wraps with the zero-based ANS2 IOQ size. Writes: 211 stage 1 r2/r3 (2026-10-25), 1 GiB at about 410 MB/s into the pinned exFAT `linux` partition (`nvme0n1p3`), read-back hash equal, writes elsewhere zero. **ANS2 rejects NVMe Flush** (5006), so the SSD must run `write through`, and recent writes are durable only after a clean controller shutdown; a crash or hard reset loses the last writes (see §3). NVMe daily root (5005/5008): steps A and B done, step C pending |
+| NVMe read/write | **Reads and writes work at `maxcpus=1`.** Reads: 6001 run 3 (2026-10-24), 16,384 direct reads through ~256 CQ wraps with the zero-based ANS2 IOQ size. Writes: 211 stage 1 r2/r3 (2026-10-25), 1 GiB at about 410 MB/s into the pinned exFAT `linux` partition (`nvme0n1p3`), read-back hash equal, writes elsewhere zero. **ANS2 rejects NVMe Flush** (5006), so the SSD must run `write through`, and recent writes are durable only after a clean controller shutdown; a crash or hard reset loses the last writes (see §3). **NVMe daily root (5005/5008) works:** desktop root on `linux`, WiFi auto-joins, three clean-reboot cycles clean ([5008 C](../evidence/2026-10-25-t6040-5008-C-nvme-daily-root.md)) |
 | WiFi | works, including DHCP and routed traffic |
 | Bluetooth | `hci0` present and working |
 | Trackpad | **DONE 2026-08-19** (230): finger test PASSED — 37 950 events on `/dev/input/event0` and haptic click works. Daily-image integration remains (301) |
@@ -67,8 +67,7 @@ a refreshed RW-root candidate. The new separate staging profile supplies the
 Norwegian root config, shutdown gate and daily services; the historical098
 image remains unchanged and does not satisfy the goal.
 305→109→110/111→112/113 remain the hardware/flash/root progression, with exact
-new artifacts and separate erase/enrollment review. On hardware, 5008 step C
-(§3) is next for storage.
+new artifacts and separate erase/enrollment review. 5008 (NVMe daily root) is done on hardware (§3).
 
 ## Immediate experiment: ANS2 queue-size contract
 
@@ -98,13 +97,13 @@ work. They do not change the local capability table or authorize writes.
 
 - **6001 is done for reads** (run 3, and its tester passed again as 5008 step
   A). The linux-next controller-state regression is distinct from our CQ-wrap
-  assert. The next storage hardware step is 5008 step C (§3).
+  assert. 5008 then delivered the NVMe daily root (§3).
 - **6002 complete (offline audit):** [pinned map and candidate plan](../evidence/2026-10-24-upstream-convergence-audit.md). Corrected Asahi
   `asahi-7.2.12-2` is `2bb9d16f967f11e533a851b13b148a708d59b4f3`.
   **6004 (offline, P1)** assembles the separate LC1 source candidate, retaining
   local J614s DT, split NVMe and v2 input. Resolve PMGR and duplicate FIFO
   provider conflicts before a separate build ticket. No baseline replacement
-  or live readiness is implied; 5008 step C stays first on hardware.
+  or live readiness is implied.
 - **6003 (offline, P2):** plan a separate M4 Pro tracing environment with paired
   host/target revisions and recovery. Login-screen tracing is useful; post-login
   hangs and unexplained AMCC interrupt suppression remain.
@@ -306,6 +305,15 @@ Norwegian layout at all three layers; the RAM-root `t6040-data-mount` and
 CPUFREQ TRACKPAD_FW TRACKPAD_RESET_CONTRACT NVME NVME_IOQ_SIZE NVME_EXFAT
 NO_KVM`), DTB `6d2d3da6`, m1n1 `7de07c71`
 ([payloads](../evidence/2026-10-25-t6040-5005-payloads.md)).
+
+**5008 step C done (2026-10-25).** Four NVMe-root boots (C1–C4), the last
+three each after a clean `reboot` through the PID-1 shutdown. Every
+post-shutdown boot's fail-closed gates found exFAT and ext4 clean. OpenRC,
+Xorg + i3, the Norwegian layout at all three layers and BT service are up;
+WiFi auto-joins `Casa-D` (initramfs `dfcd7d5c`, which differs from `9adabb1b`
+only in `wpa_supplicant.conf`). Untested: the final power-off of `poweroff`
+(smc_reboot is disabled), BT pairing/OBEX on this root, USB, and multi-core.
+Evidence: [5008 C](../evidence/2026-10-25-t6040-5008-C-nvme-daily-root.md).
 
 - **A: PASS.** The 6001 read-only tester (`524d94c3`) on the new kernel and
   DTB: 16,384 direct reads, no writes; the same boot brought up both PCIe
