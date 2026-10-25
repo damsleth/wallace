@@ -1,16 +1,19 @@
 --- a/arch/arm64/mm/fault.c
 +++ b/arch/arm64/mm/fault.c
-@@ -26,6 +26,9 @@
+@@ -26,6 +26,12 @@
  #include <linux/pkeys.h>
  #include <linux/preempt.h>
  #include <linux/hugetlb.h>
 +#include <linux/of.h>
 +#include <linux/of_address.h>
 +#include <linux/gfp.h>
++#include <linux/memblock.h>
++#include <linux/vmalloc.h>
++#include <asm/cacheflush.h>
  
  #include <asm/acpi.h>
  #include <asm/bug.h>
-@@ -400,6 +403,229 @@
+@@ -400,6 +406,332 @@
  	return false;
  }
  
@@ -86,6 +89,108 @@
 +			 what, (u64)pa, cpu, pr.par[cpu]);
 +}
 +
++/*
++ * Probe v2 (Mythos, after 5012 boots a/b): is the secondaries' walker reading
++ * different page-table memory than the boot CPU? Per CPU: translation
++ * registers and the walked descriptors for adt_end; from cpu0 also an
++ * uncached alias of the L3 table page; an AT grid across the 32 MiB L3-table
++ * boundaries; then cpu0 cleans+invalidates the descriptor lines to PoC and
++ * every CPU re-runs AT. No new write class (one cache-maintenance op).
++ */
++struct t6040_205_regs {
++	u64 ttbr0, ttbr1, tcr, sctlr, mair, hcr, vtcr, mmfr3, tcr2, pir, pire0;
++};
++static struct t6040_205_regs t6040_205_r[NR_CPUS];
++static u64 *t6040_205_desc[5];	/* pgd, p4d, pud, pmd, pte entry addresses */
++static u64 t6040_205_dval[NR_CPUS][5];
++
++static void t6040_205_regs_cpu(void *arg)
++{
++	struct t6040_205_regs *r = &t6040_205_r[smp_processor_id()];
++	int i;
++
++	r->ttbr0 = read_sysreg(ttbr0_el1);	/* VHE: redirected to EL2 */
++	r->ttbr1 = read_sysreg(ttbr1_el1);
++	r->tcr = read_sysreg(tcr_el1);
++	r->sctlr = read_sysreg(sctlr_el1);
++	r->mair = read_sysreg(mair_el1);
++	r->hcr = read_sysreg(hcr_el2);
++	r->vtcr = read_sysreg(vtcr_el2);
++	r->mmfr3 = read_sysreg_s(SYS_ID_AA64MMFR3_EL1);
++	if ((r->mmfr3 >> ID_AA64MMFR3_EL1_TCRX_SHIFT) & 0xf)
++		r->tcr2 = read_sysreg_s(SYS_TCR2_EL1);
++	if ((r->mmfr3 >> ID_AA64MMFR3_EL1_S1PIE_SHIFT) & 0xf) {
++		r->pir = read_sysreg_s(SYS_PIR_EL1);
++		r->pire0 = read_sysreg_s(SYS_PIRE0_EL1);
++	}
++	for (i = 0; i < 5; i++)
++		t6040_205_dval[smp_processor_id()][i] =
++			t6040_205_desc[i] ? READ_ONCE(*t6040_205_desc[i]) : 0;
++}
++
++static void __init t6040_205_probe_v2(unsigned long pfn)
++{
++	static const char * const lvl[5] = { "pgd", "p4d", "pud", "pmd", "pte" };
++	unsigned long va = (unsigned long)__va(PFN_PHYS(pfn));
++	phys_addr_t b0 = ALIGN_DOWN(PFN_PHYS(pfn), SZ_32M), b1 = b0 + SZ_32M;
++	const phys_addr_t grid[] = {
++		PFN_PHYS(pfn) - SZ_64M, b0 - SZ_32M, b0 - 2 * PAGE_SIZE, b0 - PAGE_SIZE,
++		b0, b0 + PAGE_SIZE, PFN_PHYS(pfn) - SZ_8M, PFN_PHYS(pfn) + SZ_8M,
++		b1 - 2 * PAGE_SIZE, b1 - PAGE_SIZE, b1, b1 + PAGE_SIZE,
++		b1 + SZ_32M, PFN_PHYS(pfn) + SZ_64M,
++	};
++	pgd_t *pgdp = pgd_offset_k(va);
++	p4d_t *p4dp = p4d_offset(pgdp, va);
++	pud_t *pudp = pud_offset(p4dp, va);
++	pmd_t *pmdp = pmd_offset(pudp, va);
++	pte_t *ptep = pte_offset_kernel(pmdp, va);
++	struct page *tpg = virt_to_page(ptep);
++	u64 *nc;
++	int cpu, i;
++
++	t6040_205_desc[0] = (u64 *)pgdp;
++	t6040_205_desc[1] = (u64 *)p4dp;
++	t6040_205_desc[2] = (u64 *)pudp;
++	t6040_205_desc[3] = (u64 *)pmdp;
++	t6040_205_desc[4] = (u64 *)ptep;
++
++	/* 3. Translation registers and the walked descriptors, per CPU. */
++	for_each_online_cpu(cpu)
++		smp_call_function_single(cpu, t6040_205_regs_cpu, NULL, 1);
++	for_each_online_cpu(cpu) {
++		struct t6040_205_regs *r = &t6040_205_r[cpu];
++
++		pr_emerg("t6040-205: v2 regs cpu%d ttbr0 %llx ttbr1 %llx tcr %llx sctlr %llx mair %llx hcr %llx vtcr %llx mmfr3 %llx tcr2 %llx pir %llx pire0 %llx\n",
++			 cpu, r->ttbr0, r->ttbr1, r->tcr, r->sctlr, r->mair, r->hcr,
++			 r->vtcr, r->mmfr3, r->tcr2, r->pir, r->pire0);
++		for (i = 0; i < 5; i++)
++			pr_emerg("t6040-205: v2 desc cpu%d %s @%px (PA %016llx) = %016llx\n",
++				 cpu, lvl[i], t6040_205_desc[i],
++				 (u64)__pa(t6040_205_desc[i]), t6040_205_dval[cpu][i]);
++	}
++	/* Uncached view of the L3 table entry from cpu0 (DRAM contents). */
++	nc = vmap(&tpg, 1, VM_MAP, pgprot_noncached(PAGE_KERNEL_RO));
++	if (nc) {
++		pr_emerg("t6040-205: v2 pte via uncached alias = %016llx (linear %016llx)\n",
++			 READ_ONCE(nc[offset_in_page(ptep) / sizeof(u64)]),
++			 pte_val(__ptep_get(ptep)));
++		vunmap(nc);
++	}
++	/* 2. AT grid across the L3-table (32 MiB) boundaries. */
++	for (i = 0; i < ARRAY_SIZE(grid); i++) {
++		if (!pfn_valid(PHYS_PFN(grid[i])) || !memblock_is_map_memory(grid[i]))
++			continue;
++		t6040_205_par_window(grid[i], "grid");
++	}
++	/* 1. Coherency: cpu0 cleans+invalidates the descriptor lines, all re-AT. */
++	t6040_205_par_window(PFN_PHYS(pfn), "pre-civac adt_end+0");
++	for (i = 0; i < 5; i++)
++		dcache_clean_inval_poc((unsigned long)t6040_205_desc[i],
++				       (unsigned long)t6040_205_desc[i] + sizeof(u64));
++	dsb(sy);
++	t6040_205_par_window(PFN_PHYS(pfn), "post-civac adt_end+0");
++}
++
 +static int __init t6040_205_probe(void)
 +{
 +	struct device_node *np;
@@ -112,6 +217,7 @@
 +
 +		for (i = 0; i < ARRAY_SIZE(win); i++)
 +			t6040_205_par_window(PFN_PHYS(pfn + win[i].off), win[i].what);
++		t6040_205_probe_v2(pfn);
 +	}
 +	if (!pfn) {
 +		pr_emerg("t6040-205: probe: no phram node labelled adt\n");
@@ -240,7 +346,7 @@
  static void __do_kernel_fault(unsigned long addr, unsigned long esr,
  			      struct pt_regs *regs)
  {
-@@ -418,6 +644,9 @@
+@@ -418,6 +750,9 @@
  		return;
  	}
  
