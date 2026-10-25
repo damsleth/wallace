@@ -57,3 +57,38 @@ locked against writes; note it for Linux memory use.)
   secondary through an uncached alias, against cpu0's view; and Mythos's
   MMU-off physical str on a secondary (a separate write class, CJ approval
   first).
+
+## Probe v2 (2 boots, kernel `c4199a1d`, patch at 412dc15; Codex and Mythos reviewed)
+
+- **Translation registers are identical on all 6 CPUs:** TTBR0 `10011bb0000`,
+  TTBR1 `10011bb4001` (equal to init_mm.pgd `10011bb4000`), TCR
+  `11000737551b511`, SCTLR `2000018fc74f99d`, MAIR `40044ffff`, HCR `488000038`,
+  VTCR `80038000`. MMFR3 is 0, so there is no TCR2/S1PIE/POE.
+- **Every CPU loads identical walked descriptors.** Boot a: pud `@10011bb4000
+  = 18000105ce798403`, pmd `@105ce798010 = 18000105ce790403`, pte
+  `@105ce791100 = 00e8010004880707` (writable). Four distinct entries; pgd is
+  folded.
+- **Coherency test NEGATIVE.** The control (flush_tlb_all, then AT) and the
+  test (cpu0 `dcache_clean_inval_poc` of all 4 descriptor lines, `dsb sy`,
+  flush_tlb_all, then AT) give the same result: cpu0 OK, cpu1–cpu5
+  `PAR 0x81f`. So it is not stale page-table memory and not a stale TLB.
+- **AT grid** (boot a; boot b the same, with the ADT elsewhere):
+  - **OK on every CPU:** the 32 MiB L3-table boundaries b0 and b1 with
+    neighbours, ADT−8 MiB, ADT+8 MiB, b1+32 MiB and ADT+64 MiB.
+  - **Denied on every CPU, cpu0 included:** b0−2 pages and b0−1 page
+    (`0x10003ff8000/0x10003ffc000`). This is a separate, uniform read-only
+    area and not the secondary-only effect.
+  - **Denied on secondaries only:** adt_end (and the earlier window,
+    adt_last to adt_end+16).
+- **Conclusion: Mythos's reading (b).** A per-core, translation-time write
+  denial on a **physical range** around the ADT end, applied by the
+  secondaries only. It is not tied to the L3 table page; its extent is more
+  than 256 KiB and less than ±8 MiB.
+- Layout from iBoot's boot args (boot b): `phys_base 0x100032a8000`, ADT
+  `0x10004b20000-0x10004bb3fff`, rollback m1n1 base `0x10004c14000`
+  (= adt_end + 0x60000), boot_args at `0x100052d8000`, `top_of_kdata
+  0x100052dc000`.
+- Next (v3): an exact per-CPU AT bitmap over ADT ±32 MiB at 16 KiB steps,
+  logged as runs. That names the range and lets it be checked against the
+  boot-args layout. It is also the basis for a reserved-memory workaround,
+  which would be a carve-out, not a fix.

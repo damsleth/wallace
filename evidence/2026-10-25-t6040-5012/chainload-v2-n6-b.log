@@ -1,0 +1,120 @@
+m1n1 base: 0x10004c14000
+Fetching ADT (0x00094000 bytes)...
+Total region size: 0x6c8000 bytes
+Loading kernel image (0x10c004 bytes)...
+.............................
+Copying SEPFW (0x574000 bytes)...
+Adjusting addresses in ADT...
+Pushing ADT (596296 bytes)...
+Setting up bootargs...
+Copying stub...
+Entry point: 0x10004c14800
+Reloading into stub at 0x1001016c200
+TTY> Preparing to run next stage at 0x1001016c200...
+TTY> USB0: shutdown
+TTY> USB1: shutdown
+TTY> USB2: shutdown
+TTY> MMU: shutting down...
+TTY> MMU: shutdown successful, clearing caches
+TTY> Vectoring to next stage...
+TTY> Initialized dockchannel UART at 0x508828000
+TTY> Device info:
+TTY>   Model: Mac16,8
+TTY>   Target: J614s
+TTY>   Board-ID: 0x4
+TTY>   Chip-ID: 0x6040
+TTY> 
+TTY> CPU init (MIDR: 0x611f0551 smp_id:0x4)...
+TTY>   CPU part: 0x55 rev: 0x11
+TTY>   CPU: M4 Pro Brava Chop (P core)
+TTY> 
+TTY> boot_args at 0x100052d8000
+TTY>   revision:     3
+TTY>   version:      2
+TTY>   virt_base:    0x172a8000
+TTY>   phys_base:    0x100032a8000
+TTY>   mem_size:     0x5cb500000
+TTY>   top_of_kdata: 0x100052dc000
+TTY>   video:
+TTY>     base:       0x105d2f90000
+TTY>     display:    0x1
+TTY>     stride:     0x2f40
+TTY>     width:      3024
+TTY>     height:     1964
+TTY>     depth:      30bpp
+TTY>     density:    1
+TTY>   machine_type: 0
+TTY>   devtree:      0x18b20000
+TTY>   devtree_size: 0x94000
+TTY>   cmdline:      
+TTY>   boot_flags:   0x0
+TTY>   mem_size_act: 0x600000000
+TTY> 
+TTY> 
+TTY> 
+TTY> m1n1 v1.6.0-wallace-80badc91
+TTY> Copyright The Asahi Linux Contributors
+TTY> Licensed under the MIT license
+TTY> 
+TTY> Running in EL2
+TTY> 
+TTY> OS FW version: unknown (mBoot-18000.121.3)
+TTY> System FW version: unknown (mBoot-18000.161.10)
+TTY> Heap base: 0x100052dc000
+TTY> MCC: Initializing T6041 MCCs (4 instances, reg base idx 12)...
+TTY> MCC: Initialized T6041 MCCs (4 instances, 1 planes, 4 channels)
+TTY> MMU: Initializing...
+TTY> MMU: RAM base: 0x10000000000
+TTY> MMU: Top of normal RAM: 0x105ce7a8000
+TTY> MMU: Adding Device-nGnRE mapping at 0xbc0000000 (0x20000000)
+TTY> MMU: Adding Device-nGnRE mapping at 0xb80000000 (0x40000000)
+TTY> MMU: Adding Device-nGnRE mapping at 0x1cb0000000 (0x1c000)
+TTY> MMU: Adding Device-nGnRE mapping at 0x800000000 (0x200000000)
+TTY> MMU: Adding Device-nGnRE mapping at 0xa00000000 (0x80000000)
+TTY> MMU: Adding Device-nGnRE mapping at 0x1c50000000 (0x4000)
+TTY> MMU: Adding Device-nGnRE mapping at 0xc00000000 (0x200000000)
+TTY> MMU: Adding Device-nGnRE mapping at 0xe00000000 (0x80000000)
+TTY> MMU: Adding Device-nGnRE mapping at 0x1c60000000 (0x4000)
+TTY> MMU: Adding Device-nGnRE mapping at 0x1000000000 (0x200000000)
+TTY> MMU: Adding Device-nGnRE mapping at 0x1200000000 (0x80000000)
+TTY> MMU: Adding Device-nGnRE mapping at 0x1c70000000 (0x4000)
+TTY> MMU: Adding Device-nGnRE mapping at 0x1400000000 (0x200000000)
+TTY> MMU: Adding Device-nGnRE mapping at 0x1600000000 (0x80000000)
+TTY> MMU: Adding Device-nGnRE mapping at 0x1c80000000 (0x4000)
+TTY> MMU: Adding Normal-NC mapping at 0x105fff18000 (0x20000)
+TTY> MMU: Adding Normal-NC mapping at 0x105ffed8000 (0x10000)
+TTY> MMU: Adding Normal-NC mapping at 0x105ffeb8000 (0x20000)
+TTY> MMU: Adding Normal-NC mapping at 0x105ffe78000 (0x10000)
+TTY> MMU: Adding Normal-NC mapping at 0x105ffe58000 (0x20000)
+TTY> MMU: Adding Normal-NC mapping at 0x105ffe18000 (0x10000)
+TTY> MMU: Adding Normal-NC mapping at 0x105fffb8000 (0x4000)
+TTY> MMU: Adding Normal-NC mapping at 0x105fff70000 (0x4000)
+TTY> MMU: SCTLR_EL1: 30900180 -> 30901085
+TTY> MMU: running with MMU and caches enabled!
+TTY> AIC: Version 3 @ 0x502400000
+TTY> AIC: AIC3 with 1/2 dies, 2720/4096 IRQs, reg_size:40004, config:10000, extintrcfg_stride:04a00, intmaskset_stride:04a00, intmaskclear_stride:04a00
+TTY> AIC: Configuring 1 external interrupts
+TTY> Primary WDT register @ 0x50836c000
+TTY> Primary WDT disabled
+TTY> Secondary WDT register @ 0x508330008
+TTY> Secondary WDT disabled
+TTY> pmgr: Cleaning up device states...
+TTY> pmgr: initialized, 485 devices on 1 dies found.
+TTY> display: Display is internal
+TTY> display: Display is already initialized (3024x1964)
+TTY> fb init: 3024x1964 (30) [s=3024] @0x105d2f90000
+TTY> fb console: max rows 57, max cols 78
+TTY> fb: display logo
+TTY> Initialization complete.
+TTY> Checking for payloads...
+TTY> Devicetree compatible value: apple,j614s
+TTY> No more payloads at 0x10004d20000
+TTY> No valid payload found
+TTY> dart: dart /arm-io/dart-usb0 at 0x382f80000 is a t8110
+TTY> USB0: initialized at 0x100052e0090
+TTY> dart: dart /arm-io/dart-usb1 at 0x38af80000 is a t8110
+TTY> USB1: initialized at 0x100052e0560
+TTY> dart: dart /arm-io/dart-usb2 at 0x392f80000 is a t8110
+TTY> USB2: initialized at 0x100052e0a60
+TTY> Running proxy...
+Proxy is alive again
