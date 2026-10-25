@@ -2,7 +2,7 @@
   "seq": "5009",
   "slug": "tlbi-broadcast-test",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "smp",
   "priority": "P0",
   "desc": "Ticket 205 diagnostic: does broadcast TLB invalidation reach every T6040 CPU? Basis: the July 205 oopses are ESR 0x9600004f (EL1 write, FSC 0x0f level-3 permission fault) on linear-map pages whose printed in-memory PTE is WRITABLE (00e8010005f4c707: AP[2]=0, AF, DBM) - the faulting CPU used a stale read-only TLB entry. Kernel patch patches/t6040-tlbi-broadcast-test.patch (kbuild T6040_TLBI_TEST=1, diagnostic only): late_initcall, for every ordered CPU pair A,B x64: A set_memory_ro(vmalloc page) (rodata=full flips the linear alias), B reads alias (caches RO TLB entry), A set_memory_rw (flush_tlb_kernel_range: tlbi vaale1is + dsb ish), B copy_to_kernel_nofault write; failure = stale entry = lost broadcast; control: B local flush + retry must pass; all CPUs flushed locally at the end. Prints T6040-TLBI RESULT. Boot: thin dcuart DTB (no PCIe/SMC/ANS; boots 14 CPUs per 205 round 10) + reviewed 6001 tester initramfs 524d94c3 (keymap; ANS off so it parks), maxcpus=4 then 14, idle=nop. No storage writes, no SPMI/SMC/PCIe. Fresh boot per run; repeat 4x per core count before any conclusion.",
@@ -19,5 +19,8 @@
     "patch": "58a54ed03b26faa1e26afb29f75c3f1b9b99a9e8251f0a74f17159a050b8d3c2",
     "priority": "parked behind 5010 (sysreg diff) per Mythos review"
   },
-  "created": 1792927502
+  "created": 1792927502,
+  "runnable": false,
+  "approved_by": "cj",
+  "approved_at": 1792928506
 }
