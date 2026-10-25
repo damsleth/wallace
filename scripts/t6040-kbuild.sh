@@ -430,6 +430,13 @@ if [ "${NVME_IOQ_SIZE:-0}" = "1" ]; then
     git apply --check /out/t6040-nvme-ans2-ioq-size.patch
     git apply /out/t6040-nvme-ans2-ioq-size.patch
 fi
+# Ticket 205 diagnostic only: a late_initcall that checks, for every CPU
+# pair, whether broadcast TLB invalidation removes a stale read-only
+# linear-map entry. Never in a daily image.
+if [ "${T6040_TLBI_TEST:-0}" = "1" ]; then
+    git apply --check /out/t6040-tlbi-broadcast-test.patch
+    git apply /out/t6040-tlbi-broadcast-test.patch
+fi
 # Opt-in: build the NVMMU TCB like m1n1 (zeroed; data-less commands get both
 # DMA directions) so ANS2 accepts Flush (211 write run 1, ticket 5006).
 if [ "${NVME_FLUSH_TCB:-0}" = "1" ]; then
@@ -1922,6 +1929,9 @@ if [ "${TYPEC_PD_ASSERT_AFTER_OLDDEFCONFIG:-0}" = "1" ]; then
         echo "  TYPEC PD WARN: CONFIG_SPMI_APPLE not builtin -- driver compiles but has no SPMI bus to bind"
 fi
 grep -qE "CONFIG_ARM64_SME=y" .config && echo "WARN: SME still enabled!" || echo "SME disabled OK"
+if [ "${T6040_TLBI_TEST:-0}" = "1" ]; then
+    grep -q 't6040_tlbi_test.o' mm/Makefile || { echo "ERROR: TLBI test not wired" >&2; exit 1; }
+fi
 if [ "${NO_KVM:-0}" = "1" ]; then
     echo "== assert KVM is off (ticket 5007) =="
     ! grep -q '^CONFIG_KVM=y$' .config || { echo "ERROR: CONFIG_KVM survived NO_KVM=1" >&2; exit 1; }

@@ -1,0 +1,154 @@
+--- a/mm/Makefile
++++ b/mm/Makefile
+@@ -150,3 +150,4 @@
+ obj-$(CONFIG_EXECMEM) += execmem.o
+ obj-$(CONFIG_TMPFS_QUOTA) += shmem_quota.o
+ obj-$(CONFIG_LAZY_MMU_MODE_KUNIT_TEST) += tests/lazy_mmu_mode_kunit.o
++obj-y += t6040_tlbi_test.o
+diff --git a/mm/t6040_tlbi_test.c b/mm/t6040_tlbi_test.c
+new file mode 100644
+--- /dev/null
++++ b/mm/t6040_tlbi_test.c
+@@ -0,0 +1,142 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * T6040 bring-up diagnostic (Wallace ticket 205): does broadcast TLB
++ * invalidation reach every CPU?
++ *
++ * 205's faults are level-3 permission faults on writes to linear-map pages
++ * whose in-memory PTE is writable, i.e. the faulting CPU used a stale
++ * read-only TLB entry. Under rodata=full, set_memory_ro/rw on a vmalloc page
++ * also flips the page's linear alias. For every ordered CPU pair (A, B):
++ *
++ *   A: set_memory_ro(vmalloc page)        linear alias -> RO (+ broadcast)
++ *   B: read the linear alias              B's TLB caches the RO entry
++ *   A: set_memory_rw(vmalloc page)        linear alias -> RW + TLBI ..IS
++ *   B: copy_to_kernel_nofault(alias)      fails only if B kept a stale entry
++ *
++ * Control: on a failure, B flushes its own TLB and retries; the retry must
++ * succeed. Any CPU that saw a stale entry is flushed locally before the page
++ * is freed, so the test cannot poison later allocations.
++ */
++#include <linux/cpu.h>
++#include <linux/init.h>
++#include <linux/mm.h>
++#include <linux/set_memory.h>
++#include <linux/smp.h>
++#include <linux/uaccess.h>
++#include <linux/vmalloc.h>
++#include <linux/workqueue.h>
++#include <asm/cputype.h>
++#include <asm/tlbflush.h>
++
++#define T6040_TLBI_ITERS 64
++
++struct t6040_tlbi_ctx {
++	void *buf;
++	unsigned long *alias;
++	int fault;
++	int retry_fault;
++};
++
++static void t6040_tlbi_read(void *arg)
++{
++	struct t6040_tlbi_ctx *c = arg;
++
++	(void)READ_ONCE(*c->alias);
++}
++
++static void t6040_tlbi_write(void *arg)
++{
++	struct t6040_tlbi_ctx *c = arg;
++	unsigned long v = 0x7406040;
++
++	c->fault = copy_to_kernel_nofault(c->alias, &v, sizeof(v)) ? 1 : 0;
++	if (c->fault) {
++		local_flush_tlb_all();
++		c->retry_fault = copy_to_kernel_nofault(c->alias, &v, sizeof(v)) ? 1 : 0;
++	}
++}
++
++static void t6040_tlbi_flush_local(void *arg)
++{
++	local_flush_tlb_all();
++}
++
++struct t6040_tlbi_pair {
++	int b;
++	int stale;
++	int retry_bad;
++	int setup_bad;
++};
++
++/* Runs on CPU A (work_on_cpu), may sleep in set_memory_*. */
++static long t6040_tlbi_run_pair(void *arg)
++{
++	struct t6040_tlbi_pair *p = arg;
++	struct t6040_tlbi_ctx c = { };
++	int i;
++
++	for (i = 0; i < T6040_TLBI_ITERS; i++) {
++		c.buf = vmalloc(PAGE_SIZE);
++		if (!c.buf) {
++			p->setup_bad++;
++			continue;
++		}
++		c.alias = page_address(vmalloc_to_page(c.buf));
++		c.fault = c.retry_fault = 0;
++		if (set_memory_ro((unsigned long)c.buf, 1)) {
++			p->setup_bad++;
++			vfree(c.buf);
++			continue;
++		}
++		smp_call_function_single(p->b, t6040_tlbi_read, &c, 1);
++		set_memory_rw((unsigned long)c.buf, 1);
++		smp_call_function_single(p->b, t6040_tlbi_write, &c, 1);
++		p->stale += c.fault;
++		p->retry_bad += c.retry_fault;
++		vfree(c.buf);
++	}
++	return 0;
++}
++
++static void t6040_tlbi_cpu_id(int cpu)
++{
++	pr_info("t6040-tlbi: cpu%d mpidr=%#llx\n", cpu, cpu_logical_map(cpu));
++}
++
++static int __init t6040_tlbi_test(void)
++{
++	int a, b, total = 0, pairs = 0, bad_pairs = 0;
++
++	if (!can_set_direct_map()) {
++		pr_info("t6040-tlbi: SKIP (linear map is not page-granular; boot with rodata=full)\n");
++		return 0;
++	}
++	cpus_read_lock();
++	for_each_online_cpu(a)
++		t6040_tlbi_cpu_id(a);
++	for_each_online_cpu(a) {
++		for_each_online_cpu(b) {
++			struct t6040_tlbi_pair p = { .b = b };
++
++			if (a == b)
++				continue;
++			work_on_cpu(a, t6040_tlbi_run_pair, &p);
++			pairs++;
++			total += p.stale;
++			if (p.stale || p.retry_bad || p.setup_bad) {
++				bad_pairs++;
++				pr_info("t6040-tlbi: A=cpu%d B=cpu%d stale=%d/%d retry_bad=%d setup_bad=%d\n",
++					a, b, p.stale, T6040_TLBI_ITERS, p.retry_bad,
++					p.setup_bad);
++			}
++		}
++	}
++	/* Leave no stale entry behind on any CPU. */
++	on_each_cpu(t6040_tlbi_flush_local, NULL, 1);
++	cpus_read_unlock();
++	pr_info("T6040-TLBI RESULT pairs=%d iters_per_pair=%d stale_total=%d bad_pairs=%d %s\n",
++		pairs, T6040_TLBI_ITERS, total, bad_pairs,
++		total ? "BROADCAST-LOST" : "BROADCAST-OK");
++	return 0;
++}
++late_initcall(t6040_tlbi_test);
