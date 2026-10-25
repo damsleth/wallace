@@ -61,6 +61,6 @@ always-proxy `7de07c71` to the window-free `bf4b2462`.
 
 `macvdmtool reboot debugusb` restarts into the default entry. With `wallace`
 as the default the agents' recovery lands in the NVMe desktop, not the proxy,
-so rig work needs `m1n1` selected first (picker, or Startup Disk from the
-desktop is not available — use the picker). Recommendation: keep `m1n1` the
+so rig work needs `m1n1` selected first in the startup picker (Linux has no
+Startup Disk pane). Recommendation: keep `m1n1` the
 default while agents hold rig tickets; switch to `wallace` for daily use.
