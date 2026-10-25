@@ -9,9 +9,11 @@
   "author": "claude",
   "deps": [],
   "hashes": {
-    "script t6040-cpu-sysreg-diff.py": "3971455037953bf4cd586c7a5d8540f97e1e594d69e39ca8ee9715b6ba697519",
+    "script t6040-cpu-sysreg-diff.py": "e09aabb45d5093882818b0e6c6dabbfccba4aa5e414358c1fcff7f294a3d11e1",
     "imported gate t6040-nvme-probe.py": "see 5006",
-    "chainloaded m1n1": "7de07c714ebe8b26a408ab0a4719d10d2d208eb120eaac7d3aea03f0e36daf2a"
+    "chainloaded m1n1": "7de07c714ebe8b26a408ab0a4719d10d2d208eb120eaac7d3aea03f0e36daf2a",
+    "fixture t6040-run-sysreg-diff.sh": "b006dcdd47d73f7199d87b7073b2daf7141dc67e464aee1f50218423a2166889",
+    "review": "Mythos PASS w/ must-fixes (excludes, E-core probe, _EL12, volatile drop, cluster labels, cpu_regs.h names) - applied; evidence/2026-10-25-review-5010-cpu-sysreg-diff.md"
   },
   "created": 1792927776
 }
