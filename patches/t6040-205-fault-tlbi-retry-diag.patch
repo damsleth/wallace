@@ -10,13 +10,15 @@
  
  #include <asm/acpi.h>
  #include <asm/bug.h>
-@@ -400,6 +403,195 @@
+@@ -400,6 +403,229 @@
  	return false;
  }
  
 +/* Stage-1 translation of a write at VA in the current (EL2&0, VHE) regime. */
 +static u64 t6040_205_at_s1e2w(unsigned long va)
 +{
++	if (!is_kernel_in_hyp_mode())
++		return ~0ULL;	/* S1E2W UNDEFs at EL1 */
 +	asm volatile("at s1e2w, %0" : : "r" (va));
 +	isb();
 +	return read_sysreg_par();
@@ -62,6 +64,28 @@
 +		pr_emerg("t6040-205: probe %s cpu%d PAR_EL1 %016llx\n", what, cpu, pr.par[cpu]);
 +}
 +
++/* PAR only: no ownership, no memory access. */
++static void t6040_205_par_cpu(void *arg)
++{
++	struct t6040_205_probe *pr = arg;
++
++	pr->par[smp_processor_id()] = t6040_205_at_s1e2w((unsigned long)pr->va);
++}
++
++static void __init t6040_205_par_window(phys_addr_t pa, const char *what)
++{
++	static struct t6040_205_probe pr;
++	int cpu;
++
++	memset(&pr, 0, sizeof(pr));
++	pr.va = __va(pa);
++	for_each_online_cpu(cpu)
++		smp_call_function_single(cpu, t6040_205_par_cpu, &pr, 1);
++	for_each_online_cpu(cpu)
++		pr_emerg("t6040-205: par %s PA %016llx cpu%d PAR_EL1 %016llx\n",
++			 what, (u64)pa, cpu, pr.par[cpu]);
++}
++
 +static int __init t6040_205_probe(void)
 +{
 +	struct device_node *np;
@@ -78,6 +102,16 @@
 +			of_node_put(np);
 +			break;
 +		}
++	}
++	if (pfn) {
++		static const struct { const char *what; long off; } win[] = {
++			{ "adt_last", -1 }, { "adt_end+0", 0 }, { "adt_end+1", 1 },
++			{ "adt_end+2", 2 }, { "adt_end+3", 3 }, { "adt_end+16", 16 },
++		};
++		int i;
++
++		for (i = 0; i < ARRAY_SIZE(win); i++)
++			t6040_205_par_window(PFN_PHYS(pfn + win[i].off), win[i].what);
 +	}
 +	if (!pfn) {
 +		pr_emerg("t6040-205: probe: no phram node labelled adt\n");
@@ -206,7 +240,7 @@
  static void __do_kernel_fault(unsigned long addr, unsigned long esr,
  			      struct pt_regs *regs)
  {
-@@ -418,6 +610,9 @@
+@@ -418,6 +644,9 @@
  		return;
  	}
  
