@@ -1,0 +1,26 @@
+{
+  "seq": "5011",
+  "slug": "siq-cfg-symmetric",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "smp",
+  "priority": "P0",
+  "desc": "205 lead from 5010 run 3: SIQ_CFG_EL1 is the only named register that differs between the boot core (0, iBoot) and every secondary (3, reset); 208's reproducer faulted at maxcpus=2 (cpu0+E cpu1), so the asymmetry to test is boot-vs-every-secondary. m1n1 writes SIQ_CFG_EL1=2 on every core for M1-M3 (chickens.c .siq_cfg) but features_m4 omits it. Experiment: patches/m1n1-t6040-siq-cfg.patch (-DT6040_SIQ_CFG adds .siq_cfg=true to features_m4) on m1n1 80badc91; control = same tree/toolchain without the define (ELFs differ in exactly 1 byte). NEW WRITE CLASS: msr to a CPU-core IMP-DEF register (SIQ_CFG_EL1 = 2) that m1n1 already writes on all M1-M3 cores; not PMU/SMC/SPMI/NVRAM/MMIO. Steps: (1) chainload siq m1n1, 5010 script (reads) shows cpu0/cpu1/cpu5 = 2; (2) 208 BusyBox reproducer (scripts/t6040-cow-repro.sh) on the daily+NVMe-free kernel/RAM root at maxcpus=2 x4 and maxcpus=6 x4 with the siq m1n1, and the same with the control m1n1 x4 each, same day, fresh boot per run; (3) variant B (write 0 on secondaries to match iBoot cpu0) only if 2 changes nothing. No storage writes.",
+  "author": "claude",
+  "deps": [],
+  "hashes": {
+    "m1n1 siq (80badc91 + patch, -DT6040_SIQ_CFG)": "7cbf67fe88f7364793f5e082c1a975ed01f677b17e51cd7d951d28d139387102",
+    "m1n1 control (80badc91 + patch, no define)": "bf4b24627560759fcf460bb09ec6b0348274f4418bedb6003411a5d3e675d055",
+    "m1n1-raw siq elf": "79f1f7f8b0376ed4ca73c6222515975089c70309f0f821f24b1e2f96826d82db",
+    "m1n1-raw control elf": "183367cabd5d11720dbdf13e7108c74c4201f07028a473c7f52fd36162f2c317",
+    "patch m1n1-t6040-siq-cfg.patch": "f62ad815b0e8136a3bb0c233d1965e3551d43dfe409ff6453b214ef38b3fe1ef",
+    "kernel (217/301 daily301)": "a9a2096ff47cc8538090ad28cd0bc41b75b09354e90abff8135b3d242d987bc8",
+    "DTB t6040-j614s-dcuart.dtb": "30b01736b5291aaa864f37f73192ec9877da97ab8ecf5d72c1ca92cf9c8af05d",
+    "initramfs-cow-report (217)": "de1a5cd79e030468bff7f7f1fccaf03f2e34d705a4dc77a5aedd927d94fc9b29",
+    "launcher t6040-run-cow-report.sh": "a14522f0d04eaea215ea344810f0eb407f5c2b00375cbf658f87d6289bffe0d1",
+    "verify step": "scripts/t6040-run-sysreg-diff.sh with M1N1 siq (reads)",
+    "build": "worktree of m1n1 80badc91, rustup nightly, M1N1_VERSION_TAG=v1.6.0-wallace-80badc91; ELF/bin differ in exactly 1 byte (features_m4.siq_cfg)",
+    "proposal": "per (variant, maxcpus in {2,6}): 2 fresh boots x 4 in-boot reproducer runs (initramfs-cow-report); 8 boots + 1 verify"
+  },
+  "created": 1792932595
+}

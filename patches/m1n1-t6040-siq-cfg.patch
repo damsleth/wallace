@@ -1,0 +1,19 @@
+diff --git a/src/chickens.c b/src/chickens.c
+--- a/src/chickens.c
++++ b/src/chickens.c
+@@ -113,6 +113,15 @@ const struct midr_part_features features_m4 = {
+     .sleep_mode = SLEEP_NONE, // XXX probably new mode required
+     .fast_ipi = true,
+     .actlr_el2 = true,
++#ifdef T6040_SIQ_CFG
++    /*
++     * Wallace 205/5011: as M1-M3, write SIQ_CFG_EL1 = 2 on every core.
++     * Without it the boot core keeps iBoot's 0 and secondaries the reset
++     * value 3 (5010 run 3), the only named register that differs between
++     * the boot core and every secondary.
++     */
++    .siq_cfg = true,
++#endif
+     /*
+      * On M4, wfi/wfit cause loss of architectural state on secondary
+      * cores (see the Linux t8132 DT series cover letter and the
