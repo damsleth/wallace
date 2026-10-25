@@ -13,10 +13,20 @@
  
  #include <asm/acpi.h>
  #include <asm/bug.h>
-@@ -400,6 +406,443 @@
+@@ -400,6 +406,470 @@
  	return false;
  }
  
++/* Stage-1 translation of a read at VA in the current (EL2&0, VHE) regime. */
++static u64 t6040_205_at_s1e2r(unsigned long va)
++{
++	if (!is_kernel_in_hyp_mode())
++		return ~0ULL;
++	asm volatile("at s1e2r, %0" : : "r" (va));
++	isb();
++	return read_sysreg_par();
++}
++
 +/* Stage-1 translation of a write at VA in the current (EL2&0, VHE) regime. */
 +static u64 t6040_205_at_s1e2w(unsigned long va)
 +{
@@ -233,38 +243,43 @@
 +}
 +
 +/*
-+ * Probe v3: exact map of the write-denied range. Each CPU translates every
-+ * 16 KiB page across ADT start - 32 MiB .. ADT end + 32 MiB with AT S1E2W
-+ * and records PAR.F per page; the log prints the runs where the per-CPU
-+ * denial pattern changes. Reads/translations only.
++ * Probe v3: exact map of AT write- and read-translation failures. Each CPU
++ * translates every 16 KiB page across ADT start - 48 MiB .. ADT end + 32 MiB
++ * with AT S1E2W and AT S1E2R and records PAR.F per page; the log prints the
++ * runs where the per-CPU (write mask, read mask) pattern changes. The window
++ * reaches down to the all-CPU failures seen at b0 - 2 pages (Mythos).
 + */
-+#define T6040_205_MAP_PAGES	(SZ_64M / PAGE_SIZE + 64)
++#define T6040_205_MAP_PAGES	((SZ_64M + SZ_16M) / PAGE_SIZE + 64)
 +static unsigned long t6040_205_map_base;
 +static unsigned long t6040_205_map_n;
 +static DECLARE_BITMAP(t6040_205_map[NR_CPUS], T6040_205_MAP_PAGES);
++static DECLARE_BITMAP(t6040_205_rmap[NR_CPUS], T6040_205_MAP_PAGES);
 +static u8 t6040_205_map_skip[T6040_205_MAP_PAGES];
 +
 +static void t6040_205_map_cpu(void *arg)
 +{
 +	unsigned long *bm = t6040_205_map[smp_processor_id()];
-+	unsigned long i;
++	unsigned long *rbm = t6040_205_rmap[smp_processor_id()];
++	unsigned long i, va;
 +
 +	for (i = 0; i < t6040_205_map_n; i++) {
 +		if (t6040_205_map_skip[i])
 +			continue;
-+		if (t6040_205_at_s1e2w((unsigned long)__va(t6040_205_map_base +
-+							     i * PAGE_SIZE)) & 1)
++		va = (unsigned long)__va(t6040_205_map_base + i * PAGE_SIZE);
++		if (t6040_205_at_s1e2w(va) & 1)
 +			__set_bit(i, bm);
++		if (t6040_205_at_s1e2r(va) & 1)
++			__set_bit(i, rbm);
 +	}
 +}
 +
 +static void __init t6040_205_probe_v3(phys_addr_t adt_start, phys_addr_t adt_end)
 +{
 +	unsigned long i, run_start = 0;
-+	u64 prev = ~0ULL, mask;
++	u64 prev = ~0ULL, mask = 0, rmask = 0, rprev = 0;
 +	int cpu;
 +
-+	t6040_205_map_base = ALIGN_DOWN(adt_start, PAGE_SIZE) - SZ_32M;
++	t6040_205_map_base = ALIGN_DOWN(adt_start, PAGE_SIZE) - SZ_32M - SZ_16M;
 +	t6040_205_map_n = min_t(unsigned long, T6040_205_MAP_PAGES,
 +				(adt_end + SZ_32M - t6040_205_map_base) / PAGE_SIZE);
 +	for (i = 0; i < t6040_205_map_n; i++) {
@@ -275,28 +290,40 @@
 +	}
 +	for_each_online_cpu(cpu)
 +		smp_call_function_single(cpu, t6040_205_map_cpu, NULL, 1);
-+	pr_emerg("t6040-205: v3 map %016llx..%016llx (%lu pages), ADT %016llx..%016llx; runs of [skip|deny-cpu-mask]:\n",
++	pr_emerg("t6040-205: v3 map %016llx..%016llx (%lu pages), ADT %016llx..%016llx; runs of AT-failure cpu masks [skip | w=<write> r=<read>]:\n",
 +		 (u64)t6040_205_map_base,
 +		 (u64)(t6040_205_map_base + t6040_205_map_n * PAGE_SIZE),
 +		 t6040_205_map_n, (u64)adt_start, (u64)adt_end);
 +	for (i = 0; i <= t6040_205_map_n; i++) {
 +		if (i < t6040_205_map_n) {
 +			mask = 0;
-+			if (t6040_205_map_skip[i])
++			rmask = 0;
++			if (t6040_205_map_skip[i]) {
 +				mask = ~0ULL;
-+			else
-+				for_each_online_cpu(cpu)
++			} else {
++				for_each_online_cpu(cpu) {
 +					if (test_bit(i, t6040_205_map[cpu]))
 +						mask |= BIT_ULL(cpu);
++					if (test_bit(i, t6040_205_rmap[cpu]))
++						rmask |= BIT_ULL(cpu);
++				}
++			}
 +		}
-+		if (i == t6040_205_map_n || mask != prev) {
-+			if (i > 0)
-+				pr_emerg("t6040-205: v3 run %016llx..%016llx %s %llx\n",
-+					 (u64)(t6040_205_map_base + run_start * PAGE_SIZE),
-+					 (u64)(t6040_205_map_base + i * PAGE_SIZE),
-+					 prev == ~0ULL ? "skip" : "deny", prev == ~0ULL ? 0 : prev);
++		if (i == t6040_205_map_n || mask != prev || rmask != rprev) {
++			if (i > 0) {
++				if (prev == ~0ULL)
++					pr_emerg("t6040-205: v3 run %016llx..%016llx skip\n",
++						 (u64)(t6040_205_map_base + run_start * PAGE_SIZE),
++						 (u64)(t6040_205_map_base + i * PAGE_SIZE));
++				else
++					pr_emerg("t6040-205: v3 run %016llx..%016llx w=%llx r=%llx\n",
++						 (u64)(t6040_205_map_base + run_start * PAGE_SIZE),
++						 (u64)(t6040_205_map_base + i * PAGE_SIZE),
++						 prev, rprev);
++			}
 +			run_start = i;
 +			prev = mask;
++			rprev = rmask;
 +		}
 +	}
 +}
@@ -457,7 +484,7 @@
  static void __do_kernel_fault(unsigned long addr, unsigned long esr,
  			      struct pt_regs *regs)
  {
-@@ -418,6 +861,9 @@
+@@ -418,6 +888,9 @@
  		return;
  	}
  
