@@ -163,6 +163,13 @@ nhex() { "$BB" dd if="$1" bs=1 skip="$2" count="$3" 2>/dev/null | "$BB" hexdump 
 [ "$(nhex "$PART" 100 4)" = af2cdd6a ] || stop "exFAT serial is not 0x6add2caf"
 [ "$(nhex "$PART" 7733248 12)" = 83056c0069006e0075007800 ] || stop 'exFAT label is not "linux"'
 say "NVMe exFAT linux partition pinned (p3, serial 6add2caf)"
+# ANS2 rejects NVMe Flush (5006): run the SSD write-through so the kernel never
+# issues one. Recent writes then reach flash at the controller shutdown that
+# the PID-1 shutdown's reboot/poweroff triggers (211 r3).
+echo "write through" >/sys/block/nvme0n1/queue/write_cache 2>/dev/null
+[ "$("$BB" cat /sys/block/nvme0n1/queue/write_cache)" = "write through" ] ||
+    stop "cannot set the NVMe write cache to write through"
+say "NVMe write_cache=write through"
 
 # exFAT VolumeFlags is the little-endian word at byte 106; bit 1 means dirty.
 # Refuse RW mounting after a panic or unclean shutdown.

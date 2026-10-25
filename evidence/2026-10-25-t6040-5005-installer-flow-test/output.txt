@@ -60,3 +60,26 @@ result: Filesystem UUID:          988d97b4-06ba-40d7-8f70-7899bb6fa297;Filesyste
 
 
 
+##### rerun 2026-10-25 b (write-through + dirty repair + final reboot; flow excludes the reboot)
+source: 
+== install
+  write_cache=write through
+  fsck.exfat -n (before) rc=0: /dev/loop0p3: clean. directories 1, files 0
+  copied 1073741824 bytes in 28032.99..28039.72 s; source sha256=86286f70430ba718c73b37e4f0c759dbf78c4848eddfd2677087d2c8ebd355d7
+  re-read copy sha256=86286f70430ba718c73b37e4f0c759dbf78c4848eddfd2677087d2c8ebd355d7
+  e2fsck -fn /dev/loop2 rc=0: /dev/loop2: 1082/65536 files (0.3% non-contiguous), 23961/262144 blocks
+  e2fsck -fp /dev/loop2 rc=0: /dev/loop2: 1082/65536 files (0.3% non-contiguous), 23961/262144 blocks
+  tune2fs -U 988d97b4-06ba-40d7-8f70-7899bb6fa297 /dev/loop2 rc=0: tune2fs 1.47.4 (6-Mar-2025)
+  resize2fs /dev/loop2 rc=0: The filesystem on /dev/loop2 is now 786432 (4k) blocks long.
+  e2fsck -fn /dev/loop2 rc=0: /dev/loop2: 1082/196608 files (0.3% non-contiguous), 32314/786432 blocks
+  fsck.exfat -n (final) rc=0: /dev/loop0p3: clean. directories 1, files 1
+  sectors written: disk=4198024 p3=4198024
+  PASS installed wallace-root.img bytes=3221225472 uuid=988d97b4-06ba-40d7-8f70-7899bb6fa297 source_sha256=86286f70430ba718c73b37e4f0c759dbf78c4848eddfd2677087d2c8ebd355d7 others_unchanged=yes
+  (fell through)
+  exit=0
+== result: -rwxr-xr-x 1 root root 3221225472 Oct 25 07:15 wallace-root.img
+e2fsck=0
+== install again (must refuse)
+  write_cache=write through
+  fsck.exfat -n (before) rc=0: /dev/loop0p3: clean. directories 1, files 1
+  STOP: /mnt/linux/wallace-root.img already exists; nothing to install

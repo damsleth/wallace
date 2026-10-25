@@ -89,8 +89,18 @@ E=8448   # GPT entry array at LBA 2 (4 KiB); p3 is slot 2
 [ "$(hex $DEV 100 4)" = af2cdd6a ] || stop 'exFAT serial is not 0x6add2caf'
 [ "$(hex $DEV 7733248 12)" = 83056c0069006e0075007800 ] || stop 'exFAT label is not "linux"'
 # exFAT VolumeFlags (LE word at 106), bit 1 = dirty: never mount a dirty p3 rw.
-F=$($BB dd if=$DEV bs=1 skip=106 count=2 2>/dev/null | $BB od -An -tu2); F=${F##* }
-[ -n "$F" ] && [ $((F & 2)) -eq 0 ] || stop "p3 exFAT is dirty (VolumeFlags=${F:-unreadable})"
+vflags() { F=$($BB dd if=$DEV bs=1 skip=106 count=2 2>/dev/null | $BB od -An -tu2); F=${F##* }; }
+vflags
+[ -n "$F" ] || stop 'cannot read p3 VolumeFlags'
+if [ $((F & 2)) -ne 0 ]; then
+    # A hard reset after an unflushed unmount leaves the bit set (211 r2).
+    # Repair p3 only, as the sdroot init does for SD64, then re-check.
+    echo "write through" >/sys/block/nvme0n1/queue/write_cache 2>/dev/null
+    out=$(/sbin/fsck.exfat -y $DEV 2>&1); rc=$?
+    say "p3 dirty (VolumeFlags=$F): fsck.exfat -y rc=$rc: $(echo "$out" | $BB tail -1 | $BB cut -c1-160)"
+    vflags
+    [ $((F & 2)) -eq 0 ] || stop "p3 exFAT still dirty (VolumeFlags=$F) after repair"
+fi
 say "p3 pins OK: start=1586917376 size=356806656 type=EBD0A0A2 guid=EA0DA6DB serial=6add2caf label=linux clean"
 
 # --- SD64 source gate (as the sdroot init), all read-only --------------------
@@ -130,6 +140,10 @@ fsck_n() {
     [ "$rc" -eq 0 ] || stop "p3 exFAT not clean ($1)"
 }
 wsec() { set -- $($BB cat "$1"); echo "$7"; }   # field 7 = sectors written
+# ANS2 rejects NVMe Flush (5006): write-through before the first mount.
+echo "write through" >/sys/block/nvme0n1/queue/write_cache 2>/dev/null
+[ "$($BB cat /sys/block/nvme0n1/queue/write_cache)" = "write through" ] || stop 'cannot set write-through'
+say "write_cache=write through"
 fsck_n before
 DISK_W0=$(wsec /sys/block/nvme0n1/stat); P_W0=$(wsec /sys/block/nvme0n1/$P/stat)
 up() { $BB cut -d' ' -f1 /proc/uptime; }
@@ -178,4 +192,12 @@ P_DW=$(( $(wsec /sys/block/nvme0n1/$P/stat) - P_W0 ))
 say "sectors written: disk=$DISK_DW p3=$P_DW"
 [ "$DISK_DW" = "$P_DW" ] || stop 'writes outside p3 on nvme0n1'
 say "PASS installed wallace-root.img bytes=$ROOT_BYTES uuid=$ROOT_UUID source_sha256=$H others_unchanged=yes"
+# Without Flush the newest writes sit in the controller's volatile cache until
+# a controller shutdown (211 r3): reboot through device_shutdown before anyone
+# can hard-reset the machine.
+say "clean kernel reboot: device_shutdown -> apple_nvme_shutdown (CC.SHN)"
+$BB sync
+$BB reboot -f
+$BB sleep 30
+say 'reboot -f returned'
 park

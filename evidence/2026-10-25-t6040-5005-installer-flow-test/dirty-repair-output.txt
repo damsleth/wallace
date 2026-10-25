@@ -1,0 +1,4 @@
+before: VolumeFlags=     2
+/var/tmp/w5005d/x.img: clean. directories 1, files 0
+rc=0
+after: VolumeFlags=     0

@@ -1443,6 +1443,12 @@ if [ "${NVME:-0}" = "1" ]; then
             ;;
     esac
 fi
+if [ "${NO_KVM:-0}" = "1" ]; then
+    # Ticket 5007: at reboot, kvm_shutdown masks the vtimer FIQ through
+    # SYS_IMP_APL_VM_TMR_FIQ_ENA_EL2, which traps as undefined on T6040
+    # (211 r3) and leaves the machine hung. The daily image has no use for KVM.
+    ./scripts/config --file .config -d KVM
+fi
 if [ "${GADGET:-0}" = "1" ]; then
     # USB gadget console: plain dwc3 core in peripheral mode (snps,dwc3 DT
     # nodes; the PHY stays as m1n1 configured it) + configfs ACM function.
@@ -1916,6 +1922,10 @@ if [ "${TYPEC_PD_ASSERT_AFTER_OLDDEFCONFIG:-0}" = "1" ]; then
         echo "  TYPEC PD WARN: CONFIG_SPMI_APPLE not builtin -- driver compiles but has no SPMI bus to bind"
 fi
 grep -qE "CONFIG_ARM64_SME=y" .config && echo "WARN: SME still enabled!" || echo "SME disabled OK"
+if [ "${NO_KVM:-0}" = "1" ]; then
+    echo "== assert KVM is off (ticket 5007) =="
+    ! grep -q '^CONFIG_KVM=y$' .config || { echo "ERROR: CONFIG_KVM survived NO_KVM=1" >&2; exit 1; }
+fi
 
 if [ "${NVME_IOQ_SIZE:-0}" = "1" ]; then
     for sym in ARM64_16K_PAGES PCIE_APPLE MFD_MACSMC NVME_APPLE APPLE_SART \

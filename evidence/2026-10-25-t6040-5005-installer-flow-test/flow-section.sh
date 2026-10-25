@@ -4,6 +4,10 @@ fsck_n() {
     [ "$rc" -eq 0 ] || stop "p3 exFAT not clean ($1)"
 }
 wsec() { set -- $($BB cat "$1"); echo "$7"; }   # field 7 = sectors written
+# ANS2 rejects NVMe Flush (5006): write-through before the first mount.
+echo "write through" >/sys/block/$N/queue/write_cache 2>/dev/null
+[ "$($BB cat /sys/block/$N/queue/write_cache)" = "write through" ] || stop 'cannot set write-through'
+say "write_cache=write through"
 fsck_n before
 DISK_W0=$(wsec /sys/block/$N/stat); P_W0=$(wsec /sys/block/$N/$P/stat)
 up() { $BB cut -d' ' -f1 /proc/uptime; }
