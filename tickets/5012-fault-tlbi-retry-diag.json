@@ -20,7 +20,9 @@
     "run": "IMAGE=Image-macsmc-hid-type-fix-trackpad-nbcon-ppp-cpufreq-faultdiag.build1 IMAGE_SHA256=<image> scripts/t6040-run-cow-report.sh control 6 <dir> (x2)"
   },
   "created": 1792933849,
-  "runnable": false,
+  "runnable": true,
   "approved_by": "cj",
-  "approved_at": 1792934128
+  "approved_at": 1792934128,
+  "reviewed_by": "mythos",
+  "ready_at": 1792935151
 }
