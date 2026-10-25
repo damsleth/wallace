@@ -55,9 +55,6 @@ ARCH = {
 EXCLUDE = {(3, 5, 15, 0, 0), (3, 5, 15, 0, 1), (3, 6, 15, 8, 1), (3, 6, 15, 8, 2),
            (3, 6, 15, 15, 2), (3, 6, 15, 15, 3), (3, 4, 15, 1, 3), (3, 4, 15, 5, 0),
            (3, 7, 15, 1, 1), (3, 7, 15, 3, 1)}
-IMPDEF = {f"s3_{o1}_c15_c{m}_{o2}": (3, o1, 15, m, o2)
-          for o1 in range(8) for m in range(16) for o2 in range(8)
-          if (3, o1, 15, m, o2) not in EXCLUDE}
 
 
 def regnames():
@@ -71,7 +68,27 @@ def regnames():
     return names
 
 
+# Only the impdef registers m1n1 names in cpu_regs.h: run 1's blind sweep of
+# every s3_*_c15 encoding wedged m1n1 on some unnamed register (5010 run 1).
+IMPDEF = {}
+for _k in regnames():
+    _o1, _m, _o2 = (int(x) for x in _k[3:].replace("_c15_c", "_").split("_"))
+    if _o2 < 8 and (3, _o1, 15, _m, _o2) not in EXCLUDE:
+        IMPDEF[_k] = (3, _o1, 15, _m, _o2)
+PROGRESS = None
+
+
+def note(msg):
+    print(msg, flush=True)
+    if PROGRESS:
+        PROGRESS.write(msg + "\n")
+        PROGRESS.flush()
+
+
 def read(reg, cpu):
+    if PROGRESS:
+        PROGRESS.write(f"read cpu{cpu} {reg}\n")
+        PROGRESS.flush()
     call = None if cpu == 0 else (lambda addr, *a: p.smp_call_sync(cpu, addr, *a))
     try:
         return u.mrs(reg, silent=True, call=call)
@@ -84,6 +101,8 @@ def main() -> int:
     ap.add_argument("--out", required=True)
     ap.add_argument("--cpus", default="all", help="comma list or 'all'")
     a = ap.parse_args()
+    global PROGRESS
+    PROGRESS = open(a.out + ".progress", "w")
     print("== identity gate ==")
     if not _probe.gate():
         print("GATE FAILED -> nothing read")
@@ -91,7 +110,7 @@ def main() -> int:
     p.smp_start_secondaries()
     alive = [c for c in range(1, 16) if p.smp_is_alive(c)]
     cpus = [0] + alive if a.cpus == "all" else [int(x) for x in a.cpus.split(",")]
-    print(f"online: {cpus}")
+    note(f"online: {cpus}")
     def part(cpu):
         v = read(ARCH["MIDR_EL1"], cpu)
         return None if v is None else v >> 4 & 0xfff
@@ -102,12 +121,12 @@ def main() -> int:
         k = part(c)
         if k not in probe:
             probe[k] = {n: r for n, r in IMPDEF.items() if read(r, c) is not None}
-            print(f"part {k:#x} (probed on cpu{c}) implements {len(probe[k])} s3_*_c15 registers")
+            note(f"part {k:#x} (probed on cpu{c}) implements {len(probe[k])} s3_*_c15 registers")
     # Drop registers that change between two reads on cpu0 (counters etc.).
     k0 = part(0)
     first = {n: read(r, 0) for n, r in probe[k0].items()}
     volatile = sorted(n for n, r in probe[k0].items() if read(r, 0) != first[n])
-    print(f"volatile on cpu0 (excluded from the diff): {volatile}")
+    note(f"volatile on cpu0 (excluded from the diff): {volatile}")
     data = {}
     for cpu in cpus:
         regs = {}
@@ -115,7 +134,7 @@ def main() -> int:
             v = read(r, cpu)
             regs[n] = None if v is None else f"{v:#018x}"
         data[cpu] = regs
-        print(f"cpu{cpu}: MPIDR={regs.get('MPIDR_EL1')} MIDR={regs.get('MIDR_EL1')}")
+        note(f"cpu{cpu}: MPIDR={regs.get('MPIDR_EL1')} MIDR={regs.get('MIDR_EL1')}")
     names = regnames()
     with open(a.out, "w") as f:
         json.dump({"cpus": data, "volatile": volatile, "names": names}, f, indent=1)
