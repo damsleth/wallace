@@ -8,6 +8,16 @@
   "desc": "Ticket 205 diagnostic: does broadcast TLB invalidation reach every T6040 CPU? Basis: the July 205 oopses are ESR 0x9600004f (EL1 write, FSC 0x0f level-3 permission fault) on linear-map pages whose printed in-memory PTE is WRITABLE (00e8010005f4c707: AP[2]=0, AF, DBM) - the faulting CPU used a stale read-only TLB entry. Kernel patch patches/t6040-tlbi-broadcast-test.patch (kbuild T6040_TLBI_TEST=1, diagnostic only): late_initcall, for every ordered CPU pair A,B x64: A set_memory_ro(vmalloc page) (rodata=full flips the linear alias), B reads alias (caches RO TLB entry), A set_memory_rw (flush_tlb_kernel_range: tlbi vaale1is + dsb ish), B copy_to_kernel_nofault write; failure = stale entry = lost broadcast; control: B local flush + retry must pass; all CPUs flushed locally at the end. Prints T6040-TLBI RESULT. Boot: thin dcuart DTB (no PCIe/SMC/ANS; boots 14 CPUs per 205 round 10) + reviewed 6001 tester initramfs 524d94c3 (keymap; ANS off so it parks), maxcpus=4 then 14, idle=nop. No storage writes, no SPMI/SMC/PCIe. Fresh boot per run; repeat 4x per core count before any conclusion.",
   "author": "claude",
   "deps": [],
-  "hashes": null,
+  "hashes": {
+    "Image (tlbitest build1==build2)": "af114257f624e1f5b1a3d39e6a9213709ec88f71fa4f8e433b9c3f76d8c079a7",
+    "System.map": "487bb1e5218b7c2a1d0aefe6888998c291dfeb8569771830a13faaf527549246",
+    "config": "27c615803298a366e93c1858caaf4ad6ce95db7dfcbff51ecd404d980f6f4228",
+    "DTB t6040-j614s-dcuart.dtb (thin)": "30b01736b5291aaa864f37f73192ec9877da97ab8ecf5d72c1ca92cf9c8af05d",
+    "initramfs (6001 tester)": "524d94c39ea15050d42e99d39eb18614d6610a4bd788ce672c2a73abbbdd2a44",
+    "m1n1": "7de07c714ebe8b26a408ab0a4719d10d2d208eb120eaac7d3aea03f0e36daf2a",
+    "flags": "DOCKCHANNEL DOCKCHANNEL_NBCON HID_TYPE_FIX T6040_TLBI_TEST",
+    "patch": "58a54ed03b26faa1e26afb29f75c3f1b9b99a9e8251f0a74f17159a050b8d3c2",
+    "priority": "parked behind 5010 (sysreg diff) per Mythos review"
+  },
   "created": 1792927502
 }
