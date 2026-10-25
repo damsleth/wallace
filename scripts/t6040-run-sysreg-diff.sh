@@ -18,5 +18,5 @@ M1N1DEVICE=/tmp/m1n1 timeout 180 venv/bin/python proxyclient/tools/chainload.py 
 sleep 5
 timeout 30 venv/bin/python "$WALLACE/scripts/t6040-proxy-alive.py" --device /tmp/m1n1 --timeout 5 \
     >"$RUN/proxy-alive.txt" 2>&1 || { echo "chainloaded m1n1 has no proxy"; exit 1; }
-M1N1DEVICE=/tmp/m1n1 timeout 1200 venv/bin/python "$WALLACE/scripts/t6040-cpu-sysreg-diff.py" --out "$RUN/sysregs.json" \
+M1N1DEVICE=/tmp/m1n1 timeout 300 venv/bin/python -u "$WALLACE/scripts/t6040-cpu-sysreg-diff.py" --out "$RUN/sysregs.json" \
     2>&1 | tee "$RUN/sysreg-diff.log"

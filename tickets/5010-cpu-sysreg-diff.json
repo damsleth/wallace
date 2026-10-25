@@ -9,10 +9,10 @@
   "author": "claude",
   "deps": [],
   "hashes": {
-    "script t6040-cpu-sysreg-diff.py": "a63a7a285d8d46c26f85c2d836d04d5b615dab4ad356f6f330d0a4153ff7a4ae",
+    "script t6040-cpu-sysreg-diff.py": "29b7dd173294263e5e869a39fef5763cf8cb54bec92cc1888454c5cd1e958f15",
     "imported gate t6040-nvme-probe.py": "see 5006",
     "chainloaded m1n1": "7de07c714ebe8b26a408ab0a4719d10d2d208eb120eaac7d3aea03f0e36daf2a",
-    "fixture t6040-run-sysreg-diff.sh": "b006dcdd47d73f7199d87b7073b2daf7141dc67e464aee1f50218423a2166889",
+    "fixture t6040-run-sysreg-diff.sh": "f7781b9f1625360e33e4ab855a1606d3d04b2bc8080bd3c8ddacf58897190a09",
     "review": "Mythos PASS w/ must-fixes (excludes, E-core probe, _EL12, volatile drop, cluster labels, cpu_regs.h names) - applied; evidence/2026-10-25-review-5010-cpu-sysreg-diff.md"
   },
   "created": 1792927776,
@@ -21,5 +21,6 @@
   "approved_at": 1792928500,
   "reviewed_by": "mythos",
   "ready_at": 1792928550,
-  "run1": "2026-10-25 12:43: blind s3_*_c15 sweep wedged m1n1 (no output: stdout buffered through tee; proxy dead after 20 min timeout; recovered by reboot). Script narrowed to the 127 cpu_regs.h-named impdef regs (strict subset of the reviewed reads) with unbuffered per-read progress file."
+  "run1": "2026-10-25 12:43: blind s3_*_c15 sweep wedged m1n1 (no output: stdout buffered through tee; proxy dead after 20 min timeout; recovered by reboot). Script narrowed to the 127 cpu_regs.h-named impdef regs (strict subset of the reviewed reads) with unbuffered per-read progress file.",
+  "run2_plan": "Mythos run-2 plan: first pass (21 arch + 43 named config impdef) on cpu0,1,5; per-(cpu,reg) progress before each mrs; JSON after every read; async secondary reads polled via spin_table (+0xdd290 in 7de07c71, 3 s timeout); 300 s host timeout; stop after a second wedge in one lease."
 }
