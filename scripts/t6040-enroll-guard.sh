@@ -13,10 +13,17 @@
 # stay separate, maintainer-driven steps.
 set -euo pipefail
 
-# --- pinned identity of the dedicated m1n1 System volume (maintainer-confirmed) ---
-EXPECT_UUID="B7FB1EC3-1BA0-4DCB-B57D-C8E9A0AE1E63"
-EXPECT_NAME="m1n1"
+# --- pinned identities of the dedicated System volumes (maintainer-confirmed) ---
+# /Volumes/m1n1 carries the DebugUSB rollback loader. /Volumes/wallace is the
+# third startup entry for the standalone NVMe desktop (ticket 5014); its UUID is
+# pinned by CJ after creating the volume, and until then the guard refuses it
+# and prints the UUID to pin.
 TARGET="${TARGET:-/Volumes/m1n1}"
+case "$TARGET" in
+    /Volumes/m1n1) EXPECT_UUID="B7FB1EC3-1BA0-4DCB-B57D-C8E9A0AE1E63"; EXPECT_NAME="m1n1" ;;
+    /Volumes/wallace) EXPECT_UUID=""; EXPECT_NAME="wallace" ;;
+    *) echo "GUARD FAIL: target must be /Volumes/m1n1 or /Volumes/wallace (got: $TARGET)" >&2; exit 1 ;;
+esac
 
 # --- approved objects (SHA-256 -> label). Anything else is refused. ---
 #  3aabde2d… dual-mode GRAPHICAL (dwm, 10 s window) — ticket 163, the intended daily driver
@@ -132,7 +139,7 @@ beb293340965d53f1ed3a1f14cde748bd1326d8fa6f1f6f158dc3e39bd2cb6cc dwm-i3-v2-rtc-w
 OBJ="${1:-}"
 CONFIRM="${2:-}"
 if [ -z "$OBJ" ]; then
-    echo "usage: TARGET=/Volumes/m1n1 $0 <object.bin> [--confirm-enroll]" >&2
+    echo "usage: TARGET=/Volumes/m1n1|/Volumes/wallace $0 <object.bin> [--confirm-enroll]" >&2
     echo "  validates identity + object hash, prints the exact kmutil command;" >&2
     echo "  add --confirm-enroll to actually run it." >&2
     exit 2
@@ -149,14 +156,16 @@ label=$(awk -v s="$sha" '$1==s{print $2}' <<<"$APPROVED_HASHES")
     exit 1
 }
 
-# 2) target must be the exact m1n1 System volume, keyed on its APFS Volume UUID
-[ "$TARGET" = "/Volumes/m1n1" ] || {
-    echo "GUARD FAIL: target must be /Volumes/m1n1 (got: $TARGET)" >&2; exit 1; }
+# 2) target must be the exact pinned System volume, keyed on its APFS Volume UUID
 info=$(diskutil info "$TARGET") || {
     echo "GUARD FAIL: 'diskutil info $TARGET' failed (is it mounted?)" >&2; exit 1; }
 uuid=$(awk -F': *' '/Volume UUID/{print $2; exit}' <<<"$info" | tr -d '[:space:]')
 name=$(awk -F': *' '/Volume Name/{print $2; exit}' <<<"$info" | sed 's/[[:space:]]*$//')
 role=$(grep -iE 'Volume Role|APFS Role|Designated Role' <<<"$info" || true)
+[ -n "$EXPECT_UUID" ] || {
+    echo "GUARD FAIL: $TARGET has no pinned Volume UUID yet." >&2
+    echo "  If this is the volume you just created for it, pin $uuid in this script." >&2
+    exit 1; }
 [ "$uuid" = "$EXPECT_UUID" ] || {
     echo "GUARD FAIL: Volume UUID mismatch — WRONG VOLUME." >&2
     echo "  got      $uuid" >&2

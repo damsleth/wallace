@@ -1,0 +1,13 @@
+{
+  "seq": "5014",
+  "slug": "nvme-desktop-standalone-object",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "nvme",
+  "priority": "P1",
+  "desc": "Standalone (untethered) NVMe i3 desktop boot object for a third startup entry beside the m1n1 DebugUSB rollback volume and macOS (CJ 2026-10-25: all three as boot options, CJ picks the default). Object linux-build-out/nvmedesk-20261025/wallace-nvmedesk.build1.bin sha256 6a522d64 (build1==build2), 1560x16KiB, entry 0x800, strict verify PASS, preflight OK. Members: window-free m1n1 bf4b2462 (80badc91, the 5011 control), kernel 2234baad (gzip member a0bad4de), DTB 6d2d3da6, nvmeroot initramfs 82a86064 -- the exact 5008 C11 payload with only the m1n1 changed from always-proxy 7de07c71 to window-free bf4b2462. Bootargs = the C runs' boot-dcuart cmdline (maxcpus=1, console=tty0 last, rdinit=/init). Rig step: one tethered smoke boot by chainloading the object over the rollback proxy (t6040-boot-raw-object.sh): desktop up, WiFi, keyboard, trackpad, clean powerctl reboot (no dirty p3 on next boot). Then CJ creates a dedicated APFS 'wallace' volume with macOS 26, bputil -n in 1TR, enrolls via t6040-enroll-guard.sh (new pinned target). Risk: first time bf4b2462 is the only m1n1 before Linux (no rollback m1n1 first) -- ANS handoff quiesce (f75267d1) is in 80badc91.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1792964943
+}
