@@ -123,6 +123,15 @@ work. They do not change the local capability table or authorize writes.
 Tickets: **205** (umbrella), **217** (offline artifact), **209** (approved
 rig run); **207** and **208** are done
 
+**Lead (2026-10-29, ticket 5015):** 5012 found that the secondaries deny
+writes to a physical range near the ADT end. M4 has a second CTRR instance,
+`CTRR_C` (`s3_0_c11_c0_{0,1}`), which is enabled only on secondaries and was
+not in the registers 5012 read. Asahi m1n1 `a735ea2`/`00b8814` and Gravity
+`eb6cab7` reserve that range as an FDT mem-rsv. Asahi says this, together with
+the WFI/WFIT avoidance we already ship, makes M4/M4 Pro SMP boot reliable.
+Gravity runs all 16 CPUs on the M4 Max. Not yet verified on J614s
+([survey](../evidence/2026-10-29-gravitylinux-survey.md)).
+
 Established (mechanism detail and method in [DEVLOG.md](DEVLOG.md) "CPU" and
 `evidence/2026-08-03-t6040-205-smp-cow-investigation.md`):
 

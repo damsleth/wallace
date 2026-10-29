@@ -1,0 +1,13 @@
+{
+  "seq": "5016",
+  "slug": "brcmfmac-gravity-4388c2-fixes",
+  "needs": "offline",
+  "state": "open",
+  "track": "wifi",
+  "priority": "P2",
+  "desc": "Offline: evaluate Gravity bits/084-bcm4388-wifi for our BCM4388C2 (rev 6): fb50041b58 (4388C2 fw mapping BIT(6), bus->chiprev, port_authorized after FWSUP SAE/PSK connect), 426ef46e3a, 406b59b0a0 (msgbuf packet IDs bidirectional), 9c150e234d (uninitialised bus_reset work). Diff against our t6040-brcmfmac-bss-info-v116.patch and asahi-wip; produce a minimal patch set for WPA2/WPA3 association. See evidence/2026-10-29-gravitylinux-survey.md. Repo ~/code/gravitylinux/linux.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1793311255
+}

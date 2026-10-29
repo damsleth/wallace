@@ -59,6 +59,14 @@ build or drive the rig.
 
 ## Latest research
 
+The [Gravity Linux survey](evidence/2026-10-29-gravitylinux-survey.md)
+(2026-10-29) ranks what to take from github.com/GravityLinux, which has
+T6041/M4 Max kernel work and an M4 m1n1 fork; clones live under
+`~/code/gravitylinux/`. Its headline is the `CTRR_C` secondary-only
+reservation as the likely 205 cause (ticket 5015). Follow-ons are 5016
+(BCM4388C2 brcmfmac fixes), 5017 (RTKit crash-log GFP_NOIO for the NVMe root)
+and 5018 (T6041 DT reference diff).
+
 The [October 24 IRC review](evidence/2026-10-24-asahi-dev-review.md) covers
 September 21–October 24 and preserves the transcript separately from temporary
 HTML logs. Read it before proposing an upstream refresh or M4 tracing work.

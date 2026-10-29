@@ -1,0 +1,13 @@
+{
+  "seq": "5015",
+  "slug": "ctrr-c-smp-reservation",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "smp",
+  "priority": "P1",
+  "desc": "Fault 205 candidate root cause (see evidence/2026-10-29-gravitylinux-survey.md). 5012 found a secondaries-only write denial over a physical range near the ADT end but read only the legacy CTRR_A/B regs. M4 has a second CTRR instance, CTRR_C (s3_0_c11_c0_0/1, EL1 encodings), enabled on secondaries only; Asahi m1n1 a735ea2+442c7a2+00b8814 and Gravity eb6cab7 reserve it as an FDT mem-rsv, which with idle=nop+arm64.nowfxt makes M4/M4 Pro SMP reliable (Gravity runs all 16 CPUs on M4 Max). Step 1 offline: add the CTRR_C/D/CTXR names from Asahi 442c7a2 to our proxyclient apple_regs.json and t6040-cpu-sysreg-diff.py; cherry-pick a735ea2+00b8814 into the m1n1 fork (keep From: authors). Step 2 rig, reads only: dump CTRR_C/D LWR/UPR/CTL per core and overlay on the 5012 v3 AT bitmap (Asahi says 48 KiB; 5012 saw >256 KiB, explain the gap). Step 3 rig: 217 cow reproducer at maxcpus=2 then 6 with the reservation m1n1; PASS = no 205 fault over the run matrix. Do not drop maxcpus=1 from the daily image until 4000 matrix passes.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1793311254
+}

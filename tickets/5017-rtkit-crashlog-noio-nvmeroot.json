@@ -1,0 +1,13 @@
+{
+  "seq": "5017",
+  "slug": "rtkit-crashlog-noio-nvmeroot",
+  "needs": "offline",
+  "state": "open",
+  "track": "nvme",
+  "priority": "P2",
+  "desc": "Offline: port Gravity replacement/010-soc 91a96361b3 (rtkit crash-log copy GFP_NOIO; skip CSTS MMIO once ANS is dead; panic_on_crash param) as a kernel patch for the NVMe daily root (5005/5008), where an ANS crash under writeback can hang unreported. Relates to 201/3004 crashlog capture. See evidence/2026-10-29-gravitylinux-survey.md.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1793311255
+}

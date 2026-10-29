@@ -1,0 +1,13 @@
+{
+  "seq": "5018",
+  "slug": "t6041-dt-reference-diff",
+  "needs": "offline",
+  "state": "open",
+  "track": "dt",
+  "priority": "P2",
+  "desc": "Offline: diff Gravity's T6041/J616c (M4 Max) DT fragments (replacement/000-devicetree d2e4f4e4fd: t6041-{aop,audio,cpufreq,display,isp,mtp,pmgr,pmp,wireless}.dtsi) and adt-collection 26.6.2/t6040-j773s.txt against our dts/t6040*.dtsi and J614s ADT. Output: which nodes/bindings we lack (backlight/DCP, audio, PMP, ISP, AOP), which addresses agree with our ADT, firmware-ABI prerequisites (iomfb_v26_6). Reference only: never copy an address not verified in our ADT. See evidence/2026-10-29-gravitylinux-survey.md.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1793311256
+}
