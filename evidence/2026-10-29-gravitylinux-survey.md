@@ -97,8 +97,12 @@ range on the 5012 v3 bitmap, then boot with the reservation at `maxcpus>1`.
   measurement is `0x00010101` with a single plane per AMCC. Upstream's
   `mcc_enable_cache()` poll would therefore likely time out on T6040 if taken
   unmodified. Check this before any m1n1 rebase.
-- 5013: Codex comparison of Gravity's dockchannel-hid FIFO-path changes
-  (in progress).
+- 5013: `evidence/2026-10-29-t6040-5013-gravity-dockchannel-hid-compare.md`.
+  M4 Max uses the **M4-family shared-ring** dockchannel-hid transport on an
+  MTP block identical to ours, while we use the legacy FIFO ABI. That is the
+  new top hypothesis for the intermittent HID boot stall. It also fits 230's
+  finding that J614s accepts only the v2 power request, which in Gravity's
+  driver belongs to the ring path.
 
 ## Not useful or out of scope
 
