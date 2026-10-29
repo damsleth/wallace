@@ -1,0 +1,74 @@
+From a735ea29aed4843c301d8d9665949b30a84d25df Mon Sep 17 00:00:00 2001
+From: Yureka <yureka@cyberchaos.dev>
+Date: Fri, 14 Aug 2026 14:58:28 +0200
+Subject: [PATCH] kboot: add reserved CTRR_M4 region
+
+The region configured in this CTRR instance, which is enabled on
+secondary cores only, is 48KiB sized on M4 / M4 Pro / A18 Pro. It is
+unclear if this region serves a special purpose, but to avoid writing to
+it accidentally, add a reserved-memory node of 48KB to the fdt and
+assert that CTRR_M4_LWR_EL2 is contained in it.
+
+In combination with disabling WFI/WFIT instructions, this makes smp boot
+reliable on M4 / M4 Pro.
+
+Discovered-by: Niklas Sheth <hi@niklassheth.com>
+Signed-off-by: Yureka <yureka@cyberchaos.dev>
+---
+ proxyclient/m1n1/apple_regs.json |  3 +++
+ src/cpu_regs.h                   |  5 +++++
+ src/kboot.c                      | 13 +++++++++++++
+ 3 files changed, 21 insertions(+)
+
+diff --git a/proxyclient/m1n1/apple_regs.json b/proxyclient/m1n1/apple_regs.json
+index 8af8ffa6..4fe60936 100644
+--- a/proxyclient/m1n1/apple_regs.json
++++ b/proxyclient/m1n1/apple_regs.json
+@@ -1,4 +1,7 @@
+ [
++    {"index": 0, "name": "CTRR_M4_LWR_EL2",              "fullname": "CTRR M4 Lower Address (EL2)",                                 "enc": [3, 0, 11, 1, 0 ], "width": 64},
++    {"index": 0, "name": "CTRR_M4_UPR_EL2",              "fullname": "CTRR M4 Upper Address (EL2)",                                 "enc": [3, 0, 11, 1, 1 ], "width": 64},
++    {"index": 0, "name": "CTRR_M4_CTL_EL2",              "fullname": "CTRR M4 Control (EL2)",                                       "enc": [3, 0, 11, 1, 4 ], "width": 64},
+     {"index": 0, "name": "HID0_EL1",                    "fullname": "Hardware Implementation-Dependent Register 0",                 "enc": [3, 0, 15, 0, 0  ], "width": 64},
+     {"index": 0, "name": "EHID0_EL1",                   "fullname": "Hardware Implementation-Dependent Register 0 (E-core)",        "enc": [3, 0, 15, 0, 1  ], "width": 64},
+     {"index": 0, "name": "HID1_EL1",                    "fullname": "Hardware Implementation-Dependent Register 1",                 "enc": [3, 0, 15, 1, 0  ], "width": 64},
+diff --git a/src/cpu_regs.h b/src/cpu_regs.h
+index f40cc8a9..e0152400 100644
+--- a/src/cpu_regs.h
++++ b/src/cpu_regs.h
+@@ -771,3 +771,8 @@
+ #define AIDR_EL1_GXF            BIT(16)
+ #define AIDR_EL1_APFLG          BIT(19)
+ #define AIDR_EL1_PSRV           BIT(20)
++
++/* CTRR registers */
++#define CTRR_M4_LWR_EL2 sys_reg(3, 0, 11, 1, 0)
++#define CTRR_M4_UPR_EL2 sys_reg(3, 0, 11, 1, 1)
++#define CTRR_M4_CTL_EL2 sys_reg(3, 0, 11, 1, 4)
+diff --git a/src/kboot.c b/src/kboot.c
+index 562ccd38..3fbe0949 100644
+--- a/src/kboot.c
++++ b/src/kboot.c
+@@ -2801,6 +2801,19 @@ int kboot_prepare_dt(void *fdt)
+     if (fdt_add_mem_rsv(dt, (u64)_base, ((u64)_end) - ((u64)_base)))
+         bail("FDT: couldn't add reservation for m1n1\n");
+ 
++    if (!cpu_features->apple_sysregs_unlocked) {
++        // On M4* / A18 Pro / M5*, there is a CTRR instance left enabled only
++        // on the secondary (non-boot) cores. Add a reserved-memory region to
++        // prevent Linux from crashing when allocating this memory and writing
++        // to it from a secondary core.
++        u64 ro_start = mrs(CTRR_M4_LWR_EL2);
++        u64 ro_end = ALIGN_UP(mrs(CTRR_M4_UPR_EL2), SZ_4K);
++        if (ro_end - ro_start > 12 * SZ_4K)
++            printf("WARNING: M4+ SMP-RO is large (48KB)");
++        if (fdt_add_mem_rsv(dt, ro_start, ro_end - ro_start))
++            bail("FDT: couldn't add reservation for M4+ SMP-RO CTRR area\n");
++    }
++
+     /* setup console log buffer early to capture as much log as possible */
+     dt_setup_mtd_phram();
+ 
+-- 
+2.43.0
+

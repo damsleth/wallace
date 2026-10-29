@@ -1,0 +1,186 @@
+From 442c7a28de0333c09badd96268d62c0eafe4550f Mon Sep 17 00:00:00 2001
+From: Sven Peter <sven@svenpeter.dev>
+Date: Tue, 29 Sep 2026 19:55:28 +0200
+Subject: [PATCH] cpu_regs: Add CTRR/CTXR sysregs used by SPTM
+
+Most of these are directly named in debug strings and a bunch more are
+obvious from the encoding.
+
+Signed-off-by: Sven Peter <sven@svenpeter.dev>
+---
+ proxyclient/m1n1/apple_regs.json | 65 +++++++++++++++++++++++++++--
+ src/cpu_regs.h                   | 71 ++++++++++++++++++++++++++++++--
+ src/kboot.c                      |  4 +-
+ 3 files changed, 131 insertions(+), 9 deletions(-)
+
+diff --git a/proxyclient/m1n1/apple_regs.json b/proxyclient/m1n1/apple_regs.json
+index 4fe60936..e749aeb6 100644
+--- a/proxyclient/m1n1/apple_regs.json
++++ b/proxyclient/m1n1/apple_regs.json
+@@ -1,7 +1,66 @@
+ [
+-    {"index": 0, "name": "CTRR_M4_LWR_EL2",              "fullname": "CTRR M4 Lower Address (EL2)",                                 "enc": [3, 0, 11, 1, 0 ], "width": 64},
+-    {"index": 0, "name": "CTRR_M4_UPR_EL2",              "fullname": "CTRR M4 Upper Address (EL2)",                                 "enc": [3, 0, 11, 1, 1 ], "width": 64},
+-    {"index": 0, "name": "CTRR_M4_CTL_EL2",              "fullname": "CTRR M4 Control (EL2)",                                       "enc": [3, 0, 11, 1, 4 ], "width": 64},
++    {"index": 0, "name": "CTRR_C_LWR_EL1",                "fullname": "CTRR C Lower Address (EL1)",                                    "enc": [3, 0, 11, 0, 0    ], "width": 64},
++    {"index": 0, "name": "CTRR_C_UPR_EL1",                "fullname": "CTRR C Upper Address (EL1)",                                    "enc": [3, 0, 11, 0, 1    ], "width": 64},
++    {"index": 0, "name": "CTRR_D_LWR_EL1",                "fullname": "CTRR D Lower Address (EL1)",                                    "enc": [3, 0, 11, 0, 2    ], "width": 64},
++    {"index": 0, "name": "CTRR_D_UPR_EL1",                "fullname": "CTRR D Upper Address (EL1)",                                    "enc": [3, 0, 11, 0, 3    ], "width": 64},
++    {"index": 0, "name": "CTRR_C_LWR_EL12",               "fullname": "CTRR C Lower Address (EL12)",                                   "enc": [3, 0, 11, 0, 4    ], "width": 64},
++    {"index": 0, "name": "CTRR_C_UPR_EL12",               "fullname": "CTRR C Upper Address (EL12)",                                   "enc": [3, 0, 11, 0, 5    ], "width": 64},
++    {"index": 0, "name": "CTRR_D_LWR_EL12",               "fullname": "CTRR D Lower Address (EL12)",                                   "enc": [3, 0, 11, 0, 6    ], "width": 64},
++    {"index": 0, "name": "CTRR_D_UPR_EL12",               "fullname": "CTRR D Upper Address (EL12)",                                   "enc": [3, 0, 11, 0, 7    ], "width": 64},
++    {"index": 0, "name": "CTRR_C_LWR_EL2",                "fullname": "CTRR C Lower Address (EL2)",                                    "enc": [3, 0, 11, 1, 0    ], "width": 64},
++    {"index": 0, "name": "CTRR_C_UPR_EL2",                "fullname": "CTRR C Upper Address (EL2)",                                    "enc": [3, 0, 11, 1, 1    ], "width": 64},
++    {"index": 0, "name": "CTRR_D_LWR_EL2",                "fullname": "CTRR D Lower Address (EL2)",                                    "enc": [3, 0, 11, 1, 2    ], "width": 64},
++    {"index": 0, "name": "CTRR_D_UPR_EL2",                "fullname": "CTRR D Upper Address (EL2)",                                    "enc": [3, 0, 11, 1, 3    ], "width": 64},
++    {"index": 0, "name": "CTRR_C_CTL_EL1",                "fullname": "CTRR C Control (EL1)",                                          "enc": [3, 0, 11, 1, 4    ], "width": 64},
++    {"index": 0, "name": "CTRR_D_CTL_EL1",                "fullname": "CTRR D Control (EL1)",                                          "enc": [3, 0, 11, 1, 5    ], "width": 64},
++    {"index": 0, "name": "CTRR_C_CTL_EL12",               "fullname": "CTRR C Control (EL12)",                                         "enc": [3, 0, 11, 1, 6    ], "width": 64},
++    {"index": 0, "name": "CTRR_D_CTL_EL12",               "fullname": "CTRR D Control (EL12)",                                         "enc": [3, 0, 11, 1, 7    ], "width": 64},
++    {"index": 0, "name": "CTXR_A_LWR_EL1",                "fullname": "CTXR A Lower Address (EL1)",                                    "enc": [3, 0, 11, 2, 2    ], "width": 64},
++    {"index": 0, "name": "CTXR_A_UPR_EL1",                "fullname": "CTXR A Upper Address (EL1)",                                    "enc": [3, 0, 11, 2, 3    ], "width": 64},
++    {"index": 0, "name": "CTXR_B_LWR_EL1",                "fullname": "CTXR B Lower Address (EL1)",                                    "enc": [3, 0, 11, 2, 4    ], "width": 64},
++    {"index": 0, "name": "CTXR_B_UPR_EL1",                "fullname": "CTXR B Upper Address (EL1)",                                    "enc": [3, 0, 11, 2, 5    ], "width": 64},
++    {"index": 0, "name": "CTXR_C_LWR_EL1",                "fullname": "CTXR C Lower Address (EL1)",                                    "enc": [3, 0, 11, 2, 6    ], "width": 64},
++    {"index": 0, "name": "CTXR_C_UPR_EL1",                "fullname": "CTXR C Upper Address (EL1)",                                    "enc": [3, 0, 11, 2, 7    ], "width": 64},
++    {"index": 0, "name": "CTXR_D_LWR_EL1",                "fullname": "CTXR D Lower Address (EL1)",                                    "enc": [3, 0, 11, 3, 0    ], "width": 64},
++    {"index": 0, "name": "CTXR_D_UPR_EL1",                "fullname": "CTXR D Upper Address (EL1)",                                    "enc": [3, 0, 11, 3, 1    ], "width": 64},
++    {"index": 0, "name": "CTXR_A_LWR_EL12",               "fullname": "CTXR A Lower Address (EL12)",                                   "enc": [3, 0, 11, 3, 2    ], "width": 64},
++    {"index": 0, "name": "CTXR_A_UPR_EL12",               "fullname": "CTXR A Upper Address (EL12)",                                   "enc": [3, 0, 11, 3, 3    ], "width": 64},
++    {"index": 0, "name": "CTXR_B_LWR_EL12",               "fullname": "CTXR B Lower Address (EL12)",                                   "enc": [3, 0, 11, 3, 4    ], "width": 64},
++    {"index": 0, "name": "CTXR_B_UPR_EL12",               "fullname": "CTXR B Upper Address (EL12)",                                   "enc": [3, 0, 11, 3, 5    ], "width": 64},
++    {"index": 0, "name": "CTXR_C_LWR_EL12",               "fullname": "CTXR C Lower Address (EL12)",                                   "enc": [3, 0, 11, 3, 6    ], "width": 64},
++    {"index": 0, "name": "CTXR_C_UPR_EL12",               "fullname": "CTXR C Upper Address (EL12)",                                   "enc": [3, 0, 11, 3, 7    ], "width": 64},
++    {"index": 0, "name": "CTXR_D_LWR_EL12",               "fullname": "CTXR D Lower Address (EL12)",                                   "enc": [3, 0, 11, 4, 0    ], "width": 64},
++    {"index": 0, "name": "CTXR_D_UPR_EL12",               "fullname": "CTXR D Upper Address (EL12)",                                   "enc": [3, 0, 11, 4, 1    ], "width": 64},
++    {"index": 0, "name": "CTXR_A_CTL_EL1",                "fullname": "CTXR A Control (EL1)",                                          "enc": [3, 0, 11, 5, 2    ], "width": 64},
++    {"index": 0, "name": "CTXR_B_CTL_EL1",                "fullname": "CTXR B Control (EL1)",                                          "enc": [3, 0, 11, 5, 3    ], "width": 64},
++    {"index": 0, "name": "CTXR_C_CTL_EL1",                "fullname": "CTXR C Control (EL1)",                                          "enc": [3, 0, 11, 5, 4    ], "width": 64},
++    {"index": 0, "name": "CTXR_D_CTL_EL1",                "fullname": "CTXR D Control (EL1)",                                          "enc": [3, 0, 11, 5, 5    ], "width": 64},
++    {"index": 0, "name": "CTXR_A_CTL_EL12",               "fullname": "CTXR A Control (EL12)",                                         "enc": [3, 0, 11, 5, 6    ], "width": 64},
++    {"index": 0, "name": "CTXR_B_CTL_EL12",               "fullname": "CTXR B Control (EL12)",                                         "enc": [3, 0, 11, 5, 7    ], "width": 64},
++    {"index": 0, "name": "CTXR_C_CTL_EL12",               "fullname": "CTXR C Control (EL12)",                                         "enc": [3, 0, 11, 6, 0    ], "width": 64},
++    {"index": 0, "name": "CTXR_D_CTL_EL12",               "fullname": "CTXR D Control (EL12)",                                         "enc": [3, 0, 11, 6, 1    ], "width": 64},
++    {"index": 0, "name": "ACC_CTRR_C_LWR_EL2",            "fullname": "ACC CTRR C Lower Address (EL2)",                                "enc": [3, 0, 11, 6, 6    ], "width": 64},
++    {"index": 0, "name": "ACC_CTRR_C_UPR_EL2",            "fullname": "ACC CTRR C Upper Address (EL2)",                                "enc": [3, 0, 11, 6, 7    ], "width": 64},
++    {"index": 0, "name": "ACC_CTRR_D_LWR_EL2",            "fullname": "ACC CTRR D Lower Address (EL2)",                                "enc": [3, 0, 11, 7, 0    ], "width": 64},
++    {"index": 0, "name": "ACC_CTRR_D_UPR_EL2",            "fullname": "ACC CTRR D Upper Address (EL2)",                                "enc": [3, 0, 11, 7, 1    ], "width": 64},
++    {"index": 0, "name": "ACC_CTXR_A_LWR_EL2",            "fullname": "ACC CTXR A Lower Address (EL2)",                                "enc": [3, 0, 11, 7, 2    ], "width": 64},
++    {"index": 0, "name": "ACC_CTXR_A_UPR_EL2",            "fullname": "ACC CTXR A Upper Address (EL2)",                                "enc": [3, 0, 11, 7, 3    ], "width": 64},
++    {"index": 0, "name": "ACC_CTXR_B_LWR_EL2",            "fullname": "ACC CTXR B Lower Address (EL2)",                                "enc": [3, 0, 11, 7, 4    ], "width": 64},
++    {"index": 0, "name": "ACC_CTXR_B_UPR_EL2",            "fullname": "ACC CTXR B Upper Address (EL2)",                                "enc": [3, 0, 11, 7, 5    ], "width": 64},
++    {"index": 0, "name": "ACC_CTXR_C_LWR_EL2",            "fullname": "ACC CTXR C Lower Address (EL2)",                                "enc": [3, 0, 11, 7, 6    ], "width": 64},
++    {"index": 0, "name": "ACC_CTXR_C_UPR_EL2",            "fullname": "ACC CTXR C Upper Address (EL2)",                                "enc": [3, 0, 11, 7, 7    ], "width": 64},
++    {"index": 0, "name": "ACC_CTXR_D_LWR_EL2",            "fullname": "ACC CTXR D Lower Address (EL2)",                                "enc": [3, 0, 11, 8, 0    ], "width": 64},
++    {"index": 0, "name": "ACC_CTXR_D_UPR_EL2",            "fullname": "ACC CTXR D Upper Address (EL2)",                                "enc": [3, 0, 11, 8, 1    ], "width": 64},
++    {"index": 0, "name": "ACC_CTRR_C_CTL_EL2",            "fullname": "ACC CTRR C Control (EL2)",                                      "enc": [3, 0, 11, 8, 2    ], "width": 64},
++    {"index": 0, "name": "ACC_CTRR_D_CTL_EL2",            "fullname": "ACC CTRR D Control (EL2)",                                      "enc": [3, 0, 11, 8, 3    ], "width": 64},
++    {"index": 0, "name": "ACC_CTXR_A_CTL_EL2",            "fullname": "ACC CTXR A Control (EL2)",                                      "enc": [3, 0, 11, 8, 4    ], "width": 64},
++    {"index": 0, "name": "ACC_CTXR_B_CTL_EL2",            "fullname": "ACC CTXR B Control (EL2)",                                      "enc": [3, 0, 11, 8, 5    ], "width": 64},
++    {"index": 0, "name": "ACC_CTXR_C_CTL_EL2",            "fullname": "ACC CTXR C Control (EL2)",                                      "enc": [3, 0, 11, 8, 6    ], "width": 64},
++    {"index": 0, "name": "ACC_CTXR_D_CTL_EL2",            "fullname": "ACC CTXR D Control (EL2)",                                      "enc": [3, 0, 11, 8, 7    ], "width": 64},
++    {"index": 0, "name": "CTRR_B_CTL_EL1",                "fullname": "CTRR B Control (EL1)",                                          "enc": [3, 4, 15, 2, 2    ], "width": 64},
++    {"index": 0, "name": "CTRR_A_CTL_EL1",                "fullname": "CTRR A Control (EL1)",                                          "enc": [3, 4, 15, 2, 5    ], "width": 64},
++    {"index": 0, "name": "ACC_CTRR_A_CTL_EL2",            "fullname": "ACC CTRR A Control (EL2)",                                      "enc": [3, 4, 15, 11, 4   ], "width": 64},
++    {"index": 0, "name": "ACC_CTRR_B_CTL_EL2",            "fullname": "ACC CTRR B Control (EL2)",                                      "enc": [3, 4, 15, 11, 5   ], "width": 64},
+     {"index": 0, "name": "HID0_EL1",                    "fullname": "Hardware Implementation-Dependent Register 0",                 "enc": [3, 0, 15, 0, 0  ], "width": 64},
+     {"index": 0, "name": "EHID0_EL1",                   "fullname": "Hardware Implementation-Dependent Register 0 (E-core)",        "enc": [3, 0, 15, 0, 1  ], "width": 64},
+     {"index": 0, "name": "HID1_EL1",                    "fullname": "Hardware Implementation-Dependent Register 1",                 "enc": [3, 0, 15, 1, 0  ], "width": 64},
+diff --git a/src/cpu_regs.h b/src/cpu_regs.h
+index bb32f8c7..013075d5 100644
+--- a/src/cpu_regs.h
++++ b/src/cpu_regs.h
+@@ -773,7 +773,70 @@
+ #define AIDR_EL1_APFLG          BIT(19)
+ #define AIDR_EL1_PSRV           BIT(20)
+ 
+-/* CTRR registers */
+-#define CTRR_M4_LWR_EL2 sys_reg(3, 0, 11, 1, 0)
+-#define CTRR_M4_UPR_EL2 sys_reg(3, 0, 11, 1, 1)
+-#define CTRR_M4_CTL_EL2 sys_reg(3, 0, 11, 1, 4)
++/* M4 CTRR/CTXR registers */
++#define SYS_IMP_APL_CTRR_C_LWR_EL1 sys_reg(3, 0, 11, 0, 0)
++#define SYS_IMP_APL_CTRR_C_UPR_EL1 sys_reg(3, 0, 11, 0, 1)
++#define SYS_IMP_APL_CTRR_D_LWR_EL1 sys_reg(3, 0, 11, 0, 2)
++#define SYS_IMP_APL_CTRR_D_UPR_EL1 sys_reg(3, 0, 11, 0, 3)
++#define SYS_IMP_APL_CTRR_C_CTL_EL1 sys_reg(3, 0, 11, 1, 4)
++#define SYS_IMP_APL_CTRR_D_CTL_EL1 sys_reg(3, 0, 11, 1, 5)
++#define SYS_IMP_APL_CTXR_A_LWR_EL1 sys_reg(3, 0, 11, 2, 2)
++#define SYS_IMP_APL_CTXR_A_UPR_EL1 sys_reg(3, 0, 11, 2, 3)
++#define SYS_IMP_APL_CTXR_B_LWR_EL1 sys_reg(3, 0, 11, 2, 4)
++#define SYS_IMP_APL_CTXR_B_UPR_EL1 sys_reg(3, 0, 11, 2, 5)
++#define SYS_IMP_APL_CTXR_C_LWR_EL1 sys_reg(3, 0, 11, 2, 6)
++#define SYS_IMP_APL_CTXR_C_UPR_EL1 sys_reg(3, 0, 11, 2, 7)
++#define SYS_IMP_APL_CTXR_D_LWR_EL1 sys_reg(3, 0, 11, 3, 0)
++#define SYS_IMP_APL_CTXR_D_UPR_EL1 sys_reg(3, 0, 11, 3, 1)
++#define SYS_IMP_APL_CTXR_A_CTL_EL1 sys_reg(3, 0, 11, 5, 2)
++#define SYS_IMP_APL_CTXR_B_CTL_EL1 sys_reg(3, 0, 11, 5, 3)
++#define SYS_IMP_APL_CTXR_C_CTL_EL1 sys_reg(3, 0, 11, 5, 4)
++#define SYS_IMP_APL_CTXR_D_CTL_EL1 sys_reg(3, 0, 11, 5, 5)
++#define SYS_IMP_APL_CTRR_A_CTL_EL1 sys_reg(3, 4, 15, 2, 5)
++#define SYS_IMP_APL_CTRR_B_CTL_EL1 sys_reg(3, 4, 15, 2, 2)
++
++#define SYS_IMP_APL_CTRR_C_LWR_EL2 sys_reg(3, 0, 11, 1, 0)
++#define SYS_IMP_APL_CTRR_C_UPR_EL2 sys_reg(3, 0, 11, 1, 1)
++#define SYS_IMP_APL_CTRR_D_LWR_EL2 sys_reg(3, 0, 11, 1, 2)
++#define SYS_IMP_APL_CTRR_D_UPR_EL2 sys_reg(3, 0, 11, 1, 3)
++
++#define SYS_IMP_APL_CTRR_C_LWR_EL12 sys_reg(3, 0, 11, 0, 4)
++#define SYS_IMP_APL_CTRR_C_UPR_EL12 sys_reg(3, 0, 11, 0, 5)
++#define SYS_IMP_APL_CTRR_D_LWR_EL12 sys_reg(3, 0, 11, 0, 6)
++#define SYS_IMP_APL_CTRR_D_UPR_EL12 sys_reg(3, 0, 11, 0, 7)
++#define SYS_IMP_APL_CTRR_C_CTL_EL12 sys_reg(3, 0, 11, 1, 6)
++#define SYS_IMP_APL_CTRR_D_CTL_EL12 sys_reg(3, 0, 11, 1, 7)
++#define SYS_IMP_APL_CTXR_A_LWR_EL12 sys_reg(3, 0, 11, 3, 2)
++#define SYS_IMP_APL_CTXR_A_UPR_EL12 sys_reg(3, 0, 11, 3, 3)
++#define SYS_IMP_APL_CTXR_B_LWR_EL12 sys_reg(3, 0, 11, 3, 4)
++#define SYS_IMP_APL_CTXR_B_UPR_EL12 sys_reg(3, 0, 11, 3, 5)
++#define SYS_IMP_APL_CTXR_C_LWR_EL12 sys_reg(3, 0, 11, 3, 6)
++#define SYS_IMP_APL_CTXR_C_UPR_EL12 sys_reg(3, 0, 11, 3, 7)
++#define SYS_IMP_APL_CTXR_D_LWR_EL12 sys_reg(3, 0, 11, 4, 0)
++#define SYS_IMP_APL_CTXR_D_UPR_EL12 sys_reg(3, 0, 11, 4, 1)
++#define SYS_IMP_APL_CTXR_A_CTL_EL12 sys_reg(3, 0, 11, 5, 6)
++#define SYS_IMP_APL_CTXR_B_CTL_EL12 sys_reg(3, 0, 11, 5, 7)
++#define SYS_IMP_APL_CTXR_C_CTL_EL12 sys_reg(3, 0, 11, 6, 0)
++#define SYS_IMP_APL_CTXR_D_CTL_EL12 sys_reg(3, 0, 11, 6, 1)
++
++/* SPTM calls these per-cluster registers */
++#define SYS_IMP_APL_ACC_CTRR_C_LWR_EL2 sys_reg(3, 0, 11, 6, 6)
++#define SYS_IMP_APL_ACC_CTRR_C_UPR_EL2 sys_reg(3, 0, 11, 6, 7)
++#define SYS_IMP_APL_ACC_CTRR_D_LWR_EL2 sys_reg(3, 0, 11, 7, 0)
++#define SYS_IMP_APL_ACC_CTRR_D_UPR_EL2 sys_reg(3, 0, 11, 7, 1)
++#define SYS_IMP_APL_ACC_CTXR_A_LWR_EL2 sys_reg(3, 0, 11, 7, 2)
++#define SYS_IMP_APL_ACC_CTXR_A_UPR_EL2 sys_reg(3, 0, 11, 7, 3)
++#define SYS_IMP_APL_ACC_CTXR_B_LWR_EL2 sys_reg(3, 0, 11, 7, 4)
++#define SYS_IMP_APL_ACC_CTXR_B_UPR_EL2 sys_reg(3, 0, 11, 7, 5)
++#define SYS_IMP_APL_ACC_CTXR_C_LWR_EL2 sys_reg(3, 0, 11, 7, 6)
++#define SYS_IMP_APL_ACC_CTXR_C_UPR_EL2 sys_reg(3, 0, 11, 7, 7)
++#define SYS_IMP_APL_ACC_CTXR_D_LWR_EL2 sys_reg(3, 0, 11, 8, 0)
++#define SYS_IMP_APL_ACC_CTXR_D_UPR_EL2 sys_reg(3, 0, 11, 8, 1)
++#define SYS_IMP_APL_ACC_CTRR_C_CTL_EL2 sys_reg(3, 0, 11, 8, 2)
++#define SYS_IMP_APL_ACC_CTRR_D_CTL_EL2 sys_reg(3, 0, 11, 8, 3)
++#define SYS_IMP_APL_ACC_CTXR_A_CTL_EL2 sys_reg(3, 0, 11, 8, 4)
++#define SYS_IMP_APL_ACC_CTXR_B_CTL_EL2 sys_reg(3, 0, 11, 8, 5)
++#define SYS_IMP_APL_ACC_CTXR_C_CTL_EL2 sys_reg(3, 0, 11, 8, 6)
++#define SYS_IMP_APL_ACC_CTXR_D_CTL_EL2 sys_reg(3, 0, 11, 8, 7)
++#define SYS_IMP_APL_ACC_CTRR_A_CTL_EL2 sys_reg(3, 4, 15, 11, 4)
++#define SYS_IMP_APL_ACC_CTRR_B_CTL_EL2 sys_reg(3, 4, 15, 11, 5)
+diff --git a/src/kboot.c b/src/kboot.c
+index 393b71a9..f09742a7 100644
+--- a/src/kboot.c
++++ b/src/kboot.c
+@@ -2837,8 +2837,8 @@ int kboot_prepare_dt(void *fdt)
+         // on the secondary (non-boot) cores. Add a reserved-memory region to
+         // prevent Linux from crashing when allocating this memory and writing
+         // to it from a secondary core.
+-        u64 ro_start = mrs(CTRR_M4_LWR_EL2);
+-        u64 ro_end = ALIGN_UP(mrs(CTRR_M4_UPR_EL2), SZ_4K);
++        u64 ro_start = mrs(SYS_IMP_APL_CTRR_C_LWR_EL2);
++        u64 ro_end = ALIGN_UP(mrs(SYS_IMP_APL_CTRR_C_UPR_EL2), SZ_4K);
+         if (ro_end - ro_start > 12 * SZ_4K)
+             printf("WARNING: M4+ SMP-RO is large (48KB)");
+         if (fdt_add_mem_rsv(dt, ro_start, ro_end - ro_start))
+-- 
+2.43.0
+

@@ -83,6 +83,15 @@ def ctrr_regs():
     for e in json.load(open("/Users/damsleth/Code/m1n1/proxyclient/m1n1/apple_regs.json")):
         if e["name"].startswith("CTRR_"):
             regs["IMP_APL_" + e["name"]] = tuple(e["enc"])
+    # 5015: M4's second CTRR instance, enabled on secondaries only (Asahi m1n1
+    # 442c7a2/a735ea2/00b8814, Gravity eb6cab7). Older apple_regs.json lacks it,
+    # and 5012 never read it. EL1 encodings only: upstream kboot reads these
+    # at EL2; the EL2/ACC/CTXR variants are left out of this pass.
+    for n, enc in {"CTRR_C_LWR_EL1": (3, 0, 11, 0, 0), "CTRR_C_UPR_EL1": (3, 0, 11, 0, 1),
+                   "CTRR_D_LWR_EL1": (3, 0, 11, 0, 2), "CTRR_D_UPR_EL1": (3, 0, 11, 0, 3),
+                   "CTRR_C_CTL_EL1": (3, 0, 11, 1, 4), "CTRR_D_CTL_EL1": (3, 0, 11, 1, 5)}.items():
+        if enc not in regs.values():
+            regs["IMP_APL_" + n] = enc
     return regs
 
 

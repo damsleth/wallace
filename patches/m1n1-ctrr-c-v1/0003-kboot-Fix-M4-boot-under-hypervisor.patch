@@ -1,0 +1,32 @@
+From 00b881435286527a0bfb0be41bece0302e697098 Mon Sep 17 00:00:00 2001
+From: Janne Grunau <j@jannau.net>
+Date: Wed, 30 Sep 2026 11:30:53 +0200
+Subject: [PATCH] kboot: Fix M4* boot under hypervisor
+
+Use the EL1 versions of the CTRR sysregs to read the region enabled on
+the secondary cores.
+
+Fixes: a735ea29 ("kboot: add reserved CTRR_M4 region")
+Signed-off-by: Janne Grunau <j@jannau.net>
+---
+ src/kboot.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/kboot.c b/src/kboot.c
+index f09742a7..3e3c7349 100644
+--- a/src/kboot.c
++++ b/src/kboot.c
+@@ -2837,8 +2837,8 @@ int kboot_prepare_dt(void *fdt)
+         // on the secondary (non-boot) cores. Add a reserved-memory region to
+         // prevent Linux from crashing when allocating this memory and writing
+         // to it from a secondary core.
+-        u64 ro_start = mrs(SYS_IMP_APL_CTRR_C_LWR_EL2);
+-        u64 ro_end = ALIGN_UP(mrs(SYS_IMP_APL_CTRR_C_UPR_EL2), SZ_4K);
++        u64 ro_start = mrs(SYS_IMP_APL_CTRR_C_LWR_EL1);
++        u64 ro_end = ALIGN_UP(mrs(SYS_IMP_APL_CTRR_C_UPR_EL1), SZ_4K);
+         if (ro_end - ro_start > 12 * SZ_4K)
+             printf("WARNING: M4+ SMP-RO is large (48KB)");
+         if (fdt_add_mem_rsv(dt, ro_start, ro_end - ro_start))
+-- 
+2.43.0
+
