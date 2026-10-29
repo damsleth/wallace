@@ -9,5 +9,6 @@
   "author": "claude",
   "deps": [],
   "hashes": null,
-  "created": 1793311255
+  "created": 1793311255,
+  "progress_2026_10_29": "Exported the public half as patches/t6040-rtkit-crashlog-gfp-noio.patch (Gravity 91a96361b3, author Niklas Sheth; rtkit.c GFP_KERNEL->GFP_NOIO, 3+/2-). Its commit message also describes the CSTS-skip in apple_nvme_disable/timeout and a panic_on_crash param, but those live in unpublished Gravity commit 4a0545d5 (GitHub 422); they must be written fresh against our asahi-wip nvme-apple.c. Not wired into t6040-kbuild.sh (explicit per-patch apply list), not built. Next: on the Mac host, git apply --check against wallace/t6040-bringup, add the kbuild stanza, then write the nvme half."
 }

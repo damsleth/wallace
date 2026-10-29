@@ -1,0 +1,46 @@
+From 91a96361b3391a1fa1ad02f60d3efd3264e9ead1 Mon Sep 17 00:00:00 2001
+From: Niklas Sheth <hi@niklassheth.com>
+Date: Mon, 26 Oct 2026 02:50:38 -0400
+Subject: [PATCH] soc: apple: rtkit: avoid I/O reclaim when copying a crash log
+
+When the ANS co-processor crashes, the driver already dumps the
+crashlog and fails all I/O, but a few steps can stall on the way:
+
+- the crashlog shadow buffer is allocated with GFP_KERNEL on the RTKit
+  workqueue; if the crashed ANS backs the root filesystem, reclaim can
+  wait on writeback to it and the crash is never reported. Use GFP_NOIO.
+- apple_nvme_disable() and apple_nvme_timeout() read CSTS before
+  checking whether RTKit has crashed. Skip the MMIO read once the
+  firmware is known dead.
+
+Also log the crash at KERN_CRIT and add a panic_on_crash parameter
+(default off) so a root-disk crash can be turned into a loud panic with
+the crashlog on the console instead of a slowly dying userspace.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+(Selected drivers/soc/apple/rtkit.c from commit 4a0545d5bebcb4aa93033f811ea8e1500a9128c2)
+---
+ drivers/soc/apple/rtkit.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/soc/apple/rtkit.c b/drivers/soc/apple/rtkit.c
+index 983dc5743e26..d4233df82b4a 100644
+--- a/drivers/soc/apple/rtkit.c
++++ b/drivers/soc/apple/rtkit.c
+@@ -394,9 +394,10 @@ static void apple_rtkit_crashlog_rx(struct apple_rtkit *rtk, u64 msg)
+ 	/*
+ 	 * create a shadow copy here to make sure the co-processor isn't able
+ 	 * to change the log while we're dumping it. this also ensures
+-	 * the buffer is in normal memory and not iomem for e.g. the SMC
++	 * the buffer is in normal memory and not iomem for e.g. the SMC.
++	 * No I/O: the crashed co-processor may be the one backing writeback.
+ 	 */
+-	bfr = kzalloc(rtk->crashlog_buffer.size, GFP_KERNEL);
++	bfr = kzalloc(rtk->crashlog_buffer.size, GFP_NOIO);
+ 	if (bfr) {
+ 		apple_rtkit_memcpy(rtk, bfr, &rtk->crashlog_buffer, 0,
+ 				   rtk->crashlog_buffer.size);
+-- 
+2.43.0
+
