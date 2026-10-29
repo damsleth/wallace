@@ -9,5 +9,6 @@
   "author": "claude",
   "deps": [],
   "hashes": null,
-  "created": 1792938819
+  "created": 1792938819,
+  "gravity_2026_10_29": "See evidence/2026-10-29-t6040-5013-gravity-dockchannel-hid-compare.md, especially the reviewer addendum. Gravity runs M4 Max (identical MTP addresses) on the M4-family shared-ring dockchannel-hid transport, not the FIFO ABI. Candidate: port the ring path plus DT rmt-config/rmt-data and DART sid-remap, verify against J614s ADT first, then a boot series vs the 9/11 FIFO baseline."
 }
