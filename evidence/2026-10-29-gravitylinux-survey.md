@@ -63,6 +63,35 @@ range on the 5012 v3 bitmap, then boot with the reservation at `maxcpus>1`.
 | 11 | m1n1: Normal-NC mapping for the iBoot handoff and `/vram` (AMCC `UNEXP_RT_HIT_DIR`); ADT carveout fallback in `mcc.c`; `pcie: Add t8132/t6040 support` (`APCIE_PHY_CTRL_RESET` BIT(4)); SPMI gen 4 | Gravity `d919a38`, `3c5b962`, `20cb4ff`; Yureka `0c1ba6b`, `14704b0` | m1n1 fork | Check whether our fork already carries these. `d919a38` was later dropped on `PR_sptm_hv` (`0902a9a`), so treat it as HV-only |
 | 12 | ADT dumps: `adt-collection/26.6.2/t6040-j773s.txt` (M4 Pro Mac mini, same SoC), `t6041-j616c.txt` | Unlicense | ADT cross-checks | Free reference for comparing T6040 nodes on macOS 26.6.2 with our J614s capture |
 
+## Progress (2026-10-29, same day)
+
+- 5015 prep: `scripts/t6040-cpu-sysreg-diff.py --ctrr` now also reads
+  `CTRR_C/D_{LWR,UPR,CTL}_EL1`. The upstream series is exported to
+  `patches/m1n1-ctrr-c-v1/`; its README covers the `apple_sysregs_unlocked`
+  prerequisite and the UPR end-address caveat (Asahi vs Gravity).
+- 5016: `patches/brcmfmac-gravity-v1/` holds three fixes. Gravity
+  `fb50041b58` is rejected: at their branch tip it calls
+  `cfg80211_port_authorized()` twice per connect. **Rebase hazard for 6002/6004:**
+  upstream `f0ba5fd51ff2` ("Set DMA direction for msgbuf packet IDs") breaks
+  BCM4388 association. Any 7.3-based refresh needs patch 0002 with it.
+- 5017: `patches/t6040-rtkit-crashlog-gfp-noio.patch` is the public half. The
+  nvme CSTS-skip and `panic_on_crash` parts are in unpublished Gravity commit
+  `4a0545d5`.
+- 5018: `evidence/2026-10-29-t6040-5018-t6041-dt-reference-diff.md`.
+- 305 cross-reference (no ticket change): the Asahi `sn201202x` SPMI
+  transport that Gravity carries (`drivers/usb/typec/tipd/spmi.c`, from
+  `550afd1aa62b`) is interrupt-driven. It requests three extra named IRQs
+  (`select`, `sleep`, `wake`). After `spmi_command_wakeup()` it **waits for
+  the `wake` IRQ (100 ms timeout)** before `tipd_init()`. Every select waits
+  for the `select` IRQ (100 ms) and then confirms by reading register 0
+  (`reg | 0x80` = still busy, 20 ms retry). Our transport polls register 0
+  with a 100 × 1 ms budget and settles 10 ms after WAKEUP. If 305 run 7 sees
+  a flaky first read, the upstream wake-IRQ wait is the reference. The
+  `select`/`sleep`/`wake` interrupt numbers would have to come from our J614s
+  ADT `hpm2` node.
+- 5013: Codex comparison of Gravity's dockchannel-hid FIFO-path changes
+  (in progress).
+
 ## Not useful or out of scope
 
 - `installer`, `installer-next`, `kiwi-descriptions`, `packages`: Fedora/KDE
