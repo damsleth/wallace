@@ -89,6 +89,14 @@ range on the 5012 v3 bitmap, then boot with the reservation at `maxcpus>1`.
   a flaky first read, the upstream wake-IRQ wait is the reference. The
   `select`/`sleep`/`wake` interrupt numbers would have to come from our J614s
   ADT `hpm2` node.
+- MCC naming check: the T6040 ADT's MCC node is `compatible = mcc,t6041`
+  in both the J773s dump (`amcc-count = 4`) and on J614s; the M4 Max has
+  `amcc-count = 8`. So our `0005-mcc-add-t6041-M4-Pro-die-support` title
+  follows the ADT. Upstream Asahi `d3699d53` ("t6041: initial support")
+  expects `PLANE_CACHE_STATUS` to show 12 DATA/TAG ways. Our J614s
+  measurement is `0x00010101` with a single plane per AMCC. Upstream's
+  `mcc_enable_cache()` poll would therefore likely time out on T6040 if taken
+  unmodified. Check this before any m1n1 rebase.
 - 5013: Codex comparison of Gravity's dockchannel-hid FIFO-path changes
   (in progress).
 
