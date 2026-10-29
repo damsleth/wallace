@@ -9,5 +9,6 @@
   "author": "claude",
   "deps": [],
   "hashes": null,
-  "created": 1793311255
+  "created": 1793311255,
+  "progress_2026_10_29": "Exported patches/brcmfmac-gravity-v1/ (0001 9c150e234d bus_reset WARN, 0002 406b59b0a0 msgbuf packet IDs bidirectional = guard for any base containing upstream f0ba5fd51ff2, which breaks BCM4388 association, 0003 426ef46e3a port_authorized after connect). Rejected fb50041b58: it double-reports cfg80211_port_authorized at the Gravity branch tip, and its 4388C2 mapping is already in our base. Remaining: on the Mac host, check 3afb9971c1275/f0ba5fd51ff2 ancestry on wallace/t6040-bringup, git apply --check, wire into kbuild, then a WPA2-PSK association test (rig)."
 }

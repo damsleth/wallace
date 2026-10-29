@@ -1,0 +1,57 @@
+From 406b59b0a020141aca703ed05e3d58685069b461 Mon Sep 17 00:00:00 2001
+From: Niklas Sheth <hi@niklassheth.com>
+Date: Thu, 8 Oct 2026 22:25:43 -0400
+Subject: [PATCH] wifi: brcmfmac: Map msgbuf packet IDs bidirectionally
+
+Since commit f0ba5fd51ff2 ("wifi: brcmfmac: Set DMA direction for msgbuf
+packet IDs") the TX and RX packet ID pools really use DMA_TO_DEVICE and
+DMA_FROM_DEVICE, where they previously, by accident, used
+DMA_BIDIRECTIONAL. On Apple's BCM4388 (M4 MacBook Air and Mac mini,
+firmware 23.50.20.2) the firmware accesses these buffers in both
+directions: with TX mapped device-read-only through the PCIe DART it
+reports "H2D DMA data transfer error" right after the first LINK event
+and traps, and with only TX widened it still dies as soon as association
+starts. Every later dcmd then times out and Wi-Fi never associates.
+Bisected on the Air by asahi-03: with both pools bidirectional the 7.3
+kernel joins again, with TX alone it does not.
+
+Map both packet ID pools bidirectionally again, as before f0ba5fd51ff2.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+Original-Commit: 9188e149997d90434767ea162a5bf2b35f655ce1
+Signed-off-by: Cody Ho <codyho@stanford.edu>
+Assisted-By: LLM
+---
+ .../net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
+index 659419e017c5..39eb24ec6406 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
+@@ -1719,12 +1719,19 @@ int brcmf_proto_msgbuf_attach(struct brcmf_pub *drvr)
+ 	msgbuf->max_ioctlrespbuf = BRCMF_MSGBUF_MAX_IOCTLRESPBUF_POST;
+ 	msgbuf->max_eventbuf = BRCMF_MSGBUF_MAX_EVENTBUF_POST;
+ 
++	/*
++	 * Packet buffers stay mapped bidirectionally, as they effectively were
++	 * before the direction was stored. The BCM4388 firmware accesses
++	 * both pools in both directions: with TX device-read-only it traps
++	 * with "H2D DMA data transfer error", and with only TX widened it
++	 * still dies once association starts.
++	 */
+ 	msgbuf->tx_pktids = brcmf_msgbuf_init_pktids(NR_TX_PKTIDS,
+-						     DMA_TO_DEVICE);
++						     DMA_BIDIRECTIONAL);
+ 	if (!msgbuf->tx_pktids)
+ 		goto fail;
+ 	msgbuf->rx_pktids = brcmf_msgbuf_init_pktids(NR_RX_PKTIDS,
+-						     DMA_FROM_DEVICE);
++						     DMA_BIDIRECTIONAL);
+ 	if (!msgbuf->rx_pktids)
+ 		goto fail;
+ 
+-- 
+2.43.0
+

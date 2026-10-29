@@ -1,0 +1,47 @@
+From 9c150e234d0c68ef9e9944ffc52f206e368d5131 Mon Sep 17 00:00:00 2001
+From: Niklas Sheth <hi@niklassheth.com>
+Date: Wed, 7 Oct 2026 13:39:12 -0400
+Subject: [PATCH] wifi: brcmfmac: don't drain an uninitialized bus_reset work
+
+brcmf_bus_cancel_reset_work() runs on every removal, but drvr->bus_reset
+is only initialized in brcmf_bus_started(), after the firmware is up.
+When firmware loading fails (e.g. no firmware installed), PCIe removal
+reaches cancel_work_sync() on a zeroed work_struct and __flush_work()
+warns:
+
+  WARNING: kernel/workqueue.c: __flush_work+... (WARN_ON(!work->func))
+  brcmf_bus_cancel_reset_work+0x40/0x60
+  brcmf_pcie_remove+0x6c/0x140
+  brcmf_pcie_setup+0x50/0x4c8
+
+Skip the drain when the work was never initialized, as
+brcmf_bus_schedule_reset() already does before arming it.
+
+Fixes: 177a25be1195 ("wifi: brcmfmac: drain bus_reset work on device removal")
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+(cherry picked from commit 7f1e74a253b82405aecefd94c4b6a14a11d6e810)
+
+Original-Commit: 233b8332d59940785f44154fa1b2a4b40431812d
+Signed-off-by: Cody Ho <codyho@stanford.edu>
+Assisted-By: LLM
+---
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+index 13cb6cb9655a..f1d224765c69 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+@@ -1186,7 +1186,8 @@ void brcmf_bus_cancel_reset_work(struct brcmf_bus *bus_if)
+ {
+ 	mutex_lock(&bus_if->bus_reset_lock);
+ 	bus_if->removing = true;
+-	if (bus_if->drvr)
++	/* bus_reset is only initialized once the firmware is up. */
++	if (bus_if->drvr && bus_if->drvr->bus_reset.func)
+ 		cancel_work_sync(&bus_if->drvr->bus_reset);
+ 	mutex_unlock(&bus_if->bus_reset_lock);
+ }
+-- 
+2.43.0
+
