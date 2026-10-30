@@ -410,6 +410,21 @@ if [ -f /out/t6040-apple-cpufreq-freq-mult-overflow.patch ]; then
         exit 1
     fi
 fi
+if [ -f /out/t6040-bluetooth-mgmt-pairing-race.patch ]; then
+    # v7.1.3 double-list_del()s the pending PAIR_DEVICE command when an SMP
+    # failure races a cancel/disconnect; the oops kills hci_rx_work and wedges
+    # hci0 until reboot. Backport of upstream remove_pairing(). Found live
+    # 2026-10-30 pairing a Dygma Defy.
+    if git apply --check /out/t6040-bluetooth-mgmt-pairing-race.patch 2>/dev/null; then
+        git apply /out/t6040-bluetooth-mgmt-pairing-race.patch
+        echo "t6040-bluetooth-mgmt-pairing-race.patch applied OK"
+    elif git apply -R --check /out/t6040-bluetooth-mgmt-pairing-race.patch 2>/dev/null; then
+        echo "t6040-bluetooth-mgmt-pairing-race.patch already applied"
+    else
+        echo "ERROR: t6040-bluetooth-mgmt-pairing-race.patch does not apply" >&2
+        exit 1
+    fi
+fi
 if [ -f /out/t6040-nvme-apple-force-clean-ans-boot.patch ]; then
     # A loader without NVMe support (our enrolled m1n1) leaves iBoot's ANS
     # running; the driver's wake path then crashes the ANS firmware. Force
