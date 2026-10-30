@@ -169,6 +169,12 @@ the discipline around them.
   Its ramoops has `pmsg_size=0`, so userspace markers go through `/dev/kmsg`
   into `console-ramoops-0`.
 
+- **DT-only builds on the M4 (2026-10-30).** The pushed `e9d2237` plus the 5019
+  reconstruction patch (evidence), kbuild with `STOP_AFTER_DTB=1`, and wallace
+  `dts/` reproduce the 5019 and 5014 DTBs byte for byte (`1a49d19d`, `6d2d3da6`).
+  `scripts/t6040-rebootargs-object.py --replace-dtb` turns a new DTB into an
+  object. First use: 5028.
+
 ### Display and keyboard
 
 - simpledrm and fbcon use the framebuffer handed off by m1n1.

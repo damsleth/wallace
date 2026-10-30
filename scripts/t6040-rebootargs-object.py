@@ -8,7 +8,7 @@ once with the object's own bootargs first: the result must be byte-identical to
 OBJECT, or the split is wrong (ticket 5024).
 
     t6040-rebootargs-object.py OBJECT --dtb board.dtb --initramfs initramfs.cpio.gz \
-        --outdir DIR [--bootargs '<new args>' | --prepend 'nr_cpus=1']
+        --outdir DIR [--bootargs '<new args>' | --prepend 'nr_cpus=1'] [--replace-dtb new.dtb]
 """
 
 from __future__ import annotations
@@ -33,6 +33,8 @@ def main() -> int:
     g.add_argument("--bootargs", help="replace the bootargs")
     g.add_argument("--prepend", help="prepend these args to the existing bootargs")
     p.add_argument("--name", default="object.bin", help="output object file name")
+    p.add_argument("--replace-dtb", type=Path,
+                   help="rebuild with this DTB instead of --dtb (a DT-only variant)")
     a = p.parse_args()
 
     obj = a.object.read_bytes()
@@ -58,14 +60,14 @@ def main() -> int:
     builder = Path(__file__).with_name("t6040-build-raw-object.py")
     out = a.outdir / a.name
     subprocess.run([sys.executable, "-I", str(builder), str(out), "--m1n1", str(m1n1),
-                    "--kernel", str(kernel), "--dtb", str(a.dtb),
+                    "--kernel", str(kernel), "--dtb", str(a.replace_dtb or a.dtb),
                     "--initramfs", str(a.initramfs), "--bootargs", new, "--force"],
                    check=True, stdout=subprocess.DEVNULL)
     h = hashlib.sha256(out.read_bytes()).hexdigest()
     print(f"old bootargs: {old}")
     print(f"new bootargs: {new}")
     print(f"{h}  {out}")
-    if new == old and out.read_bytes() != obj:
+    if new == old and not a.replace_dtb and out.read_bytes() != obj:
         sys.exit("rebuild with unchanged bootargs differs from the input object")
     return 0
 

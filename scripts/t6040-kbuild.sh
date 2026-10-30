@@ -2035,6 +2035,8 @@ echo "== build parallelism: $NPROC job(s) =="
 echo "== build DTB first (validates our DT in the real kbuild) =="
 make ARCH=arm64 -j"$NPROC" apple/t6040-j614s.dtb
 cp $APPLE/t6040-j614s.dtb /out/ && echo "DTB -> /out/t6040-j614s.dtb"
+# DT-only runs (on-device DTB variants): stop before the Image build.
+if [ "${STOP_AFTER_DTB:-0}" = "1" ]; then echo "== STOP_AFTER_DTB=1: tree configured, DTB built, no Image =="; exit 0; fi
 if [ "${DOCKCHANNEL:-0}" = "1" ]; then
     if [ -f "$APPLE/t6040-j614s-kbd-infra.dts" ]; then
         make ARCH=arm64 -j"$NPROC" apple/t6040-j614s-kbd-infra.dtb

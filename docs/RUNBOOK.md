@@ -366,6 +366,14 @@ Tracing on the 5019 kernel (remove probes afterwards):
     echo 'p:probe1 do_sys_openat2' >> kprobe_events; echo 1 > events/kprobes/probe1/enable
     echo 0 > events/kprobes/probe1/enable; echo '-:probe1' >> kprobe_events
 
+DT-only variant (no Mac needed; recipe in
+`evidence/2026-10-30-t6040-5028-pmsfpwm-dtb-candidate.md`): depth-1 fetch of
+`wallace/t6040-bringup` into a tmpfs, apply
+`evidence/2026-10-30-t6040-5019-reconstructed-base.patch`, run kbuild in the
+bookworm chroot with the 5019 flags and `STOP_AFTER_DTB=1`, copy the dts chain
+from wallace `dts/`, `make ARCH=arm64 apple/<name>.dtb`, then
+`scripts/t6040-rebootargs-object.py <5019 object> ... --replace-dtb <new.dtb>`.
+
 Warm-reboot crash-log check (5020): `scripts/t6040-onboard-pstore-reboot.sh`,
 then the same script with `check` after the reboot. The root filesystem is
 16 GB: never fetch full kernel history onto it; use a depth-1 fetch into tmpfs.

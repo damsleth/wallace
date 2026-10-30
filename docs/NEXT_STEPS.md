@@ -52,6 +52,7 @@ blocks on CJ, and remove it once it has been done.
    scripts/rig-lease.sh queue approve 5025 --by cj   # kexec kernel trial (after 5021)
    scripts/rig-lease.sh queue approve 5015 --by cj   # CTRR_C reads + SMP test (two variants)
    scripts/rig-lease.sh queue approve 5023 --by cj   # ANS2 Flush with dma_flags 0
+   scripts/rig-lease.sh queue approve 5029 --by cj   # boot 5028 (pms_fpwm disabled; object c0e5d515)
    ```
 
 5. **Enroll the 5024 object** (for 5021; built and verified, `/mnt/sd/wallace-5024/`). Same procedure as

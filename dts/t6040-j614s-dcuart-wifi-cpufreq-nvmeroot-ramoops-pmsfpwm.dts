@@ -1,0 +1,27 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Ticket 5028 candidate: the 5019 onboard DT (nvmeroot + ramoops) with the
+ * five PMS FPWM power domains disabled.
+ *
+ * pms_fpwm0..4 are marked apple,always-on because the ADT flags them critical
+ * (pmgr_adt2dt --always-on critical). On every boot each one is off at probe,
+ * the driver writes TARGET=0xf, and ACTUAL stays 0 ("now: 0xf" is the raw
+ * register). They look firmware-owned. On M5, touching fpwm1 crashes the AP.
+ * Nothing references them (no phandle in the live DT). status = "disabled"
+ * means the provider never probes and Linux never writes their PS registers.
+ * The keyboard backlight uses the separate sio fpwm0 domain, which is
+ * unaffected. One of these may feed the panel backlight (164); disabling only
+ * stops Linux touching it.
+ */
+
+#include "t6040-j614s-dcuart-wifi-cpufreq-nvmeroot-ramoops.dts"
+
+/ {
+	model = "Apple MacBook Pro (M4 Pro) J614s [Alpine root on NVMe, ramoops debug, PMS FPWM untouched, PMU SPMI disabled]";
+};
+
+&ps_pms_fpwm0 { status = "disabled"; };
+&ps_pms_fpwm1 { status = "disabled"; };
+&ps_pms_fpwm2 { status = "disabled"; };
+&ps_pms_fpwm3 { status = "disabled"; };
+&ps_pms_fpwm4 { status = "disabled"; };
