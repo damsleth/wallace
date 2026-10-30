@@ -26,7 +26,7 @@ Everything here is a hypothesis until the rig confirms it.
    and a large `s3_7_c15_*` block. If step 3 still faults with the reservation, that
    per-CPU init and the PMGR CPU-start path are the next RE targets.
 4. **Kernel-wide write census (closes the caveat in 3).** Across the whole macOS kernel, not just
-   the boot text, writes in the `s3_0_c11` space go only to the 20 guest (`_EL12`) copies; there is
+   the boot text, writes in the `s3_0_c11` space go only to the 18 guest (`_EL12`) encodings (corrected from 20, wallace-rex `28d50d9`); there is
    no CTRR LWR/UPR/CTL/LOCK write for itself anywhere. Legacy `s3_4_c15_c2_2..5`: no writes.
    `s3_0_c15_*` (HID/chicken space): no writes at all, so macOS leaves every chicken bit to
    firmware and there is no chicken sequence to copy (whatever m1n1 applies is its own). The
