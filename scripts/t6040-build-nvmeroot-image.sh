@@ -54,6 +54,8 @@ cat >>"$DEST/build.sh" <<'EOS'
     mkdir -p etc/X11/xorg.conf.d etc/profile.d
     printf "Section \"InputClass\"\n    Identifier \"system-keyboard\"\n    MatchIsKeyboard \"on\"\n    Option \"XkbLayout\" \"no\"\nEndSection\n" \
         > etc/X11/xorg.conf.d/00-keyboard.conf
+    printf "Section \"InputClass\"\n    Identifier \"touchpad natural scrolling\"\n    MatchIsTouchpad \"on\"\n    MatchDriver \"libinput\"\n    Option \"NaturalScrolling\" \"true\"\n    Option \"Tapping\" \"true\"\nEndSection\n" \
+        > etc/X11/xorg.conf.d/30-touchpad.conf
     printf "export LANG=nb_NO.UTF-8\nexport LC_CTYPE=nb_NO.UTF-8\n" > etc/profile.d/wallace-locale.sh
     echo wallace > etc/hostname
     echo "# / is the loop-mounted wallace-root.img, mounted by the nvmeroot init" > etc/fstab
