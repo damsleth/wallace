@@ -1,0 +1,29 @@
+From: CJ Damsleth <kim@damsleth.no>
+Subject: [PATCH] nvme: apple: no DMA direction for commands without a data transfer
+
+Flush has no PRP list. The T6040 driver gave it dma_flags FROM_DEVICE, and
+m1n1's old probe gave it both directions; ANS2 answered both with status 2
+("fast decode err 0x7"; 211 write run 1, ticket 5006). Mainline apple.c, Yuka's
+branch and Asahi's 7.2.12-2 all write dma_flags = 0 when prp1 is empty, and
+m1n1 c16d3c74609976 (Sven Peter) says a direction on a command with no
+transfer likely trips the PRP NULL check. Do the same here. Reads and writes,
+and the TCB opcode, are unchanged, so the validated I/O path is untouched
+(Flush's opcode is 0 either way).
+
+Untested on T6040 hardware. Opt-in (NVME_FLUSH_NODMA=1); see ticket 5023.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+--- a/drivers/nvme/host/apple.c
++++ b/drivers/nvme/host/apple.c
+@@ -336,7 +336,9 @@
+ 	tcb->length = cmd->rw.length;
+ 	tcb->command_id = tag;
+ 
+-	if (nvme_is_write(cmd))
++	if (!cmd->common.dptr.prp1)
++		tcb->dma_flags = 0;
++	else if (nvme_is_write(cmd))
+ 		tcb->dma_flags = APPLE_ANS_TCB_DMA_TO_DEVICE;
+ 	else
+ 		tcb->dma_flags = APPLE_ANS_TCB_DMA_FROM_DEVICE;

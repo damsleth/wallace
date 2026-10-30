@@ -1,0 +1,39 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * J614s one-core NVMe-root DT plus a ramoops region for the onboard debug
+ * kernel (ticket 5019, T6040_ONBOARD_DEBUG=1).
+ *
+ * The nvmeroot DT unchanged, plus one 2 MiB no-map pstore region.
+ *
+ * Placement (derived from recorded values, not yet checked against a live
+ * /proc/iomem of this exact boot): evidence/2026-07-23-t6040-mcc-carveout-analysis.md
+ * has DRAM base 0x10000000000, phys_base 0x100032a8000 and top 0x105ce7a8000.
+ * The ADT carveouts sit at or above the top, so they are not in Linux RAM.
+ * m1n1 loads the kernel at 0x10008400000 and the FDT at 0x10008600000 (see the
+ * saved chainload logs), and allocates top-down from the end of RAM. 0x103
+ * 00000000 is 12 GiB into the range: well clear of both ends and 1 MiB aligned.
+ * The boot ticket must confirm it first: the first boot's /proc/iomem has to
+ * show "ramoops" inside System RAM with nothing else overlapping, and
+ * /sys/fs/pstore must be mountable. If m1n1 ever moves a payload there, the
+ * symptom is an early boot hang or a garbage first record, not data loss.
+ *
+ * Layout inside the 2 MiB: console 256 KiB, ftrace 256 KiB (per CPU; one CPU
+ * online), 128 KiB dump records for the rest.
+ */
+
+#include "t6040-j614s-dcuart-wifi-cpufreq-nvmeroot.dts"
+
+/ {
+	model = "Apple MacBook Pro (M4 Pro) J614s [Alpine root on NVMe, ramoops debug, PMU SPMI disabled]";
+
+	reserved-memory {
+		ramoops@10300000000 {
+			compatible = "ramoops";
+			reg = <0x103 0x00000000 0x0 0x00200000>;
+			no-map;
+			record-size = <0x20000>;
+			console-size = <0x40000>;
+			ftrace-size = <0x40000>;
+		};
+	};
+};

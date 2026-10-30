@@ -1,0 +1,521 @@
+From 6d2e54a0df87b6e75aa38a6e914f53a463c1df69 Mon Sep 17 00:00:00 2001
+From: CJ Damsleth <kim@damsleth.no>
+Date: Fri, 30 Oct 2026 11:07:38 +0100
+Subject: [PATCH] reconstruct 4f2429104009 working-tree state from 6002
+ local-source snapshots
+
+Replaces drivers/nvme/host/apple.c and the t6040 DT sources on e9d2237 with
+the files captured from the M1 tree (wallace evidence/2026-10-24-upstream-convergence/
+local-source). Not byte-identical to 4f2429104009; covers only these four files.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ arch/arm64/boot/dts/apple/t6040-j614s.dts |   4 +-
+ arch/arm64/boot/dts/apple/t6040-pmgr.dtsi |   7 +
+ arch/arm64/boot/dts/apple/t6040.dtsi      | 231 ++++++++++++++++++++--
+ drivers/nvme/host/apple.c                 |  87 ++++++--
+ 4 files changed, 295 insertions(+), 34 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/apple/t6040-j614s.dts b/arch/arm64/boot/dts/apple/t6040-j614s.dts
+index 1081c5574..b1dc29f79 100644
+--- a/arch/arm64/boot/dts/apple/t6040-j614s.dts
++++ b/arch/arm64/boot/dts/apple/t6040-j614s.dts
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0+ OR MIT
+ /*
+- * Apple MacBook Pro (16-inch, M4 Pro, 2024)
++ * Apple MacBook Pro (14-inch, M4 Pro, 2024)
+  *
+  * target-type: J614s
+  *
+@@ -13,7 +13,7 @@
+ 
+ / {
+ 	compatible = "apple,j614s", "apple,t6040", "apple,arm-platform";
+-	model = "Apple MacBook Pro (16-inch, M4 Pro, 2024)";
++	model = "Apple MacBook Pro (14-inch, M4 Pro, 2024)";
+ 
+ 	aliases {
+ 		serial0 = &serial0;
+diff --git a/arch/arm64/boot/dts/apple/t6040-pmgr.dtsi b/arch/arm64/boot/dts/apple/t6040-pmgr.dtsi
+index ce9b9c76d..7f471c0a3 100644
+--- a/arch/arm64/boot/dts/apple/t6040-pmgr.dtsi
++++ b/arch/arm64/boot/dts/apple/t6040-pmgr.dtsi
+@@ -1718,6 +1718,13 @@ ps_nub_spmi_a1: power-controller@70 {
+ 		#reset-cells = <0>;
+ 		label = "nub_spmi_a1";
+ 		apple,always-on;
++		/*
++		 * Deliberately NO power-domains: the ADT pmgr table gives the
++		 * A-series SPMI controllers (NUB_SPMI_A0/A1/A2) no parent,
++		 * unlike NUB_SPMI0..4 whose parent is NUB_SPMI_AHB. A briefly
++		 * carried ps_nub_spmi_ahb parent here (ticket 305 run 4) was
++		 * ADT-unfaithful and did not fix the a1 MMIO stall anyway.
++		 */
+ 	};
+ 
+ 	ps_nub_spmi_a2: power-controller@78 {
+diff --git a/arch/arm64/boot/dts/apple/t6040.dtsi b/arch/arm64/boot/dts/apple/t6040.dtsi
+index 0b9c8e341..badaea0d3 100644
+--- a/arch/arm64/boot/dts/apple/t6040.dtsi
++++ b/arch/arm64/boot/dts/apple/t6040.dtsi
+@@ -7,12 +7,13 @@
+  * t8122-aic3) in a Pro-die multi-cluster layout (4E + 5P + 5P).
+  *
+  * All reg/irq values verified against the live j614s ADT (2026-07-10); see
+- * m1n1 .plans/2026-07-10-t6040-kboot-fdt-plan.md and t6040-dt-checklist.md.
++ * m1n1 .plans/2026-07-10-t6040-kboot-fdt-plan.md and dts/README.md.
+  *
+  * Copyright The Asahi Linux Contributors
+  */
+ 
+ #include <dt-bindings/interrupt-controller/apple-aic.h>
++#include <dt-bindings/spmi/spmi.h>
+ #include <dt-bindings/interrupt-controller/irq.h>
+ 
+ / {
+@@ -347,27 +348,51 @@ ans_mbox: mailbox@409608000 {
+ 			status = "disabled";
+ 		};
+ 
++		/*
++		 * SART + NVMe, TWO-BASE M4 layout (ticket 174, PROVEN via raw
++		 * m1n1 on 2026-07-30: EFI PART read from LBA 1). ADT reg[9]
++		 * (0x44dcc0000) is the NVMe controller aperture; reg[3]
++		 * (0x40dcc0000) is the NVMMU window. The previous node here
++		 * pointed "nvme" at reg[3] with the t8103 single-base layout —
++		 * that is the exact shape whose LINEAR_SQ_CTRL write raised
++		 * the 07-25 L2C SError. Shape mirrors yuka's t6041 node
++		 * (1b87d7b8, feature/m4-m5-nvme); every address and IRQ
++		 * re-verified against OUR J614s ADT (ans interrupts
++		 * [1531 1530 1533 1532 2583], identical to t6041; sart-ans
++		 * reg[0] size 0xc000). Driver: apple,t8132-nvme-ans2
++		 * (ad890806 cherry-picked) + the two 26.x gates (no
++		 * LINEAR_SQ/UNKNOWN_CTRL; no Set Features/Number-of-Queues —
++		 * the latter CRASHES ANS on fw 26.5 per yuka 9a6a6bd1).
++		 */
+ 		ans_sart: iommu@40dc50000 {
+-			compatible = "apple,t8140-sart";
+-			reg = <0x4 0x0dc50000 0x0 0xc000>,
+-			      <0x4 0x0dcc13e8 0x0 0x4>;
+-			reg-names = "sart", "power";
++			compatible = "apple,t6040-sart", "apple,t6000-sart";
++			reg = <0x4 0x0dc50000 0x0 0xc000>;
+ 			power-domains = <&ps_ans>;
+ 			status = "disabled";
+ 		};
+ 
+-		ans_nvme: nvme@40dcc0000 {
+-			compatible = "apple,t8140-nvme-ans2",
+-				     "apple,t8103-nvme-ans2";
+-			reg = <0x4 0x0dcc0000 0x0 0x60000>,
+-			      <0x4 0x09600000 0x0 0x4000>;
+-			reg-names = "nvme", "ans";
++		ans_nvme: nvme@44dcc0000 {
++			compatible = "apple,t6040-nvme-ans2",
++				     "apple,t8132-nvme-ans2";
++			/*
++			 * NOTE (E8, 2026-07-30): the linear-SQ block answers at
++			 * reg[9]+0x249xx (measured: LINEAR_SQ_CTRL reads 1 there;
++			 * m1n1 rings +0x2490c/0x24910 and works) which is OUTSIDE
++			 * this declared 0x10000 window — widening it to 0x60000 so
++			 * Linux could ioremap it HUNG the machine outright. Left at
++			 * the ADT-declared size until that is understood.
++			 */
++			reg = <0x4 0x4dcc0000 0x0 0x10000>,
++			      <0x4 0x09600000 0x0 0x4000>,
++			      <0x4 0x0dcc0000 0x0 0x60000>;
++			reg-names = "nvme", "ans", "nvmmu";
+ 			interrupt-parent = <&aic>;
+ 			interrupts = <AIC_IRQ 2583 IRQ_TYPE_LEVEL_HIGH>;
+ 			mboxes = <&ans_mbox>;
+ 			apple,sart = <&ans_sart>;
+-			power-domains = <&ps_ans>, <&ps_apcie_phy_sw>;
+-			power-domain-names = "ans", "apcie0";
++			power-domains = <&ps_ans>, <&ps_apcie_sys_st0>,
++					<&ps_apcie_sys_st1>;
++			power-domain-names = "ans", "apcie0", "apcie1";
+ 			resets = <&ps_ans>;
+ 			status = "disabled";
+ 		};
+@@ -435,6 +460,186 @@ mtp_keyboard: keyboard {
+ 			};
+ 		};
+ 
++		/*
++		 * SMC (System Management Controller): battery, charge state,
++		 * temperatures, RTC. RTKit coprocessor on an ASC mailbox.
++		 * Addresses from the live J614s ADT (j614s-full-20260728.adt):
++		 * ADT /arm-io/smc iop,ascwrap-v6 bus 0x30c600000 -> CPU-physical
++		 * 0x50c600000 (arm-io ranges +0x200000000). Mailbox IRQs
++		 * ADT [997 996 999 998] -> ascending [996 997 998 999] per the
++		 * Apple ASC convention (not-empty first in each pair) documented
++		 * on ans_mbox/mtp_mbox above.
++		 *
++		 * The "sram" region (reg[1]) is NOT in the ADT and the memory-map
++		 * was zeroed at capture. GROUND TRUTH from the failing probe
++		 * (2026-07-28): the SMC RTKit reported its shared-memory buffers at
++		 * 0x50de70000+ ("buffer request outside SRAM region: [0x50de70000,
++		 * 0x50de73fff]"), so the SRAM base is 0x50de70000 (the first buffer
++		 * sits at offset 0), NOT smc_base + 0x1a00000. An earlier
++		 * cross-SoC-pattern guess of 0x50e000000 was wrong and macsmc
++		 * failed with "Failed to initialize shared memory (-14)".
++		 */
++		smc_mbox: mailbox@50c608000 {
++			compatible = "apple,t8140-asc-mailbox", "apple,asc-mailbox-v4";
++			reg = <0x5 0x0c608000 0x0 0x4000>;
++			interrupt-parent = <&aic>;
++			interrupts = <AIC_IRQ 996 IRQ_TYPE_LEVEL_HIGH>,
++				     <AIC_IRQ 997 IRQ_TYPE_LEVEL_HIGH>,
++				     <AIC_IRQ 998 IRQ_TYPE_LEVEL_HIGH>,
++				     <AIC_IRQ 999 IRQ_TYPE_LEVEL_HIGH>;
++			interrupt-names = "send-empty", "send-not-empty",
++					  "recv-empty", "recv-not-empty";
++			#mbox-cells = <0>;
++			status = "disabled";
++		};
++
++		smc: smc@50c600000 {
++			compatible = "apple,t8140-smc", "apple,t8103-smc",
++				     "apple,smc";
++			/*
++			 * sram size 0x100000 is taken from t8103/t600x/t602x, where it
++			 * is ADT-verified; on T6040 the region is NOT in the ADT and
++			 * only the base (0x50de70000) is evidenced, from an observed
++			 * RTKit buffer request. TICKET 221 TESTED SHRINKING IT and the
++			 * hypothesis that an over-large window mis-maps SMC shmem onto
++			 * adjacent MMIO is REFUTED: the failing buffer offset simply
++			 * TRACKS whatever size we declare (16 KiB -> fails at 0x6000;
++			 * 32 KiB -> fails at 0x8000), because RTKit keeps requesting
++			 * further buffers as earlier ones succeed. So the real region is
++			 * larger than either, shrinking only makes SMC fail to boot
++			 * ("Failed to initialize shared memory (-14)"), and 1 MiB stays
++			 * the best available value. What ticket 221 DID establish is
++			 * that SMC being functional is what breaks high-core-count SMP.
++			 */
++			reg = <0x5 0x0c600000 0x0 0x4000>,
++			      <0x5 0x0de70000 0x0 0x100000>;
++			reg-names = "smc", "sram";
++			mboxes = <&smc_mbox>;
++			status = "disabled";
++
++			/*
++			 * SMC GPIOs. Needed for PCIe endpoint power: the WiFi/BT
++			 * module's WL_REG_ON and the SD reader's power enable are
++			 * SMC key writes, not AP GPIOs. The ADT proves it --
++			 * /amfm function-reg_on = pKW4('gP13', 0x800000) and
++			 * apcie0/pci-bridge1/pcie-sdreader function-sd_pwr_en =
++			 * pKW4('gP19', 0x0) -- and gpio-macsmc maps a line number
++			 * to key "gP%02x" by hex, so 'gP13' is line 0x13 = 19 and
++			 * 'gP19' is line 0x19 = 25. Shape copied from
++			 * t600x-die0.dtsi / t8103.dtsi.
++			 */
++			smc_gpio: gpio {
++				compatible = "apple,smc-gpio";
++				gpio-controller;
++				#gpio-cells = <2>;
++			};
++
++			/*
++			 * Wall-clock time: SMC key CLKM is the running counter;
++			 * the boot-persistent offset lives in the abbey PMU's
++			 * RTC scratchpad, reached over SPMI (rtc_offset cell
++			 * below). Reading time is SMC+SPMI reads only; SETTING
++			 * the clock writes 6 bytes to that scratchpad — the
++			 * same "clock" write class as the permitted smc_rtc
++			 * nvram key.
++			 */
++			smc_rtc: rtc {
++				compatible = "apple,smc-rtc";
++				nvmem-cells = <&rtc_offset>;
++				nvmem-cell-names = "rtc_offset";
++			};
++
++			/*
++			 * Reboot and poweroff on Apple Silicon are SMC operations.
++			 * The PMU cells below are measured from the J614s abbey
++			 * ADT rather than copied from an older PMU layout.
++			 */
++			smc_reboot: reboot {
++				compatible = "apple,smc-reboot";
++				nvmem-cells = <&shutdown_flag>, <&boot_stage>,
++					      <&boot_error_count>, <&panic_count>;
++				nvmem-cell-names = "shutdown_flag", "boot_stage",
++						   "boot_error_count", "panic_count";
++			};
++		};
++
++		/*
++		 * Keyboard backlight PWM (ADT /arm-io/pwm0, whose kbd-backlight
++		 * child carries the nits->PWM tables and default-hz = 25000 =
++		 * the 40000 ns period every Asahi MacBook DT uses). The HID
++		 * route was ruled out live 2026-07-30 (no 0xff00/0x0f usage in
++		 * the keyboard rdesc) — it is a plain fpwm, like t8103 j293.
++		 */
++		fpwm0: pwm@429040000 {
++			compatible = "apple,t6040-fpwm", "apple,s5l-fpwm";
++			reg = <0x4 0x29040000 0x0 0x4000>;
++			power-domains = <&ps_fpwm0>;
++			clocks = <&clkref>;
++			#pwm-cells = <2>;
++			status = "disabled";
++		};
++
++		/*
++		 * Primary SPMI bus (ADT /arm-io/nub-spmi0, reg[0], the block
++		 * m1n1's proven spmi.c drives). Carries the die-0 "abbey" PMU
++		 * at SID 0xe (ADT spmi-abbeyL1). RTC offsets MEASURED from our
++		 * ADT info-rtc* properties: scratchpad = 0x2100 (t600x's
++		 * maverick used 0x1411 — copying that would have been wrong).
++		 * The Type-C HPMs live on separate buses (nub-spmi-a0/a1) and
++		 * are deliberately not described here.
++		 */
++		nub_spmi0: spmi@509014000 {
++			compatible = "apple,t6040-spmi", "apple,spmi";
++			reg = <0x5 0x09014000 0x0 0x100>;
++			#address-cells = <2>;
++			#size-cells = <0>;
++			status = "disabled";
++
++			pmu1: pmic@e {
++				compatible = "apple,abbey-pmic", "apple,spmi-nvmem";
++				reg = <0xe SPMI_USID>;
++
++				nvmem-layout {
++					compatible = "fixed-layout";
++					#address-cells = <1>;
++					#size-cells = <1>;
++
++					/* ADT info-pm_setting = 0x2001. */
++					pm_setting: pm-setting@2001 {
++						reg = <0x2001 0x1>;
++					};
++
++					rtc_offset: rtc-offset@2100 {
++						reg = <0x2100 0x6>;
++					};
++
++					/*
++					 * ADT info-leg_scrpad = 0xf800. The Apple
++					 * legacy boot record fields are base+1,
++					 * base+2 (two nibbles), and base+0xf.
++					 */
++					boot_stage: boot-stage@f801 {
++						reg = <0xf801 0x1>;
++					};
++
++					boot_error_count: boot-error-count@f802,0 {
++						reg = <0xf802 0x1>;
++						bits = <0 4>;
++					};
++
++					panic_count: panic-count@f802,4 {
++						reg = <0xf802 0x1>;
++						bits = <4 4>;
++					};
++
++					shutdown_flag: shutdown-flag@f80f,3 {
++						reg = <0xf80f 0x1>;
++						bits = <3 1>;
++					};
++				};
++			};
++		};
++
+ 		/*
+ 		 * USB gadget path (ADT usb-drd0..2 / dart-usb0..2). Phase-1
+ 		 * bring-up: plain snps,dwc3 core in peripheral mode, reusing
+diff --git a/drivers/nvme/host/apple.c b/drivers/nvme/host/apple.c
+index 6f07c9245..1a92a3492 100644
+--- a/drivers/nvme/host/apple.c
++++ b/drivers/nvme/host/apple.c
+@@ -42,6 +42,8 @@
+ #define APPLE_ANS_ACQ_DB  0x1004
+ #define APPLE_ANS_IOCQ_DB 0x100c
+ 
++#define APPLE_ANS_IOSQ_REGISTER      0x1200
++#define APPLE_ANS_IOCQ_REGISTER      0x1208
+ #define APPLE_ANS_MAX_PEND_CMDS_CTRL 0x1210
+ 
+ #define APPLE_ANS_BOOT_STATUS	 0x1300
+@@ -170,6 +172,8 @@ struct apple_nvme_iod {
+ 
+ struct apple_nvme_hw {
+ 	bool has_lsq_nvmmu;
++	bool need_ioq_register;
++	bool separate_nvmmu_region;
+ 	u32 max_queue_depth;
+ };
+ 
+@@ -178,6 +182,7 @@ struct apple_nvme {
+ 
+ 	void __iomem *mmio_coproc;
+ 	void __iomem *mmio_nvme;
++	void __iomem *mmio_nvmmu;
+ 	const struct apple_nvme_hw *hw;
+ 
+ 	struct device **pd_dev;
+@@ -296,8 +301,8 @@ static void apple_nvmmu_inval(struct apple_nvme_queue *q, unsigned int tag)
+ {
+ 	struct apple_nvme *anv = queue_to_apple_nvme(q);
+ 
+-	writel(tag, anv->mmio_nvme + APPLE_NVMMU_TCB_INVAL);
+-	if (readl(anv->mmio_nvme + APPLE_NVMMU_TCB_STAT))
++	writel(tag, anv->mmio_nvmmu + APPLE_NVMMU_TCB_INVAL);
++	if (readl(anv->mmio_nvmmu + APPLE_NVMMU_TCB_STAT))
+ 		dev_warn_ratelimited(anv->dev,
+ 				     "NVMMU TCB invalidation failed\n");
+ }
+@@ -1151,8 +1156,8 @@ static void apple_nvme_reset_work(struct work_struct *work)
+ 		 * Enable NVMMU and linear submission queues which is required
+ 		 * since T6000.
+ 		 */
+-		writel(APPLE_ANS_LINEAR_SQ_EN,
+-			anv->mmio_nvme + APPLE_ANS_LINEAR_SQ_CTRL);
++		//writel(APPLE_ANS_LINEAR_SQ_EN,
++		//	anv->mmio_nvme + APPLE_ANS_LINEAR_SQ_CTRL);
+ 
+ 		/* Allow as many pending command as possible for both queues */
+ 		writel(anv->hw->max_queue_depth
+@@ -1161,7 +1166,7 @@ static void apple_nvme_reset_work(struct work_struct *work)
+ 
+ 		/* Setup the NVMMU for the maximum admin and IO queue depth */
+ 		writel(anv->hw->max_queue_depth - 1,
+-			anv->mmio_nvme + APPLE_NVMMU_NUM_TCBS);
++			anv->mmio_nvmmu + APPLE_NVMMU_NUM_TCBS);
+ 
+ 		/*
+ 		 * This is probably a chicken bit: without it all commands
+@@ -1170,9 +1175,9 @@ static void apple_nvme_reset_work(struct work_struct *work)
+ 		 * "completed with err BAD_CMD-" or a "NULL_PRP_PTR_ERR" in the
+ 		 * syslog
+ 		 */
+-		writel(readl(anv->mmio_nvme + APPLE_ANS_UNKNOWN_CTRL) &
+-			~APPLE_ANS_PRP_NULL_CHECK,
+-			anv->mmio_nvme + APPLE_ANS_UNKNOWN_CTRL);
++		//writel(readl(anv->mmio_nvmmu + APPLE_ANS_UNKNOWN_CTRL) &
++		//	~APPLE_ANS_PRP_NULL_CHECK,
++		//	anv->mmio_nvme + APPLE_ANS_UNKNOWN_CTRL);
+ 	}
+ 
+ 	/* Setup the admin queue */
+@@ -1188,9 +1193,9 @@ static void apple_nvme_reset_work(struct work_struct *work)
+ 	if (anv->hw->has_lsq_nvmmu) {
+ 		/* Setup NVMMU for both queues */
+ 		writeq(anv->adminq.tcb_dma_addr,
+-			anv->mmio_nvme + APPLE_NVMMU_ASQ_TCB_BASE);
++			anv->mmio_nvmmu + APPLE_NVMMU_ASQ_TCB_BASE);
+ 		writeq(anv->ioq.tcb_dma_addr,
+-			anv->mmio_nvme + APPLE_NVMMU_IOSQ_TCB_BASE);
++			anv->mmio_nvmmu + APPLE_NVMMU_IOSQ_TCB_BASE);
+ 	}
+ 
+ 	anv->ctrl.sqsize =
+@@ -1227,14 +1232,20 @@ static void apple_nvme_reset_work(struct work_struct *work)
+ 		goto out_remove_cq;
+ 
+ 	apple_nvme_init_queue(&anv->ioq);
+-	nr_io_queues = 1;
+-	ret = nvme_set_queue_count(&anv->ctrl, &nr_io_queues);
+-	if (ret)
+-		goto out_remove_sq;
+-	if (nr_io_queues != 1) {
+-		ret = -ENXIO;
+-		goto out_remove_sq;
++	if (anv->hw->need_ioq_register) {
++		writeq(anv->ioq.cq_dma_addr,
++			anv->mmio_nvme + APPLE_ANS_IOCQ_REGISTER);
++		writeq(anv->ioq.sq_dma_addr,
++			anv->mmio_nvme + APPLE_ANS_IOSQ_REGISTER);
+ 	}
++	nr_io_queues = 1;
++	//ret = nvme_set_queue_count(&anv->ctrl, &nr_io_queues);
++	//if (ret)
++	//	goto out_remove_sq;
++	//if (nr_io_queues != 1) {
++	//	ret = -ENXIO;
++	//	goto out_remove_sq;
++	//}
+ 
+ 	anv->ctrl.queue_count = nr_io_queues + 1;
+ 
+@@ -1364,6 +1375,20 @@ static int apple_nvme_alloc_tagsets(struct apple_nvme *anv)
+ 	 */
+ 	if (anv->hw->has_lsq_nvmmu)
+ 		anv->tagset.reserved_tags = APPLE_NVME_AQ_DEPTH;
++	/*
++	 * EXPERIMENT E5 (wallace 192): keep the ring, TCB table and
++	 * create_cq qsize at the full hardware depth, but allow only ONE
++	 * I/O command in flight — the m1n1 shape, which survives 200
++	 * reads and 3 CQ wraps (E1) where Linux dies at its first wrap.
++	 * E3 tried this by shrinking max_queue_depth to 2 and the driver
++	 * never probed; the tagset is the right knob.
++	 */
++	/*
++	 * NOTE (wallace 192): queue_depth = 3 (one usable I/O tag, the m1n1
++	 * shape) was tested live 2026-07-31 and the firmware STILL asserts
++	 * "CQ (Host I/O) DB error, head: 63" — concurrency is not the
++	 * trigger. Back to stock.
++	 */
+ 	anv->tagset.queue_depth = anv->hw->max_queue_depth - 1;
+ 	anv->tagset.timeout = NVME_IO_TIMEOUT;
+ 	anv->tagset.numa_node = NUMA_NO_NODE;
+@@ -1559,11 +1584,19 @@ static struct apple_nvme *apple_nvme_alloc(struct platform_device *pdev)
+ 		ret = PTR_ERR(anv->mmio_nvme);
+ 		goto put_dev;
+ 	}
++	if (anv->hw->separate_nvmmu_region) {
++		anv->mmio_nvmmu = devm_platform_ioremap_resource_byname(pdev, "nvmmu");
++		if (IS_ERR(anv->mmio_nvmmu)) {
++			ret = PTR_ERR(anv->mmio_nvmmu);
++			goto put_dev;
++		}
++	} else
++		anv->mmio_nvmmu = anv->mmio_nvme;
+ 
+ 	if (anv->hw->has_lsq_nvmmu) {
+-		anv->adminq.sq_db = anv->mmio_nvme + APPLE_ANS_LINEAR_ASQ_DB;
++		anv->adminq.sq_db = anv->mmio_nvmmu + APPLE_ANS_LINEAR_ASQ_DB;
+ 		anv->adminq.cq_db = anv->mmio_nvme + APPLE_ANS_ACQ_DB;
+-		anv->ioq.sq_db = anv->mmio_nvme + APPLE_ANS_LINEAR_IOSQ_DB;
++		anv->ioq.sq_db = anv->mmio_nvmmu + APPLE_ANS_LINEAR_IOSQ_DB;
+ 		anv->ioq.cq_db = anv->mmio_nvme + APPLE_ANS_IOCQ_DB;
+ 	} else {
+ 		anv->adminq.sq_db = anv->mmio_nvme + NVME_REG_DBS;
+@@ -1759,17 +1792,33 @@ static DEFINE_SIMPLE_DEV_PM_OPS(apple_nvme_pm_ops, apple_nvme_suspend,
+ 
+ static const struct apple_nvme_hw apple_nvme_t8015_hw = {
+ 	.has_lsq_nvmmu = false,
++	.need_ioq_register = false,
++	.separate_nvmmu_region = false,
+ 	.max_queue_depth = 16,
+ };
+ 
+ static const struct apple_nvme_hw apple_nvme_t8103_hw = {
+ 	.has_lsq_nvmmu = true,
++	.need_ioq_register = false,
++	.separate_nvmmu_region = false,
++	.max_queue_depth = 64,
++};
++
++static const struct apple_nvme_hw apple_nvme_t8132_hw = {
++	.has_lsq_nvmmu = true,
++	.need_ioq_register = true,
++	.separate_nvmmu_region = true,
++	/*
++	 * Back to the stock depth for E4: depth 2 is below what the
++	 * driver can even probe with (no probe at all, 2026-07-30).
++	 */
+ 	.max_queue_depth = 64,
+ };
+ 
+ static const struct of_device_id apple_nvme_of_match[] = {
+ 	{ .compatible = "apple,t8015-nvme-ans2", .data = &apple_nvme_t8015_hw },
+ 	{ .compatible = "apple,t8103-nvme-ans2", .data = &apple_nvme_t8103_hw },
++	{ .compatible = "apple,t8132-nvme-ans2", .data = &apple_nvme_t8132_hw },
+ 	{ .compatible = "apple,nvme-ans2", .data = &apple_nvme_t8103_hw },
+ 	{},
+ };
+-- 
+2.56.0
+

@@ -466,6 +466,34 @@ if [ "${NVME_FLUSH_TCB:-0}" = "1" ]; then
     git apply --check /out/t6040-nvme-apple-flush-tcb.patch
     git apply /out/t6040-nvme-apple-flush-tcb.patch
 fi
+# Opt-in (ticket 5023): no DMA direction for data-less commands (Flush), as
+# mainline/Asahi do and m1n1 c16d3c7 explains. Alternative to NVME_FLUSH_TCB.
+if [ "${NVME_FLUSH_NODMA:-0}" = "1" ]; then
+    [ "${NVME_IOQ_SIZE:-0}" = 1 ] || { echo "NVME_FLUSH_NODMA requires NVME_IOQ_SIZE=1" >&2; exit 1; }
+    [ "${NVME_FLUSH_TCB:-0}" != 1 ] || { echo "NVME_FLUSH_NODMA and NVME_FLUSH_TCB are exclusive" >&2; exit 1; }
+    echo "== apply NVMe no-DMA-direction Flush TCB (untested on hardware) =="
+    git apply --check /out/t6040-nvme-apple-flush-nodma.patch
+    git apply /out/t6040-nvme-apple-flush-nodma.patch
+fi
+# Opt-in (ticket 5016): Gravity's brcmfmac fixes. 0002 targets a 7.3 msgbuf
+# regression; on this 7.1.3 base it may not apply, in which case it is skipped.
+if [ "${T6040_BRCMFMAC_GRAVITY:-0}" = "1" ]; then
+    echo "== apply Gravity brcmfmac fixes =="
+    for p in /out/brcmfmac-gravity-v1/*.patch; do
+        if git apply --check "$p" 2>/dev/null; then
+            git apply "$p"; echo "$(basename "$p") applied OK"
+        else
+            echo "WARN: $(basename "$p") does not apply on this base; skipped"
+        fi
+    done
+fi
+# Opt-in (ticket 5017): RTKit crash-log copy with GFP_NOIO, so an ANS crash
+# under writeback cannot deadlock the NVMe root while reporting itself.
+if [ "${T6040_RTKIT_GFP_NOIO:-0}" = "1" ]; then
+    echo "== apply RTKit crash-log GFP_NOIO =="
+    git apply --check /out/t6040-rtkit-crashlog-gfp-noio.patch
+    git apply /out/t6040-rtkit-crashlog-gfp-noio.patch
+fi
 if [ "${NVME_THREADED_IRQ:-0}" = "1" ]; then
     echo "== apply Apple NVMe threaded-IRQ discriminator =="
     threaded_irq_patch=/out/t6040-nvme-threaded-irq-discriminator.patch
@@ -1751,6 +1779,22 @@ if [ "${T6040_BLE_HID:-0}" = "1" ]; then
     echo "== assert BLE HID support is BUILTIN =="
     grep -q '^CONFIG_UHID=y$' .config
     grep -q '^CONFIG_INPUT_UINPUT=y$' .config
+fi
+# T6040_ONBOARD_DEBUG=1 (ticket 5019): tracing, probes and a RAM-backed console
+# log for on-device work. Opt-in; every symbol is asserted =y after olddefconfig
+# (the root has no /lib/modules, so =m is dead weight). pstore needs a
+# ramoops reserved-memory node in the DTB to do anything; without one it is
+# built but idle. IKHEADERS packs the headers with xz.
+if [ "${T6040_ONBOARD_DEBUG:-0}" = "1" ]; then
+    command -v xz >/dev/null || apt-get install -y -qq xz-utils >/dev/null
+    onboard_syms="FTRACE FUNCTION_TRACER DYNAMIC_FTRACE KPROBES KPROBE_EVENTS \
+DYNAMIC_DEBUG IKHEADERS PSTORE PSTORE_RAM PSTORE_CONSOLE"
+    for sym in $onboard_syms; do ./scripts/config --file .config -e "$sym"; done
+    make ARCH=arm64 olddefconfig >/dev/null
+    echo "== assert onboard debug support is BUILTIN =="
+    for sym in $onboard_syms; do
+        grep -q "^CONFIG_${sym}=y$" .config || { echo "ERROR: CONFIG_$sym is not =y under T6040_ONBOARD_DEBUG=1" >&2; exit 1; }
+    done
 fi
 if [ "${CPUFREQ_ASSERT_AFTER_OLDDEFCONFIG:-0}" = "1" ]; then
     ./scripts/config --file .config \
