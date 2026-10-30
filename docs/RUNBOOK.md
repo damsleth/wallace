@@ -290,7 +290,7 @@ The m1n1 USB gadget and DebugUSB/KIS are mutually exclusive. Use
 ## 10. Enrollment
 
 Enrollment is maintainer-only from 1TR and requires a separately approved,
-allowlisted object. Verify the target volume:
+allowlisted object. `m1n1` is the only boot volume (CJ, 2026-10-30). Verify it:
 
     diskutil info /Volumes/m1n1 | grep -E 'Volume Name|Volume UUID'
 
@@ -303,9 +303,24 @@ Hash-gated wrapper (the target is mandatory; each volume has its own allowlist):
     TARGET=/Volumes/m1n1 bash scripts/t6040-enroll-guard.sh <object.bin>
 
 It prints the command and runs only with its explicit confirmation option.
-`/Volumes/wallace` is the third startup entry for the standalone NVMe desktop
-(ticket 5014). The guard refuses it until its Volume UUID and the 5014 object
-hash are both pinned.
+Enrolling a standalone object (5014, 5019) on `m1n1` replaces the DebugUSB
+rollback loader. The rig dev loop is gone until the rollback object below is
+enrolled again.
+
+`/Volumes/wallace` is not a boot volume. It is the old name of the 170 GiB
+exFAT `linux` partition (`disk0s3` in macOS, `nvme0n1p3` in Linux), now
+mounted as `/Volumes/linux`. That partition holds the objects and
+`wallace-root.img`, and 1TR must never repair or write it. The separate APFS
+`wallace` volume in the 5014 plan
+(`evidence/2026-10-25-t6040-5014-three-boot-entries.md`) is not the current
+setup.
+
+The guard has not caught up. Its `TARGET=/Volumes/wallace` case is stale, and
+the `/Volumes/m1n1` allowlist has neither 5014 (`6a522d64…`) nor 5019
+(`28127903…`). Until a reviewed guard change adds them,
+[LINUX_PARTITION_README.txt](LINUX_PARTITION_README.txt) §1 enrolls them with
+plain `kmutil` after a manual `shasum` check.
+
 Rollback object:
 
     rollback-m1n1-1394c345.bin
