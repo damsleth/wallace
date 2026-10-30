@@ -1,0 +1,21 @@
+{
+  "seq": "5019",
+  "slug": "onboard-debug-kernel",
+  "needs": "offline",
+  "state": "done",
+  "track": "onboard",
+  "priority": "P1",
+  "desc": "Next daily+NVMe kernel for on-device work, built on the Mac (kbuild container), not on the M4. Base: damsleth/linux 4f2429104009 (the 2234baad base; CJ pushes it to refs/heads/wallace/base-4f24291 first, see NEXT_STEPS manual commands). Flags: the 2234baad set (DOCKCHANNEL DOCKCHANNEL_NBCON MACSMC HID_TYPE_FIX T6040_PPP WIFI PCIE CPUFREQ TRACKPAD_FW TRACKPAD_RESET_CONTRACT NVME NVME_IOQ_SIZE NVME_EXFAT NO_KVM) + T6040_BLE_HID=1 (78422be: UHID/INPUT_UINPUT=y for BLE keyboards/mice) + t6040-bluetooth-mgmt-pairing-race.patch (4e30208, auto-applied, not yet build-tested) + a new opt-in kbuild flag T6040_ONBOARD_DEBUG=1 to add: FTRACE FUNCTION_TRACER DYNAMIC_FTRACE KPROBES KPROBE_EVENTS DYNAMIC_DEBUG IKHEADERS PSTORE=y PSTORE_RAM=y PSTORE_CONSOLE, each asserted =y after olddefconfig. DTB: nvmeroot 6d2d3da6 plus one ramoops reserved-memory node; the region must be derived from the live /memory and /reserved-memory nodes (in DRAM, clear of m1n1/ADT/carveouts), never guessed. Initramfs and root unchanged (82a86064, wallace-root.img). Deliverable: two byte-identical builds, preflight OK, Norwegian layout untouched, a new standalone object like 5014 (only kernel+DTB changed), hashes recorded in evidence. maxcpus=1 stays. Booting it is the follow-on boot ticket. RESULT 2026-10-30: built on the Mac from a reconstructed base (wallace/reconstructed-4f24291 = 6d2e54a0d, not 4f2429104009; CJ accepted), two byte-identical builds, preflight + strict verify PASS; booted by CJ via 1TR, running kernel string equals the Image (5020 evidence).",
+  "author": "claude",
+  "deps": [],
+  "hashes": {
+    "image": "41f9fdc360b536a24d4e8f84a46526c92cd1faf36cb7d3930b637781abc32ef8",
+    "object": "28127903fb83ad4a235eb887964b21122e2b20d2492b819dd9883264e652631c"
+  },
+  "created": 1793349416,
+  "evidence": [
+    "evidence/2026-10-30-t6040-5019-onboard-debug-kernel.md",
+    "evidence/2026-10-30-t6040-5020-onboard-debug-kernel-boot.md"
+  ],
+  "done_at": 1793377862
+}

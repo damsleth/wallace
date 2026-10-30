@@ -31,7 +31,7 @@ CJ enrolled `wallace-5019.build1.bin` in 1TR. All checks below ran on the M4, on
 **Correction to the plan:** `pmsg_size=0`, so there is no `/dev/pmsg0` and the planned
 `/dev/pmsg0` marker test cannot run. The warm-reboot check uses the console region instead: write
 a marker to `/dev/kmsg`, do a clean `reboot`, and the marker must appear in
-`/sys/fs/pstore/console-ramoops-0`. A later DTB can add `pmsg-size` if userspace markers are wanted.
+`/sys/fs/pstore/console-ramoops-0`. `scripts/t6040-onboard-pstore-reboot.sh` does both halves (run it, then run it with `check` after the reboot). A later DTB can add `pmsg-size` if userspace markers are wanted.
 
 ## kexec, as background for 5021/5024
 
