@@ -22,9 +22,9 @@ CPU clust  src                     MPIDR  Aff3 Aff2 Aff1 Aff0
 Traceback (most recent call last):
   File "/private/tmp/claude-501/-Users-damsleth-Code-m1n1/63c638db-8d3f-4779-9ce8-0e9cb54b7bbe/scratchpad/stepC.py", line 26, in <module>
     m = u.mrs("mpidr_el1") & M
-  File "/Users/damsleth/Code/m1n1/proxyclient/m1n1/proxyutils.py", line 173, in mrs
+  File "/Users/damsleth/code/m1n1/proxyclient/m1n1/proxyutils.py", line 173, in mrs
     op0, op1, CRn, CRm, op2 = sysreg_parse(reg)
-  File "/Users/damsleth/Code/m1n1/proxyclient/m1n1/sysreg.py", line 60, in sysreg_parse
+  File "/Users/damsleth/code/m1n1/proxyclient/m1n1/sysreg.py", line 60, in sysreg_parse
     raise Exception(f"Unknown sysreg name {s}")
 Exception: Unknown sysreg name mpidr_el1
 m1n1 base: 0x10004b08000

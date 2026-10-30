@@ -18,7 +18,7 @@ separate prerequisite; this candidate does not touch HPM or source VBUS.
 
 ## Exact artifacts
 
-Build output directory: `/Users/damsleth/Code/linux-build-out`
+Build output directory: `/Users/damsleth/code/linux-build-out`
 
 | Artifact | SHA-256 |
 |---|---|

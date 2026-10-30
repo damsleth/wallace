@@ -27,7 +27,7 @@ because the gate rejected Apple's auxiliary namespaces.
 - Initramfs built twice from the same pinned base (`4cc65133…`) and tester
   (`0ffb3e55…`): both `c76063ac…`, with embedded `/init` = `91d94421…`.
 - New candidate `linux-build-out/nvme-ioq-20261024/`, manifest `84b0275f…`
-  (241 files). Against the reviewed `nvme-ioq-20260920` manifest (`14ba1600…`),
+  (241 files). Against the reviewed `nvme-ioq-20260920` manifest (`d9ae6072…`),
   exactly three entries changed: initramfs, init, checker. Image `6eef9eef…`,
   DTB `a96d04a7…` and m1n1 `7de07c71…` are byte-identical. The unmodified
   reviewed launcher's verify-only pass: all files verified, preflight OK.

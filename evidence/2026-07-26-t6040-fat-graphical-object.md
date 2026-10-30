@@ -86,6 +86,6 @@ guard to whatever happens to be at hand. `--self-test` still passes. `MAX_OBJECT
 ```sh
 bash scripts/t6040-debugusb-console.sh reboot
 bash scripts/t6040-boot-raw-object.sh \
-    ~/Code/linux-build-out/m1n1-b0-dwm-fat.bin \
+    ~/code/linux-build-out/m1n1-b0-dwm-fat.bin \
     c5438779d5436540f2391242efde434f4b0b0368c684cb09e3b4409afca71776
 ```

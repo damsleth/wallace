@@ -36,14 +36,14 @@
 set -euo pipefail
 
 # Ephemeral, host-local, gitignored: the lease (a mutex) + its audit log.
-RIG_ROOT="${RIG_ROOT:-$HOME/Code/wallace/.rig}"
+RIG_ROOT="${RIG_ROOT:-$HOME/code/wallace/.rig}"
 LEASE_ENV="$RIG_ROOT/lease.env"      # a COMPLETE file; its atomic creation == the mutex
 AUDIT_LOG="$RIG_ROOT/log"
 RECOVERY_FLAG="$RIG_ROOT/NEEDS_RECOVERY"
 # Durable, git-tracked: the ticket store (the backlog). One JSON file per ticket,
 # offline and rig alike. This is NOT the lease — tickets are planned work you
 # want versioned; the lease is runtime state you don't.
-REPO_ROOT="${WALLACE_ROOT:-$HOME/Code/wallace}"
+REPO_ROOT="${WALLACE_ROOT:-$HOME/code/wallace}"
 TICKETS_DIR="${RIG_TICKETS:-$REPO_ROOT/tickets}"
 TICKETS_DONE="$TICKETS_DIR/done"
 TICKETS_ARCHIVE="$TICKETS_DIR/archive"

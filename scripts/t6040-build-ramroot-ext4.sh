@@ -8,7 +8,7 @@
 # loads a non-cpio initrd into /dev/ram0.
 set -euo pipefail
 
-OUT=${OUT:-/Users/damsleth/Code/linux-build-out}
+OUT=${OUT:-/Users/damsleth/code/linux-build-out}
 CONTAINER=${CONTAINER:-kbuild}
 SRC_INITRAMFS=${SRC_INITRAMFS:-$OUT/initramfs-alpine-b0-nb2.cpio.xz}   # proven B0 userland
 IMG=${IMG:-$OUT/ramroot-alpine-b0.ext4}

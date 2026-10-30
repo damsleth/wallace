@@ -219,7 +219,7 @@ path already works before "fixing" it.
 
 The host's case-sensitive kernel volume (`linux-case-sensitive.sparsebundle`) was unmounted and
 the podman VM was down at session start — both restored with `hdiutil attach` +
-`podman machine start` + `podman start kbuild`. Worth knowing: `/Users/damsleth/Code/linux` is a
+`podman machine start` + `podman start kbuild`. Worth knowing: `/Users/damsleth/code/linux` is a
 symlink into that sparsebundle, so a `cd: no such file or directory` there means "volume not
 mounted", not "tree deleted".
 

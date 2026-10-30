@@ -31,7 +31,7 @@ prior IPSW work, disassembled only in the session scratchpad:
   (macOS 26.x, T6041 = the T6040/M4 PMGR variant this project targets). This
   matches the M4's running macOS 26.5 and the earlier SART/PCIe write-ups' paired
   kernelcache.
-- Tools: `radare2`/`nm`, cross-checked against `~/Code/linux-build-out/nvme-sptm-stubs.dis`.
+- Tools: `radare2`/`nm`, cross-checked against `~/code/linux-build-out/nvme-sptm-stubs.dis`.
 
 Correction note: the first pass of this ticket mistakenly analyzed *this host's
 own* Preboot kernelcache (M1 Max, `RELEASE_ARM64_T6000`, Darwin 24.6.0) instead

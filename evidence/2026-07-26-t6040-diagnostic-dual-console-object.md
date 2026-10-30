@@ -47,7 +47,7 @@ the post-handoff console log was **0 bytes**, so the maintainer's screenshot of
 ```sh
 bash scripts/t6040-debugusb-console.sh reboot
 bash scripts/t6040-boot-raw-object.sh \
-    ~/Code/linux-build-out/m1n1-b0-dwm-fat-diag.bin \
+    ~/code/linux-build-out/m1n1-b0-dwm-fat-diag.bin \
     d14df9f3644893245d518f2396687387740b782225f3975f84c623e6cf9a59b3
 ```
 

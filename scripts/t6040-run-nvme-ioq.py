@@ -46,7 +46,7 @@ env = os.environ.copy()
 # Remove overrides that could invalidate the exact reviewed command line/link.
 for key in ('EXTRA_BOOTARGS', 'BOOT_SKIP_IMAGE_CHECK', 'RIG_BYPASS', 'RIG_ROOT', 'RIG_ALLOW_RECOVERY'):
     env.pop(key, None)
-out = Path('/Users/damsleth/Code/linux-build-out')
+out = Path('/Users/damsleth/code/linux-build-out')
 rel = str(payload.relative_to(out))
 env.update(RIG_AGENT='astra', RIG_ENFORCE='1', M1N1DEVICE='/tmp/m1n1',
            M1N1_BIN=str(payload/'m1n1.bin'), IMAGE=rel+'/Image', BOOT_MAXCPUS='1',

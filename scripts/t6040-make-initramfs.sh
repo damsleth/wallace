@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-OUT=${OUT:-/Users/damsleth/Code/linux-build-out}
+OUT=${OUT:-/Users/damsleth/code/linux-build-out}
 BASE=${BASE:-$OUT/initramfs.cpio.gz}
 DEST=${DEST:-$OUT/initramfs-dcuart.cpio.gz}
 INIT_SOURCE=${INIT_SOURCE:-$ROOT/scripts/t6040-init-dcuart}

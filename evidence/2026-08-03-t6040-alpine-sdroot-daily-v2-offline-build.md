@@ -16,7 +16,7 @@ byte-identical, and both complete objects pass the strict raw-object verifier.
 The canonical host artifact is:
 
 ```text
-bdd8cc865081a2041e587d1bb30495ca0bb65da305552dd4b6679cba66c5f5a5  /Users/damsleth/Code/linux-build-out/m1n1-alpine-sdroot-daily-v2.bin
+bdd8cc865081a2041e587d1bb30495ca0bb65da305552dd4b6679cba66c5f5a5  /Users/damsleth/code/linux-build-out/m1n1-alpine-sdroot-daily-v2.bin
 ```
 
 This object has not been booted. Ticket 215 must repair and prove the nested

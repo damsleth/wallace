@@ -71,7 +71,7 @@ clkgen, the late gate, PHY, ports, PERST#, Linux PCIe, NVMe, and storage were
 not reached. Sanctioned DebugUSB recovery restored a fresh quiescent proxy.
 
 Transcript: `evidence/logs/t6040-console-20260714-pcie-barrier.log`, SHA-256
-`cebc058921b62b2f594855bb65db28b312570b6c707f5a29a29480c31c04667b`
+`92e8c6563ba753a80dc605ab73d55123fdf59b784513e6390e98969906c380ca`
 (407 lines, 25,940 bytes).
 
 The two earlier traced logs have the same 407-line/25,940-byte size and end

@@ -61,7 +61,7 @@ the proof the payload ran.
 `scripts/t6040-boot-raw-object.sh` defaulted `PY` to bare `python3`, which lacks
 the m1n1 proxyclient's `construct` module (first attempt died at import, before
 any device I/O — machine untouched). Changed the default to the venv interpreter
-`/Users/damsleth/Code/m1n1/venv/bin/python`, matching `t6040-boot-dcuart.sh`.
+`/Users/damsleth/code/m1n1/venv/bin/python`, matching `t6040-boot-dcuart.sh`.
 Re-ran; boot succeeded.
 
 ## Significance / next

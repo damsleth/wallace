@@ -5,7 +5,7 @@
 > Pro measurement found AIC input 816. Do not reuse this image.
 
 Reviewer: `fable` (ticket 043), 2026-07-14. Author: `claude`. Reviewed against
-`~/Code/m1n1/AGENTS.md` non-negotiables and the DEVLOG DockChannel MMIO
+`~/code/m1n1/AGENTS.md` non-negotiables and the DEVLOG DockChannel MMIO
 caution, per AGENT_ONBOARDING §6 / COORDINATION §Cross-agent review. Every
 claim below was verified against the artifacts, not the write-up
 (`evidence/2026-07-14-t6040-dockchannel-rxirq-txpoll.md`).
@@ -23,7 +23,7 @@ Recomputed SHA-256 of all seven recorded artifacts; all match the record:
 - `patches/t6040-dockchannel-tx-poll-debug.patch` `af8015a5…76445` ✓
 - `patches/t6040-dockchannel-fifo-telemetry-debug.patch` `29a8d9da…3063d` ✓
 - m1n1 control: the stashed
-  `~/Code/linux-build-out/m1n1-t6040-logbuf-upper-guard-dryrun.bin`
+  `~/code/linux-build-out/m1n1-t6040-logbuf-upper-guard-dryrun.bin`
   recomputes to `1394c345…a7e61b` ✓ — the live-proven `a61fd099`
   zero-PCIe-write + log-ring-guard control that already booted Linux to
   BusyBox. It performs no PCIe access and never touches the UART IRQ block

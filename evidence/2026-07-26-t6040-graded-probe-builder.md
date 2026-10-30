@@ -51,7 +51,7 @@ Enroll a probe, boot to `Running proxy`, then:
 
 ```sh
 PROBE_LIMIT_MIB=512 M1N1DEVICE=/dev/cu.usbmodemJ22GYCN4YG1 \
-    ~/Code/m1n1/venv/bin/python scripts/t6040-probe-load-extent.py
+    ~/code/m1n1/venv/bin/python scripts/t6040-probe-load-extent.py
 ```
 
 Expected if there is still no ceiling: `HIGHEST LOADED OFFSET SEEN` lands one 64 KiB step short of the

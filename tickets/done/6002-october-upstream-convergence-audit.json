@@ -10,9 +10,9 @@
   "deps": [],
   "hashes": {
     "evidence/2026-10-24-upstream-convergence-audit.md": "50a70253d42a90340451476c533ba086139a399285751cde09618a4b3ebee39c",
-    "evidence/2026-10-24-upstream-convergence/source-lock.json": "b8b7bc2c73c77fa8a297c62e0b0ac230d6ee9121966f3231a2211ae636acffb7",
+    "evidence/2026-10-24-upstream-convergence/source-lock.json": "ba5b425cd7509d518c7e89cfa12b444ac9df47a59c416409e0fbbdd6f3a1c859",
     "evidence/2026-10-24-upstream-convergence/candidate-plan.json": "40ffb2ec94515d42cffec3067f228d0c0a33e1c7e7a40e03dc1778566238f269",
-    "evidence/2026-10-24-upstream-convergence/patch-map.tsv": "251dfbd76963aae21af2cdf4b83f683876b7f54ab5dbdf0653fc707d6b569055"
+    "evidence/2026-10-24-upstream-convergence/patch-map.tsv": "3d15d4e73b1122174326fd81e9323763b4010e878c60a22fc4eb00e2b8270bf4"
   },
   "created": 1792861488,
   "acceptance_criteria": [

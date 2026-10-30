@@ -4,7 +4,7 @@ set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 POPULATE="$ROOT/scripts/t6040-populate-usb-rootfs.sh"
-OUT=${OUT:-/Users/damsleth/Code/linux-build-out}
+OUT=${OUT:-/Users/damsleth/code/linux-build-out}
 ALPINE=${ALPINE:-"$OUT/initramfs-alpine-b0.cpio.gz"}
 ALPINE_SHA256=${ALPINE_SHA256:-ddd981711e91c917b735d39df0e90dd50200c158e1ea54c7f2c171c8ad317024}
 IMAGE=${IMAGE:-"$OUT/t6040-alpine-openrc-usb-root.img"}

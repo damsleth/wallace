@@ -21,7 +21,7 @@ path with the missing desktop-facing pieces:
 The object is:
 
 ```text
-/Users/damsleth/Code/linux-build-out/m1n1-dwm-wifi-bt-trackpad-ppp.bin
+/Users/damsleth/code/linux-build-out/m1n1-dwm-wifi-bt-trackpad-ppp.bin
 size   35,405,824 bytes = 2,161 * 16 KiB
 sha256 19690506050552ea73e67a4932a91e05773b64b86a40df753e68e3d6aa3f8fb4
 ```

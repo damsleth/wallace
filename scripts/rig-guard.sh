@@ -25,7 +25,7 @@
 #                          NEEDS_RECOVERY is set (fixing the link is its job).
 #   RIG_BYPASS=1           escape hatch; skips the check entirely (loud).
 _rig_guard() {
-  local root="${RIG_ROOT:-$HOME/Code/wallace/.rig}"
+  local root="${RIG_ROOT:-$HOME/code/wallace/.rig}"
   local lease="$root/lease.env" flag="$root/NEEDS_RECOVERY" self="${RIG_AGENT:-}"
   local strict="${RIG_ENFORCE:-1}"
   if [ "${RIG_BYPASS:-0}" = 1 ]; then

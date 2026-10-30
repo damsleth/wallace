@@ -7,7 +7,7 @@
 # place before parsing (-DPAYLOAD_MASK_KEY / -DPAYLOAD_MASK_LEN).
 set -euo pipefail
 
-OUT=${OUT:-/Users/damsleth/Code/linux-build-out}
+OUT=${OUT:-/Users/damsleth/code/linux-build-out}
 WT=${WT:-/private/tmp/m1n1-earlyproxy}
 BOOTARGS='maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel rdinit=/sbin/init'
 KERNEL=$OUT/Image-b0-diet.xz

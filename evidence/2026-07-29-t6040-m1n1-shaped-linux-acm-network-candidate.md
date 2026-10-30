@@ -135,7 +135,7 @@ hash above and all twelve paired BCM4388 C0/C2 `apple,mriya` files, and passes
 ## Exact object
 
 ```text
-/Users/damsleth/Code/linux-build-out/m1n1-b0-dwm-m1n1-acm-wifi-usb-diag.bin
+/Users/damsleth/code/linux-build-out/m1n1-b0-dwm-m1n1-acm-wifi-usb-diag.bin
 sha256  8ef1da54546334f82783f1522c41a3eb51e1eedfe9ff50f8b7610bc73a049c56
 size    31,817,728 bytes = 1942 * 16 KiB
 ```
@@ -166,7 +166,7 @@ the minilzlib harness.
 ## Shared-path rejection caught during packaging
 
 The common build output
-`/Users/damsleth/Code/linux-build-out/t6040-j614s-dcuart-macsmc.dtb` had been
+`/Users/damsleth/code/linux-build-out/t6040-j614s-dcuart-macsmc.dtb` had been
 overwritten by Claude's concurrent build and no longer had the pinned
 `11abca72…` hash. The first packaged object was therefore rejected without
 being proposed. The immutable 52,127-byte DTB was extracted from the prior

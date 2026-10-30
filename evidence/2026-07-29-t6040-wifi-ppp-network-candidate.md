@@ -18,7 +18,7 @@ One byte-reproducible, strict-verified **chainload candidate** now combines:
 The object is:
 
 ```text
-/Users/damsleth/Code/linux-build-out/m1n1-dwm-wifi-ppp-network.bin
+/Users/damsleth/code/linux-build-out/m1n1-dwm-wifi-ppp-network.bin
 size   33,439,744 bytes = 2,041 * 16 KiB
 sha256 32a4afe183e5a6f50518bda1fc698c29b2f01ff7db8ce26e0936652c4f55f837
 ```

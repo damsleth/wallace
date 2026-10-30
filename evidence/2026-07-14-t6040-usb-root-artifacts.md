@@ -75,15 +75,15 @@ It never mounts an internal device; any failure stops at a diagnostic shell.
 ## Build recipe (turnkey)
 
 ```sh
-cp ~/Code/wallace/scripts/t6040-kbuild.sh ~/Code/wallace/patches/*.patch ~/Code/linux-build-out/
-cp ~/Code/wallace/dts/t6040-j614s-dcuart-usb-host.dts ~/Code/linux/arch/arm64/boot/dts/apple/
+cp ~/code/wallace/scripts/t6040-kbuild.sh ~/code/wallace/patches/*.patch ~/code/linux-build-out/
+cp ~/code/wallace/dts/t6040-j614s-dcuart-usb-host.dts ~/code/linux/arch/arm64/boot/dts/apple/
 podman exec -e DOCKCHANNEL=1 -e USB_HOST=1 -e BRANCH=wallace/t6040-bringup \
     -e BUILD_DIR=/build/linux-usb-host4 -e NPROC=1 \
     kbuild bash /out/t6040-kbuild.sh image
 # initramfs:
-OUT=~/Code/linux-build-out INIT_SOURCE=~/Code/wallace/scripts/t6040-init-usb-root \
-    DEST=~/Code/linux-build-out/initramfs-usb-root.cpio.gz \
-    bash ~/Code/wallace/scripts/t6040-make-initramfs.sh
+OUT=~/code/linux-build-out INIT_SOURCE=~/code/wallace/scripts/t6040-init-usb-root \
+    DEST=~/code/linux-build-out/initramfs-usb-root.cpio.gz \
+    bash ~/code/wallace/scripts/t6040-make-initramfs.sh
 ```
 
 Note the **branch**: as of 2026-07-21 the dwc3-apple USB driver work

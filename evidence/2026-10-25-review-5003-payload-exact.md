@@ -2,7 +2,7 @@
 
 Date: 2026-10-25. Reviewer: claude (Mythos Wallace session). Offline,
 host-only; no podman, no rig, nothing edited. Requested by Opus Wallace.
-Payload: `~/Code/linux-build-out/nvme-exfat-write-20261025/payload/`,
+Payload: `~/code/linux-build-out/nvme-exfat-write-20261025/payload/`,
 pins in `tickets/5003-nvme-exfat-write-test-payload.json` at `dec4a27`.
 
 ## Verdict

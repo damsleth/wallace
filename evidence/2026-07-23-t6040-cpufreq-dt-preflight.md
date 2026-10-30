@@ -9,7 +9,7 @@ values are invented here.**
 
 **Cluster DVFS bases (m1n1-proven).** m1n1's t6040 path uses the 1E+2P cluster
 table `ECPU0 0x210e00000 / PCPU0 0x211e00000 / PCPU1 0x212e00000`
-(`~/Code/m1n1/src/cpufreq.c`), and m1n1 cpufreq works on the rig (ROADMAP Stage
+(`~/code/m1n1/src/cpufreq.c`), and m1n1 cpufreq works on the rig (ROADMAP Stage
 B) → these bases are live-verified. They are **identical to t6031**; the plan's
 "bases may differ on M4" risk (`evidence/2026-07-10-t6040-cpufreq-plan.md`) is
 retired by the working m1n1 bring-up. Apple's DVFS cluster regs are not ADT

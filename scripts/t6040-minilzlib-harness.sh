@@ -12,7 +12,7 @@
 #   bash scripts/t6040-minilzlib-harness.sh build
 #   <builddir>/lzharness <file.xz>        # exit 0 = decodes, 1 = XZ decode failed
 set -euo pipefail
-M1N1=${M1N1:-/Users/damsleth/Code/m1n1}
+M1N1=${M1N1:-/Users/damsleth/code/m1n1}
 SRC="$M1N1/src/minilzlib"
 OUT=${OUT:-/private/tmp/t6040-lzharness}
 [ -d "$SRC" ] || { echo "no minilzlib at $SRC (set M1N1=)" >&2; exit 1; }

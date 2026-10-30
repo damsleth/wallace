@@ -320,7 +320,7 @@ deliberately does not use OpenRC).
 **N8. Plaintext WiFi credential in the artifact — acceptable where it lives, but
 it is a passphrase, not a derived PSK.** `/etc/wpa_supplicant/wpa_supplicant.conf`
 is mode 0600 and contains the SSID and its cleartext passphrase. Confirmed it
-cannot reach git: `~/Code/linux-build-out` is **outside** the wallace repo
+cannot reach git: `~/code/linux-build-out` is **outside** the wallace repo
 (`git check-ignore` reports "outside repository") and is not itself a git repo (no
 `.git`), so no `.gitignore` entry is needed or possible; `git status` shows no
 build artifact staged, only `tickets/228-bt-obex-file-transfer.json`. So this is a

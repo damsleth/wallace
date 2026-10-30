@@ -2,8 +2,8 @@
 
 Reviewer: `sol`
 Scope: exact shipped artifacts under
-`~/Code/linux-build-out/t6040-hpm2-e41cf6e4ee8f/{r3,r4}/`, source commit
-`e41cf6e4ee8f2a8b0edbc3fc917ef42aee22e894`, `~/Code/m1n1/AGENTS.md`, and
+`~/code/linux-build-out/t6040-hpm2-e41cf6e4ee8f/{r3,r4}/`, source commit
+`e41cf6e4ee8f2a8b0edbc3fc917ef42aee22e894`, `~/code/m1n1/AGENTS.md`, and
 `docs/SPMI_SAFETY.md`.
 Hardware touched: **none**.
 

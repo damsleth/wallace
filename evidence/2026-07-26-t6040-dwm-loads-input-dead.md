@@ -76,7 +76,7 @@ Versus `6738aad9`, which loaded dwm, **exactly one thing changed: eudev is insta
 ```sh
 bash scripts/t6040-debugusb-console.sh reboot
 bash scripts/t6040-boot-raw-object.sh \
-    ~/Code/linux-build-out/m1n1-b0-dwm-udev.bin \
+    ~/code/linux-build-out/m1n1-b0-dwm-udev.bin \
     3ec81ef3f81d09a8cea0d77017067a07f93d2c6ea1c360464d6c183593ffe875
 ```
 

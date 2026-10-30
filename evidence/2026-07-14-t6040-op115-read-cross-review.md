@@ -2,12 +2,12 @@
 
 Reviewer: `fable`, 2026-07-14. Author: `claude`
 (`evidence/2026-07-14-t6040-pcie-op115-static-analysis.md`). Reviewed against
-`~/Code/m1n1/AGENTS.md` non-negotiables per COORDINATION §Cross-agent review.
+`~/code/m1n1/AGENTS.md` non-negotiables per COORDINATION §Cross-agent review.
 All claims verified against the artifacts.
 
 ## Verified
 
-- **Main binary**: `~/Code/m1n1/build/m1n1.bin` at `d1494f5a` recomputes to
+- **Main binary**: `~/code/m1n1/build/m1n1.bin` at `d1494f5a` recomputes to
   `5616b05f…adef67` ✓ (matches the packet).
 - **Curated parity**: `src/pcie.c` and `src/tunables.c` at curated `c5d9de6c`
   are byte-identical to main `d1494f5a` ✓.
@@ -39,7 +39,7 @@ All claims verified against the artifacts.
 
 The packet (like the four prior PCIe diagnostics) pins the PCIe-free base DTB
 by hash `e7691ee4…3dc9a` only — no filename was ever recorded, and no host
-file still matched: `t6040-j614s-dcuart.dtb` in `~/Code/linux-build-out` now
+file still matched: `t6040-j614s-dcuart.dtb` in `~/code/linux-build-out` now
 hashes `b3858f60…7814` because wallace commit `5a3f7c5` added the explicit
 per-instance IRQ mask properties to the base dcuart source, and newer build
 trees rebuilt from it.
@@ -47,7 +47,7 @@ trees rebuilt from it.
 **Resolved:** the pre-`5a3f7c5` build product survived inside the kbuild
 container (`/build/linux-pcie`, `/build/linux-keyboard`,
 `/build/linux-nvme-protected` all agree). A copy is now stashed on the host as
-`~/Code/linux-build-out/t6040-j614s-dcuart-base-e7691ee4.dtb` and recomputes
+`~/code/linux-build-out/t6040-j614s-dcuart-base-e7691ee4.dtb` and recomputes
 to exactly `e7691ee4…3dc9a`. Decompile-verified: no PCIe host node; the ANS
 mailbox, SART, and NVMe nodes are all `status = "disabled"`. This is the
 byte-exact DTB that live-proved operations 1–114. Lesson recorded: pin

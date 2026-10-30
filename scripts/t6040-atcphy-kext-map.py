@@ -17,7 +17,7 @@ import struct
 import sys
 
 
-DEFAULT_M1N1 = pathlib.Path("/Users/damsleth/Code/m1n1")
+DEFAULT_M1N1 = pathlib.Path("/Users/damsleth/code/m1n1")
 EXPECTED_KEXT_SHA256 = (
     "d0a766201c15bb01b8eeaf6617c91707562ae0c50511ebfccbd9d918acd499f3"
 )

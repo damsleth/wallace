@@ -104,7 +104,7 @@ mkdir /tmp/t6040-root-stage
 scripts/t6040-populate-usb-rootfs.sh stage \
     --root /tmp/t6040-root-stage \
     --partuuid 11111111-2222-3333-4444-555555555555 \
-    --alpine ~/Code/linux-build-out/alpine-minirootfs-3.24.0-aarch64.tar.gz \
+    --alpine ~/code/linux-build-out/alpine-minirootfs-3.24.0-aarch64.tar.gz \
     --modules /path/to/lib/modules \
     --firmware /path/to/lib/firmware \
     --manifest /tmp/t6040-root-stage.manifest

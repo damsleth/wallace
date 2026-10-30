@@ -12,14 +12,14 @@ GPT/ext4 image:
 
 | Item | Identity |
 |---|---|
-| image | `/Users/damsleth/Code/linux-build-out/t6040-alpine-openrc-usb-root.build4.img` |
+| image | `/Users/damsleth/code/linux-build-out/t6040-alpine-openrc-usb-root.build4.img` |
 | image SHA-256 | `1c493fad1d1b44520d9265c5946c8ac00b867b3d47fac93f88d1f55cde25060e` |
 | manifest SHA-256 | `a73369344b66011306397dcb5c61ae152c0f2dd62b9b8a0dd0e6ec04b8247d8e` |
 | disk GUID | `192409a8-fe11-4cbf-9182-14eb737b69a6` |
 | partition GUID / PARTUUID | `e4731abe-3566-4c3a-8019-c8828ca27a5a` |
 | ext4 UUID | `912d5c4e-7475-4875-a178-52ce5119a703` |
 | label | `t6040root` |
-| normalized tree manifest | `/Users/damsleth/Code/linux-build-out/t6040-alpine-openrc-usb-root.tree-manifest` |
+| normalized tree manifest | `/Users/damsleth/code/linux-build-out/t6040-alpine-openrc-usb-root.tree-manifest` |
 | normalized tree SHA-256 | `04ddd68e63a782572d3f07be57322f81ee1586cb2cf6c18775aa9e59e16a2acd` |
 
 The required boot selector is:

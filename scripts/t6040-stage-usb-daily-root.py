@@ -16,7 +16,7 @@ import stat
 import subprocess
 
 REPO = Path(__file__).resolve().parent.parent
-OUT = Path('/Users/damsleth/Code/linux-build-out')
+OUT = Path('/Users/damsleth/code/linux-build-out')
 BASE_SHA = 'b04ccc1e96dde2fcf6fb536a5cbd951045cac1069384cfb284eb295cd6936092'
 MAP_SHA = '606ecd98f83b72983f3cd35976df939dc9c7187283703736a81e89b65aee85a8'
 HID_SHA = 'a1f4131d0cb7caf6fa15b19f47725458a6d7b0e3a34f15169339d5541663d9e2'

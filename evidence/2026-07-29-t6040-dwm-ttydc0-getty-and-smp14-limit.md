@@ -22,7 +22,7 @@ now driven from the host exactly like the minimal roots:
 
 ```sh
 printf 'nproc; ls /sys/class/bluetooth\n' > /tmp/m1n1
-tail -f ~/Code/linux-build-out/raw-object-console.log
+tail -f ~/code/linux-build-out/raw-object-console.log
 ```
 
 Image: `initramfs-alpine-dwm-wifi-bt-ppp-getty.cpio.xz`

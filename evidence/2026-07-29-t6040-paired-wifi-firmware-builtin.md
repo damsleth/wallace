@@ -23,11 +23,11 @@ path look superficially present while containing no firmware.
 
 The corpus and inputs were regenerated into persistent build storage:
 
-- corpus: `/Users/damsleth/Code/linux-build-out/t6040-paired-fw-25F84/` (113 MiB);
-- source inputs: `/Users/damsleth/Code/linux-build-out/t6040-fw-inputs-25F84/`
+- corpus: `/Users/damsleth/code/linux-build-out/t6040-paired-fw-25F84/` (113 MiB);
+- source inputs: `/Users/damsleth/code/linux-build-out/t6040-fw-inputs-25F84/`
   (2.5 GiB);
 - pinned extractor checkout:
-  `/Users/damsleth/Code/linux-build-out/asahi-installer-c53d66dc`, commit
+  `/Users/damsleth/code/linux-build-out/asahi-installer-c53d66dc`, commit
   `c53d66dc71937efa2530d4323c81addaebb5a09b`.
 
 Persistent input and corpus identities:

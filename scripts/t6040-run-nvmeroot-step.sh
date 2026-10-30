@@ -15,7 +15,7 @@ case "$STEP" in
     *) echo "step must be A, B or C" >&2; exit 2 ;;
 esac
 WALLACE=$(cd "$(dirname "$0")/.." && pwd)
-O=/Users/damsleth/Code/linux-build-out
+O=/Users/damsleth/code/linux-build-out
 DEADLINE=${DEADLINE:-900}
 [ ! -e "$RUN" ] || { echo "refusing to reuse $RUN" >&2; exit 2; }
 mkdir -p "$RUN"

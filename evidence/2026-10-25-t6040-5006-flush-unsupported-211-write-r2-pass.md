@@ -4,7 +4,7 @@ claude, lease `claude`, 2026-10-25 07:4x CET. CJ killed `deviceinterfaced` and
 approved 5006. Reviews: Mythos PASS for 5006 (with the fixture must-fix done)
 and PASS-with-notes for 5003b.
 
-## 5006: m1n1 proxy flush probe (`/Users/damsleth/Code/linux-build-out/nvme-flush-probe-20261025/run1/flush-probe.log`)
+## 5006: m1n1 proxy flush probe (`/Users/damsleth/code/linux-build-out/nvme-flush-probe-20261025/run1/flush-probe.log`)
 
 The m1n1 was the hash-verified chainloaded `7de07c71`, not the rollback.
 Identity gate OK, then `nvme_init` OK and `read(nsid=1, lba=0)` OK. Then:
@@ -27,7 +27,7 @@ durable is unknown, possibly a vendor command. That is an open RE item.
 
 ## 211 stage 1 retry: 5003b, `nvmewritedir=r2 nvmewc=through`
 
-Console `/Users/damsleth/Code/linux-build-out/nvme-exfat-write-20261025b/runs/write-r2/t6040-console-20261025-claude-211-write-r2.log`. Checker:
+Console `/Users/damsleth/code/linux-build-out/nvme-exfat-write-20261025b/runs/write-r2/t6040-console-20261025-claude-211-write-r2.log`. Checker:
 **PASS** (`write_cache=write through`).
 
 - Pins OK, then `fsck.exfat -n (before)` clean. 18 directories and 96 files:

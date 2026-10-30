@@ -13,7 +13,7 @@ answer two questions the XNU-shim route (ticket 055) hinges on:
 
 ## Why this is NOT runnable on the rig today (the prerequisite chain)
 
-Confirmed against `~/Code/m1n1` @ `16b1f61f`:
+Confirmed against `~/code/m1n1` @ `16b1f61f`:
 
 1. **m1n1 GXF is OFF on the whole M4+ family.** `features_m4` (`src/chickens.c:112`) omits
    `.mmu_sprr` (M1/M2/M3 set it; the `XXX figure out what features are actually available

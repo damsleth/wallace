@@ -77,8 +77,8 @@ boot log up to wherever it dies.
 
 ## WHEN YOU'RE BACK — test procedure
 
-1. Confirm the kernel Image rebuilt: `ls -la ~/Code/linux-build-out/Image
-   ~/Code/linux-build-out/System.map` (and `tail ~/Code/linux-build-out/build-fbcon.log`).
+1. Confirm the kernel Image rebuilt: `ls -la ~/code/linux-build-out/Image
+   ~/code/linux-build-out/System.map` (and `tail ~/code/linux-build-out/build-fbcon.log`).
 2. M4 should be on "Running proxy" (YG1). Then:
    `bash .plans/t6040-bootcap-fb.sh`
 3. **Watch the laptop display.** Expected: the m1n1 logo is replaced by scrolling

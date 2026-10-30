@@ -8,12 +8,12 @@ set -euo pipefail
 source "$(dirname "$0")/rig-guard.sh"
 
 M1=${M1N1DEVICE:-/tmp/m1n1}
-M1N1_DIR=${M1N1_DIR:-/Users/damsleth/Code/m1n1}
-OUT=${OUT:-/Users/damsleth/Code/linux-build-out}
+M1N1_DIR=${M1N1_DIR:-/Users/damsleth/code/m1n1}
+OUT=${OUT:-/Users/damsleth/code/linux-build-out}
 CONLOG=${CONLOG:-$OUT/raw-object-console.log}
 CHAINLOAD_LOG=${CHAINLOAD_LOG:-$OUT/raw-object-chainload.log}
 # m1n1 proxyclient needs the venv (construct, etc.); match t6040-boot-dcuart.sh.
-PY=${PYTHON:-/Users/damsleth/Code/m1n1/venv/bin/python}
+PY=${PYTHON:-/Users/damsleth/code/m1n1/venv/bin/python}
 
 usage() {
     cat >&2 <<USAGE

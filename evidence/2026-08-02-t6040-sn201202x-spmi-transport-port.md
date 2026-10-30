@@ -11,7 +11,7 @@ The upstream TPS6598x-over-SPMI transport is now ported onto a clean Wallace
 m1n1 worktree as a bounded, uncalled transport:
 
 ```text
-worktree: /Users/damsleth/Code/m1n1-hpm-spmi-offline
+worktree: /Users/damsleth/code/m1n1-hpm-spmi-offline
 branch:   codex/t6040-spmi-transport
 base:     19edc72b85fcda63092de3b643092cc51d508281
 commit:   74d3ccc705e7f5b1bddc055403f77f921890d289
@@ -75,7 +75,7 @@ bounded command poll also removes the pre-existing unbounded I2C command wait.
 
 The changed C object compiles cleanly. A full m1n1 link also passes. The clean
 worktree had no rustup default configured, so the link reused
-`/Users/damsleth/Code/m1n1/build/librust.a`, SHA-256
+`/Users/damsleth/code/m1n1/build/librust.a`, SHA-256
 `10782c88eec61431c4713aa11499d95c8e6827067416578f699d8d3fca046174`.
 The Rust source trees at the port base and the supplying worktree are
 identical.

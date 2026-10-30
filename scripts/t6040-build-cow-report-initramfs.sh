@@ -4,7 +4,7 @@
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-OUT=${OUT:-/Users/damsleth/Code/linux-build-out}
+OUT=${OUT:-/Users/damsleth/code/linux-build-out}
 DEST=${DEST:-$OUT/initramfs-cow-report.cpio.gz}
 # BusyBox 1.35 static, as carried by the reviewed SD-root initramfs.
 BB_SOURCE=${BB_SOURCE:-$OUT/initramfs-sdroot-daily-v3.build1.cpio.gz}

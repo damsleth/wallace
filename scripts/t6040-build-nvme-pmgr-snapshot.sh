@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-OUT=${OUT:-/Users/damsleth/Code/linux-build-out}
+OUT=${OUT:-/Users/damsleth/code/linux-build-out}
 BUILD_DIR=${BUILD_DIR:-/build/linux-keyboard}
 APPLE=$BUILD_DIR/arch/arm64/boot/dts/apple
 DTB=t6040-j614s-dcuart-nvme-pmgr-snapshot.dtb

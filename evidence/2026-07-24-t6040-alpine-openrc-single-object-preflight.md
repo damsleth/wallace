@@ -9,7 +9,7 @@ Live state: **not proposed and not approved**
 Use only:
 
 ```text
-/Users/damsleth/Code/linux-build-out/m1n1-b0-alpine-openrc.bin
+/Users/damsleth/code/linux-build-out/m1n1-b0-alpine-openrc.bin
 SHA-256 2371ee5dfbfab591397fc333e7da212fb7582bfb2eaddaa6438005f5bb41759b
 size 22,183,563 bytes
 entry 0x800
@@ -36,7 +36,7 @@ Relevant committed scripts at `9a2fec85df5e77fd22cbcab474189a51f7340827`:
 Before creating a rig ticket, another reviewer must confirm:
 
 1. the object begins with safe m1n1 `1394c345...`, not current dirty
-   `/Users/damsleth/Code/m1n1/build/m1n1.bin` `3e0c90af...`;
+   `/Users/damsleth/code/m1n1/build/m1n1.bin` `3e0c90af...`;
 2. the DTB is storage-disabled `2782b922...`, not the current changed
    `t6040-j614s-dcuart.dtb` `b3858f60...`;
 3. the kernel is ticket-078's live-proven `df7657c...`;
@@ -54,10 +54,10 @@ ticket and the lease:
 
 ```sh
 RIG_AGENT=codex \
-OBJECT=/Users/damsleth/Code/linux-build-out/m1n1-b0-alpine-openrc.bin \
+OBJECT=/Users/damsleth/code/linux-build-out/m1n1-b0-alpine-openrc.bin \
 OBJECT_SHA=2371ee5dfbfab591397fc333e7da212fb7582bfb2eaddaa6438005f5bb41759b \
-CONLOG=/Users/damsleth/Code/linux-build-out/alpine-openrc-console.log \
-CHAINLOAD_LOG=/Users/damsleth/Code/linux-build-out/alpine-openrc-chainload.log \
+CONLOG=/Users/damsleth/code/linux-build-out/alpine-openrc-console.log \
+CHAINLOAD_LOG=/Users/damsleth/code/linux-build-out/alpine-openrc-chainload.log \
 scripts/t6040-boot-raw-object.sh
 ```
 

@@ -6,7 +6,7 @@ Date: 2026-10-25. Reviewer: claude (offline, no rig). Requested by CJ:
 Compared against:
 
 - m1n1 `src/spmi.c @ 80badc91` (`raw_command` lines 144-204,
-  `spmi_reg0_write` line 226-233) and `~/Code/m1n1-hpm2 @ baf2c20d`
+  `spmi_reg0_write` line 226-233) and `~/code/m1n1-hpm2 @ baf2c20d`
   (`src/spmi.c` differs from main only by the strict-mode tracing and FIFO
   refusal; the command-word construction is identical).
 - The live R1 trace, `evidence/2026-07-24-t6040-hpm2-r1-wake-read-result.md`:

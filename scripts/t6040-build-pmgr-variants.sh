@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Build reproducible DockChannel-console DTBs for the PMGR isolations in
 # docs/NEXT_STEPS.md. This is host-side and only mutates the disposable kbuild
-# container worktree plus artifacts under ~/Code/linux-build-out.
+# container worktree plus artifacts under ~/code/linux-build-out.
 set -euo pipefail
 
-ROOT=/Users/damsleth/Code/wallace
-LINUX=/Users/damsleth/Code/linux
-M1N1=/Users/damsleth/Code/m1n1
-OUT=/Users/damsleth/Code/linux-build-out
+ROOT=/Users/damsleth/code/wallace
+LINUX=/Users/damsleth/code/linux
+M1N1=/Users/damsleth/code/m1n1
+OUT=/Users/damsleth/code/linux-build-out
 BUILD_DIR=${BUILD_DIR:-/build/linux-keyboard}
 APPLE=arch/arm64/boot/dts/apple
 BRANCH=feature/m4-m5-minimal-device-trees

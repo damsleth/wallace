@@ -19,7 +19,7 @@ exercise of this code path, and it failed deterministically.
 
 ## The mechanism, with code references
 
-All references are to the committed state of `~/Code/linux`
+All references are to the committed state of `~/code/linux`
 (`wallace/t6040-bringup`) plus the two wallace patches kbuild applies.
 
 1. The DT (`t6040-j614s-dcuart-wifi-usb2-native-right.dts`) sets

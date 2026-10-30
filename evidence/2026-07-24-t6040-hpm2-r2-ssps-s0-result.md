@@ -9,11 +9,11 @@ Result: **PASS at the intended class boundary; rig recovery remains required**
 m1n1-hpm2 commit:
   276f4059d8c4130ce56525f263afa1ef110447d1
 binary:
-  /Users/damsleth/Code/linux-build-out/t6040-hpm2-276f4059d8c4/r2/m1n1.bin
+  /Users/damsleth/code/linux-build-out/t6040-hpm2-276f4059d8c4/r2/m1n1.bin
 binary SHA-256:
   23737cd31407c1046fb3c4e56e3a34f898ea845b8e98b978a98166eafe32b271
 transcript:
-  /Users/damsleth/Code/linux-build-out/hpm2-r2-ssps-s0-20260724.log
+  /Users/damsleth/code/linux-build-out/hpm2-r2-ssps-s0-20260724.log
 transcript SHA-256:
   630fe61aa8d8701a3e39968470cdc9a9789077d454a1a0749c09f76aee2272a5
 ```

@@ -16,7 +16,7 @@
     "m1n1-raw.elf": "5bee616c39fb745393cc4d961fe148189b1c084ef722b51d25c07941cc2a396f",
     "m1n1.bin": "7de07c714ebe8b26a408ab0a4719d10d2d208eb120eaac7d3aea03f0e36daf2a",
     "t6040-nvme.dtb": "a96d04a7c37355ed13ac6e4ac90ec319ecc3e755d584ea2b414a7ad80498845b",
-    "payload_dir": "/Users/damsleth/Code/linux-build-out/nvme-exfat-write-20261025c/payload",
+    "payload_dir": "/Users/damsleth/code/linux-build-out/nvme-exfat-write-20261025c/payload",
     "bootargs": "maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel printk.devkmsg=on console=ttydc0 console=tty0 nvmewrite=write|verify nvmewritedir=TAG [nvmewc=through] [nvmeend=reboot] rdinit=/init (exact boot-dcuart CMDLINE; preflight OK all four)",
     "run": "PAYLOAD=nvme-exfat-write-20261025b/payload WRITE_ARGS='nvmewritedir=TAG [nvmewc=through]' scripts/t6040-run-nvme-write.sh write|verify <run-dir>; same TAG on verify",
     "review": "5003c: Mythos PASS-with-notes, evidence/2026-10-25-review-5003c-delta.md (b 42a5e48f superseded)",

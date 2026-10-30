@@ -7,7 +7,7 @@
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-OUT=${OUT:-/Users/damsleth/Code/linux-build-out}
+OUT=${OUT:-/Users/damsleth/code/linux-build-out}
 BASE=${BASE:-$OUT/initramfs-bootstrap-sdroot.cpio.gz}
 DEST=${DEST:?set DEST to the output .cpio.gz}
 BASE_SHA256=ae815319e2d6d4b76cdfda09dd23b94f30908950907b1f8284192e637f82a097

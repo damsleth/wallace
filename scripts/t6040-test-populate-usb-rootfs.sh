@@ -4,7 +4,7 @@ set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 TOOL="$ROOT/scripts/t6040-populate-usb-rootfs.sh"
-OUT=${OUT:-/Users/damsleth/Code/linux-build-out}
+OUT=${OUT:-/Users/damsleth/code/linux-build-out}
 ALPINE=${ALPINE:-"$OUT/alpine-minirootfs-3.24.0-aarch64.tar.gz"}
 PARTUUID=11111111-2222-3333-4444-555555555555
 OPENRC_ROOT=${OPENRC_ROOT:-"$OUT/initramfs-alpine-b0.cpio.gz"}

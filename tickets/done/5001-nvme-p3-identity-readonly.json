@@ -18,7 +18,7 @@
     "scripts/t6040-init-nvme-p3-identity": "432dee490a5f6351e49699397044f002abb60916bd9cc97d280364c2130496d2"
   },
   "created": 1792877286,
-  "payload": "/Users/damsleth/Code/linux-build-out/nvme-p3id-20261024/payload",
+  "payload": "/Users/damsleth/code/linux-build-out/nvme-p3id-20261024/payload",
   "bootargs": "maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel printk.devkmsg=on console=ttydc0 console=tty0 rdinit=/init",
   "runnable": true,
   "approved_by": "cj",

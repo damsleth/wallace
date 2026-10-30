@@ -14,7 +14,7 @@ builder. It had no independent review. Today's preflight also rejects it.
   `Image-sd-gl9755` `bd3dd526…`, kernel member `8fa32648…`, DTB `4e482173…`
   (`t6040-j614s-dcuart-sd-v2.build{1,2}.dtb`), initramfs `901ad007…` (both
   builds), embedded `/init` `8fcd4f1d…`, `t6040-sdroot-fsck` `f6192dbe…`,
-  builder `7fe5bf10…`, keymap `606ecd98…`.
+  builder `6bbb1eb9…`, keymap `606ecd98…`.
 - Strict raw-object verifier: PASS (36,945,920 B, entry `0x800`).
 - `/init`: mounts only proc/sysfs/devtmpfs/tmpfs, loads the Norwegian keymap
   before any shell, waits for `ttydc0`, runs the repair exactly once, prints

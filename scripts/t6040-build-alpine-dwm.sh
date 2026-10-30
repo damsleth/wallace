@@ -6,7 +6,7 @@
 # strips resolver/cache state. Pin exact versions once the image is proven to boot.
 set -euo pipefail
 
-OUT=${OUT:-/Users/damsleth/Code/linux-build-out}
+OUT=${OUT:-/Users/damsleth/code/linux-build-out}
 CONTAINER=${CONTAINER:-kbuild}
 ALPINE_VERSION=3.24.0
 ALPINE_ARCH=aarch64
@@ -119,7 +119,7 @@ rm -rf "$TMP"/var/cache/fontconfig
 # evidence/2026-07-14-t6040-bcm4388-fw-extract.md). Off by default until PCIe works — 4.7 MiB
 # raw counts against the 128 MiB expanded-initramfs limit for no benefit before then.
 if [ "${T6040_WIFI_FW:-0}" = "1" ]; then
-    FW_SRC=${T6040_WIFI_FW_SRC:-/Users/damsleth/Code/linux-build-out/t6040-paired-fw-25F84/vendorfw/brcm}
+    FW_SRC=${T6040_WIFI_FW_SRC:-/Users/damsleth/code/linux-build-out/t6040-paired-fw-25F84/vendorfw/brcm}
     [ -f "$FW_SRC/brcmfmac4388c2-pcie.apple,mriya.bin" ] || {
         echo "T6040_WIFI_FW=1 but no BCM4388 firmware at $FW_SRC" >&2
         echo "regenerate the corpus first: evidence/2026-07-14-t6040-bcm4388-fw-extract.md" >&2
@@ -156,7 +156,7 @@ fi
 # it is harmless offline, but booting an image that can upload it still requires
 # the explicit policy exception recorded by ticket 126.
 if [ "${T6040_TRACKPAD_FW:-0}" = "1" ]; then
-    TRACKPAD_FW_SRC=${T6040_TRACKPAD_FW_SRC:-/Users/damsleth/Code/linux-build-out/t6040-paired-fw-25F84/vendorfw/apple/tpmtfw-j614s.bin}
+    TRACKPAD_FW_SRC=${T6040_TRACKPAD_FW_SRC:-/Users/damsleth/code/linux-build-out/t6040-paired-fw-25F84/vendorfw/apple/tpmtfw-j614s.bin}
     [ -f "$TRACKPAD_FW_SRC" ] || {
         echo "T6040_TRACKPAD_FW=1 but no paired HIDF at $TRACKPAD_FW_SRC" >&2
         exit 1

@@ -1,7 +1,7 @@
 # T6040 SPTM ⇄ asahi_neo cross-review: XNU-shim route, SPTM-vs-PPL, new experiments (2026-07-14)
 
 Follow-up to tickets 007/008 (`evidence/2026-07-14-t6040-sptm-service6-abi.md`,
-`evidence/2026-07-14-t6040-nvme-sptm-route-finding.md`). Cross-reads `~/Code/asahi_neo`
+`evidence/2026-07-14-t6040-nvme-sptm-route-finding.md`). Cross-reads `~/code/asahi_neo`
 (XNU-shim boot project, target A18 Pro / t8140) against the T6040/M4 NVMe-SPTM
 blocker. Four questions from CJ. Static analysis only; read-only string/symbol greps
 and a byte-level GENTER decode over the already-staged M4 kernelcache — no rig, no

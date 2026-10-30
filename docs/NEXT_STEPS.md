@@ -12,16 +12,16 @@ Agents cannot run these. Keep this list current: add a command when a ticket
 blocks on CJ, and remove it once it has been done.
 
 1. **Push the running kernel's base to GitHub** (on the Mac). `4f2429104009`
-   exists only in `~/Code/linux`. GitHub's `wallace/t6040-bringup` stops at
+   exists only in `~/code/linux`. GitHub's `wallace/t6040-bringup` stops at
    `e9d2237` (2026-07-14), so the M4 cannot rebuild the kernel it runs.
    This blocks 5019. Pushing to a new ref leaves the branch where it is:
 
    ```sh
-   cd ~/Code/linux
+   cd ~/code/linux
    git push origin 4f2429104009e3964ddcc326d8490ac25bfb1a5c:refs/heads/wallace/base-4f24291
    ```
 
-   The uncommitted t6040 DT files that kbuild copies from `~/Code/linux` are
+   The uncommitted t6040 DT files that kbuild copies from `~/code/linux` are
    still only on the Mac. Commit them to a side branch when convenient.
 
 2. **Approve the on-device rig tickets** when you want them run. Tell an

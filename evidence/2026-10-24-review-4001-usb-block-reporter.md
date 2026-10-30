@@ -67,5 +67,5 @@ shasum -a 256 scripts/t6040-usb-block-report.sh scripts/t6040-test-usb-block-rep
 sh scripts/t6040-test-usb-block-report.sh                  # 19 passed, 0 failed
 bash adv.sh   # scratchpad: builds a fake sysfs and runs the reporter under the T6040_REPORT_* hooks:
               # baseline, mounts file missing, alias mount, sdaa1 mount, sda1x dir, slaves dir
-grep -n -A25 'usb@392280000' ~/Code/linux/arch/arm64/boot/dts/apple/t6040.dtsi
+grep -n -A25 'usb@392280000' ~/code/linux/arch/arm64/boot/dts/apple/t6040.dtsi
 ```

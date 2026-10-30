@@ -79,7 +79,7 @@ reproducible from the committed J614s ADT:
 Regenerate and verify the old manifest with:
 
 ```sh
-git -C ~/Code/linux show feature/m4-m5-minimal-device-trees:j614s.adt \
+git -C ~/code/linux show feature/m4-m5-minimal-device-trees:j614s.adt \
   | scripts/t6040-pcie-write-plan.py --stop-before-ports \
   > /tmp/t6040-shared-phy.tsv
 cmp /tmp/t6040-shared-phy.tsv evidence/2026-07-14-t6040-pcie-phy-diagnostic.tsv
@@ -119,7 +119,7 @@ log-ring guard pinned in the preceding shared-PHY result.
 Regenerate the candidate manifest with:
 
 ```sh
-git -C ~/Code/linux show feature/m4-m5-minimal-device-trees:j614s.adt \
+git -C ~/code/linux show feature/m4-m5-minimal-device-trees:j614s.adt \
   | scripts/t6040-pcie-write-plan.py --isolate-op115-read \
   > evidence/2026-07-14-t6040-pcie-op115-read-manifest.tsv
 ```

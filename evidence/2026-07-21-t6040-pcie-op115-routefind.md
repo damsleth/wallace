@@ -11,7 +11,7 @@ cross-review, and CJ approval.
 
 ## m1n1 side — exactly what state the controller is in at the hang (verified)
 
-From `~/Code/m1n1/src/pcie.c` (branch `main`), `regs_t6040`:
+From `~/code/m1n1/src/pcie.c` (branch `main`), `regs_t6040`:
 
 ```
 .type = APCIE_T6031, .compat = APCIE_T8122, .shared_reg_count = 7,
@@ -159,7 +159,7 @@ if (poll32(clkgen + 0x0, 0x80000000, 0, 250000)) /* wait PLL lock (b31=0) */
 Then the existing PHY-clock-gate + PHY bring-up runs unchanged. Keep the
 op-115 read-only stop (return before the first PHY-IP *write*) so the retest only
 answers "does `0x417040090` read back now?". Pin hashes, cross-review against
-`~/Code/m1n1/AGENTS.md`, and get CJ approval before any live boot; it competes
+`~/code/m1n1/AGENTS.md`, and get CJ approval before any live boot; it competes
 with Sol for the rig, so queue it rather than run unilaterally.
 
 ## Apple side — earlier partial notes (superseded by the trace above)

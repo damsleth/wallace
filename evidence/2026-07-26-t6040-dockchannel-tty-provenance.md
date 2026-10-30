@@ -42,7 +42,7 @@ and would appear on the plain object too.
 
 A 464-line driver plus 10 lines of Kconfig/Makefile, present in **all three** build trees
 (`linux-keyboard`, `linux-b0-diet`, `linux-b0-dietcap`) and in **no version control** — not
-`~/Code/linux`, not `patches/`.
+`~/code/linux`, not `patches/`.
 
 Consequences:
 

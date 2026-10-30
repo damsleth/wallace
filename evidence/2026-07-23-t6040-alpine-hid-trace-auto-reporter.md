@@ -66,7 +66,7 @@ temporary file, validates the gzip stream, and atomically renames it over
 Two consecutive builds with:
 
 ```sh
-DEST=/Users/damsleth/Code/linux-build-out/initramfs-alpine-hid-trace-auto.cpio.gz \
+DEST=/Users/damsleth/code/linux-build-out/initramfs-alpine-hid-trace-auto.cpio.gz \
     scripts/t6040-build-alpine-ramroot.sh
 ```
 
@@ -77,7 +77,7 @@ unchanged at `fc473c67672cd1596fac133759ed1b3ba18c716f42a400e3cfab9d4ad59cbb9b`.
 |---|---:|---|
 | `scripts/t6040-init-alpine-ramroot` | — | `24a5106f50e1b42c8c93725b0afd07c064267407f18af6dfac412c4e8cec5cd8` |
 | `scripts/t6040-hid-trace-auto-report` | — | `7cea5aaae62887bf0881d4e8c7a1f288e0d387729ce7ac1a4d5032c30458c0b0` |
-| `scripts/t6040-build-alpine-ramroot.sh` | — | `641cba1597171ed8e42563d8d27aa03947953a03bb64f27bb1735ec071e30173` |
+| `scripts/t6040-build-alpine-ramroot.sh` | — | `b1b65a4d162a0735e45c8529827698aff3740c225ed8bdf149f627a8901b4f03` |
 | `scripts/t6040-test-hid-trace-auto-report.sh` | — | `70001cd08f3dbd7dd261e0cfa6d22e476e797f0282f3630e0a49278ea6e20639` |
 | `initramfs-alpine-hid-trace-auto.cpio.gz` | 4,043,233 | `d5b790c63276816a3d69071797da459918717924885174d2a8b84225c6b24093` |
 | `initramfs-alpine-hid-trace-auto.contents` | — | `3394ec4b2d4478b43c9f0766f9c8d0d5c865b2ceff22ebb8bb6ca75015c10e08` |

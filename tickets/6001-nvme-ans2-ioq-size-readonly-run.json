@@ -16,8 +16,8 @@
     "initramfs": "524d94c39ea15050d42e99d39eb18614d6610a4bd788ce672c2a73abbbdd2a44"
   },
   "created": 1789998662,
-  "manifest": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20261024b/manifest.json (sha256 c34f43912a129d94aa84386af3d65d7ef131b29ca2c9b8393e9a0b4a19ef915e)",
-  "manifest_sha256": "14ba160062bb75b9a234b20ab34874304c75ab75f0fc2f87c8fc49e32cfb10b0",
+  "manifest": "/Users/damsleth/code/linux-build-out/nvme-ioq-20261024b/manifest.json (sha256 c34f43912a129d94aa84386af3d65d7ef131b29ca2c9b8393e9a0b4a19ef915e)",
+  "manifest_sha256": "d9ae6072eafb1791aedb270289c87f155a7e9d104fe1c13c553c6d56662c18c0",
   "evidence": [
     "evidence/2026-09-21-nvme-ans2-ioq-candidate.md",
     "evidence/2026-09-21-nvme-ans2-ioq-candidate/manifest.json",

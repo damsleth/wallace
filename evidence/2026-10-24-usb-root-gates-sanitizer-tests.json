@@ -177,7 +177,7 @@
       "verdict": "PASS",
       "exit": 0,
       "reason": "",
-      "output": "format=t6040-usb-root-metadata-v1\npartition_number=1\ndisk_guid=192409a8-fe11-4cbf-9182-14eb737b69a6\npartuuid=e4731abe-3566-4c3a-8019-c8828ca27a5a\nfilesystem_uuid=912d5c4e-7475-4875-a178-52ce5119a703\npartition_first_lba=2048\npartition_last_lba=16350\nmedia_bytes=8388608\nlayout_bytes=8388608\ngpt_copies=verified\nfilesystem_type=ext4\nfilesystem_label=t6040root\next4_state=clean\nmetadata_gate=PASS\nusb_root_device=/Users/damsleth/Code/wallace/.tmp/usb-root-6005-uock9jsc/dev/sdb1"
+      "output": "format=t6040-usb-root-metadata-v1\npartition_number=1\ndisk_guid=192409a8-fe11-4cbf-9182-14eb737b69a6\npartuuid=e4731abe-3566-4c3a-8019-c8828ca27a5a\nfilesystem_uuid=912d5c4e-7475-4875-a178-52ce5119a703\npartition_first_lba=2048\npartition_last_lba=16350\nmedia_bytes=8388608\nlayout_bytes=8388608\ngpt_copies=verified\nfilesystem_type=ext4\nfilesystem_label=t6040root\next4_state=clean\nmetadata_gate=PASS\nusb_root_device=/Users/damsleth/code/wallace/.tmp/usb-root-6005-uock9jsc/dev/sdb1"
     },
     {
       "case": "wrong stick serial",
@@ -254,7 +254,7 @@
       "verdict": "PASS",
       "exit": 0,
       "reason": "",
-      "output": "format=t6040-usb-root-metadata-v1\npartition_number=1\ndisk_guid=192409a8-fe11-4cbf-9182-14eb737b69a6\npartuuid=e4731abe-3566-4c3a-8019-c8828ca27a5a\nfilesystem_uuid=912d5c4e-7475-4875-a178-52ce5119a703\npartition_first_lba=2048\npartition_last_lba=16350\nmedia_bytes=8388608\nlayout_bytes=8388608\ngpt_copies=verified\nfilesystem_type=ext4\nfilesystem_label=t6040root\next4_state=clean\nmetadata_gate=PASS\nusb_root_device=/Users/damsleth/Code/wallace/.tmp/usb-root-6005-uock9jsc/dev/sdb1"
+      "output": "format=t6040-usb-root-metadata-v1\npartition_number=1\ndisk_guid=192409a8-fe11-4cbf-9182-14eb737b69a6\npartuuid=e4731abe-3566-4c3a-8019-c8828ca27a5a\nfilesystem_uuid=912d5c4e-7475-4875-a178-52ce5119a703\npartition_first_lba=2048\npartition_last_lba=16350\nmedia_bytes=8388608\nlayout_bytes=8388608\ngpt_copies=verified\nfilesystem_type=ext4\nfilesystem_label=t6040root\next4_state=clean\nmetadata_gate=PASS\nusb_root_device=/Users/damsleth/code/wallace/.tmp/usb-root-6005-uock9jsc/dev/sdb1"
     },
     {
       "case": "reject root selector root=/dev/sdb1",

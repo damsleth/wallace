@@ -24,7 +24,7 @@ chainload:
 The helper enters DebugUSB, starts kisd, places the PTY in raw mode, and waits
 for `Running proxy`. Confirm the proxy:
 
-    ~/Code/m1n1/venv/bin/python scripts/t6040-proxy-alive.py \
+    ~/code/m1n1/venv/bin/python scripts/t6040-proxy-alive.py \
         --device /tmp/m1n1 --timeout 5
 
 Do not leave a manual `cat /tmp/m1n1` running while proxyclient owns the PTY;
@@ -58,7 +58,7 @@ attached and a console reader running *before* the reboot.
     sudo -n /usr/local/bin/macvdmtool reboot debugusb
     # wait for "Running proxy" in the reader, then stop only that reader:
     pkill -f '^cat /tmp/m1n1$'
-    ~/Code/m1n1/venv/bin/python scripts/t6040-proxy-alive.py \
+    ~/code/m1n1/venv/bin/python scripts/t6040-proxy-alive.py \
         --device /tmp/m1n1 --timeout 5
 
 Keep the `pkill` pattern anchored so it cannot match another process. Use this
@@ -77,8 +77,8 @@ For the standard DockChannel kernel/initramfs loop:
 
 Logs:
 
-    tail -f ~/Code/linux-build-out/raw-object-chainload.log
-    tail -f ~/Code/linux-build-out/dcuart-console.log
+    tail -f ~/code/linux-build-out/raw-object-chainload.log
+    tail -f ~/code/linux-build-out/dcuart-console.log
 
 Send a command to the Linux tty:
 
@@ -175,7 +175,7 @@ or a wrong artifact — not a power rail.
 The host Linux tree is on a case-sensitive volume. Code changes are supplied
 as patches; the build uses committed kernel state plus copied T6040 DT files.
 
-    cp scripts/t6040-kbuild.sh patches/*.patch ~/Code/linux-build-out/
+    cp scripts/t6040-kbuild.sh patches/*.patch ~/code/linux-build-out/
     podman exec -e DOCKCHANNEL=1 -e BUILD_DIR=/build/linux-keyboard \
         kbuild bash /out/t6040-kbuild.sh image
 
@@ -249,7 +249,7 @@ Create compatible XZ:
 Proven RAM-root builders:
 
     bash scripts/t6040-build-alpine-b0.sh
-    DEST=~/Code/linux-build-out/initramfs-dwm.cpio.xz \
+    DEST=~/code/linux-build-out/initramfs-dwm.cpio.xz \
       bash scripts/t6040-build-alpine-dwm.sh
 
 The persistent root uses `scripts/t6040-sdroot-init`. Its filesystems are
@@ -281,8 +281,8 @@ Start before reboot:
       [ -n "$d" ] && break
       sleep 0.2
     done
-    M1N1DEVICE=$d ~/Code/m1n1/venv/bin/python \
-      ~/Code/m1n1/proxyclient/tools/shell.py
+    M1N1DEVICE=$d ~/code/m1n1/venv/bin/python \
+      ~/code/m1n1/proxyclient/tools/shell.py
 
 The m1n1 USB gadget and DebugUSB/KIS are mutually exclusive. Use
 `/dev/cu.usbmodem*` for the dual-mode window and `/tmp/m1n1` for KIS.

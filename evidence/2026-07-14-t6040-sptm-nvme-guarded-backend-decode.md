@@ -14,7 +14,7 @@ guesses. This is the real thing ticket 007's caller-side veneer decode was reach
 
 ## Provenance & method
 
-- **Blob:** `sptm.t8132.release.im4p` (M4-base, from `~/Code/asahi_neo/research/firmware`),
+- **Blob:** `sptm.t8132.release.im4p` (M4-base, from `~/code/asahi_neo/research/firmware`),
   decompressed with `pyimg4` (IM4P `sptm`/LZFSE-`bvx2`) → 1.13 MB arm64e Mach-O
   (`MH_EXECUTE`), load VA base **`0xfffffff027004000`**, so **vaddr = file_offset + base**
   (constant slide; verified for `__cstring` and `__TEXT_EXEC,__text`).
@@ -107,7 +107,7 @@ rides, matching the `IOCoastGuardSARTMapper` strings in the kernelcache.
 
 ```sh
 cd <scratch>
-pyimg4 im4p extract -i ~/Code/asahi_neo/research/firmware/sptm.t8132.release.im4p -o sptm.t8132.bin
+pyimg4 im4p extract -i ~/code/asahi_neo/research/firmware/sptm.t8132.release.im4p -o sptm.t8132.bin
 # base VA 0xfffffff027004000 ; vaddr = file_offset + base
 strings -a -t d sptm.t8132.bin | grep -iE 'nvme|VIOLATION_|func_state|CID_|validate_|sart'
 objdump -d --start-address=0xfffffff0270ba450 --stop-address=0xfffffff0270ba640 sptm.t8132.bin  # op-4 handler

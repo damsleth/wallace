@@ -8,7 +8,7 @@
 set -u
 VAR=${1:?siq|control}; N=${2:?maxcpus}; RUN=${3:?run directory}
 WALLACE=$(cd "$(dirname "$0")/.." && pwd)
-O=/Users/damsleth/Code/linux-build-out
+O=/Users/damsleth/code/linux-build-out
 case "$VAR" in
     siq) M1N1=$O/m1n1-siq-20261025/m1n1-siq.bin; H=7cbf67fe88f73647 ;;
     control) M1N1=$O/m1n1-siq-20261025/m1n1-control.bin; H=bf4b24627560759f ;;

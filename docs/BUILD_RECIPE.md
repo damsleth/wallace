@@ -9,7 +9,7 @@ explains why each one exists.
     scripts/t6040-image-preflight.sh \
         --kernel     $OUT/Image \
         --initramfs  $OUT/initramfs-sdroot-hardened.cpio.gz \
-        --m1n1       ~/Code/m1n1/build/m1n1.bin \
+        --m1n1       ~/code/m1n1/build/m1n1.bin \
         --object     $OUT/<name>.raw-object.bin \
         --bootargs   '<the exact bootargs>'
 

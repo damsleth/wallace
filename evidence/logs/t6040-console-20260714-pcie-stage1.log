@@ -219,23 +219,23 @@ TTY> pcie: Initializing t6040 PCIe controller
 TTY> pcie: ADT uses 7 reg entries per port
 TTY> pcie: No common tunables
 Traceback (most recent call last):
-  File "/Users/damsleth/Code/m1n1/proxyclient/tools/linux.py", line 165, in <module>
+  File "/Users/damsleth/code/m1n1/proxyclient/tools/linux.py", line 165, in <module>
     p.kboot_boot(boot_addr)
     ~~~~~~~~~~~~^^^^^^^^^^^
-  File "/Users/damsleth/Code/m1n1/proxyclient/m1n1/proxy.py", line 1070, in kboot_boot
+  File "/Users/damsleth/code/m1n1/proxyclient/m1n1/proxy.py", line 1070, in kboot_boot
     self.request(self.P_KBOOT_BOOT, kernel)
     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/damsleth/Code/m1n1/proxyclient/m1n1/proxy.py", line 753, in request
+  File "/Users/damsleth/code/m1n1/proxyclient/m1n1/proxy.py", line 753, in request
     return self._request(opcode, *args2, **kwargs)
            ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/damsleth/Code/m1n1/proxyclient/m1n1/proxy.py", line 717, in _request
+  File "/Users/damsleth/code/m1n1/proxyclient/m1n1/proxy.py", line 717, in _request
     reply = self.iface.proxyreq(req, reboot=reboot, no_reply=no_reply, pre_reply=None)
-  File "/Users/damsleth/Code/m1n1/proxyclient/m1n1/proxy.py", line 404, in proxyreq
+  File "/Users/damsleth/code/m1n1/proxyclient/m1n1/proxy.py", line 404, in proxyreq
     return self.reply(self.REQ_PROXY)
            ~~~~~~~~~~^^^^^^^^^^^^^^^^
-  File "/Users/damsleth/Code/m1n1/proxyclient/m1n1/proxy.py", line 275, in reply
+  File "/Users/damsleth/code/m1n1/proxyclient/m1n1/proxy.py", line 275, in reply
     reply += self.readfull(1)
              ~~~~~~~~~~~~~^^^
-  File "/Users/damsleth/Code/m1n1/proxyclient/m1n1/proxy.py", line 214, in readfull
+  File "/Users/damsleth/code/m1n1/proxyclient/m1n1/proxy.py", line 214, in readfull
     raise UartTimeout("Expected %d bytes, got %d bytes"%(size,len(d)))
 m1n1.proxy.UartTimeout: Expected 1 bytes, got 0 bytes

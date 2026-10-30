@@ -20,7 +20,7 @@
     "bootargs": "c11acb05c92a9ddf2e6d50233b6544afac6ac449b88c97eaff279cbd8829ce2a",
     "scripts/t6040-sdroot-fsck.sh": "f6192dbea2d89a72ad4ddbeccc1a3978680be8c07b01485f4d1673955a243c14",
     "scripts/t6040-sdroot-fsck-init": "8fcd4f1d15c99b62897713514fa622c97ecde384d068da535ae76b641cab77f8",
-    "scripts/t6040-build-sdroot-fsck-initramfs.sh": "7fe5bf10a772e1a02bd118682c4268b575fc1c1b0476e2fa28e4012a44609e72",
+    "scripts/t6040-build-sdroot-fsck-initramfs.sh": "6bbb1eb9c3cf0578b9a47b764f2b5331824ef402620e0a3bdfcc5d4ffd19b3a2",
     "etc/wallace-no.bmap": "606ecd98f83b72983f3cd35976df939dc9c7187283703736a81e89b65aee85a8",
     "m1n1-sdroot-repair-v4.bin (PROPOSED, console=tty0 last)": "6ae7244e0dba756fa6c28af34a17853397289467d207904ac3729f11fa8a187b"
   },

@@ -1,6 +1,6 @@
 {
   "j614s-full-20260728.adt": {
-    "path": "/Users/damsleth/Code/linux-build-out/j614s-full-20260728.adt",
+    "path": "/Users/damsleth/code/linux-build-out/j614s-full-20260728.adt",
     "sha256": "2fe477c613c67e44550ded1bbb6cad9cf4fffc62393b47b39edc6c11281df4ba",
     "nodes": {
       "/device-tree/amfm": {
@@ -1191,7 +1191,7 @@
     ]
   },
   "j614s-usb-port-map-20260721.adt": {
-    "path": "/Users/damsleth/Code/linux-build-out/j614s-usb-port-map-20260721.adt",
+    "path": "/Users/damsleth/code/linux-build-out/j614s-usb-port-map-20260721.adt",
     "sha256": "7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84",
     "nodes": {
       "/device-tree/amfm": {

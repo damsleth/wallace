@@ -12,7 +12,7 @@ Rig use: none. The enrolled rollback loader remains at quiescent
 A policy-minimal alternative to the full ticket-186 trackpad image now exists:
 
 ```text
-/Users/damsleth/Code/linux-build-out/m1n1-dwm-wifi-bt-ppp-dualmode-no-hidf.bin
+/Users/damsleth/code/linux-build-out/m1n1-dwm-wifi-bt-ppp-dualmode-no-hidf.bin
 size   35,356,672 bytes = 2,158 * 16 KiB
 sha256 969ba852c0d8095796e4df02d7d60a64398410ad6cf49d4790592fb5118bfd36
 ```

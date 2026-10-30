@@ -1,6 +1,6 @@
 # T6040 m1n1 kboot FDT / reserved-memory handoff audit — ticket 038 (2026-07-23)
 
-Static audit of `~/Code/m1n1` `src/kboot.c` (+ `kboot_gpu.c`, `kboot_atc.c`,
+Static audit of `~/code/m1n1` `src/kboot.c` (+ `kboot_gpu.c`, `kboot_atc.c`,
 `kboot_t6020_compat.c`, `isp.c`) vs the Linux `wallace/t6040-bringup`
 `t6040*.dts*`. Read-only. Evidence matrix with file:line; no code changed.
 

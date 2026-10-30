@@ -31,15 +31,15 @@ After CJ approves the ADT-capture rig ticket:
 scripts/rig-lease.sh acquire codex "ADT-only USB physical-port map" b6e74236
 RIG_AGENT=codex bash scripts/t6040-debugusb-console.sh reboot
 
-RAW=/Users/damsleth/Code/linux-build-out/j614s-usb-port-map-20260721.adt
-LOG=/Users/damsleth/Code/linux-build-out/j614s-usb-port-map-20260721.log
+RAW=/Users/damsleth/code/linux-build-out/j614s-usb-port-map-20260721.adt
+LOG=/Users/damsleth/code/linux-build-out/j614s-usb-port-map-20260721.log
 test ! -e "$RAW" && test ! -e "$LOG"
 pkill -f '^cat /tmp/m1n1$' 2>/dev/null || true
 set -o pipefail
 M1N1DEVICE=/tmp/m1n1 \
 PYTHONDONTWRITEBYTECODE=1 \
-PYTHONPATH=/Users/damsleth/Code/m1n1/proxyclient \
-/Users/damsleth/Code/m1n1/venv/bin/python \
+PYTHONPATH=/Users/damsleth/code/m1n1/proxyclient \
+/Users/damsleth/code/m1n1/venv/bin/python \
     scripts/t6040-dump-usb-adt.py --raw-output "$RAW" | tee "$LOG"
 rc=$?
 RIG_AGENT=codex bash scripts/t6040-debugusb-console.sh

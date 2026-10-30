@@ -58,7 +58,7 @@ lease held:
 
 ```sh
 M1N1DEVICE=/dev/cu.usbmodemJ22GYCN4YG1 \
-  /Users/damsleth/Code/m1n1/venv/bin/python scripts/t6040-nvme-probe.py
+  /Users/damsleth/code/m1n1/venv/bin/python scripts/t6040-nvme-probe.py
 ```
 
 ## Outcomes

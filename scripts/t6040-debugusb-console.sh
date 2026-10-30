@@ -1,7 +1,7 @@
 #!/bin/bash
 # Establish the DebugUSB (KIS) two-way console/proxy link to the t6040 target.
 #
-# Usage: bash ~/Code/wallace/scripts/t6040-debugusb-console.sh [reboot]
+# Usage: bash ~/code/wallace/scripts/t6040-debugusb-console.sh [reboot]
 #   (no arg)  target already running -> just enter debugusb + attach kisd
 #   reboot    reboot the target and re-enter debugusb during boot
 #             (captures the full boot log including iBoot markers)
@@ -13,7 +13,7 @@
 #
 # Requires:
 #  - /usr/local/bin/macvdmtool (root-owned, NOPASSWD sudoers entry)
-#  - /usr/local/bin/kisd (or a cargo build in ~/Code/kisd)
+#  - /usr/local/bin/kisd (or a cargo build in ~/code/kisd)
 #  - DP/TB cable in the M4's DFU port
 #  - proxy.py local patch (raw pty termios + baud-ioctl tolerance)
 #
@@ -34,7 +34,7 @@ set -e
 source "$(dirname "$0")/rig-guard.sh"
 
 KISD=""
-for c in /usr/local/bin/kisd ~/Code/kisd/target/release/kisd ~/Code/kisd/target/debug/kisd; do
+for c in /usr/local/bin/kisd ~/code/kisd/target/release/kisd ~/code/kisd/target/debug/kisd; do
     [ -x "$c" ] && KISD="$c" && break
 done
 [ -n "$KISD" ] || { echo "kisd not found"; exit 1; }

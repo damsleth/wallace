@@ -7,7 +7,7 @@ the host through a getty on ttydc0 (scripts/t6040-b0-keymap.initd's sibling
 scripts/t6040-b0-ttydc0-console waits for the device, then runs getty on it).
 
 RECOVERED, NOT NEW. This driver existed only as untracked files inside the
-podman build trees (/build/linux-*), never in ~/Code/linux and never in
+podman build trees (/build/linux-*), never in ~/code/linux and never in
 patches/, so a rebuild from the repository silently produced a kernel WITHOUT
 /dev/ttydc0 and lost the DockChannel shell and health-report transport. It is
 also why every built kernel reported a -dirty version. Ticket 159.

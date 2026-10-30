@@ -25,7 +25,7 @@ a9a2096ff47cc8538090ad28cd0bc41b75b09354e90abff8135b3d242d987bc8  Image (…-dai
 de1a5cd79e030468bff7f7f1fccaf03f2e34d705a4dc77a5aedd927d94fc9b29  initramfs-cow-report.build{1,2}.cpio.gz (identical)
 545646a453287d7574d612eff41bfdab160e76aa1ad738756324a8ead634f385  scripts/t6040-init-cow-report
 25a62b522ea83234393e7205e1d968ed40983b23359ca187545899f99804d209  scripts/t6040-cow-repro.sh (unchanged)
-0c7ff0b4f437ec2a095b6e9279f7599ef0e19d9d4c2192eb7575162ac670c8f8  scripts/t6040-build-cow-report-initramfs.sh
+928a135c2958c7facabd4dc6eec8cf79c17ed878ee342f3eecacfecc6ea7e5fc  scripts/t6040-build-cow-report-initramfs.sh
 ```
 
 This is also the kernel criterion 9's "stable with more than one CPU" must

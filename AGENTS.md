@@ -8,7 +8,7 @@
 The umbrella project for bringing mainline Linux to an **Apple MacBook Pro 14"
 M4 Pro (T6040 "Brava Chop", Mac16,8 / J614s)**. This repo holds the current
 plans, documentation, host-side scripts, kernel patches, tickets, and evidence.
-The code lives in sibling repos under `~/Code/`.
+The code lives in sibling repos under `~/code/`.
 
 **Current objective (CJ, 2026-08-03):** a practical daily driver with SD, USB
 read/write, NVMe read/write, WiFi, Bluetooth, and trackpad all working
@@ -79,15 +79,15 @@ gates remain in NEXT_STEPS and the queue. The official
 
 | Path | What | Role here |
 |---|---|---|
-| `~/Code/wallace` | this repo | plans, docs, scripts/, patches/, dts/, evidence/ |
-| `~/Code/m1n1` | m1n1 fork (branch `main`) | bootloader + proxyclient; per-dir AGENTS.md files carry the **hardware safety rules** and code-level knowledge |
-| `~/Code/m1n1-clean` | worktree, branch `t6040-bringup` | curated code-only commit series (upstream-shaped); keep in sync with m1n1 `src/` changes |
-| `~/Code/linux` | kernel tree, branch `wallace/t6040-bringup` in `damsleth/linux`, based on AsahiLinux `asahi-wip` | t6040 DT files live here (partly uncommitted); code changes go via `patches/` applied by kbuild — NOT as tree edits (builds use committed state + copied DT files only); remotes are `origin` (damsleth), `asahi`, `yuka`, and `torvalds` |
-| `~/Code/linux-build-out` | build artifacts (`/out` in the kbuild container) | Image/DTBs/initramfs; copy `scripts/t6040-kbuild.sh` + `patches/*.patch` here before building |
-| `~/Code/macvdmtool` | patched fork | DebugUSB entry + remote reboot (`sudo -n /usr/local/bin/macvdmtool`, NOPASSWD) |
-| `~/Code/kisd` | AsahiLinux/kisd | host daemon bridging DebugUSB → pty (`/tmp/m1n1`) |
+| `~/code/wallace` | this repo | plans, docs, scripts/, patches/, dts/, evidence/ |
+| `~/code/m1n1` | m1n1 fork (branch `main`) | bootloader + proxyclient; per-dir AGENTS.md files carry the **hardware safety rules** and code-level knowledge |
+| `~/code/m1n1-clean` | worktree, branch `t6040-bringup` | curated code-only commit series (upstream-shaped); keep in sync with m1n1 `src/` changes |
+| `~/code/linux` | kernel tree, branch `wallace/t6040-bringup` in `damsleth/linux`, based on AsahiLinux `asahi-wip` | t6040 DT files live here (partly uncommitted); code changes go via `patches/` applied by kbuild — NOT as tree edits (builds use committed state + copied DT files only); remotes are `origin` (damsleth), `asahi`, `yuka`, and `torvalds` |
+| `~/code/linux-build-out` | build artifacts (`/out` in the kbuild container) | Image/DTBs/initramfs; copy `scripts/t6040-kbuild.sh` + `patches/*.patch` here before building |
+| `~/code/macvdmtool` | patched fork | DebugUSB entry + remote reboot (`sudo -n /usr/local/bin/macvdmtool`, NOPASSWD) |
+| `~/code/kisd` | AsahiLinux/kisd | host daemon bridging DebugUSB → pty (`/tmp/m1n1`) |
 
-## Non-negotiables (full rules in `~/Code/m1n1/AGENTS.md`)
+## Non-negotiables (full rules in `~/code/m1n1/AGENTS.md`)
 
 - **Every image ships the Norwegian keyboard layout — no exceptions**, including
   throwaway diagnostic images, rescue shells, and initramfs-only boots. A shell

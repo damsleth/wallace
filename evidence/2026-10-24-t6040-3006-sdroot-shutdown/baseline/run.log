@@ -44,5 +44,5 @@ FAIL	inject-12	refused	injection did not fire; terminal=refused, want rescue-she
 FAIL	inject-13	refused	injection did not fire; terminal=refused, want rescue-shell
 FAIL	inject-14	refused	injection did not fire; terminal=refused, want rescue-shell
 FAIL	inject-15	refused	injection did not fire; terminal=refused, want rescue-shell
-results: /Users/damsleth/Code/linux-build-out/t6040-3006-runs/baseline
+results: /Users/damsleth/code/linux-build-out/t6040-3006-runs/baseline
 baseline exit=1

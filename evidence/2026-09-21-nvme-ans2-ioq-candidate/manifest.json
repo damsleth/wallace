@@ -1,7 +1,7 @@
 {
   "candidate": "t6040-ans2-ioq-size-readonly-6001",
   "hardware_run": "waiting_for_CJ_ready_signal",
-  "payload_directory": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/payload",
+  "payload_directory": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/payload",
   "kernel_base": "4f2429104009e3964ddcc326d8490ac25bfb1a5c",
   "m1n1_source_head": "80badc91e62c8b4228a857730f160ffb62a29335",
   "bootargs": "maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel console=ttydc0 console=tty0 rdinit=/init",
@@ -14,36 +14,36 @@
     "comparisons": [
       {
         "artifact": "Image",
-        "first": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/payload/Image",
-        "independent": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/stage-b/Image-hid-type-fix-nbcon-ioq-e",
+        "first": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/payload/Image",
+        "independent": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/stage-b/Image-hid-type-fix-nbcon-ioq-e",
         "sha256": "6eef9eef130d805d71e2800f63c58813979041ee7589eb5d90116340bcd3bb7d",
         "byte_identical": true
       },
       {
         "artifact": "System.map",
-        "first": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/payload/System.map",
-        "independent": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/stage-b/System.map-hid-type-fix-nbcon-ioq-e",
+        "first": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/payload/System.map",
+        "independent": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/stage-b/System.map-hid-type-fix-nbcon-ioq-e",
         "sha256": "fd662fe932025bb153e7419f679f14b709cb8ccf19be13ecc3284f234bdc385e",
         "byte_identical": true
       },
       {
         "artifact": "config",
-        "first": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/payload/config",
-        "independent": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/stage-b/config-hid-type-fix-nbcon-ioq-e",
+        "first": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/payload/config",
+        "independent": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/stage-b/config-hid-type-fix-nbcon-ioq-e",
         "sha256": "02f1f1343c03878ef1de0d29c3c7a7b00be9abc3c470f13bb3f9e9561ad0ed6f",
         "byte_identical": true
       },
       {
         "artifact": "t6040-nvme.dtb",
-        "first": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/payload/t6040-nvme.dtb",
-        "independent": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/nvme-e.dtb",
+        "first": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/payload/t6040-nvme.dtb",
+        "independent": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/nvme-e.dtb",
         "sha256": "a96d04a7c37355ed13ac6e4ac90ec319ecc3e755d584ea2b414a7ad80498845b",
         "byte_identical": true
       },
       {
         "artifact": "initramfs.cpio.gz",
-        "first": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/payload/initramfs.cpio.gz",
-        "independent": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/initramfs-final-b.cpio.gz",
+        "first": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/payload/initramfs.cpio.gz",
+        "independent": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/initramfs-final-b.cpio.gz",
         "sha256": "38a7d90ad8dd58e703eec56437fff486f842b95ecd20fe2605b1658d9cafe707",
         "byte_identical": true
       }
@@ -57,967 +57,967 @@
   },
   "files": [
     {
-      "path": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/payload/Image",
+      "path": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/payload/Image",
       "sha256": "6eef9eef130d805d71e2800f63c58813979041ee7589eb5d90116340bcd3bb7d"
     },
     {
-      "path": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/payload/System.map",
+      "path": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/payload/System.map",
       "sha256": "fd662fe932025bb153e7419f679f14b709cb8ccf19be13ecc3284f234bdc385e"
     },
     {
-      "path": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/payload/config",
+      "path": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/payload/config",
       "sha256": "02f1f1343c03878ef1de0d29c3c7a7b00be9abc3c470f13bb3f9e9561ad0ed6f"
     },
     {
-      "path": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/payload/initramfs.cpio.gz",
+      "path": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/payload/initramfs.cpio.gz",
       "sha256": "38a7d90ad8dd58e703eec56437fff486f842b95ecd20fe2605b1658d9cafe707"
     },
     {
-      "path": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/payload/m1n1-raw.elf",
+      "path": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/payload/m1n1-raw.elf",
       "sha256": "5bee616c39fb745393cc4d961fe148189b1c084ef722b51d25c07941cc2a396f"
     },
     {
-      "path": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/payload/m1n1.bin",
+      "path": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/payload/m1n1.bin",
       "sha256": "7de07c714ebe8b26a408ab0a4719d10d2d208eb120eaac7d3aea03f0e36daf2a"
     },
     {
-      "path": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/payload/t6040-nvme.dtb",
+      "path": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/payload/t6040-nvme.dtb",
       "sha256": "a96d04a7c37355ed13ac6e4ac90ec319ecc3e755d584ea2b414a7ad80498845b"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/addrdump.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/addrdump.py",
       "sha256": "d1184737e3ff786129801c88105e9a451646de331b38c738bcf792112331126b"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/aes.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/aes.py",
       "sha256": "5b3ecdbd5160cee80bb2c73c84d80c4964cb1e9a9c825d3ea8b98b669c171de1"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/agx_1tri.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/agx_1tri.py",
       "sha256": "fab8ab4f5efaa0eeffda337a081e029b332ade7556feba6eb7957561e9483a46"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/agx_boot.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/agx_boot.py",
       "sha256": "94524cc52ad3c5e226de1340c846a2a1da6f340d9975838fea48d97c8ceee2cb"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/agx_cancel.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/agx_cancel.py",
       "sha256": "500f2c479ba9ac4835f575eae4568b6dc80b09cf0445484c5652195bb1a4f0b5"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/agx_deps.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/agx_deps.py",
       "sha256": "1fc7e33ba3e0c76b7f51bb98d0f8836836a7b2a8697785c7f068d3afcc7b17cd"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/agx_dumpstructs.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/agx_dumpstructs.py",
       "sha256": "8721f36477c089dc89e3e9629e71dfea9ea5cec22bd702210bcffb57807c4509"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/agx_parallel.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/agx_parallel.py",
       "sha256": "e0219674f259529ab68deec5cc5b31f21e96c9525f76974798ea5bb04fe04182"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/agx_renderframe.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/agx_renderframe.py",
       "sha256": "657448eb21d2890f7ca6bfa1279c0219d284dcf91791d10c53e6395091edec89"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/agx_tlb.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/agx_tlb.py",
       "sha256": "64dc4f5cb00c690c8a1e5e0527c69dc2705e004af85eb0fcc6afa9c8e9e7dc88"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/agx_tracetimings.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/agx_tracetimings.py",
       "sha256": "230fe882a52f495bbffa9c5d44533dd0d66ceb89843bcdf2191c66c2d4cce2ce"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/agx_xtest.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/agx_xtest.py",
       "sha256": "d7bca2e0a87f1b3b09f3bcc15ca5b5349ff062930aab5aa13d38d2f7e8c9b4a0"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/aic2_vms.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/aic2_vms.py",
       "sha256": "d4d2009243c36720b3b44adee1aa4ab2d13f809e08ef14dc1cceaf961af91b1b"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/aic_test.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/aic_test.py",
       "sha256": "799c635a95c00ee36b04d3fe56c48a4298772cc753907abd56baa319b4551ad3"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/amcc_err_handler.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/amcc_err_handler.py",
       "sha256": "700ffb825ba4799b0f6996375ca4e9190fa0141ce1477d1829e87d12949a9887"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/ane.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/ane.py",
       "sha256": "489e5228f20dd95fc51123ed6cca0b915324f541654edd7aa81016574f829a00"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/aop_als.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/aop_als.py",
       "sha256": "8f6120b31aa45c3b331185e4e65d67790233061ae8f826f61b76a70143ae708e"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/aop_audio.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/aop_audio.py",
       "sha256": "1e092845de1449a3187f193b2a6e20bb63f91cd9eb7c9249a5e2892098b10d28"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/aop_vt.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/aop_vt.py",
       "sha256": "6b97e208a30ca51e661203bf23af6f7e24dbbfd0be1c7bdcb87dd70d7e65e0d4"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/audio_capture.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/audio_capture.py",
       "sha256": "d18bc2d0420e437d8d425585fe5ccfdf4e26d47392d799f56a0346ca046c1030"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/avd.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/avd.py",
       "sha256": "7f049149ad236c68ea3d348b6defc3d08ea83382cae37193e21b69459f6e13d1"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/avd_e.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/avd_e.py",
       "sha256": "a82d026673f34b3f0d1aedf9860e8c2bbdf2e355ab6dd2d7f5e6096cb749eb32"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/avd_fw.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/avd_fw.py",
       "sha256": "24eee8e1b9f7237b3c36c666532c0a0af3c06c60b24bb7142ec9f3fa535b53f1"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/chickens.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/chickens.py",
       "sha256": "43e54bb3490bc0d613f4dc2b42d091b32065f85002adb1401efdd1708c5cfe41"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/cpu_id_regs.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/cpu_id_regs.py",
       "sha256": "0d8eee2d4c8910d80504936821f885d95747c2a528fa3acbbb69157111ec2144"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/cpu_pstate_latencies.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/cpu_pstate_latencies.py",
       "sha256": "0eaae27b22bc7be5a4fe85cb1416653781b735fc2fe28eb459db6e66e26acbcb"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/cpu_pstates.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/cpu_pstates.py",
       "sha256": "10ec5745615fac803bdb37077181e823621c8a6b3a0a17e46cf39c1fc0a77c25"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/dart_dump.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/dart_dump.py",
       "sha256": "0a24e13d0e220cfb76650ce48a7190768735b5670b93c5fbd4d0ff890a36367d"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/dcp.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/dcp.py",
       "sha256": "fe4ca9f9b0e15e19c0c47d11884865024c8c0195c507e3ace4e8e1300d00d8a3"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/dcp_iboot.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/dcp_iboot.py",
       "sha256": "9bf00983bbaae529f948f3f8ae19b6290fc9a1be60148298397c534762df614b"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/dcpext_iboot.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/dcpext_iboot.py",
       "sha256": "41f0383a35e03bb7abc61540b9fd82c199c649aea9b70ca9cd55432dc5956f3d"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/dmp.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/dmp.py",
       "sha256": "0372903838cfe505c8bd05ec1f335fcedd26d5a52a1b22fbc702e65137c6f644"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/dockchannel_irq.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/dockchannel_irq.py",
       "sha256": "ba752f7a779cdc24de933979340ba83e4e414bd9aaff1800723b180ef619e29f"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/find_sprr_regs.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/find_sprr_regs.py",
       "sha256": "9602e0a65029d885af23d87be57082f7b5b06a347415ec1375e0deb4bd556371"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/fptest.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/fptest.py",
       "sha256": "14a8b80d76b61c9b9d2f0930ed92446682fbfe07574c562a77fd101555f65adf"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/hacr_trap_bits.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/hacr_trap_bits.py",
       "sha256": "a68e9e4a4376275a401fafa795ec2a2f41d0cf935e8a152316aff62acb9c9043"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/i2c.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/i2c.py",
       "sha256": "083d7e690b8e2ed3a1e1ac0b76f8b7d7c2da23b2e025f3e731063da87d274386"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/isp.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/isp.py",
       "sha256": "23daabc3ef7149fe524b0f2ac3ba726101cb6493617daad30416a78f79cf15fd"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/jpeg.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/jpeg.py",
       "sha256": "79a414fe02e0d0d5ba7a9e5b774d9f7b2e07506ddcb9e8a34669bb9ad66143a7"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/lap.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/lap.py",
       "sha256": "8e3e3b2f2d4f47b247b65d164bbf9b27e775a8f108ffb2f916bf2c41d852259d"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/memdump.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/memdump.py",
       "sha256": "3cda9529336b49db39868de705a0da2b87bf20fea8d470db06d70fab4668b9b7"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/mmio_sweep.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/mmio_sweep.py",
       "sha256": "3f0f4ff1b61d0d754a0dd3cdc5ca5c3ce57c1dd1ec34c54f51ca7b6918a89771"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/mtp.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/mtp.py",
       "sha256": "e72e62c5fc85430265a5be5f58fd23c9b72cba2018203ac6a81c1f8373d9be95"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/ohmmeter.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/ohmmeter.py",
       "sha256": "579194afab6d229fc143e3f64eef3f9db1ffcf24a2d18abd9dcddfa3e46d4ec8"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/pcie_enable_devices.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/pcie_enable_devices.py",
       "sha256": "49ded14e349e5f87adc1ca271f5f2f720d5ff2e81cbbd1e24ad4c1df74a2fb70"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/pmp_init.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/pmp_init.py",
       "sha256": "2bdd6e0f33d56e7bb814f291ef9166fe27b48630e714e0755f033d7879513e0f"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/prores.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/prores.py",
       "sha256": "8174b3ef4db0d9aa2f3a61255f6de9f7c841ea35aed39eabe26f0892fa6267ba"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/scaler.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/scaler.py",
       "sha256": "e8e74e6a83e2a1b7226a8aebca1120ea9591511b3afaaaf944a11b6a04e28a88"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/smc.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/smc.py",
       "sha256": "433959d1491178941be2dd0734e34b65eac66ce8eab35b4a0e77e5e410834108"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/smc_watcher.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/smc_watcher.py",
       "sha256": "ba230cd3a6b7689e50260c8020f3ada7093ea07dbf62af076f5f38da7b6839cb"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/speaker_amp.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/speaker_amp.py",
       "sha256": "673bf7c717a0d19276062cd3a0e123a1e2dfba6f8aab082019afb3fe249f7c9f"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/spi.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/spi.py",
       "sha256": "44e1c01059daa5ba8c7e372d6f227b1d940de0e87c7d25f7da07f854c054c6cb"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/sprr_test_permissions.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/sprr_test_permissions.py",
       "sha256": "7821b30e3d762ccf3d932dc91fd03342a44f5a8082db1fe0ea9e80abb75c39ce"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/t6040.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/t6040.py",
       "sha256": "81880d3357f64a31ac4b0099f6977f866227f6183fa4fdb7f8c9608e43eebf56"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/timer_test.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/timer_test.py",
       "sha256": "31bd5ae837fee671d89bc21a64a39eaef99bbd4a465dad28598bf8466f81a19e"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/touchbar_bad_apple.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/touchbar_bad_apple.py",
       "sha256": "7740063c322446e9307948f25cae715472a97940ba6ecc3b9a05ff454b14ec0d"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/touchbar_rainbow.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/touchbar_rainbow.py",
       "sha256": "cd2da119414c81bcc79d83b0cb4a659df79bd75b53712322fe33f9ffb8591157"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/experiments/wfi.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/experiments/wfi.py",
       "sha256": "edf096d56f229f2ad481bc00e96079c4179b7e3e9789d7d9ba548c1f901e4d31"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_agx.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_agx.py",
       "sha256": "dcefa5db7552047c8fd5d23db49a674d768bbc86ffe52220b17640f326a814dc"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_agx_defer.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_agx_defer.py",
       "sha256": "86dae8c3cfe0e30995740391516ac60f6ec64cb6ce9bc7ac2e30e51b364aacf0"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_agx_pwr.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_agx_pwr.py",
       "sha256": "f83a81bdc61a4e971d0827a3e66fd02477e0dd6f8ff4ee99930f268aa4a4858d"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_all.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_all.py",
       "sha256": "34f6900322a3ae24954010653eb20d29a53ebec37e77200e4824c6b7a1af1ac9"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_all_more.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_all_more.py",
       "sha256": "25efeb1085b642317637927115acc285f100049c173fabc955d6c62268eb2bd4"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_aop.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_aop.py",
       "sha256": "b0152213d2c79207ee0879a660e5f3bdae22cbb2e5eebcd3e8c5ac99f0d08454"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_atc.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_atc.py",
       "sha256": "01e1505432e1b08aa0d98a49c48a2cd58aea58266e71c145bcb202548ca404a2"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_avd.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_avd.py",
       "sha256": "a90f0fe7441b5fc5e60d737c7c1c660b594074de1fac50783e4599b94fe5cd97"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_cd3217.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_cd3217.py",
       "sha256": "b531dd5964c7670cf3823f07af1ab9d5cd092cae81a9eb5df664ca4724711ba9"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_codecs.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_codecs.py",
       "sha256": "432af64638667f9583de23f65c7076c43cdcba4de3b815823d7fe6a2480b9a49"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_dart.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_dart.py",
       "sha256": "7879ede7d4642e97c86b2dc28ab886fff1e9c98037a8cec3ce428b3da5fbc076"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_dcp.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_dcp.py",
       "sha256": "4117f2fae979629ffc0a7b5f8778f74355e2b4867c1e54d7dbf6ead957916cca"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_dptx.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_dptx.py",
       "sha256": "22a384a8c6c223030de6921f1ab693906221ac79f323c3f4eb35a1eb144461d7"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_gpio.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_gpio.py",
       "sha256": "05b8463f839a2e209a19016b73f350b0d9401a6ffab2bc4d3c518bbe2d30d312"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_i2c.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_i2c.py",
       "sha256": "1832302e8e74ec5c84bdc151aa8fc007a8846afe67939ea8d17705e6e7e0470e"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_isp.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_isp.py",
       "sha256": "158e326a4644d9d704c95a39cc7c87ba13222dabf9b6c5c9930699aa3f8db7b2"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_keyboard.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_keyboard.py",
       "sha256": "b2f7038bbd0de0b96ae9ce8f7d837f040557b2b76dd52964cbdc93db62965558"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_mesa.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_mesa.py",
       "sha256": "d61f145da99c8a915fe0bb2116b5e2e9f892bf180ffbb52de19026fac0670787"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_mtp.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_mtp.py",
       "sha256": "58a601da9ae7bddd115358d7d6871050dc04d4ad9c6d3b85d1f71f3b49292034"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_nvme.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_nvme.py",
       "sha256": "52fb7a9e42e3aa1219888f6ca6703201be5b5499fd967b80dfb5babb2fe4c2ed"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_pmgr.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_pmgr.py",
       "sha256": "3a04f43005152aa0f7e48eb03bf05e6b416af3571c503a38a1d01f46b497e719"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_pmp.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_pmp.py",
       "sha256": "287d106153d1b965667f77b6a194f63b9fdc2230ba9f5b6901a9728db57c0aec"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_prores.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_prores.py",
       "sha256": "583382cf02b714827a2ef6ce9ee256c4b63b7f4cd5bd13f258d38787292ed54e"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_smc.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_smc.py",
       "sha256": "9b4efd7c6d503a2b9c87a0a0da532eed0f5fec4d0ceec1c3e6db2f1c5a23d86a"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_spmi.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_spmi.py",
       "sha256": "e34fd7c3f316d3be93d9043fd4ee3ed3df1ed9f7d797b8c361e8f6fe05e48232"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_wlan.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_wlan.py",
       "sha256": "9b35d75c55f09128b12737869344a14034ff0977032a16e9c6d0496c14270c31"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/hv/trace_z2.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/hv/trace_z2.py",
       "sha256": "9647cf950b52a4e691d9fec1cb8d87930f18a7b4f280d2f26c565b33e8d7087f"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/__init__.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/__init__.py",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/adt.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/adt.py",
       "sha256": "b1d0c1af0ea83f73b9e6003efb9b42a4892cb35be8efb9c7566d3512c1846a3f"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/agx/__init__.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/agx/__init__.py",
       "sha256": "c115df7b8ec74424710bda9f6317dc3f1a6e6c729bf801e48707dc5c7edcf199"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/agx/channels.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/agx/channels.py",
       "sha256": "c19ebdaf4dee4867d041d48d39f0b0b0f1689737ecba4800f91097c223008760"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/agx/context.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/agx/context.py",
       "sha256": "42692b5bfcd24f985ab0b8e3767d1e9f0bd2d6dfb101e0c53bdba3f54a0026fa"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/agx/event.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/agx/event.py",
       "sha256": "ffc2523bb01c4fba7c2f62dfbb72009e1b6c6f91ff31fac3b6f7d07b4609cd09"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/agx/initdata.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/agx/initdata.py",
       "sha256": "813203661d7e853fa1264c0ec01e5b489cdf56b68e7508a41672d63a86423f9d"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/agx/object.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/agx/object.py",
       "sha256": "9a5a45b8dd57684f44e866181ee9b26f04ca36b2743925e4c5aa50a8836a17ef"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/agx/render.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/agx/render.py",
       "sha256": "619eacaa566a0509e8812e93f49002d60c00f02f78164950db78950914290671"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/agx/shim.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/agx/shim.py",
       "sha256": "9ecddfe66b7089db8ebd277c8852dc04268ec4c4f0fba8b31ffc0571a32daa71"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/agx/uapi.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/agx/uapi.py",
       "sha256": "1fbb2271a35eeac36869e7c90bc8b2d6eb26e7addf7fbaa9704e3d4b46db2325"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/asm.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/asm.py",
       "sha256": "ffc98242c2b8370e8c9613aaa7a149c90761e59747a371744639cb1931f6deea"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/constructutils.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/constructutils.py",
       "sha256": "1590f58bd7cf604f3104637794398b4742d4c538c873304fe60e9b9abaf21f9e"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/find_regs.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/find_regs.py",
       "sha256": "f8211acb2fdb5e4541386a6ca6723feeb6aee73b8491540c7751a3d7f6dca987"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/__init__.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/__init__.py",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/afk/__init__.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/afk/__init__.py",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/afk/epic.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/afk/epic.py",
       "sha256": "e8382ad46b6fe3bc5cedc53275fd03ed727e247dbb5dafe7c5f9b61f871baa5e"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/afk/rbep.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/afk/rbep.py",
       "sha256": "e4e297247fa7ed984f3cfeba1c5cdf9565da30ab6f394e9c5fecaa641e095ceb"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/agx/__init__.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/agx/__init__.py",
       "sha256": "f85c2ff3df02dd325e385c56069b309786fdcf3ae56da1d6bf09382a95da091f"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/agx/channels.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/agx/channels.py",
       "sha256": "d1486e64d0b8e60d3272f29cce06a20c564bbf75f89d79b15fb24522132fe60e"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/agx/cmdqueue.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/agx/cmdqueue.py",
       "sha256": "614d97b04b84bdffc65cece6c95c7aeee5dac54814ea7fed49ee1f35f790e29d"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/agx/handoff.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/agx/handoff.py",
       "sha256": "52f591fb68b9e2cc64fca835f5b7b7ead725c3300b5880787a9d9d6762864b2c"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/agx/initdata.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/agx/initdata.py",
       "sha256": "e9859a76e9397f01aedc43b8627cabd7f80a35f00e34f990673f3e21e8ea99f9"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/agx/microsequence.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/agx/microsequence.py",
       "sha256": "f210bb9a3496c601abb6edeb55a299c9b4d8e63f77d33abac4fc4186ba1d96ec"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/ane.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/ane.py",
       "sha256": "2defdd25680a4cacd559cd2e77027cda5286249e867d70c37ef6e489b6131f60"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/aop/__init__.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/aop/__init__.py",
       "sha256": "5be230fa13a76b43315ce684e1e849c7104db7aa30af69f7d91144b4b665e2d3"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/aop/aopep.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/aop/aopep.py",
       "sha256": "85d4b0edba671e20532141171243156ea3ac8ab580cbf9a4becf88340d9c2c4f"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/aop/base.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/aop/base.py",
       "sha256": "42e3ae5de47640ab00665646c861a481717984bce20b9337cb8ef1fd051592b7"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/aop/client.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/aop/client.py",
       "sha256": "d8c69af39303d1469c9583964da67744ae730cb975b47551a8f2806975f56fcf"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/aop/ipc.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/aop/ipc.py",
       "sha256": "b286507de836602bf4da229b87a3677d47775b7f35c77d3e7733efa2e7f975c8"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/asc/__init__.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/asc/__init__.py",
       "sha256": "2cdee0d6633c86b74259483f6a1d1f8be37b6a4fdb5966987e64f77545c3cdbb"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/asc/base.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/asc/base.py",
       "sha256": "1869403eb8394974c3cec02f64a49f832a6a99eea653bd7bd16b22c5b43588dc"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/asc/crash.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/asc/crash.py",
       "sha256": "b424065a683b8a3cf0bda7d39d1e05351d931ec8497c2b25db5168942e72e4db"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/asc/ioreporting.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/asc/ioreporting.py",
       "sha256": "d9f9d434d271b7d8126c5e8a283352a62265f1401725b1187f4fe3dc39c7f558"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/asc/kdebug.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/asc/kdebug.py",
       "sha256": "650482ad70f88f41cc3b41003c747307f8448f31ff3dafb27bd08aa9ddfa499b"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/asc/mgmt.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/asc/mgmt.py",
       "sha256": "fc138cf1addfb7995c13d4c07242516f997dc201216caadf7ab8e5d117f4f25d"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/asc/oslog.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/asc/oslog.py",
       "sha256": "6c454a6d2c3f7b49cee8f2d4204437b1d96cb45a328b626c51dec32eb35a0b12"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/asc/syslog.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/asc/syslog.py",
       "sha256": "8a5d8611c3b96e698fd95f7713563708a16131bfca89eb5154d19cef5c0ca74b"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/avd/__init__.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/avd/__init__.py",
       "sha256": "69b7d3326895acc866475743ad2e051a605cae7a1331008bd858fb3ea94bd0c3"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/avd/decoder.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/avd/decoder.py",
       "sha256": "b7f37e121352c49022610cfc0927d519d5f29cbc788bdef5731767af1fb03a58"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/common.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/common.py",
       "sha256": "fc69063d62b014054c024912c72b161c6f12cf7c7e83ebf5394be80220181c0a"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/dcp/__init__.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/dcp/__init__.py",
       "sha256": "f165739a5748a650379413033d3bbec65915708867a472af5136e1a5d9cf9fa0"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/dcp/client.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/dcp/client.py",
       "sha256": "62812392ed0faa83dcaca25b8b63e9fbcb2e3edd93269f38305e385bc6fb7538"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/dcp/dcpav.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/dcp/dcpav.py",
       "sha256": "a9f408a5d6b55889e77dd84ab63e40a1d6a2f418ea4bdd49fe5972b6884c3555"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/dcp/dcpep.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/dcp/dcpep.py",
       "sha256": "de2466ecc571dbd09e1481948332f4c4f1a848197aac989c95c24430778a0d07"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/dcp/iboot.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/dcp/iboot.py",
       "sha256": "3c9de36f11c2b3626c4c68e7435566d2918c8954bf8c4e6db22ddb6929995b3b"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/dcp/ipc.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/dcp/ipc.py",
       "sha256": "90e2678b1e0fe1cbe8cd7aeb7ff41ce0d60dfc749930179c3c0bf448a394cdd4"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/dcp/manager.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/dcp/manager.py",
       "sha256": "f016de6883f793eaa8a5ab28fb56c3d5be995332fac409f430741fd83ddc4ec2"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/dcp/parse_log.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/dcp/parse_log.py",
       "sha256": "57c6526e10779249bc6fe2cbe67e222522d6f349a8050891219017fa78a711ee"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/isp/__init__.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/isp/__init__.py",
       "sha256": "328532170ad4590d9850bda998e917ff79c2ca87ba0bf5908bf025ae89dfa7c3"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/isp/isp_base.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/isp/isp_base.py",
       "sha256": "aa4cd8f60ca2ca4fb1cc233394f56a843761a503359d3eed2cc32e581418f126"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/isp/isp_chan.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/isp/isp_chan.py",
       "sha256": "6c631eb630a616007601ba2ac456560d881f069450efa6e332e36ff46bf59380"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/isp/isp_cmd.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/isp/isp_cmd.py",
       "sha256": "1ce8064df8de59ca867b8dee6465bdf0470869e551174094b5af0f6172ac65e4"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/isp/isp_opcodes.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/isp/isp_opcodes.py",
       "sha256": "3f92f3392ff8e7f4aa7a6c8985028c4ecf0e66d9f28c20fc5d6165bf44c3bfb0"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/isp/isp_vid.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/isp/isp_vid.py",
       "sha256": "9ebee3fd3f28c30d2923185c9387cc4ac214670997ca2acbca79f949640779ed"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/mtp.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/mtp.py",
       "sha256": "6a5cd3c6ee18d719b1c7449b46c264fb0d2bd0fe9f2d9ef9ba1fd95d26b12dc0"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/pmp.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/pmp.py",
       "sha256": "4688959f6d106bc6e868362092a5a0a7917f36fd542e209d0118e1ea10b211d1"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/fw/smc.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/fw/smc.py",
       "sha256": "d35803781101e850530f884f4592be081c7b14f087da983d436a498606c34444"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/gpiola.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/gpiola.py",
       "sha256": "c05dfdeff0c270c44ffb30a64a18c92f62f22ee91e66817204211150a1ed8883"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hostutils.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hostutils.py",
       "sha256": "ed1e91d965fb7423aaded77a81bbce398f10f0bffa441510d41302278cd0dfd8"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hv/__init__.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hv/__init__.py",
       "sha256": "69f08fd00bc694d8e57003d5f7d363ee4329f8a17e75d5f145de02f21ace0960"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hv/gdbserver/__init__.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hv/gdbserver/__init__.py",
       "sha256": "71cdd813df4b20e368d3b1669f45c1e4f4c085011d99841c68ba344bc8964be4"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hv/types.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hv/types.py",
       "sha256": "08b8bb73cd08c84107230d370c1057085bc1147fd206c2f8f31ff81ac3d16307"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hv/virtio.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hv/virtio.py",
       "sha256": "c0dc11f3e05b51279ca6f19c00972b6fb89e60de32b9961e2a563a14d2837bb5"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hv/virtutils.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hv/virtutils.py",
       "sha256": "93f2871fa127c716939822b52858cd7cbe173294ef0f5252d5162088bad61eeb"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/admac.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/admac.py",
       "sha256": "2e7cc8935e9e358233cc0b95a1aeae30e657126a65aa6af48710d4230c46b7ab"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/aes.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/aes.py",
       "sha256": "6b1603547d184e3c7f2a3779d7c1201c113e57a65d3763affbd12da9803264b6"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/agx.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/agx.py",
       "sha256": "6a49ccc8d675b1d5fba94784acbd61b6019c9154c6aea52d8491b217e165dc64"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/ane.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/ane.py",
       "sha256": "0d2b8912bdcfddf2eee773caa44c47d88be25b04a8caa7a209fd9eabc5fc5584"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/asc.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/asc.py",
       "sha256": "4ca105549a56aa4a236dbfcea4cc1e9eafca9d1883f63dca86cc0ed7585dc0b5"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/atc.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/atc.py",
       "sha256": "a6d34523689b02d55c0ff90b4a811e724077aea8ea4673f4d2f17636ae0f0cfe"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/codecs/__init__.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/codecs/__init__.py",
       "sha256": "875ee3b75de7e9441ca8b227c8123fa1a05a3fe15c0af3d1f34d18105825bf16"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/codecs/cs42l84.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/codecs/cs42l84.py",
       "sha256": "510b0d9c3cdb13c9cc5dbac3dca0dcf70e4d732f0fe142be779f59b3acf30172"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/codecs/ssm3515.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/codecs/ssm3515.py",
       "sha256": "de3daf7d95039b9a22761cf8ada9a475f28edb6171c6862b5b68bea88aae2456"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/dart.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/dart.py",
       "sha256": "a7fbb5771b77128a16ea7eced4bc4058c02d8f1c1838ed9359f2e2ba37fe5387"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/dart8020.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/dart8020.py",
       "sha256": "497b7a64ba8e99cb406a267f16f3b6ab431144a88bf420cf1ac47178ad1c346b"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/dart8110.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/dart8110.py",
       "sha256": "05cab089160a6edb5c20431254f5b01622da8bed4bc76e813e294a5b6ceb2890"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/dockchannel.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/dockchannel.py",
       "sha256": "e75c6e1c19cd516dab690c0dee6132ebaeae5432508cd1d34b5a35b4e4302374"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/dwc3.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/dwc3.py",
       "sha256": "f2d27bce280762135b29eb3b3519cad78ea3b723095c45fe122f0aaebc2377e5"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/i2c.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/i2c.py",
       "sha256": "160543de95bfae9708b1ab3ce25fb7d662d940d44c3c4c26b928efaf80ac8448"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/isp.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/isp.py",
       "sha256": "238e1926db04ffa8f4086f17405cf51f908b7dce2221a2845759842824fe6110"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/jpeg.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/jpeg.py",
       "sha256": "2e4061833430fd21802c25cf09356ccb440d8956ab17a5a21e9570e977b19fdd"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/mca.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/mca.py",
       "sha256": "c97880b979773043713df0bf9c1a7612495624111973fa33ca73908f13371520"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/nco.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/nco.py",
       "sha256": "6ab43f6eb5e06fe01069e03510abcb4bed1f89eb4d327326e532d101843f8b73"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/pmgr.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/pmgr.py",
       "sha256": "05f0cfc4223632763c630e5905658540f8f644ec8b4485d06b7448ab8bcbd364"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/pmu.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/pmu.py",
       "sha256": "c96f838e989083feebe2bcdc95651d0c1e7cb0a0b3447e5d21b09a684e5d8ff4"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/prores.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/prores.py",
       "sha256": "43784f45bc1f176d25133dbfed0d0dc7ce0ae7da31d107ec27c68fa742fedb32"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/scaler.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/scaler.py",
       "sha256": "2779b269075bf78f11cbd9a5cb04aee595496375562d65fdab32038d6c5d85fd"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/sep.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/sep.py",
       "sha256": "b44e78e8e54bfde5a9b0c63b964557d6725f9e0270f3a07be2905eaed5ef8c03"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/spi.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/spi.py",
       "sha256": "b1cd06e84ab1b595840cb4108630997449e4a7cd344f8ebd675dd858ffe9bfb7"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/spmi.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/spmi.py",
       "sha256": "9951d02acabc9e426dd53c90bdfc5db26671775cd757412015b51bd8cf204432"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/spmi1.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/spmi1.py",
       "sha256": "e8d379528d786a5a602937d2efb4863a6ac61201cf40f8cec63a6c7ee75f83af"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/spmi4.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/spmi4.py",
       "sha256": "560728efb081c7d1d98e312fb098b9941dd740f9671d301b7d619a4e74badd6d"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/hw/uat.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/hw/uat.py",
       "sha256": "4a4d0300cd3a4ed4fb3de250866993b0d1e00ec3249f93077a871e69c94f0838"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/ishell.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/ishell.py",
       "sha256": "60e78e2b605e52ef78b9767db96d34cbb4c1f20bcf0d69c95c3e745a424d7df9"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/ishell_ext.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/ishell_ext.py",
       "sha256": "a5060721b639f76e5632000b6185199098287d120f164b939505ff11bfc21c16"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/loadobjs.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/loadobjs.py",
       "sha256": "4b83ad29d84752d8f879fafcfe81eef3c12be6f975068f9303d28da95c278558"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/macho.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/macho.py",
       "sha256": "2a7dbd0af5c2aa5828986ca700b724e7af2fdbd435197df537690eee0ec79085"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/malloc.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/malloc.py",
       "sha256": "025582b2cec435bafdcc111231bcbc54e79d193b2e251241b6b1e4f4da5b3fb1"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/proxy.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/proxy.py",
       "sha256": "2a5e73c9494f3565a2d7dcfe57884767f9616a62f10d237dd54103fcadcbdefd"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/proxyutils.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/proxyutils.py",
       "sha256": "5bf5c39128c2d41e3dde41f2815afba5e5e9b1329025502e94fe086cea22c2e5"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/setup.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/setup.py",
       "sha256": "e2f29154c378153b7a557c0a1206e347c9ab49e6c9c32b98bb9fa9c5de2e42ce"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/shell.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/shell.py",
       "sha256": "8e9683703412f3627aa9c80f11cca7fe2b107ad67a469138a0e364c8a07e8e73"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/sysreg.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/sysreg.py",
       "sha256": "dd6ff5f4acb5f94dc5ff09de32e5e3475c4048c57c72c02665cbcd561b61a4bc"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/tgtypes.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/tgtypes.py",
       "sha256": "581a9e270803dd31465a255ecff1885af81adf23f8eb43c1a5cf6da78f2d82ce"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/toolchain.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/toolchain.py",
       "sha256": "bb408d0199c950a3705c2ab38adaa3b7a6840e3da77c670d7cbc88e17072420f"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/trace/__init__.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/trace/__init__.py",
       "sha256": "f272076446ecf1c60c8d7847e72649c9361032a51dbe830aa16cf0544f4602c1"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/trace/agx.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/trace/agx.py",
       "sha256": "970b34456682fd447445d780b6a9f1602b03ed97ba48ba3dc00eb65f8d2dc42d"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/trace/asc.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/trace/asc.py",
       "sha256": "0a90aa0cdfcf546c50034e347959242b430a8c7b42c03d9c78d317e44430c5d2"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/trace/dart.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/trace/dart.py",
       "sha256": "3806589c64f6771104603c17488ea9836f5101deb73835527983d4bd6f583ba4"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/trace/dockchannel.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/trace/dockchannel.py",
       "sha256": "62f7baed72dc605322d69bfd344b68441a6e37a8b5e7a7e4175f7956f0bc9e8b"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/trace/gpio.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/trace/gpio.py",
       "sha256": "f01264ad47515759fce85772122c1361062ac8459628ef59201ce67070b13496"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/trace/i2c.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/trace/i2c.py",
       "sha256": "1dd3dd729a088f6f5375642a0bb7677c0d4c1dee13b5104cdd59a51b5ec443f8"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/trace/isp.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/trace/isp.py",
       "sha256": "6e360e85b5b010f1dc3c09ef6351f41c9b53e5d4ba0eb10443bc3cc4dde04dbd"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/trace/pcie.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/trace/pcie.py",
       "sha256": "f76c29eb5d40efaa2b5473035d7d2537449ab80d0f58f9de61c984d454a6577e"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/trace/spi.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/trace/spi.py",
       "sha256": "50ef9940757480661648f9c3264986ad36df982c9a5b8f8f7759cf243893e5c8"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/trace/spmi.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/trace/spmi.py",
       "sha256": "911852b749bc2cf6f07a8d378f4c8961332f70f538c7b29b47b044bd8249763a"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/utils.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/utils.py",
       "sha256": "650a005253d116156b0097ec1be0308ea04c1d205fb08a178e003cecd6617c3e"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/xnutools.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/xnutools.py",
       "sha256": "9196b5a16c88b0bfc039a7de8d4c93c1d33289a7625b772070b699083366cfd2"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/tools/admac_stream.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/tools/admac_stream.py",
       "sha256": "fd5661c7190f9788d2a8ae2dd28fe2fa25b83fc1e498df3d6b2b86414e557c3a"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/tools/chainload.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/tools/chainload.py",
       "sha256": "aebe6c30dc631b0fed366a65e40361b2e082af5812f1e3bde090e37de0fd2410"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/tools/codecshell.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/tools/codecshell.py",
       "sha256": "fb1de90308191a37edbe7983abfb793f8c14f7a482187761ecdbdb48c7de7eb1"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/tools/dump_pmgr.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/tools/dump_pmgr.py",
       "sha256": "e7110ab2afe7043213987060e4dc32f60b10c1bacc488fe889d3c82e5123b5de"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/tools/freebsd.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/tools/freebsd.py",
       "sha256": "e62c9347f310e3f34a249fa3d826b4066ec45652977803ce439c7e2fb985b4ab"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/tools/ishell.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/tools/ishell.py",
       "sha256": "5852a93091def47197ee0485373281fff0d8118bff252d01729a8f1fba930696"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/tools/linux.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/tools/linux.py",
       "sha256": "9c5c4e0182d8c4f00891680ae502b9e1e84afd5c6286d859d9e286c1e5e584b3"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/tools/pmgr_adt2dt.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/tools/pmgr_adt2dt.py",
       "sha256": "90ad7e683fcc12d21c41ec5974063ccb8f75e08256824099cbfad01d0242d2b7"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/tools/pmp_assist.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/tools/pmp_assist.py",
       "sha256": "ee277cb634224e12eb285f2f488337be9480eb890f91e3af7fac7cbd123ac72d"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/tools/reboot.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/tools/reboot.py",
       "sha256": "ef63c0b91b5bb73afa52dccefdfbb0903dcc7616c57e5d195a9d996015787b0b"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/tools/reset_panic_counter.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/tools/reset_panic_counter.py",
       "sha256": "b68e052865b798eea5c13e7573f6de1c20b5496e226de3be7bb41210aa53df13"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/tools/run_guest.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/tools/run_guest.py",
       "sha256": "11b99f1977d8d0958f5875c8646e736080fa3a3a79a15d5d964f43fb2054ce06"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/tools/second_proxy.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/tools/second_proxy.py",
       "sha256": "575e3866ffec059692754b027b65b86cb7e66f6b1b1ec2d631e3a0f3bc4bbb09"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/tools/shell.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/tools/shell.py",
       "sha256": "5a0807f412817e7fc918d1fffda5c448aa3961c675db1bf4fc05b0cda670b5b9"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/tools/smccli.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/tools/smccli.py",
       "sha256": "39ad6eddc4ba8b4ed7dab9ad2297e1c8c05d1e1b1d6dad6036cad6ca8beca025"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-nvme-ans2-ioq-size.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-nvme-ans2-ioq-size.patch",
       "sha256": "c1adc415a5df84877379e917e888beb32597c0704f6613b239302649dd2f89e8"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/scripts/reproducible-newc.py",
+      "path": "/Users/damsleth/code/wallace/scripts/reproducible-newc.py",
       "sha256": "b0143bc003c1f8da90908d8d1a3ce7346a99d9441f6011424ce2e799a766a77f"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/scripts/rig-guard.sh",
-      "sha256": "a6d8917a2de86a3f1be7652e554447bbce71c6ac4c3f69fa516c09e5aefa282e"
+      "path": "/Users/damsleth/code/wallace/scripts/rig-guard.sh",
+      "sha256": "4d33a22c55b62dc2c058381444485374c3c2a22429e742d7058c7dcc7e815f7d"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/scripts/t6040-boot-dcuart.sh",
-      "sha256": "3cc6458f8067f4b04a674733367b1f653b8783a396fdeda1a87d091d532555aa"
+      "path": "/Users/damsleth/code/wallace/scripts/t6040-boot-dcuart.sh",
+      "sha256": "4639b35ff834e96013b7a721b7d195f41fd117db77241f3756d3ab646ec0b423"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/scripts/t6040-build-nvme-ioq-initramfs.py",
+      "path": "/Users/damsleth/code/wallace/scripts/t6040-build-nvme-ioq-initramfs.py",
       "sha256": "a708ebb7b10036f4e5146c4ca1faa2eacfdb5730892f4aa36a07e96fcd78ce8c"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/scripts/t6040-check-nvme-ioq-transcript.py",
+      "path": "/Users/damsleth/code/wallace/scripts/t6040-check-nvme-ioq-transcript.py",
       "sha256": "6331172d8880b01443759b0d85edfc3b9bfc65d785904dcaafb2585aee3e3e63"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/scripts/t6040-image-preflight.sh",
+      "path": "/Users/damsleth/code/wallace/scripts/t6040-image-preflight.sh",
       "sha256": "794a76bdf81d7bc31668600188aaa1331cd02f3681f06ebf126344df8131838f"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/scripts/t6040-init-nvme-ioq-readonly",
+      "path": "/Users/damsleth/code/wallace/scripts/t6040-init-nvme-ioq-readonly",
       "sha256": "0e198627afb828ad89b34d820590d5bd2f4bf34ae5923891aa43f27f331d86c6"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/scripts/t6040-nvme-readonly-test.c",
+      "path": "/Users/damsleth/code/wallace/scripts/t6040-nvme-readonly-test.c",
       "sha256": "287160efe3a48b92541bb7fa24a1180db38da507af07b150f7e45e819f2d7434"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/scripts/t6040-run-nvme-ioq.py",
-      "sha256": "a4e656a2072e1f107b7d751310d1bb001f3ed09fff0826807d7c6d375e6bad68"
+      "path": "/Users/damsleth/code/wallace/scripts/t6040-run-nvme-ioq.py",
+      "sha256": "9fc1eaedee86a6ef438ab25830a66e4a74e8c25370a96bfda10160c2f30b9a18"
     },
     {
-      "path": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/stage-b/Image-hid-type-fix-nbcon-ioq-e",
+      "path": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/stage-b/Image-hid-type-fix-nbcon-ioq-e",
       "sha256": "6eef9eef130d805d71e2800f63c58813979041ee7589eb5d90116340bcd3bb7d"
     },
     {
-      "path": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/stage-b/System.map-hid-type-fix-nbcon-ioq-e",
+      "path": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/stage-b/System.map-hid-type-fix-nbcon-ioq-e",
       "sha256": "fd662fe932025bb153e7419f679f14b709cb8ccf19be13ecc3284f234bdc385e"
     },
     {
-      "path": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/stage-b/config-hid-type-fix-nbcon-ioq-e",
+      "path": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/stage-b/config-hid-type-fix-nbcon-ioq-e",
       "sha256": "02f1f1343c03878ef1de0d29c3c7a7b00be9abc3c470f13bb3f9e9561ad0ed6f"
     },
     {
-      "path": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/nvme-e.dtb",
+      "path": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/nvme-e.dtb",
       "sha256": "a96d04a7c37355ed13ac6e4ac90ec319ecc3e755d584ea2b414a7ad80498845b"
     },
     {
-      "path": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/initramfs-final-b.cpio.gz",
+      "path": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/initramfs-final-b.cpio.gz",
       "sha256": "38a7d90ad8dd58e703eec56437fff486f842b95ecd20fe2605b1658d9cafe707"
     }
   ]

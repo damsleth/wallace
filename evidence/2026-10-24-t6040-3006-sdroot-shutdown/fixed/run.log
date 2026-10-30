@@ -44,5 +44,5 @@ PASS	inject-12	rescue-shell	-
 PASS	inject-13	rescue-shell	-
 PASS	inject-14	rescue-shell	-
 PASS	inject-15	rescue-shell	-
-results: /Users/damsleth/Code/linux-build-out/t6040-3006-runs/fixed
+results: /Users/damsleth/code/linux-build-out/t6040-3006-runs/fixed
 fixed exit=0

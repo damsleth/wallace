@@ -43,10 +43,10 @@ behind the R0 result, and marked not runnable.
 ## 1. Sources and tooling
 
 ```text
-kernelcache (reference)  /Users/damsleth/Code/linux-build-out/t6040-kernelcache-25F84.raw
+kernelcache (reference)  /Users/damsleth/code/linux-build-out/t6040-kernelcache-25F84.raw
                          119,209,984 bytes, macOS 26.x build 25F84
 
-kext under analysis      /Users/damsleth/Code/linux-build-out/t6040-usb-kexts-25F84/
+kext under analysis      /Users/damsleth/code/linux-build-out/t6040-usb-kexts-25F84/
                            com.apple.driver.AppleHPM
                            sha256 b6eab85a4478fe354c29d4a274fa1ea23ced1c051e3b320fdfad54d65dce381d
                            __TEXT_EXEC.__text vmaddr 0xfffffe00094fac80 size 0x581fc
@@ -55,13 +55,13 @@ kext under analysis      /Users/damsleth/Code/linux-build-out/t6040-usb-kexts-25
                          com.apple.driver.AppleHPM.a2s  (symbol cache, used by ipsw)
                          com.apple.driver.AppleTypeCRetimer
 
-captured ADT             /Users/damsleth/Code/linux-build-out/j614s-usb-port-map-20260721.adt
+captured ADT             /Users/damsleth/code/linux-build-out/j614s-usb-port-map-20260721.adt
                          606,208 bytes
                          sha256 7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84
                          (matches docs/SPMI_SAFETY.md identity gate)
 
-Linux tree               /Users/damsleth/Code/linux @ 4f2429104009
-m1n1 HPM worktree        /Users/damsleth/Code/m1n1-hpm2 @ baf2c20d  (branch codex/t6040-hpm2-status-r0)
+Linux tree               /Users/damsleth/code/linux @ 4f2429104009
+m1n1 HPM worktree        /Users/damsleth/code/m1n1-hpm2 @ baf2c20d  (branch codex/t6040-hpm2-status-r0)
 
 tools present            ipsw, r2, objdump, nm, strings, python3
 tools absent             rizin, llvm-objdump (on PATH; llvm-* exist under brew --prefix llvm)

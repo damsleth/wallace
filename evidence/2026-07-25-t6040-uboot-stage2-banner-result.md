@@ -3,7 +3,7 @@
 Ticket 131, approved by cj (cross-review waived in chat, sol unavailable;
 author self-review recorded on the ticket, including the wdt pass-condition
 catch). Run tethered under lease `claude`, evidence in
-`~/Code/linux-build-out/t131-chainload.log`.
+`~/code/linux-build-out/t131-chainload.log`.
 
 ## Result: PASS on every machine-verifiable criterion
 
@@ -46,7 +46,7 @@ v3's FB console would have shown, or reset sooner via SError). Visual
 confirmation is one 30-second rerun whenever eyes are on the panel:
 
 ```bash
-cd ~/Code/m1n1 && M1N1DEVICE=/tmp/m1n1 venv/bin/python proxyclient/tools/chainload.py -r ~/Code/linux-build-out/uboot-stage2-banner-chainload.bin
+cd ~/code/m1n1 && M1N1DEVICE=/tmp/m1n1 venv/bin/python proxyclient/tools/chainload.py -r ~/code/linux-build-out/uboot-stage2-banner-chainload.bin
 ```
 
 (Kill the `/tmp/m1n1-console.log` reader first; it steals proxy replies —

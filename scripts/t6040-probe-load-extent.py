@@ -10,7 +10,7 @@ whether that offset was loaded (stamp matches), is stale RAM (garbage), or is ze
 Usage: M1N1DEVICE=/dev/cu.usbmodemJ22GYCN4YG1 venv/bin/python <this>
 """
 import sys
-sys.path.insert(0, "/Users/damsleth/Code/m1n1/proxyclient")
+sys.path.insert(0, "/Users/damsleth/code/m1n1/proxyclient")
 from m1n1.setup import *  # noqa
 
 BASE_OFF = 0x10C000

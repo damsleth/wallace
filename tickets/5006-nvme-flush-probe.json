@@ -9,9 +9,9 @@
   "author": "claude",
   "deps": [],
   "hashes": {
-    "script t6040-nvme-flush-probe.py": "56c8003885dc7616e15dd05cc7fc0a048d9244712fdb5c338850c362589adf03",
-    "imported gate t6040-nvme-probe.py": "4ef48fbc524d9ad813960773e5ba579e8ccf230e324423ac03c3cbe4337250d2",
-    "fixture t6040-run-nvme-flush-probe.sh": "a41eaaf38ea1107e24f1590286755322312a4a0ff8a472070dd797d20b1a0fba",
+    "script t6040-nvme-flush-probe.py": "bc1e922d6e19b1639b0bedaa399098ccb733fba67e7660795733b0b7eb39e497",
+    "imported gate t6040-nvme-probe.py": "66534e22f8788f891e14d4cd2f574b5723f9947ec720f85d61e5bbb0653c39f6",
+    "fixture t6040-run-nvme-flush-probe.sh": "4572d74f1eee75bdcee7e0921817d5c7fc8fe413bfe270c2f0ab459649ffadb6",
     "chainloaded m1n1": "7de07c714ebe8b26a408ab0a4719d10d2d208eb120eaac7d3aea03f0e36daf2a",
     "review": "Mythos PASS w/ fixture must-fix (fixed), evidence/2026-10-25-review-5006-flush-probe.md"
   },

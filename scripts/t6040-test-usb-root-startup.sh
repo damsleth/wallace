@@ -4,7 +4,7 @@
 # All mount/fsck/metadata/switch_root operations are intercepted; no block I/O.
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-BASE_OUT=${OUT:-/Users/damsleth/Code/linux-build-out}
+BASE_OUT=${OUT:-/Users/damsleth/code/linux-build-out}
 RES=${1:-$BASE_OUT/usb-root-6005/startup-$(date +%Y%m%dT%H%M%S)}
 IMAGE=docker.io/library/alpine@sha256:2c9d26f410d032d5b1525aa8a873e238b05b90c4ae8618743d4311f0cc827e37
 [ ! -e "$RES" ] || { echo "refusing to overwrite $RES" >&2; exit 1; }

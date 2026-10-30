@@ -11,14 +11,14 @@ the repository:
 
 | Item | Identity |
 |---|---|
-| image | `/Users/damsleth/Code/linux-build-out/t6040-alpine-usb-root.img` |
+| image | `/Users/damsleth/code/linux-build-out/t6040-alpine-usb-root.img` |
 | size | 1,073,741,824 bytes |
 | SHA-256 | `32a897cb48bab0f066528b76cc6ef6b364a2807b43371d5b2f3c2abcced42cd1` |
 | disk GUID | `4d26d3d2-96d8-4814-b32e-184b053505cc` |
 | partition GUID / PARTUUID | `1b841e9b-65a5-4687-83f2-6c728961ad14` |
 | ext4 UUID | `6831bf2b-06cf-40c9-9e86-39ddb792ba18` |
 | label | `t6040root` |
-| manifest | `/Users/damsleth/Code/linux-build-out/t6040-alpine-usb-root.manifest` |
+| manifest | `/Users/damsleth/code/linux-build-out/t6040-alpine-usb-root.manifest` |
 
 The GPT, ext4, identities, and contents validate, but the image is **not yet a
 bootable distro root**. A later PID-1 audit found that Alpine's minirootfs

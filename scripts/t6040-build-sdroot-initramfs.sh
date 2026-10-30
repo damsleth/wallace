@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-OUT=${OUT:-/Users/damsleth/Code/linux-build-out}
+OUT=${OUT:-/Users/damsleth/code/linux-build-out}
 BASE=${BASE:-$OUT/initramfs-sdroot-wifi-base-59764944.cpio.gz}
 DEST=${DEST:-$OUT/initramfs-sdroot-hardened.cpio.gz}
 BASE_SHA256=59764944c4aad38189df5ee05a190c5ce60fd44727482105e4f20df7d8c7edc1

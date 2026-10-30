@@ -11,7 +11,7 @@ Rig use: none. The rollback loader remains at quiescent `Running proxy`.
 The near-term target now exists as an offline candidate:
 
 ```text
-/Users/damsleth/Code/linux-build-out/m1n1-dwm-wifi-bt-trackpad-ppp-dualmode.bin
+/Users/damsleth/code/linux-build-out/m1n1-dwm-wifi-bt-trackpad-ppp-dualmode.bin
 size   35,405,824 bytes = 2,161 * 16 KiB
 sha256 db8ab4e44119a0ace019359823d438c75b0773b4a628c84b4cfa8d2f6c933e48
 ```

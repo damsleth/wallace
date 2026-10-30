@@ -6,7 +6,7 @@
 # Agent onboarding
 
 Read [COORDINATION.md](COORDINATION.md) and
-`~/Code/m1n1/AGENTS.md` before doing any work. COORDINATION.md is the
+`~/code/m1n1/AGENTS.md` before doing any work. COORDINATION.md is the
 canonical lease and ticket protocol; this page is the quick start.
 
 ## Identity
@@ -63,5 +63,5 @@ Before `queue ready`, independently verify hashes, source commits, ADT-derived
 addresses, no blind MMIO, no prohibited PMU/charger/NVRAM/firmware/SMC/SPMI
 operation, and explicit pass/stop/fixture/recovery conditions. The full
 checklist is in [COORDINATION.md](COORDINATION.md) ("Safety review"), the
-complete hardware policy in `~/Code/m1n1/AGENTS.md`, and the only current SPMI
+complete hardware policy in `~/code/m1n1/AGENTS.md`, and the only current SPMI
 exception in [SPMI_SAFETY.md](SPMI_SAFETY.md).

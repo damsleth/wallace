@@ -16,7 +16,7 @@ import argparse
 import os
 import sys
 
-sys.path.insert(0, "/Users/damsleth/Code/m1n1/proxyclient")
+sys.path.insert(0, "/Users/damsleth/code/m1n1/proxyclient")
 
 
 def main() -> int:
@@ -39,7 +39,7 @@ def main() -> int:
         from m1n1.proxy import M1N1Proxy, UartInterface, UartTimeout
     except Exception as exc:  # noqa: BLE001
         say(f"proxy-alive: UNKNOWN — cannot import proxyclient ({exc})")
-        say("  run with the m1n1 venv python: ~/Code/m1n1/venv/bin/python")
+        say("  run with the m1n1 venv python: ~/code/m1n1/venv/bin/python")
         return 1
 
     try:

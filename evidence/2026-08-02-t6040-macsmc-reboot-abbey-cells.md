@@ -33,7 +33,7 @@ references only `shutdown_flag`, `boot_stage`, `boot_error_count`, and
 Captured ADT:
 
 ```text
-/Users/damsleth/Code/linux-build-out/j614s-usb-port-map-20260721.adt
+/Users/damsleth/code/linux-build-out/j614s-usb-port-map-20260721.adt
 size 606208 bytes
 SHA-256 7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84
 ```

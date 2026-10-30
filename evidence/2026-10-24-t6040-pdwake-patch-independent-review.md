@@ -20,12 +20,12 @@ upstream-shaped cleanup, not blockers.
 9dcb4606e6385815dafa29f2690cf5cc29021d07387da78b55a09d4385b28350  patches/0001-usb-typec-tps6598x-add-SPMI-transport-for-T6040-SN20.patch (77fd00b)
 ```
 
-Hashes match commit f430d1f and the copies staged in `~/Code/linux-build-out/`
+Hashes match commit f430d1f and the copies staged in `~/code/linux-build-out/`
 (`t6040-spmi-wakeup-and-tipd-probe-diag.patch`, `t6040-kbuild.sh`,
 `0001-...SN20.patch`, all three identical to the repo files).
 
 Base: Linux `wallace/t6040-bringup` @ `4f2429104009` (read from the mounted
-read-only case-sensitive volume). Comparison sources: `~/Code/m1n1/src/spmi.c`
+read-only case-sensitive volume). Comparison sources: `~/code/m1n1/src/spmi.c`
 (`regs_gen1`, `raw_command`, `spmi_send_wakeup`), `yuka/feature/m4-usb`
 `drivers/spmi/spmi-apple-controller.c` (`spmi_raw_cmd`, `spmi_cmd`).
 
@@ -51,9 +51,9 @@ read-only case-sensitive volume). Comparison sources: `~/Code/m1n1/src/spmi.c`
   2. The two `.cmd` implementers in the tree (`spmi-pmic-arb.c:1878`,
      `spmi-mtk-pmif.c:746`) are Qualcomm/MediaTek controllers and do not bind
      to the Apple DT nodes.
-  3. The chainloaded m1n1 (`~/Code/m1n1`, branch `main`) has no caller of
+  3. The chainloaded m1n1 (`~/code/m1n1`, branch `main`) has no caller of
      `spmi_send_wakeup` outside `src/spmi.c`; the hpm2 bring-up code that
-     did send it lived in the separate `~/Code/m1n1-hpm2` tree (per the
+     did send it lived in the separate `~/code/m1n1-hpm2` tree (per the
      2026-08-18 review), which was not the run-6 chainload.
   4. Run 6 chainloaded from the rollback proxy with Linux's own DTB; nothing
      in that path sends SPMI traffic to SID 0x0c before `tps6598x_spmi_probe`.
@@ -217,7 +217,7 @@ exactly this base + 0001.
 
 ## Artifacts — NOT VERIFIED (not present yet)
 
-At review time `~/Code/linux-build-out/` holds only
+At review time `~/code/linux-build-out/` holds only
 `kbuild-pdwake-build1.log` (176 bytes, still in the `clone` step) and no
 `Image-pdwake.build1`; `kbuild-pdwake-build2.log` does not exist. The
 podman kbuild for build1 is running. When both finish, the reviewer of the

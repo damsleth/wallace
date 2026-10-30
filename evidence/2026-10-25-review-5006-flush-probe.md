@@ -4,10 +4,10 @@ Date: 2026-10-25. Reviewer: claude (Mythos Wallace session), offline, host
 only; nothing edited. Requested by Opus Wallace after 211 write run 1
 (`evidence/2026-10-25-t6040-211-write1-flush-badcmd.md`).
 
-Reviewed: `scripts/t6040-nvme-flush-probe.py` (sha256 `56c80038…`, equals
+Reviewed: `scripts/t6040-nvme-flush-probe.py` (sha256 `bc1e922d…`, equals
 the ticket pin), its imported gate `scripts/t6040-nvme-probe.py`
-(`4ef48fbc…`, equals the pin), and m1n1 `src/nvme.c` / `src/proxy.c` /
-`proxyclient/m1n1/proxy.py` at `80badc91` (`~/Code/m1n1`).
+(`66534e22…`, equals the pin), and m1n1 `src/nvme.c` / `src/proxy.c` /
+`proxyclient/m1n1/proxy.py` at `80badc91` (`~/code/m1n1`).
 
 ## Verdict
 

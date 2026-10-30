@@ -17,7 +17,7 @@ import sys
 from dataclasses import dataclass
 
 
-DEFAULT_M1N1 = pathlib.Path("/Users/damsleth/Code/m1n1")
+DEFAULT_M1N1 = pathlib.Path("/Users/damsleth/code/m1n1")
 
 
 @dataclass(frozen=True)

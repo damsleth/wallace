@@ -26,7 +26,7 @@ zero-other-delta against an old daily artifact.
 
 ## Build record
 
-Artifacts: `/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/`.
+Artifacts: `/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/`.
 Payload: `payload/`; machine-readable `manifest.json` pins the payload and host boot code.
 The successful A/E builds and the final initramfs pair are byte-identical.
 
@@ -110,7 +110,7 @@ The verification-only launcher passes without accessing the target.
 | Matching raw ELF | `5bee616c39fb745393cc4d961fe148189b1c084ef722b51d25c07941cc2a396f` |
 
 Final manifest SHA-256:
-`14ba160062bb75b9a234b20ab34874304c75ab75f0fc2f87c8fc49e32cfb10b0`.
+`d9ae6072eafb1791aedb270289c87f155a7e9d104fe1c13c553c6d56662c18c0`.
 The manifest pins 241 files, including host launcher/preflight/guard/checker,
 proxyclient Python sources and the independent build outputs. A later change
 requires a new manifest and review, not a hash-check bypass.
@@ -119,7 +119,7 @@ Verification only:
 
 ```sh
 python3 scripts/t6040-run-nvme-ioq.py \
-  /Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/manifest.json
+  /Users/damsleth/code/linux-build-out/nvme-ioq-20260920/manifest.json
 ```
 
 After CJ's ready signal, ticket 6001 approval/readiness and Astra's lease,

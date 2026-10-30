@@ -150,7 +150,7 @@ RMW at E11/step 9 — **there is no PLL-lock poll on PhyIP[0x90] anywhere in the
 only post-tunable PhyIP op is the bit-16 clear (step 11), and the "lock waits" are the PhyPhy
 polls (`sleep_b_*`, `max_pclk_good`) and PhyCommon `refpll_clk_good`.
 
-## 4. m1n1 delta table (vs `~/Code/m1n1/src/pcie.c` `pcie_init_controller`, `regs_t6040` branch)
+## 4. m1n1 delta table (vs `~/code/m1n1/src/pcie.c` `pcie_init_controller`, `regs_t6040` branch)
 
 m1n1 t6040 facts checked in source: `num_phys = 1` (line 297, never overridden), `fuse_bits =
 NULL` (no fuse ops — matches Apple, which has none), `phy_base[0] = reg[2]+0x8000` and

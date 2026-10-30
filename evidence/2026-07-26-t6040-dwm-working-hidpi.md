@@ -60,7 +60,7 @@ loader, DTB or bootargs moved, so this cannot regress the input or graphics resu
 ```sh
 bash scripts/t6040-debugusb-console.sh reboot
 bash scripts/t6040-boot-raw-object.sh \
-    ~/Code/linux-build-out/m1n1-b0-dwm-hidpi.bin \
+    ~/code/linux-build-out/m1n1-b0-dwm-hidpi.bin \
     59622e78685961a322308643b03eae6db0dd3ee985b5674e0b3e6831d605a270
 ```
 

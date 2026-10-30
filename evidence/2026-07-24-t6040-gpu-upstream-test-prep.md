@@ -35,7 +35,7 @@ identifiers are intentionally excluded.
 - captured ADT SHA-256:
   `7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84`
 - captured artifact:
-  `/Users/damsleth/Code/linux-build-out/j614s-usb-port-map-20260721.adt`
+  `/Users/damsleth/code/linux-build-out/j614s-usb-port-map-20260721.adt`
 - device-tree tag: `EmbeddedDeviceTrees-11156.120.31`
 - `/arm-io/sgx` compatible: `gpu,t6040`
 - SGX registers:

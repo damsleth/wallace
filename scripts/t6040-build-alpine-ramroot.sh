@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-OUT=${OUT:-/Users/damsleth/Code/linux-build-out}
+OUT=${OUT:-/Users/damsleth/code/linux-build-out}
 ALPINE_VERSION=${ALPINE_VERSION:-3.24.0}
 ALPINE_ARCH=${ALPINE_ARCH:-aarch64}
 ALPINE_SHA256=${ALPINE_SHA256:-4b8cd66a6688b2a87276c39843ed89c3a06d9534fc6a5823c586aff2696c1f2a}

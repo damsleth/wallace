@@ -100,7 +100,7 @@ The M4 was remotely rebooted after the checks. DebugUSB reattached and m1n1
 returned to a stable `Running proxy...` state with `kisd` alive.
 
 Full live console:
-`/Users/damsleth/Code/linux-build-out/dcuart-console.log`, 19,241 bytes,
+`/Users/damsleth/code/linux-build-out/dcuart-console.log`, 19,241 bytes,
 SHA-256 `f2a9196b59c70ddd784e468d57b8434d57a7c21fbbebdee553f83ade5d97f4eb`.
 
 Next: isolate the 7.2-rc2 known-good versus 7.1.3 USB-host DockChannel delta,

@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-OUT=${OUT:-/Users/damsleth/Code/linux-build-out}
+OUT=${OUT:-/Users/damsleth/code/linux-build-out}
 BUILD_DIR=${BUILD_DIR:-/build/linux-keyboard}
 DTB=t6040-j614s-dcuart-nvme-ans-read.dtb
 INITRAMFS=initramfs-dcuart-nvme-ans-read.cpio.gz

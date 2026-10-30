@@ -136,7 +136,7 @@ bc5f0c98a396311390c8d48997b6a039d172d00f523a2d92e4895077d47812f4  AppleHPM::enab
 The AppleTypeCRetimer extraction is retained host-locally at:
 
 ```text
-/Users/damsleth/Code/linux-build-out/t6040-usb-kexts-25F84/com.apple.driver.AppleTypeCRetimer
+/Users/damsleth/code/linux-build-out/t6040-usb-kexts-25F84/com.apple.driver.AppleTypeCRetimer
 ```
 
 ## Consequence for USB read/write

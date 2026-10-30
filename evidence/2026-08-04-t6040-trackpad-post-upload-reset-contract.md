@@ -19,9 +19,9 @@ Patch: `patches/t6040-dockchannel-hid-reset-contract.patch` (applies after
 
 | Artifact | Path | SHA-256 |
 |---|---|---|
-| macOS 25F84 kernelcache (raw MachO, MH_FILESET, symbol-rich) | `/Users/damsleth/Code/linux-build-out/t6040-kernelcache-25F84.raw` | (as pinned in ticket 212) |
+| macOS 25F84 kernelcache (raw MachO, MH_FILESET, symbol-rich) | `/Users/damsleth/code/linux-build-out/t6040-kernelcache-25F84.raw` | (as pinned in ticket 212) |
 | J614s MTP coprocessor firmware (decompressed IM4P payload) | `/private/tmp/wallace-offline-25F84/mtp/J614S_MtpFirmware.bin` | `6528799d227f2a78bc23ddd1870a70171587b3531da9e9950e6e402ac96763ed` |
-| Live Linux driver | `/Users/damsleth/Code/linux/drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c` | + `patches/t6040-dockchannel-trackpad-fw.patch` |
+| Live Linux driver | `/Users/damsleth/code/linux/drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c` | + `patches/t6040-dockchannel-trackpad-fw.patch` |
 
 Tools: `nm`/`otool` (kernelcache is fully symbolised — 487k symbols), `ipsw`
 for the fileset walk, `radare2 5.9.8` for bulk disassembly, plus a Python

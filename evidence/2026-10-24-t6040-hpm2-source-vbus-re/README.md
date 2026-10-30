@@ -2,11 +2,11 @@
 
 Host-local inputs (not in the repo, per project practice):
 
-- `~/Code/linux-build-out/t6040-usb-kexts-25F84/com.apple.driver.AppleHPM`
+- `~/code/linux-build-out/t6040-usb-kexts-25F84/com.apple.driver.AppleHPM`
   (sha256 `b6eab85a4478fe354c29d4a274fa1ea23ced1c051e3b320fdfad54d65dce381d`)
   and its `.a2s` symbol cache.
 - `com.apple.driver.AppleSPMI` and `com.apple.driver.AppleARMPlatform`
-  extracted from `~/Code/linux-build-out/t6040-kernelcache-25F84.raw` with
+  extracted from `~/code/linux-build-out/t6040-kernelcache-25F84.raw` with
   `ipsw kernel extract` (sha256 in the evidence file).
 
 Files here are derived tables and the scripts that produced them; no Apple

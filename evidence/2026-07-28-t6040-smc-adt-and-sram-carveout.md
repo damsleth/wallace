@@ -5,7 +5,7 @@ DTR), fetched the ADT, then fell through to dwm. Read-only, no writes.
 
 ## Primary deliverable: the full live ADT is saved
 
-`~/Code/linux-build-out/j614s-full-20260728.adt` (606,208 bytes, the complete `Fetching ADT (0x94000)`).
+`~/code/linux-build-out/j614s-full-20260728.adt` (606,208 bytes, the complete `Fetching ADT (0x94000)`).
 **All future address work — SMC, Type-C (170), anything — is now offline against this file; no more rig
 needed for ADT reads.**
 

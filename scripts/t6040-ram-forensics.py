@@ -13,7 +13,7 @@ telltale markers.
 Usage: M1N1DEVICE=/dev/cu.usbmodemJ22GYCN4YG1 venv/bin/python <this> [--mib 4]
 """
 import argparse, re, sys
-sys.path.insert(0, "/Users/damsleth/Code/m1n1/proxyclient")
+sys.path.insert(0, "/Users/damsleth/code/m1n1/proxyclient")
 from m1n1.setup import *  # noqa
 
 MARKERS = [b"Uncompressing", b"XZ decode", b"uncompressed to", b"Preparing to boot",

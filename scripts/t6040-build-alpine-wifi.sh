@@ -15,7 +15,7 @@
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-OUT=${OUT:-/Users/damsleth/Code/linux-build-out}
+OUT=${OUT:-/Users/damsleth/code/linux-build-out}
 CONTAINER=${CONTAINER:-kbuild}
 ALPINE_VERSION=${ALPINE_VERSION:-3.24.0}
 ALPINE_ARCH=aarch64

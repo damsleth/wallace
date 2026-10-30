@@ -38,7 +38,7 @@ queue creation, and a namespace READ completed.
 Candidate:
 
 ```
-/Users/damsleth/Code/linux-build-out/m1n1-t6040-nvme-two-base-ae4a8f28.bin
+/Users/damsleth/code/linux-build-out/m1n1-t6040-nvme-two-base-ae4a8f28.bin
 size    1097728
 sha256  ae4a8f28cbe5f66c7603f5f9a95fe81b819e8279e76de089652617c240a2bea3
 tag     t6040-nvme-two-base-1702259f
@@ -88,7 +88,7 @@ The count fix is correct:
   entry.
 
 Offline parsing of
-`/Users/damsleth/Code/linux-build-out/j614s-usb-port-map-20260721.adt`
+`/Users/damsleth/code/linux-build-out/j614s-usb-port-map-20260721.adt`
 (SHA-256
 `7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84`)
 found exactly ten entries / 160 bytes:

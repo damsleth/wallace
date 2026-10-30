@@ -43,7 +43,7 @@ attended, exact-artifact-reviewed operation under `docs/SPMI_SAFETY.md`.
 
 Source:
 
-- m1n1 worktree: `/Users/damsleth/Code/m1n1-hpm2`
+- m1n1 worktree: `/Users/damsleth/code/m1n1-hpm2`
 - branch: `codex/t6040-hpm2-status-r0`
 - commit: `baf2c20dd7614c1e9ecc7923b5cab6aa9dd69b0e`
 - commit carries `Signed-off-by: CJ Damsleth <kim@damsleth.no>`
@@ -51,7 +51,7 @@ Source:
 Artifact:
 
 - path:
-  `/Users/damsleth/Code/linux-build-out/t6040-hpm2-status-baf2c20dd761/r0-status/m1n1.bin`
+  `/Users/damsleth/code/linux-build-out/t6040-hpm2-status-baf2c20dd761/r0-status/m1n1.bin`
 - SHA-256:
   `d012adcf524c18600c749ba41409639a1b990e4065f5d95f3a14d79b6414307f`
 - size: 360,448 bytes

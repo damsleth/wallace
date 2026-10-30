@@ -5,38 +5,38 @@ Requested by CJ; claude ran Codex (agent-bridge, medium, read-only) and verified
 ## Codex answer
 1. **Missing trackpad firmware on the NVMe root — very high confidence; sufficient to explain the failure.**
 
-   - [C1 console](/Users/damsleth/Code/linux-build-out/nvmeroot-20261025/runs/C1/dcuart-console.log:488): root handoff at **1.813 s**; lines **522–534** then repeatedly report `apple/tpmtfw-j614s.bin` missing (`-ENOENT`) starting at **2.494 s**. The same failure appears in C3–C8.
-   - The NVMe initramfs **contains** `./lib/firmware/apple/tpmtfw-j614s.bin`, but the [new root manifest](/Users/damsleth/Code/linux-build-out/nvmeroot-image-20261025/tree.txt:475) contains only Broadcom firmware—no Apple directory/blob.
-   - Firmware loads **on device open**, not initial registration: [dockchannel-hid.c](/Users/damsleth/Code/linux/drivers/hid/dockchannel-hid/dockchannel-hid.c:554). Thus the earlier `input: Apple DockChannel Multi-touch` and `magicmouse` registration do **not** prove a usable trackpad. Keyboard operation is consistent: only multi-touch needs this firmware.
-   - Working ticket 230 captured **37,950 events**: [console](/Users/damsleth/Code/linux-build-out/230-finger-test-opus-20260819.console.log:118).
+   - [C1 console](/Users/damsleth/code/linux-build-out/nvmeroot-20261025/runs/C1/dcuart-console.log:488): root handoff at **1.813 s**; lines **522–534** then repeatedly report `apple/tpmtfw-j614s.bin` missing (`-ENOENT`) starting at **2.494 s**. The same failure appears in C3–C8.
+   - The NVMe initramfs **contains** `./lib/firmware/apple/tpmtfw-j614s.bin`, but the [new root manifest](/Users/damsleth/code/linux-build-out/nvmeroot-image-20261025/tree.txt:475) contains only Broadcom firmware—no Apple directory/blob.
+   - Firmware loads **on device open**, not initial registration: [dockchannel-hid.c](/Users/damsleth/code/linux/drivers/hid/dockchannel-hid/dockchannel-hid.c:554). Thus the earlier `input: Apple DockChannel Multi-touch` and `magicmouse` registration do **not** prove a usable trackpad. Keyboard operation is consistent: only multi-touch needs this firmware.
+   - Working ticket 230 captured **37,950 events**: [console](/Users/damsleth/code/linux-build-out/230-finger-test-opus-20260819.console.log:118).
 
-   **Minimal fix:** change [scripts/t6040-nvmeroot-init](/Users/damsleth/Code/wallace/scripts/t6040-nvmeroot-init:266) to copy the approved blob from `/lib/firmware/apple/tpmtfw-j614s.bin` into `/newroot/lib/firmware/apple/` before `switch_root`, failing if unavailable. Alternatively, include it when building the persistent root in [t6040-build-nvmeroot-image.sh](/Users/damsleth/Code/wallace/scripts/t6040-build-nvmeroot-image.sh:36).
+   **Minimal fix:** change [scripts/t6040-nvmeroot-init](/Users/damsleth/code/wallace/scripts/t6040-nvmeroot-init:266) to copy the approved blob from `/lib/firmware/apple/tpmtfw-j614s.bin` into `/newroot/lib/firmware/apple/` before `switch_root`, failing if unavailable. Alternatively, include it when building the persistent root in [t6040-build-nvmeroot-image.sh](/Users/damsleth/code/wallace/scripts/t6040-build-nvmeroot-image.sh:36).
 
 2. **udev startup guard — possible secondary weakness, little evidence it causes this incident.**
 
-   [t6040-sdroot-startx:33](/Users/damsleth/Code/wallace/scripts/t6040-sdroot-startx:33) starts and triggers udev only if `/run/udev` is absent. An existing directory does not guarantee a running daemon or populated input database.
+   [t6040-sdroot-startx:33](/Users/damsleth/code/wallace/scripts/t6040-sdroot-startx:33) starts and triggers udev only if `/run/udev` is absent. An existing directory does not guarantee a running daemon or populated input database.
 
    **Minimal fix if still needed after firmware repair:** change that script to check daemon readiness and ensure input enumeration before launching X. A working keyboard **inside i3** makes this substantially less likely.
 
-**Other suspected causes are unsupported:** the config diff removes KVM and related settings; HID settings are unchanged, with `HID_MAGICMOUSE`, `HID_MULTITOUCH` and DockChannel HID enabled. The new root includes `libinput_drv.so`, `40-libinput.conf`, input identification and libinput udev rules ([manifest](/Users/damsleth/Code/linux-build-out/nvmeroot-image-20261025/tree.txt:1207)). X launches directly as root, so the empty `input` group in the base archive is not a blocker.
+**Other suspected causes are unsupported:** the config diff removes KVM and related settings; HID settings are unchanged, with `HID_MAGICMOUSE`, `HID_MULTITOUCH` and DockChannel HID enabled. The new root includes `libinput_drv.so`, `40-libinput.conf`, input identification and libinput udev rules ([manifest](/Users/damsleth/code/linux-build-out/nvmeroot-image-20261025/tree.txt:1207)). X launches directly as root, so the empty `input` group in the base archive is not a blocker.
 
 No files changed; no hardware accessed.
 1. **Missing trackpad firmware on the NVMe root — very high confidence; sufficient to explain the failure.**
 
-   - [C1 console](/Users/damsleth/Code/linux-build-out/nvmeroot-20261025/runs/C1/dcuart-console.log:488): root handoff at **1.813 s**; lines **522–534** then repeatedly report `apple/tpmtfw-j614s.bin` missing (`-ENOENT`) starting at **2.494 s**. The same failure appears in C3–C8.
-   - The NVMe initramfs **contains** `./lib/firmware/apple/tpmtfw-j614s.bin`, but the [new root manifest](/Users/damsleth/Code/linux-build-out/nvmeroot-image-20261025/tree.txt:475) contains only Broadcom firmware—no Apple directory/blob.
-   - Firmware loads **on device open**, not initial registration: [dockchannel-hid.c](/Users/damsleth/Code/linux/drivers/hid/dockchannel-hid/dockchannel-hid.c:554). Thus the earlier `input: Apple DockChannel Multi-touch` and `magicmouse` registration do **not** prove a usable trackpad. Keyboard operation is consistent: only multi-touch needs this firmware.
-   - Working ticket 230 captured **37,950 events**: [console](/Users/damsleth/Code/linux-build-out/230-finger-test-opus-20260819.console.log:118).
+   - [C1 console](/Users/damsleth/code/linux-build-out/nvmeroot-20261025/runs/C1/dcuart-console.log:488): root handoff at **1.813 s**; lines **522–534** then repeatedly report `apple/tpmtfw-j614s.bin` missing (`-ENOENT`) starting at **2.494 s**. The same failure appears in C3–C8.
+   - The NVMe initramfs **contains** `./lib/firmware/apple/tpmtfw-j614s.bin`, but the [new root manifest](/Users/damsleth/code/linux-build-out/nvmeroot-image-20261025/tree.txt:475) contains only Broadcom firmware—no Apple directory/blob.
+   - Firmware loads **on device open**, not initial registration: [dockchannel-hid.c](/Users/damsleth/code/linux/drivers/hid/dockchannel-hid/dockchannel-hid.c:554). Thus the earlier `input: Apple DockChannel Multi-touch` and `magicmouse` registration do **not** prove a usable trackpad. Keyboard operation is consistent: only multi-touch needs this firmware.
+   - Working ticket 230 captured **37,950 events**: [console](/Users/damsleth/code/linux-build-out/230-finger-test-opus-20260819.console.log:118).
 
-   **Minimal fix:** change [scripts/t6040-nvmeroot-init](/Users/damsleth/Code/wallace/scripts/t6040-nvmeroot-init:266) to copy the approved blob from `/lib/firmware/apple/tpmtfw-j614s.bin` into `/newroot/lib/firmware/apple/` before `switch_root`, failing if unavailable. Alternatively, include it when building the persistent root in [t6040-build-nvmeroot-image.sh](/Users/damsleth/Code/wallace/scripts/t6040-build-nvmeroot-image.sh:36).
+   **Minimal fix:** change [scripts/t6040-nvmeroot-init](/Users/damsleth/code/wallace/scripts/t6040-nvmeroot-init:266) to copy the approved blob from `/lib/firmware/apple/tpmtfw-j614s.bin` into `/newroot/lib/firmware/apple/` before `switch_root`, failing if unavailable. Alternatively, include it when building the persistent root in [t6040-build-nvmeroot-image.sh](/Users/damsleth/code/wallace/scripts/t6040-build-nvmeroot-image.sh:36).
 
 2. **udev startup guard — possible secondary weakness, little evidence it causes this incident.**
 
-   [t6040-sdroot-startx:33](/Users/damsleth/Code/wallace/scripts/t6040-sdroot-startx:33) starts and triggers udev only if `/run/udev` is absent. An existing directory does not guarantee a running daemon or populated input database.
+   [t6040-sdroot-startx:33](/Users/damsleth/code/wallace/scripts/t6040-sdroot-startx:33) starts and triggers udev only if `/run/udev` is absent. An existing directory does not guarantee a running daemon or populated input database.
 
    **Minimal fix if still needed after firmware repair:** change that script to check daemon readiness and ensure input enumeration before launching X. A working keyboard **inside i3** makes this substantially less likely.
 
-**Other suspected causes are unsupported:** the config diff removes KVM and related settings; HID settings are unchanged, with `HID_MAGICMOUSE`, `HID_MULTITOUCH` and DockChannel HID enabled. The new root includes `libinput_drv.so`, `40-libinput.conf`, input identification and libinput udev rules ([manifest](/Users/damsleth/Code/linux-build-out/nvmeroot-image-20261025/tree.txt:1207)). X launches directly as root, so the empty `input` group in the base archive is not a blocker.
+**Other suspected causes are unsupported:** the config diff removes KVM and related settings; HID settings are unchanged, with `HID_MAGICMOUSE`, `HID_MULTITOUCH` and DockChannel HID enabled. The new root includes `libinput_drv.so`, `40-libinput.conf`, input identification and libinput udev rules ([manifest](/Users/damsleth/code/linux-build-out/nvmeroot-image-20261025/tree.txt:1207)). X launches directly as root, so the empty `input` group in the base archive is not a blocker.
 
 No files changed; no hardware accessed.
 

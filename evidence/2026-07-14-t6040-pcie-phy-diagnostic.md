@@ -65,7 +65,7 @@ storage access. The base DT has no PCIe host node.
 Regenerate the exact subset with:
 
 ```sh
-git -C ~/Code/linux show feature/m4-m5-minimal-device-trees:j614s.adt \
+git -C ~/code/linux show feature/m4-m5-minimal-device-trees:j614s.adt \
   | scripts/t6040-pcie-write-plan.py --stop-before-ports \
   > evidence/2026-07-14-t6040-pcie-phy-diagnostic.tsv
 ```
@@ -91,7 +91,7 @@ PERST#, RID2SID/MSIMAP, config-space, Linux PCIe, NVMe, or storage access ran.
 
 The sanctioned DebugUSB reboot restored a fresh, quiescent proxy. Transcript:
 `evidence/logs/t6040-console-20260714-pcie-shared-phy.log`, SHA-256
-`b567ab1353682787549a1e666b489dd46228a960a23cb5248e14c0a5221668bb`
+`a77fe8a9eb6c2e05cfd1882e91e12748a8cca0919438782a73bf2236a6722e5a`
 (432 lines, 27,927 bytes).
 
 Any follow-up that changes or isolates the operation-115 access requires its

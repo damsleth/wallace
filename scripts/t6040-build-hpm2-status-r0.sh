@@ -2,9 +2,9 @@
 # Build and audit the ticket-178 HPM2 connector-status candidate twice.
 set -eu
 
-M1N1_TREE=${M1N1_TREE:-/Users/damsleth/Code/m1n1-hpm2}
-BUILD_OUT_ROOT=${BUILD_OUT_ROOT:-/Users/damsleth/Code/linux-build-out}
-CAPTURED_ADT=${CAPTURED_ADT:-/Users/damsleth/Code/linux-build-out/j614s-usb-port-map-20260721.adt}
+M1N1_TREE=${M1N1_TREE:-/Users/damsleth/code/m1n1-hpm2}
+BUILD_OUT_ROOT=${BUILD_OUT_ROOT:-/Users/damsleth/code/linux-build-out}
+CAPTURED_ADT=${CAPTURED_ADT:-/Users/damsleth/code/linux-build-out/j614s-usb-port-map-20260721.adt}
 EXPECTED_ADT_SHA256=7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84
 EXPERIMENT_CLASS=5
 

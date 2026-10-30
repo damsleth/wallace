@@ -5,7 +5,7 @@ KIS smokes are unblocked. This records the staged 147 object and four metadata c
 
 ## The staged object
 
-`~/Code/linux-build-out/m1n1-b0-dietcap-smoke.bin`
+`~/code/linux-build-out/m1n1-b0-dietcap-smoke.bin`
 `ac24d4bfb562f9de7a138a4a3f37b95fb8526e89ab22cc5ffdbc314db23b6546`
 **14,893,056 B = 909 × 16 KiB** (aligned; 14,820 bytes of pad added by the packer).
 
@@ -79,7 +79,7 @@ observe a `console=tty0` image. **Needs the maintainer at the panel.**
 ```sh
 bash scripts/t6040-debugusb-console.sh reboot     # into m1n1, attach kisd -> /tmp/m1n1
 bash scripts/t6040-boot-raw-object.sh \
-    ~/Code/linux-build-out/m1n1-b0-dietcap-smoke.bin \
+    ~/code/linux-build-out/m1n1-b0-dietcap-smoke.bin \
     ac24d4bfb562f9de7a138a4a3f37b95fb8526e89ab22cc5ffdbc314db23b6546
 ```
 

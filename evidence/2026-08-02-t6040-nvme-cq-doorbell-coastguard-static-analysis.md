@@ -30,14 +30,14 @@ unknown, and ticket 201 asks the rig owner for exactly one hashed capture.
 Exact 25F84 raw kernelcache:
 
 ```text
-/Users/damsleth/Code/linux-build-out/t6040-kernelcache-25F84.raw
+/Users/damsleth/code/linux-build-out/t6040-kernelcache-25F84.raw
 SHA-256 ed556fe62efc2c229f3d4c7ebbbcd21fd5c8d099fbb4d9b5ae636dd78b61d3f6
 ```
 
 `ipsw kernel extract` extracted the imported `IONVMeFamily` executable:
 
 ```text
-/Users/damsleth/Code/linux-build-out/t6040-nvme-kexts-25F84/com.apple.iokit.IONVMeFamily
+/Users/damsleth/code/linux-build-out/t6040-nvme-kexts-25F84/com.apple.iokit.IONVMeFamily
 Mach-O 64-bit kext bundle arm64e
 SHA-256 3427f865b409d50c7e2c548680104aa0e41cb4c76e69cdc4bf1944bdfe25b241
 ```
@@ -80,7 +80,7 @@ flips the saved phase before reaching the sequence above.
 
 ## Linux and m1n1 comparison
 
-In `~/Code/linux/drivers/nvme/host/apple.c`:
+In `~/code/linux/drivers/nvme/host/apple.c`:
 
 - `apple_nvme_handle_cqe()` calls `apple_nvmmu_inval()` before request
   completion;
@@ -93,7 +93,7 @@ So the relevant Linux order is:
 TCB invalidation -> CQ head/phase advance -> CQ head doorbell
 ```
 
-In `~/Code/m1n1/src/nvme.c`, lines 263 onward likewise invalidate the completed
+In `~/code/m1n1/src/nvme.c`, lines 263 onward likewise invalidate the completed
 TCB before advancing and ringing the CQ.  This refutes any unconditional claim
 that invalidation-before-doorbell alone violates all 25F84 firmware paths.
 

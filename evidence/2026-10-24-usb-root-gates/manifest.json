@@ -7,9 +7,9 @@
   "container": "docker.io/library/alpine@sha256:2c9d26f410d032d5b1525aa8a873e238b05b90c4ae8618743d4311f0cc827e37",
   "compiler_command": "cc -std=c11 -Wall -Wextra -Werror -Os -static /src/scripts/t6040-usb-root-metadata.c -o /out/metadata-aarch64",
   "helper": {
-    "path": "/Users/damsleth/Code/linux-build-out/usb-root-6005/t6040-usb-root-metadata-4ccc71af-aarch64",
+    "path": "/Users/damsleth/code/linux-build-out/usb-root-6005/t6040-usb-root-metadata-4ccc71af-aarch64",
     "sha256": "4ccc71af7bf764c3439a991acd6fd4560ec1bb9e6636700de6682fca148b895f",
-    "format": "/Users/damsleth/Code/linux-build-out/usb-root-6005/t6040-usb-root-metadata-4ccc71af-aarch64: ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), statically linked, BuildID[sha1]=e2dd7d98fb3bf990e9ef6672f29511a7083c932f, with debug_info, not stripped",
+    "format": "/Users/damsleth/code/linux-build-out/usb-root-6005/t6040-usb-root-metadata-4ccc71af-aarch64: ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), statically linked, BuildID[sha1]=e2dd7d98fb3bf990e9ef6672f29511a7083c932f, with debug_info, not stripped",
     "fresh_builds": 1
   },
   "sources": {
@@ -18,14 +18,14 @@
     "scripts/t6040-init-usb-root-verified": "6b68b410f4a7ec5dfcdf2aa7617b26fc540802265f4873cf375f59797b3a921a",
     "scripts/t6040-usb-root.identity.example": "276b36d0f2c1f823a9c311332fec68725047b57786b3459ad7bae4a71afb555d",
     "scripts/t6040-test-usb-root-gates.py": "039f1a0547d020d4f7f20f07434a1ee34e243b5c7f2eeb7a75c765f88d096e29",
-    "scripts/t6040-test-usb-root-startup.sh": "48029ee497e29f8b3524f496e6a7afa614c485e39e6c9c8e6f8c49ce2b84e7a4",
+    "scripts/t6040-test-usb-root-startup.sh": "8639460fe387a09e98ec81cdf42d47d13abe485a3b26385de1a3042963c96c7d",
     "scripts/t6040-test-usb-root-startup-ns.sh": "47089dac91860218ed3eed14da3db40d78657bf6dee43c11472241dec01136ac",
-    "scripts/t6040-stage-usb-daily-root.py": "25dbe3837e67677f0ce476bd77b1ea98b2a2caa7bc3767114ba095c3d059e44d",
+    "scripts/t6040-stage-usb-daily-root.py": "d82fb7e615a8975481428814f95da61c10c0807e1cb8b777f43b6b5936a10ac0",
     "scripts/t6040-usb-root-keymap.initd": "4aff8bf60a00b5d474afe146196f516ff48579c1de3e5cbd54b14244141ab996",
     "scripts/t6040-usb-root-wifi-ready.initd": "58b6d4b43df21eadf732c5dc40b7fcc26017177db39d850dc939eb6349ccd8f2",
     "scripts/t6040-usb-root-autologin-daily": "633eb7e53de56e543f505231c7289e7ef72e8a72ec25c5120768dec85cc03b7a",
     "scripts/t6040-usb-root-openrc": "bcf2445a46bffe173bf6c35ddec05cf2c9207d0797578c0569afe9d4dede0ec8",
-    "scripts/t6040-test-usb-root-shutdown.sh": "163d8dc7e6ffa52a8ec6ca770f9a9fa827018684915d87f4eb81d9837dc77df3",
+    "scripts/t6040-test-usb-root-shutdown.sh": "3433165f2ea72dc89f650c209929c77bb2aa8755c07a3ee88d48a14041446d7e",
     "scripts/t6040-test-usb-root-shutdown-ns.sh": "b42c8808c70d560f5c9494c7a63afe67b2085cceaed6264498fef0f0a9afdcb1"
   },
   "tests": {
@@ -50,7 +50,7 @@
     "evidence/2026-10-24-usb-root-gates/apk-with-headers.log": "aaecc25fb8ecdfaf7857c51e7aeb72bb14efdf9e331cb7c342df8aab366e29b3",
     "evidence/2026-10-24-usb-root-gates/build-packages.txt": "8ecf7d6a3a079ee2584b53209e93147034b9b5d3e3314e2db29d6e1a87966180",
     "evidence/2026-10-24-usb-root-gates/compiler.txt": "ab75a7494f7b0c9843615ae31c3ddb540db25333f34ae67d0883f05e86d34a21",
-    "evidence/2026-10-24-usb-root-gates/daily-root-builds.json": "50a83467202d9eb4b58b7d63e7b4a411e216c721525e31c02a0f9228429749d0",
+    "evidence/2026-10-24-usb-root-gates/daily-root-builds.json": "39eb1d4ff726d6b05f4c517036f860eefa57d73dfef2ab278523a7d7a5fba18e",
     "evidence/2026-10-24-usb-root-gates/daily-root-profile.manifest.json": "1bbff015eecf87357ed2e4480728074370801c9251495b7e639a89cfa97e75f6",
     "evidence/2026-10-24-usb-root-gates/e2fsprogs-static-fetch2.log": "18067dde88cb05bb6330f5d008ca6b8da2433aecd1972613d9a3d284743a4d78",
     "evidence/2026-10-24-usb-root-gates/e2fsprogs-static-packages.txt": "59752c00808b357a87026cb5e26b1d1ac71a2e3e115f1e265dd8aaa68a63b34a",
@@ -307,7 +307,7 @@
     "evidence/2026-10-24-usb-root-gates/startup/profile/wrong_serial.console": "1cfcfe99d00b2ba39e3e7902d41f4719aa3404d0fadec5c09ca10c734bbd0c78",
     "evidence/2026-10-24-usb-root-gates/startup/profile/wrong_serial.trace": "becf3d3a6798cddb17715114a84aa00e3f52eb33284bd7b6f8e6005842d28718",
     "evidence/2026-10-24-usb-root-gates/ticket-098-regular-file-check.txt": "1e1ddcdbf6e88b1faa1915caa35ffc6a60fa7c5be82ee79a4e5a2bc7ba5f5cc0",
-    "evidence/2026-10-24-usb-root-verified-init.md": "0904f67fc8c5e72c478d41c3be724613d87df6dedad99effa00a5076a7aeb8d6"
+    "evidence/2026-10-24-usb-root-verified-init.md": "8c7e63454d83e3c02a9beef61c31d521818ee9798574e00bb5dfcc454871e84c"
   },
   "root_profile_builds": "evidence/2026-10-24-usb-root-gates/daily-root-builds.json",
   "synthetic_loop_tests": true

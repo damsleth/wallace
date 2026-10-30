@@ -10,7 +10,7 @@ set -u
 MODE=${1:?write|verify}; RUN=${2:?run directory}
 case "$MODE" in write|verify) ;; *) echo "bad mode" >&2; exit 2 ;; esac
 WALLACE=$(cd "$(dirname "$0")/.." && pwd)
-O=/Users/damsleth/Code/linux-build-out
+O=/Users/damsleth/code/linux-build-out
 P=${PAYLOAD:-nvme-exfat-write-20261025/payload}
 DEADLINE=${DEADLINE:-300}
 [ ! -e "$RUN" ] || { echo "refusing to reuse $RUN" >&2; exit 2; }

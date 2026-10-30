@@ -115,7 +115,7 @@ though, so it is not the next physical-link experiment.
 Source:
 
 ```text
-worktree  /Users/damsleth/Code/m1n1-pcie-port-appclk
+worktree  /Users/damsleth/code/m1n1-pcie-port-appclk
 branch    codex/t6040-pcie-port-appclk
 parent    04e8829cbc47ff6a05e872dd329cdabb83554ce0
 commit    f62ed1338b6bce0d2faac18ac505594454aebef3
@@ -135,7 +135,7 @@ expected `adt_getprop` branch followed by either `orr #0x100` or
 `bic #0x100`. Two clean builds were byte-identical:
 
 ```text
-/Users/damsleth/Code/linux-build-out/t6040-pcie-appclk-f62ed133/m1n1.bin
+/Users/damsleth/code/linux-build-out/t6040-pcie-appclk-f62ed133/m1n1.bin
 size    1,097,728 bytes
 sha256  482839cdbeb920ff2ed26c1478924288b16606056d853f65ffea6aeaf3a09388
 tag     f62ed133

@@ -21,8 +21,8 @@ from __future__ import annotations
 
 import sys
 
-sys.path.insert(0, "/Users/damsleth/Code/m1n1/proxyclient")
-sys.path.insert(0, "/Users/damsleth/Code/wallace/scripts")
+sys.path.insert(0, "/Users/damsleth/code/m1n1/proxyclient")
+sys.path.insert(0, "/Users/damsleth/code/wallace/scripts")
 
 from m1n1.setup import *  # noqa: E402,F403  (provides u, p, iface)
 from m1n1.proxy import M1N1Proxy  # noqa: E402
@@ -30,7 +30,7 @@ from m1n1.proxy import M1N1Proxy  # noqa: E402
 import importlib.util  # noqa: E402
 
 _spec = importlib.util.spec_from_file_location(
-    "probe", "/Users/damsleth/Code/wallace/scripts/t6040-nvme-probe.py")
+    "probe", "/Users/damsleth/code/wallace/scripts/t6040-nvme-probe.py")
 _probe = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_probe)
 

@@ -18,7 +18,7 @@ authorization to invent ATC register buckets or write the SPMI HPM.
 ## Authoritative right-port wiring
 
 The saved raw ADT
-`/Users/damsleth/Code/linux-build-out/j614s-usb-port-map-20260721.adt`
+`/Users/damsleth/code/linux-build-out/j614s-usb-port-map-20260721.adt`
 (SHA-256
 `7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84`)
 resolves the complete port-3 relationship:

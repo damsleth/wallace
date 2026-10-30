@@ -10,7 +10,7 @@ The proven WiFi/Bluetooth desktop path and the new native T6040 right-port
 USB2-only path now coexist in one strict-verified dual-mode object:
 
 ```text
-/Users/damsleth/Code/linux-build-out/m1n1-dwm-wifi-bt-ppp-usb2-native-dualmode-no-hidf.bin
+/Users/damsleth/code/linux-build-out/m1n1-dwm-wifi-bt-ppp-usb2-native-dualmode-no-hidf.bin
 size   35,356,672 bytes = 2,158 * 16 KiB
 sha256 d867bcda50279c4671361c87080537de0970cd5035503c4afd88e02d2c56707b
 ```

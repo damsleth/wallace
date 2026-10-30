@@ -2,9 +2,9 @@
 # Build and audit the ticket-092 R0/R1/R2 and ticket-105 R3 (SWDF) / R4 (SWUF) m1n1 candidates twice.
 set -eu
 
-M1N1_TREE=${M1N1_TREE:-/Users/damsleth/Code/m1n1-hpm2}
-BUILD_OUT_ROOT=${BUILD_OUT_ROOT:-/Users/damsleth/Code/linux-build-out}
-CAPTURED_ADT=${CAPTURED_ADT:-/Users/damsleth/Code/linux-build-out/j614s-usb-port-map-20260721.adt}
+M1N1_TREE=${M1N1_TREE:-/Users/damsleth/code/m1n1-hpm2}
+BUILD_OUT_ROOT=${BUILD_OUT_ROOT:-/Users/damsleth/code/linux-build-out}
+CAPTURED_ADT=${CAPTURED_ADT:-/Users/damsleth/code/linux-build-out/j614s-usb-port-map-20260721.adt}
 EXPECTED_ADT_SHA256=7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84
 
 git -C "$M1N1_TREE" rev-parse --git-dir >/dev/null 2>&1 || {

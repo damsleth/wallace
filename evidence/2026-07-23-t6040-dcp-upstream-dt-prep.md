@@ -3,7 +3,7 @@
 Date checked: 2026-07-23
 
 This is an offline, read-only checkpoint. It did not touch the rig and did not
-edit `~/Code/linux`, whose `t6040-j614s-dcuart.dts` already has an unrelated
+edit `~/code/linux`, whose `t6040-j614s-dcuart.dts` already has an unrelated
 user modification.
 
 ## Upstream state pinned
@@ -37,7 +37,7 @@ accounts for the extra target MMIO/interrupt shape below.
 The source is the captured, byte-exact J614s ADT:
 
 ```text
-/Users/damsleth/Code/linux-build-out/j614s-usb-port-map-20260721.adt
+/Users/damsleth/code/linux-build-out/j614s-usb-port-map-20260721.adt
 SHA-256 7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84
 ```
 

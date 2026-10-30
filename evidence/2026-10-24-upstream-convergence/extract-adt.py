@@ -1,5 +1,5 @@
 import sys,hashlib,json,pathlib,struct
-sys.path.insert(0,'/Users/damsleth/Code/m1n1/proxyclient')
+sys.path.insert(0,'/Users/damsleth/code/m1n1/proxyclient')
 from m1n1.adt import load_adt
 def walk(n):
  yield n
@@ -7,7 +7,7 @@ def walk(n):
   yield from walk(c)
 out={}
 for name in ['j614s-full-20260728.adt','j614s-usb-port-map-20260721.adt']:
- p=pathlib.Path('/Users/damsleth/Code/linux-build-out')/name;b=p.read_bytes();a=load_adt(b)
+ p=pathlib.Path('/Users/damsleth/code/linux-build-out')/name;b=p.read_bytes();a=load_adt(b)
  d={'path':str(p),'sha256':hashlib.sha256(b).hexdigest(),'nodes':{}}
  for n in walk(a):
   if n._parent is None:continue

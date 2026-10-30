@@ -1,6 +1,6 @@
 {
   "daily": {
-    "path": "/Users/damsleth/Code/linux-build-out/config-alpine-sdroot-daily-v2.build1",
+    "path": "/Users/damsleth/code/linux-build-out/config-alpine-sdroot-daily-v2.build1",
     "sha256": "251f19e8d01e07ba0a11f3db370df7760ce00cc686e0227268b94bbc5b660125",
     "selected_config_lines": [
       "CONFIG_ARCH_APPLE=y",
@@ -223,7 +223,7 @@
     ]
   },
   "trackpad-230": {
-    "path": "/Users/damsleth/Code/linux-build-out/config-trackpad-reset-contract",
+    "path": "/Users/damsleth/code/linux-build-out/config-trackpad-reset-contract",
     "sha256": "a74daa271dd59cbcd8aae83b33a3e0c84a9ac69e5425bae72e3f3e863269c54f",
     "selected_config_lines": [
       "CONFIG_ARCH_APPLE=y",
@@ -446,7 +446,7 @@
     ]
   },
   "6001": {
-    "path": "/Users/damsleth/Code/linux-build-out/nvme-ioq-20260920/payload/config",
+    "path": "/Users/damsleth/code/linux-build-out/nvme-ioq-20260920/payload/config",
     "sha256": "02f1f1343c03878ef1de0d29c3c7a7b00be9abc3c470f13bb3f9e9561ad0ed6f",
     "selected_config_lines": [
       "CONFIG_ARCH_APPLE=y",

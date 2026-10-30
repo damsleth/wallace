@@ -21,7 +21,7 @@
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-OUTBASE=${OUT:-$HOME/Code/linux-build-out}
+OUTBASE=${OUT:-$HOME/code/linux-build-out}
 INITRAMFS=${SDROOT_INITRAMFS:-$OUTBASE/initramfs-sdroot-daily-v2.build1.cpio.gz}
 # The card root is Alpine 3.24 (OpenRC 0.63.2). Its BusyBox init must be the
 # one under test: Alpine 3.22's 1.37.0-r20 silently drops every ::restart entry

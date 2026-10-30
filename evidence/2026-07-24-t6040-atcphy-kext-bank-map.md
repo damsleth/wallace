@@ -54,7 +54,7 @@ supply HPM attach/role/orientation, repeater control, or downstream VBUS.
 | decompressed arm64e fileset | 119,209,984 | `ed556fe62efc2c229f3d4c7ebbbcd21fd5c8d099fbb4d9b5ae636dd78b61d3f6` |
 | extracted `AppleT6040TypeCPhy` kext | 480,520 | `d0a766201c15bb01b8eeaf6617c91707562ae0c50511ebfccbd9d918acd499f3` |
 | captured J614s ADT | 606,208 | `7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84` |
-| `scripts/t6040-atcphy-kext-map.py` | — | `a19e06a29d9b73674456b9d3b99400ae8a491c86644cdb49bcd16fa14662fcfb` |
+| `scripts/t6040-atcphy-kext-map.py` | — | `1cc71e88d4abb7a23fa722b682ea56896f26a50228a491f0296c7a2a4ddf21e6` |
 | right-port TSV output | 13,625 | `1d60d039f3049ea2e6319258a8d9a3acc5d0c2b980f23af5227de35a624c79a5` |
 | right-port JSON output | 42,933 | `b8de40ed71421c6b065feecbbfbba45ae897d6b51386ba2a65f187e90f7270a5` |
 
@@ -78,7 +78,7 @@ Reproduce the right-port map:
 ```sh
 scripts/t6040-atcphy-kext-map.py \
   /private/tmp/t6040-usb-kexts-25F84/com.apple.driver.AppleT6040TypeCPhy \
-  /Users/damsleth/Code/linux-build-out/j614s-usb-port-map-20260721.adt \
+  /Users/damsleth/code/linux-build-out/j614s-usb-port-map-20260721.adt \
   > /private/tmp/t6040-atcphy-map.tsv
 ```
 

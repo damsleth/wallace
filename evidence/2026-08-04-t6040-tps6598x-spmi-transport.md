@@ -38,7 +38,7 @@ the paged TPS `STATUS` register `0x1a` — wrong for every access.
 **Evidence this paging is the hardware's actual protocol, not a choice:**
 
 - Our own m1n1 bring-up, live-proven against this exact hardware
-  (`~/Code/m1n1-hpm2/src/t6040_hpm2.c`), reaches S0 via
+  (`~/code/m1n1-hpm2/src/t6040_hpm2.c`), reaches S0 via
   `select_logical_reg()` (zero-write to reg 0, poll `BIT(7)`) then
   `spmi_ext_read/write` at register `0x20`. R2 (SSPS→S0) passed live.
 - Apple's own `AppleHPMARMSPMI::readRegs` (25F84 kernelcache) does the same:

@@ -82,7 +82,7 @@ that mode:
   the M4 runs standalone Linux there is no proxy for any host-side agent to
   drive, and the on-device agent runs none of the guarded rig scripts. Do not
   acquire or release a lease from the device.
-- **The hardware safety rules apply unchanged**: `~/Code/m1n1/AGENTS.md`,
+- **The hardware safety rules apply unchanged**: `~/code/m1n1/AGENTS.md`,
   [SPMI_SAFETY.md](SPMI_SAFETY.md) and the non-negotiables in `AGENTS.md`.
   Running Linux adds `/dev/mem` (`STRICT_DEVMEM` only), debugfs and
   out-of-tree modules, so the no-blind-MMIO and no-PMU/charger/NVRAM/firmware/
@@ -198,7 +198,7 @@ still performs exact review for live artifacts.
 ## Safety review
 
 Before readiness, the reviewer checks the final object against
-`~/Code/m1n1/AGENTS.md` and [SPMI_SAFETY.md](SPMI_SAFETY.md):
+`~/code/m1n1/AGENTS.md` and [SPMI_SAFETY.md](SPMI_SAFETY.md):
 
 - no PMU, charger, NVRAM, firmware, or unknown-SPMI write;
 - no blind MMIO or address copied from another SoC;

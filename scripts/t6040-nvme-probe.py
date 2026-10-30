@@ -34,7 +34,7 @@ from __future__ import annotations
 import argparse
 import sys
 
-sys.path.insert(0, "/Users/damsleth/Code/m1n1/proxyclient")
+sys.path.insert(0, "/Users/damsleth/code/m1n1/proxyclient")
 
 from m1n1.setup import *  # noqa: E402,F403  (provides u, p, iface)
 

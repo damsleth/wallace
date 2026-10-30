@@ -17,7 +17,7 @@ carries no scaffolding.
 
 ## The two variants, and the hypothesis each tests
 
-Branch `wallace/t6040-pcie-upstream` in `~/Code/m1n1` (worktree-built; the branch is in the main repo).
+Branch `wallace/t6040-pcie-upstream` in `~/code/m1n1` (worktree-built; the branch is in the main repo).
 
 ### V1 — upstream PCIe, nothing added
 - Commit `04e8829c` — merge of `upstream/main` into our t6040 line, taking `src/pcie.c` **wholesale

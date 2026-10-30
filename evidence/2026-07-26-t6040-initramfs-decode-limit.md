@@ -106,7 +106,7 @@ contains the `zcat` fallback). Software GL is absent again, which dwm and st do 
 ```sh
 bash scripts/t6040-debugusb-console.sh reboot
 bash scripts/t6040-boot-raw-object.sh \
-    ~/Code/linux-build-out/m1n1-b0-dwm-fullkernel.bin \
+    ~/code/linux-build-out/m1n1-b0-dwm-fullkernel.bin \
     6738aad9047e31f56d47223fc98d6720d7f21fe8854e4b88766928bf46a75342
 ```
 

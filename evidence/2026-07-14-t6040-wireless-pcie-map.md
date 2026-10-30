@@ -155,7 +155,7 @@ state the exact bit operand. The source ADT hash is
 Regenerate it with:
 
 ```sh
-git -C ~/Code/linux show feature/m4-m5-minimal-device-trees:j614s.adt \
+git -C ~/code/linux show feature/m4-m5-minimal-device-trees:j614s.adt \
   | scripts/t6040-pcie-write-plan.py \
   > evidence/2026-07-14-t6040-pcie-write-manifest.tsv
 ```
@@ -183,7 +183,7 @@ reboot recovered the target to a healthy `Running proxy`; the opaque sequence
 was not retried. Linux never handed off, no endpoint/port result was observed,
 and no NVMe or user-storage access occurred. Transcript:
 `evidence/logs/t6040-console-20260714-pcie-stage1.log`, SHA-256
-`b850b08a6ce2b40a2067324dabacaa52102f6b4c07b1c7b045237f64fb2a5398`.
+`62bef56fc20f377dd81af24427d98c813442471f1a20b2af073eb1581b883ca1`.
 
 ## Traced follow-up result
 
@@ -272,7 +272,7 @@ The uploader stopped without Linux handoff. No PHY, port, PERST#, Linux PCIe,
 NVMe, or storage access occurred. The sanctioned DebugUSB reboot restored a
 fresh quiescent proxy. Transcript:
 `evidence/logs/t6040-console-20260714-pcie-staged-gate.log`, SHA-256
-`c31275546280b9df2dbf9b014d2e6411cfb708f87f1c803e10b11e2cdb95ec2f`
+`9cef951302c596660d67d1e327631844f24aef1d035c4dd80e46172c1849a352`
 (407 lines, 25,940 bytes).
 
 The next diagnostic added no MMIO addresses or values: issue a
@@ -285,7 +285,7 @@ approved run again printed `[70] done`, proving the barrier completed and the
 immediate status sample was zero, then took the same SError before `[71]`.
 Therefore the L2C status does not latch early enough to attribute an individual
 RMW. Transcript: `evidence/logs/t6040-console-20260714-pcie-barrier.log`, SHA-256
-`cebc058921b62b2f594855bb65db28b312570b6c707f5a29a29480c31c04667b`.
+`92e8c6563ba753a80dc605ab73d55123fdf59b784513e6390e98969906c380ca`.
 The PCIe-free base DT was used; no later write, Linux, or storage access ran.
 Full result: `2026-07-14-t6040-pcie-barrier-diagnostic.md`.
 

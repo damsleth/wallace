@@ -61,7 +61,7 @@ No PCIe PMGR, controller MMIO, Linux PCIe, NVMe, or storage access occurred.
 The relative PC symbolizes to the proxy `P_CALL` site and is only the delayed
 delivery point. Sanctioned DebugUSB recovery restored a fresh quiescent proxy.
 Transcript: `evidence/logs/t6040-console-20260714-pcie-trace-dry-run.log`, SHA-256
-`52431e2a9a7d87642fde917419f3e8e666672434953cad23466c13b61968742d`
+`e362985562187aafc994ec582306bf820d4fb33b830eadf890bc00b15a8f391e`
 (407 lines, 25,940 bytes).
 
 ## Log-buffer attribution

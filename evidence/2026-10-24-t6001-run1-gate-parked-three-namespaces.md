@@ -3,7 +3,7 @@
 Run by the claude session under the `astra` lease handle, on CJ's
 instruction ("astra isn't active, run 6001 under astra"), with CJ present.
 The exact reviewed launcher `scripts/t6040-run-nvme-ioq.py --run` was used
-unmodified against manifest `14ba1600…` (all 241 pinned files verified).
+unmodified against manifest `d9ae6072…` (all 241 pinned files verified).
 Ticket approved by CJ and marked ready with reviewer `nvme_review`. The
 lease was released **healthy** at `Running proxy`.
 

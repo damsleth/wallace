@@ -5,7 +5,7 @@ entry next to the m1n1 DebugUSB proxy and macOS, and pick the default himself.
 
 ## The object
 
-`/Users/damsleth/Code/linux-build-out/nvmedesk-20261025/wallace-nvmedesk.build1.bin`
+`/Users/damsleth/code/linux-build-out/nvmedesk-20261025/wallace-nvmedesk.build1.bin`
 
 | member | sha256 |
 |---|---|

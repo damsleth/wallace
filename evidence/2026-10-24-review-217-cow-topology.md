@@ -14,7 +14,7 @@ a9a2096f…  Image-…-daily301.build{1,2} (identical);  93cfaa38… System.map;
 de1a5cd7…  initramfs-cow-report.build{1,2}.cpio.gz (identical)
 545646a4…  scripts/t6040-init-cow-report      (= embedded /init)
 25a62b52…  scripts/t6040-cow-repro.sh         (= embedded usr/local/bin copy)
-0c7ff0b4…  scripts/t6040-build-cow-report-initramfs.sh
+928a135c…  scripts/t6040-build-cow-report-initramfs.sh
 61781806…  embedded bin/busybox;  606ecd98… embedded etc/wallace-no.bmap
 fa603bb1…  kbuild-control.log (says "building … at 2532b17125cb")
 51199bfa…  smp-maxcpus14-console-20260729.log

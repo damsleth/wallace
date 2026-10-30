@@ -4,7 +4,7 @@
 # Root shell is PID1 in a fresh PID+mount namespace. No power action is sent.
 set -euo pipefail
 REPO=$(cd "$(dirname "$0")/.." && pwd)
-BASE=${OUT:-/Users/damsleth/Code/linux-build-out}
+BASE=${OUT:-/Users/damsleth/code/linux-build-out}
 ROOTFS=${USB_DAILY_ROOT:-$BASE/usb-root-6005/daily-root-stage1-20261024}
 RES=${1:?usage: t6040-test-usb-root-shutdown.sh NEW_RESULT_DIR}
 IMAGE=docker.io/library/alpine@sha256:2c9d26f410d032d5b1525aa8a873e238b05b90c4ae8618743d4311f0cc827e37

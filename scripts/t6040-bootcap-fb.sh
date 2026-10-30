@@ -34,11 +34,11 @@ set -uo pipefail
 # rig turn-taking: refuse if the OTHER agent holds a live lease (scripts/rig-lease.sh).
 source "$(dirname "$0")/rig-guard.sh"
 M1=/dev/cu.usbmodemJ22GYCN4YG1
-OUT=/Users/damsleth/Code/linux-build-out
-cd /Users/damsleth/Code/m1n1
+OUT=/Users/damsleth/code/linux-build-out
+cd /Users/damsleth/code/m1n1
 
 # Use the repo venv python (has pyserial); fall back to python3 if absent.
-PY=/Users/damsleth/Code/m1n1/venv/bin/python
+PY=/Users/damsleth/code/m1n1/venv/bin/python
 [ -x "$PY" ] || PY=python3
 
 # Optional arg 1: DTB filename in $OUT (default our full j614s DT). Use

@@ -1,5 +1,5 @@
 # t6040 J614s Type-C ADT extraction (from j614s-usb-port-map-20260721.adt)
-# regenerate: M1N1DEVICE=none ~/Code/m1n1/venv/bin/python <the adt-usb*.py scripts>
+# regenerate: M1N1DEVICE=none ~/code/m1n1/venv/bin/python <the adt-usb*.py scripts>
 
 ## Right-port stack (atc-phy2 / usb-drd2 / dart-usb2)
 === atc-phy2  compat=atc-phy,t6040

@@ -3,12 +3,12 @@
   "fresh_staging_trees": 2,
   "root_archives": [
     {
-      "path": "/Users/damsleth/Code/linux-build-out/usb-root-6005/usb-daily-root6005.stage1.cpio.gz",
+      "path": "/Users/damsleth/code/linux-build-out/usb-root-6005/usb-daily-root6005.stage1.cpio.gz",
       "bytes": 24620287,
       "sha256": "fca28f358be77c472d0c77ff5f6ff23c77eb5cfa2aaa88efd967705305378d13"
     },
     {
-      "path": "/Users/damsleth/Code/linux-build-out/usb-root-6005/usb-daily-root6005.stage2.cpio.gz",
+      "path": "/Users/damsleth/code/linux-build-out/usb-root-6005/usb-daily-root6005.stage2.cpio.gz",
       "bytes": 24620287,
       "sha256": "fca28f358be77c472d0c77ff5f6ff23c77eb5cfa2aaa88efd967705305378d13"
     }

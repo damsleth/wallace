@@ -55,14 +55,14 @@
   "sources": [
     {
       "file": "evidence/2026-10-24-upstream-convergence/sources/6001-before.json",
-      "sha256": "d4d8ffad77bbe35fe6667fcb636384d4374a5e0ce17567eb126a9c6f0af37912",
+      "sha256": "5f1c25fd66bcfcdeef78452c608b36b771cebfd8429d93cac6e6ac0f8de8a74e",
       "bytes": 1157,
       "urls": [],
       "representation": "retrieved bytes or local analysis"
     },
     {
       "file": "evidence/2026-10-24-upstream-convergence/sources/adt-summary.json",
-      "sha256": "d075dfbf87806596205f614b3c600f89167cb38d91a1bc6d0004875fc4600435",
+      "sha256": "7bee0f7cc62747dffa4529e472ba904fabcff3df787dca4fd4ce02ba019b3716",
       "bytes": 93003,
       "urls": [],
       "representation": "retrieved bytes or local analysis"
@@ -570,391 +570,391 @@
   ],
   "local_inputs": [
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-rtkit-modern-crashlog-debug.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-rtkit-modern-crashlog-debug.patch",
       "sha256": "849f06144da0dc867e766f6c0d8f1854a2f44238d9a99e3493e12c3e233c2669"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-hid-reset-contract.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-dockchannel-hid-reset-contract.patch",
       "sha256": "6eba591f8e5de69e6115ab7f90811b60680cb4e42a4a7f25df11cccd02667aff"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-pmgr-ans-no-auto.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-pmgr-ans-no-auto.patch",
       "sha256": "361e965edea2f320efaa55eda67791282097bf6575115868654c66436cbfe9ba"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-tx-poll-debug.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-dockchannel-tx-poll-debug.patch",
       "sha256": "af8015a59ba6f6293c427b653863bef1a8d331780bd6c997e44c53b1c76ee445"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/0001-phy-apple-add-experimental-T6040-USB2-only-slice.patch",
+      "path": "/Users/damsleth/code/wallace/patches/0001-phy-apple-add-experimental-T6040-USB2-only-slice.patch",
       "sha256": "b7f02c3cb06b0ed6e490d473a2efd99f61b8cd1ab089a0a09f72ecdec7b60a30"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t8140-sart-power-bindings.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t8140-sart-power-bindings.patch",
       "sha256": "e5dc09d57e36a7853988e6ff3773e274a84f82a588ff899c567b6c2355e9e495"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t8140-ans-bindings.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t8140-ans-bindings.patch",
       "sha256": "a135b930c166dadffd20e996ca611007f68c775601ef9fe3b5015cbe7d6c09d6"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-earlycon-debug.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-dockchannel-earlycon-debug.patch",
       "sha256": "c70a9b2c215be2212d7794f8895b707fc54759c99baf7b9e20c68a7b4facd725"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/uboot-t6040-noio-prep.patch",
+      "path": "/Users/damsleth/code/wallace/patches/uboot-t6040-noio-prep.patch",
       "sha256": "7555aec41d86d6edb58a3e593199ed4b81b40be1316700c7c03ddf1d183963b5"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-atomic-tx.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-dockchannel-atomic-tx.patch",
       "sha256": "a217182c4abb85d7c77c10083c617cb36677b16c454cd2d9fe7ab69339cef51a"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t8140-sart-handshake-only-debug.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t8140-sart-handshake-only-debug.patch",
       "sha256": "e0d0f646750cfcc5ae8e00649597aa98f87bbbed9c7c16d76f540f1f341a30f1"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-rx-rearm.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-dockchannel-rx-rearm.patch",
       "sha256": "83d07766678acd271ef3be9b9cbb93e35fb186bfe162b329de634d91fe2f3b01"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t8140-sart-deferred-probe-debug.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t8140-sart-deferred-probe-debug.patch",
       "sha256": "c9bf54b0b0de52fcbca962d0cf80f5c22822533261ead0ddae7c1cf80ddc3f8a"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-fixes.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-dockchannel-fixes.patch",
       "sha256": "814d085f68d1fd5501abbb53e944b460bdda2dec51292cedca6fb66bdc364cd4"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-nbcon.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-dockchannel-nbcon.patch",
       "sha256": "b245c837793e16ed3241c893393f7c0e1b9a9fefd1391c4ba04842da0b969d6d"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-nvme-apple-force-clean-ans-boot.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-nvme-apple-force-clean-ans-boot.patch",
       "sha256": "399578f56d4ec6ae1d865be68878b68dad6868d1a56015b085cd088592994904"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/m1n1-early-proxy-unconditional.patch",
+      "path": "/Users/damsleth/code/wallace/patches/m1n1-early-proxy-unconditional.patch",
       "sha256": "1d7ad83ad7651e5b62ce7bf0199685c5d2b34d0dc69578f6f957ecaf10b8b032"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-trackpad-fw.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-dockchannel-trackpad-fw.patch",
       "sha256": "f7a3eb883c0d393e899128c91740f7405b6e9626ac58746ae37562032732a779"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/m1n1-minilzlib-vli-bytes-max.patch",
+      "path": "/Users/damsleth/code/wallace/patches/m1n1-minilzlib-vli-bytes-max.patch",
       "sha256": "0f360a3798cbc49588ac392c623372d39670b82a3fbfb25783dd37ec88b95498"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-apple-cpufreq-freq-mult-overflow.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-apple-cpufreq-freq-mult-overflow.patch",
       "sha256": "e16321de361808b37243d452ab4def57744c8887a9b3b350eed940695cb59fc8"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-nvme-force-continue-debug.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-nvme-force-continue-debug.patch",
       "sha256": "c2e3ee56bd37bf34a2bcef1bf104b40551aa6cdca5c1006fe53ac8657363bfb9"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t8140-sart-trace-debug.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t8140-sart-trace-debug.patch",
       "sha256": "ccfcf49f677ad03b8f7eebfb040ff122aabdc81dc22bf80c556b8d314f070654"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-nvme-pmgr-snapshot-debug.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-nvme-pmgr-snapshot-debug.patch",
       "sha256": "3f6aad017859acb3554e10c00f2497e5683865c68204e5775399eec5030bb7a4"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-nvme-init-trace-debug.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-nvme-init-trace-debug.patch",
       "sha256": "4a731f1f0a78c333c4fc44d1b820d719f2a9c5b2014cd261b11095c3e6cc6dcd"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-pmgr-t6041-quirks.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-pmgr-t6041-quirks.patch",
       "sha256": "f69f5965918b6124a9a666b0b05d219525445b39eac70e66cea1d750ff1ba0f3"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-irq-guard-debug.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-dockchannel-irq-guard-debug.patch",
       "sha256": "2d2b8218f967dadd85eaa926bffa7d97097a90b6a79bc1782f0a09baae72acd2"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-brcmfmac-bss-info-v116.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-brcmfmac-bss-info-v116.patch",
       "sha256": "b9edb064814dae3aeb0fb9ca4fc8a4d0e11fb42e351b8f8eb2a23035b1d355c5"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-nvme-sptm-debug.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-nvme-sptm-debug.patch",
       "sha256": "8c9bfa90193b9c32048a55035f8208bf46928458d32bcf89f8be9aba361803e9"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-remove-mtpdbg.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-remove-mtpdbg.patch",
       "sha256": "71b8820d51b75fbf4faaf08bc86c176b2d821d14c6bcf847425633f12ffb9ee9"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/flokli-code.patch",
+      "path": "/Users/damsleth/code/wallace/patches/flokli-code.patch",
       "sha256": "22f1cbe674bafb409a506bfb6ebafb2f0cc540e39f54a0685220af6c3b8948ac"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/0001-usb-typec-tps6598x-add-SPMI-transport-for-T6040-SN20.patch",
+      "path": "/Users/damsleth/code/wallace/patches/0001-usb-typec-tps6598x-add-SPMI-transport-for-T6040-SN20.patch",
       "sha256": "9dcb4606e6385815dafa29f2690cf5cc29021d07387da78b55a09d4385b28350"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-pmgr-functional.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-pmgr-functional.patch",
       "sha256": "2692f5172d7d4e12e7839d365ca1d982f1b99efc844988051b6f550f4e0d3013"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-tty-driver.patch",
-      "sha256": "016b2eec240ab74712cc51a2a6cd35ffd7577490ba941593af1ef831cfedf479"
+      "path": "/Users/damsleth/code/wallace/patches/t6040-dockchannel-tty-driver.patch",
+      "sha256": "87171eeb5f33248e97c85bf289d5f7e598188bcc22fb189eb8b3871586834622"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-nvme-threaded-irq-discriminator.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-nvme-threaded-irq-discriminator.patch",
       "sha256": "c3524c888cb056f9fe136b254bac136ab115a8fcffd83a3bb5b79bb19f1b4fe3"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/m1n1-dualmode-window.patch",
+      "path": "/Users/damsleth/code/wallace/patches/m1n1-dualmode-window.patch",
       "sha256": "37292bfc3b685e7d1a4d49e46b12fa89452c4cc2f97210e4d82539eca383448a"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-pmgr-force-active-debug.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-pmgr-force-active-debug.patch",
       "sha256": "98bcf9a353ca066373b38dbfb4eedc65d3e457f8669b6a878a718ddb974f2198"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/m1n1-fb-console-always.patch",
+      "path": "/Users/damsleth/code/wallace/patches/m1n1-fb-console-always.patch",
       "sha256": "5b62f0e5a03e2b2e851fc804248571aa864b9faa4908d8f6063409e297a6669b"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-nvme-register-trace-debug.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-nvme-register-trace-debug.patch",
       "sha256": "b6cb2477fce8f74e31c53286a8e24ac719f7607204340eaf84432bdadb4d5e3c"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-nvme-ans-read-debug.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-nvme-ans-read-debug.patch",
       "sha256": "b12c8ea239f2bad186ef475c04ac08aa73718a3377dfa875bebb993223c44147"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-nvme-ans2-ioq-size.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-nvme-ans2-ioq-size.patch",
       "sha256": "c1adc415a5df84877379e917e888beb32597c0704f6613b239302649dd2f89e8"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t8140-sart-power-managed.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t8140-sart-power-managed.patch",
       "sha256": "583a35cf556b9705b891b02c95b26b7dbfaf89ae3b0e3114a9a8b95202dead81"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-hid-type.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-dockchannel-hid-type.patch",
       "sha256": "8692c4554f2db232fa57ee4fbc2e3ac529b1a8d36c44629612a478c30d8a455c"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-poll.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-dockchannel-poll.patch",
       "sha256": "627d0805f103f56ad20cc24785d4e747740e774c1660604611298adf6bcd0e63"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-aic-hcr-debug.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-aic-hcr-debug.patch",
       "sha256": "33f65edfacd0b5628c2c4c6af0b80dfc32c5c0c9e8205850abd6f8f618545eb4"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t8140-sart-defer-scan.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t8140-sart-defer-scan.patch",
       "sha256": "963378bdcd4b7147b648411783fb0dd23e1ce6c67e996d186f4c4f58252758b8"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-fifo-telemetry-debug.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-dockchannel-fifo-telemetry-debug.patch",
       "sha256": "29a8d9dad3090a11698ea1e94dd1ee83df95e553010762f4beae6d0bd803063d"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-pmgr-t6041-bindings.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-pmgr-t6041-bindings.patch",
       "sha256": "73a577d46b538b72633aae1104d501c6ca4ff550651947fbea2a9985d71c8389"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-dockchannel-hid-state-trace.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-dockchannel-hid-state-trace.patch",
       "sha256": "f966cedbc61322118d1d492726143d72364a1c3479ab2a72c9bdc08d43fbaf0b"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-dwc3-apple-force-host.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-dwc3-apple-force-host.patch",
       "sha256": "84cef2d3be3969bef9b8e4d9aa3683c6774592621acfe3167fd42d0f8a8168cb"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/uboot-t6040-stage2-prep.patch",
+      "path": "/Users/damsleth/code/wallace/patches/uboot-t6040-stage2-prep.patch",
       "sha256": "814ffa47d6ab4b8f050505b879bb21bc730c57c3d89fb75af36a27061b7695c7"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/m1n1-payload-unmask.patch",
+      "path": "/Users/damsleth/code/wallace/patches/m1n1-payload-unmask.patch",
       "sha256": "71a843ce5c5e8498f7cee10ccb3d4560f60504cc9f055c66310fba9e25f7e500"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/patches/t6040-nvme-trace-debug.patch",
+      "path": "/Users/damsleth/code/wallace/patches/t6040-nvme-trace-debug.patch",
       "sha256": "df908c981c4479b398f212b5619e98d206ef8e07d83566195c9160c08bd8c958"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-usb-host-right.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-usb-host-right.dts",
       "sha256": "5ddc0a65438fc9df7de4513c3e20db43ef6102ccc15e20f551247c390e96ba99"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-wifi-cpufreq.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-wifi-cpufreq.dts",
       "sha256": "e597b46111beab192cf402661e2d5c768613351b6847e338622b8a337167dc7f"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-macsmc.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-macsmc.dts",
       "sha256": "ba0de6d2680ae766fb030df135c606ecf3a373db62d83ca28be4f2028e914b6a"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-wifi-nosmc.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-wifi-nosmc.dts",
       "sha256": "4a611082d0e5853fb8c9f6eb89ea8fdc3bbb831e2e90c12e311787dc7058e879"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-sd.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-sd.dts",
       "sha256": "b6d4effbe506c5818f3e0fcc6e6de1ed6e1ac400b50304007a61102ef84acc05"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-usb-host.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-usb-host.dts",
       "sha256": "610c9a12595a42ec65cfedae461800cf33a6b2188547a50747a2b5226dbbbec7"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-cpufreq.dtsi",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-cpufreq.dtsi",
       "sha256": "b1fe832c3586da3f8e2e614af579d2b686e07ea42c7bbb76f08c74fee52ff6f8"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-nvme-ans-hold.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-nvme-ans-hold.dts",
       "sha256": "02de1ef0ce5c9203d1b0a51d0f4cb661b13faae0a9ab486a73e2d53be5a1dcda"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-smc-gpio-nopwren.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-smc-gpio-nopwren.dts",
       "sha256": "17364856812eec2e9eb3e062c7d84d1a8d930b033a6a107ef04740073683378a"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-uboot-sd-stage2.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-uboot-sd-stage2.dts",
       "sha256": "82e45f6b0753d5599ed23129f4166047695a55a2f5b054840d061da6745de2b0"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-ans-sart.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-ans-sart.dts",
       "sha256": "aae9c9b14d36646856e7d7f36ec2f679ed4f5c43d75b37bb34448592a60f61e2"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-nvme-force-continue.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-nvme-force-continue.dts",
       "sha256": "f5ac5d629e4fcbdd4de3bf5ee32db7f69cc46615e5d3a1f04b79db713525fff3"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-smc.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-smc.dts",
       "sha256": "3c751ba3754b8d001aaecbecc8a5bf229796d56072a5fb722743cad916a37a62"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart.dts",
       "sha256": "a8048e982b63fe19a346318ef7c51f076a3df70b7b9b0fea153ea9446142ae6f"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-cpufreq.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-cpufreq.dts",
       "sha256": "317a0c3b2c75d15ddb9a81b36a0729fadfb6f47d975ad81bff4b48c8bad8d2ff"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-onepercluster.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-onepercluster.dts",
       "sha256": "c8f0fcc0cc8d8b4a43ab7a9a54030ab980e662dd6e5bb2dfc26e3bdf0cb39c2c"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-c2probe.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-c2probe.dts",
       "sha256": "1b540c944554ba357d7235ad4f8241ee15e2bfd6a2327a3649d8ace091ea1719"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-wifi-nonvme.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-wifi-nonvme.dts",
       "sha256": "0cc466b759c9fd3efefc25312e82fac7e106624c8aab667def1cf092a3a2b836"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-irq.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-irq.dts",
       "sha256": "42163c28f73f2f407d3152c5e33678c19c86f894a38d3b3f1edeb7cd47d1dd52"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-irq-txpoll.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-irq-txpoll.dts",
       "sha256": "faa9ae47fcd2cc98f9105ad04ca54835d91f44223a38be8288bac60b29141c48"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-p2clusters.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-p2clusters.dts",
       "sha256": "54f224462b0c963f827f7dd1a34d080d9aa57320f18f55b196c6f8dd5b785c72"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/README.md",
+      "path": "/Users/damsleth/code/wallace/dts/README.md",
       "sha256": "dbed4f7b4974ae989a25bf933971e8b17ed0f549c7e93a34acc861eb7a043581"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-pcie.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-pcie.dts",
       "sha256": "ecf6df1ff634621c66be43689f3a46f8bc6ef182b24300c80b0325c52630fd58"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-wifi.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-wifi.dts",
       "sha256": "60bddf64d8a16d79113cd904a826b37286cac733feb1bd868d6ae82d177506b4"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-pwren-wifi-only.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-pwren-wifi-only.dts",
       "sha256": "2830c065e83f786801c979172eecac28e5e6aafbb65a2c58a80604a1a2b9d187"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-smc-nogpio.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-smc-nogpio.dts",
       "sha256": "d0d8883e140567bb1fb3aa867a4e31bb186b0bea7f204a09cdaea6ad6d760e7a"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-usb3-right-data-path.dtsi",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-usb3-right-data-path.dtsi",
       "sha256": "3a56ff3ae15bb7d8f1419987f2b68674200a8ec7e8f4d0caad7404ede840a23b"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-usb2-native-right-pd.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-usb2-native-right-pd.dts",
       "sha256": "46cbb243c560a7c5bd33a5543060e6eda4901f4b00869ed965b972dd952db35c"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-nvme.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-nvme.dts",
       "sha256": "365aca3891a87070defc6f0ba36570ff47be0b24429275f43f4d0696c6d2abda"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-wifi-usb2-native-right.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-wifi-usb2-native-right.dts",
       "sha256": "f045e2e13b685a2409d025b476d327fa53c5781b486f8cb687d2188aa8f00301"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-usb3-right-data-path-staging.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-usb3-right-data-path-staging.dts",
       "sha256": "372eec8782d45cab9e57fbd6d9894699ea39a840b0ac5aa58e1ac18ebf535054"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-uboot-stage2.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-uboot-stage2.dts",
       "sha256": "72b58e626170ee84b68f7d0823799559112f3a2061615f25828ded78c3299413"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040.dtsi",
+      "path": "/Users/damsleth/code/wallace/dts/t6040.dtsi",
       "sha256": "edfe80b145fa0ba1f2ca0a24d1ac2b25a839f1065c0bed9610f9563bc32d9f06"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-usb2-native-right.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-usb2-native-right.dts",
       "sha256": "00af1ecc2eaf6c963df30e4b0495788796eb0e04ecfea80264c7836ade5a4521"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-nvme-pmgr-force-active.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-nvme-pmgr-force-active.dts",
       "sha256": "2e1746da7f24a6b516479b20df054eac0e59dbd3d7f37a899a22818d88c7d841"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-irq816.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-irq816.dts",
       "sha256": "f6657c0901fd6fcced6038dfa4273582f9160cf61bf9239949525bc5cbbb586c"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-ponly.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-ponly.dts",
       "sha256": "f1dbff73c7392d4fd519b733ac0719b19f0f324e5cf8b45342c4364beeb2f445"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-usb-host-left-front.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-usb-host-left-front.dts",
       "sha256": "0f7ab8972943a8826498e61780b590bc958f106c36ebeebfff5d857490445aeb"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-wifi-cpufreq-sdroot.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-wifi-cpufreq-sdroot.dts",
       "sha256": "0706d4222baa65584fd7a719be69c2f3f35c31b903226434e9ab4836f1b3d29d"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-ans-mailbox.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-ans-mailbox.dts",
       "sha256": "6ba73cdfd40970c6c01ba1d965418c6bf2cb6f5df02e411a8b09a93c5fda9480"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-pwren-sd-only.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-pwren-sd-only.dts",
       "sha256": "3b2b8dfd626976ff99d2a41b00ec1d949af28c7d1a1ee23f5c8d11c8aa6aa2a6"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-nvme-ans-read.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-nvme-ans-read.dts",
       "sha256": "5093efb56309f333178de16154026ddd98fb7bd533c1e8885ff4bee4d1717361"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/dts/t6040-j614s-dcuart-nvme-pmgr-snapshot.dts",
+      "path": "/Users/damsleth/code/wallace/dts/t6040-j614s-dcuart-nvme-pmgr-snapshot.dts",
       "sha256": "235c2d9a5eed6df74aeb9bc03abebe29eef2a4f061dc90898d56afbea6e08b05"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/scripts/t6040-kbuild.sh",
+      "path": "/Users/damsleth/code/wallace/scripts/t6040-kbuild.sh",
       "sha256": "de179323460eb8a16506cdf6d7e38de88b2cbd53137889d97a9d6ec68762ad72"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/scripts/t6040-cow-repro.sh",
+      "path": "/Users/damsleth/code/wallace/scripts/t6040-cow-repro.sh",
       "sha256": "25a62b522ea83234393e7205e1d968ed40983b23359ca187545899f99804d209"
     },
     {
@@ -998,27 +998,27 @@
       "snapshot": "evidence/2026-10-24-upstream-convergence/local-source/arch/arm64/boot/dts/apple/t6040-j614s-kbd.dts"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/scripts/t6040-build-sdroot-initramfs.sh",
+      "path": "/Users/damsleth/code/wallace/scripts/t6040-build-sdroot-initramfs.sh",
       "sha256": "9d0a1b944e4991765625953b99b2b401a8636060025ae374708ce3c9e7619701"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/scripts/t6040-make-initramfs.sh",
-      "sha256": "31034b3822dc9d05e8a30432030bf63df314a6a69eb138ba3722b0523f89f6fd"
+      "path": "/Users/damsleth/code/wallace/scripts/t6040-make-initramfs.sh",
+      "sha256": "37e7e879cfee0b4498683e8c7f61029d38bdac0b513706e2d6cfb36b5e9fb09d"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/scripts/t6040-init-dcuart-trackpad-230",
+      "path": "/Users/damsleth/code/wallace/scripts/t6040-init-dcuart-trackpad-230",
       "sha256": "d33bd5dadcdbd22387e9e66e4898e52797d7da3f9a68657df366116c05303351"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/scripts/t6040-image-preflight.sh",
+      "path": "/Users/damsleth/code/wallace/scripts/t6040-image-preflight.sh",
       "sha256": "794a76bdf81d7bc31668600188aaa1331cd02f3681f06ebf126344df8131838f"
     },
     {
-      "path": "/Users/damsleth/Code/wallace/scripts/t6040-nvme-readonly-test.c",
+      "path": "/Users/damsleth/code/wallace/scripts/t6040-nvme-readonly-test.c",
       "sha256": "287160efe3a48b92541bb7fa24a1180db38da507af07b150f7e45e819f2d7434"
     },
     {
-      "path": "/Users/damsleth/Code/m1n1/proxyclient/m1n1/adt.py",
+      "path": "/Users/damsleth/code/m1n1/proxyclient/m1n1/adt.py",
       "sha256": "b1d0c1af0ea83f73b9e6003efb9b42a4892cb35be8efb9c7566d3512c1846a3f",
       "role": "offline parser; no proxyclient/rig connection"
     }
@@ -2156,11 +2156,11 @@
     },
     {
       "file": "evidence/2026-10-24-upstream-convergence/config-comparison.json",
-      "sha256": "6b935bac41550e80f0155905acffa3a8d5198ce91b30bfef7b6568ee7230b29b"
+      "sha256": "d74a810cfa3cba3627f48600d8fb5e8e9db457e62089a7f8d0cc46e6193ed18a"
     },
     {
       "file": "evidence/2026-10-24-upstream-convergence/extract-adt.py",
-      "sha256": "85b468739bb313259d0347fd374c068c72470d2850ef2202bed22a1e2d632aaa"
+      "sha256": "fe16175885f832a854110970eff97927250ceef643b1b3917f0fe0ef5fc6d092"
     },
     {
       "file": "evidence/2026-10-24-upstream-convergence/local-source/arch/arm64/boot/dts/apple/t6040-j614s-dcuart.dts",
@@ -2196,7 +2196,7 @@
     },
     {
       "file": "evidence/2026-10-24-upstream-convergence/patch-map.tsv",
-      "sha256": "251dfbd76963aae21af2cdf4b83f683876b7f54ab5dbdf0653fc707d6b569055"
+      "sha256": "3d15d4e73b1122174326fd81e9323763b4010e878c60a22fc4eb00e2b8270bf4"
     },
     {
       "file": "evidence/2026-10-24-upstream-convergence/relevant-history.json",
@@ -2204,11 +2204,11 @@
     },
     {
       "file": "evidence/2026-10-24-upstream-convergence/sources/6001-before.json",
-      "sha256": "d4d8ffad77bbe35fe6667fcb636384d4374a5e0ce17567eb126a9c6f0af37912"
+      "sha256": "5f1c25fd66bcfcdeef78452c608b36b771cebfd8429d93cac6e6ac0f8de8a74e"
     },
     {
       "file": "evidence/2026-10-24-upstream-convergence/sources/adt-summary.json",
-      "sha256": "d075dfbf87806596205f614b3c600f89167cb38d91a1bc6d0004875fc4600435"
+      "sha256": "7bee0f7cc62747dffa4529e472ba904fabcff3df787dca4fd4ce02ba019b3716"
     },
     {
       "file": "evidence/2026-10-24-upstream-convergence/sources/apply-checks.json",

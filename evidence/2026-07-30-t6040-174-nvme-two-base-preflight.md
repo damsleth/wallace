@@ -15,7 +15,7 @@ device names. This closes the approval gap flagged in
 
 `m1n1-t6040-nvme-two-base-ae4a8f28.bin`
 SHA-256 `ae4a8f28cbe5f66c7603f5f9a95fe81b819e8279e76de089652617c240a2bea3`, 1,097,728 B.
-Branch `wallace/t6040-nvme-two-base` in `~/Code/m1n1`, head `1702259f`, built with
+Branch `wallace/t6040-nvme-two-base` in `~/code/m1n1`, head `1702259f`, built with
 `M1N1_VERSION_TAG=t6040-nvme-two-base-1702259f`. Chainload-only candidate — never enrolled, so no
 enroll-guard entry.
 

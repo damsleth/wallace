@@ -2,7 +2,7 @@
 # T6040 kernel build harness (runs INSIDE the arm64 Linux build container).
 #
 # Invocation from the host (script + patches must be visible in /out):
-#   cp ~/Code/wallace/scripts/t6040-kbuild.sh ~/Code/wallace/patches/*.patch ~/Code/linux-build-out/
+#   cp ~/code/wallace/scripts/t6040-kbuild.sh ~/code/wallace/patches/*.patch ~/code/linux-build-out/
 #   podman exec -e DOCKCHANNEL=1 -e BUILD_DIR=/build/linux-keyboard kbuild \
 #       bash /out/t6040-kbuild.sh image
 #   podman exec -e DOCKCHANNEL=1 -e HID_RX_REARM=1 \
@@ -358,7 +358,7 @@ echo "== apply flokli's t6040 CODE patches (aic locked-sysreg skip + idle=nop) =
 # SYS_IMP_APL_VM_TMR_FIQ_ENA_EL2 and SYS_ICH_HCR_EL2 writes in aic_init_cpu (they
 # trap on M4 raw-boot) and adds a working arm64 idle=[wfi|nop] param.
 # Ticket 159: the DockChannel TTY driver (/dev/ttydc0) existed ONLY as untracked files
-# inside the /build/linux-* trees — never in ~/Code/linux, never in patches/ — so a rebuild
+# inside the /build/linux-* trees — never in ~/code/linux, never in patches/ — so a rebuild
 # from a clean checkout silently produced a kernel with no ttydc0, losing the DockChannel
 # shell and the transport the B0 health report reaches the host through. It is also why
 # every kernel reported -dirty. Recovered byte-identically (sha256 2880e145, 464 lines) and
@@ -1235,7 +1235,7 @@ if [ "${DOCKCHANNEL:-0}" = "1" ]; then
         git apply -R /out/t6040-dockchannel-tx-poll-debug.patch
     fi
     # Local fix: add the missing hid_ll_driver .stop (NULL-deref oops on t6040,
-    # see ~/Code/wallace/t6040-dockchannel-fixes.patch; copy it to /out first).
+    # see ~/code/wallace/t6040-dockchannel-fixes.patch; copy it to /out first).
     if grep -q 'dchid_stop' \
         drivers/hid/apple-dockchannel-hid/apple_dockchannel_hid.c; then
         echo "t6040-dockchannel-fixes.patch already applied"

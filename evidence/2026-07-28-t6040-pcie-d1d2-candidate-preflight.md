@@ -51,7 +51,7 @@ and the code still returns before any PHY-IP write and before all port/Linux-PCI
 - m1n1 `main` commit `19edc72b` ("pcie: add the two T6040 pre-PHY-IP operations Apple
   performs"), mirrored to the curated `m1n1-clean` `t6040-bringup` series (`9c35cd2c`, on top
   of the also-backfilled `fb4eea73` = ticket-058 clkgen commit).
-- Binary: `~/Code/linux-build-out/m1n1-t6040-pcie-d1d2-19edc72b.bin`, SHA-256
+- Binary: `~/code/linux-build-out/m1n1-t6040-pcie-d1d2-19edc72b.bin`, SHA-256
   `0e065589c08a6c3186c0bc3eddeae9078a3d878597db60965b88511eb881daad`, version tag
   `t6040-pcie-d1d2-19edc72b85fc`, **two byte-identical clean builds** from committed state.
 
@@ -79,6 +79,6 @@ reachable (hard return before ports).
 
 ## Gates
 
-1. Cross-agent exact-artifact review (`sol`) against `~/Code/m1n1/AGENTS.md`: ADT-derived
+1. Cross-agent exact-artifact review (`sol`) against `~/code/m1n1/AGENTS.md`: ADT-derived
    addresses, no new aperture, intentional stop before the next operation class, hash pinned.
 2. CJ plan approval + attended slot.

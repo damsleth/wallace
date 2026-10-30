@@ -70,7 +70,7 @@ identity is inferred from it.
 
 A native static aarch64 helper is saved at:
 
-`/Users/damsleth/Code/linux-build-out/usb-root-6005/t6040-usb-root-metadata-4ccc71af-aarch64`
+`/Users/damsleth/code/linux-build-out/usb-root-6005/t6040-usb-root-metadata-4ccc71af-aarch64`
 
 SHA-256 `4ccc71af7bf764c3439a991acd6fd4560ec1bb9e6636700de6682fca148b895f`.
 Built once in the pinned Alpine container
@@ -136,7 +136,7 @@ to establish a clean shutdown.
 Two fresh staging trees and deterministic root archives match byte-for-byte:
 24,620,287 bytes, SHA256
 `fca28f358be77c472d0c77ff5f6ff23c77eb5cfa2aaa88efd967705305378d13`.
-They remain private regular files under `/Users/damsleth/Code/linux-build-out/usb-root-6005/`;
+They remain private regular files under `/Users/damsleth/code/linux-build-out/usb-root-6005/`;
 neither is a GPT image, approved flash input or qualified initramfs. The
 historical098 PARTUUID is used only as an offline regression value. Seven
 negative staging gates reject nonempty/symlink outputs and invalid UUID,

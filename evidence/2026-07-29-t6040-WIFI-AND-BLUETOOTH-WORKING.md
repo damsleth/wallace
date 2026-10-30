@@ -89,7 +89,7 @@ entry). It is the single most surprising thing in this write-up and deserves an 
 Boot recipe (needs a fresh proxy first — `scripts/t6040-debugusb-console.sh reboot`):
 
 ```bash
-RIG_AGENT=claude M1N1_BIN=~/Code/linux-build-out/m1n1-t6040-pcie-V1-upstream-04e8829c.bin IMAGE=Image-macsmc-hid-type-fix bash scripts/t6040-boot-dcuart.sh t6040-j614s-dcuart-wifi.dtb initramfs-dcuart-pcie-fw3.cpio.gz
+RIG_AGENT=claude M1N1_BIN=~/code/linux-build-out/m1n1-t6040-pcie-V1-upstream-04e8829c.bin IMAGE=Image-macsmc-hid-type-fix bash scripts/t6040-boot-dcuart.sh t6040-j614s-dcuart-wifi.dtb initramfs-dcuart-pcie-fw3.cpio.gz
 ```
 
 ## Two kbuild traps found (now asserted, so they cannot recur silently)

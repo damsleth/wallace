@@ -12,7 +12,7 @@ m1n1 commit:
 R1 m1n1.bin:
   bf3694348739558df91b10ffe5f097b6e1a4b4878e3b4724cd3a9cac6744cf0a
 chainload transcript:
-  /Users/damsleth/Code/linux-build-out/hpm2-r1-wake-read-20260724.log
+  /Users/damsleth/code/linux-build-out/hpm2-r1-wake-read-20260724.log
   e68321259acd1a3dd942586a578ece6e5c8ded764f8d325370458f07068cd341
 ```
 

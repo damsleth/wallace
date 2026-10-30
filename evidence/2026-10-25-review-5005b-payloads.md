@@ -179,7 +179,7 @@ e3fa66b5…`. C only boots and captures. `IMAGE=$P/Image` is the same
 
 ```text
 cd linux-build-out && shasum -a 256 -c nvmeroot-20261025/payload-{A-nvmeread,B-install,C-nvmeroot}/SHA256SUMS
-gzip -dc payload-B-install/initramfs.cpio.gz | cpio -idm; cmp init ~/Code/wallace/scripts/t6040-init-nvme-root-install
+gzip -dc payload-B-install/initramfs.cpio.gz | cpio -idm; cmp init ~/code/wallace/scripts/t6040-init-nvme-root-install
 shasum -a 256 wallace-root.img.xz init bin/busybox sbin/fsck.exfat sbin/e2fsck; cat wallace-root.img.sha256; strings bin/busybox | grep -x xzcat
 test -e for tune2fs/resize2fs/mke2fs/mkfs.ext4/blkdiscard/fdisk/debugfs/dumpe2fs; strings sbin/e2fsck | grep orphan
 cmp payload-A-nvmeread/initramfs.cpio.gz nvme-ioq-20261024b/payload/initramfs.cpio.gz

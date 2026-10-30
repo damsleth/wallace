@@ -93,7 +93,7 @@ the candidate is not compensating for a missing T6040 width or LTSSM operation.
 
 Source:
 
-- worktree: `/Users/damsleth/Code/m1n1-pcie-port-reset`
+- worktree: `/Users/damsleth/code/m1n1-pcie-port-reset`
 - branch: `codex/t6040-pcie-port-reset`
 - signed commit:
   `afd13c037597c0659cf4d0e37b75f0e3c4ad78ef`
@@ -106,7 +106,7 @@ firmware access.
 
 Two clean builds were byte-identical:
 
-- `/Users/damsleth/Code/linux-build-out/t6040-pcie-port-reset-afd13c03/m1n1.bin`
+- `/Users/damsleth/code/linux-build-out/t6040-pcie-port-reset-afd13c03/m1n1.bin`
 - size: `1,097,728` bytes
 - SHA-256: `4316500701e247dd07a07ec799464499cc769cce32ab58e806bb8e7981860c6d`
 - build tag: `afd13c03`

@@ -7,7 +7,7 @@ Scope: 100% offline. No rig lease, no boot, no SPMI/SMC/PMU/MMIO transaction,
 no build, nothing posted. Read-only tools only (`ipsw`, `nm`, `c++filt`,
 `python3`, `grep`) over the paired 25F84 kexts, the captured J614s ADT, the
 Linux tree at `4f2429104009` plus the two Wallace patches, and
-`~/Code/m1n1-hpm2 @ baf2c20d`.
+`~/code/m1n1-hpm2 @ baf2c20d`.
 
 ## 0. Headline
 
@@ -38,7 +38,7 @@ what the Linux transport mirrors.
 ## 1. Sources
 
 ```text
-com.apple.driver.AppleHPM          (~/Code/linux-build-out/t6040-usb-kexts-25F84/)
+com.apple.driver.AppleHPM          (~/code/linux-build-out/t6040-usb-kexts-25F84/)
   sha256 b6eab85a4478fe354c29d4a274fa1ea23ced1c051e3b320fdfad54d65dce381d
   __TEXT_EXEC.__text vmaddr 0xfffffe00094fac80 fileoff 0x18000 size 0x581fc
   file offset = VA - 0xfffffe00094fac80 + 0x18000 (every citation below)
@@ -47,14 +47,14 @@ com.apple.driver.AppleSPMI         (ipsw kernel extract from t6040-kernelcache-2
   sha256 31129f778926e679db8588fce6c5b43d39191e5299eb29b1bc13cfc52d32d24d
 com.apple.driver.AppleARMPlatform  (same extraction; holds AppleARMSPMIDevice)
   sha256 689807c6304b63e9426e42b63e39869dfb42cae6dee4c10d097712ec414b8816
-kernelcache  ~/Code/linux-build-out/t6040-kernelcache-25F84.raw  (119,209,984 B,
+kernelcache  ~/code/linux-build-out/t6040-kernelcache-25F84.raw  (119,209,984 B,
   Darwin 25.5.0 xnu-12377.121.10~1/RELEASE_ARM64_T6041 - verified by strings)
-ADT          ~/Code/linux-build-out/j614s-usb-port-map-20260721.adt
+ADT          ~/code/linux-build-out/j614s-usb-port-map-20260721.adt
   sha256 7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84
-Linux        ~/Code/linux @ 4f2429104009, drivers/usb/typec/tipd/{core.c,tps6598x.h}
+Linux        ~/code/linux @ 4f2429104009, drivers/usb/typec/tipd/{core.c,tps6598x.h}
              + patches/0001-usb-typec-tps6598x-add-SPMI-transport-for-T6040-SN20.patch
              + patches/t6040-spmi-wakeup-and-tipd-probe-diag.patch
-m1n1         ~/Code/m1n1-hpm2 @ baf2c20d  src/t6040_hpm2.c (the live-proven paging)
+m1n1         ~/code/m1n1-hpm2 @ baf2c20d  src/t6040_hpm2.c (the live-proven paging)
 ```
 
 Method: the whole AppleHPM `__text` was disassembled once

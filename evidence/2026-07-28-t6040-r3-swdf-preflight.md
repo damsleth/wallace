@@ -33,7 +33,7 @@ issues the 4CC **`SWDF`** to CMD1 (`0x08`) via `execute4Cc`; `roleSwap(1)` issue
 
 ## The candidates
 
-`~/Code/m1n1-hpm2` `src/t6040_hpm2.c`, extending the live-proven R0/R1/R2 experiment classes:
+`~/code/m1n1-hpm2` `src/t6040_hpm2.c`, extending the live-proven R0/R1/R2 experiment classes:
 
 - **Class 3 (R3, forward):** exact R2 ladder (fail-closed ADT identity gate → `spmi_init_strict`
   → WAKEUP → read power state `0x20` → SSPS to S0 if needed → verify S0) **plus**:
@@ -123,7 +123,7 @@ not this run.
 
 Source: `m1n1-hpm2` branch `codex/t6040-hpm2-stages`, commit
 `e41cf6e4ee8f2a8b0edbc3fc917ef42aee22e894` ("experiments: add HPM role-swap classes R3 (SWDF)
-and R4 (SWUF)"). Artifacts: `~/Code/linux-build-out/t6040-hpm2-e41cf6e4ee8f/` (full SHA256SUMS
+and R4 (SWUF)"). Artifacts: `~/code/linux-build-out/t6040-hpm2-e41cf6e4ee8f/` (full SHA256SUMS
 per class alongside each binary; captured-ADT identity pinned in MANIFEST).
 
 | class | m1n1.bin SHA-256 |
@@ -134,7 +134,7 @@ per class alongside each binary; captured-ADT identity pinned in MANIFEST).
 Attended run, after a fresh proxy (`bash scripts/t6040-debugusb-console.sh reboot`):
 
 ```bash
-bash scripts/t6040-boot-raw-object.sh ~/Code/linux-build-out/t6040-hpm2-e41cf6e4ee8f/r3/m1n1.bin a106f8cd36a6068fc9586924028b9a64aca986a8e635e1bb0964422ec7345c4e
+bash scripts/t6040-boot-raw-object.sh ~/code/linux-build-out/t6040-hpm2-e41cf6e4ee8f/r3/m1n1.bin a106f8cd36a6068fc9586924028b9a64aca986a8e635e1bb0964422ec7345c4e
 ```
 
 (R4 inverse, only if wanted afterwards: `r4/m1n1.bin`

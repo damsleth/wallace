@@ -13,7 +13,7 @@
     "linux_sven_atcphy": "bb58cc6399a58218b8b5204a9fadf26f07c7f0f3",
     "j614s_adt_sha256": "7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84",
     "apple_t6040_typecphy_kext_sha256": "d0a766201c15bb01b8eeaf6617c91707562ae0c50511ebfccbd9d918acd499f3",
-    "bank_map_script_sha256": "a19e06a29d9b73674456b9d3b99400ae8a491c86644cdb49bcd16fa14662fcfb",
+    "bank_map_script_sha256": "1cc71e88d4abb7a23fa722b682ea56896f26a50228a491f0296c7a2a4ddf21e6",
     "eusb2phy_init_bytes_sha256": "dbcb646331558971195222da3d360c4f61c66e714e344ffd5abde3102f7be29d",
     "apple_synopsys_usbxhci_kext_sha256": "f8b96fabf19180125a1a545790e5d45bef96e9bbd28b7168fda536ed27383e44",
     "apple_t8150_xhci_start_bytes_sha256": "1c57011198f21227eae3f8cdca6baebb8b59f4aed186dc29d2d821f207ed667e",

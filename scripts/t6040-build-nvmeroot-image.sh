@@ -7,7 +7,7 @@
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-OUT=${OUT:-/Users/damsleth/Code/linux-build-out}
+OUT=${OUT:-/Users/damsleth/code/linux-build-out}
 BASE=${BASE:-$OUT/initramfs-alpine-dwm-i3-v5.cpio.xz}
 BASE_SHA256=25d4b110038a13eaea7ffe0019df6728c4b996d2f0ea12458fe391cecf7347ee
 KEYMAP=${KEYMAP:-$OUT/no-latin1.bmap}

@@ -3,7 +3,7 @@
 Date: 2026-10-25. Reviewer: claude (Mythos Wallace session), offline, host
 only; nothing edited. Requested by Opus Wallace. Supersedes
 `evidence/2026-10-25-review-5003-payload-exact.md` for the initramfs only.
-Payload: `~/Code/linux-build-out/nvme-exfat-write-20261025b/payload/`.
+Payload: `~/code/linux-build-out/nvme-exfat-write-20261025b/payload/`.
 
 ## Verdict
 

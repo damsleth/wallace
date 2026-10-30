@@ -75,7 +75,7 @@ The existing guarded packer accepted the blob:
 
 ```sh
 TRACKPAD_FIRMWARE=/private/tmp/t6040-vendorfw/vendorfw/apple/tpmtfw-j614s.bin \
-DEST=/Users/damsleth/Code/linux-build-out/initramfs-dcuart-trackpad.cpio.gz \
+DEST=/Users/damsleth/code/linux-build-out/initramfs-dcuart-trackpad.cpio.gz \
     scripts/t6040-make-initramfs.sh
 ```
 

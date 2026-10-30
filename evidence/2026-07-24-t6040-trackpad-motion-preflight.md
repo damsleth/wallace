@@ -90,7 +90,7 @@ network, USB, SPMI, PMU, charger, NVRAM, or Boot Policy access.
 ## Proposed one-shot procedure
 
 Do not run until another onboarded reviewer has checked these exact bytes
-against `~/Code/m1n1/AGENTS.md` and recorded PASS. The existing ticket approval
+against `~/code/m1n1/AGENTS.md` and recorded PASS. The existing ticket approval
 explicitly retained this review gate.
 
 ```sh
@@ -98,7 +98,7 @@ scripts/rig-lease.sh acquire codex \
     "ticket 004 J614s trackpad motion retest" 1394c345
 RIG_AGENT=codex bash scripts/t6040-debugusb-console.sh reboot
 RIG_AGENT=codex \
-M1N1_BIN=/Users/damsleth/Code/linux-build-out/m1n1-t6040-logbuf-upper-guard-dryrun.bin \
+M1N1_BIN=/Users/damsleth/code/linux-build-out/m1n1-t6040-logbuf-upper-guard-dryrun.bin \
 M1N1DEVICE=/tmp/m1n1 IMAGE=Image-trackpad-004 BOOT_WAIT=55 \
 KERNEL_LOG_ARGS=ignore_loglevel \
 bash scripts/t6040-boot-dcuart.sh \

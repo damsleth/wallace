@@ -2,8 +2,8 @@
 # Build the separately gated J614s PCIe/WLAN/BT/SD bring-up image.
 set -euo pipefail
 
-ROOT=/Users/damsleth/Code/wallace
-OUT=/Users/damsleth/Code/linux-build-out
+ROOT=/Users/damsleth/code/wallace
+OUT=/Users/damsleth/code/linux-build-out
 # Use a dedicated tree so the long-running NVMe diagnostic tree's intentionally
 # stacked instrumentation never leaks into (or blocks cleanup for) this image.
 BUILD_DIR=${BUILD_DIR:-/build/linux-pcie}

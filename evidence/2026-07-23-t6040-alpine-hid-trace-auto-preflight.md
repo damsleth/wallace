@@ -60,7 +60,7 @@ scripts/rig-lease.sh acquire codex \
     "ticket 076 Alpine HID automatic trace capture" 1394c345
 RIG_AGENT=codex bash scripts/t6040-debugusb-console.sh reboot
 RIG_AGENT=codex \
-M1N1_BIN=/Users/damsleth/Code/linux-build-out/m1n1-t6040-logbuf-upper-guard-dryrun.bin \
+M1N1_BIN=/Users/damsleth/code/linux-build-out/m1n1-t6040-logbuf-upper-guard-dryrun.bin \
 M1N1DEVICE=/tmp/m1n1 IMAGE=Image-hid-state-trace BOOT_WAIT=45 \
 EXTRA_BOOTARGS=t6040.hid_trace_auto=1 \
 KERNEL_LOG_ARGS=ignore_loglevel \

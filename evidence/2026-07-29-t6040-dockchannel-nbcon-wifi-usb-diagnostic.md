@@ -9,7 +9,7 @@ A real `console=ttydc0` diagnostic object is staged for ticket 181:
 
 ```text
 8baf5f65035bf7a026c41f9c35b7d47060fa33f8c75e13d168dfa955f4162fe3
-  /Users/damsleth/Code/linux-build-out/m1n1-b0-dwm-nbcon-wifi-usb-diag.bin
+  /Users/damsleth/code/linux-build-out/m1n1-b0-dwm-nbcon-wifi-usb-diag.bin
 30146560 bytes = 1840 * 16384
 ```
 

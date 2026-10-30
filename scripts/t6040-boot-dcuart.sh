@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Boot the t6040 kernel ENTIRELY over the DebugUSB (KIS) pty — no plain-cable
 # tether, no screen-reading. Requires an attached kisd session (run
-# ~/Code/wallace/scripts/t6040-debugusb-console.sh first; /tmp/m1n1 -> kisd pty).
+# ~/code/wallace/scripts/t6040-debugusb-console.sh first; /tmp/m1n1 -> kisd pty).
 #
 # Flow:
 #   1. chainload fresh m1n1 over the pty (proxy protocol)
@@ -22,10 +22,10 @@ set -euo pipefail
 # on an idle rig. Set RIG_AGENT=<you>; hold the lease via scripts/rig-lease.sh.
 source "$(dirname "$0")/rig-guard.sh"
 M1=${M1N1DEVICE:-/tmp/m1n1}
-OUT=/Users/damsleth/Code/linux-build-out
-cd /Users/damsleth/Code/m1n1
+OUT=/Users/damsleth/code/linux-build-out
+cd /Users/damsleth/code/m1n1
 
-PY=/Users/damsleth/Code/m1n1/venv/bin/python
+PY=/Users/damsleth/code/m1n1/venv/bin/python
 [ -x "$PY" ] || PY=python3
 
 DTB="${1:-t6040-j614s-dcuart.dtb}"

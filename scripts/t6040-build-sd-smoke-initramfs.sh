@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-OUT=${OUT:-/Users/damsleth/Code/linux-build-out}
+OUT=${OUT:-/Users/damsleth/code/linux-build-out}
 BASE=${BASE:-$OUT/initramfs-alpine-dwm-i3-everything-no-hidf.cpio.xz}
 DEST=${DEST:-$OUT/initramfs-alpine-sd-smoke.cpio.xz}
 TMP=$(mktemp -d "$OUT/alpine-sd-smoke.XXXXXX")

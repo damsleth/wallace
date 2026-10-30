@@ -45,7 +45,7 @@ Linux source uses the local `origin/dockchannel` series imported by
 - `356985c33ceb197790012a2362542c2b62baea0a`
 - mailbox accessor fix from `ba89d30070d42082a5eca95419e72f1e132b0893`
 
-DT files are in `/Users/damsleth/Code/linux/arch/arm64/boot/dts/apple/`:
+DT files are in `/Users/damsleth/code/linux/arch/arm64/boot/dts/apple/`:
 
 - `t6040.dtsi`: disabled MTP mailbox/DART/DockChannel/HID nodes.
 - `t6040-j614s-kbd-infra.dts`: infrastructure only, MTP CPU not started.
@@ -101,7 +101,7 @@ DT files are in `/Users/damsleth/Code/linux/arch/arm64/boot/dts/apple/`:
 
 ## Current clean artifacts
 
-- `/Users/damsleth/Code/linux-build-out/Image` and `Image-keyboard`:
+- `/Users/damsleth/code/linux-build-out/Image` and `Image-keyboard`:
   SHA-256 `f0c8f35294e4354b12e474a100dc0a880212390eec33653f1164a1e8d240f36a`
 - Full HID DTB `t6040-j614s-kbd.dtb`:
   SHA-256 `e24d1302938e366f8612b393012fa7a4b77d59eacceecaa2b48b5534cf1d1e83`

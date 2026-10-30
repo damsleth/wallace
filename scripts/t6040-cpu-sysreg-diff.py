@@ -36,12 +36,12 @@ import struct
 import sys
 import time
 
-sys.path.insert(0, "/Users/damsleth/Code/m1n1/proxyclient")
+sys.path.insert(0, "/Users/damsleth/code/m1n1/proxyclient")
 from m1n1.setup import *  # noqa: E402,F403  (u, p, iface)
 from m1n1.proxy import GUARD  # noqa: E402
 
 _spec = importlib.util.spec_from_file_location(
-    "probe", "/Users/damsleth/Code/wallace/scripts/t6040-nvme-probe.py")
+    "probe", "/Users/damsleth/code/wallace/scripts/t6040-nvme-probe.py")
 _probe = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_probe)
 
@@ -80,7 +80,7 @@ def ctrr_regs():
     (not in cpu_regs.h, so outside the 5010 first pass). 5012 showed every
     secondary denying writes around the ADT while cpu0 allows them."""
     regs = {}
-    for e in json.load(open("/Users/damsleth/Code/m1n1/proxyclient/m1n1/apple_regs.json")):
+    for e in json.load(open("/Users/damsleth/code/m1n1/proxyclient/m1n1/apple_regs.json")):
         if e["name"].startswith("CTRR_"):
             regs["IMP_APL_" + e["name"]] = tuple(e["enc"])
     # 5015: M4's second CTRR instance, enabled on secondaries only (Asahi m1n1
@@ -97,7 +97,7 @@ def ctrr_regs():
 
 def impdef_first_pass():
     regs = {}
-    src = open("/Users/damsleth/Code/m1n1/src/cpu_regs.h").read()
+    src = open("/Users/damsleth/code/m1n1/src/cpu_regs.h").read()
     for n, enc in re.findall(r"#define SYS_(\w+)\s+sys_reg\(([^)]*)\)", src):
         t = tuple(int(x, 0) for x in enc.split(","))
         if FIRST_PASS.fullmatch(n) and t not in EXCLUDE:

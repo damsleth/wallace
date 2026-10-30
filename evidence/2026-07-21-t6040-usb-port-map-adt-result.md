@@ -8,11 +8,11 @@ without booting Linux or initializing USB, MMIO, PMU/SPMI/NVRAM, or storage.
 ## Capture
 
 - Raw ADT: host-local
-  `/Users/damsleth/Code/linux-build-out/j614s-usb-port-map-20260721.adt`
+  `/Users/damsleth/code/linux-build-out/j614s-usb-port-map-20260721.adt`
 - Size: 606208 bytes
 - SHA-256: `7a92e6e4d16cb1b5a5858beb22b22acc8e5ed4b36ed5d5ccde9b251f1da55c84`
 - Filtered host-local log:
-  `/Users/damsleth/Code/linux-build-out/j614s-usb-port-map-20260721.log`
+  `/Users/damsleth/code/linux-build-out/j614s-usb-port-map-20260721.log`
 
 The raw capture and verbose log are intentionally not copied into this repo;
 the ADT contains device-specific security and identity properties.

@@ -10,7 +10,7 @@
   "deps": [],
   "hashes": {
     "patch t6040-205-fault-tlbi-retry-diag.patch": "73e99a9ea68c1f9188d2402ed8ff44b9b0965c230f4c7f9bd43766bdaab57048",
-    "launcher t6040-run-cow-report.sh": "944b21c54a923fb50f252a67344f4db8969012859da4cf921e59efcfe51b0bda",
+    "launcher t6040-run-cow-report.sh": "b5bc410fd817d56852b4f1e1e057c3dce070ba7d71578551210e86013f547e18",
     "harness": "thin dcuart DTB 30b01736 + initramfs-cow-report de1a5cd7 + control m1n1 bf4b2462, maxcpus=6, 2 boots",
     "reviews": "Codex (gpt-6.1-sol medium) fix-first -> applied, evidence/2026-10-25-review-5012-codex.md; Mythos PASS + additions (AT S1E2W/PAR at stages 1 and 4, postcore probe of the page after the ADT phram reservation on every CPU vs control page, stage-4 nofault read) -> applied",
     "context": "Mythos 2f2c2be: every captured 205 fault is on the first page after m1n1 ADT phram reservation (moves with the ADT each boot)",

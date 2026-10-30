@@ -4,7 +4,7 @@
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-OUT=${OUT:-/Users/damsleth/Code/linux-build-out}
+OUT=${OUT:-/Users/damsleth/code/linux-build-out}
 CONTAINER=${CONTAINER:-kbuild}
 BASE=${BASE:-$OUT/initramfs-bootstrap-sdroot.cpio.gz}
 DEST=${DEST:-$OUT/initramfs-bootstrap-sdroot-fsck.cpio.gz}
