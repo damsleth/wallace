@@ -5,10 +5,11 @@
   "state": "proposed",
   "track": "onboard",
   "priority": "P2",
-  "desc": "After 5021 PASS: use kexec instead of 1TR enrollment to try one new, hash-pinned kernel+DTB on the M4, CJ present. The enrolled 5019 object stays the cold-boot fallback; nothing is enrolled. Each candidate needs a clean t6040-image-preflight (Norwegian keymap at all three layers), exact Image/DTB/initramfs hashes and its own approval. The first kexec of any new kernel uses the 6001 read-only tester initramfs (no NVMe writes, 5008 gates); only a tester PASS allows the NVMe-root initramfs. Before kexec -e: write_cache = write through, sync, nothing unsynced in flight. PASS: tester PASS line; then OpenRC + desktop with exFAT and ext4 clean, WiFi, BT, keyboard/trackpad, no DART fault or RTKit crash, and the previous kernel's console tail in console-ramoops-0. STOP and hard power cycle on hang (the cold boot lands in the enrolled 5019). This ticket establishes the procedure with a rebuild of 5019 at a known hash; real candidates get their own tickets. 5023's flushtest Image is a later consumer and is not approved by this ticket.",
+  "desc": "After 5021 PASS: use kexec instead of 1TR enrollment to try one new, hash-pinned kernel+DTB on the M4, CJ present. The enrolled 5019 object stays the cold-boot fallback; nothing is enrolled. Each candidate needs a clean t6040-image-preflight (Norwegian keymap at all three layers), exact Image/DTB/initramfs hashes and its own approval. The first kexec of any new kernel uses the 6001 read-only tester initramfs (no NVMe writes, 5008 gates); only a tester PASS allows the NVMe-root initramfs. Before kexec -e: write_cache = write through, sync, nothing unsynced in flight. PASS: tester PASS line; then OpenRC + desktop with exFAT and ext4 clean, WiFi, BT, keyboard/trackpad, no DART fault or RTKit crash, and the previous kernel's console tail in console-ramoops-0. STOP and hard power cycle on hang (the cold boot lands in the enrolled 5019). Every kernel tried this way must boot with nr_cpus=1 in its cmdline, or it cannot kexec again. This ticket establishes the procedure with a rebuild of the 5024 kernel at a known hash; real candidates get their own tickets. 5023's flushtest Image is a later consumer and is not approved by this ticket.",
   "author": "claude",
   "deps": [
-    "5021"
+    "5021",
+    "5024"
   ],
   "hashes": null,
   "created": 1793371544,
