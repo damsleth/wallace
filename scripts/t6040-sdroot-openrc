@@ -9,6 +9,8 @@ fi
 
 case "${1:-}" in
     net)
+        # The nvmeroot initramfs ships no t6040-net-up (WiFi is t6040-sdroot-net).
+        [ -x /usr/local/sbin/t6040-net-up ] || exit 0
         exec /bin/sh /usr/local/sbin/t6040-net-up
         ;;
     sysinit|boot|default|shutdown)

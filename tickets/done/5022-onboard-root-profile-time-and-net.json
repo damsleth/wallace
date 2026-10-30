@@ -1,0 +1,17 @@
+{
+  "seq": "5022",
+  "slug": "onboard-root-profile-time-and-net",
+  "needs": "offline",
+  "state": "done",
+  "track": "onboard",
+  "priority": "P2",
+  "desc": "Fold the 2026-10-30 on-device root changes into the 5005 root-profile recipe so a rebuilt wallace-root.img keeps them. Changes made live on the running root: OpenRC boot runlevel swclock instead of hwclock (the macsmc RTC never binds: no /dev/rtc); default runlevel chronyd only (busybox ntpd removed, both were adjusting the clock); /etc/chrony/chrony.conf rtcsync commented out (no RTC); seed file /var/lib/misc/openrc-shutdowntime; iwd removed from boot (dies on start: kernel lacks CRYPTO_USER_API_HASH/SKCIPHER, KEY_DH_OPERATIONS, and the HMAC/SHA1/MD5/DES/CBC options are =m with no /lib/modules; WiFi stays on wpa_supplicant via inittab t6040-sdroot-net, never via OpenRC runlevels); /etc/profile.d/local-bin.sh adds ~/.local/bin to PATH; packages jq, debootstrap, perl added. Also note: inittab's 'net' action calls /usr/local/sbin/t6040-net-up, which does not exist on this root (harmless, fix or drop). Deliverable: recipe diff + host-harness check, no live root rebuild. RESULT 2026-10-30: recipe updated (profile nvmeroot-5005-v3), harness PASS for the profile section, apk step untested until the next Mac build; sshd made key-only and opt-in via AUTHORIZED_KEYS; t6040-sdroot-openrc net tolerates the missing t6040-net-up.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1793349435,
+  "evidence": [
+    "evidence/2026-10-30-t6040-5022-root-profile-time-and-net.md"
+  ],
+  "done_at": 1793378057
+}
