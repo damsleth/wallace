@@ -25,6 +25,11 @@ always-on (relevant to 5028).
 - The ADT decides which variant J614s uses and on which bus/slave. Look for the backlight node's
   update/enable "function" properties and its calibration properties.
 - A PWM variant exists, so the `pms_fpwm*` domains that won't power on (5028) may matter here.
+- **Executor (correction, `eeaebdf`):** in a backlight function property (`[u32 phandle][u32 tag][args]`)
+  the phandle selects the executor device; the tag only separates update from enable. A boolean on
+  the backlight node can short-circuit to the SPMI executor.
+- **Calibration:** nits → mA → DAC through two piecewise u16 tables in the ADT, plus segment-end
+  currents in 16.16 mA. The upper current is a hard clamp (default 25.0 mA) and bounds any test level.
 
 ## Display / DCP (022)
 
@@ -42,6 +47,9 @@ always-on (relevant to 5028).
 - The path is dcpext → DP PHY → DP-to-HDMI converter.
 - The converter is identified by its DP branch OUI, so it is one of several families. It is
   controlled through I2C-over-AUX.
+- Detection (`eeaebdf`): DPCD branch OUI at `0x500`: `00 1C F8` = Parade PS186, `00 60 AD` =
+  MegaChips MCDP2900, after a 12-byte write/readback check at `0x300`/`0x310`. The ADT does not name
+  the chip, and no ADT property binds an HDMI port to a specific dcpext (the crossbar picks at run time).
 - Converter power, HPD, CEC enable and reset come from GPIOs, which earlier Wallace ADT evidence maps
   to SMC keys.
 - The crossbar is a small delta from the M2-generation crossbar.
