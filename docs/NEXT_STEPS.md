@@ -29,7 +29,7 @@ blocks on CJ, and remove it once it has been done.
 
    ```sh
    scripts/rig-lease.sh queue approve 5020 --by cj   # boot the 5019 debug kernel
-   scripts/rig-lease.sh queue approve 5021 --by cj   # kexec feasibility (after 5020)
+   scripts/rig-lease.sh queue approve 5021 --by cj   # kexec feasibility (after 5020 and 5024)
    ```
 
 3. **After 5019 is built: install and enroll its object** (5020). Use the

@@ -73,8 +73,10 @@ On the M4 (Linux):
   sync
 
 Step 1, handoff to the SAME kernel (tests kexec itself, no new kernel in the way):
+  # needs the 5024 object booted (nr_cpus=1); with maxcpus=1 alone the kernel refuses:
+  # "Can't kexec: CPUs are stuck in the kernel"
   kexec -l /mnt/linux/wallace-5019/Image --dtb=/mnt/linux/wallace-5019/board.dtb --initrd=/mnt/linux/wallace-5019/initramfs.cpio.gz \
-        --command-line="maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel printk.devkmsg=on console=ttydc0 console=tty0 rdinit=/init"
+        --command-line="nr_cpus=1 maxcpus=1 idle=nop nokaslr pd_ignore_unused clk_ignore_unused console=tty0 fbcon=font:TER16x32 ignore_loglevel printk.devkmsg=on console=ttydc0 console=tty0 rdinit=/init"
   sync
   kexec -e
 
