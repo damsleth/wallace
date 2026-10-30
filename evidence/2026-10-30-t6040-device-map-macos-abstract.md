@@ -77,6 +77,15 @@ always-on (relevant to 5028).
 - The OS-side hardware layer only applies addr/mask/value tunables; no task-queue registers are
   named, so Asahi-style direct MMIO is unproven on this generation.
 - Up to 4 instances. All `ane_*` power domains are off on the live boot.
+- **AP interface (`782a58c`):** unlike M1, the AP has no task-queue/DMA register block. Jobs go to
+  the ANE firmware through shared-memory rings, a doorbell register and an IRQ pending/ack pair. The
+  AP side is PMGR power, a short coprocessor handshake (~50 ms poll), tunables, and a
+  scratch-register boot handshake. Asahi's M1 ANE driver does not carry over; Linux would need an
+  RTKit-style coprocessor boot plus the ring/command formats. Long road, parked.
+- **Preloaded firmware:** iBoot puts it in two physical ranges (TEXT, DATA) listed in the ANE node's
+  `segment-ranges` (32-byte entries: u64 phys, u64 fw-virt, u64 remap, u32 size), flagged
+  pre-loaded and firmware-protected (CTRR class). m1n1 must reserve them no-map, or Linux can
+  allocate them. Check against `/proc/iomem` once the ADT is available.
 
 ## Touch ID: not feasible
 
