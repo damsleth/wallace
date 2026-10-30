@@ -1788,7 +1788,7 @@ fi
 if [ "${T6040_ONBOARD_DEBUG:-0}" = "1" ]; then
     command -v xz >/dev/null || apt-get install -y -qq xz-utils >/dev/null
     onboard_syms="FTRACE FUNCTION_TRACER DYNAMIC_FTRACE KPROBES KPROBE_EVENTS \
-DYNAMIC_DEBUG IKHEADERS PSTORE PSTORE_RAM PSTORE_CONSOLE MTD_PHRAM"
+DYNAMIC_DEBUG IKHEADERS PSTORE PSTORE_RAM PSTORE_CONSOLE MTD_PHRAM PROC_KCORE"
     for sym in $onboard_syms; do ./scripts/config --file .config -e "$sym"; done
     make ARCH=arm64 olddefconfig >/dev/null
     echo "== assert onboard debug support is BUILTIN =="
