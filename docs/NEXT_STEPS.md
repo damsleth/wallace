@@ -69,15 +69,15 @@ blocks on CJ, and remove it once it has been done.
    replaces what is there; `TARGET=/Volumes/m1n1 scripts/t6040-enroll-guard.sh`
    checks the hash once 5024's is on its allowlist.
 
+   The SSD ignores Flush. Shut down cleanly (`poweroff`/`reboot`, never a
+   hard reset), or the newest writes, the object included, can be lost.
+
 6. **Resync the Mac clone** if it pulled `4b1ef4f` before the 2026-10-30
    force-push that removed trailers. Check `git log origin/main..main` first:
 
    ```sh
    cd ~/code/wallace && git fetch && git reset --hard origin/main
    ```
-
-   The SSD ignores Flush. Shut down cleanly (`poweroff`/`reboot`, never a
-   hard reset), or the newest writes, the object included, can be lost.
 
 ## 0. The current objective: a practical daily driver
 
