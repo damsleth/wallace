@@ -1,0 +1,13 @@
+{
+  "seq": "5028",
+  "slug": "pms-fpwm-always-on-failure",
+  "needs": "offline",
+  "state": "open",
+  "track": "pm",
+  "priority": "P3",
+  "desc": "Offline analysis first. Every boot logs, for all five of pms_fpwm0..4 (PMGR 502800000, power-controller@140/148/150/158/160, each marked apple,always-on): 'always-on domain pms_fpwmN is not on at boot', 'PS pms_fpwmN: Failed to reach power state 0xf (now: 0xf)', 'PM: always-on PM domain pms_fpwmN is not on'. They are therefore missing from pm_genpd_summary. The keyboard LED is unaffected: it uses a different domain, fpwm0 (502280000 power-controller@138, child of sio), which is on and works. Two hypotheses. (A, wallace-rex Pipeline D) On macOS the FPWM blocks are on-demand: the driver powers them at first PWM start and drops them at stop. So apple,always-on on these nodes is wrong, likely inherited from an older dtsi; drop it and let a consumer hold the domain. (B) 'now: 0xf' equals the target, so the domain may already be on and the driver's state check misreads this block (different PS register layout or a ready bit in the PMS block). Tasks: find which dtsi defines pms_fpwm* (not in wallace dts/, so the reconstructed kernel tree t6040-pmgr.dtsi); read apple-pmgr-pwrstate's state check against the 0xf/0xf readback; decide A vs B from code and the ADT (5027). Note pms_fpwm* may feed the panel backlight path (164): do not turn these domains off on a live boot without a reviewed plan, since that could dim or blank the panel. Output: a DT or driver patch candidate plus evidence; no rig action.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1793389727
+}
