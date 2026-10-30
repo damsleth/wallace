@@ -1,8 +1,11 @@
 # T6040 Linux bring-up — next steps
 
-Current as of 2026-10-25 (Linux NVMe reads and writes validated at `maxcpus=1`;
-ANS2 rejects Flush, so the SSD runs write-through; NVMe daily root 5008 DONE:
-the M4 runs its desktop root from the internal SSD). This file states priorities and stop conditions.
+Current as of 2026-10-30. The M4 runs standalone on the 5019 debug kernel
+(enrolled via 1TR) with its desktop root on the internal SSD, at `maxcpus=1`.
+ANS2 rejects Flush, so the SSD runs write-through. BLE HID (MX Ergo S),
+ftrace/kprobes and ramoops work. kexec is refused under `maxcpus=1` (5021/5024
+fix that with `nr_cpus=1`). Agents work on the machine itself (COORDINATION.md
+on-device mode). This file states priorities and stop conditions.
 Exact work items, hashes, dependencies, and approval state live in
 `tickets/*.json`.
 
@@ -11,39 +14,58 @@ Exact work items, hashes, dependencies, and approval state live in
 Agents cannot run these. Keep this list current: add a command when a ticket
 blocks on CJ, and remove it once it has been done.
 
-1. **Push the running kernel's base to GitHub** (on the Mac). `4f2429104009`
-   exists only in `~/code/linux`. GitHub's `wallace/t6040-bringup` stops at
-   `e9d2237` (2026-07-14), so the M4 cannot rebuild the kernel it runs.
-   This blocks 5019. Pushing to a new ref leaves the branch where it is:
+1. **Finish 5020: the warm-reboot pstore check** (on the M4, with no agent
+   mid-task, since the reboot ends every session on the machine):
 
    ```sh
-   cd ~/code/linux
-   git push origin 4f2429104009e3964ddcc326d8490ac25bfb1a5c:refs/heads/wallace/base-4f24291
+   /mnt/sd/code/wallace/scripts/t6040-onboard-pstore-reboot.sh         # marker, then clean reboot
+   /mnt/sd/code/wallace/scripts/t6040-onboard-pstore-reboot.sh check   # after the reboot
    ```
 
-   The uncommitted t6040 DT files that kbuild copies from `~/code/linux` are
-   still only on the Mac. Commit them to a side branch when convenient.
-
-2. **Approve the on-device rig tickets** when you want them run. Tell an
-   agent, or run:
+2. **Push the reconstructed kernel base** (on the Mac). 5019 was built from
+   `wallace/reconstructed-4f24291` (`6d2e54a0d`), which exists only in
+   `/Volumes/CaseSensitive/linux`. Without it nobody else can rebuild the
+   running kernel:
 
    ```sh
-   scripts/rig-lease.sh queue approve 5020 --by cj   # boot the 5019 debug kernel
-   scripts/rig-lease.sh queue approve 5021 --by cj   # kexec feasibility (after 5020 and 5024)
+   cd /Volumes/CaseSensitive/linux && git push origin wallace/reconstructed-4f24291
    ```
 
-3. **After 5019 is built: install and enroll its object** (5020). Use the
-   procedure in `/mnt/sd/wallace-nvmedesk/LESMEG.txt` with the new file and
-   hash from 5019's evidence:
+3. **Decide on the live sshd.** The running root listens on port 22 with
+   `PermitRootLogin yes`, a root password, and no `authorized_keys`, so it
+   accepts password logins as root from the network. The rebuilt root (5022)
+   is key-only. To match it now, put your Mac's public key in
+   `/root/.ssh/authorized_keys` on the M4, then:
 
    ```sh
-   # Mac -> M4 (Linux running; the partition is mounted at /mnt/sd there):
-   scp <5019-object>.bin root@<m4-ip>:/mnt/sd/<5019-object>.bin
-   ssh root@<m4-ip> 'sync; sha256sum /mnt/sd/<5019-object>.bin; poweroff'
-   # 1TR on the M4 (do not let 1TR repair or write the partition):
-   shasum -a 256 /Volumes/linux/<5019-object>.bin   # must equal the 5019 hash
-   kmutil configure-boot -c /Volumes/linux/<5019-object>.bin --raw \
-       --entry-point 2048 --lowest-virtual-address 0 -v <boot volume as for 5014>
+   printf 'PermitRootLogin prohibit-password\nPasswordAuthentication no\nKbdInteractiveAuthentication no\n' \
+       > /etc/ssh/sshd_config.d/10-wallace.conf && rc-service sshd restart
+   ```
+
+4. **Approve rig tickets** when you want them run. Tell an agent, or run:
+
+   ```sh
+   scripts/rig-lease.sh queue approve 5020 --by cj   # formalise: you already booted 5019
+   scripts/rig-lease.sh queue approve 5021 --by cj   # kexec feasibility (needs 5024 enrolled)
+   scripts/rig-lease.sh queue approve 5015 --by cj   # CTRR_C reads + SMP test (two variants)
+   scripts/rig-lease.sh queue approve 5023 --by cj   # ANS2 Flush with dma_flags 0
+   ```
+
+5. **After 5024 is built: enroll its object** (for 5021). Same procedure as
+   5019, documented in `docs/LINUX_PARTITION_README.txt` section 1, with the
+   5024 file name and hash:
+
+   ```sh
+   shasum -a 256 /Volumes/linux/wallace-5024/<object>.bin   # must equal the 5024 hash
+   kmutil configure-boot -c /Volumes/linux/wallace-5024/<object>.bin --raw \
+       --entry-point 2048 --lowest-virtual-address 0 -v /Volumes/m1n1
+   ```
+
+6. **Resync the Mac clone** if it pulled `4b1ef4f` before the 2026-10-30
+   force-push that removed trailers. Check `git log origin/main..main` first:
+
+   ```sh
+   cd ~/code/wallace && git fetch && git reset --hard origin/main
    ```
 
    The SSD ignores Flush. Shut down cleanly (`poweroff`/`reboot`, never a

@@ -159,6 +159,16 @@ the discipline around them.
   recovery backstop for future removable stage-2 first lights, not yet a
   no-media selection protocol.
 
+- **kexec is refused under `maxcpus=1` (2026-10-30).** arm64 needs a way to park
+  secondaries (PSCI `cpu_die`); Apple CPUs use spin-table, and `maxcpus=1`
+  still leaves 14 *possible* CPUs, so `kexec -l` fails with "Can't kexec: CPUs
+  are stuck in the kernel" (`EBUSY`). `nr_cpus=1` makes one CPU possible
+  (5024/5021). [Evidence](../evidence/2026-10-30-t6040-5020-onboard-debug-kernel-boot.md).
+- **The 5019 debug kernel (2026-10-30)** carries ftrace, kprobes, dynamic debug,
+  in-kernel headers and built-in ramoops at `0x10300000000` (2 MiB, no-map).
+  Its ramoops has `pmsg_size=0`, so userspace markers go through `/dev/kmsg`
+  into `console-ramoops-0`.
+
 ### Display and keyboard
 
 - simpledrm and fbcon use the framebuffer handed off by m1n1.
@@ -218,6 +228,15 @@ the discipline around them.
 - cpufreq works after widening the driver’s `frequency * 1000` calculation;
   P cores reach 4.512 GHz.
 - `idle=nop` remains a bring-up workaround, not a power-management solution.
+- **CTRR (2026-10-30, macOS kernel reading via wallace-rex):** macOS writes no
+  CTRR register on any CPU; the secondary-only window is firmware-locked, so
+  Linux can only keep allocations out of it. On the live boot, m1n1
+  `80badc91` reserves nothing there, and the 384 KiB from the ADT end to m1n1
+  `_base` is allocatable RAM. 5015 tests a reservation.
+  [Evidence](../evidence/2026-10-30-t6040-5015-ctrr-macos-abstract-and-live-layout.md).
+- **WFxT:** the CPU has FEAT_WFxT. `flokli-code.patch` with `idle=nop` skips
+  WFIT in `__delay()` but still loops on WFET; only `arm64.nowfxt` removes both.
+  Daily cmdlines do not have it yet.
 
 ### SMC
 
@@ -477,6 +496,15 @@ surviving component pins are not the exact externally tested branch.
 
 Do not repeat these without new evidence:
 
+- **On-device agent pitfalls (2026-10-30).** `rig-lease.sh` defaults to
+  `$HOME/code/wallace`; on the M4 set `WALLACE_ROOT=/mnt/sd/code/wallace` or
+  tickets land in a stray directory with colliding numbers. Never fetch full
+  kernel history onto the 16 GB root (a fetch plus git auto-repack filled it);
+  use a depth-1 fetch into tmpfs. The running kernel cannot be rebuilt on the
+  M4 until its reconstructed base is pushed, and with no BTF there is no safe
+  way to load out-of-tree modules into it.
+- **"We ship WFI/WFIT avoidance" was half true (2026-10-30).** WFET still runs
+  in `__delay()`; see CPU above.
 - **USB-root source gates are not a hardware boot result (6005, October24).**
   The new, separately named init originally ignored bootstrap/devtmpfs and
   handoff-directory failures and rejected valid quoted Xorg layout syntax.
