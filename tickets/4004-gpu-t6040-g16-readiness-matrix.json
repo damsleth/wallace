@@ -12,7 +12,8 @@
   "created": 1787145379,
   "review_2026_10_24": "October review finds no demonstrated T6040/G16 Linux stack. New M4 HV tracing (6003) can help investigation; existing-GPU rebase fixes and login-screen GPU tracing are not a live-candidate admission pass.",
   "evidence": [
-    "evidence/2026-10-24-asahi-dev-review.md"
+    "evidence/2026-10-24-asahi-dev-review.md",
+    "evidence/2026-10-30-t6040-device-map-live.md"
   ],
   "review_2026_10_29_gravity": "Gravity Linux replacement/210-gpu (ed2c67a9f6) adds Rust drm/asahi backends: DRM_ASAHI_M4 for T8132 (M4, ships GL ES 3.0/GL 3.3 on the Mac mini alpha with their Mesa fork) and DRM_ASAHI_NEO for T8140/G17P (A18 Pro); binding adds G16C firmware props apple,firmware-sw-interrupt and apple,active-mcc-mask supplied by their m1n1 kboot_gpu. Their T6041 (M4 Max) DT has an apple,agx-t6041/apple,agx-g16c node that is disabled pending PMGR ownership; their M4 Max doc says no GPU-driver changes yet. Nothing targets T6040 (J773s ADT /arm-io/sgx compatible gpu,t6040, 16 perf states). Row status unchanged: no demonstrated T6040 stack; Gravity M4/T8132 is the closest public G16-family driver to track. See evidence/2026-10-29-gravitylinux-survey.md."
 }

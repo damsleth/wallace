@@ -17,6 +17,7 @@
   "created": 1784039024,
   "review_2026_10_24": "October M4 Pro login-screen tracing is an investigation opportunity (6003), not a T6040 DCP/macOS-26 ABI completion. MacBook uses disp0 plus dispext0/1; compare live ADT and upstream DT in 6002.",
   "evidence": [
-    "evidence/2026-10-24-asahi-dev-review.md"
+    "evidence/2026-10-24-asahi-dev-review.md",
+    "evidence/2026-10-30-t6040-device-map-live.md"
   ]
 }

@@ -9,7 +9,7 @@ until the next Mac build.
 
 | Live change (2026-10-25..30) | Recipe |
 |---|---|
-| `boot: swclock` (no `/dev/rtc`: the macsmc RTC never binds) | added to the runlevel list |
+| `boot: swclock` (no `/dev/rtc`: `smc/rtc` is `disabled` in the DTB although `RTC_DRV_MACSMC=y`; corrected 2026-10-30, it was first written as "never binds") | added to the runlevel list |
 | seed `/var/lib/misc/openrc-shutdowntime` | created with a fixed mtime, 2026-10-30T00:00Z, so swclock never starts in 1970 |
 | `default: chronyd`, busybox ntpd gone | chronyd linked if present; the recipe never linked ntpd |
 | `chrony.conf` `rtcsync` commented out | same sed, same comment text as live |

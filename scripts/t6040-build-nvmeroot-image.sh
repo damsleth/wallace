@@ -65,7 +65,7 @@ cat >>"$DEST/build.sh" <<'EOS'
         [ "$n" = t6040-keymap ] || [ -f etc/init.d/$n ] || { echo "missing service $n"; exit 1; }
         ln -s /etc/init.d/$n etc/runlevels/$l/$n
     done
-    # 5022: no RTC (macsmc RTC never binds), so swclock restores time at boot from
+    # 5022: no RTC (the DTB disables smc/rtc), so swclock restores time at boot from
     # this seed, and chronyd alone (no busybox ntpd) disciplines the clock.
     mkdir -p var/lib/misc && touch -d 2026-10-30T00:00:00Z var/lib/misc/openrc-shutdowntime
     if [ -f etc/init.d/chronyd ]; then

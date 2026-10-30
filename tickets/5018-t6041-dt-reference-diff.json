@@ -10,5 +10,8 @@
   "deps": [],
   "hashes": null,
   "created": 1793311256,
-  "progress_2026_10_29": "Offline comparison written: evidence/2026-10-29-t6040-5018-t6041-dt-reference-diff.md (drafted by Codex gpt-6.1-terra via agent-bridge, reviewed by claude; spot-checked J773s /arm-io/aop reg 0x310600000 and admac-leap-ns 0x313300000 against the ADT dump, and MTP mailbox 0x514608000 against dts/t6040.dtsi: all match). Ranked: internal DCP+backlight, AOP/ADMAC audio, PMP/PMGR, ISP. Blocker for every item: our own J614s ADT nodes for DCP/AOP/PMP and the installed firmware version vs DCP ABI 26.6. Remaining offline step: pull those J614s ADT nodes and fill the UNCONFIRMED cells."
+  "progress_2026_10_29": "Offline comparison written: evidence/2026-10-29-t6040-5018-t6041-dt-reference-diff.md (drafted by Codex gpt-6.1-terra via agent-bridge, reviewed by claude; spot-checked J773s /arm-io/aop reg 0x310600000 and admac-leap-ns 0x313300000 against the ADT dump, and MTP mailbox 0x514608000 against dts/t6040.dtsi: all match). Ranked: internal DCP+backlight, AOP/ADMAC audio, PMP/PMGR, ISP. Blocker for every item: our own J614s ADT nodes for DCP/AOP/PMP and the installed firmware version vs DCP ABI 26.6. Remaining offline step: pull those J614s ADT nodes and fill the UNCONFIRMED cells.",
+  "evidence": [
+    "evidence/2026-10-30-t6040-device-map-live.md"
+  ]
 }
