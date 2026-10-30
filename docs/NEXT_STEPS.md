@@ -34,6 +34,20 @@ blocks on CJ, and remove it once it has been done.
    cd /Volumes/CaseSensitive/linux && git push origin wallace/reconstructed-4f24291
    ```
 
+2b. **Push the enrolled m1n1 source** (on the Mac). The m1n1 inside 5014/5019
+   (`bf4b2462…`, version `v1.6.0-wallace-80badc91`) was built from
+   `80badc91e62c8b4228a857730f160ffb62a29335`, which is not on GitHub
+   (`damsleth/m1n1` has only `main` at `16b1f61`). Until it is pushed, nobody
+   can rebuild that m1n1 or put the 5015 CTRR_C series on it, on the M4 or
+   anywhere else:
+
+   ```sh
+   cd ~/code/m1n1 && git push origin 80badc91e62c8b4228a857730f160ffb62a29335:refs/heads/wallace/enrolled-80badc91
+   ```
+
+   If the window-free build used local flags or uncommitted files, note them in
+   the 5015 ticket.
+
 3. **Decide on the live sshd.** The running root listens on port 22 with
    `PermitRootLogin yes`, a root password, and no `authorized_keys`, so it
    accepts password logins as root from the network. The rebuilt root (5022)

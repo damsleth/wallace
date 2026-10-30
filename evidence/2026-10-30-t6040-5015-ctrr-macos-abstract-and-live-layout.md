@@ -25,6 +25,16 @@ Everything here is a hypothesis until the rig confirms it.
    not traced, and the kernel does touch SPRR/GXF-style registers (`s3_6_c15_c1_*`, `c2_*`)
    and a large `s3_7_c15_*` block. If step 3 still faults with the reservation, that
    per-CPU init and the PMGR CPU-start path are the next RE targets.
+4. **Kernel-wide write census (closes the caveat in 3).** Across the whole macOS kernel, not just
+   the boot text, writes in the `s3_0_c11` space go only to the 20 guest (`_EL12`) copies; there is
+   no CTRR LWR/UPR/CTL/LOCK write for itself anywhere. Legacy `s3_4_c15_c2_2..5`: no writes.
+   `s3_0_c15_*` (HID/chicken space): no writes at all, so macOS leaves every chicken bit to
+   firmware and there is no chicken sequence to copy (whatever m1n1 applies is its own). The
+   written families are IPI, PMC, a key/APCTL block, SPRR/GXF-style permission registers and a
+   guest-state save/restore block; none is a physical-range protection. Still open: whether
+   SPRR/GXF permission state differs between boot CPU and secondaries on T6040. That only matters
+   if step 3 still faults, since 205's fixed-physical-page first fault fits CTRR better. Source:
+   wallace-rex `ac71e08`.
 
 ## Live layout on this boot (m1n1 `v1.6.0-wallace-80badc91`, iBoot `mBoot-18000.161.10`)
 
