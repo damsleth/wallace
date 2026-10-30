@@ -358,7 +358,7 @@ Read-only inspection that needs no rig action:
     cat /proc/iomem; ls /proc/device-tree/reserved-memory
     cp /sys/firmware/fdt /tmp/fdt                  # /memreserve/ entries are in the header
     zcat /proc/config.gz | grep CONFIG_
-    ls /sys/fs/pstore                              # crash log from the previous boot
+    ls /sys/fs/pstore                              # previous kernel's log; may be empty after a reboot (DRAM scrubbed 2026-07-30), kept across kexec
 
 Tracing on the 5019 kernel (remove probes afterwards):
 
