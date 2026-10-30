@@ -315,11 +315,10 @@ mounted as `/Volumes/linux`. That partition holds the objects and
 (`evidence/2026-10-25-t6040-5014-three-boot-entries.md`) is not the current
 setup.
 
-The guard has not caught up. Its `TARGET=/Volumes/wallace` case is stale, and
-the `/Volumes/m1n1` allowlist has neither 5014 (`6a522d64…`) nor 5019
-(`28127903…`). Until a reviewed guard change adds them,
-[LINUX_PARTITION_README.txt](LINUX_PARTITION_README.txt) §1 enrolls them with
-plain `kmutil` after a manual `shasum` check.
+The guard accepts only `TARGET=/Volumes/m1n1`. Its allowlist includes 5014
+(`6a522d64…`) and 5019 (`28127903…`) (2026-10-30). The plain `kmutil` command
+in [LINUX_PARTITION_README.txt](LINUX_PARTITION_README.txt) §1 is the same
+command the guard prints.
 
 Rollback object:
 

@@ -13,18 +13,17 @@
 # stay separate, maintainer-driven steps.
 set -euo pipefail
 
-# --- pinned identities of the dedicated System volumes (maintainer-confirmed) ---
-# /Volumes/m1n1 carries the DebugUSB rollback loader. /Volumes/wallace is the
-# third startup entry for the standalone NVMe desktop (ticket 5014); its UUID is
-# pinned by CJ after creating the volume, and until then the guard refuses it
-# and prints the UUID to pin.
-# TARGET must be named explicitly, and each target has its own allowlist
-# (5014 review): an object approved for one volume is refused on the other.
+# --- pinned identity of the dedicated System volume (maintainer-confirmed) ---
+# /Volumes/m1n1 is the only boot volume (CJ, 2026-10-30). It carries either the
+# DebugUSB rollback loader or a standalone object (5014, 5019); enrolling one
+# replaces the other. /Volumes/wallace is not a boot volume: it was the old name
+# of the exFAT `linux` partition, now /Volumes/linux, which holds the objects.
+# The separate APFS `wallace` volume planned in 5014 is not the current setup.
+# TARGET must still be named explicitly.
 TARGET="${TARGET:-}"
 case "$TARGET" in
     /Volumes/m1n1) EXPECT_UUID="B7FB1EC3-1BA0-4DCB-B57D-C8E9A0AE1E63"; EXPECT_NAME="m1n1" ;;
-    /Volumes/wallace) EXPECT_UUID=""; EXPECT_NAME="wallace" ;;
-    *) echo "GUARD FAIL: set TARGET=/Volumes/m1n1 or TARGET=/Volumes/wallace (got: '$TARGET')" >&2; exit 1 ;;
+    *) echo "GUARD FAIL: set TARGET=/Volumes/m1n1, the only boot volume (got: '$TARGET')" >&2; exit 1 ;;
 esac
 
 # --- approved objects (SHA-256 -> label). Anything else is refused. ---
@@ -119,6 +118,14 @@ esac
 #  Xorg+i3+i3bar running. Strict verify PASS, 2609×16 KiB, initramfs decodes to 99.5 MiB
 #  in the minilzlib harness (kernel member is gzip — m1n1 payload.c native).
 #  5931f9c3… macsmc dual-mode v3 (dwm + keyboard + battery/thermals SRAM-fixed) — 165
+#  6a522d64… standalone NVMe i3 desktop (ticket 5014): window-free m1n1 bf4b2462, kernel
+#  2234baad, DTB 6d2d3da6, initramfs 82a86064, maxcpus=1. Enrolled on m1n1 and running as
+#  the daily root as of 2026-10-30; the known-good rollback for 5019.
+#  28127903… onboard debug kernel (ticket 5019, boot approved as 5020 by CJ 2026-10-30):
+#  5014 with only the kernel (41f9fdc3, kexec/ftrace/pstore) and DTB (1a49d19d, ramoops
+#  node) changed. Built twice byte-identical, preflight OK, strict verify PASS; not yet booted.
+#  Both have no proxy window: enrolling either removes the DebugUSB dev loop until
+#  1394c345 is enrolled again.
 APPROVED_HASHES="\
 5931f9c3d1f785f2a25cd40754fec1f38078efbc3ceaa952288c529bbc7527f8 macsmc-dualmode-dwm-v3-sramfix
 3aabde2d4639639f5f0603d9eac9e3c05ee1f8b3c27c2aa53901e9a471b2efa8 dualmode-graphical-dwm
@@ -136,16 +143,14 @@ beb293340965d53f1ed3a1f14cde748bd1326d8fa6f1f6f158dc3e39bd2cb6cc dwm-i3-v2-rtc-w
 16a4c5946fa1e0ed9a3810ed6bc4aab5cc19a2daf21006523271f9290360fa83 dwm-i3-v5-ansfix-tz-5core
 2abc49018f6a8186debef0f3852df694c16ea6fa9127683bc3950b8e4260237b dwm-i3-v6-ansquiesce-5core
 76083c544712c0d406f923d2092a64eb1ea0c319e6a5abc568876d8cbaa466f6 dwm-i3-v7-nvme-depth16-5core
-6f7a54a5ea44e18ddb803628cb7e450b89a0b2889f14dded6aa331b628eee556 dwm-i3-v71-depth16-reboot-5core"
-# Objects for /Volumes/wallace (the standalone NVMe desktop entry, ticket 5014).
-# Empty until the 5014 smoke boot passes.
-WALLACE_HASHES=""
-[ "$TARGET" = /Volumes/wallace ] && APPROVED_HASHES=$WALLACE_HASHES
+6f7a54a5ea44e18ddb803628cb7e450b89a0b2889f14dded6aa331b628eee556 dwm-i3-v71-depth16-reboot-5core
+6a522d648cf8e48d03dbcc0fa5f29256b434f3a127eed9b9076e66c536abbd7c nvmedesk-standalone-5014
+28127903fb83ad4a235eb887964b21122e2b20d2492b819dd9883264e652631c onboard-debug-5019"
 
 OBJ="${1:-}"
 CONFIRM="${2:-}"
 if [ -z "$OBJ" ]; then
-    echo "usage: TARGET=/Volumes/m1n1|/Volumes/wallace $0 <object.bin> [--confirm-enroll]" >&2
+    echo "usage: TARGET=/Volumes/m1n1 $0 <object.bin> [--confirm-enroll]" >&2
     echo "  validates identity + object hash, prints the exact kmutil command;" >&2
     echo "  add --confirm-enroll to actually run it." >&2
     exit 2
