@@ -1,0 +1,13 @@
+{
+  "seq": "5027",
+  "slug": "onboard-phram-live-adt",
+  "needs": "offline",
+  "state": "open",
+  "track": "onboard",
+  "priority": "P2",
+  "desc": "Next onboard kernel: CONFIG_MTD_PHRAM=y (added to T6040_ONBOARD_DEBUG's asserted set in t6040-kbuild.sh). m1n1 already publishes two reserved-memory nodes with compatible \"phram\": label adt (0x100040f0000 +0x94000) and label m1n1_stage2.log (0x105ce7a0000 +0x4000). With phram's OF support and the MTD char device (MTD=y, MTD_BLOCK=y today) they should appear as /dev/mtdN on every boot, giving the live ADT and m1n1's boot log without /dev/mem (STRICT_DEVMEM=y refuses RAM, confirmed by wallace-rex). Do not relax STRICT_DEVMEM. Read-only use only: never write, erase or mount the mtd devices (phram is writable RAM; a write would corrupt the ADT copy Linux and m1n1 rely on). Verify on the next onboard boot: cat /proc/mtd lists adt and m1n1_stage2.log; sha256 of /dev/mtd<adt> read twice is stable; the ADT header parses (wallace-rex tools/adt-dump.pl); m1n1 log readable. Rides on whatever kernel build comes next (no build of its own). Evidence: evidence/2026-10-30-t6040-device-map-live.md.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1793389648
+}
