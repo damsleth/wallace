@@ -54,13 +54,14 @@ blocks on CJ, and remove it once it has been done.
    scripts/rig-lease.sh queue approve 5023 --by cj   # ANS2 Flush with dma_flags 0
    ```
 
-5. **After 5024 is built: enroll its object** (for 5021). Same procedure as
+5. **Enroll the 5024 object** (for 5021; built and verified, `/mnt/sd/wallace-5024/`). Same procedure as
    5019, documented in `docs/LINUX_PARTITION_README.txt` section 1, with the
    5024 file name and hash:
 
    ```sh
-   shasum -a 256 /Volumes/linux/wallace-5024/<object>.bin   # must equal the 5024 hash
-   kmutil configure-boot -c /Volumes/linux/wallace-5024/<object>.bin --raw \
+   shasum -a 256 /Volumes/linux/wallace-5024/wallace-5024.build1.bin
+   # must equal 02da5165117d0c3a5b18e62a890ffc8ee7120ecb181ea3e2df5a32cfa0eb16a3
+   kmutil configure-boot -c /Volumes/linux/wallace-5024/wallace-5024.build1.bin --raw \
        --entry-point 2048 --lowest-virtual-address 0 -v /Volumes/m1n1
    ```
 

@@ -1,0 +1,23 @@
+{
+  "seq": "5024",
+  "slug": "kexec-nrcpus-object",
+  "needs": "offline",
+  "state": "done",
+  "track": "onboard",
+  "priority": "P2",
+  "desc": "Build a kexec-capable variant of the 5019 object on the Mac. Only change: bootargs gain nr_cpus=1 (keep maxcpus=1 too, so t6040-image-preflight's ticket-205 check still passes). Why: arm64 machine_kexec_prepare refuses with 'Can't kexec: CPUs are stuck in the kernel' when cpus_are_stuck_in_kernel() is true, i.e. num_possible_cpus() > 1 without a cpu_die method. Apple has no PSCI (spin-table), and maxcpus=1 leaves possible=0-13 (verified live on 5019: possible 0-13, online 0), so kexec is refused. nr_cpus=1 makes possible=1, which passes the check; the 13 secondaries stay parked in m1n1 exactly as with maxcpus=1 today. Same Image, DTB (ramoops), initramfs as 5019 (Image hash must match 5019's), new object via t6040-build-masked-object.sh with the edited BOOTARGS (make it a parameter, not a new hardcode). Deliverable: two byte-identical builds, preflight OK, raw-object-verify --strict PASS, hashes in evidence, the cmdline recorded verbatim for 5021. RESULT 2026-10-30: built on the M4 from the enrolled 5019 object (scripts/t6040-rebootargs-object.py; identity rebuild reproduces 28127903), object 02da5165, two builds identical, strict verify PASS, preflight OK (after a bsdtar-less cpio fallback fix). Not on the enroll-guard allowlist.",
+  "author": "claude",
+  "deps": [
+    "5019"
+  ],
+  "hashes": {
+    "object": "02da5165117d0c3a5b18e62a890ffc8ee7120ecb181ea3e2df5a32cfa0eb16a3",
+    "m1n1": "bf4b24627560759fcf460bb09ec6b0348274f4418bedb6003411a5d3e675d055",
+    "kernel_gz": "2fcc01e14d841712850459ad3e3aab184f89861609320beab74456e36ff5c3d9"
+  },
+  "created": 1793376413,
+  "evidence": [
+    "evidence/2026-10-30-t6040-5024-kexec-nrcpus-object.md"
+  ],
+  "done_at": 1793378595
+}

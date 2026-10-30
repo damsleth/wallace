@@ -85,8 +85,15 @@ if [ -n "$INITRAMFS" ]; then
         # bsdtar, not `cpio --to-stdout`: macOS ships bsdcpio, whose
         # --to-stdout silently yields nothing here. bsdtar -xOf - is the
         # extraction pattern already proven elsewhere in this repo.
-        INIT_TXT=$(gzip -dc "$INITRAMFS" 2>/dev/null | \
-            bsdtar -xOf - ./init 2>/dev/null || true)
+        # Without bsdtar (Linux hosts, the on-device bookworm chroot) use GNU
+        # cpio, whose --to-stdout works; only macOS bsdcpio's is broken.
+        if command -v bsdtar >/dev/null 2>&1; then
+            INIT_TXT=$(gzip -dc "$INITRAMFS" 2>/dev/null | \
+                bsdtar -xOf - ./init 2>/dev/null || true)
+        else
+            INIT_TXT=$(gzip -dc "$INITRAMFS" 2>/dev/null | \
+                cpio -i --quiet --to-stdout ./init 2>/dev/null || true)
+        fi
         if [ "$(printf '%s' "$INIT_TXT" | grep -ac 'loadkmap')" -gt 0 ]; then
             pass "init loads the keymap (loadkmap call in ./init)"
         else
