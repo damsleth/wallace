@@ -1,6 +1,6 @@
 # T6040 runbook
 
-Current as of 2026-10-25. This file contains operational commands only.
+Current as of 2026-10-30. This file contains operational commands only.
 Read [COORDINATION.md](COORDINATION.md) before a rig run and
 [DEVLOG.md](DEVLOG.md) for failure history.
 
@@ -328,6 +328,33 @@ allowlist and verify the post-copy SHA-256.
 For graphical or early-console failures, preserve a panel photograph when the
 ticket requires it. ttydc0 availability depends on the candidate driver and
 boot stage; it is not a substitute for the panel in every experiment.
+
+## 12. On the machine itself (standalone M4)
+
+Agents may run on the M4 (COORDINATION.md on-device mode). The repo is at
+`/mnt/sd/code/wallace` on the exFAT `linux` partition.
+
+    export WALLACE_ROOT=/mnt/sd/code/wallace     # rig-lease.sh otherwise writes to $HOME/code/wallace
+    cat /sys/block/nvme0n1/queue/write_cache       # must say: write through
+    reboot                                         # clean path; never busybox reboot or reboot -f
+
+Read-only inspection that needs no rig action:
+
+    cat /sys/devices/system/cpu/possible /sys/devices/system/cpu/online
+    cat /proc/iomem; ls /proc/device-tree/reserved-memory
+    cp /sys/firmware/fdt /tmp/fdt                  # /memreserve/ entries are in the header
+    zcat /proc/config.gz | grep CONFIG_
+    ls /sys/fs/pstore                              # crash log from the previous boot
+
+Tracing on the 5019 kernel (remove probes afterwards):
+
+    cd /sys/kernel/tracing
+    echo 'p:probe1 do_sys_openat2' >> kprobe_events; echo 1 > events/kprobes/probe1/enable
+    echo 0 > events/kprobes/probe1/enable; echo '-:probe1' >> kprobe_events
+
+Warm-reboot crash-log check (5020): `scripts/t6040-onboard-pstore-reboot.sh`,
+then the same script with `check` after the reboot. The root filesystem is
+16 GB: never fetch full kernel history onto it; use a depth-1 fetch into tmpfs.
 
 ## Shell notes
 

@@ -98,7 +98,7 @@ reporting is explicitly deferred until that is reached.
 The [October review](evidence/2026-10-24-asahi-dev-review.md) records all
 4,008 messages from September 21 through the October 24 snapshot, including
 later corrections. [NEXT_STEPS](docs/NEXT_STEPS.md) holds the live priorities
-and gates. This documentation refresh records no new local hardware results.
+and gates. The 2026-10-30 refresh adds the on-device results: the 5019 kernel, BLE HID, the kexec refusal and the live CTRR layout.
 
 ## Where the work lives
 

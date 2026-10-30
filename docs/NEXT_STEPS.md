@@ -58,8 +58,14 @@ blocks on CJ, and remove it once it has been done.
    ```sh
    shasum -a 256 /Volumes/linux/wallace-5024/<object>.bin   # must equal the 5024 hash
    kmutil configure-boot -c /Volumes/linux/wallace-5024/<object>.bin --raw \
-       --entry-point 2048 --lowest-virtual-address 0 -v /Volumes/m1n1
+       --entry-point 2048 --lowest-virtual-address 0 -v <the volume you used for 5019>
    ```
+
+   The docs disagree on that volume. RUNBOOK §10 says the standalone desktop is
+   `/Volumes/wallace` (5014), while `LINUX_PARTITION_README.txt` uses
+   `/Volumes/m1n1`, which holds the DebugUSB rollback that 5020 says must stay
+   enrolled. Use whichever entry 5019 replaced, and tell an agent so the docs
+   can be fixed.
 
 6. **Resync the Mac clone** if it pulled `4b1ef4f` before the 2026-10-30
    force-push that removed trailers. Check `git log origin/main..main` first:
