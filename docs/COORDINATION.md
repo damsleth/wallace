@@ -72,6 +72,42 @@ The guarded rig scripts are:
 
 Never run one while another agent holds the lease.
 
+## On-device mode (CJ, 2026-10-30)
+
+An agent may run **on the M4 itself**, inside the standalone NVMe desktop
+root (5014 object, `maxcpus=1`), with no Mac and no DebugUSB in the loop. In
+that mode:
+
+- **The lease does not apply.** It arbitrates the DebugUSB proxy link. While
+  the M4 runs standalone Linux there is no proxy for any host-side agent to
+  drive, and the on-device agent runs none of the guarded rig scripts. Do not
+  acquire or release a lease from the device.
+- **The hardware safety rules apply unchanged**: `~/Code/m1n1/AGENTS.md`,
+  [SPMI_SAFETY.md](SPMI_SAFETY.md) and the non-negotiables in `AGENTS.md`.
+  Running Linux adds `/dev/mem` (`STRICT_DEVMEM` only), debugfs and
+  out-of-tree modules, so the no-blind-MMIO and no-PMU/charger/NVRAM/firmware/
+  unreviewed-SMC/SPMI rules cover reads and writes from userspace and from
+  modules exactly as they cover m1n1 and kernel patches.
+- **Nothing that can hang or panic the kernel runs unattended.** A crash ends
+  the agent's session, leaves no transcript, and loses the SSD's most recent
+  writes (no Flush, 5006). That excludes `maxcpus>1`/205 work, SPMI/PD
+  probes and untested kernel replacement (kexec or enrollment) unless CJ is
+  present and has agreed to the specific run. Fault-capable work stays on the
+  DebugUSB rig path.
+- **Reboots, poweroff and boot-object changes need CJ's go-ahead first.**
+  Always shut down through `reboot`/`poweroff` (never a hard reset) so the
+  NVMe controller shutdown commits the write-through cache.
+- **Durability:** commit and push often. GitHub is the only store that
+  survives a crash. Keep `/sys/block/nvme0n1/queue/write_cache` at
+  `write through`. Kernel trees and builds go on the ext4 root or tmpfs, never
+  on the exFAT `linux` partition (case-insensitive: the kernel tree has
+  case-only filename pairs).
+- **Records:** tickets use `--needs offline --track onboard`; results go to
+  `evidence/` with the running kernel's `uname -r` and the boot object hash,
+  the same as rig evidence. Changes to the running root that should survive
+  a rebuild of `wallace-root.img` must also land in the root-profile recipe
+  (5005).
+
 ## Lease commands
 
     scripts/rig-lease.sh status
