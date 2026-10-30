@@ -211,7 +211,7 @@ Gravity runs all 16 CPUs on the M4 Max. Not yet verified on J614s
 secondary-only window is firmware-locked and a carve-out is the only remedy.
 The live boot has no CTRR reservation, and the 384 KiB from the ADT end to
 m1n1 `_base` is allocatable RAM that covers everything 5012 saw. 5015 now
-tests the Asahi series and a 384 KiB Wallace reservation side by side
+tests the Asahi series and a fixed 384 KiB Wallace reservation side by side
 ([abstract and live layout](../evidence/2026-10-30-t6040-5015-ctrr-macos-abstract-and-live-layout.md)).
 
 Established (mechanism detail and method in [DEVLOG.md](DEVLOG.md) "CPU" and

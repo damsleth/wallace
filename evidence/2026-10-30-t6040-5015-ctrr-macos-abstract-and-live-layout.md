@@ -1,6 +1,6 @@
 # 5015: CTRR facts from the macOS kernel, plus the live memory layout (2026-10-30)
 
-Sources: wallace-rex Pipeline B (private, commit `7f106b0`; this file is its public-safe
+Sources: wallace-rex Pipeline B (private, commits `7f106b0` and `5495c18`; this file is its public-safe
 abstract: no Apple strings, symbols or disassembly), and read-only reads on the running M4
 (5019 kernel: `/sys/firmware/fdt`, `/proc/device-tree`, `/proc/iomem`, `/proc/cpuinfo`).
 Everything here is a hypothesis until the rig confirms it.
@@ -14,12 +14,17 @@ Everything here is a hypothesis until the rig confirms it.
    (a carve-out). This matches 5012's framing.
 2. **One range is read, never written.** At boot macOS reads `[3,0,11,1,2]` (lower) and
    `[3,0,11,1,3]` (upper) as the bounds of its own read-only kernel data. It treats the upper
-   value as **inclusive at 4 KiB granularity**: the last byte is `UPR + 0xfff`. Asahi's
-   `ALIGN_UP(UPR, 4K)` as an exclusive end is therefore one 4 KiB page short when UPR is
-   page-aligned. Check this against raw values. In Asahi `442c7a2` naming this pair is the
+   value as **inclusive at 4 KiB granularity**: the last byte is `UPR + 0xfff`. Which end
+   Linux should reserve depends on the raw value. If UPR's low 12 bits are zero, the
+   exclusive end is `UPR + 0x1000`, rounded up to 16 KiB, and Asahi's `ALIGN_UP(UPR, 4K)`
+   is one page short. If UPR already ends in `0xfff`, Asahi's end is right. Step 2 records
+   which case applies. In Asahi `442c7a2` naming this pair is the
    D instance (EL2 encoding); the secondary-only one is C.
-3. **No missing per-CPU sequence.** The OS CPU-start path writes no IMPDEF sysreg and issues
-   no TLBI, and its TLB maintenance is inner-shareable only.
+3. **No IMPDEF sysreg or TLBI in the early CPU boot text.** Its TLB maintenance is
+   inner-shareable only. This covers the early boot text only. The C-level per-CPU init was
+   not traced, and the kernel does touch SPRR/GXF-style registers (`s3_6_c15_c1_*`, `c2_*`)
+   and a large `s3_7_c15_*` block. If step 3 still faults with the reservation, that
+   per-CPU init and the PMGR CPU-start path are the next RE targets.
 
 ## Live layout on this boot (m1n1 `v1.6.0-wallace-80badc91`, iBoot `mBoot-18000.161.10`)
 
@@ -56,10 +61,17 @@ add `arm64.nowfxt`.
   `[adt_end - 16 KiB, adt_end + 0x60000)`.
 - **Step 3: two variants.**
   - (a) The Asahi series as it is.
-  - (b) A Wallace m1n1 mem-rsv over `[adt_end, m1n1 _base)`, 384 KiB on this boot, which
-    covers everything 5012 saw whatever the registers say.
+  - (b) A Wallace m1n1 mem-rsv over the **fixed** span `[adt_end, adt_end + 0x60000)`
+    (384 KiB), which covers everything 5012 saw whatever the registers say. Do not use the
+    running m1n1's `_base` blindly: after a chainload the running stage can sit elsewhere.
+    Use `_base` as the end only if it equals `adt_end + 0x60000`; otherwise keep the fixed
+    span and print a warning.
 
   If (a) reserves under 48 KiB and still faults while (b) is clean, the window is larger than
   C alone (C+D, or a bigger C on T6040). The cmdline for both adds `arm64.nowfxt`.
+- **Pass criterion addition:** log every fault **outside** the reserved span. The 2026-07-29
+  `maxcpus=14` boot had a second fault about 7.9 MiB above adt_end, in a later worker after
+  the first died; probably a cascade, but the window does not explain it. A fault outside
+  the reservation means a second mechanism.
 - If step 3 still faults with the reservation in place, the next RE target is the PMGR
   CPU-start path (tell wallace-rex Pipeline B).

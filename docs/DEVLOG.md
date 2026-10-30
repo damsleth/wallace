@@ -232,7 +232,7 @@ the discipline around them.
   CTRR register on any CPU; the secondary-only window is firmware-locked, so
   Linux can only keep allocations out of it. On the live boot, m1n1
   `80badc91` reserves nothing there, and the 384 KiB from the ADT end to m1n1
-  `_base` is allocatable RAM. 5015 tests a reservation.
+  `_base` is allocatable RAM. 5015 tests a reservation of the fixed span `[adt_end, adt_end + 0x60000)`.
   [Evidence](../evidence/2026-10-30-t6040-5015-ctrr-macos-abstract-and-live-layout.md).
 - **WFxT:** the CPU has FEAT_WFxT. `flokli-code.patch` with `idle=nop` skips
   WFIT in `__delay()` but still loops on WFET; only `arm64.nowfxt` removes both.
