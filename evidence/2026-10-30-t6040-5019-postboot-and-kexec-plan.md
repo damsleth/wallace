@@ -64,7 +64,7 @@ ramoops registered, `function` tracer and a `do_sys_openat2` kprobe both hit.
   loader. A missing reboot marker is a finding, not a failure. Rollback is
   re-enrolling 5014 or the rollback object.
 - **5021** amended: pstore-across-kexec check. It runs on the 5024 object.
-- **5022** amended: `kexec-tools`, plus optional pstore/tracefs mounts.
+- **5022**: no change. Its finished recipe (3c4a3ec) already pins `kexec-tools`.
 - **5025** (rig, proposed): kexec kernel trial. New kernels go in through kexec,
   tester initramfs first, and nothing is enrolled.
 - **5026** (offline): crash-kernel design.

@@ -22,6 +22,9 @@ blocks on CJ, and remove it once it has been done.
    /mnt/sd/code/wallace/scripts/t6040-onboard-pstore-reboot.sh check   # after the reboot
    ```
 
+   A missing marker is a finding, not a failure. A warm reboot scrubbed DRAM
+   on 2026-07-30, and pstore may then only carry records across kexec (5021).
+
 2. **Push the reconstructed kernel base** (on the Mac). 5019 was built from
    `wallace/reconstructed-4f24291` (`6d2e54a0d`), which exists only in
    `/Volumes/CaseSensitive/linux`. Without it nobody else can rebuild the
@@ -45,8 +48,8 @@ blocks on CJ, and remove it once it has been done.
 4. **Approve rig tickets** when you want them run. Tell an agent, or run:
 
    ```sh
-   scripts/rig-lease.sh queue approve 5020 --by cj   # formalise: you already booted 5019
    scripts/rig-lease.sh queue approve 5021 --by cj   # kexec feasibility (needs 5024 enrolled)
+   scripts/rig-lease.sh queue approve 5025 --by cj   # kexec kernel trial (after 5021)
    scripts/rig-lease.sh queue approve 5015 --by cj   # CTRR_C reads + SMP test (two variants)
    scripts/rig-lease.sh queue approve 5023 --by cj   # ANS2 Flush with dma_flags 0
    ```
