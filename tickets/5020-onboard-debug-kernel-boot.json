@@ -2,10 +2,10 @@
   "seq": "5020",
   "slug": "onboard-debug-kernel-boot",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "onboard",
   "priority": "P1",
-  "desc": "Boot 5019's object as the standalone NVMe desktop entry, CJ present. CJ copies the object to the linux partition and enrolls it in 1TR with kmutil (NEXT_STEPS manual commands); the m1n1 DebugUSB rollback volume stays enrolled. Before shutdown from the old kernel: write_cache = write through, clean reboot/poweroff only. PASS: OpenRC + i3 up, Norwegian layout, WiFi joins, keyboard/trackpad, uname -r and Image hash match 5019; /dev/uhid present and the MX Ergo S bonded mouse appears as an input device; /sys/kernel/tracing usable; /sys/fs/pstore mounted and ramoops registered at the 5019 region; exFAT and ext4 clean on the next boot after a clean reboot. Then one deliberate warm-reboot pstore check: the 5019 ramoops has pmsg_size=0 (no /dev/pmsg0), so write a marker to /dev/kmsg instead (scripts/t6040-onboard-pstore-reboot.sh does it after checking write_cache; run it again with check after the reboot), clean reboot, marker present in /sys/fs/pstore/console-ramoops-0. STOP: no console/desktop, SError/panic, dirty exFAT after a clean reboot, any write outside p3. Rollback: boot the m1n1 rollback entry or re-enroll 5014 (6a522d64). Do not pair the Dygma Defy.",
+  "desc": "Boot 5019's object as the standalone NVMe desktop entry, CJ present. CJ enrolled it on /Volumes/m1n1 in 1TR (2026-10-30). m1n1 is the only boot volume, so this replaced the DebugUSB rollback loader. Before shutdown from the old kernel: write_cache = write through, clean reboot/poweroff only. PASS: OpenRC + i3 up, Norwegian layout, WiFi joins, keyboard/trackpad, uname -r and Image hash match 5019; /dev/uhid present and the MX Ergo S bonded mouse appears as an input device; /sys/kernel/tracing usable; /sys/fs/pstore mounted and ramoops registered at the 5019 region; exFAT and ext4 clean on the next boot after a clean reboot. Then one deliberate warm-reboot pstore check: the 5019 ramoops has pmsg_size=0 (no /dev/pmsg0), so write a marker to /dev/kmsg instead (scripts/t6040-onboard-pstore-reboot.sh does it after checking write_cache; run it again with check after the reboot), clean reboot, then look for the marker in /sys/fs/pstore/console-ramoops-0. Present = ramoops survives a reboot here. Absent = consistent with evidence/2026-07-30-t6040-daily-driver-object-c1529d4c.md (a warm reboot scrubs DRAM), and pstore is then only useful across kexec (5021). Record either way; neither result is a STOP. STOP: no console/desktop, SError/panic, dirty exFAT after a clean reboot, any write outside p3. Rollback: re-enroll 5014 (6a522d64) or rollback-m1n1-1394c345.bin on /Volumes/m1n1. Do not pair the Dygma Defy.",
   "author": "claude",
   "deps": [
     "5019"
@@ -13,6 +13,11 @@
   "hashes": null,
   "created": 1793349434,
   "evidence": [
-    "evidence/2026-10-30-t6040-5020-onboard-debug-kernel-boot.md"
-  ]
+    "evidence/2026-10-30-t6040-5020-onboard-debug-kernel-boot.md",
+    "evidence/2026-10-30-t6040-5019-onboard-debug-kernel.md",
+    "evidence/2026-10-30-t6040-5019-postboot-and-kexec-plan.md"
+  ],
+  "runnable": false,
+  "approved_by": "cj",
+  "approved_at": 1793371544
 }

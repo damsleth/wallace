@@ -1,0 +1,16 @@
+{
+  "seq": "5026",
+  "slug": "onboard-crash-kernel-design",
+  "needs": "offline",
+  "state": "open",
+  "track": "onboard",
+  "priority": "P3",
+  "desc": "Offline design only. A reboot scrubs DRAM (evidence/2026-07-30-t6040-daily-driver-object-c1529d4c.md), so ramoops cannot hold a panic that ends in the watchdog reset. A kdump crash kernel loaded with kexec -p runs in place on panic, without iBoot, and can save pstore and /proc/vmcore. Tasks: check the 5019 .config for KEXEC_CORE, CRASH_DUMP, PROC_VMCORE, CRASH_RESERVE; size a crashkernel= reservation that avoids the ramoops region (0x10300000000 + 2 MiB) and m1n1's payload area (kernel 0x10008400000, FDT 0x10008600000, top-down allocations), checked against a live /proc/iomem from the post-boot checks; decide whether the crash kernel may write p3 at all (no Flush, 5006: it would need its own clean controller shutdown) or only keeps the record in RAM for a following kexec. Uses the kexec path that 5021 tests. Deliverable: a kbuild flag proposal and a bounded rig ticket draft; nothing built or booted.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1793371545,
+  "evidence": [
+    "evidence/2026-10-30-t6040-5019-postboot-and-kexec-plan.md"
+  ]
+}
