@@ -1725,6 +1725,18 @@ if [ "${NVME_EXFAT:-0}" = "1" ]; then
     echo "== assert exFAT is BUILTIN for the NVMe write test =="
     grep -q '^CONFIG_EXFAT_FS=y$' .config
 fi
+# T6040_BLE_HID=1: userspace HID for Bluetooth LE keyboards/mice. BlueZ's HOG
+# plugin creates the input device through /dev/uhid, and uinput covers the
+# fallback path. Both must be =y: the root has no /lib/modules, so =m is dead
+# weight. Without UHID a BLE mouse pairs and connects but never shows up as an
+# input device.
+if [ "${T6040_BLE_HID:-0}" = "1" ]; then
+    ./scripts/config --file .config -e HID -e INPUT -e UHID -e INPUT_UINPUT
+    make ARCH=arm64 olddefconfig >/dev/null
+    echo "== assert BLE HID support is BUILTIN =="
+    grep -q '^CONFIG_UHID=y$' .config
+    grep -q '^CONFIG_INPUT_UINPUT=y$' .config
+fi
 if [ "${CPUFREQ_ASSERT_AFTER_OLDDEFCONFIG:-0}" = "1" ]; then
     ./scripts/config --file .config \
         -e CPU_FREQ -e ARM_APPLE_SOC_CPUFREQ -e PM_OPP \
