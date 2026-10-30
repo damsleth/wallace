@@ -13,6 +13,7 @@
   "runnable": true,
   "note": "2026-07-27 NOT the simple win I scoped. apple_dwi_bl.c binds 'apple,dwi-bl', but that binding is only used on iPhone/iPad-era SoCs (s5l8960x, s8001, t7000, t8010, t8015). On Apple Silicon MACBOOKS the panel backlight is generally tied to the internal display via the DCP, not DWI. The t6040 ADT DOES have a 'dwi' node (dwi,t8101 at cpu 0x5029b0000, irq 273), but whether it drives the J614s panel backlight vs the DCP path is UNVERIFIED. Authoring a dwi-bl DT node blind risks a non-functional or wrong backlight. NEEDS: confirm the J614s backlight path (check how Asahi wires MacBook backlight — likely dcp/dcpext + a backlight child, or apple,smc) before authoring. Not safely autonomous without that.",
   "evidence": [
-    "evidence/2026-10-30-t6040-device-map-live.md"
+    "evidence/2026-10-30-t6040-device-map-live.md",
+    "evidence/2026-10-30-t6040-device-map-macos-abstract.md"
   ]
 }

@@ -9,5 +9,8 @@
   "author": "claude",
   "deps": [],
   "hashes": null,
-  "created": 1793389727
+  "created": 1793389727,
+  "evidence": [
+    "evidence/2026-10-30-t6040-device-map-macos-abstract.md"
+  ]
 }

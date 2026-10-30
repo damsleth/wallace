@@ -80,6 +80,16 @@ blocks on CJ, and remove it once it has been done.
    cd ~/code/wallace && git fetch && git reset --hard origin/main
    ```
 
+## Device bring-up map (2026-10-30, CJ's new scope)
+
+Panel brightness, HDMI, USB-C beyond VBUS, GPU, ANE and Touch ID are mapped on both sides:
+[live and Wallace](../evidence/2026-10-30-t6040-device-map-live.md) and
+[macOS abstract](../evidence/2026-10-30-t6040-device-map-macos-abstract.md). The keyboard
+backlight works. Touch ID is not feasible (SEP-encrypted sensor link). Almost every next step
+needs the J614s ADT: 5027 (`MTD_PHRAM`) or the Mac dump. Panel brightness (164) is the nearest
+win; the ADT decides between its SPMI, PWM, DWI and I2C variants. 5028 tracks the `pms_fpwm`
+domains that won't power on.
+
 ## 0. The current objective: a practical daily driver
 
 **CJ's direction, 2026-08-03 (supersedes the previous upstream-first ordering).**
