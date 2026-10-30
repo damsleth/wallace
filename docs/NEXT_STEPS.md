@@ -6,6 +6,49 @@ the M4 runs its desktop root from the internal SSD). This file states priorities
 Exact work items, hashes, dependencies, and approval state live in
 `tickets/*.json`.
 
+## Manual commands for CJ (run these first)
+
+Agents cannot run these. Keep this list current: add a command when a ticket
+blocks on CJ, and remove it once it has been done.
+
+1. **Push the running kernel's base to GitHub** (on the Mac). `4f2429104009`
+   exists only in `~/Code/linux`. GitHub's `wallace/t6040-bringup` stops at
+   `e9d2237` (2026-07-14), so the M4 cannot rebuild the kernel it runs.
+   This blocks 5019. Pushing to a new ref leaves the branch where it is:
+
+   ```sh
+   cd ~/Code/linux
+   git push origin 4f2429104009e3964ddcc326d8490ac25bfb1a5c:refs/heads/wallace/base-4f24291
+   ```
+
+   The uncommitted t6040 DT files that kbuild copies from `~/Code/linux` are
+   still only on the Mac. Commit them to a side branch when convenient.
+
+2. **Approve the on-device rig tickets** when you want them run. Tell an
+   agent, or run:
+
+   ```sh
+   scripts/rig-lease.sh queue approve 5020 --by cj   # boot the 5019 debug kernel
+   scripts/rig-lease.sh queue approve 5021 --by cj   # kexec feasibility (after 5020)
+   ```
+
+3. **After 5019 is built: install and enroll its object** (5020). Use the
+   procedure in `/mnt/sd/wallace-nvmedesk/LESMEG.txt` with the new file and
+   hash from 5019's evidence:
+
+   ```sh
+   # Mac -> M4 (Linux running; the partition is mounted at /mnt/sd there):
+   scp <5019-object>.bin root@<m4-ip>:/mnt/sd/<5019-object>.bin
+   ssh root@<m4-ip> 'sync; sha256sum /mnt/sd/<5019-object>.bin; poweroff'
+   # 1TR on the M4 (do not let 1TR repair or write the partition):
+   shasum -a 256 /Volumes/linux/<5019-object>.bin   # must equal the 5019 hash
+   kmutil configure-boot -c /Volumes/linux/<5019-object>.bin --raw \
+       --entry-point 2048 --lowest-virtual-address 0 -v <boot volume as for 5014>
+   ```
+
+   The SSD ignores Flush. Shut down cleanly (`poweroff`/`reboot`, never a
+   hard reset), or the newest writes, the object included, can be lost.
+
 ## 0. The current objective: a practical daily driver
 
 **CJ's direction, 2026-08-03 (supersedes the previous upstream-first ordering).**

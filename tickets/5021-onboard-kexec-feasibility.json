@@ -1,0 +1,15 @@
+{
+  "seq": "5021",
+  "slug": "onboard-kexec-feasibility",
+  "needs": "rig",
+  "state": "proposed",
+  "track": "onboard",
+  "priority": "P2",
+  "desc": "Can the standalone M4 switch kernels with kexec instead of a 1TR enrollment per kernel? CONFIG_KEXEC/KEXEC_FILE=y on 2234baad. CJ present, after 5020 (so ramoops can catch a failed handoff). Steps: apk add kexec-tools; kexec -l the currently running 5019 Image with the same DTB and initramfs and the identical cmdline (maxcpus=1 ... rdinit=/init); sync; confirm write_cache = write through; kexec -e. kernel_kexec runs device_shutdown, so apple_nvme_shutdown should still commit the SSD cache. PASS: the second kernel reaches OpenRC + desktop, NVMe root mounts with exFAT/ext4 clean, WiFi (brcmfmac PCIe re-probe), BT, keyboard/trackpad work, no DART fault, no RTKit crash. Record per subsystem what survives the handoff (ANS RTKit restart vs force-clean patch, DART inherited state, simpledrm framebuffer, AIC). STOP and hard power cycle on hang; read /sys/fs/pstore on the next boot. Accepted risk: a hang loses the SSD's last writes; nothing unsynced may be in flight. If PASS, a follow-on ticket uses kexec to try new kernels without enrolling them.",
+  "author": "claude",
+  "deps": [
+    "5020"
+  ],
+  "hashes": null,
+  "created": 1793349435
+}
