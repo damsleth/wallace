@@ -171,9 +171,18 @@ writes to a physical range near the ADT end. M4 has a second CTRR instance,
 `CTRR_C` (`s3_0_c11_c0_{0,1}`), which is enabled only on secondaries and was
 not in the registers 5012 read. Asahi m1n1 `a735ea2`/`00b8814` and Gravity
 `eb6cab7` reserve that range as an FDT mem-rsv. Asahi says this, together with
-the WFI/WFIT avoidance we already ship, makes M4/M4 Pro SMP boot reliable.
+`idle=nop arm64.nowfxt`, makes M4/M4 Pro SMP boot reliable. We ship only
+half of that: `flokli-code.patch` with `idle=nop` skips WFIT, but `__delay()`
+still loops on WFET and our cmdline has no `arm64.nowfxt` (5015 adds it).
 Gravity runs all 16 CPUs on the M4 Max. Not yet verified on J614s
 ([survey](../evidence/2026-10-29-gravitylinux-survey.md)).
+
+**2026-10-30:** the macOS kernel writes no CTRR register on any CPU, so the
+secondary-only window is firmware-locked and a carve-out is the only remedy.
+The live boot has no CTRR reservation, and the 384 KiB from the ADT end to
+m1n1 `_base` is allocatable RAM that covers everything 5012 saw. 5015 now
+tests the Asahi series and a 384 KiB Wallace reservation side by side
+([abstract and live layout](../evidence/2026-10-30-t6040-5015-ctrr-macos-abstract-and-live-layout.md)).
 
 Established (mechanism detail and method in [DEVLOG.md](DEVLOG.md) "CPU" and
 `evidence/2026-08-03-t6040-205-smp-cow-investigation.md`):
