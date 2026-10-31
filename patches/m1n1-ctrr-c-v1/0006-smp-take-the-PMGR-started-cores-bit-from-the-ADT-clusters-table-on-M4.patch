@@ -1,4 +1,4 @@
-From 7f574a74ea9ea2837ab8a02e5e86bf8bc7bb81d9 Mon Sep 17 00:00:00 2001
+From 46cea351f1149848a67d9c853cb745c04eebd274 Mon Sep 17 00:00:00 2001
 From: CJ Damsleth <kim@damsleth.no>
 Date: Sat, 31 Oct 2026 21:08:22 +0100
 Subject: [PATCH] smp: take the PMGR started-cores bit from the ADT clusters
@@ -19,7 +19,7 @@ Signed-off-by: CJ Damsleth <kim@damsleth.no>
  1 file changed, 35 insertions(+), 2 deletions(-)
 
 diff --git a/src/smp.c b/src/smp.c
-index ded5ad5..30eac4f 100644
+index ded5ad5..3387e9a 100644
 --- a/src/smp.c
 +++ b/src/smp.c
 @@ -111,6 +111,39 @@ void smp_secondary_prep_el3(void)
@@ -53,7 +53,7 @@ index ded5ad5..30eac4f 100644
 +    u32 bitpos = entry >> 16;
 +
 +    // A zero bitpos is only meaningful for cluster 0
-+    if ((!bitpos && cluster) || core >= (int)ncores)
++    if ((!bitpos && cluster) || core >= (int)ncores || bitpos + core >= 32)
 +        return bit;
 +
 +    return bitpos + core;

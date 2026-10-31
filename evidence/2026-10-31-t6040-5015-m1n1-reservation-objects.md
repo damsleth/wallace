@@ -9,18 +9,19 @@ None has been enrolled or booted.
 
 | object | m1n1 patches | what it adds | object sha256 | m1n1.bin sha256 |
 |---|---|---|---|---|
-| `/mnt/sd/wallace-5015a/wallace-5015a.build1.bin` | 0001–0004 | CTRR_C range + TrustCache reservation | `622e8de1c8066af55cbb03179220ad4372080d6e6011ece10a24de473271e169` | `b148f2eb66b1924c…` |
-| `/mnt/sd/wallace-5015b/wallace-5015b.build1.bin` | 0001–0005 | + SEP/coprocessor chain reservation | `074fa8bccc78f6e64c3e5a4b5e56e2e16c638d93745eb716a6392d0f12ea9e69` | `0cd0a519c0497380…` |
-| `/mnt/sd/wallace-5015c/wallace-5015c.build1.bin` | 0001–0006 | + start bit from the PMGR clusters table | `b66f349331f6ca684715a5bfe057944dfcb07daf39620a824b646c6683624505` | `3e16d483d6b267dd…` |
+| ~~5015a~~ | 0001–0004 | superseded (moved to `/mnt/sd/superseded-20261031/`): still had the over-copying reads fixed by 0007 | `622e8de1…` | `b148f2eb…` |
+| `/mnt/sd/wallace-5015b/wallace-5015b.build1.bin` | 0001–0005, 0007 | CTRR_C range, TrustCache, SEP/coprocessor chain reservations, length-checked reads | `b1b550f30a89ef4e0c3511d43ce2cd36d7fba6b96ab52d81b38a2c9d7a866bc1` | `af53700904a38882…` |
+| `/mnt/sd/wallace-5015c/wallace-5015c.build1.bin` | 0001–0005, 0007, 0006 | B + start bit from the PMGR clusters table | `9bee06bef2b1d925a591eada8a8dfb5b1fea379cdeb0533853b7308917497a5d` | `7de7777108fa3940…` |
 
 Each directory has `SHA256SUMS`, `m1n1.bin`, `m1n1.elf`, `Image.gz` and `bootargs.txt`. **B is the
-recommended first boot** (A is a subset of B and stays as a bisect point).
+recommended first boot.** The first versions of A, B and C (built before the review below) are in
+`/mnt/sd/superseded-20261031/` with a README; do not enroll them, and delete them when convenient.
 
 ## Source and toolchain
 
 - Source: `damsleth/m1n1` `main` `214f93d` (PR #1 merged; `80badc91` is now reachable, which
   unblocked this). Patches from `patches/m1n1-ctrr-c-v1/`. 0001–0004 apply cleanly to both
-  `80badc91` and `main` (`git am`, checked). Branches in the tmpfs clone: `wallace-5015` (0001–0005),
+  `80badc91` and `main` (`git am`, checked). Branches in the tmpfs clone: `wallace-5015` (0001–0005 and 0007),
   `wallace-5015-0006`.
 - Built **natively on the M4** in the bookworm chroot: gcc 12.2.0 (Debian), `rustc 1.99.1` stable
   from `rustup-init` (sha256 checked against `static.rust-lang.org`'s published hash) with target
@@ -37,6 +38,36 @@ recommended first boot** (A is a subset of B and stays as a bisect point).
   `dt_set_sio_fwdata` swap between inlined and emitted); the source diff is exactly three files,
   160 insertions. If CJ prefers the Mac toolchain, `git am` the same patches on `~/code/m1n1` and
   build with the flags used for `bf4b2462`. Recording those flags would close the gap.
+
+## Independent review and 0007
+
+A fresh subagent was given only the code (no conclusions) and reviewed 0004-0006 against m1n1's ADT helpers
+and the ADT dump. Findings and what was done:
+
+- **Real, latent: `ADT_GETPROP_ARRAY` over-copies.** It expands to `adt_getprop_copy(..., sizeof(arr))`,
+  whose Rust implementation (`rust/src/adt.rs`) calls `copy_raw` (copies the property's full size into
+  the buffer) and only then compares the length. Verified in the source here. A memory-map entry over
+  16 bytes would overrun the `u64[2]` stack buffers in the TrustCache (0004) and chain (0005) reads. It
+  can't trigger on J614s (every entry is 16 bytes, including the all-ones ones). **Fixed in 0007**: one
+  helper reads with `adt_getprop` and checks `len == 16` before `memcpy`, rejects empty, all-ones and
+  wrapping entries, and one table drives TrustCache and the chain. `dt_set_sep` has the same pre-existing
+  pattern; left alone (not ours).
+- **Hardening: address overflow and reversed ranges.** `base + size` wraps and an aligned end below the
+  start were not rejected. Both are now (0007).
+- **0006: no bound on `bitpos + core`.** `1u << bit` is undefined for bit ≥ 32. 0006 now falls back to the
+  old formula for bit ≥ 32. Real values peak at 14.
+- **Checked, nothing wrong:** FDT headroom (96 KiB vs about 112 bytes), initialisation order (`adt` and
+  `cpu_features` are set before `kboot_prepare_dt`), `-mstrict-align` (the 0006 read uses `memcpy`),
+  `adt_getprop` use, and that the ADT dump matches the code (clusters `[4, 262150, 655366]`, region sizes
+  16 KiB aligned, RTBuddySeg/SEPFW/SEPPatches contiguous, `TrustCache-*` all-ones entries are never read).
+- **Not a defect, scope:** `DeviceTree` (0x94000, already reserved as the `adt` phram node) and
+  `BootKC-rw` (m1n1 and its payload slot) are not reserved by these patches. The stop-path bit layout is
+  an assumption (the same helper is used on both paths).
+- Pre-existing and left alone: the `WARNING: M4+ SMP-RO` printf in the CTRR block lacks a trailing newline.
+
+After 0007 the series is applied as 0001–0005, 0007, then optionally 0006 (they touch different files).
+B and C were rebuilt from the amended series; each was built twice identical, strict-verified and
+preflighted again.
 
 ## What each patch does, and why
 

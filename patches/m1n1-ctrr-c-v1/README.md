@@ -11,6 +11,7 @@ the original authors kept:
 | 0004 | local, not upstream | CJ Damsleth (AI-written, see below) |
 | 0005 | local, not upstream | CJ Damsleth (AI-written): reserve the SEP/coprocessor chain |
 | 0006 | local, not upstream | CJ Damsleth (AI-written): PMGR clusters-table start bit, optional |
+| 0007 | local, not upstream | CJ Damsleth (AI-written): length-checked memory-map reads, required hardening for 0004/0005 |
 
 Apply them in order to the m1n1 fork (`git am`). After 0003, kboot reads
 `CTRR_C_{LWR,UPR}_EL1` (`s3_0_c11_c0_{0,1}`) on the boot CPU and adds an FDT
@@ -42,7 +43,7 @@ SEPFW only with a `sep` node in the DT, which J614s lacks. It is hygiene, not th
 permission fault, the CTRR signature). 0006 is optional and separate: m1n1 sets the `+0x4`
 started-cores bit as `1 << (4 * cluster + core)`, but macOS takes it from the PMGR `clusters` table
 (`bitpos + core`), which is E 4@0, P 6@4, P 6@10 on J614s, so the five P1 cores get bits 8..12
-instead of 10..14. Both are AI-written and stay in this fork. Evidence and objects:
+instead of 10..14. 0007 replaces the `ADT_GETPROP_ARRAY` reads of 0004 and 0005 (that macro copies the whole property before checking its length; found in an independent review, not reachable with real J614s data) with a length-first helper and one table. Apply 0001–0005, then 0007, then optionally 0006 (different files). Both 0005 and 0006 are AI-written and stay in this fork. Evidence and objects:
 `evidence/2026-10-31-t6040-5015-m1n1-reservation-objects.md`.
 
 ## Prerequisite

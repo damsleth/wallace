@@ -1,0 +1,123 @@
+From f21be9d86eb1d79ab0304a95c03c49498f5903c3 Mon Sep 17 00:00:00 2001
+From: CJ Damsleth <kim@damsleth.no>
+Date: Sat, 31 Oct 2026 21:23:48 +0100
+Subject: [PATCH] kboot: read memory-map reservations with the length checked
+ first
+
+ADT_GETPROP_ARRAY copies the whole property into its buffer before comparing
+the length, so a memory-map entry longer than 16 bytes would overrun the
+u64[2] stack buffers used by the TrustCache and firmware-chain reservations.
+Read each entry through a helper that checks the length first, rejects empty,
+all-ones and wrapping entries, and drive TrustCache and the chain from one
+table. Found in an independent review; not reachable with real J614s data
+(every entry is 16 bytes).
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ src/kboot.c | 79 +++++++++++++++++++++++++++++++----------------------
+ 1 file changed, 47 insertions(+), 32 deletions(-)
+
+diff --git a/src/kboot.c b/src/kboot.c
+index ff6f3b3..e027de5 100644
+--- a/src/kboot.c
++++ b/src/kboot.c
+@@ -2764,6 +2764,30 @@ static int dt_setup_mtd_phram(void)
+     return 0;
+ }
+ 
++/*
++ * Read an iBoot /chosen/memory-map entry ({u64 base, u64 size}). The length is checked before
++ * anything is copied: ADT_GETPROP_ARRAY copies the whole property into its buffer first, so an
++ * entry longer than 16 bytes would overrun it. Entries that are missing, empty, all-ones or that
++ * wrap around are reported as absent.
++ */
++static bool adt_memory_map_region(int node, const char *name, u64 *base, u64 *size)
++{
++    u32 len = 0;
++    const void *prop = adt_getprop(adt, node, name, &len);
++    u64 region[2];
++
++    if (!prop || len != sizeof(region))
++        return false;
++
++    memcpy(region, prop, sizeof(region));
++    if (!region[1] || region[0] == ~0UL || region[0] + region[1] < region[0])
++        return false;
++
++    *base = region[0];
++    *size = region[1];
++    return true;
++}
++
+ int kboot_prepare_dt(void *fdt)
+ {
+     if (dt) {
+@@ -2801,42 +2825,33 @@ int kboot_prepare_dt(void *fdt)
+         if (fdt_add_mem_rsv(dt, ro_start, ro_end - ro_start))
+             bail("FDT: couldn't add reservation for M4+ SMP-RO CTRR area\n");
+ 
+-        // On T6040 the secondaries also deny writes across the region iBoot's
+-        // memory-map names TrustCache (right after the ADT), which is larger
+-        // than the CTRR_C range above. Reserve it by name as well.
++        // On T6040 the secondaries deny writes across regions iBoot names in /chosen/memory-map:
++        // TrustCache (right after the ADT, larger than the CTRR_C range above), and the
++        // SEP/coprocessor firmware chain (RTBuddySeg, SEPFW, SEPPatches, uStuff, preoslog,
++        // BootArgs) that sits inside the DRAM range declared usable. dt_set_sep() only reserves
++        // SEPFW when the DT has a "sep" node, which J614s does not, so Linux would otherwise
++        // hand these pages to the allocator. Reserve them by name as well.
++        static const char *const mmap_regions[] = {"TrustCache", "RTBuddySeg", "SEPFW",
++                                                   "SEPPatches", "uStuff",     "preoslog",
++                                                   "BootArgs"};
+         int anode_mmap = adt_path_offset(adt, "/chosen/memory-map");
+-        u64 tc[2];
+-        if (anode_mmap >= 0 &&
+-            (size_t)ADT_GETPROP_ARRAY(adt, anode_mmap, "TrustCache", tc) == sizeof(tc) && tc[1] &&
+-            tc[0] != ~0UL) {
+-            u64 tc_start = ALIGN_DOWN(tc[0], SZ_16K);
+-            u64 tc_end = ALIGN_UP(tc[0] + tc[1], SZ_16K);
+-            printf("FDT: reserving TrustCache 0x%lx..0x%lx\n", tc_start, tc_end);
+-            if (fdt_add_mem_rsv(dt, tc_start, tc_end - tc_start))
+-                bail("FDT: couldn't add reservation for TrustCache\n");
+-        } else {
+-            printf("FDT: no TrustCache in /chosen/memory-map, not reserving it\n");
+-        }
+-
+-        // iBoot's memory-map also names the SEP/coprocessor firmware chain (SEPFW, SEPPatches,
+-        // uStuff, preoslog, BootArgs, RTBuddySeg) inside the DRAM range declared usable above.
+-        // dt_set_sep() only reserves SEPFW when the DT has a "sep" node, which J614s does not,
+-        // so Linux would otherwise hand these pages to the allocator. Reserve them by name too.
+-        static const char *const fw_regions[] = {"SEPFW", "SEPPatches", "uStuff", "preoslog",
+-                                                 "BootArgs", "RTBuddySeg"};
+-        for (size_t i = 0; i < sizeof(fw_regions) / sizeof(fw_regions[0]); i++) {
+-            u64 fw[2];
++        for (size_t i = 0; i < sizeof(mmap_regions) / sizeof(mmap_regions[0]); i++) {
++            u64 base, size;
+             if (anode_mmap < 0 ||
+-                (size_t)ADT_GETPROP_ARRAY(adt, anode_mmap, fw_regions[i], fw) != sizeof(fw) ||
+-                !fw[1] || fw[0] == ~0UL) {
+-                printf("FDT: no %s in /chosen/memory-map, not reserving it\n", fw_regions[i]);
++                !adt_memory_map_region(anode_mmap, mmap_regions[i], &base, &size)) {
++                printf("FDT: no %s in /chosen/memory-map, not reserving it\n", mmap_regions[i]);
++                continue;
++            }
++            u64 start = ALIGN_DOWN(base, SZ_16K);
++            u64 end = ALIGN_UP(base + size, SZ_16K);
++            if (end <= start) {
++                printf("FDT: bad %s range 0x%lx+0x%lx, not reserving it\n", mmap_regions[i], base,
++                       size);
+                 continue;
+             }
+-            u64 fw_start = ALIGN_DOWN(fw[0], SZ_16K);
+-            u64 fw_end = ALIGN_UP(fw[0] + fw[1], SZ_16K);
+-            printf("FDT: reserving %s 0x%lx..0x%lx\n", fw_regions[i], fw_start, fw_end);
+-            if (fdt_add_mem_rsv(dt, fw_start, fw_end - fw_start))
+-                bail("FDT: couldn't add reservation for %s\n", fw_regions[i]);
++            printf("FDT: reserving %s 0x%lx..0x%lx\n", mmap_regions[i], start, end);
++            if (fdt_add_mem_rsv(dt, start, end - start))
++                bail("FDT: couldn't add reservation for %s\n", mmap_regions[i]);
+         }
+     }
+ 
+-- 
+2.54.0
+
