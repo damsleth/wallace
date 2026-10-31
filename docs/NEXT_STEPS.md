@@ -232,6 +232,10 @@ half of that: `flokli-code.patch` with `idle=nop` skips WFIT, but `__delay()`
 still loops on WFET and our cmdline has no `arm64.nowfxt` (5015 adds it).
 Gravity runs all 16 CPUs on the M4 Max. Not yet verified on J614s
 ([survey](../evidence/2026-10-29-gravitylinux-survey.md)).
+The J614s ADT memory-map names the 384 KiB gap after the ADT
+`TrustCache`; 5012's window lies inside it, beyond Asahi's 48 KiB. Local patch
+`patches/m1n1-ctrr-c-v1/0004` reserves it by name, alongside 0001–0003
+(2026-10-31, AI-written, fork only, syntax-checked, not built).
 
 **2026-10-30:** the macOS kernel writes no CTRR register on any CPU, so the
 secondary-only window is firmware-locked and a carve-out is the only remedy.

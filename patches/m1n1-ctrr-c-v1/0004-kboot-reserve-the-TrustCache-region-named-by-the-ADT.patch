@@ -1,0 +1,52 @@
+From e4f80ab9c2830c376e7e3bbf1e6dcdfc00719892 Mon Sep 17 00:00:00 2001
+From: CJ Damsleth <kim@damsleth.no>
+Date: Sat, 31 Oct 2026 20:30:32 +0100
+Subject: [PATCH] kboot: reserve the TrustCache region named by the ADT
+ memory-map
+
+On T6040 (M4 Pro, J614s) the secondary cores deny writes to a physical
+window that starts at the ADT's last page and runs at least 256 KiB past
+the ADT end, more than the 48 KiB CTRR_C range reserved above. iBoot's
+/chosen/memory-map names the region right after the ADT "TrustCache"
+(0x60000 bytes on J614s). Linux otherwise hands it to the page
+allocator, and the first write from a secondary core faults.
+
+Reserve that range by name, rounded to 16 KiB, alongside the CTRR_C
+reservation. If the entry is missing, log it and continue.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ src/kboot.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/src/kboot.c b/src/kboot.c
+index 9bb9548..d517824 100644
+--- a/src/kboot.c
++++ b/src/kboot.c
+@@ -2840,6 +2840,23 @@ int kboot_prepare_dt(void *fdt)
+             printf("WARNING: M4+ SMP-RO is large (48KB)");
+         if (fdt_add_mem_rsv(dt, ro_start, ro_end - ro_start))
+             bail("FDT: couldn't add reservation for M4+ SMP-RO CTRR area\n");
++
++        // On T6040 the secondaries also deny writes across the region iBoot's
++        // memory-map names TrustCache (right after the ADT), which is larger
++        // than the CTRR_C range above. Reserve it by name as well.
++        int anode_mmap = adt_path_offset(adt, "/chosen/memory-map");
++        u64 tc[2];
++        if (anode_mmap >= 0 &&
++            (size_t)ADT_GETPROP_ARRAY(adt, anode_mmap, "TrustCache", tc) == sizeof(tc) && tc[1] &&
++            tc[0] != ~0UL) {
++            u64 tc_start = ALIGN_DOWN(tc[0], SZ_16K);
++            u64 tc_end = ALIGN_UP(tc[0] + tc[1], SZ_16K);
++            printf("FDT: reserving TrustCache 0x%lx..0x%lx\n", tc_start, tc_end);
++            if (fdt_add_mem_rsv(dt, tc_start, tc_end - tc_start))
++                bail("FDT: couldn't add reservation for TrustCache\n");
++        } else {
++            printf("FDT: no TrustCache in /chosen/memory-map, not reserving it\n");
++        }
+     }
+ 
+     /* setup console log buffer early to capture as much log as possible */
+-- 
+2.56.0
+
