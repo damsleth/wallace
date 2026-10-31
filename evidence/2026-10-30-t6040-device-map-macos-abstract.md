@@ -111,6 +111,30 @@ Feasible, nothing blocked, but a different model from M1/M2.
 - First safe rig step when wanted: a read-only AOP property get (state) on node `spkr`. Prerequisite:
   an AOP RTKit/SPU client in Linux. Not urgent against 205/305/5006.
 
+### Audio part 2: formats decoded (wallace-rex `findings/2026-10-31-audio-formats.md`)
+
+- **ADT audio-data `reg` (36 bytes) is the I2S config** for each stream: master/clock flags, slots, slot
+  width, data delay, MCLK Hz, frame length, fsync width, rate as a/b kHz, TX/RX slot masks, channel
+  counts, sample bits and per-direction slot widths. Speaker: 12 MHz MCLK, 250-BCLK frame, 48 kHz, TX 6
+  slots x 32-bit (24-bit samples), RX 12 x 16-bit (I/V sense).
+- **The 109-byte MCA config is a merge.** The AP fills timing (MCLK Hz, BCLK divider, fsync
+  edge/polarity/high/low, per-direction delay/edge/LSB/slot masks/slot and sample bits). The
+  clock/sync/serializer names and pin-route masks come from the AOP's own template. A Linux driver does:
+  GET template, overlay timing, SET, GET.
+- **Stream state:** GET current state; idle to "active" (state FourCC read from the AOP at init) to
+  "running" with a TX/RX direction mask; reverse on stop. There are also a reset property and an
+  MCLK-enable property.
+- **ADMAC T604x:** the descriptor is the classic four words (addr lo/hi, length, misc with an 8-bit
+  non-zero tag and an attr byte); completion FIFO reports are four words (54-bit timestamp, status,
+  tag). New: a two-word PCT report FIFO (timestamp and tag) that TX uses by default, and TX buffers are
+  split into (len-16, 16) descriptor pairs. Channel reset/arm/start sequences are decoded. ADMAC power
+  goes through a per-controller power switch (resume/suspend refcount) before start.
+- **Correction to part 1:** the TD and completion FIFO addresses are the classic ones; only the split
+  channel banks, the PCT FIFO and a few extra block registers are new.
+- **Bottom line:** speakers are a buildable driver stack (AOP client, ADMAC T604x variant, and
+  `tas2764`/SN012776). The only unknowns that need hardware are the AOP template values, one read-only
+  GET.
+
 ## Touch ID: not feasible
 
 The OS talks to the sensor over SPI, but all capture data and commands are encrypted under a
