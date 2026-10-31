@@ -98,6 +98,20 @@ preflighted again.
   the legacy bit. It is optional and separate, because its effect needs P1 cores to run (`maxcpus ≥ 10`).
   What `+0x4` does in hardware is unknown.
 
+## What macOS does with these regions after boot (wallace-rex, 2026-10-31)
+
+- **DeviceTree:** read at boot to build the registry, then walked in place and read-only at run time.
+- **TrustCache:** read at boot and again by the run-time trust-cache query path; never written or freed.
+  It must stay reserved (CTRR).
+- **BootKC:** on macOS it is the kernel itself. Linux needs none of these regions for function; reserving
+  them is protection only. The ADT region is already reserved. Reserving the rest of the BootKC slot beyond
+  m1n1 and its payload only matters if CTRR_D covers part of it, and 5015 step 2's D read decides that.
+  **Keep that hypothesis soft:** the enrolled object is `--raw`, so iBoot has no Mach-O segments to derive a
+  const range from. Reserving the whole slot is cheap but is not evidence-driven yet.
+- **preoslog:** mapped on demand by the kernel via the loader-info lookup and only read; iBoot writes its
+  own pre-OS log there (macOS exposes it as `kern.preoslog`). Nothing in the kernel writes it, so keeping it
+  reserved (0005) leaves iBoot's log readable later (a ring with a header; decode TBD).
+
 ## How to check a boot of B (read-only, no rig action needed beyond booting it)
 
 On the booted M4: `perl scripts/t6040-fdt-memreserve.pl` (this change). On the current 5019 boot it
