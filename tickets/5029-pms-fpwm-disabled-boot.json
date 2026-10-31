@@ -2,7 +2,7 @@
   "seq": "5029",
   "slug": "pms-fpwm-disabled-boot",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "pm",
   "priority": "P3",
   "desc": "Boot the 5028 object (/mnt/sd/wallace-5028/wallace-5028.build1.bin, sha256 c0e5d515395ad5c099d573b99b1e0ab91e16f9cca081893a4d3a67fc8eadcc71): 5019 with only the DTB changed, pms_fpwm0..4 status=disabled. CJ enrolls it into /Volumes/m1n1 in 1TR (the enroll-guard allowlist needs the hash first, CJ's call). PASS: no pms_fpwm lines in dmesg and none in pm_genpd_summary, pms still on; the keyboard backlight still works (sio fpwm0); panel brightness unchanged from iBoot's level with no dimming or blanking over a few minutes; everything 5020 checked still passes. STOP: dark or dimmed panel, SError, panic. Rollback: re-enroll 5019 (28127903). Evidence: evidence/2026-10-30-t6040-5028-pmsfpwm-dtb-candidate.md.",
@@ -11,5 +11,8 @@
     "5028"
   ],
   "hashes": null,
-  "created": 1793397452
+  "created": 1793397452,
+  "runnable": false,
+  "approved_by": "cj",
+  "approved_at": 1793480066
 }

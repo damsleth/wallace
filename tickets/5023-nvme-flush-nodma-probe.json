@@ -2,12 +2,15 @@
   "seq": "5023",
   "slug": "nvme-flush-nodma-probe",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "nvme",
   "priority": "P1",
   "desc": "Test whether ANS2 accepts Flush when the NVMMU TCB carries no DMA direction (dma_flags=0 for prp1==0), as mainline/Asahi apple.c and m1n1 c16d3c7 do. 5006 and 211 run 1 used dma_flags FROM_DEVICE (kernel) or 3 (m1n1) and got status 2. Candidate patch patches/t6040-nvme-apple-flush-nodma.patch (opt-in NVME_FLUSH_NODMA=1, builds on the reconstructed base; flushtest Image c8db676a, untested on hardware). First step is an m1n1-side Flush probe with dma_flags=0 (no writes), then the kernel build behind the 5008 gates. If it works, write-through can be dropped and Gravity's delayed-flush throttle (flush_interval) becomes relevant. Not for the daily/5019 object. ADT CONFIRMATION 2026-10-30 (wallace-rex 7061f29): J614s ANS node is role ANS2 with the linear-SQ flag, a secure-BAR flag, 253 queue entries and no coastguard/sppl/sptm flags. macOS probe scores: plain ANS2 = 100000, ANS2 + linear-SQ = 300000, so J614s binds the linear-SQ class. That class inherits its TCB builder from the older coastguard variant: TCB entry zeroed, no direction bits added in the driver, mapped through the iommu layer. So the data-less Flush prediction (TCB all zero, dma_flags 0) applies to J614s own class, not just a sibling. Its submission path matches ours: 64-byte SQE at slot = command ID, dmb ish, then the command ID to 0x2490c (admin) / 0x24910 (IO); linear SQ enabled by writing 1 to 0x24908; an alternate enable register 0x2813c exists when an unknown controller flag is set; max 256 pending commands.",
   "author": "claude",
   "deps": [],
   "hashes": null,
-  "created": 1793357905
+  "created": 1793357905,
+  "runnable": false,
+  "approved_by": "cj",
+  "approved_at": 1793480066
 }

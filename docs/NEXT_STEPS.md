@@ -55,18 +55,26 @@ blocks on CJ, and remove it once it has been done.
        > /etc/ssh/sshd_config.d/10-wallace.conf && rc-service sshd restart
    ```
 
-4. **Approve rig tickets** when you want them run. Tell an agent, or run:
+4. **Run order for the approved rig tickets.** You approved 5015, 5020, 5021, 5023, 5025, 5029 and 5030
+   on 2026-10-31 (recorded with `queue approve … --by cj`), and the enroll guard now allowlists the three
+   objects those tickets name. Approval does not let an agent run them: COORDINATION requires you present
+   for every enrollment, kernel replacement and `maxcpus>1` run, enrolling is a 1TR step only you can do,
+   and the rig (DebugUSB) lives on the Mac. **Every boot or reboot ends all agent sessions on the M4**
+   (including the wallace-rex one), so do one step, then tell an agent the result.
 
-   ```sh
-   scripts/rig-lease.sh queue approve 5021 --by cj   # kexec feasibility (needs 5024 enrolled)
-   scripts/rig-lease.sh queue approve 5025 --by cj   # kexec kernel trial (after 5021)
-   scripts/rig-lease.sh queue approve 5030 --by cj   # boot m1n1 reservation object B (b1b550f3), maxcpus=1
-   scripts/rig-lease.sh queue approve 5015 --by cj   # CTRR_C reads + SMP test (two variants)
-   scripts/rig-lease.sh queue approve 5023 --by cj   # ANS2 Flush with dma_flags 0
-   scripts/rig-lease.sh queue approve 5029 --by cj   # boot 5028 (pms_fpwm disabled; object c0e5d515)
-   ```
+   | step | ticket | what you do | what to tell an agent afterwards |
+   |---|---|---|---|
+   | 1 | **5030** | enroll object B: `TARGET=/Volumes/m1n1 bash scripts/t6040-enroll-guard.sh /Volumes/linux/wallace-5015b/wallace-5015b.build1.bin --confirm-enroll` (hash `b1b550f3…`) from the main macOS, then boot | on Linux: `perl /mnt/sd/code/wallace/scripts/t6040-fdt-memreserve.pl` must say the TrustCache gap is RESERVED and list the new entries; everything 5020 checked still passes |
+   | 1b | 5029 | **or, one visit instead of two:** the combined object `wallace-5015b-pmsfpwm` (`e2292dfa…`: B's m1n1 plus the 5028 DTB). It is **not** allowlisted; say so and an agent adds its hash. | same checks, plus no `pms_fpwm` lines in dmesg and the keyboard backlight still works |
+   | 2 | **5029** | otherwise enroll `/Volumes/linux/wallace-5028/wallace-5028.build1.bin` (`c0e5d515…`) | no `pms_fpwm` lines in dmesg; panel and keyboard backlight unchanged |
+   | 3 | **5015** step 2 | re-enroll the proxy m1n1 (`1394c345…`, the rollback) so the Mac has DebugUSB, then run the sysreg diff twice over the chainloaded m1n1 with the lease: `SYSREG_ARGS=--ctrr` and `SYSREG_ARGS=--idle` (`scripts/t6040-run-sysreg-diff.sh`) | paste the two `sysregs.json` paths; an agent forwards CTRR C/D bounds per CPU and the three idle registers to wallace-rex |
+   | 4 | **5023** | m1n1-side Flush probe with `dma_flags=0`, no writes (needs the proxy m1n1, same visit as 3) | the probe output |
+   | 5 | **5021**, then **5025** | enroll the 5024 object (`02da5165…`, `/Volumes/linux/wallace-5024/wallace-5024.build1.bin`), confirm `/sys/devices/system/cpu/possible` reads `0`, then the kexec phases in the ticket | each phase's result |
+   | 6 | **5015** step 3 | the SMP trial: only on the 217 cow-report RAM-root harness (artifacts are on the Mac), m1n1 variant B or C, never on the NVMe root | the fault log, any fault outside the reserved span |
 
-5. **Enroll the 5024 object** (for 5021; built and verified, `/mnt/sd/wallace-5024/`). Same procedure as
+   Steps 1–2 are low risk and independent. Step 6 can fault the kernel, so it waits for the step 3 reads.
+
+5. **Enroll the 5024 object** (step 5 above; built and verified, `/mnt/sd/wallace-5024/`). Same procedure as
    5019, documented in `docs/LINUX_PARTITION_README.txt` section 1, with the
    5024 file name and hash:
 

@@ -2,7 +2,7 @@
   "seq": "5021",
   "slug": "onboard-kexec-feasibility",
   "needs": "rig",
-  "state": "proposed",
+  "state": "approved",
   "track": "onboard",
   "priority": "P2",
   "desc": "Can the standalone M4 switch kernels with kexec instead of a 1TR enrollment per kernel? First attempt (2026-10-30, 5014/5019 booted with maxcpus=1) was refused by the kernel: CPUs are stuck in the kernel. Cause: no PSCI on Apple (spin-table, no cpu_die), and maxcpus=1 still leaves 14 possible CPUs (possible=0-13, online=0), so arm64 machine_kexec_prepare returns EBUSY. This ticket uses the 5024 object, whose bootargs add nr_cpus=1 (possible=1). CJ present; 1TR enrollment of the 5024 object is a CJ manual step. Phase A, boot 5024: /sys/devices/system/cpu/possible must read 0 (else STOP: nr_cpus did not take), and everything 5020 checked (desktop, WiFi, BLE mouse, pstore, tracing, exFAT clean) still passes. Phase B, same-kernel kexec: write_cache = write through; sync; kexec -l the 5019/5024 Image with the same DTB and initramfs and the IDENTICAL cmdline from 5024 evidence (it must contain nr_cpus=1, or the second kernel cannot kexec again); kexec -e. kernel_kexec runs device_shutdown, so apple_nvme_shutdown should still commit the SSD cache. PASS: the second kernel reaches OpenRC + desktop, NVMe root mounts with exFAT/ext4 clean, WiFi (brcmfmac PCIe re-probe), BT, keyboard/trackpad work, no DART fault, no RTKit crash; then a second kexec from it also works. Record per subsystem what survives the handoff (ANS RTKit restart vs force-clean patch, DART inherited state, simpledrm framebuffer, AIC). pstore across kexec: note the last console line before kexec -e; in the second kernel console-ramoops-0 should hold the first kernel console tail, since kexec does not go through iBoot. Record it either way. STOP and hard power cycle on hang; a power cycle loses DRAM, so expect no pstore record from a hang (ramoops region validated by 5020). Accepted risk: a hang loses the SSD last writes; nothing unsynced may be in flight. Phase C only after B passes: kexec into a new kernel; a follow-on ticket makes this the normal way to try kernels.",
@@ -15,5 +15,8 @@
   "created": 1793349435,
   "evidence": [
     "evidence/2026-10-30-t6040-5019-postboot-and-kexec-plan.md"
-  ]
+  ],
+  "runnable": false,
+  "approved_by": "cj",
+  "approved_at": 1793480066
 }
