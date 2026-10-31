@@ -25,6 +25,10 @@ blocks on CJ, and remove it once it has been done.
    A missing marker is a finding, not a failure. A warm reboot scrubbed DRAM
    on 2026-07-30, and pstore may then only carry records across kexec (5021).
 
+   2026-10-31: the M4 was rebooted since (up 4 minutes when this session began), but not through
+   this script: no marker file, and `/sys/fs/pstore` was empty. That fits the DRAM scrub but it is
+   not the planned test, so 5020 is still open.
+
 2. **Push the reconstructed kernel base** (on the Mac). 5019 was built from
    `wallace/reconstructed-4f24291` (`6d2e54a0d`), which exists only in
    `/Volumes/CaseSensitive/linux`. Without it nobody else can rebuild the
@@ -34,19 +38,11 @@ blocks on CJ, and remove it once it has been done.
    cd /Volumes/CaseSensitive/linux && git push origin wallace/reconstructed-4f24291
    ```
 
-2b. **Push the enrolled m1n1 source** (on the Mac). The m1n1 inside 5014/5019
-   (`bf4b2462…`, version `v1.6.0-wallace-80badc91`) was built from
-   `80badc91e62c8b4228a857730f160ffb62a29335`, which is not on GitHub
-   (`damsleth/m1n1` has only `main` at `16b1f61`). Until it is pushed, nobody
-   can rebuild that m1n1 or put the 5015 CTRR_C series on it, on the M4 or
-   anywhere else:
-
-   ```sh
-   cd ~/code/m1n1 && git push origin 80badc91e62c8b4228a857730f160ffb62a29335:refs/heads/wallace/enrolled-80badc91
-   ```
-
-   If the window-free build used local flags or uncommitted files, note them in
-   the 5015 ticket.
+2b. **Record how the enrolled m1n1 was built** (on the Mac). `80badc91` is now on `damsleth/m1n1`
+   `main` (PR #1), so the source is reachable and the 5015 m1n1 objects could be built here. They were
+   built with gcc on the M4 and cannot match `bf4b2462` byte for byte because the Mac build used LLVM and
+   flags that are not written down anywhere in the repo. Add the compiler version and the exact
+   `make` line to ticket 5015 (or just rebuild patches 0001–0005 on the Mac and tell an agent).
 
 3. **Decide on the live sshd.** The running root listens on port 22 with
    `PermitRootLogin yes`, a root password, and no `authorized_keys`, so it
@@ -64,6 +60,7 @@ blocks on CJ, and remove it once it has been done.
    ```sh
    scripts/rig-lease.sh queue approve 5021 --by cj   # kexec feasibility (needs 5024 enrolled)
    scripts/rig-lease.sh queue approve 5025 --by cj   # kexec kernel trial (after 5021)
+   scripts/rig-lease.sh queue approve 5030 --by cj   # boot m1n1 reservation object B (074fa8bc), maxcpus=1
    scripts/rig-lease.sh queue approve 5015 --by cj   # CTRR_C reads + SMP test (two variants)
    scripts/rig-lease.sh queue approve 5023 --by cj   # ANS2 Flush with dma_flags 0
    scripts/rig-lease.sh queue approve 5029 --by cj   # boot 5028 (pms_fpwm disabled; object c0e5d515)
@@ -95,15 +92,24 @@ blocks on CJ, and remove it once it has been done.
    cd ~/code/wallace && git fetch && git reset --hard origin/main
    ```
 
+7. **Remove three empty directories** on the M4. I created them by mistake (a patch export to a path
+   that exists only inside the build chroot) and the safety check, rightly, wouldn't let me remove
+   `/build`. Run `rmdir /build/m1n1-out/patches /build/m1n1-out /build`; it refuses if anything is left.
+
+
 ## Device bring-up map (2026-10-30, CJ's new scope)
 
 Panel brightness, HDMI, USB-C beyond VBUS, GPU, ANE and Touch ID are mapped on both sides:
 [live and Wallace](../evidence/2026-10-30-t6040-device-map-live.md) and
 [macOS abstract](../evidence/2026-10-30-t6040-device-map-macos-abstract.md). The keyboard
 backlight works. Touch ID is not feasible (SEP-encrypted sensor link). Almost every next step
-needs the J614s ADT: 5027 (`MTD_PHRAM`) or the Mac dump. Panel brightness (164) is the nearest
-win; the ADT decides between its SPMI, PWM, DWI and I2C variants. 5028 tracks the `pms_fpwm`
-domains that won't power on.
+needed the J614s ADT, which has now been read (wallace-rex `adt/`, 2026-10-31). Results: panel
+brightness (164) is **DCP-driven**: the ADT has no backlight executor or SPMI slave for the AP, so
+it waits for DCP (022, blocked on the macOS 26.x ABI). `pms_fpwm0..4` are confirmed
+firmware-owned (5028, disabled-DTB object built; boot is 5029). The memory-map also named the 384 KiB
+TrustCache gap behind 205, and the rest of iBoot's chain (5015, m1n1 objects built; boot check is
+5030). 5027 (`MTD_PHRAM`, `PROC_KCORE`) is still worth carrying in the next kernel for the live ADT, the
+m1n1 log and `/proc/kcore`.
 
 ## 0. The current objective: a practical daily driver
 

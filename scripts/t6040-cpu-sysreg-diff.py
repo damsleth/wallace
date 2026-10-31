@@ -19,6 +19,8 @@ record of which (cpu, register). This version (Mythos's run-2 plan):
   code buffer's physical address (run 2 took an IABT on the RX_EL1 alias),
   and a single NOP call is checked on each secondary before any read;
 - side-effecting registers are never read (EXCLUDE).
+- ``--ctrr`` reads only the CTRR set and ``--idle`` only the WFI power-down state (5015 step 2);
+  pass them through SYSREG_ARGS of the wrapper.
 Linux rewrites SCTLR/TCR/MAIR per core in __cpu_setup; rows that can carry
 a 205 finding are those Linux never writes: ACTLR_EL2, HCR_EL2, ID registers
 and the impdef configuration registers.
@@ -95,6 +97,22 @@ def ctrr_regs():
     return regs
 
 
+def idle_regs():
+    """5015 step 2 (wallace-rex 94ea32e, c37b6f0): the per-CPU idle/power-down state. macOS idles a
+    secondary with a plain WFI that keeps state; before a power-down WFI loop it arms SIQ_CFG_EL1[1:0]=3
+    and clears bit 0 of s3_1_c15_c7_4 (shallow), or sets bits 0 and 63 of s3_5_c15_c6_2 (deep), and the
+    per-CPU entry writes SIQ_CFG_EL1 = 0. m1n1 on M4 writes none of these, so a parked secondary may be
+    left with power-down armed (the idea behind broken_wfi and idle=nop). Dict order is read order: the
+    known register first, the deep-sleep arm last. Compare cpu0 (boot) with cpu1 (E) and cpu5 (P)."""
+    return {
+        "IMP_APL_SIQ_CFG_EL1": (3, 4, 15, 10, 4),
+        "S3_4_C15_C14_6 (AGTCNTRDIR_EL12; macOS sets 3, m1n1 0)": (3, 4, 15, 14, 6),
+        "S3_4_C15_C9_6 (timebase event stream; macOS ORs (index<<4)|0xf)": (3, 4, 15, 9, 6),
+        "S3_1_C15_C7_4 (shallow power-down: macOS clears bit 0, never sets it)": (3, 1, 15, 7, 4),
+        "S3_5_C15_C6_2 (deep power-down: macOS sets bits 0 and 63)": (3, 5, 15, 6, 2),
+    }
+
+
 def impdef_first_pass():
     regs = {}
     src = open("/Users/damsleth/code/m1n1/src/cpu_regs.h").read()
@@ -150,6 +168,8 @@ def main() -> int:
     ap.add_argument("--out", required=True)
     ap.add_argument("--cpus", default="0,1,5")
     ap.add_argument("--ctrr", action="store_true", help="read only arch ID regs + the CTRR set")
+    ap.add_argument("--idle", action="store_true",
+                    help="read only arch ID regs + the WFI power-down state registers (5015 step 2)")
     a = ap.parse_args()
     PROGRESS = open(a.out + ".progress", "w")
     print("== identity gate ==", flush=True)
@@ -176,7 +196,7 @@ def main() -> int:
             print(f"cpu{c}: NOP call raised {e}; aborting before any register read", flush=True)
             return 3
     regs = dict(ARCH)
-    regs.update(ctrr_regs() if a.ctrr else impdef_first_pass())
+    regs.update(ctrr_regs() if a.ctrr else idle_regs() if a.idle else impdef_first_pass())
     print(f"first pass: {len(regs)} registers on cpus {cpus}", flush=True)
     data, hung = {c: {} for c in cpus}, {}
     for c in cpus:
