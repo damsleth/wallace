@@ -1,0 +1,54 @@
+From 5f685597c31f2f339ac8363ef6532961a5b7ae8d Mon Sep 17 00:00:00 2001
+From: CJ Damsleth <kim@damsleth.no>
+Date: Sat, 31 Oct 2026 21:05:05 +0100
+Subject: [PATCH] kboot: reserve the SEP and coprocessor firmware chain named
+ by the ADT memory-map
+
+On T6040 (J614s) iBoot places RTBuddySeg, SEPFW, SEPPatches, uStuff, preoslog
+and BootArgs in the same physical block as the ADT and TrustCache, inside the
+DRAM range m1n1 declares usable. dt_set_sep() reserves SEPFW only when the DT
+has a sep node, which J614s does not, so Linux hands all of them to the page
+allocator. Reserve them by name next to TrustCache, rounded to 16 KiB. Missing
+entries are logged and skipped. Hygiene: the 205 fault is a permission fault,
+which points at CTRR, not at these regions.
+
+Signed-off-by: CJ Damsleth <kim@damsleth.no>
+---
+ src/kboot.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/src/kboot.c b/src/kboot.c
+index b3b4ddd..ff6f3b3 100644
+--- a/src/kboot.c
++++ b/src/kboot.c
+@@ -2817,6 +2817,27 @@ int kboot_prepare_dt(void *fdt)
+         } else {
+             printf("FDT: no TrustCache in /chosen/memory-map, not reserving it\n");
+         }
++
++        // iBoot's memory-map also names the SEP/coprocessor firmware chain (SEPFW, SEPPatches,
++        // uStuff, preoslog, BootArgs, RTBuddySeg) inside the DRAM range declared usable above.
++        // dt_set_sep() only reserves SEPFW when the DT has a "sep" node, which J614s does not,
++        // so Linux would otherwise hand these pages to the allocator. Reserve them by name too.
++        static const char *const fw_regions[] = {"SEPFW", "SEPPatches", "uStuff", "preoslog",
++                                                 "BootArgs", "RTBuddySeg"};
++        for (size_t i = 0; i < sizeof(fw_regions) / sizeof(fw_regions[0]); i++) {
++            u64 fw[2];
++            if (anode_mmap < 0 ||
++                (size_t)ADT_GETPROP_ARRAY(adt, anode_mmap, fw_regions[i], fw) != sizeof(fw) ||
++                !fw[1] || fw[0] == ~0UL) {
++                printf("FDT: no %s in /chosen/memory-map, not reserving it\n", fw_regions[i]);
++                continue;
++            }
++            u64 fw_start = ALIGN_DOWN(fw[0], SZ_16K);
++            u64 fw_end = ALIGN_UP(fw[0] + fw[1], SZ_16K);
++            printf("FDT: reserving %s 0x%lx..0x%lx\n", fw_regions[i], fw_start, fw_end);
++            if (fdt_add_mem_rsv(dt, fw_start, fw_end - fw_start))
++                bail("FDT: couldn't add reservation for %s\n", fw_regions[i]);
++        }
+     }
+ 
+     /* setup console log buffer early to capture as much log as possible */
+-- 
+2.54.0
+

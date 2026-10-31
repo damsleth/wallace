@@ -9,6 +9,7 @@ OBJECT, or the split is wrong (ticket 5024).
 
     t6040-rebootargs-object.py OBJECT --dtb board.dtb --initramfs initramfs.cpio.gz \
         --outdir DIR [--bootargs '<new args>' | --prepend 'nr_cpus=1'] [--replace-dtb new.dtb]
+        [--replace-m1n1 m1n1.bin]
 """
 
 from __future__ import annotations
@@ -35,6 +36,8 @@ def main() -> int:
     p.add_argument("--name", default="object.bin", help="output object file name")
     p.add_argument("--replace-dtb", type=Path,
                    help="rebuild with this DTB instead of --dtb (a DT-only variant)")
+    p.add_argument("--replace-m1n1", type=Path,
+                   help="rebuild with this m1n1.bin instead of the one inside OBJECT")
     a = p.parse_args()
 
     obj = a.object.read_bytes()
@@ -51,7 +54,7 @@ def main() -> int:
 
     a.outdir.mkdir(parents=True, exist_ok=True)
     m1n1, kernel = a.outdir / "m1n1.bin", a.outdir / "Image.gz"
-    m1n1.write_bytes(obj[:start])
+    m1n1.write_bytes(a.replace_m1n1.read_bytes() if a.replace_m1n1 else obj[:start])
     kernel.write_bytes(obj[nl:dtb_at])
     new = a.bootargs if a.bootargs is not None else (
         f"{a.prepend} {old}" if a.prepend else old)
@@ -67,7 +70,7 @@ def main() -> int:
     print(f"old bootargs: {old}")
     print(f"new bootargs: {new}")
     print(f"{h}  {out}")
-    if new == old and not a.replace_dtb and out.read_bytes() != obj:
+    if new == old and not a.replace_dtb and not a.replace_m1n1 and out.read_bytes() != obj:
         sys.exit("rebuild with unchanged bootargs differs from the input object")
     return 0
 
