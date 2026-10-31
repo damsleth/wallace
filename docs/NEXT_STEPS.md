@@ -95,6 +95,9 @@ blocks on CJ, and remove it once it has been done.
 7. **Remove three empty directories** on the M4. I created them by mistake (a patch export to a path
    that exists only inside the build chroot) and the safety check, rightly, wouldn't let me remove
    `/build`. Run `rmdir /build/m1n1-out/patches /build/m1n1-out /build`; it refuses if anything is left.
+   Also remove one empty file I created at the filesystem root by a typo, which the same check blocked:
+   `rm /build-new-block.txt`. And `/mnt/sd/superseded-20261031/` holds the first 5015 objects (before the
+   review fix); delete it when convenient, but do not enroll anything from it.
 
 
 ## Device bring-up map (2026-10-30, CJ's new scope)
