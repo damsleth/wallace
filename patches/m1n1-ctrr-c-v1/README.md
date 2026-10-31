@@ -9,6 +9,8 @@ the original authors kept:
 | 0002 | `442c7a2` cpu_regs: Add CTRR/CTXR sysregs used by SPTM | Sven Peter |
 | 0003 | `00b8814` kboot: Fix M4* boot under hypervisor | Janne Grunau |
 | 0004 | local, not upstream | CJ Damsleth (AI-written, see below) |
+| 0005 | local, not upstream | CJ Damsleth (AI-written): reserve the SEP/coprocessor chain |
+| 0006 | local, not upstream | CJ Damsleth (AI-written): PMGR clusters-table start bit, optional |
 
 Apply them in order to the m1n1 fork (`git am`). After 0003, kboot reads
 `CTRR_C_{LWR,UPR}_EL1` (`s3_0_c11_c0_{0,1}`) on the boot CPU and adds an FDT
@@ -29,12 +31,24 @@ reservations this covers the whole measured window, whatever CTRR_C reads.
 0004 is AI-written (claude, 2026-10-31) and stays in this fork. Upstream
 m1n1's `AGENTS.md` forbids AI-generated contributions, so never send it
 upstream. It was written against upstream `main` at `1483995`, where 0001–0003
-are already present. It passes a syntax-only clang check; it has not been
-built or run. Review: `evidence/2026-10-31-review-5015-0004-codex.md`.
+are already present. It passes a syntax-only clang check, and on 2026-10-31 0001–0006 were built natively
+(gcc 12.2, `damsleth/m1n1` `80badc91` and `main` `214f93d`); not run on hardware. Review: `evidence/2026-10-31-review-5015-0004-codex.md`.
+
+## 0005 and 0006 (local, 2026-10-31)
+
+0005 reserves the other firmware regions iBoot names in `/chosen/memory-map` next to the
+TrustCache: RTBuddySeg, SEPFW, SEPPatches, uStuff, preoslog, BootArgs. `dt_set_sep()` would reserve
+SEPFW only with a `sep` node in the DT, which J614s lacks. It is hygiene, not the 205 fix (205 is a
+permission fault, the CTRR signature). 0006 is optional and separate: m1n1 sets the `+0x4`
+started-cores bit as `1 << (4 * cluster + core)`, but macOS takes it from the PMGR `clusters` table
+(`bitpos + core`), which is E 4@0, P 6@4, P 6@10 on J614s, so the five P1 cores get bits 8..12
+instead of 10..14. Both are AI-written and stay in this fork. Evidence and objects:
+`evidence/2026-10-31-t6040-5015-m1n1-reservation-objects.md`.
 
 ## Prerequisite
 
-0001 is gated on `!cpu_features->apple_sysregs_unlocked`. That comes from
+0001 is gated on `!cpu_features->apple_sysregs_unlocked` (T6040's cores use `features_m4`, which
+does not set it, so the block runs on J614s; checked 2026-10-31). That comes from
 Asahi's June 2026 `cpu_features` work (`f3f2ca0` P_GET_CPU_FEATURES, `29073cce`
 "chickens: rename cyc_ovrd to apple_sysregs_unlocked"). If our fork predates
 it, `git am` will fail on 0001. In that case either rebase onto it, or, for a
@@ -53,5 +67,6 @@ UPR the last byte, the last page, or exclusive?
 
 ## Status
 
-Exported 2026-10-29 (0001–0003) and written 2026-10-31 (0004). Not applied to the fork, built or run. See
+Exported 2026-10-29 (0001–0003), written 2026-10-31 (0004–0006). Applied and built on the M4 (three
+standalone objects, none booted); `damsleth/m1n1` itself does not carry them yet. See
 `evidence/2026-10-29-gravitylinux-survey.md` and ticket 5015.
