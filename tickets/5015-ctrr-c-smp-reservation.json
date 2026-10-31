@@ -12,5 +12,6 @@
   "created": 1793311254,
   "evidence": [
     "evidence/2026-10-30-t6040-5015-ctrr-macos-abstract-and-live-layout.md"
-  ]
+  ],
+  "note": "2026-10-31 ADT READOUT (j614s 2026-07-28 dump, offline, unconfirmed on rig): /chosen/memory-map has an entry 'TrustCache' at exactly [adt_end, adt_end + 0x60000), followed by the booted image (m1n1 + payload). So the 384 KiB unreserved gap where every first fault lands is iBoot's static trust cache region, and the 5012 secondary-only deny window lies inside it. Fits a CTRR range that covers the trust cache. Fix direction unchanged (reserve, don't unlock), with a third carve-out variant: m1n1 reserves the memory-map 'TrustCache' range by name instead of adt_end arithmetic. Step 2 prediction: CTRR_C LWR/UPR on a secondary bound a subset of [TrustCache start - 1 ADT page, TrustCache end). The second fault (0x10006724f90, 2026-07-29) is not in any fixed firmware range; it needs the live ADT of a faulting boot (5027)."
 }
