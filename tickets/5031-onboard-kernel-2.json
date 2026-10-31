@@ -1,0 +1,16 @@
+{
+  "seq": "5031",
+  "slug": "onboard-kernel-2",
+  "needs": "offline",
+  "state": "open",
+  "track": "onboard",
+  "priority": "P2",
+  "desc": "Next onboard kernel, built on the Mac (Image takes hours on the M4's single online CPU; only DT-only and m1n1-only variants are built on-device). Same base and flags as 5019 (reconstructed base wallace/reconstructed-4f24291 = 6d2e54a0d, the 2234baad flag set, T6040_BLE_HID=1, T6040_ONBOARD_DEBUG=1) with the asserted onboard set now including MTD_PHRAM and PROC_KCORE (scripts/t6040-kbuild.sh, 5027; kbuild fails the build if either is not =y), plus the DTB dts/t6040-j614s-dcuart-wifi-cpufreq-nvmeroot-ramoops-pmsfpwm.dts (5028: pms_fpwm0..4 disabled; DTB 5e7984f8e3a714c1 as built on the M4, must reproduce byte for byte). Initramfs 82a86064 and bootargs unchanged from 5019 (maxcpus=1, NO nr_cpus; the kexec cmdline variant is made afterwards with scripts/t6040-rebootargs-object.py --prepend nr_cpus=1). m1n1 stays the enrolled one until 5030 passes. Deliverable: two byte-identical builds, preflight OK, strict verify PASS, a new standalone object, hashes in evidence. Why one build: the next enrollment then gives CJ the live ADT as /dev/mtdN (adt and m1n1_stage2.log phram nodes), /proc/kcore (RAM only, read-only), and a boot without the five pms_fpwm errors, without more 1TR visits. Verify on boot (rig ticket to follow): cat /proc/mtd lists adt and m1n1_stage2.log; two reads of the adt device hash the same and the header parses (wallace-rex tools/adt-dump.pl); /proc/kcore exists with PT_LOAD for both RAM blocks; dmesg has no pms_fpwm lines; everything 5020 checked still passes. Read-only use of phram and kcore only; never write, erase or mount the mtd devices.",
+  "author": "claude",
+  "deps": [
+    "5027",
+    "5028"
+  ],
+  "hashes": null,
+  "created": 1793477785
+}

@@ -1,0 +1,13 @@
+{
+  "seq": "5032",
+  "slug": "smc-hwmon-sensors-j614s",
+  "needs": "offline",
+  "state": "open",
+  "track": "pm",
+  "priority": "P3",
+  "desc": "Temperatures and fans in Linux (daily-driver thermal visibility, needed before SMP). Live today: macsmc-power works (battery 91%, charging, 464 cycles, AC), but dmesg has 'macsmc-hwmon: Failed to locate of_node' and 'macsmc-low-gpio: Failed to locate of_node': the SMC DT node (dts/t6040.dtsi, children gpio, reboot, rtc only) has no hwmon child, so the built-in macsmc-hwmon driver binds nothing and /sys/class/hwmon shows only macsmc_battery and macsmc_ac. The ADT does not enumerate sensor or fan keys (one smctempsensor node). POLICY: AGENTS.md permits only smc_reboot, smc_rtc and the gP13/gP19 GPIOs; any other key needs a fresh recorded exception, and COORDINATION says the unreviewed-SMC rule covers reads too. A hwmon node makes the kernel poll every listed key, so the key list must be reviewed. STEPS: (1) offline, on the Mac: collect candidate key sets from reference DTs that carry macsmc hwmon blocks (Asahi M2/M3/M4-era MacBook Pro DTs, Gravity T6041), cherry-pick per the no-upstream policy, keep authorship; record exact 4-character keys, types and units. (2) CJ-approved read-only SMC key-existence check on the rig (m1n1 smc, key info and read only, exact candidate keys only, no enumeration of unknown keys, no writes), recorded as an exception with the key list in the ticket. (3) Offline: a hwmon node under the SMC node with only the confirmed keys (temperature-*, fan-* with apple,key-id and label), built as a DT-only variant on the M4 like 5028, then boot-verify that /sys/class/hwmon gains macsmc_hwmon with plausible values (no write, no fan control). Fans: read-only; never write fan target or mode keys. Needs CJ approval of the exception before step 2.",
+  "author": "claude",
+  "deps": [],
+  "hashes": null,
+  "created": 1793477844
+}
