@@ -240,6 +240,23 @@ the discipline around them.
   `80badc91` reserves nothing there, and the 384 KiB from the ADT end to m1n1
   `_base` is allocatable RAM. 5015 tests a reservation of the fixed span `[adt_end, adt_end + 0x60000)`.
   [Evidence](../evidence/2026-10-30-t6040-5015-ctrr-macos-abstract-and-live-layout.md).
+- **iBoot's memory-map chain (2026-10-31, from the ADT).** DeviceTree, TrustCache (`0x60000`), the BootKC
+  slot (where m1n1 and its payload live), RTBuddySeg, SEPFW, SEPPatches, uStuff, preoslog and BootArgs
+  are laid out back to back by iBoot, and m1n1 declares all of it usable RAM
+  (`[phys_base, phys_base + mem_size]`). `dt_set_sep()` is the only reservation for any of it and returns
+  early without a `sep` DT node, so on J614s nothing but m1n1, the ADT copy and the initrd was reserved.
+  The TrustCache gap is where 205's first fault lands (the allocator hands out the lowest free page
+  first). 205 is a level-3 *permission* fault, the CTRR signature, so a memory-controller carve-out is
+  unlikely for the later fault; C and D bounds are the lead. m1n1 patches 0004/0005 reserve the chain by
+  name. [Evidence](../evidence/2026-10-31-t6040-5015-m1n1-reservation-objects.md).
+- **m1n1 `+0x4` start bit (2026-10-31).** macOS takes it from the PMGR `clusters` table (E 4@0, P 6@4,
+  P 6@10 on J614s; each P cluster has core 5 fused off), m1n1 from `4 * cluster + core`, which is wrong
+  for the five P1 cores (bits 8..12 instead of 10..14). m1n1 says the bit is needed for IRQs. Patch 0006,
+  optional.
+- **WFI on M4 secondaries (hypothesis, wallace-rex).** macOS idles with a plain state-keeping WFI and arms
+  power-down separately (SIQ_CFG_EL1[1:0]=3, bit 0 of s3_1_c15_c7_4 cleared, or bits 0 and 63 of
+  s3_5_c15_c6_2). m1n1 on M4 writes none of them, so parked secondaries may keep power-down armed, which
+  would explain `broken_wfi` and `idle=nop`. Test: read them with `SYSREG_ARGS=--idle`.
 - **WFxT:** the CPU has FEAT_WFxT. `flokli-code.patch` with `idle=nop` skips
   WFIT in `__delay()` but still loops on WFET; only `arm64.nowfxt` removes both.
   Daily cmdlines do not have it yet.
