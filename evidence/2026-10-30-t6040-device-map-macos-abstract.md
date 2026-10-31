@@ -87,6 +87,30 @@ always-on (relevant to 5028).
   pre-loaded and firmware-protected (CTRR class). m1n1 must reserve them no-map, or Linux can
   allocate them. Check against `/proc/iomem` once the ADT is available.
 
+## Audio (roadmap, no ticket; wallace-rex `d6289bd`, 2026-10-31)
+
+Feasible, nothing blocked, but a different model from M1/M2.
+
+- **MCA (I2S/clock) is programmed by the AOP firmware, not the AP.** There is no AP-visible MCA node.
+  The AP sends the AOP a 109-byte MCA config as a property on a per-stream node, then moves the stream
+  idle → active → running (and back) through another property. Stream nodes are addressed by ADT
+  FourCCs (`spkr`, `cout`, `cin`, `hpai`). Transport is the AOP SPU app interface `AOPAudioService`:
+  packets have a `0x24`-byte header (`0xffffffff`, command ID, an XOR checksum of the payload words at
+  `+0x18`, total length at `+0x1c`); command IDs `0xC3000004` get property, `0xC3000005` set property,
+  `0xC3000008` events. Asahi's M2 AOP microphone driver is the closest precedent.
+- **ADMAC is AP-driven**: `admac,t604x` at `0x313800000` (IRQ 754) and `0x313300000` (IRQ 757), behind the
+  AOP's DART (SIDs 8 and 10). Global start/stop/IRQ registers match the classic ADMAC. New: separate TX and
+  RX channel banks (TX n at `0x8000 + n*0x200`, RX n at `0xC000 + n*0x200`; the classic layout
+  interleaves them) and a third per-channel FIFO (TD `0x10000`/`0x14000`, CS `+0x100`, new PCT `+0x200`).
+  The descriptor format is not decoded, so `apple-admac` needs a T604x variant.
+- **Amps and jack:** six SN012776 speaker amps on AP I2C (left i2c1 `0x38`-`0x3a`, right i2c3
+  `0x3b`-`0x3d`, GPIO reset); macOS's init has the same test-page quirk as Linux `tas2764`'s SN012776
+  support. I/V sense returns on an ADMAC RX channel. Jack codec CS42L84 on i2c2 `0x4b` (Linux `cs42l84`
+  exists), needing MCLK/BCLK from the MCA.
+- Exclaves are off on J614s (ADT `exclaves-enabled = 0`), so mic and speaker paths are not isolated.
+- First safe rig step when wanted: a read-only AOP property get (state) on node `spkr`. Prerequisite:
+  an AOP RTKit/SPU client in Linux. Not urgent against 205/305/5006.
+
 ## Touch ID: not feasible
 
 The OS talks to the sensor over SPI, but all capture data and commands are encrypted under a
