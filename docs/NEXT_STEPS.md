@@ -120,9 +120,11 @@ unambiguously:
 | Bluetooth | `hci0` present and working |
 | Trackpad | **DONE 2026-08-19** (230): finger test PASSED — 37 950 events on `/dev/input/event0` and haptic click works. Daily-image integration remains (301) |
 
-**Upstream reporting is explicitly deferred** — CJ: "we are not doing any
-upstream reporting just now." Sections below that call an upstream report the
-highest-value action are describing engineering value, not current priority.
+**No upstream contributions (CJ, 2026-10-31).** Asahi's generative-AI policy
+forbids LLM-made contributions, and this project is agent-built, so Wallace
+maintains its own forks (m1n1, kernel) and cherry-picks from Asahi, Gravity
+and other forks. Sections below that mention an upstream report or
+upstream-shaped series are historical.
 
 Standing constraints for autonomous work:
 
@@ -261,8 +263,8 @@ Established (mechanism detail and method in [DEVLOG.md](DEVLOG.md) "CPU" and
 
 Do next:
 
-1. Preserve an upstream-quality draft of the reproducer and 207/208 results
-   (3002); external reporting remains deferred. Use 6002 to compare relevant
+1. Preserve a self-contained write-up of the reproducer and 207/208 results
+   (3002) for our own use; it is not sent upstream. Use 6002 to compare relevant
    upstream CPU changes without claiming they fix the runtime fault.
 2. Ticket 217 (offline): build the byte-reproducible, storage-free diagnostic
    initramfs around the uninstrumented control Image and prove the stock

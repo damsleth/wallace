@@ -95,8 +95,8 @@ Open:
   symptom are not fixes;
 - prove stable 14-core userspace;
 - add a safe cpuidle/retention contract;
-- keep generated DTs and the upstream-shaped patch series synchronized;
-- prepare narrow, proven changes for upstream; posting remains deferred.
+- keep generated DTs and our fork's curated patch series synchronized;
+- no upstream submission (Asahi LLM policy, 2026-10-31); cherry-pick from other forks instead.
 
 ## D. Local usable machine
 

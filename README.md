@@ -3,8 +3,10 @@
 Project Wallace is bringing Linux to the 14-inch M4 Pro MacBook Pro: Apple
 Mac16,8 / J614s, built around the T6040 “Brava Chop” SoC. The project
 tracks the board description, kernel and m1n1 changes, build tooling, experiments,
-and evidence needed to turn first-boot support into a reliable upstream-quality
-Linux system.
+and evidence needed to turn first-boot support into a reliable Linux system.
+Wallace maintains its own m1n1 and kernel forks and does not contribute to
+Asahi Linux: the work is agent-built, which Asahi's
+[generative-AI policy](https://asahilinux.org/slop/) forbids.
 
 This is experimental bring-up work, not a ready-to-install distribution. There
 is no public installer image yet, and the machine is not ready to replace macOS
@@ -81,8 +83,8 @@ live in [docs/ROADMAP.md](docs/ROADMAP.md).
 ## Current priorities
 
 **The current objective is a practical daily driver** (CJ, 2026-08-03): SD, USB,
-NVMe, WiFi, Bluetooth and the trackpad all working unambiguously. Upstream
-reporting is explicitly deferred until that is reached.
+NVMe, WiFi, Bluetooth and the trackpad all working unambiguously. There is no
+upstream reporting (see above).
 
 1. **Multi-core (205/5015):** reserve the firmware-locked memory window after the
    ADT and retest SMP with `idle=nop arm64.nowfxt`. The macOS kernel confirms the

@@ -12,9 +12,13 @@ The code lives in sibling repos under `~/code/`.
 
 **Current objective (CJ, 2026-08-03):** a practical daily driver with SD, USB
 read/write, NVMe read/write, WiFi, Bluetooth, and trackpad all working
-unambiguously. **Upstream reporting is deferred** — where older docs call an
-upstream report the highest-value action, that is engineering value, not current
-priority. NVMe writes are confined to the exFAT `linux` partition, verified by
+unambiguously. **No upstream contributions, ever** (CJ, 2026-10-31). Asahi Linux's
+generative-AI policy (https://asahilinux.org/slop/) forbids LLM-made material
+contributions, and nearly all Wallace and Wallace-REX work is agent-made, so
+none of it can go to mainline m1n1, Asahi's kernel or other Asahi repos.
+Wallace keeps its own forks and cherry-picks what it needs from Asahi,
+Gravity and others; older docs that call an upstream report valuable are
+historical. NVMe writes are confined to the exFAT `linux` partition, verified by
 label *and* GPT type, aborting on mismatch.
 
 Live status, the six-capability table, and current priorities are in
@@ -81,7 +85,7 @@ gates remain in NEXT_STEPS and the queue. The official
 |---|---|---|
 | `~/code/wallace` | this repo | plans, docs, scripts/, patches/, dts/, evidence/ |
 | `~/code/m1n1` | m1n1 fork (branch `main`) | bootloader + proxyclient; per-dir AGENTS.md files carry the **hardware safety rules** and code-level knowledge |
-| `~/code/m1n1-clean` | worktree, branch `t6040-bringup` | curated code-only commit series (upstream-shaped); keep in sync with m1n1 `src/` changes |
+| `~/code/m1n1-clean` | worktree, branch `t6040-bringup` | curated code-only commit series for our fork (never sent upstream); keep in sync with m1n1 `src/` changes |
 | `~/code/linux` | kernel tree, branch `wallace/t6040-bringup` in `damsleth/linux`, based on AsahiLinux `asahi-wip` | t6040 DT files live here (partly uncommitted); code changes go via `patches/` applied by kbuild — NOT as tree edits (builds use committed state + copied DT files only); remotes are `origin` (damsleth), `asahi`, `yuka`, and `torvalds` |
 | `~/code/linux-build-out` | build artifacts (`/out` in the kbuild container) | Image/DTBs/initramfs; copy `scripts/t6040-kbuild.sh` + `patches/*.patch` here before building |
 | `~/code/macvdmtool` | patched fork | DebugUSB entry + remote reboot (`sudo -n /usr/local/bin/macvdmtool`, NOPASSWD) |
@@ -109,7 +113,8 @@ gates remain in NEXT_STEPS and the queue. The official
   Any other key needs a fresh recorded exception.
 - Never blind-probe MMIO. Derive addresses from the ADT; a wrong offset can
   raise an async SError and kill m1n1.
-- Never post externally (GitHub/IRC) — draft only; the maintainer posts.
+- Never post externally (GitHub/IRC). Nothing goes to Asahi repos or channels at all
+  (LLM policy above); other external posts are drafts only, and the maintainer posts.
 - The remote dev loop is sanctioned: reboot/chainload/boot via
   `scripts/t6040-debugusb-console.sh [reboot]` + `scripts/t6040-boot-dcuart.sh`.
   Follow DEVLOG's pty discipline or the link will look dead.
